@@ -16,12 +16,12 @@
       <form class="multiStepForm form-group" id="roleEditGroupRightsMultistepForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
         <div>
           <ul id="progressbar">
-            <li style="width: 50%;" class="active">Eigene Rechte an anderen Gruppen</li>
-            <li style="width: 50%;">Rechte anderer Gruppen an gew&auml;hlter Gruppe</li>
+            <li style="width: 50%;" [class.active]="currentStep >= 1" (click)="goToStep(1)">Eigene Rechte an anderen Gruppen</li>
+            <li style="width: 50%;" [class.active]="currentStep >= 2" (click)="goToStep(2)">Rechte anderer Gruppen an gew&auml;hlter Gruppe</li>
           </ul>
         </div>
 
-        <fieldset>
+        <fieldset [hidden]="currentStep !== 1">
           <h2 class="fs-title">Zugewiesene admnistrative Rechte</h2>
           <div class="box box-info collapsed-box">
             <div class="box-header">
@@ -41,12 +41,26 @@
 
           <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
-              <div id="editAuthorityGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+              <ag-grid-angular
+                id="editAuthorityGroupRoleManagementTable"
+                class="ag-theme-alpine"
+                style="width: 100%; height: 45vh;"
+                [columnDefs]="authorityColumnDefs"
+                [rowData]="authorityRowData"
+                [defaultColDef]="authorityDefaultColDef"
+                [components]="authorityRoleManagementTableOptions?.components"
+                [gridOptions]="authorityGridOptions">
+              </ag-grid-angular>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <div class="col-md-12">
+              <button type="button" class="btn btn-primary pull-right" (click)="nextStep()">Weiter</button>
             </div>
           </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset [hidden]="currentStep !== 2">
           <h2 class="fs-title">Delegierte administrative Rechte</h2>
           <div class="box box-info collapsed-box">
             <div class="box-header">
@@ -75,7 +89,21 @@
               </div>
             </div>
             <div class="col-md-12 col-sm-12 col-xs-12">
-              <div id="editDelegatedGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+              <ag-grid-angular
+                id="editDelegatedGroupRoleManagementTable"
+                class="ag-theme-alpine"
+                style="width: 100%; height: 45vh;"
+                [columnDefs]="delegatedColumnDefs"
+                [rowData]="delegatedRowData"
+                [defaultColDef]="delegatedDefaultColDef"
+                [components]="delegatedRoleManagementTableOptions?.components"
+                [gridOptions]="delegatedGridOptions">
+              </ag-grid-angular>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <div class="col-md-12">
+              <button type="button" class="btn btn-default" (click)="prevStep()">Zur&uuml;ck</button>
             </div>
           </div>
         </fieldset>

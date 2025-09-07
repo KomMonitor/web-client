@@ -25,6 +25,30 @@ export class KommonitorRoleDataGridHelperService {
   buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): any[] {
     return (this.baseGridHelper as any).buildRoleManagementGridColumnConfig(reducedRoleManagement);
   }
+
+  buildAdvancedRoleManagementGrid(
+    tableDOMId: string,
+    currentTableOptionsObject: any,
+    accessControlMetadata: any[],
+    selectedPermissionIds: string[],
+    reducedRoleManagement: boolean = false
+  ): any {
+    return (this.baseGridHelper as any).buildRoleManagementGrid(
+      tableDOMId,
+      currentTableOptionsObject,
+      accessControlMetadata,
+      selectedPermissionIds,
+      reducedRoleManagement
+    );
+  }
+
+  getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
+    return (this.baseGridHelper as any).getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions);
+  }
+
+  setGridApi(api: any): void {
+    (this.baseGridHelper as any).setGridApi(api);
+  }
 }
 
 

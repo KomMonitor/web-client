@@ -16,12 +16,12 @@
       <form class="multiStepForm form-group" id="ouAddForm" role="form" style="margin-bottom: 0px;">
         <div>
           <ul id="progressbar">
-            <li style="width: 50%;" class="active">Basisinformationen</li>
-            <li style="width: 50%;">Rechte anderer Gruppen an neuer Gruppe</li>
+            <li style="width: 50%;" [class.active]="currentStep >= 0" (click)="goToStep(0)">Basisinformationen</li>
+            <li style="width: 50%;" [class.active]="currentStep >= 1" (click)="goToStep(1)">Rechte anderer Gruppen an neuer Gruppe</li>
           </ul>
         </div>
 
-        <fieldset>
+        <fieldset *ngIf="currentStep === 0">
           <h2 class="fs-title">Basisinformationen</h2>
           <h3 class="fs-subtitle">Angaben &uuml;ber die neue Organisationseinheit</h3>
           <p><b><i>* = Pflichtfeld</i></b></p>
@@ -83,18 +83,23 @@
               </div>
             </div>
           </div>
+          <div class="horizontal-align">
+            <button type="button" class="action-button next" (click)="nextStep()">N&auml;chster Schritt</button>
+          </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset *ngIf="currentStep === 1">
           <h2 class="fs-title">Delegierte administrative Rechte</h2>
-          <div class="box box-info collapsed-box">
+          <div class="box box-info" [ngClass]="{ 'collapsed-box': !infoExpanded }">
             <div class="box-header">
               <h3 class="box-title">Bedienhinweise</h3>
               <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                <button type="button" class="btn btn-box-tool" (click)="toggleInfo()" [attr.aria-expanded]="infoExpanded">
+                  <i class="fa" [ngClass]="infoExpanded ? 'fa-minus' : 'fa-plus'"></i>
+                </button>
               </div>
             </div>
-            <div class="box-body">
+            <div class="box-body" *ngIf="infoExpanded">
               Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben f&uuml;r die neu anzulegende Gruppe &uuml;bernehmen?
               Administrative Rechte k&ouml;nnen hier durch entsprechende H&auml;kchen an andere Gruppen &uuml;bertragen werden.
               <br>
@@ -109,8 +114,26 @@
 
           <div class="row vertical-align">
             <div class="col-md-12 col-sm-12 col-xs-12">
-              <div id="addRoleEditGroupRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+              <ag-grid-angular
+                class="ag-theme-alpine"
+                style="height: 45vh; width: 100%;"
+                [columnDefs]="delegatedColumnDefs"
+                [rowData]="delegatedRowData"
+                [defaultColDef]="delegatedDefaultColDef"
+                [gridOptions]="delegatedGridOptions"
+                [components]="roleDataGridHelper.getRoleManagementGridComponents()"
+                [suppressRowClickSelection]="true"
+                [rowSelection]="'multiple'"
+                [enableCellTextSelection]="true"
+                [ensureDomOrder]="true"
+                [pagination]="true"
+                [paginationPageSize]="10"
+                [suppressColumnVirtualisation]="true">
+              </ag-grid-angular>
             </div>
+          </div>
+          <div class="horizontal-align">
+            <button type="button" name="previous" class="action-button-previous" (click)="prevStep()">Voriger Schritt</button>
           </div>
         </fieldset>
 

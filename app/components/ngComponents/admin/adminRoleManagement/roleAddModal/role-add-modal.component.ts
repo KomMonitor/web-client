@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorRoleDataExchangeService } from 'services/adminRoleUnit/kommonitor-role-data-exchange.service';
 import { KommonitorRoleKeycloakHelperService } from 'services/adminRoleUnit/kommonitor-role-keycloak-helper.service';
+import { KommonitorRoleDataGridHelperService } from 'services/adminRoleUnit/kommonitor-role-data-grid-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 })
 export class RoleAddModalComponent {
   loadingData: boolean = false;
+  currentStep: number = 0;
 
   newOrganizationalUnit: any = {
     name: '',
@@ -26,6 +28,8 @@ export class RoleAddModalComponent {
   errorMessagePart: string | undefined = undefined;
   keycloakErrorMessagePart: string | undefined = undefined;
 
+  infoExpanded: boolean = false;
+
   parentOrganizationalUnitFilter: string = '';
   parentOrganizationalUnit: any = null;
 
@@ -35,11 +39,114 @@ export class RoleAddModalComponent {
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     private roleDataExchange: KommonitorRoleDataExchangeService,
     private roleKeycloakHelper: KommonitorRoleKeycloakHelperService,
+    public roleDataGridHelper: KommonitorRoleDataGridHelperService,
     private broadcastService: BroadcastService
   ) {}
 
   get accessControlList(): any[] {
     return this.kommonitorDataExchangeService.accessControl || [];
+  }
+
+  goToStep(step: number): void {
+    if (step < 0) {
+      this.currentStep = 0;
+      return;
+    }
+    if (step > 1) {
+      this.currentStep = 1;
+      return;
+    }
+    this.currentStep = step;
+
+    // Build grid when entering step 2
+    if (this.currentStep === 1) {
+      this.buildDelegatedRolesTable();
+    }
+  }
+
+  nextStep(): void {
+    this.goToStep(this.currentStep + 1);
+  }
+
+  prevStep(): void {
+    this.goToStep(this.currentStep - 1);
+  }
+
+  toggleInfo(): void {
+    this.infoExpanded = !this.infoExpanded;
+  }
+
+  // --- ag-Grid (delegated roles) ---
+  delegatedRoleManagementTableOptions: any = undefined;
+  delegatedColumnDefs: any[] = [];
+  delegatedRowData: any[] = [];
+  delegatedDefaultColDef: any = {};
+  delegatedGridOptions: any = {};
+  access: any[] = [];
+
+  private extendAccessWithAdvancedRoles(access: any[]): any[] {
+    const permissionStrings = [
+      'unit-users-creator',
+      'client-users-creator',
+      'unit-resources-creator',
+      'client-resources-creator',
+      'unit-themes-creator',
+      'client-themes-creator'
+    ];
+    (access || []).forEach((elem: any) => {
+      elem.permissions = elem.permissions || [];
+      permissionStrings.forEach(role => {
+        elem.permissions.push({
+          permissionLevel: role,
+          permissionId: `${elem.organizationalUnitId}-${role}`
+        });
+      });
+    });
+    return access;
+  }
+
+  private buildDelegatedRolesTable(): void {
+    // Ensure access control is available
+    this.access = this.kommonitorDataExchangeService.accessControl || [];
+    if (!this.access || this.access.length === 0) {
+      this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
+        next: () => {
+          this.access = this.kommonitorDataExchangeService.accessControl || [];
+          this.access = this.extendAccessWithAdvancedRoles(this.access);
+          this.initializeDelegatedGrid();
+        },
+        error: () => {
+          // ignore, grid will stay empty
+        }
+      });
+      return;
+    }
+
+    this.access = this.extendAccessWithAdvancedRoles(this.access);
+    this.initializeDelegatedGrid();
+  }
+
+  private initializeDelegatedGrid(): void {
+    this.delegatedRoleManagementTableOptions = this.roleDataGridHelper.buildAdvancedRoleManagementGrid(
+      'addRoleEditGroupRoleManagementTable',
+      this.delegatedRoleManagementTableOptions,
+      this.access,
+      []
+    );
+
+    if (this.delegatedRoleManagementTableOptions) {
+      // Ensure column headers match legacy (Organisationseinheit, Lesen, Editieren, Löschen)
+      this.delegatedColumnDefs = this.roleDataGridHelper.buildRoleManagementGridColumnConfig(false) || this.delegatedRoleManagementTableOptions.columnDefs || [];
+      this.delegatedRowData = this.delegatedRoleManagementTableOptions.rowData || [];
+      this.delegatedDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
+      const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.delegatedRoleManagementTableOptions.components);
+      this.delegatedGridOptions = {
+        ...base,
+        onGridReady: (params: any) => {
+          this.roleDataGridHelper.setGridApi(params.api);
+        }
+      };
+    }
   }
 
   onChangeParentOrganizationalUnit(ou: any): void {

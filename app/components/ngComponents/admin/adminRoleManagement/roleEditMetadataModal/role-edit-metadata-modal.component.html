@@ -14,7 +14,7 @@
 
   <div class="row">
     <div class="col-md-12">
-      <form class="form-group" style="margin-bottom: 0px;" (ngSubmit)="$event.preventDefault()">
+      <form class="multiStepForm form-group" style="margin-bottom: 0px;" (ngSubmit)="$event.preventDefault()">
         <div>
           <ul id="progressbar">
             <li style="width: 100%;" class="active">Metadaten der Organisationseinheit</li>
@@ -97,6 +97,7 @@
   <br />
   <br />
   Die Rolle kann auch direkt in der Keycloak Administrationsseite editiert werden.
+  <a *ngIf="keycloakHelper.targetUrlToKeycloakInstance" [href]="keycloakHelper.targetUrlToKeycloakInstance" target="_blank" rel="noopener noreferrer">{{ keycloakHelper.targetUrlToKeycloakInstance }}</a>
 </div>
 
 

@@ -2,7 +2,8 @@ import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KommonitorRoleDataExchangeService } from 'services/adminRoleUnit/kommonitor-role-data-exchange.service';
+import { KommonitorRoleDataGridHelperService } from 'services/adminRoleUnit/kommonitor-role-data-grid-helper.service';
 
 declare const $: any;
 
@@ -21,6 +22,17 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   authorityRoleManagementTableOptions: any = undefined;
   delegatedRoleManagementTableOptions: any = undefined;
 
+  // ag-Grid explicit bindings (mirror working pattern)
+  authorityColumnDefs: any[] = [];
+  authorityRowData: any[] = [];
+  authorityDefaultColDef: any = {};
+  authorityGridOptions: any = {};
+
+  delegatedColumnDefs: any[] = [];
+  delegatedRowData: any[] = [];
+  delegatedDefaultColDef: any = {};
+  delegatedGridOptions: any = {};
+
   authorityRoleIDs: string[] = [];
   authorityAccess: any[] | undefined = undefined;
   authorityPermissions: string[] = [];
@@ -33,14 +45,20 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   successMessagePart: string | undefined = undefined;
   errorMessagePart: string | undefined = undefined;
 
+  authorityInfoExpanded: boolean = false;
+  delegatedInfoExpanded: boolean = false;
+
+  currentStep: number = 1;
+  totalSteps: number = 2;
+
   private subscriptions: Subscription[] = [];
 
   constructor(
     public activeModal: NgbActiveModal,
     private http: HttpClient,
-    public kommonitorDataExchangeService: KommonitorDataExchangeService,
+    public kommonitorDataExchangeService: KommonitorRoleDataExchangeService,
     @Inject('kommonitorMultiStepFormHelperService') private multiStepFormHelper: any,
-    @Inject('kommonitorDataGridHelperService') private legacyDataGridHelper: any
+    private roleDataGridHelper: KommonitorRoleDataGridHelperService
   ) {}
 
   ngOnInit(): void {
@@ -109,13 +127,26 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
       });
 
       this.authorityAccess = (this.access || []).filter(elem => this.authorityRoleIDs.includes(elem.organizationalUnitId));
-      this.authorityRoleManagementTableOptions = this.legacyDataGridHelper.buildAdvancedRoleManagementGrid(
+      this.authorityRoleManagementTableOptions = this.roleDataGridHelper.buildAdvancedRoleManagementGrid(
         'editAuthorityGroupRoleManagementTable',
         this.authorityRoleManagementTableOptions,
         this.authorityAccess,
         this.authorityPermissions,
         true
       );
+
+      if (this.authorityRoleManagementTableOptions) {
+        this.authorityColumnDefs = this.authorityRoleManagementTableOptions.columnDefs || [];
+        this.authorityRowData = this.authorityRoleManagementTableOptions.rowData || [];
+        this.authorityDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
+        const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.authorityRoleManagementTableOptions.components);
+        this.authorityGridOptions = {
+          ...base,
+          onGridReady: (params: any) => {
+            this.roleDataGridHelper.setGridApi(params.api);
+          }
+        };
+      }
     });
   }
 
@@ -142,12 +173,25 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
         this.delegatedAccess = (this.access || []).filter((elem: any) => this.delegatedRoleIDs.includes(elem.organizationalUnitId));
       }
 
-      this.delegatedRoleManagementTableOptions = this.legacyDataGridHelper.buildAdvancedRoleManagementGrid(
+      this.delegatedRoleManagementTableOptions = this.roleDataGridHelper.buildAdvancedRoleManagementGrid(
         'editDelegatedGroupRoleManagementTable',
         this.delegatedRoleManagementTableOptions,
         this.delegatedAccess,
         this.delegatedPermissions
       );
+
+      if (this.delegatedRoleManagementTableOptions) {
+        this.delegatedColumnDefs = this.delegatedRoleManagementTableOptions.columnDefs || [];
+        this.delegatedRowData = this.delegatedRoleManagementTableOptions.rowData || [];
+        this.delegatedDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
+        const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.delegatedRoleManagementTableOptions.components);
+        this.delegatedGridOptions = {
+          ...base,
+          onGridReady: (params: any) => {
+            this.roleDataGridHelper.setGridApi(params.api);
+          }
+        };
+      }
     });
   }
 
@@ -156,7 +200,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     const permissions: Record<string, string[]> = {};
     this.delegatedRoleIDs = [];
 
-    const selected = this.legacyDataGridHelper.getSelectedRoleIds_roleManagementGrid(this.delegatedRoleManagementTableOptions) || [];
+    const selected = this.roleDataGridHelper.getSelectedRoleIds_roleManagementGrid(this.delegatedRoleManagementTableOptions) || [];
     (selected as string[]).forEach((permission: string) => {
       const parts = permission.split('-');
       const unitId = parts.slice(0, 5).join('-');
@@ -230,5 +274,31 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   hideErrorAlert(): void {
     const errorEl = document.getElementById('editRoleDelegatesErrorAlert');
     if (errorEl) { errorEl.hidden = true; }
+  }
+
+  toggleAuthorityInfo(): void {
+    this.authorityInfoExpanded = !this.authorityInfoExpanded;
+  }
+
+  toggleDelegatedInfo(): void {
+    this.delegatedInfoExpanded = !this.delegatedInfoExpanded;
+  }
+
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+    }
   }
 }

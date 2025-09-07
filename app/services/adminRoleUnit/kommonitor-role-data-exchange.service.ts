@@ -31,6 +31,10 @@ export class KommonitorRoleDataExchangeService {
     return this.core.fetchAccessControlMetadata();
   }
 
+  get baseUrlToKomMonitorDataAPI(): string {
+    return this.core.baseUrlToKomMonitorDataAPI;
+  }
+
   /**
    * Create a new organizational unit in KomMonitor Data API
    */

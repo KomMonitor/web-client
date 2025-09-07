@@ -37,7 +37,7 @@ export class RoleEditMetadataModalComponent implements OnInit, OnDestroy {
     public activeModal: NgbActiveModal,
     private http: HttpClient,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private keycloakHelper: KommonitorRoleKeycloakHelperService
+    public keycloakHelper: KommonitorRoleKeycloakHelperService
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +81,8 @@ export class RoleEditMetadataModalComponent implements OnInit, OnDestroy {
     const putBody = {
       name: this.current.name,
       description: this.current.description,
-      contact: this.current.contact
+      contact: this.current.contact,
+      mandant: (this.current && typeof this.current.mandant === 'boolean') ? this.current.mandant : false
     };
 
     this.loadingData = true;

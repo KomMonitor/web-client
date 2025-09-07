@@ -47,23 +47,78 @@
 }
 
 #progressbar {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   overflow: hidden;
   counter-reset: step;
 }
 
 #progressbar li {
   list-style-type: none;
-  color: #666;
+  color: black;
   text-transform: uppercase;
   font-size: 9px;
-  width: 33.33%;
   float: left;
   position: relative;
+  letter-spacing: 1px;
+  cursor: pointer;
 }
 
-#progressbar li.active {
-  color: #2c3e50;
+#progressbar li:before {
+  content: counter(step);
+  counter-increment: step;
+  width: 24px;
+  height: 24px;
+  line-height: 26px;
+  display: block;
+  font-size: 12px;
+  color: #333;
+  background: #cccc;
+  border-radius: 25px;
+  margin: 0 auto 10px auto;
+  transform: translateZ(-1px);
+}
+
+#progressbar li:after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: #cccc;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  z-index: -1;
+}
+
+#progressbar li:first-child:after {
+  content: none;
+}
+
+#progressbar li.active:before, #progressbar li.active:after {
+  background: var(--kommonitor-primary);
+  color: white;
+}
+
+#progressbar li.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#progressbar li.clickable:hover {
+  color: var(--kommonitor-primary);
+}
+
+#progressbar li.clickable:hover:before {
+  background: var(--kommonitor-primary);
+  transform: scale(1.1);
+}
+
+/* Center multi-step form like the original */
+.multiStepForm {
+  text-align: center;
+  position: relative;
+  margin-top: 30px;
+  z-index: 11000;
+  font-size: 12px;
 }
 
 
