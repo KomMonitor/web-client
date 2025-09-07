@@ -162,11 +162,6 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
         this.gridApi = params.api;
         this.columnApi = params.columnApi;
       },
-      onFirstDataRendered: () => {
-        try { console.log('[RoleMgmt] onFirstDataRendered: registering click handlers'); } catch {}
-        this.headerHeightSetter();
-        this.registerClickHandler_accessControl();
-      },
       onColumnResized: () => {
         this.headerHeightSetter();
       },
@@ -444,6 +439,38 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
         }
       });
       w[globalFlag] = true;
+    }
+
+    // Capture-phase native delegated handler as a safeguard if bubbling is prevented by AG Grid internals
+    const captureFlag = '__roleMgmtDocClickHandlersCaptureBound';
+    if (!w[captureFlag]) {
+      try { console.log('[RoleMgmt] Binding global document-level native delegated handlers (capture phase)'); } catch {}
+      document.addEventListener('click', (evt: Event) => {
+        const target = evt.target as HTMLElement | null;
+        if (!target) { return; }
+        const metaBtn = target.closest('.roleEditMetadataBtn') as HTMLElement | null;
+        if (metaBtn) {
+          evt.stopPropagation();
+          evt.preventDefault();
+          if ((metaBtn as any).disabled) { return; }
+          const id: string = metaBtn.id || '';
+          const roleId = id.startsWith('btn_role_editMetadata_') ? id.slice('btn_role_editMetadata_'.length) : (id.split('_').pop() || '');
+          const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+          this.zone.run(() => this.onClickEditMetadata(roleMetadata));
+          return;
+        }
+        const rightsBtn = target.closest('.roleEditGroupRightsBtn') as HTMLElement | null;
+        if (rightsBtn) {
+          evt.stopPropagation();
+          evt.preventDefault();
+          if ((rightsBtn as any).disabled) { return; }
+          const id: string = rightsBtn.id || '';
+          const roleId = id.startsWith('btn_role_editGroupRight_') ? id.slice('btn_role_editGroupRight_'.length) : (id.split('_').pop() || '');
+          const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+          this.zone.run(() => this.onClickEditGroupRights(roleMetadata));
+        }
+      }, { capture: true });
+      w[captureFlag] = true;
     }
   }
 
