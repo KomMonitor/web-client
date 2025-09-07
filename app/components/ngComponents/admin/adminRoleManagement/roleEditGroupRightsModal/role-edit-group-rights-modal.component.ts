@@ -15,6 +15,7 @@ declare const $: any;
 export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
 
   loadingData: boolean = false;
+  private pendingLoads: number = 0;
 
   current: any = {};
   access: any[] = [];
@@ -499,6 +500,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   }
 
   buildAuthorityRolesTable(): void {
+    this.beginLoading();
     this.authorityPermissions = [];
     this.authorityRoleIDs = [];
 
@@ -531,15 +533,20 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
         const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.authorityRoleManagementTableOptions.components);
         this.authorityGridOptions = {
           ...base,
+          overlayNoRowsTemplate: '<span class="ag-overlay-no-rows-center">No rows to show</span>',
           onGridReady: (params: any) => {
             this.roleDataGridHelper.setGridApi(params.api);
           }
         };
       }
+      this.endLoading();
+    }, (err) => {
+      this.endLoading();
     });
   }
 
   buildDelegatedRolesTable(): void {
+    this.beginLoading();
     const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/organizationalUnits/${this.current.organizationalUnitId}/role-delegates`;
     this.http.get<any>(url).subscribe((response) => {
       this.delegatedRoleIDs = [];
@@ -578,11 +585,15 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
         const base = this.roleDataGridHelper.buildRoleManagementGridOptionsPublic(this.delegatedRoleManagementTableOptions.components);
         this.delegatedGridOptions = {
           ...base,
+          overlayNoRowsTemplate: '<span class="ag-overlay-no-rows-center">No rows to show</span>',
           onGridReady: (params: any) => {
             this.roleDataGridHelper.setGridApi(params.api);
           }
         };
       }
+      this.endLoading();
+    }, (err) => {
+      this.endLoading();
     });
   }
 
@@ -732,6 +743,18 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
       this.buildAuthorityRolesTable();
     } else if (this.currentStep === 2) {
       this.buildDelegatedRolesTable();
+    }
+  }
+
+  private beginLoading(): void {
+    this.pendingLoads++;
+    this.loadingData = true;
+  }
+
+  private endLoading(): void {
+    this.pendingLoads = Math.max(0, this.pendingLoads - 1);
+    if (this.pendingLoads === 0) {
+      this.loadingData = false;
     }
   }
 }
