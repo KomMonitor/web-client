@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -35,8 +35,7 @@ export class RoleAddModalComponent {
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     private roleDataExchange: KommonitorRoleDataExchangeService,
     private roleKeycloakHelper: KommonitorRoleKeycloakHelperService,
-    private broadcastService: BroadcastService,
-    @Inject('kommonitorKeycloackHelperService') private kommonitorKeycloakHelperService: any
+    private broadcastService: BroadcastService
   ) {}
 
   get accessControlList(): any[] {

@@ -1671,6 +1671,25 @@ table, th, td {
 	}
 }
 
+/* Custom width for Role Add and related role modals (use same sizing as spatial unit add) */
+@media (min-width: 768px){
+	.modal-dialog.role-add-modal {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
+@media (min-width: 768px){
+	body .modal-holder.role-add-modal-window .modal-dialog,
+	body .role-add-modal-window .modal-dialog,
+	body .modal.role-add-modal-window .modal-dialog {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
 select {
 	overflow: auto;
 }

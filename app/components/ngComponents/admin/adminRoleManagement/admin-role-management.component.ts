@@ -2,16 +2,16 @@ import { Component, Inject, OnDestroy, OnInit, NgZone, ViewChild } from '@angula
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef, GridApi, ColumnApi, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import { GridOptions, ColDef, GridApi, ColumnApi, FirstDataRenderedEvent, ColumnResizedEvent, RowClickedEvent } from 'ag-grid-community';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { RoleDeleteModalComponent } from './roleDeleteModal/role-delete-modal.component';
+import { RoleEditMetadataModalComponent } from './roleEditMetadataModal/role-edit-metadata-modal.component';
 import { KommonitorRolePermissionService } from 'services/adminRoleUnit/kommonitor-role-permission.service';
 import { RoleAddModalComponent } from './roleAddModal/role-add-modal.component';
-
-declare const $: any;
+import { RoleEditGroupRightsModalComponent } from './roleEditGroupRightsModal/role-edit-group-rights-modal.component';
 
 @Component({
   selector: 'admin-role-management-new',
@@ -32,6 +32,7 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
   public gridOptions: GridOptions = {};
   private gridApi!: GridApi;
   private columnApi!: ColumnApi;
+  private lastClickedRowData: any | null = null;
 
   // Pagination properties
   public paginationPageSize: number = 10;
@@ -50,10 +51,7 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (typeof $ !== 'undefined' && $ && $.fn && $.fn.boxWidget) {
-      $('.box').boxWidget();
-    }
-
+    // Removed jQuery usage; AdminLTE boxWidget init skipped
     // Subscribe to loading state
     const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(loading => {
       this.loadingData = loading;
@@ -77,14 +75,6 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
       } else if (data.msg === 'refreshAccessControlTable') {
         const values: any = data?.values || {};
         this.zone.run(() => this.refreshAccessControlTable(values.crudType, values.targetId));
-      } else if (data.msg === 'onDeleteOrganizationalUnit') {
-        this.modalService.open(RoleDeleteModalComponent, {
-          size: 'xl',
-          backdrop: 'static',
-          keyboard: false,
-          container: 'body',
-          animation: false
-        });
       }
     });
     this.subscriptions.push(bcSub);
@@ -164,32 +154,80 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
       ...this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(),
       columnDefs: this.columnDefs,
       rowData: this.rowData,
+      suppressRowClickSelection: false,
+      rowSelection: 'multiple',
+      rowMultiSelectWithClick: true,
       paginationPageSize: this.paginationPageSize,
       onGridReady: (params) => {
         this.gridApi = params.api;
         this.columnApi = params.columnApi;
       },
       onFirstDataRendered: () => {
+        try { console.log('[RoleMgmt] onFirstDataRendered: registering click handlers'); } catch {}
         this.headerHeightSetter();
         this.registerClickHandler_accessControl();
       },
       onColumnResized: () => {
         this.headerHeightSetter();
+      },
+      onCellClicked: (event: any) => {
+        try {
+          try { console.log('[RoleMgmt] onCellClicked fired', event); } catch {}
+          const nativeEvent = event && event.event ? event.event : null;
+          const targetEl = nativeEvent && nativeEvent.target ? (nativeEvent.target as HTMLElement) : null;
+          if (!targetEl) { try { console.log('[RoleMgmt] onCellClicked: no targetEl'); } catch {}; return; }
+          const buttonEl = (targetEl as any).closest ? (targetEl as any).closest('button') : null;
+          if (!buttonEl || !buttonEl.id) { try { console.log('[RoleMgmt] onCellClicked: no button id'); } catch {}; return; }
+          const id: string = buttonEl.id as string;
+          try { console.log('[RoleMgmt] onCellClicked: button id', id, 'disabled=', (buttonEl as any).disabled); } catch {}
+          if ((buttonEl as any).disabled) { return; }
+          if (id.startsWith('btn_role_editMetadata_')) {
+            const roleId = id.split('_')[3];
+            try { console.log('[RoleMgmt] Opening RoleEditMetadataModalComponent for', roleId); } catch {}
+            const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+            this.zone.run(() => this.onClickEditMetadata(roleMetadata));
+            return;
+          }
+          if (id.startsWith('btn_role_editGroupRight_')) {
+            const roleId = id.split('_')[3];
+            try { console.log('[RoleMgmt] Opening RoleEditGroupRightsModalComponent for', roleId); } catch {}
+            const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+            this.zone.run(() => this.onClickEditGroupRights(roleMetadata));
+            return;
+          }
+        } catch {}
       }
     } as GridOptions;
+    // Remove invalid/legacy gridOptions properties that cause warnings
+    try {
+      if ((this.gridOptions as any).floatingFilter !== undefined) {
+        delete (this.gridOptions as any).floatingFilter;
+        console.log('[RoleMgmt] Removed invalid gridOptions.floatingFilter');
+      }
+    } catch {}
   }
 
   private buildAccessControlColumnDefs(): ColDef[] {
     const columnDefs: ColDef[] = [];
+    // Dedicated selection checkbox column
+    columnDefs.push({
+      headerName: '',
+      pinned: 'left',
+      maxWidth: 50,
+      width: 50,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      headerCheckboxSelectionFilteredOnly: true,
+      filter: false,
+      sortable: false,
+      suppressMenu: true,
+      resizable: false
+    });
     // Edit buttons column (only enabled if user has creator role for orga)
     columnDefs.push({ 
       headerName: 'Editierfunktionen', 
       pinned: 'left', 
       maxWidth: 150, 
-      checkboxSelection: (params: any) => {
-        const roles: string[] = params?.data?.userAdminRoles || [];
-        return roles.includes('client-users-creator') || roles.includes('unit-users-creator');
-      },
       filter: false, 
       sortable: false, 
       cellRenderer: this.displayEditButtons_accessControl.bind(this)
@@ -274,51 +312,258 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
 
   private registerClickHandler_accessControl(): void {
     const $: any = (window as any).$ || (window as any).jQuery || undefined;
-    if (!$) { return; }
 
     // Remove existing handlers first
-    $('#accessControlOverviewTable').off('click', '.roleEditMetadataBtn');
-    $('#accessControlOverviewTable').off('click', '.roleEditGroupRightsBtn');
+    if ($) {
+      $('#accessControlOverviewTable').off('click', '.roleEditMetadataBtn');
+      $('#accessControlOverviewTable').off('click', '.roleEditGroupRightsBtn');
+      $(document).off('click', '#accessControlOverviewTable .roleEditMetadataBtn');
+      $(document).off('click', '#accessControlOverviewTable .roleEditGroupRightsBtn');
+      try { console.log('[RoleMgmt] Binding delegated handlers on #accessControlOverviewTable (jQuery)'); } catch {}
+    } else {
+      try { console.log('[RoleMgmt] jQuery not found; binding native delegated handlers on #accessControlOverviewTable'); } catch {}
+    }
 
-    $('#accessControlOverviewTable').on('click', '.roleEditMetadataBtn', (event: any) => {
+    if ($) $('#accessControlOverviewTable').on('click', '.roleEditMetadataBtn', (event: any) => {
+      try { console.log('[RoleMgmt] Click: .roleEditMetadataBtn (grid container)'); } catch {}
       event.stopPropagation();
       event.preventDefault();
       const button = $(event.target).closest('.roleEditMetadataBtn')[0];
-      const roleId = button.id.split('_')[3];
+      if (!button || (button as any).disabled) { try { console.log('[RoleMgmt] Edit metadata button disabled or missing'); } catch {}; return; }
+      const id: string = button.id || '';
+      const roleId = id.startsWith('btn_role_editMetadata_') ? id.slice('btn_role_editMetadata_'.length) : (id.split('_').pop() || '');
+      try { console.log('[RoleMgmt] Resolved roleId from button:', roleId); } catch {}
       const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
-      this.zone.run(() => {
-        this.broadcastService.broadcast('onEditOrganizationalUnitMetadata', roleMetadata);
-      });
+      try { console.log('[RoleMgmt] Resolved roleMetadata:', !!roleMetadata, roleMetadata?.name); } catch {}
+      this.zone.run(() => this.onClickEditMetadata(roleMetadata));
     });
 
-    $('#accessControlOverviewTable').on('click', '.roleEditGroupRightsBtn', (event: any) => {
+    if ($) $('#accessControlOverviewTable').on('click', '.roleEditGroupRightsBtn', (event: any) => {
+      try { console.log('[RoleMgmt] Click: .roleEditGroupRightsBtn (grid container)'); } catch {}
       event.stopPropagation();
       event.preventDefault();
       const button = $(event.target).closest('.roleEditGroupRightsBtn')[0];
-      const roleId = button.id.split('_')[3];
+      if (!button || (button as any).disabled) { try { console.log('[RoleMgmt] Edit group rights button disabled or missing'); } catch {}; return; }
+      const id: string = button.id || '';
+      const roleId = id.startsWith('btn_role_editGroupRight_') ? id.slice('btn_role_editGroupRight_'.length) : (id.split('_').pop() || '');
+      try { console.log('[RoleMgmt] Resolved roleId from button:', roleId); } catch {}
       const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
-      this.zone.run(() => {
-        this.broadcastService.broadcast('onEditOrganizationalUnitGroupRights', roleMetadata);
-      });
+      try { console.log('[RoleMgmt] Resolved roleMetadata for group rights:', !!roleMetadata, roleMetadata?.name); } catch {}
+      this.zone.run(() => this.onClickEditGroupRights(roleMetadata));
     });
+
+    // Document-level fallback delegation in case events don't bubble to the ag-grid host element
+    if ($) $(document).on('click', '#accessControlOverviewTable .roleEditMetadataBtn', (event: any) => {
+      try { console.log('[RoleMgmt] Click: .roleEditMetadataBtn (document fallback)'); } catch {}
+      event.stopPropagation();
+      event.preventDefault();
+      const button = $(event.target).closest('.roleEditMetadataBtn')[0];
+      if (!button || (button as any).disabled) { return; }
+      const id: string = button.id || '';
+      const roleId = id.startsWith('btn_role_editMetadata_') ? id.slice('btn_role_editMetadata_'.length) : (id.split('_').pop() || '');
+      const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+      this.zone.run(() => this.onClickEditMetadata(roleMetadata));
+    });
+
+    if ($) $(document).on('click', '#accessControlOverviewTable .roleEditGroupRightsBtn', (event: any) => {
+      try { console.log('[RoleMgmt] Click: .roleEditGroupRightsBtn (document fallback)'); } catch {}
+      event.stopPropagation();
+      event.preventDefault();
+      const button = $(event.target).closest('.roleEditGroupRightsBtn')[0];
+      if (!button || (button as any).disabled) { return; }
+      const id: string = button.id || '';
+      const roleId = id.startsWith('btn_role_editGroupRight_') ? id.slice('btn_role_editGroupRight_'.length) : (id.split('_').pop() || '');
+      const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+      this.zone.run(() => this.onClickEditGroupRights(roleMetadata));
+    });
+
+    // Native delegated handler fallback (works without jQuery)
+    const hostEl = document.getElementById('accessControlOverviewTable');
+    if (hostEl) {
+      hostEl.addEventListener('click', (evt: Event) => {
+        const target = evt.target as HTMLElement;
+        if (!target) { return; }
+        const metaBtn = target.closest('.roleEditMetadataBtn') as HTMLElement | null;
+        if (metaBtn) {
+          try { console.log('[RoleMgmt] (native) Click: .roleEditMetadataBtn'); } catch {}
+          evt.stopPropagation();
+          evt.preventDefault();
+          if ((metaBtn as any).disabled) { return; }
+          const id: string = metaBtn.id || '';
+          const roleId = id.startsWith('btn_role_editMetadata_') ? id.slice('btn_role_editMetadata_'.length) : (id.split('_').pop() || '');
+          try { console.log('[RoleMgmt] (native) Resolved roleId:', roleId); } catch {}
+          const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+          try { console.log('[RoleMgmt] (native) Resolved roleMetadata:', !!roleMetadata, roleMetadata?.name); } catch {}
+          this.zone.run(() => this.onClickEditMetadata(roleMetadata));
+          return;
+        }
+        const rightsBtn = target.closest('.roleEditGroupRightsBtn') as HTMLElement | null;
+        if (rightsBtn) {
+          try { console.log('[RoleMgmt] (native) Click: .roleEditGroupRightsBtn'); } catch {}
+          evt.stopPropagation();
+          evt.preventDefault();
+          if ((rightsBtn as any).disabled) { return; }
+          const id: string = rightsBtn.id || '';
+          const roleId = id.startsWith('btn_role_editGroupRight_') ? id.slice('btn_role_editGroupRight_'.length) : (id.split('_').pop() || '');
+          try { console.log('[RoleMgmt] (native) Resolved roleId:', roleId); } catch {}
+          const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+          try { console.log('[RoleMgmt] (native) Resolved roleMetadata:', !!roleMetadata, roleMetadata?.name); } catch {}
+          this.zone.run(() => this.onClickEditGroupRights(roleMetadata));
+        }
+      });
+    }
+
+    // Add a global native delegated handler as a final fallback (no jQuery required)
+    const globalFlag = '__roleMgmtDocClickHandlersBound';
+    const w = window as any;
+    if (!w[globalFlag]) {
+      try { console.log('[RoleMgmt] Binding global document-level native delegated handlers'); } catch {}
+      document.addEventListener('click', (evt: Event) => {
+        const target = evt.target as HTMLElement | null;
+        if (!target) { return; }
+        const metaBtn = target.closest('.roleEditMetadataBtn') as HTMLElement | null;
+        if (metaBtn) {
+          evt.stopPropagation();
+          evt.preventDefault();
+          if ((metaBtn as any).disabled) { return; }
+          const id: string = metaBtn.id || '';
+          const roleId = id.startsWith('btn_role_editMetadata_') ? id.slice('btn_role_editMetadata_'.length) : (id.split('_').pop() || '');
+          const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+          this.zone.run(() => this.onClickEditMetadata(roleMetadata));
+          return;
+        }
+        const rightsBtn = target.closest('.roleEditGroupRightsBtn') as HTMLElement | null;
+        if (rightsBtn) {
+          evt.stopPropagation();
+          evt.preventDefault();
+          if ((rightsBtn as any).disabled) { return; }
+          const id: string = rightsBtn.id || '';
+          const roleId = id.startsWith('btn_role_editGroupRight_') ? id.slice('btn_role_editGroupRight_'.length) : (id.split('_').pop() || '');
+          const roleMetadata = this.kommonitorDataExchangeService.getAccessControlById(roleId);
+          this.zone.run(() => this.onClickEditGroupRights(roleMetadata));
+        }
+      });
+      w[globalFlag] = true;
+    }
   }
 
   public onClickDeleteDatasets(): void {
     this.loadingData = true;
-    const selectedNodes = this.gridApi ? this.gridApi.getSelectedNodes() : [];
-    const selectedDatasets = selectedNodes.map(node => node.data);
-    this.broadcastService.broadcast('onDeleteOrganizationalUnit', selectedDatasets);
+    try { console.log('[RoleMgmt] Delete clicked'); } catch {}
+    let selectedDatasets: any[] = [];
+    if (this.gridApi) {
+      const selectedNodes = this.gridApi.getSelectedNodes();
+      try { console.log('[RoleMgmt] Selected nodes', selectedNodes.length); } catch {}
+      selectedDatasets = selectedNodes.map(node => node.data);
+      // If nothing is selected, try to use the focused row
+      if ((!selectedDatasets || selectedDatasets.length === 0)) {
+        const focused = this.gridApi.getFocusedCell();
+        try { console.log('[RoleMgmt] Focused cell', focused); } catch {}
+        if (focused && typeof focused.rowIndex === 'number') {
+          const rowNode = this.gridApi.getDisplayedRowAtIndex(focused.rowIndex);
+          if (rowNode && rowNode.data) {
+            selectedDatasets = [rowNode.data];
+          }
+        }
+      }
+    }
+    // Fallback: if no selection was registered, but a row was clicked, use it
+    if ((!selectedDatasets || selectedDatasets.length === 0) && this.lastClickedRowData) {
+      try { console.log('[RoleMgmt] Using last clicked row fallback'); } catch {}
+      selectedDatasets = [this.lastClickedRowData];
+    }
+    if (!selectedDatasets || selectedDatasets.length === 0) {
+      try { console.warn('[RoleMgmt] No dataset resolved for deletion'); } catch {}
+    } else {
+      try {
+        console.log('[RoleMgmt] Datasets to delete', selectedDatasets.map(d => `${d?.name} (${d?.organizationalUnitId})`));
+      } catch {}
+    }
+    const modalRef = this.modalService.open(RoleDeleteModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'role-add-modal',
+      windowClass: 'role-add-modal-window'
+    });
+    try { console.log('[RoleMgmt] Opened RoleDeleteModalComponent'); } catch {}
+    // Initialize modal directly with datasets
+    if (modalRef.componentInstance && typeof modalRef.componentInstance.onDeleteOrganizationalUnit === 'function') {
+      setTimeout(() => {
+        try { console.log('[RoleMgmt] Passing datasets to modal', selectedDatasets?.length || 0); } catch {}
+        modalRef.componentInstance.onDeleteOrganizationalUnit(selectedDatasets);
+      }, 0);
+    } else {
+      try { console.warn('[RoleMgmt] Modal missing onDeleteOrganizationalUnit hook'); } catch {}
+    }
+    modalRef.result.then(() => {
+      this.initializeOrRefreshOverviewTable();
+    }).catch(() => {});
     this.loadingData = false;
   }
 
   public onClickCreateRole(): void {
     this.modalService.open(RoleAddModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'role-add-modal',
+      windowClass: 'role-add-modal-window'
     }).result.then(() => {
+      this.initializeOrRefreshOverviewTable();
+    }).catch(() => {});
+  }
+
+  // Aliases and shared modal openers to mirror spatial units flow
+  public openAddRoleModal(): void {
+    this.onClickCreateRole();
+  }
+
+  public onClickEditMetadata(organizationalUnit: any): void {
+    try { console.log('[RoleMgmt] onClickEditMetadata invoked for', organizationalUnit?.organizationalUnitId, organizationalUnit?.name); } catch {}
+    const modalRef = this.modalService.open(RoleEditMetadataModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'role-add-modal',
+      windowClass: 'role-add-modal-window'
+    });
+    try { console.log('[RoleMgmt] RoleEditMetadataModalComponent opened'); } catch {}
+    const parentUnit = organizationalUnit && organizationalUnit.parentId ? this.kommonitorDataExchangeService.getAccessControlById(organizationalUnit.parentId) : null;
+    (modalRef as any).componentInstance.current = { ...(organizationalUnit || {}) };
+    (modalRef as any).componentInstance.old = { name: organizationalUnit && organizationalUnit.name };
+    (modalRef as any).componentInstance.parentOrganizationalUnit = parentUnit || null;
+    setTimeout(() => {
+      if (typeof (modalRef as any).componentInstance.resetRoleEditMetadataForm === 'function') {
+        try { console.log('[RoleMgmt] Calling resetRoleEditMetadataForm on modal'); } catch {}
+        (modalRef as any).componentInstance.resetRoleEditMetadataForm();
+      }
+    }, 0);
+    modalRef.result.then(() => {
+      try { console.log('[RoleMgmt] RoleEditMetadataModal closed with success; refreshing table'); } catch {}
+      this.initializeOrRefreshOverviewTable();
+    }).catch(() => {});
+  }
+
+  public onClickEditGroupRights(organizationalUnit: any): void {
+    try { console.log('[RoleMgmt] onClickEditGroupRights invoked for', organizationalUnit?.organizationalUnitId, organizationalUnit?.name); } catch {}
+    const modalRef = this.modalService.open(RoleEditGroupRightsModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'role-add-modal',
+      windowClass: 'role-add-modal-window'
+    });
+    try { console.log('[RoleMgmt] RoleEditGroupRightsModal opened'); } catch {}
+    // Pass data via component instance (no broadcast)
+    (modalRef as any).componentInstance.current = { ...(organizationalUnit || {}) };
+    modalRef.result.then(() => {
+      try { console.log('[RoleMgmt] RoleEditGroupRightsModal closed with success; refreshing table'); } catch {}
       this.initializeOrRefreshOverviewTable();
     }).catch(() => {});
   }
@@ -326,6 +571,8 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
   // Grid event handlers for template usage if needed
   public onFirstDataRendered(event: FirstDataRenderedEvent): void {
     this.headerHeightSetter();
+    // Ensure delegated click handlers are bound after grid render (mirrors spatial units component)
+    this.registerClickHandler_accessControl();
   }
 
   public onColumnResized(event: ColumnResizedEvent): void {
@@ -335,8 +582,21 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
   public headerHeightSetter(): void {
     if (this.gridApi) {
       const headerHeight = this.headerHeightGetter();
-      this.gridApi.setHeaderHeight(headerHeight);
+      try {
+        if ((this.gridApi as any).setGridOption) {
+          (this.gridApi as any).setGridOption('headerHeight', headerHeight);
+        } else if ((this.gridApi as any).updateGridOptions) {
+          (this.gridApi as any).updateGridOptions({ headerHeight });
+        } else if ((this.gridApi as any).setHeaderHeight) {
+          // Fallback for older versions
+          (this.gridApi as any).setHeaderHeight(headerHeight);
+        }
+      } catch {}
     }
+  }
+
+  public onRowClicked(event: RowClickedEvent): void {
+    this.lastClickedRowData = event?.data || null;
   }
 
   private headerHeightGetter(): number {

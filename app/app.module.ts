@@ -22,7 +22,7 @@ import {
   ajskommonitorDiagramHelperServiceProvider,
   ajskommonitorFilterHelperServiceProvider,
   ajskommonitorImporterHelperServiceProvider,
-  ajskommonitorKeycloackHelperServiceProvider,
+  ajskommonitorKeycloakHelperServiceProvider,
   ajskommonitorMultiStepFormHelperServiceProvider, 
   ajskommonitorSingleFeatureMapServiceProvider,
   ajskommonitorElementVisibilityHelperServiceProvider,
@@ -38,7 +38,7 @@ import {
   ajskommonitorGlobalFilterHelperServiceProvider,
   ajskommonitorFavServiceProvider} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
-import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -103,6 +103,8 @@ import { GeoresourceEditFeaturesModalComponent } from './components/ngComponents
 import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
 import { RoleDeleteModalComponent } from './components/ngComponents/admin/adminRoleManagement/roleDeleteModal/role-delete-modal.component';
+import { RoleEditMetadataModalComponent } from './components/ngComponents/admin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.component';
+import { RoleEditGroupRightsModalComponent } from './components/ngComponents/admin/adminRoleManagement/roleEditGroupRightsModal/role-edit-group-rights-modal.component';
 
 import { ColorSketchModule } from 'ngx-color/sketch';
 
@@ -125,6 +127,7 @@ declare var MathJax;
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
+    NgbModalModule,
     DragDropModule,
     DualListBoxComponent,
     AgGridAngular,
@@ -137,7 +140,7 @@ declare var MathJax;
     ajskommonitorCacheHelperServiceProvider,
     ajskommonitorBatchUpdateHelperServiceProvider,
     ajskommonitorConfigStorageServiceProvider,
-    ajskommonitorKeycloackHelperServiceProvider,
+    ajskommonitorKeycloakHelperServiceProvider,
     ajskommonitorMultiStepFormHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,
@@ -157,7 +160,6 @@ declare var MathJax;
     ajskommonitorScriptHelperServiceProvider,
     ajskommonitorGlobalFilterHelperServiceProvider,
     ajskommonitorFavServiceProvider,
-    NgbModule,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
@@ -217,7 +219,10 @@ declare var MathJax;
     GeoresourceEditMetadataModalComponent,
     GeoresourceEditFeaturesModalComponent,
     GeoresourceEditUserRolesModalComponent,
-    GeoresourceDeleteModalComponent
+    GeoresourceDeleteModalComponent,
+    RoleDeleteModalComponent,
+    RoleEditMetadataModalComponent,
+    RoleEditGroupRightsModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -388,6 +393,16 @@ export class AppModule implements DoBootstrap {
         component: RoleDeleteModalComponent
       }) as angular.IDirectiveFactory);
 
+    angular.module('kommonitorAdmin')
+      .directive('roleEditMetadataModalNew', downgradeComponent({
+        component: RoleEditMetadataModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('roleEditGroupRightsModalNew', downgradeComponent({
+        component: RoleEditGroupRightsModalComponent
+      }) as angular.IDirectiveFactory);
+
     console.log("registered downgraded Angular components for AngularJS usage");
   }
 
@@ -426,7 +441,7 @@ export class AppModule implements DoBootstrap {
   };
 
   /*
- LOAD CONFIG FILES FROM CONFIG STORAGE SERVER
+  LOAD CONFIG FILES FROM CONFIG STORAGE SERVER
 */
   private ajaxCall_keycloakConfig(configStorageServerConfig: any): JQuery.jqXHR<any> {
     console.log("try to fetch keycloak config file");
@@ -525,7 +540,7 @@ export class AppModule implements DoBootstrap {
       success: function(result){
         console.log("local filter-config file with default values fetched");
         window.__env.filterConfig = result;
-        return;
+        return; 
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) { 
         console.log("Error parsing local filterConfig.json backup file");
@@ -649,27 +664,6 @@ export class AppModule implements DoBootstrap {
             return output;
         };
     });
-
-    angular.module('kommonitorClient').service("ControlsConfigService", ['$http', function ($http) {
-      window.__env.config = null;
-
-      // var resourcePath = window.__env.configStorageServerConfig ? window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig : './config/controls-config_backup.json';
-      var resourcePath = './config/controls-config_backup.json';
-      var promise = $http.get(resourcePath).then(function (response) {
-        // window.__env.config = response.data;
-        window.__env.config = window.__env.controlsConfig;
-      });
-
-      return {
-        promise: promise,
-        setData: function (response) {
-          window.__env.config = window.__env.controlsConfig;
-        },
-        getControlsConfig: function () {
-          return window.__env.config;
-        }
-      };
-    }]);
 
     // init/configure SPA routing
     angular.module('kommonitorClient').
@@ -802,7 +796,7 @@ export class AppModule implements DoBootstrap {
   //         encryptedWordArray.words.slice(this.env.encryption.ivLength_byte / 4)
   //       )
   //     },
-  //     hashedKey,
+  //       hashedKey,
   //     { iv: iv }
   //   );
 

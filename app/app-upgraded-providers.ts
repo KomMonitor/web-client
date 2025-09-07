@@ -8,7 +8,7 @@ import {kommonitorDataGridHelperService} from 'util/genericServices/kommonitorDa
 import {kommonitorDiagramHelperService} from 'util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module';
 import {kommonitorFilterHelperService} from 'util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module';
 import {kommonitorImporterHelperService} from 'util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module';
-import {kommonitorKeycloackHelperService} from 'util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module'
+import {kommonitorKeycloakHelperService} from 'util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module'
 import {kommonitorMultistepFormHelperService} from 'util/genericServices/kommonitorMultiStepFormHelperService/kommonitor-multi-step-form-helper-service.module'
 import {kommonitorScriptHelperService} from'util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module';
 import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module'
@@ -102,15 +102,15 @@ export const ajskommonitorImporterHelperServiceProvider: any = {
     useFactory:kommonitorImporterHelperServiceFactory,
   };
 
-//keycloack helper
-  export function kommonitorKeycloackHelperServiceFactory (injector:any){
-    return injector.get('kommonitorKeycloackHelperService')
+//keycloak helper
+  export function kommonitorKeycloakHelperServiceFactory (injector:any){
+    return injector.get('kommonitorKeycloakHelperService')
 }
 
-export const ajskommonitorKeycloackHelperServiceProvider: any = {
+export const ajskommonitorKeycloakHelperServiceProvider: any = {
     deps: ['$injector'],
-    provide: 'kommonitorKeycloackHelperService',
-    useFactory:kommonitorKeycloackHelperServiceFactory,
+    provide: 'kommonitorKeycloakHelperService',
+    useFactory:kommonitorKeycloakHelperServiceFactory,
   };
 
  //multistep form
@@ -302,7 +302,7 @@ export const ajskommonitorFavServiceProvider: any = {
     ajskommonitorDataGridHelperServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,
     ajskommonitorFilterHelperServiceProvider,
-    ajskommonitorKeycloackHelperServiceProvider,
+    ajskommonitorKeycloakHelperServiceProvider,
     ajskommonitorMultiStepFormHelperServiceProvider,
     ajskommonitorScriptHelperServiceProvider,
     ajskommonitorShareHelperServiceProvider,

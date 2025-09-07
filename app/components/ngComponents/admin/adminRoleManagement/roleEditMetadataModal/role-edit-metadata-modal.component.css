@@ -1,0 +1,69 @@
+.loading-overlay-admin-panel {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgb(128,128,128);
+  top: 0;
+  left: 0;
+  border-radius: 5px;
+  opacity: 0.8;
+  z-index: 100000;
+}
+
+.loading-overlay-admin-panel .icon-spin {
+  font-size: 25px;
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -12.5px 0 0 -12.5px;
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin:50% 50%;
+  -ms-transform-origin:50% 50%;
+}
+
+@-webkit-keyframes spin {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.fs-title {
+  margin-top: 0.5em;
+}
+
+.vertical-align {
+  display: flex;
+  align-items: flex-start;
+}
+
+#progressbar {
+  margin-bottom: 30px;
+  overflow: hidden;
+  counter-reset: step;
+}
+
+#progressbar li {
+  list-style-type: none;
+  color: #666;
+  text-transform: uppercase;
+  font-size: 9px;
+  width: 33.33%;
+  float: left;
+  position: relative;
+}
+
+#progressbar li.active {
+  color: #2c3e50;
+}
+
+

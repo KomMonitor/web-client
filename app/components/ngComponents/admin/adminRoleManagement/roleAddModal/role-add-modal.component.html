@@ -13,7 +13,7 @@
 
   <div class="row">
     <div class="col-md-12">
-      <form class="form-group" style="margin-bottom: 0px;">
+      <form class="multiStepForm form-group" id="ouAddForm" role="form" style="margin-bottom: 0px;">
         <div>
           <ul id="progressbar">
             <li style="width: 50%;" class="active">Basisinformationen</li>
@@ -29,18 +29,19 @@
           <div class="row vertical-align">
             <div class="col-md-4">
               <label>Name*</label>
-              <input class="form-control" type="text" placeholder="z.B. Fachbereich 52" [(ngModel)]="newOrganizationalUnit.name" name="ouName" (ngModelChange)="checkRoleName()" required />
+              <input style="width:100%;" class="form-control" type="text" placeholder="z.B. Fachbereich 52" [(ngModel)]="newOrganizationalUnit.name" name="ouName" (ngModelChange)="checkRoleName()" required />
+              <div class="help-block with-errors"></div>
               <div *ngIf="nameInvalid" style="color: red;">
                 <p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Organisationseinheit mit gleichem Namen.</p>
               </div>
             </div>
             <div class="col-md-4">
               <label>Beschreibung*</label>
-              <textarea class="form-control" rows="4" [(ngModel)]="newOrganizationalUnit.description" name="ouDesc" required></textarea>
+              <textarea style="width:100%;" class="form-control" rows="4" placeholder="z.B. Abteilung 52 von Musterstadt" [(ngModel)]="newOrganizationalUnit.description" name="ouDesc" required></textarea>
             </div>
             <div class="col-md-4">
               <label>Kontakt*</label>
-              <textarea class="form-control" rows="4" [(ngModel)]="newOrganizationalUnit.contact" name="ouContact" required></textarea>
+              <textarea style="width:100%;" class="form-control" rows="4" placeholder="z.B. sekretariat@kommonitor.de" [(ngModel)]="newOrganizationalUnit.contact" name="ouContact" required></textarea>
             </div>
           </div>
 
@@ -55,6 +56,9 @@
                   <input type="checkbox" [(ngModel)]="newOrganizationalUnit.mandant" name="ouMandant">
                   <span class="switchslider round"></span>
                 </label>
+                <div class="help-block">
+                  <p>Als Mandant markierte Organisationseinheiten haben die M&ouml;glichkeit, eigene Untergruppenhierarchien, Themenb&auml;me, Raumeinheiten und User zu verwalten, vollst&auml;ndig isoliert von weiteren Mandanten der gleichen KomMonitor Instanz.</p>
+                </div>
               </div>
             </div>
             <div class="col-md-4">
@@ -92,6 +96,14 @@
             </div>
             <div class="box-body">
               Sollen bereits existierende Organisationseinheiten/Gruppen administrative Aufgaben f&uuml;r die neu anzulegende Gruppe &uuml;bernehmen?
+              Administrative Rechte k&ouml;nnen hier durch entsprechende H&auml;kchen an andere Gruppen &uuml;bertragen werden.
+              <br>
+              <br>
+              <i><b>Unterschied Diese Gruppe / Untergruppen:</b> Diese Angabe kontrolliert, ob delegierte administrative Aufgaben nur f&uuml;r die gew&auml;hlte Gruppe explizit erlaubt werden, oder ob sich die delegierte Administration auch auf die Untergruppen der gew&auml;hlten Gruppe erstreckt.
+                Beispiel: eine neue Gruppe 'Amt &Uuml;bergeordnet' (inkl. weiterer Untergruppen) wird erstellt und soll von einer bereits vorhandenen Gruppe 'Amt Globaladmin' verwaltet werden. Wenn nun administrative Rechte an 'Amt Globaladmin' zugewiesen werden, muss entschieden werden, ob 'Amt Globaladmin' nur die explizite Gruppe ('Amt &Uuml;bergeordnet') verwalten darf, oder auch alle Ihre etwaigen Untergruppen.</i>
+              <br>
+              <br>
+              <i><b>Achtung: Die Rechte der neu angelegten Organisationseinheit k&ouml;nnen erst nach Erzeugung innerhalb des 'Rechte editieren' Men&uuml;s gesetzt werden.</b></i>
             </div>
           </div>
 

@@ -67,10 +67,12 @@
                 [paginationPageSize]="paginationPageSize"
                 [paginationPageSizeSelector]="paginationPageSizeSelector"
                 [rowSelection]="'multiple'"
-                [suppressRowClickSelection]="true"
+                [suppressRowClickSelection]="false"
+                [rowMultiSelectWithClick]="true"
                 [enableCellTextSelection]="true"
                 [ensureDomOrder]="true"
                 [suppressColumnVirtualisation]="true"
+                (rowClicked)="onRowClicked($event)"
                 (firstDataRendered)="onFirstDataRendered($event)"
                 (columnResized)="onColumnResized($event)">
               </ag-grid-angular>

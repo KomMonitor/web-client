@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, Inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
@@ -32,18 +31,13 @@ export class RoleDeleteModalComponent implements OnInit, OnDestroy {
   constructor(
     public activeModal: NgbActiveModal,
     @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    private broadcastService: BroadcastService,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe(msg => {
-      if (msg.msg === 'onDeleteOrganizationalUnit') {
-        const datasets = Array.isArray(msg.values) ? msg.values : [msg.values];
-        this.onDeleteOrganizationalUnit(datasets);
-      }
-    });
-    this.subscriptions.push(sub);
+    if (this.elementsToDelete && this.elementsToDelete.length > 0) {
+      this.onDeleteOrganizationalUnit(this.elementsToDelete);
+    }
   }
 
   ngOnDestroy(): void {
@@ -51,11 +45,13 @@ export class RoleDeleteModalComponent implements OnInit, OnDestroy {
   }
 
   onDeleteOrganizationalUnit(datasets: any[]): void {
+    try { console.debug('[RoleDeleteModal] Init delete with datasets', (datasets || []).map(d => d?.organizationalUnitId)); } catch {}
     this.resetRolesDeleteForm();
     // Filter out system orgs like legacy behavior
     const originalSize = datasets.length;
     const filtered = (datasets || []).filter((org: any) => org.name !== 'public' && org.name !== 'kommonitor');
     this.elementsToDelete = filtered;
+    try { console.debug('[RoleDeleteModal] elementsToDelete', this.elementsToDelete.map(d => d?.organizationalUnitId)); } catch {}
     if (filtered.length < originalSize) {
       this.failedDatasetsAndErrors.push([{ name: 'public / kommonitor' }, 'System Organisationseinheiten können nicht gelöscht werden! Die betroffene Einheit wurde aus der Liste entfernt.']);
       this.showErrorAlert = true;
@@ -66,6 +62,7 @@ export class RoleDeleteModalComponent implements OnInit, OnDestroy {
     this.affectedIndicators = this.gatherAffectedIndicators();
 
     this.organizationalChildrenEffected = this.hasOrganizationalChildren();
+    try { console.debug('[RoleDeleteModal] affected counts', { su: this.affectedSpatialUnits.length, gr: this.affectedGeoresources.length, ind: this.affectedIndicators.length }); } catch {}
   }
 
   private hasOrganizationalChildren(): boolean {
@@ -192,15 +189,7 @@ export class RoleDeleteModalComponent implements OnInit, OnDestroy {
     }
     if (this.successfullyDeletedDatasets.length > 0) {
       this.showSuccessAlert = true;
-      // fetch metadata again as roles were deleted and refresh overview table
-      this.broadcastService.broadcast('refreshAccessControlTable', {
-        crudType: 'delete',
-        targetId: this.successfullyDeletedDatasets.map(d => d.organizationalUnitId)
-      });
-      // refresh admin dashboard diagrams
-      setTimeout(() => {
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
-      }, 300);
+      // Parent should refresh table after modal closes
     }
     setTimeout(() => {
       this.loadingData = false;

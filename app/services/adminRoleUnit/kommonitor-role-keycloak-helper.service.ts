@@ -4,7 +4,7 @@ import { Injectable, Inject } from '@angular/core';
 export class KommonitorRoleKeycloakHelperService {
 
   constructor(
-    @Inject('kommonitorKeycloackHelperService') private angularJsKeycloakHelper: any
+    @Inject('kommonitorKeycloakHelperService') private angularJsKeycloakHelper: any
   ) {}
 
   async fetchAndSetKeycloakRoles(): Promise<void> {
@@ -16,6 +16,15 @@ export class KommonitorRoleKeycloakHelperService {
   async postNewGroup(organizationalUnit: any, parentOrganizationalUnit: any | null): Promise<void> {
     if (this.angularJsKeycloakHelper?.postNewGroup) {
       await this.angularJsKeycloakHelper.postNewGroup(organizationalUnit, parentOrganizationalUnit);
+    }
+  }
+
+  async renameExistingRoles(oldName: string, newName: string): Promise<void> {
+    if (oldName === newName) {
+      return;
+    }
+    if (this.angularJsKeycloakHelper?.renameExistingRoles) {
+      await this.angularJsKeycloakHelper.renameExistingRoles(oldName, newName);
     }
   }
 }
