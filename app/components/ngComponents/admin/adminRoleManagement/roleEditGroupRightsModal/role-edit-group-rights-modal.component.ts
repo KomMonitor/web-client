@@ -445,7 +445,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     public kommonitorDataExchangeService: KommonitorRoleDataExchangeService,
     @Inject('kommonitorMultiStepFormHelperService') private multiStepFormHelper: any,
-    private roleDataGridHelper: KommonitorRoleDataGridHelperService
+    public roleDataGridHelper: KommonitorRoleDataGridHelperService
   ) {}
 
   ngOnInit(): void {
@@ -490,9 +490,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     this.buildAuthorityRolesTable();
     this.buildDelegatedRolesTable();
 
-    try {
-      this.multiStepFormHelper?.registerClickHandler('roleEditGroupRightsMultistepForm');
-    } catch {}
+    // Do not register legacy jQuery multi-step handlers in Angular component
+    // to avoid conflicts with Angular's currentStep state.
   }
 
   onActiveDelegatedRolesOnlyChange(): void {
@@ -523,16 +522,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
       );
 
       if (this.authorityRoleManagementTableOptions) {
-        // Override to AngularJS-style advanced column groups and components
-        this.authorityRoleManagementTableOptions.components = {
-          ...(this.authorityRoleManagementTableOptions.components || {}),
-          checkboxRenderer_UM_group: this.CheckboxRenderer_UM_group,
-          checkboxRenderer_UM_subGroup: this.CheckboxRenderer_UM_subGroup,
-          checkboxRenderer_RM_group: this.CheckboxRenderer_RM_group,
-          checkboxRenderer_RM_subGroup: this.CheckboxRenderer_RM_subGroup,
-          checkboxRenderer_TM_group: this.CheckboxRenderer_TM_group,
-          checkboxRenderer_TM_subGroup: this.CheckboxRenderer_TM_subGroup
-        };
+        // Use shared advanced components to avoid registration mismatches
+        this.authorityRoleManagementTableOptions.components = this.roleDataGridHelper.getAdvancedRoleManagementGridComponents();
         this.authorityColumnDefs = this.buildAdvancedRoleManagementGridColumnConfig();
         // Mark rows disabled to make authority table read-only
         this.authorityRowData = (this.authorityRoleManagementTableOptions.rowData || []).map((row: any) => ({ ...row, disabled: true }));
@@ -579,16 +570,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
       );
 
       if (this.delegatedRoleManagementTableOptions) {
-        // Override to AngularJS-style advanced column groups and components
-        this.delegatedRoleManagementTableOptions.components = {
-          ...(this.delegatedRoleManagementTableOptions.components || {}),
-          checkboxRenderer_UM_group: this.CheckboxRenderer_UM_group,
-          checkboxRenderer_UM_subGroup: this.CheckboxRenderer_UM_subGroup,
-          checkboxRenderer_RM_group: this.CheckboxRenderer_RM_group,
-          checkboxRenderer_RM_subGroup: this.CheckboxRenderer_RM_subGroup,
-          checkboxRenderer_TM_group: this.CheckboxRenderer_TM_group,
-          checkboxRenderer_TM_subGroup: this.CheckboxRenderer_TM_subGroup
-        };
+        // Use shared advanced components to avoid registration mismatches
+        this.delegatedRoleManagementTableOptions.components = this.roleDataGridHelper.getAdvancedRoleManagementGridComponents();
         this.delegatedColumnDefs = this.buildAdvancedRoleManagementGridColumnConfig();
         this.delegatedRowData = this.delegatedRoleManagementTableOptions.rowData || [];
         this.delegatedDefaultColDef = this.roleDataGridHelper.buildRoleManagementDefaultColDef();
@@ -616,8 +599,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     columnDefs.push({
       headerName: 'Verwalten von Nutzern',
       children: [
-        { field: 'Dieser Gruppe', cellRenderer: 'checkboxRenderer_UM_group' },
-        { field: 'Untergruppen', cellRenderer: 'checkboxRenderer_UM_subGroup' }
+        { field: 'Dieser Gruppe', cellRenderer: 'CheckboxRenderer_UM_group' },
+        { field: 'Untergruppen', cellRenderer: 'CheckboxRenderer_UM_subGroup' }
       ],
       field: 'permissions',
       filter: false,
@@ -627,8 +610,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     columnDefs.push({
       headerName: 'Verwalten von Resourcen',
       children: [
-        { field: 'Dieser Gruppe', cellRenderer: 'checkboxRenderer_RM_group' },
-        { field: 'Untergruppen', cellRenderer: 'checkboxRenderer_RM_subGroup' }
+        { field: 'Dieser Gruppe', cellRenderer: 'CheckboxRenderer_RM_group' },
+        { field: 'Untergruppen', cellRenderer: 'CheckboxRenderer_RM_subGroup' }
       ],
       field: 'permissions',
       filter: false,
@@ -638,8 +621,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     columnDefs.push({
       headerName: 'Verwalten von Themen',
       children: [
-        { field: 'Dieser Gruppe', cellRenderer: 'checkboxRenderer_TM_group' },
-        { field: 'Untergruppen', cellRenderer: 'checkboxRenderer_TM_subGroup' }
+        { field: 'Dieser Gruppe', cellRenderer: 'CheckboxRenderer_TM_group' },
+        { field: 'Untergruppen', cellRenderer: 'CheckboxRenderer_TM_subGroup' }
       ],
       field: 'permissions',
       filter: false,
@@ -650,24 +633,23 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   }
 
   async editRoleDelegates(): Promise<void> {
-    // Recreate json permission structure out of "unitIds-roleName"
+    // Build permissions directly from delegated grid rowData to avoid cross-grid API conflicts
     const permissions: Record<string, string[]> = {};
     this.delegatedRoleIDs = [];
 
-    const selected = this.roleDataGridHelper.getSelectedRoleIds_roleManagementGrid(this.delegatedRoleManagementTableOptions) || [];
-    (selected as string[]).forEach((permission: string) => {
-      const parts = permission.split('-');
-      const unitId = parts.slice(0, 5).join('-');
-      const role = parts.slice(5).join('-');
-
-      if (!permissions[unitId]) {
-        permissions[unitId] = [];
+    const rows: any[] = (this.delegatedRoleManagementTableOptions?.rowData || []) as any[];
+    for (const row of rows) {
+      if (!row?.permissions) continue;
+      for (const p of row.permissions) {
+        if (!p?.isChecked || !p?.permissionId) continue;
+        const parts = (p.permissionId as string).split('-');
+        const unitId = parts.slice(0, 5).join('-');
+        const role = parts.slice(5).join('-');
+        if (!permissions[unitId]) permissions[unitId] = [];
+        if (!permissions[unitId].includes(role)) permissions[unitId].push(role);
       }
-      if (!permissions[unitId].includes(role)) {
-        permissions[unitId].push(role);
-        this.delegatedRoleIDs.push(unitId);
-      }
-    });
+    }
+    this.delegatedRoleIDs = Object.keys(permissions);
 
     const putBody: any[] = [];
     for (const key of Object.keys(permissions)) {
@@ -688,11 +670,9 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
     this.http.put(url, putBody).subscribe({
       next: async () => {
         this.successMessagePart = this.current?.name;
+        this.errorMessagePart = undefined;
         this.buildAuthorityRolesTable();
         this.buildDelegatedRolesTable();
-
-        const successEl = document.getElementById('editOuRoleDelegatesSuccessAlert');
-        if (successEl) { successEl.hidden = false; }
         setTimeout(() => { this.loadingData = false; }, 0);
       },
       error: (error: any) => {
@@ -701,8 +681,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
         } else {
           this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
         }
-        const errorEl = document.getElementById('editRoleDelegatesErrorAlert');
-        if (errorEl) { errorEl.hidden = false; }
+        this.successMessagePart = undefined;
         this.loadingData = false;
       }
     });
@@ -711,23 +690,15 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   resetRoleDelegatesForm(): void {
     this.successMessagePart = undefined;
     this.errorMessagePart = undefined;
-
     this.buildDelegatedRolesTable();
-
-    const successEl = document.getElementById('editOuRoleDelegatesSuccessAlert');
-    if (successEl) { successEl.hidden = true; }
-    const errorEl = document.getElementById('editRoleDelegatesErrorAlert');
-    if (errorEl) { errorEl.hidden = true; }
   }
 
   hideSuccessAlert(): void {
-    const successEl = document.getElementById('editOuRoleDelegatesSuccessAlert');
-    if (successEl) { successEl.hidden = true; }
+    this.successMessagePart = undefined;
   }
 
   hideErrorAlert(): void {
-    const errorEl = document.getElementById('editRoleDelegatesErrorAlert');
-    if (errorEl) { errorEl.hidden = true; }
+    this.errorMessagePart = undefined;
   }
 
   toggleAuthorityInfo(): void {
@@ -739,20 +710,28 @@ export class RoleEditGroupRightsModalComponent implements OnInit, OnDestroy {
   }
 
   nextStep(): void {
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
+    this.goToStep(this.currentStep + 1);
   }
 
   prevStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
+    this.goToStep(this.currentStep - 1);
   }
 
   goToStep(step: number): void {
-    if (step >= 1 && step <= this.totalSteps) {
+    if (step < 1) {
+      this.currentStep = 1;
+    } else if (step > this.totalSteps) {
+      this.currentStep = this.totalSteps;
+    } else {
       this.currentStep = step;
+    }
+
+    // Build tables on entering steps, mirroring role-add modal behavior
+    if (this.currentStep === 1) {
+      // ensure authority grid is ready
+      this.buildAuthorityRolesTable();
+    } else if (this.currentStep === 2) {
+      this.buildDelegatedRolesTable();
     }
   }
 }

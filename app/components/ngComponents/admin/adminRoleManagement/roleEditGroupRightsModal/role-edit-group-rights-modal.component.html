@@ -21,7 +21,7 @@
           </ul>
         </div>
 
-        <fieldset [hidden]="currentStep !== 1">
+        <fieldset *ngIf="currentStep === 1">
           <h2 class="fs-title">Zugewiesene admnistrative Rechte</h2>
           <div class="box box-info collapsed-box">
             <div class="box-header">
@@ -48,7 +48,7 @@
                 [columnDefs]="authorityColumnDefs"
                 [rowData]="authorityRowData"
                 [defaultColDef]="authorityDefaultColDef"
-                [components]="authorityRoleManagementTableOptions?.components"
+                [components]="roleDataGridHelper.getAdvancedRoleManagementGridComponents()"
                 [gridOptions]="authorityGridOptions">
               </ag-grid-angular>
             </div>
@@ -60,7 +60,7 @@
           </div>
         </fieldset>
 
-        <fieldset [hidden]="currentStep !== 2">
+        <fieldset *ngIf="currentStep === 2">
           <h2 class="fs-title">Delegierte administrative Rechte</h2>
           <div class="box box-info collapsed-box">
             <div class="box-header">
@@ -96,7 +96,7 @@
                 [columnDefs]="delegatedColumnDefs"
                 [rowData]="delegatedRowData"
                 [defaultColDef]="delegatedDefaultColDef"
-                [components]="delegatedRoleManagementTableOptions?.components"
+                [components]="roleDataGridHelper.getAdvancedRoleManagementGridComponents()"
                 [gridOptions]="delegatedGridOptions">
               </ag-grid-angular>
             </div>
@@ -117,13 +117,13 @@
   <button type="button" class="btn btn-danger" (click)="resetRoleDelegatesForm()">Zur&uuml;cksetzen</button>
 </div>
 
-<div id="editOuRoleDelegatesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+<div *ngIf="successMessagePart" style="position: absolute; bottom: 0px; width: 100%;" class="alert alert-success alert-dismissable">
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-check"></i>Rolle aktualisiert</h4>
   Die Metadaten der Rolle mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in die &Uuml;bersichtstabelle eingetragen.
   </div>
 
-<div id="editRoleDelegatesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+<div *ngIf="errorMessagePart" style="position: absolute; bottom: 0px; width: 100%;" class="alert alert-danger alert-dismissable">
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
   Bei der Aktualisierung der Metadaten der Rolle ist ein Fehler aufgetreten.
