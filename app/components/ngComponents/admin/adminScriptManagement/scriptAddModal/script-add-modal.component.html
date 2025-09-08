@@ -1,0 +1,364 @@
+<div class="modal-header">
+  <h4 class="modal-title">Neues Indikatoren-Berechnungs-Skript registrieren</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('close')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-body">
+  <form class="multiStepForm form-group" id="scriptAddForm" role="form" (submit)="$event.preventDefault()" style="margin-bottom: 0px;">
+    <div>
+      <ul id="progressbar">
+        <li style="width: 33.333%; cursor: pointer;" [class.active]="currentStep >= 0" [class.clickable]="true" (click)="goToStep(0)">Einleitende Hinweise</li>
+        <li style="width: 33.333%; cursor: pointer;" [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)">Metadaten des Indikators-Skripts</li>
+        <li style="width: 33.333%; cursor: pointer;" [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)">Skriptinhalt und Parametrisierung</li>
+      </ul>
+    </div>
+
+    <fieldset *ngIf="currentStep === 0">
+      <h2 class="fs-title">Einleitende Hinweise</h2>
+      <div class="row vertical-align">
+        <div class="col-md-9 col-sm-9 col-xs-12">
+          <div class="text-left">
+            <p>KomMonitor erlaubt die automatisierte Fortführung/Berechnung von Indikatoren aus Georessourcen oder anderen (Sub-)Indikatoren. Dazu sind zwei Schritte notwendig:</p>
+            <ol class="list-unstyled scriptAddFormList">
+              <li>
+                <b><u>Erster Schritt:</u></b>
+                Auswahl / Anlegen des zu berechnenden <b><i>Ziel-Indikators</i></b> mittels Indikatoren-Verwaltung.
+              </li>
+              <br />
+              <li>
+                <b><u>Zweiter Schritt:</u></b>
+                Anlegen des Berechnungs-Skripts mittels Skriptverwaltung unter Auswahl des zuvor definierten Ziel-Indikators.
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">
+          <div class="form-group">
+            <div class="alert alert-warning">
+              <b>Falls für Indikatoren durch das Berechnungsskript erstmalig neue Raumeinheiten verknüpft werden, so werden die Zugriffsrechte aus den zugehörigen Metadaten übernommen</b>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input type="button" name="next" class="next next_addScript action-button" value="Nächster Schritt" (click)="nextStep()" />
+    </fieldset>
+
+    <fieldset *ngIf="currentStep === 1">
+      <h2 class="fs-title">Metadaten des Indikators-Skripts</h2>
+      <h3 class="fs-subtitle">Angaben über Metadaten des Indikatoren-Berechnungs-Skripts</h3>
+      <p><b><i>* = Pflichtfeld</i></b></p>
+    <div class="row vertical-align">
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Skriptname*</label>
+          <input type="text" class="form-control" [(ngModel)]="datasetName" name="datasetName" placeholder="Name" required />
+          <div class="help-block"><p>Name des anzulegenden Skripts.</p></div>
+        </div>
+      </div>
+      <div class="col-md-8 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Skript-Beschreibung*</label>
+          <textarea rows="3" class="form-control" [(ngModel)]="description" name="description" placeholder="Beschreibung" required></textarea>
+          <div class="help-block"><p>Hinweise über die Berechnung des Ziel-Indikators mittels des Skripts</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row vertical-align">
+      <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Ziel-Indikator*</label>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+            <input type="text" class="form-control input-sm" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter" placeholder="Stichwortfilter" />
+          </div>
+          <br />
+          <select class="form-control" size="6" [ngModel]="selectedTargetIndicator" (ngModelChange)="onChangeTargetIndicator($event)" name="targetIndicator">
+            <option [ngValue]="null" disabled> -- Ziel-Indikator wählen -- </option>
+            <option *ngFor="let ind of filteredIndicators" [ngValue]="ind">
+              {{ind.indicatorName}} [{{ind.unit}}]
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="row vertical-align">
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <label>ID des selektierten Ziel-Indikators</label>
+              <input class="form-control input-sm" [value]="selectedTargetIndicator?.indicatorId || ''" disabled />
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <label>Name des selektierten Ziel-Indikators</label>
+              <input class="form-control input-sm" [value]="selectedTargetIndicator?.indicatorName || ''" disabled />
+            </div>
+          </div>
+        </div>
+        <div class="row vertical-align">
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <label>Beschreibung</label>
+              <textarea rows="4" class="form-control input-sm" [value]="selectedTargetIndicator?.metadata?.description || ''" disabled></textarea>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <label>Einheit</label>
+              <input class="form-control input-sm" [value]="selectedTargetIndicator?.unit || ''" disabled />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input type="button" name="previous" class="previous previous_addScript action-button-previous" value="Voriger Schritt" (click)="prevStep()" />
+    <input type="button" name="next" class="next next_addScript action-button" value="Nächster Schritt" (click)="nextStep()" />
+    </fieldset>
+
+    <fieldset *ngIf="currentStep === 2">
+    <h4>Notwendige (Basis-)Indikatoren</h4>
+    <div class="row vertical-align">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="form-group">
+          <label>Auswahl der (Basis-)Indikatoren</label>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+            <input type="text" class="form-control input-sm" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter2" placeholder="Stichwortfilter" />
+          </div>
+          <br />
+          <select class="form-control" size="5" [(ngModel)]="tmpIndicatorSelection" name="tmpIndicatorSelection">
+            <option [ngValue]="null" disabled> -- Indikator wählen -- </option>
+            <option *ngFor="let ind of filteredIndicators" [ngValue]="ind">
+              {{ind.indicatorName}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <button class="btn btn-success btn-sm" type="button" [disabled]="!tmpIndicatorSelection" (click)="addBaseIndicator()">Hinzufügen</button>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>Editierfunktionen</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Beschreibung</th>
+              <th>Einheit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let baseInd of scriptHelper.requiredIndicators_tmp">
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-danger btn-sm" type="button" (click)="removeBaseIndicator(baseInd)" title="Eintrag löschen"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+              <td>{{baseInd.indicatorId}}</td>
+              <td>{{baseInd.indicatorName}}</td>
+              <td>{{baseInd?.metadata?.description}}</td>
+              <td>{{baseInd.unit}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr />
+
+    <h4>Notwendige Georessourcen</h4>
+    <div class="row vertical-align">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="form-group">
+          <label>Auswahl der Georessourcen</label>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+            <input type="text" class="form-control input-sm" [(ngModel)]="georesourceNameFilter" name="georesourceNameFilter" placeholder="Stichwortfilter" />
+          </div>
+          <br />
+          <select class="form-control" size="5" [(ngModel)]="tmpGeoresourceSelection" name="tmpGeoresourceSelection">
+            <option [ngValue]="null" disabled> -- Georessource wählen -- </option>
+            <option *ngFor="let geo of filteredGeoresources" [ngValue]="geo">
+              {{geo.datasetName}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <button class="btn btn-success btn-sm" type="button" [disabled]="!tmpGeoresourceSelection" (click)="addBaseGeoresource()">Hinzufügen</button>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>Editierfunktionen</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Beschreibung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let baseGeo of scriptHelper.requiredGeoresources_tmp">
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-danger btn-sm" type="button" (click)="removeBaseGeoresource(baseGeo)" title="Eintrag löschen"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+              <td>{{baseGeo.georesourceId}}</td>
+              <td>{{baseGeo.datasetName}}</td>
+              <td>{{baseGeo?.metadata?.description}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr />
+
+    <h4>Optionale Skript-Parameter</h4>
+    <div class="row vertical-align">
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Parametername*</label>
+          <input class="form-control" [(ngModel)]="parameterNameTmp" name="parameterNameTmp" />
+        </div>
+      </div>
+      <div class="col-md-8 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Beschreibung*</label>
+          <textarea rows="3" class="form-control" [(ngModel)]="parameterDescriptionTmp" name="parameterDescriptionTmp"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Datentyp*</label>
+          <select class="form-control" size="5" [(ngModel)]="parameterDataTypeTmp" name="parameterDataTypeTmp" (change)="onParamTypeChange()">
+            <option [ngValue]="null" disabled> -- Datentyp wählen -- </option>
+            <option *ngFor="let opt of availableScriptDataTypes" [ngValue]="opt">{{opt.displayName}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Standard-Wert*</label>
+          <input class="form-control" [type]="parameterDataTypeTmp?.apiName === 'boolean' ? 'checkbox' : (parameterDataTypeTmp?.apiName === 'string' ? 'text' : 'number')"
+                 [(ngModel)]="parameterDefaultValueTmp" name="parameterDefaultValueTmp" />
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="parameterDataTypeTmp?.apiName === 'integer' || parameterDataTypeTmp?.apiName === 'double'">
+        <div class="form-group">
+          <label>Minimaler Wert</label>
+          <input class="form-control" type="number" [(ngModel)]="parameterNumericMinValueTmp" name="parameterNumericMinValueTmp" />
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="parameterDataTypeTmp?.apiName === 'integer' || parameterDataTypeTmp?.apiName === 'double'">
+        <div class="form-group">
+          <label>Maximaler Wert</label>
+          <input class="form-control" type="number" [(ngModel)]="parameterNumericMaxValueTmp" name="parameterNumericMaxValueTmp" />
+        </div>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <button type="button" class="btn btn-success btn-sm" [disabled]="!parameterNameTmp || !parameterDescriptionTmp || parameterDefaultValueTmp === undefined || parameterDefaultValueTmp === null || !parameterDataTypeTmp" (click)="addScriptParameter()">Hinzufügen</button>
+      </div>
+    </div>
+    <div class="row vertical-align">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>Editierfunktionen</th>
+              <th>Name</th>
+              <th>Beschreibung</th>
+              <th>Datentyp</th>
+              <th>Standard-Wert</th>
+              <th>Min</th>
+              <th>Max</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of scriptHelper.requiredScriptParameters_tmp">
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-danger btn-sm" type="button" (click)="removeScriptParameter(p)" title="Eintrag löschen"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+              <td>{{p.name}}</td>
+              <td>{{p.description}}</td>
+              <td>{{p.dataType}}</td>
+              <td>{{p.defaultValue}}</td>
+              <td><span *ngIf="p.dataType === 'integer' || p.dataType === 'double'">{{p.minParameterValueForNumericInputs}}</span></td>
+              <td><span *ngIf="p.dataType === 'integer' || p.dataType === 'double'">{{p.maxParameterValueForNumericInputs}}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr />
+
+    <h4>Skript Code</h4>
+    <div class="row vertical-align">
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="form-group">
+          <label>Script-Datei auswählen</label>
+          <input type="file" class="form-control" (change)="onScriptFileSelected($event)" accept=".js" />
+          <div class="help-block">Der Skript Code muss als Klartext Javascript Datei hochgeladen werden</div>
+        </div>
+      </div>
+    </div>
+    <div class="row vertical-align" *ngIf="scriptCodePreview">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="form-group">
+          <label>Vorschaufenster des Skript-Codes*</label>
+          <pre class="prettyprint linenums" style="max-height: 450px; overflow: auto; text-align: left;"><code class="language-javascript">{{scriptCodePreview}}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <input type="button" name="previous" class="previous previous_addScript action-button-previous" value="Voriger Schritt" (click)="prevStep()" />
+    </fieldset>
+
+    <div class="alert alert-danger alert-dismissable" *ngIf="errorMessagePart">
+      <button type="button" class="close" (click)="errorMessagePart = undefined" aria-hidden="true">&times;</button>
+      <h4><i class="icon fa fa-ban"></i>Skript-Registrierung gescheitert</h4>
+      <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+    </div>
+
+    <div class="alert alert-danger alert-dismissable" *ngIf="errorMessagePartIndicatorMetadata">
+      <button type="button" class="close" (click)="errorMessagePartIndicatorMetadata = undefined" aria-hidden="true">&times;</button>
+      <h4><i class="icon fa fa-ban"></i>Aktualisierung der Ziel-Indikator Methodik gescheitert</h4>
+      <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePartIndicatorMetadata"></pre>
+    </div>
+
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="activeModal.dismiss('close')">Schließen</button>
+  <button type="button" class="btn btn-success" [disabled]="!canSubmit()" (click)="onRegisterScript()">Skript registrieren</button>
+  <button type="button" class="btn btn-danger" (click)="scriptHelper.reset(); datasetName=''; description=''; selectedTargetIndicator=null; requiredIndicators=[]; requiredGeoresources=[]; scriptCodePreview=undefined;">Zurücksetzen</button>
+</div>
+
+

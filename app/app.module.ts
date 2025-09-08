@@ -98,6 +98,8 @@ import { IndicatorBatchUpdateModalComponent } from './components/ngComponents/ad
 import { AdminGeoresourcesManagementComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/admin-georesources-management.component';
 import { AdminScriptExecutionComponent } from './components/ngComponents/admin/adminScriptExecution/admin-script-execution.component';
 import { AdminScriptManagementComponent } from './components/ngComponents/admin/adminScriptManagement/admin-script-management.component';
+import { ScriptAddModalComponent } from './components/ngComponents/admin/adminScriptManagement/scriptAddModal/script-add-modal.component';
+import { ScriptDeleteModalComponent } from './components/ngComponents/admin/adminScriptManagement/scriptDeleteModal/script-delete-modal.component';
 import { GeoresourceAddModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.component';
 import { GeoresourceBatchUpdateModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 import { GeoresourceEditMetadataModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
@@ -226,7 +228,9 @@ declare var MathJax;
     RoleDeleteModalComponent,
     RoleEditMetadataModalComponent,
     RoleEditGroupRightsModalComponent,
-    AdminScriptExecutionComponent
+    AdminScriptExecutionComponent,
+    ScriptAddModalComponent,
+    ScriptDeleteModalComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

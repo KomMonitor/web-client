@@ -1,0 +1,156 @@
+.loading-overlay-admin-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.icon-spin {
+  -webkit-animation: icon-spin 2s infinite linear;
+  animation: icon-spin 2s infinite linear;
+}
+
+@-webkit-keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+  }
+}
+
+/* Multistep form styles to mirror legacy */
+.multiStepForm #progressbar {
+  margin-bottom: 30px;
+  overflow: hidden;
+  counter-reset: step;
+  display: flex;
+  padding-left: 0;
+}
+.multiStepForm #progressbar li {
+  list-style-type: none;
+  color: #666;
+  text-transform: none;
+  position: relative;
+  text-align: center;
+}
+.multiStepForm #progressbar li.active {
+  color: #000;
+  font-weight: bold;
+}
+.multiStepForm fieldset {
+  border: 0;
+}
+.fs-title { font-size: 18px; margin-bottom: 15px; }
+.fs-subtitle { font-size: 14px; margin-bottom: 10px; color: #666; }
+.action-button { padding: 6px 12px; }
+.action-button-previous { padding: 6px 12px; }
+
+/* Match progress bar styling from spatial unit modal */
+#progressbar {
+  margin-bottom: 10px;
+  overflow: hidden;
+  counter-reset: step;
+}
+
+#progressbar li {
+  list-style-type: none;
+  color: black;
+  text-transform: uppercase;
+  font-size: 9px;
+  float: left;
+  position: relative;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+#progressbar li:before {
+  content: counter(step);
+  counter-increment: step;
+  width: 24px;
+  height: 24px;
+  line-height: 26px;
+  display: block;
+  font-size: 12px;
+  color: #333;
+  background: #cccc;
+  border-radius: 25px;
+  margin: 0 auto 10px auto;
+  transform: translateZ(-1px);
+}
+
+#progressbar li:after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: #cccc;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  z-index: -1;
+}
+
+#progressbar li:first-child:after {
+  content: none;
+}
+
+#progressbar li.active:before, #progressbar li.active:after {
+  background: var(--kommonitor-primary);
+  color: white;
+}
+
+#progressbar li.clickable { cursor: pointer; transition: all 0.3s ease; }
+#progressbar li.clickable:hover { color: var(--kommonitor-primary); }
+#progressbar li.clickable:hover:before { background: var(--kommonitor-primary); transform: scale(1.1); }
+
+/* Modal sizing via window/dialog classes with CSS custom properties */
+/* Defaults can be overridden by setting these variables on body/.script-add-modal-window */
+:root {
+  --script-add-modal-max-width: 85%;
+  --script-add-modal-width: 85%;
+}
+
+/* Apply sizing when dialog gets our custom class */
+::ng-deep .modal-dialog.script-add-modal {
+  max-width: var(--script-add-modal-max-width) !important;
+  width: var(--script-add-modal-width) !important;
+  margin: 1.75rem auto;
+}
+
+/* Allow overriding via windowClass (adds class on the modal window container) */
+::ng-deep .script-add-modal-window .modal-dialog {
+  max-width: var(--script-add-modal-max-width) !important;
+  width: var(--script-add-modal-width) !important;
+}
+
+/* Ensure modal content scrolls properly */
+::ng-deep .modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+::ng-deep .modal-body {
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  padding: 2rem;
+}
+@keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+  }
+}
+
+

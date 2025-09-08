@@ -7,10 +7,10 @@
 		</h1>
 
 		<div class="adminTableButtonWrapper">
-			<button class="btn btn-success btn-sm" [disabled]="!checkCreatePermission()" type="button" data-toggle="modal" data-target="#modal-add-script"><i
+			<button class="btn btn-success btn-sm" [disabled]="!checkCreatePermission()" type="button" (click)="onClickCreateScript()"><i
 					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 			<!-- delete selected completely -->
-			<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-scripts" [disabled]="!checkDeletePermission()"
+			<button class="btn btn-danger btn-sm" type="button" [disabled]="!checkDeletePermission()"
 				(click)="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 		</div>
 	</section>
@@ -29,8 +29,15 @@
 			<div class="box-body">
 
 				<div class="admin-table-wrapper">
-					<table id="scriptOverviewTable" style="height: 70vh; width: 100%;" class="ag-theme-alpine"></table>
+					<ag-grid-angular class="ag-theme-alpine" style="height: 70vh; width: 100%;"
+						[gridOptions]="scriptsGridOptions"
+						[columnDefs]="scriptsColumnDefs"
+						[rowData]="availableScriptDatasets"
+						[defaultColDef]="scriptsDefaultColDef"
+						(gridReady)="onGridReady($event)">
+					</ag-grid-angular>
 
+					<!-- Using built-in Ag-Grid pagination panel -->
 				</div>
 			</div>
 			<!-- /.box-body -->

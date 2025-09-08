@@ -1690,6 +1690,46 @@ table, th, td {
 	}
 }
 
+/* Custom width for Script Add modal (align with spatial unit modal) */
+@media (min-width: 768px){
+	.modal-dialog.script-add-modal {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
+/* Fallback targeting windowClass container for Script Add modal */
+@media (min-width: 768px){
+	body .modal-holder.script-add-modal-window .modal-dialog,
+	body .script-add-modal-window .modal-dialog,
+	body .modal.script-add-modal-window .modal-dialog {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
+/* Custom width for Script Delete modal */
+@media (min-width: 768px){
+	.modal-dialog.script-delete-modal {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
+/* Fallback targeting windowClass container for Script Delete modal */
+@media (min-width: 768px){
+	body .modal-holder.script-delete-modal-window .modal-dialog,
+	body .script-delete-modal-window .modal-dialog,
+	body .modal.script-delete-modal-window .modal-dialog {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
 select {
 	overflow: auto;
 }
