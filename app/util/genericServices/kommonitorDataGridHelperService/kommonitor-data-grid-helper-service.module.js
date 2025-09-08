@@ -2276,9 +2276,33 @@ angular
 
         columnDefs = columnDefs.concat([
           
-          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 200, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 300, checkboxSelection: true, headerCheckboxSelection: true, 
               headerCheckboxSelectionFilteredOnly: true, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+
+                let propertyNameForNewJobIdCheck = kommonitorScriptHelperService.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + params.data.scheduleID;
+                let isWaitingForTriggeredJobToBeAvailable = kommonitorScriptHelperService[propertyNameForNewJobIdCheck] != undefined ? ! kommonitorScriptHelperService[propertyNameForNewJobIdCheck] : false; 
+
+                let html = "";
+
+                html += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+
+                html += "<br> <br>"
+                  + "<button class='btn-sm executeScriptBtn' id='btnExecuteScript_" + params.data.scheduleID +"'";
+                  if(isWaitingForTriggeredJobToBeAvailable){
+                    html += " disabled";
+                  }
+                  
+                  html += "><i class='fa-solid fa-play'></i> Berechnung starten <span id='btnExecuteScript_" + params.data.scheduleID +"_span' style='"; 
+  
+                  if(! isWaitingForTriggeredJobToBeAvailable){
+                    html += "display:none;";
+                  }
+                  else{
+                    html += "display:inline-block;";
+                  }
+                  html += "' class='glyphicon glyphicon-refresh icon-spin'"
+                  html += "</button>";
+              return html;
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
@@ -2322,7 +2346,7 @@ angular
               }
             } 
           },
-          { headerName: 'Letzte Job-Ausführung', minWidth: 200, cellRenderer: function (params) {
+          { headerName: 'Letzte Job-Ausführung', minWidth: 300, cellRenderer: function (params) {
               let latestJobIndex = 0;
               if (params.data.jobIDs && params.data.jobIDs[0] && params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
                 latestJobIndex = 1;
@@ -2345,29 +2369,11 @@ angular
                   default: "Status unbekannt";
                 }
 
-                let propertyNameForNewJobIdCheck = kommonitorScriptHelperService.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + params.data.scheduleID;
-                let isWaitingForTriggeredJobToBeAvailable = kommonitorScriptHelperService[propertyNameForNewJobIdCheck] != undefined ? ! kommonitorScriptHelperService[propertyNameForNewJobIdCheck] : false; 
-
                 let innerHTMLContent = "" + jobDateTime 
                   + "<br>"
                   + jobStatus 
                   + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>"
-                  + "<br>"
-                  + "<button class='btn-sm executeScriptBtn' id='btnExecuteScript_" + params.data.scheduleID +"'";
-                  if(isWaitingForTriggeredJobToBeAvailable){
-                    innerHTMLContent += " disabled";
-                  }
                   
-                  innerHTMLContent += "><i class='fa-solid fa-play'></i> Berechnung starten <span id='btnExecuteScript_" + params.data.scheduleID +"_span' style='"; 
-  
-                  if(! isWaitingForTriggeredJobToBeAvailable){
-                    innerHTMLContent += "display:none;";
-                  }
-                  else{
-                    innerHTMLContent += "display:inline-block;";
-                  }
-                  innerHTMLContent += "' class='glyphicon glyphicon-refresh icon-spin'"
-                  innerHTMLContent += "</button>";
 
                 document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = innerHTMLContent;
                   
@@ -2396,7 +2402,7 @@ angular
             }
           },
           
-          { headerName: 'Ziel Raumebenen', minWidth: 300, cellRenderer: function (params) {
+          { headerName: 'Ziel Raumebenen', minWidth: 200, cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2470,7 +2476,7 @@ angular
               }
             }  
           },
-          { headerName: 'notwendige Basis-Indikatoren', minWidth: 300, cellRenderer: function (params) {
+          { headerName: 'notwendige Basis-Indikatoren', minWidth: 250, cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2594,7 +2600,7 @@ angular
               
             }  
           },
-          { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
+          { headerName: 'notwendige Basis-Georessourcen', minWidth: 250, cellRenderer: function (params) {
 
             if(showScriptIds){
               if(params.data && params.data.inputs.georesource_id ){
@@ -2779,7 +2785,7 @@ angular
           $("#" + "btnExecuteScript_" + scheduleId).attr("disabled", "disabled");
           $("#" + "btnExecuteScript_" + scheduleId  + "_span").css({'display': 'none'});
           $("#" + "btnExecuteScript_" + scheduleId  + "_span").innerHTML = "Berechnung im Gange";
-          kommonitorToastHelperService.displayInfoToast_upperLeft("Manuelle Indikatorenberechnung", "Neue Berechnung manuell angestoßen. KomMonitor wartet auf Fortschritt.");
+          kommonitorToastHelperService.displayInfoToast_lowerLeft("Manuelle Indikatorenberechnung", "Neue Berechnung manuell angestoßen. KomMonitor wartet auf Fortschritt.");
 				
           kommonitorScriptHelperService.initJobWatchingForSchedule(scheduleId, scriptMetadata_old);
 

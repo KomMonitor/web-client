@@ -384,7 +384,7 @@ angular
                     
           if (self[propertyName_newJobIdForSchedule]){
             $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);
-            kommonitorToastHelperService.displayInfoToast_upperLeft("Manuelle Indikatorenberechnung", "Neuer Berechnungs-Job liegt vor. Für Details Job-Tabelle öffnen.");
+            kommonitorToastHelperService.displayInfoToast_lowerLeft("Manuelle Indikatorenberechnung", "Neuer Berechnungs-Job liegt vor. Für Details Job-Tabelle öffnen.");
             return;
           }
           else{
@@ -407,7 +407,7 @@ angular
               }              
 	
 						}, function errorCallback(response) {
-              kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Abruf der Skript-Metadaten", $scope.fileLayerError);
+              kommonitorToastHelperService.displayErrorToast_lowerLeft("Fehler beim Abruf der Skript-Metadaten", $scope.fileLayerError);
 							$scope.loadingData = false;
 					});
       }

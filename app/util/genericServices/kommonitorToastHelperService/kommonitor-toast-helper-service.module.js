@@ -65,6 +65,18 @@ angular
         toastr.error(toastContent, toastTitle, {positionClass: "toast-top-left"});
       }
 
+      this.displayInfoToast_lowerLeft = function(toastTitle, toastContent){
+        toastr.info(toastContent, toastTitle, {positionClass: "toast-bottom-left"});
+      }
+
+      this.displayWarningToast_lowerLeft = function(toastTitle, toastContent){
+        toastr.warning(toastContent, toastTitle, {positionClass: "toast-bottom-left"});
+      }
+
+      this.displayErrorToast_lowerLeft = function(toastTitle, toastContent){
+        toastr.error(toastContent, toastTitle, {positionClass: "toast-bottom-left"});
+      }
+
       this.displaySuccessToast_upperRight = function(toastTitle, toastContent){
         toastr.success(toastContent, toastTitle, {positionClass: "toast-top-right"});
       }
