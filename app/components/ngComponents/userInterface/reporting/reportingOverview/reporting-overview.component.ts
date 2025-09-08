@@ -273,11 +273,10 @@ export class ReportingOverviewComponent implements OnInit {
 
 		onConfigureNewIndicatorClicked() {
       this.onWorkflowSelect([3,this.config]);
-			//this.$emit('reportingConfigureNewIndicatorClicked', [this.config.template]);
 		}
 
 		onConfigureNewPoiLayerClicked() {
-			//this.$emit('reportingConfigureNewPoiLayerClicked', [this.config.template]);
+      this.onWorkflowSelect([3,this.config]);
 		}
 	
 		onBackToTemplateSelectionClicked() {

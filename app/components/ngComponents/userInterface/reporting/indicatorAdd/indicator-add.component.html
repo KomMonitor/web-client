@@ -45,23 +45,22 @@
                   <div id="reporting-add-indicator-tab-content" class="tab-content">
                       <div role="tabpanel" id="pois"
                           [ngClass]="template.name.includes('-reachability') ? 'tab-pane active' : 'tab-pane'">
-              <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
-            </div>
-                          <p style="margin-top: 10px;"><b>Eine Auswahlmöglichkeit des Datenstands / Datums ist noch nicht verfügbar.
-                              Momentan wird das aktuellste Datum abgefragt.</b></p>
-                          <div class="input-group">
-                              <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                              <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
-                                  [value]="poiNameFilter">
-                          </div>
-                          <div id="reporting-poi-select-box">
-                              <select size="10" class="form-control" required>
-                <option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
-                <option style="white-space: pre !important;" *ngFor="let layer of this.filteredAvailablePoiLayers"
-                                      (click)="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
-              </select>
-                          </div>
+                        <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+                          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        </div>
+                        <p style="margin-top: 10px;"><b>Eine Auswahlmöglichkeit des Datenstands / Datums ist noch nicht verfügbar.
+                            Momentan wird das aktuellste Datum abgefragt.</b></p>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                            <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+                                [value]="poiNameFilter" (keyup)="onPOINameFilterChange($event)">
+                        </div>
+                        <div id="reporting-poi-select-box">
+                          <select size="10" class="form-control" required>
+                            <option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
+                            <option style="white-space: pre !important;" *ngFor="let layer of this.filteredAvailablePoiLayers" (click)="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
+                          </select>
+                        </div>
                       </div>
                       <div role="tabpanel" id="isochrones" class="tab-pane">
                           <div class="loading-overlay-reporting" [hidden]="!(loadingData)">

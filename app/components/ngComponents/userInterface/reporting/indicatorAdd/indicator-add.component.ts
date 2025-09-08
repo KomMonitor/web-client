@@ -265,7 +265,7 @@ export class IndicatorAddComponent implements OnInit {
     this.initializeDualLists();
 
     this.availablePoiLayers = this.dataExchangeService.pipedData.availableGeoresources.filter(georesource => georesource.isPOI);
-    this.filteredAvailablePoiLayers = this.availablePoiLayers.filter((e:any) =>e.datasetName==this.poiNameFilter).sort(this.sortByDatasetName);
+    this.filteredAvailablePoiLayers = this.availablePoiLayers.sort(this.sortByDatasetName);
 
     this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
     this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.sort(this.sortByindicatorName);
@@ -499,6 +499,12 @@ export class IndicatorAddComponent implements OnInit {
     }
   }
 
+  onPOINameFilterChange(event:any) {
+
+    let value = event.target.value;
+    this.filteredAvailablePoiLayers = this.availablePoiLayers.filter((e:any) => e.datasetName.toLowerCase().includes(value)).sort(this.sortByDatasetName);
+  }
+
   onIndicatorNameFilterChange(event:any) {
 
     let value = event.target.value;
@@ -522,7 +528,7 @@ export class IndicatorAddComponent implements OnInit {
   
   */
 
-  initSelectedDualListOption(selectedAreas, selectedTimestamps) {
+  initSelectedDualListOption() {
    
     let updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
@@ -780,12 +786,13 @@ export class IndicatorAddComponent implements OnInit {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
+      let pageToInsert =  JSON.parse(JSON.stringify(this.untouchedTemplateAsString)).pages[ this.indexOfFirstAreaSpecificPage ];
+      console.log(JSON.parse(JSON.stringify(this.untouchedTemplateAsString)))
       pageToInsert.area = area.name;
       pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
 
-      pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
+      pageToInsert =  JSON.parse(JSON.stringify(this.untouchedTemplateAsString)).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
       pageToInsert.area = area.name;
       pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
@@ -1088,6 +1095,7 @@ export class IndicatorAddComponent implements OnInit {
     };
   }
 
+  //hier
   queryMostRecentGeoresourceFeatures(georesource) {
     // Most likely this is only a temporary method
     // It checks the availablePeriodsOfValidity and takes the most recent one to query features.
@@ -1100,6 +1108,8 @@ export class IndicatorAddComponent implements OnInit {
 
     let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()
     url += "/georesources/" + georesource.georesourceId + "/" + year + "/" + month + "/" + day
+
+    return this.httpClient.get(url);
     // send request
    /*  return await $http({
       url: url,
@@ -1262,17 +1272,21 @@ export class IndicatorAddComponent implements OnInit {
  */
   }
 
-  updateAreasInDualList() {
+  async updateAreasInDualList() {
     // this happens for the reachability template on poi selection
     if(typeof(this.selectedIndicator) === "undefined") {
       let spatialUnit = this.selectedSpatialUnit ?
-        this.selectedSpatialUnit :
-        this.selectedIndicator!.applicableSpatialUnits[0]
+      this.selectedSpatialUnit :
+      this.selectedIndicator!.applicableSpatialUnits[0]
       // query spatial unit features using the most recent date
-      let data:any = this.queryFeatures(undefined, this.selectedSpatialUnit);
-      this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = data.features
-      let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
-      this.updateAreasDualList(allAreas, undefined) // don't select any areas
+      this.queryFeatures(undefined, this.selectedSpatialUnit).subscribe({
+        next: (response:any) => {
+
+          this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = response.features
+          let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
+          this.updateAreasDualList(allAreas, undefined) // don't select any areas
+        }
+      });
     } else {
       let indicator = this.selectedIndicator;
     
@@ -1297,7 +1311,7 @@ export class IndicatorAddComponent implements OnInit {
           let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
           this.updateAreasDualList(allAreas, undefined) // don't select any areas
         }
-      })
+      });
     }
   }
 
@@ -1367,6 +1381,7 @@ export class IndicatorAddComponent implements OnInit {
   updateAreasDualList(data,selectedItems) {
     this.dualListAreasOptions.selectedItems = [];
 
+    console.log(data)
     let dualListInput = data.map( (el, i) => {
       return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
@@ -1542,14 +1557,25 @@ export class IndicatorAddComponent implements OnInit {
   }) */
 
  //async
-  onPoiLayerSelected(poiLayer) {
+  async onPoiLayerSelected(poiLayer) {
 
     try {
       this.absoluteLabelPositions = [];
       this.diagramsPrepared = false;
       this.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
       this.selectedPoiLayer = poiLayer;
-      this.selectedPoiLayer!.geoJSON = this.queryMostRecentGeoresourceFeatures(this.selectedPoiLayer);
+      
+      this.queryMostRecentGeoresourceFeatures(this.selectedPoiLayer).subscribe({
+        next: response => {
+          this.selectedPoiLayer!.geoJSON = response;
+        },
+        error: error => {
+          this.loadingData = false;
+          this.dataExchangeService.displayMapApplicationError(error);
+          console.error(error);
+        }
+      });
+      
       // reachability config requires this new property
       this.selectedPoiLayer.geoJSON_reachability = this.selectedPoiLayer.geoJSON;
     
@@ -1566,84 +1592,134 @@ export class IndicatorAddComponent implements OnInit {
       let highestSpatialUnit = spatialUnits.filter( unit => {
         return unit.nextUpperHierarchyLevel === null;
       });
-      if( !this.selectedSpatialUnit) {
+      if(!this.selectedSpatialUnit) {
         this.selectedSpatialUnit = this.dataExchangeService.pipedData.availableSpatialUnits[0];
-        this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+        await this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
       }
-      let mostRecentTimestampName
-      if(this.selectedSpatialUnit.metadata) {
-        mostRecentTimestampName = this.selectedSpatialUnit.metadata.lastUpdate;
-      } else {
-        // Happens when poiLayer is changed after an indicator was selected
-        // ( = spatial unit is the one from the indicator endpoint, not the spatial unit endpoint)
-        mostRecentTimestampName = this.allSpatialUnitsForReachability.filter( spatialUnit => {
-          return spatialUnit.spatialUnitId === this.selectedSpatialUnit.spatialUnitId
-        })[0].metadata.lastUpdate
-      }
-      this.selectedTimestamps = [{
-        category: mostRecentTimestampName,
-        name: mostRecentTimestampName
-      }];
 
-      
-      // update information in preview
-      for(let page of this.template.pages) {
-        for(let el of page.pageElements) {
-          if(el.type.includes("indicatorTitle-")) {
-            el.text = "Entfernungen für " + this.selectedPoiLayer.datasetName;
-            el.isPlaceholder = false;
-            // no area-specific pages in template since diagrams are not prepared yet
-            // and area/timestamp/timeseries changes are done after that
-          }
+      setTimeout(() => {
+        let mostRecentTimestampName
+        if(this.selectedSpatialUnit.metadata) {
+          mostRecentTimestampName = this.selectedSpatialUnit.metadata.lastUpdate;
+        } else {
+          // Happens when poiLayer is changed after an indicator was selected
+          // ( = spatial unit is the one from the indicator endpoint, not the spatial unit endpoint)
+          mostRecentTimestampName = this.allSpatialUnitsForReachability.filter( spatialUnit => {
+            return spatialUnit.spatialUnitId === this.selectedSpatialUnit.spatialUnitId
+          })[0].metadata.lastUpdate
+        }
+        this.selectedTimestamps = [{
+          category: mostRecentTimestampName,
+          name: mostRecentTimestampName
+        }];
 
-          if(el.type.includes("reachability-subtitle-")) {
-            el.text = this.selectedTimestamps[0].name;
-            if(this.isochrones)
-              el.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
-            if(this.selectedIndicator)
-              el.text += ", " + this.selectedIndicator.indicatorName;
-            el.isPlaceholder = false
+        
+        // update information in preview
+        for(let page of this.template.pages) {
+          for(let el of page.pageElements) {
+            if(el.type.includes("indicatorTitle-")) {
+              el.text = "Entfernungen für " + this.selectedPoiLayer.datasetName;
+              el.isPlaceholder = false;
+              // no area-specific pages in template since diagrams are not prepared yet
+              // and area/timestamp/timeseries changes are done after that
+            }
+
+            if(el.type.includes("reachability-subtitle-")) {
+              el.text = this.selectedTimestamps[0].name;
+              if(this.isochrones)
+                el.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
+              if(this.selectedIndicator)
+                el.text += ", " + this.selectedIndicator.indicatorName;
+              el.isPlaceholder = false
+            }
           }
         }
-      }
 
-      // get all features of largest spatial unit
-      let features;
-      if(this.selectedIndicator) {
-        features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ]
-      } else {
-        features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitLevel ]
-      }
-      features = this.createLowerCaseNameProperty(features);
-      // we might have no indicator so we store the geometries directly on the scope
-      this.geoJsonForReachability = {
-        features: features
-      }
+        // get all features of largest spatial unit
+        let features;
+        if(this.selectedIndicator) {
+          features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ]
+        } else {
+          features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitLevel ]
+        }
+        features = this.createLowerCaseNameProperty(features);
+        // we might have no indicator so we store the geometries directly on the scope
+        this.geoJsonForReachability = {
+          features: features
+        }
 
-      // Preparing all diagrams is not possible without an indicator
-      // We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
-      this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
+        // Preparing all diagrams is not possible without an indicator
+        // We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
+        this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
 
-      // select all areas by default
-      let allAreas;
-      if(this.selectedSpatialUnit.spatialUnitName) {
-        allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
-      } else {
-        allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
-      }
-        this.updateAreasDualList( allAreas, allAreas);
+        // select all areas by default
+        let allAreas;
+        if(this.selectedSpatialUnit.spatialUnitName) {
+          allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
+        } else {
+          allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
+        }
 
-      let allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
-      for(let tab of allTabs) {
-        this.enableTab(tab);
-      }
+        // select all areas by default
+        let areasListInput = allAreas.map( (el, i) => {
+          return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+        });
+        areasListInput = this.dataExchangeService.createDualListInputArray(areasListInput, "name",'id');
+
+        this.selectedAreas = areasListInput;
+  
+        this.initReachabilityTemplate();    
+
+        let allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+        for(let tab of allTabs) {
+          this.enableTab(tab);
+        }
+      },1000);
     } catch (error) {
       console.error(error);
       this.dataExchangeService.displayMapApplicationError(error);
       this.loadingData = false;
     }
-
     
+  }
+
+  initReachabilityTemplate() {
+
+    // to make things easier we remove all area-specific pages and recreate them using newVal
+    // this approach is not optimized for performance and might have to change in the future
+
+    let numberOfTargetSpatialUnitFeatures = 0;
+    if(this.selectedAreas && this.selectedAreas.length){
+      numberOfTargetSpatialUnitFeatures = this.selectedAreas.length;				
+    }			
+    // reset leaflet screenshot helper service according to new  number of selected areas
+    // add one page to display the total map of all selected spatial unit features
+    numberOfTargetSpatialUnitFeatures ++;				
+    this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
+
+    if(this.template.name.includes("timestamp"))
+      this.updateAreasForTimestampTemplates(this.selectedAreas)
+    if(this.template.name.includes("timeseries"))
+      this.updateAreasForTimeseriesTemplates(this.selectedAreas)
+    if(this.template.name.includes("reachability"))
+      this.updateAreasForReachabilityTemplates(this.selectedAreas)
+
+     let updateDiagramsInterval = setInterval(() => {
+      if(this.diagramsPrepared) {
+        clearInterval(updateDiagramsInterval); // code below still executes once
+      } else {
+        return;
+      }
+
+      setTimeout(async () => {
+
+        // indicator selection is optional in reachability template only
+      
+        await this.initializeAllDiagrams();
+        this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+        this.loadingData = false;
+      });
+    }, 0, 100);
   }
 
   calculateOverallBoundingBoxFromGeoJSON(features) {
@@ -1949,7 +2025,7 @@ export class IndicatorAddComponent implements OnInit {
         //}
 
         // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
-        this.initSelectedDualListOption(areasListInput, timestampsListSelected);    
+        this.initSelectedDualListOption();    
 
         if(this.selectedAreas.length>0)
           this.leafletScreenshotCacheHelperService.resetCounter(this.selectedAreas.length+1, false);
@@ -3700,10 +3776,10 @@ export class IndicatorAddComponent implements OnInit {
     }
     let overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.geoJsonForReachability.features)
     // change format of bbox to match the format needed for echarts
-    overallBbox = [
+    /* overallBbox = [
       [overallBbox[0], overallBbox[3]], // north-west lon lat
       [overallBbox[2], overallBbox[1]] // south-east lon lat
-    ]
+    ] */
 
     let mapName = "reachabilityMap"; // gets overwritten later anyway
     echarts.registerMap(mapName, this.geoJsonForReachability)
