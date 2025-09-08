@@ -25,7 +25,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 				// also start to fetch job details for all queried jobs
 				// in the background
-				$scope.fetchJobDetails($scope.jobDescriptions);
+				// $scope.fetchJobDetails($scope.jobDescriptions);
               });
 		  };
 

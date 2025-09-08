@@ -87,7 +87,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			}
 			else if(crudType && targetScheduleId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScheduleId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
+					kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(targetScheduleId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleProcessScriptMetadata(data);
 
@@ -101,7 +101,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScheduleId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
+					kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(targetScheduleId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleProcessScriptMetadata(data);
 						

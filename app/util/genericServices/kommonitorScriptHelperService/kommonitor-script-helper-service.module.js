@@ -1,13 +1,15 @@
-angular.module('kommonitorScriptHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorScriptHelper', ['kommonitorDataExchange', 'kommonitorToastHelper']);
 
 angular
   .module('kommonitorScriptHelper', [])
   .service(
-    'kommonitorScriptHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+    'kommonitorScriptHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env', 'kommonitorToastHelperService',
     function ($rootScope, $timeout,
-      kommonitorDataExchangeService, $http, __env) {
+      kommonitorDataExchangeService, $http, __env, kommonitorToastHelperService) {
 
       var self = this;
+
+      this.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID = "foundNewJobId_";
 
       this.targetUrlToManagementService = __env.apiUrl + __env.basePath + "/";
 
@@ -336,6 +338,78 @@ angular
               console.error("Error deleting script schedule.");
               throw response;
           });
+      }
+
+      this.triggerJobForSchedule = async function(scheduleId){
+        return await $http({
+          url: __env.targetUrlToProcessesApi + "schedules/" + scheduleId + "/execution",
+          method: "POST"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to processes api service.");
+            throw response;
+        });
+      }
+
+      this.initJobWatchingForSchedule = function(scheduleId, scriptMetadata_old){        
+
+        let propertyName_newJobIdForSchedule = self.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + scheduleId;
+        self[propertyName_newJobIdForSchedule] = false; 
+
+        // basic idea: have a deep copy of current scriptMetadata
+        // then periodically fetch new process script metadata
+        // check if there is a new jobId
+        // if not then wait and repeat
+        setTimeout(async function(){
+          self[propertyName_newJobIdForSchedule] = await self.checkForNewJobID(scheduleId, scriptMetadata_old);
+
+          if(self[propertyName_newJobIdForSchedule]){
+            $("#" + "btnExecuteScript_" + scheduleId).removeAttr("disabled");
+            $("#" + "btnExecuteScript_" + scheduleId  + "_span").css({'display': 'none'});    
+            $("#" + "btnExecuteScript_" + scheduleId  + "_span").innerHTML = "Berechnung starten";        
+          }
+          else{
+            $("#" + "btnExecuteScript_" + scheduleId).attr("disabled", "disabled");
+            $("#" + "btnExecuteScript_" + scheduleId + "_span").css({'display': 'inline-block'});
+          }
+          
+                    
+          if (self[propertyName_newJobIdForSchedule]){
+            $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);
+            kommonitorToastHelperService.displayInfoToast_upperLeft("Manuelle Indikatorenberechnung", "Neuer Berechnungs-Job liegt vor. Für Details Job-Tabelle öffnen.");
+            return;
+          }
+          else{
+            //continue jobWatching
+            self.initJobWatchingForSchedule(scheduleId, scriptMetadata_old);
+            
+          }
+        }, 1000);
+      };
+
+      this.checkForNewJobID = async function(scheduleId, scriptMetadata_old){
+
+        return await kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(scheduleId).then(function successCallback(scriptMetadata) {
+
+              // check if there is a new jobId
+              if(scriptMetadata.jobIDs.length > scriptMetadata_old.jobIDs.length)
+              {
+                
+                return true;      
+              }              
+	
+						}, function errorCallback(response) {
+              kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Abruf der Skript-Metadaten", $scope.fileLayerError);
+							$scope.loadingData = false;
+					});
       }
 
       this.updateScript = async function(scriptName, description, scheduleId){

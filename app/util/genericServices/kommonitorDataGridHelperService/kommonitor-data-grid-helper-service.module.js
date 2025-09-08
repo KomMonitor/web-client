@@ -1,12 +1,12 @@
-angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange', 'kommonitorScriptHelper']);
+angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange', 'kommonitorScriptHelper', 'kommonitorToastHelper']);
 
 angular
   .module('kommonitorDataGridHelper', [])
   .service(
     'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', 'kommonitorScriptHelperService',
-      '$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
+      '$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env', 'kommonitorToastHelperService',
     function (kommonitorDataExchangeService, kommonitorScriptHelperService, $rootScope, $timeout,
-      $http, $httpParamSerializerJQLike, __env) {
+      $http, $httpParamSerializerJQLike, __env, kommonitorToastHelperService) {
 
       var self = this;
       this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -2274,11 +2274,23 @@ angular
 
         let columnDefs = [];
 
+        columnDefs = columnDefs.concat([
+          
+          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 200, checkboxSelection: true, headerCheckboxSelection: true, 
+              headerCheckboxSelectionFilteredOnly: true, cellRenderer: function (params) {
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+            } 
+          }
+        ]);
+
         if(showScriptIds){
           columnDefs = columnDefs.concat(
             [
-              { headerName: 'Id', field: "scheduleID", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-              headerCheckboxSelectionFilteredOnly: true },
+              { headerName: 'Skript-Id', field: "scheduleID", pinned: 'left', maxWidth: 125, },
               // { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
               { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125, cellRenderer: function (params) {
                   return params.data.inputs.target_indicator_id;
@@ -2287,16 +2299,7 @@ angular
             ]);
         }
 
-        columnDefs = columnDefs.concat([
-          
-          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 200, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
-            } 
-          },
+        columnDefs = columnDefs.concat([          
           { headerName: 'Berechnungsart', minWidth: 200, cellRenderer: function (params) {
 
             for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
@@ -2341,11 +2344,33 @@ angular
                   case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
                   default: "Status unbekannt";
                 }
-                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = 
-                  "" + jobDateTime 
+
+                let propertyNameForNewJobIdCheck = kommonitorScriptHelperService.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + params.data.scheduleID;
+                let isWaitingForTriggeredJobToBeAvailable = kommonitorScriptHelperService[propertyNameForNewJobIdCheck] != undefined ? ! kommonitorScriptHelperService[propertyNameForNewJobIdCheck] : false; 
+
+                let innerHTMLContent = "" + jobDateTime 
                   + "<br>"
                   + jobStatus 
-                  + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>";
+                  + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>"
+                  + "<br>"
+                  + "<button class='btn-sm executeScriptBtn' id='btnExecuteScript_" + params.data.scheduleID +"'";
+                  if(isWaitingForTriggeredJobToBeAvailable){
+                    innerHTMLContent += " disabled";
+                  }
+                  
+                  innerHTMLContent += "><i class='fa-solid fa-play'></i> Berechnung starten <span id='btnExecuteScript_" + params.data.scheduleID +"_span' style='"; 
+  
+                  if(! isWaitingForTriggeredJobToBeAvailable){
+                    innerHTMLContent += "display:none;";
+                  }
+                  else{
+                    innerHTMLContent += "display:inline-block;";
+                  }
+                  innerHTMLContent += "' class='glyphicon glyphicon-refresh icon-spin'"
+                  innerHTMLContent += "</button>";
+
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = innerHTMLContent;
+                  
 
                 $http({
                   url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex] + "/results",
@@ -2701,7 +2726,16 @@ angular
             },
             onColumnResized: function () {
               headerHeightSetter(self.dataGridOptions_scripts);
-            }
+            },
+            onRowDataChanged: function () {
+            self.registerClickHandler_scripts(scriptsArray);
+            },
+            onModelUpdated: function () {
+              self.registerClickHandler_scripts(scriptsArray);
+            },      
+            onViewportChanged: function () {
+              self.registerClickHandler_scripts(scriptsArray);                   
+            },
   
           };
   
@@ -2724,6 +2758,52 @@ angular
           let gridDiv = document.querySelector('#scriptOverviewTable');
           new agGrid.Grid(gridDiv, this.dataGridOptions_scripts);
         }
+      };
+
+      this.registerClickHandler_scripts = function (scriptArray) {
+
+        $(".executeScriptBtn").off();
+        $(".executeScriptBtn").on("click", async function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();          
+          
+          // ID of button is like "executeScriptBtn_<ID>"
+          let buttonID = this.id;
+          let scheduleId = this.id.split("_")[1];
+
+          // this triggers kind of watching for newest Job ID
+          // cause we trigger a new job - but it might take some time to have that job available
+          // and furthermore the new job has an internal prefect id for some moments before it then gets a persistant UUID used by KomMonitor
+          let scriptMetadata_old = jQuery.extend(true, {}, kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId));
+          $("#" + "btnExecuteScript_" + scheduleId).attr("disabled", "disabled");
+          $("#" + "btnExecuteScript_" + scheduleId  + "_span").css({'display': 'none'});
+          $("#" + "btnExecuteScript_" + scheduleId  + "_span").innerHTML = "Berechnung im Gange";
+          kommonitorToastHelperService.displayInfoToast_upperLeft("Manuelle Indikatorenberechnung", "Neue Berechnung manuell angestoßen. KomMonitor wartet auf Fortschritt.");
+				
+          kommonitorScriptHelperService.initJobWatchingForSchedule(scheduleId, scriptMetadata_old);
+
+          let jobResponse = await kommonitorScriptHelperService.triggerJobForSchedule(scheduleId);
+          //fetchScheduleDetail to get newest job and to modify job table            
+					// $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);          
+        });
+
+        // TODO handle JobDetails table button click
+        // $(".georesourceEditFeaturesBtn").off();
+        // $(".georesourceEditFeaturesBtn").on("click", function (event) {
+        //   // ensure that only the target button gets clicked
+        //   // manually open modal
+        //   event.stopPropagation();
+        //   let modalId = document.getElementById(this.id).getAttribute("data-target");
+        //   $(modalId).modal('show');
+          
+        //   let georesourceId = this.id.split("_")[3];
+
+        //   let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+
+        //   $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
+        // });
+
       };
 
             // Processes API JOBS OVERVIEW TABLE (NEW July 2025)

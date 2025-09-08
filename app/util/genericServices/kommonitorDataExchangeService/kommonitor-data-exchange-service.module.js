@@ -1848,8 +1848,49 @@ angular
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
+
+                // remove any tmp jobIDs
+                for (const schedule of response.data.schedules) {
+                  schedule.jobIDs = schedule.jobIDs.filter(function(item){
+                  if (item.length < 34){
+                    // then it is not a UUID needed by KomMonitor
+                    return false;
+                  }
+                  return true;
+                });
+                }                
       
                 return response.data.schedules;
+      
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;                
+                return [];
+            });
+          }
+
+          this.fetchSingleProcessScriptSchedule = async function(scheduleId){
+            // July 2025: processes API required auth to query schedules and other resources
+            // KomMonitor, however, starts without login. Hence return empty array on auth error
+            return await $http({
+              url: __env.targetUrlToProcessesApi + "schedules/" + scheduleId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                // filter out any jobs that have a short-termed prefect internal id
+                let scriptMetadata = response.data.schedules[0];
+                scriptMetadata.jobIDs = scriptMetadata.jobIDs.filter(function(item){
+                  if (item.length < 34){
+                    // then it is not a UUID needed by KomMonitor
+                    return false;
+                  }
+                  return true;
+                });
+      
+                return scriptMetadata;
       
               }, function errorCallback(response) {
                 // called asynchronously if an error occurs
@@ -1862,6 +1903,14 @@ angular
           this.fetchIndicatorScriptsMetadata = async function(){
 
             self.setProcessScripts(await self.fetchProcessScriptSchedules());
+          };
+
+          this.fetchSingleIndicatorScriptMetadata = async function(scheduleId){
+
+            let scriptMetadata = await self.fetchSingleProcessScriptSchedule(scheduleId);
+            self.replaceSingleProcessScriptMetadata(scriptMetadata);
+
+            return scriptMetadata;
           };
 
 					this.indicatorValueIsNoData = function(indicatorValue){
