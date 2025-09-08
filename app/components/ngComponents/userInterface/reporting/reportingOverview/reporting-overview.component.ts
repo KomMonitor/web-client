@@ -8,7 +8,6 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
-import * as PptxGenJS from 'pptxgenjs-angular';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';

@@ -8,6 +8,7 @@ import * as docx from 'docx';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
+import pptxgen  from 'pptxgenjs';
 
 @Component({
   selector: 'app-generate-report',
@@ -70,9 +71,9 @@ export class GenerateReportComponent implements OnInit {
     }
   }
 
-  generatePptxReport() {
+  async generatePptxReport() {
 
-    /* let doc:any = new PptxGenJS();
+    let doc:any = new pptxgen();
 
     doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
     doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
@@ -157,11 +158,11 @@ export class GenerateReportComponent implements OnInit {
     // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
     slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
     slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
-    slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" }); */
+    slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" });
 
 
     // Pages
-/* 
+
     for(let [idx, page] of this.config.pages.entries()) {
 
       if(!this.showThisPage(page)) {
@@ -284,7 +285,7 @@ export class GenerateReportComponent implements OnInit {
           case "map": {
             let instance:any = echarts.getInstanceByDom(pElementDom)
             let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
-            imageDataUrl = this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+            imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
 
             slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl});
             break;
@@ -386,7 +387,7 @@ export class GenerateReportComponent implements OnInit {
 
     let now:any = this.getCurrentDateAndTime();
     doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
-    this.loadingData = false; */
+    this.loadingData = false;
   }
 
   filterPagesToShow() {
@@ -1514,20 +1515,31 @@ export class GenerateReportComponent implements OnInit {
   }
 
   dataURItoBlob2(dataURI) {
-  const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ab], { type: mimeString });
   }
-
-  return new Blob([ab], { type: mimeString });
-}
 
   pxToTwip(px) {
     let result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
     return result * this.pxPerMilli*297 / 830 // scale from 830px to A4 page
+  }
+
+  pxToInch(px) {
+    // our preview is 830px wide
+    // px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
+    // This is the short version of:
+    // px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
+    // pxPerMillimeter cancels out there, so it doesn't matter.
+    let result = parseInt(px, 10);
+    result = Math.round((result/this.deviceScreenDpi) * 100) / 100;
+    return result;
   }
 }
