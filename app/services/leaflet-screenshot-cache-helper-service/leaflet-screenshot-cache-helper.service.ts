@@ -262,7 +262,6 @@ export class LeafletScreenshotCacheHelperService {
     const tx = this.indexedDB.transaction([this.storeName], 'readwrite');
     const store = tx.objectStore(this.storeName);
     await store.put(data, key);
-    console.log("Screenshot saved");
     this.getScreenshotCountFromIndexedDB()
   }
 

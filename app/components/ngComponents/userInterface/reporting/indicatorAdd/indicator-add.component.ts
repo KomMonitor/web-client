@@ -3590,6 +3590,14 @@ export class IndicatorAddComponent implements OnInit {
     return avgChange;
   }
 
+  async clearScreenshotCache() {
+    await this.leafletScreenshotCacheHelperService.clearScreenshotCache();
+
+    // now retrigger the generation of all screenshots
+    // by simply calling the changeBaseMap method
+    // this will reinit all diagrams, including leafletScreenshots
+    this.onChangeSelectedBaseMap();
+  }
 
   prepareDiagrams(selectedIndicator, selectedSpatialUnit, timestampName, classifyUsingWholeTimeseries, isTimeseries, fromDate, toDate) {
     
