@@ -9,6 +9,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
   selector: 'app-generate-report',
@@ -31,7 +32,8 @@ export class GenerateReportComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
-    private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService
+    private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
+    private broadcastService: BroadcastService
   ) {}
 
   ngOnInit(): void {
@@ -57,18 +59,30 @@ export class GenerateReportComponent implements OnInit {
 
   //async
   async generateReport(format) {
-    this.loadingData = true;
+
+    this.setLoadingScreen();
 
     try {
       format === "pdf" && await this.generatePdfReport();
       format === "docx" && await this.generateWordReport();
       format === "zip" && await this.generateZipFolder();
       format === "pptx" && await this.generatePptxReport();
+
+      this.unsetLoadingScreen();
     } catch (error:any) {
-      this.loadingData = false;
       console.error(error);
       this.dataExchangeService.displayMapApplicationError(error.message);
+      this.unsetLoadingScreen();
     }
+  }
+
+  setLoadingScreen() {
+    this.broadcastService.broadcast('reportGenerationInProgress');
+    this.activeModal.close();
+  }
+
+  unsetLoadingScreen() {
+    this.broadcastService.broadcast('reportGenerationCompleted');
   }
 
   async generatePptxReport() {

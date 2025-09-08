@@ -110,6 +110,12 @@ export class ReportingOverviewComponent implements OnInit {
         case 'reportingIndicatorConfigurationCompleted' : {
           this.reportingIndicatorConfigurationCompleted(values);
         } break;
+        case 'reportGenerationInProgress': {
+          this.loadingData = true;
+        } break;
+        case 'reportGenerationCompleted': {
+          this.loadingData = false;
+        } break;
       }
     });
   }
