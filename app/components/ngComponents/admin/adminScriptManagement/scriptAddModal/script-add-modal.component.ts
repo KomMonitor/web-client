@@ -1,6 +1,7 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
+import { KommonitorScriptHelperService } from 'services/script-management/kommonitor-script-helper.service';
 
 @Component({
   selector: 'app-script-add-modal',
@@ -41,9 +42,9 @@ export class ScriptAddModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     public indicatorExchange: KommonitorIndicatorDataExchangeService,
-    @Inject('kommonitorScriptHelperService') public scriptHelper: any
+    public scriptHelper: KommonitorScriptHelperService
   ) {
-    try { this.scriptHelper.reset?.(); } catch {}
+    try { this.scriptHelper.reset(); } catch {}
   }
 
   get availableIndicators(): any[] {
@@ -90,25 +91,25 @@ export class ScriptAddModalComponent {
 
   addBaseIndicator(): void {
     if (!this.tmpIndicatorSelection) { return; }
-    try { this.scriptHelper.addBaseIndicator?.(this.tmpIndicatorSelection); } catch {}
+    try { this.scriptHelper.addBaseIndicator(this.tmpIndicatorSelection); } catch {}
     this.requiredIndicators = [...(this.requiredIndicators || []), this.tmpIndicatorSelection];
     this.tmpIndicatorSelection = null;
   }
 
   removeBaseIndicator(ind: any): void {
-    try { this.scriptHelper.removeBaseIndicator?.(ind); } catch {}
+    try { this.scriptHelper.removeBaseIndicator(ind); } catch {}
     this.requiredIndicators = (this.requiredIndicators || []).filter((x: any) => x?.indicatorId !== ind?.indicatorId);
   }
 
   addBaseGeoresource(): void {
     if (!this.tmpGeoresourceSelection) { return; }
-    try { this.scriptHelper.addBaseGeoresource?.(this.tmpGeoresourceSelection); } catch {}
+    try { this.scriptHelper.addBaseGeoresource(this.tmpGeoresourceSelection); } catch {}
     this.requiredGeoresources = [...(this.requiredGeoresources || []), this.tmpGeoresourceSelection];
     this.tmpGeoresourceSelection = null;
   }
 
   removeBaseGeoresource(geo: any): void {
-    try { this.scriptHelper.removeBaseGeoresource?.(geo); } catch {}
+    try { this.scriptHelper.removeBaseGeoresource(geo); } catch {}
     this.requiredGeoresources = (this.requiredGeoresources || []).filter((x: any) => x?.georesourceId !== geo?.georesourceId);
   }
 
@@ -125,7 +126,7 @@ export class ScriptAddModalComponent {
       return;
     }
     try {
-      this.scriptHelper.addScriptParameter?.(
+      this.scriptHelper.addScriptParameter(
         this.parameterNameTmp,
         this.parameterDescriptionTmp,
         this.parameterDataTypeTmp,
@@ -143,7 +144,7 @@ export class ScriptAddModalComponent {
   }
 
   removeScriptParameter(p: any): void {
-    try { this.scriptHelper.removeScriptParameter?.(p); } catch {}
+    try { this.scriptHelper.removeScriptParameter(p); } catch {}
   }
 
   onScriptFileSelected(event: any): void {
@@ -163,7 +164,7 @@ export class ScriptAddModalComponent {
 
   canSubmit(): boolean {
     const hasBasics = !!this.datasetName && !!this.description && !!this.selectedTargetIndicator;
-    const hasCode = !!this.scriptHelper?.scriptCode_readableString;
+    const hasCode = !!this.scriptHelper.scriptCode_readableString;
     const hasInputs = (this.requiredIndicators?.length || 0) > 0 || (this.requiredGeoresources?.length || 0) > 0;
     return hasBasics && hasCode && hasInputs && !this.loadingData;
   }
@@ -174,11 +175,11 @@ export class ScriptAddModalComponent {
     this.errorMessagePart = undefined;
     this.errorMessagePartIndicatorMetadata = undefined;
     try {
-      const resp = await this.scriptHelper.postNewScript?.(this.datasetName, this.description, this.selectedTargetIndicator);
+      const resp = await this.scriptHelper.postNewScript(this.datasetName, this.description, this.selectedTargetIndicator);
       // optionally update indicator method if requested in helper
       try {
         if (this.scriptHelper.scriptFormulaHTML_overwriteTargetIndicatorMethod) {
-          await this.scriptHelper.replaceMethodMetadataForTargetIndicator?.(this.selectedTargetIndicator);
+          await this.scriptHelper.replaceMethodMetadataForTargetIndicator(this.selectedTargetIndicator);
         }
       } catch (metaErr: any) {
         try { this.errorMessagePartIndicatorMetadata = this.indicatorExchange.syntaxHighlightJSON(metaErr?.data || metaErr); } catch {}
