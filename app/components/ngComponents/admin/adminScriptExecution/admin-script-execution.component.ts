@@ -62,7 +62,6 @@ export class AdminScriptExecutionComponent implements OnInit, OnDestroy {
 
   private loadAll(): void {
     this.loadingData = true;
-    console.debug('[AdminScriptExecution] Loading all data...');
     const s = forkJoin({
       defaultHealth: this.scriptExchange.fetchDefaultIndicatorJobHealth(),
       customizedHealth: this.scriptExchange.fetchCustomizedIndicatorJobHealth(),
@@ -70,29 +69,14 @@ export class AdminScriptExecutionComponent implements OnInit, OnDestroy {
       customizedJobs: this.scriptExchange.fetchCustomizedIndicatorJobs()
     }).subscribe({
       next: res => {
-        console.debug('[AdminScriptExecution] API responses received', {
-          defaultHealth: res?.defaultHealth,
-          customizedHealth: res?.customizedHealth,
-          defaultJobsCount: Array.isArray(res?.defaultJobs) ? res.defaultJobs.length : 'n/a',
-          customizedJobsCount: Array.isArray(res?.customizedJobs) ? res.customizedJobs.length : 'n/a'
-        });
         this.defaultComputationJobHealth = res.defaultHealth || {};
         this.customizedComputationJobHealth = res.customizedHealth || {};
         this.defaultJobs = this.sortJobs(res.defaultJobs || []);
         this.customizedJobs = this.sortJobs(res.customizedJobs || []);
-        console.debug('[AdminScriptExecution] Sorted jobs', {
-          defaultJobsCount: this.defaultJobs.length,
-          customizedJobsCount: this.customizedJobs.length
-        });
         // rowData is bound in template; assigning to arrays triggers grid update
-        console.debug('[AdminScriptExecution] Grid rowData set', {
-          defaultRows: this.defaultJobs.length,
-          customizedRows: this.customizedJobs.length
-        });
         this.loadingData = false;
       },
       error: _ => {
-        console.error('[AdminScriptExecution] Error while loading data');
         this.loadingData = false;
       }
     });
