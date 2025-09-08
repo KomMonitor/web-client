@@ -1,3 +1,18 @@
-:host {
-  text-align: center;
+::ng-deep .modal-holder .modal-dialog { 
+  max-width: max-content;
+  width: max-content;
+  transform: none !important;
+}
+
+.modal-content {
+  width: 25vw;
+  min-width: 350px;
+
+  &.content-small {
+    width: 40vw;
+  }
+
+  .modal-body {
+    text-align: center;
+  }
 }

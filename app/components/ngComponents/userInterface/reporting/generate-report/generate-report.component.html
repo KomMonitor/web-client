@@ -1,10 +1,18 @@
 
-<div>
-  <button type="button" class="btn btn-primary" (click)="generateReport('pdf')">PDF</button>
-  <button type="button" class="btn btn-primary" (click)="generateReport('docx')">DOCX</button>
-  <button type="button" class="btn btn-primary" (click)="generateReport('zip')">ZIP</button>
-  <button type="button" class="btn btn-primary" (click)="generateReport('pptx')">PPTX</button>
+<div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" (click)="activeModal.close('Close click')">&times;</button>
+    <h4 class="modal-title"><b>Reporting</b></h4>
+  </div>
+  <div class="modal-body">
+    <div>
+      <button type="button" class="btn btn-primary" (click)="generateReport('pdf')">PDF</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('docx')">DOCX</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('zip')">ZIP</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('pptx')">PPTX</button>
+    </div>
+    <br>
+    <br>
+    <p>Bei <b><i>PPTX</i></b> gilt das Layout (Hoch- oder Querformat) der ersten Seite auch f&uuml;r alle weiteren Seiten.</p>  
+  </div>
 </div>
-<br>
-<br>
-<p>Bei <b><i>PPTX</i></b> gilt das Layout (Hoch- oder Querformat) der ersten Seite auch f&uuml;r alle weiteren Seiten.</p>
