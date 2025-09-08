@@ -41,9 +41,19 @@ export class KommonitorScriptExecutionDataExchangeService {
   }
 
   private safeGet<T>(url: string, fallback: T): Observable<T> {
+    console.debug('[ScriptExecApi] GET', url);
     return this.http.get<T>(url).pipe(
-      map(resp => resp as T),
-      catchError(_ => of(fallback))
+      map(resp => {
+        try {
+          const size = Array.isArray(resp) ? (resp as any[]).length : (resp ? 1 : 0);
+          console.debug('[ScriptExecApi] OK', url, { size });
+        } catch {}
+        return resp as T;
+      }),
+      catchError(err => {
+        console.error('[ScriptExecApi] FAIL', url, err);
+        return of(fallback);
+      })
     );
   }
 }

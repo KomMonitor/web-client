@@ -46,6 +46,9 @@ export class AdminScriptExecutionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupColumns();
+    // initialize base grid options; rowData/columnDefs bound in template
+    this.defaultJobsGridOptions = this.gridHelper.buildGridOptions(this.defaultJobsColumnDefs, []);
+    this.customizedJobsGridOptions = this.gridHelper.buildGridOptions(this.customizedJobsColumnDefs, []);
     this.loadAll();
   }
 
@@ -59,6 +62,7 @@ export class AdminScriptExecutionComponent implements OnInit, OnDestroy {
 
   private loadAll(): void {
     this.loadingData = true;
+    console.debug('[AdminScriptExecution] Loading all data...');
     const s = forkJoin({
       defaultHealth: this.scriptExchange.fetchDefaultIndicatorJobHealth(),
       customizedHealth: this.scriptExchange.fetchCustomizedIndicatorJobHealth(),
@@ -66,15 +70,29 @@ export class AdminScriptExecutionComponent implements OnInit, OnDestroy {
       customizedJobs: this.scriptExchange.fetchCustomizedIndicatorJobs()
     }).subscribe({
       next: res => {
+        console.debug('[AdminScriptExecution] API responses received', {
+          defaultHealth: res?.defaultHealth,
+          customizedHealth: res?.customizedHealth,
+          defaultJobsCount: Array.isArray(res?.defaultJobs) ? res.defaultJobs.length : 'n/a',
+          customizedJobsCount: Array.isArray(res?.customizedJobs) ? res.customizedJobs.length : 'n/a'
+        });
         this.defaultComputationJobHealth = res.defaultHealth || {};
         this.customizedComputationJobHealth = res.customizedHealth || {};
         this.defaultJobs = this.sortJobs(res.defaultJobs || []);
         this.customizedJobs = this.sortJobs(res.customizedJobs || []);
-        this.defaultJobsGridOptions = this.gridHelper.buildGridOptions(this.defaultJobsColumnDefs, this.defaultJobs);
-        this.customizedJobsGridOptions = this.gridHelper.buildGridOptions(this.customizedJobsColumnDefs, this.customizedJobs);
+        console.debug('[AdminScriptExecution] Sorted jobs', {
+          defaultJobsCount: this.defaultJobs.length,
+          customizedJobsCount: this.customizedJobs.length
+        });
+        // rowData is bound in template; assigning to arrays triggers grid update
+        console.debug('[AdminScriptExecution] Grid rowData set', {
+          defaultRows: this.defaultJobs.length,
+          customizedRows: this.customizedJobs.length
+        });
         this.loadingData = false;
       },
       error: _ => {
+        console.error('[AdminScriptExecution] Error while loading data');
         this.loadingData = false;
       }
     });
@@ -89,47 +107,6 @@ export class AdminScriptExecutionComponent implements OnInit, OnDestroy {
 
   private sortJobs(arr: any[]): any[] { return (arr || []).sort((a: any, b: any) => (b?.jobId || 0) - (a?.jobId || 0)); }
 
-  private buildLogsRenderer(prefix: string) {
-    return (params: any) => {
-      try {
-        const logs = params?.data?.logs;
-        if (!logs) { return 'Dieser Job umfasst keine Logs'; }
-        const logJSON = JSON.stringify(logs);
-        const blob = new Blob([logJSON], { type: 'application/json' });
-        const dataUrl = URL.createObjectURL(blob);
-        const fileName = `${prefix}${params.data.jobId}-Logs.json`;
-        return `<a href="${dataUrl}" download="${fileName}" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>`;
-      } catch { return 'Dieser Job umfasst keine Logs'; }
-    };
-  }
-
-  private renderDefaultJobSummary(params: any): string {
-    try {
-      const summary = params?.data?.spatialUnitIntegrationSummary;
-      if (!summary || summary.length === 0) {
-        return 'Dieser Job umfasst keine Informationen zur erfolgreichen/gescheiterten Datenintegration';
-      }
-      let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumebenen-Id</th><th>Raumebenen-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
-      for (const item of summary) {
-        html += '<tr>';
-        html += `<td>${item.spatialUnitId}</td>`;
-        html += `<td>${item.spatialUnitName}</td>`;
-        html += `<td>${item.numberOfIntegratedIndicatorFeatures}</td>`;
-        html += `<td>${item.numberOfIntegratedTargetDates}</td>`;
-        html += `<td>${item.integratedTargetDates}</td>`;
-        if (item.errorsOccurred && item.errorsOccurred.length > 0) {
-          html += `<td>${this.dataExchange.syntaxHighlightJSON(item.errorsOccurred)}</td>`;
-        } else {
-          html += '<td>keine Fehlermeldungen vorhanden</td>';
-        }
-        html += '</tr>';
-      }
-      html += '</tbody></table>';
-      return html;
-    } catch { return ''; }
-  }
-
-  
 }
 
 

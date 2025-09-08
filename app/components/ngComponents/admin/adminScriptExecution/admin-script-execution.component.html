@@ -99,7 +99,9 @@
 
 				<div class="admin-table-wrapper">
 					<ag-grid-angular class="ag-theme-alpine" style="height: 75vh; width: 100%;"
-						[gridOptions]="defaultJobsGridOptions">
+						[gridOptions]="defaultJobsGridOptions"
+						[columnDefs]="defaultJobsColumnDefs"
+						[rowData]="defaultJobs">
 					</ag-grid-angular>
 				</div>
 			</div>
@@ -191,7 +193,9 @@
 
 				<div class="admin-table-wrapper">
 					<ag-grid-angular class="ag-theme-alpine" style="height: 75vh; width: 100%;"
-						[gridOptions]="customizedJobsGridOptions">
+						[gridOptions]="customizedJobsGridOptions"
+						[columnDefs]="customizedJobsColumnDefs"
+						[rowData]="customizedJobs">
 					</ag-grid-angular>
 				</div>
 			</div>

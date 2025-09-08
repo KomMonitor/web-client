@@ -6,6 +6,21 @@ import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommoni
 export class KommonitorScriptExecutionDataGridHelperService {
   constructor(private dataExchange: KommonitorDataExchangeService) {}
 
+  private buildDefaultColDef(): ColDef {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 200,
+      filter: true,
+      floatingFilter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 'font-size': '12px', 'white-space': 'normal !important', 'line-height': '20px !important', 'word-break': 'break-word !important', 'padding-top': '17px', 'padding-bottom': '17px' }
+    } as ColDef;
+  }
+
   buildDefaultJobsColumnDefs(): ColDef[] {
     return [
       { headerName: 'Job-Id', field: 'jobId', pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, headerCheckboxSelectionFilteredOnly: true },
@@ -54,18 +69,7 @@ export class KommonitorScriptExecutionDataGridHelperService {
     return {
       columnDefs,
       rowData,
-      defaultColDef: {
-        editable: false,
-        sortable: true,
-        flex: 1,
-        minWidth: 200,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-        cellStyle: { 'font-size': '12px', 'white-space': 'normal !important', 'line-height': '20px !important', 'word-break': 'break-word !important', 'padding-top': '17px', 'padding-bottom': '17px' }
-      },
+      defaultColDef: this.buildDefaultColDef(),
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
       enableCellTextSelection: true,
