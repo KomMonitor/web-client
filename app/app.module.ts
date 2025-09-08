@@ -96,6 +96,8 @@ import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './componen
 import { IndicatorDeleteModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 import { AdminGeoresourcesManagementComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/admin-georesources-management.component';
+import { AdminScriptExecutionComponent } from './components/ngComponents/admin/adminScriptExecution/admin-script-execution.component';
+import { AdminScriptManagementComponent } from './components/ngComponents/admin/adminScriptManagement/admin-script-management.component';
 import { GeoresourceAddModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.component';
 import { GeoresourceBatchUpdateModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 import { GeoresourceEditMetadataModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
@@ -220,9 +222,11 @@ declare var MathJax;
     GeoresourceEditFeaturesModalComponent,
     GeoresourceEditUserRolesModalComponent,
     GeoresourceDeleteModalComponent,
+    AdminScriptManagementComponent,
     RoleDeleteModalComponent,
     RoleEditMetadataModalComponent,
-    RoleEditGroupRightsModalComponent
+    RoleEditGroupRightsModalComponent,
+    AdminScriptExecutionComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -356,6 +360,16 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorAdmin')
       .directive('adminGeoresourcesManagementNew', downgradeComponent({
         component: AdminGeoresourcesManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminScriptExecutionNew', downgradeComponent({
+        component: AdminScriptExecutionComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminScriptManagementNew', downgradeComponent({
+        component: AdminScriptManagementComponent
       }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorAdmin')
@@ -664,6 +678,27 @@ export class AppModule implements DoBootstrap {
             return output;
         };
     });
+
+    angular.module('kommonitorClient').service("ControlsConfigService", ['$http', function ($http) {
+      window.__env.config = null;
+
+      // var resourcePath = window.__env.configStorageServerConfig ? window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig : './config/controls-config_backup.json';
+      var resourcePath = './config/controls-config_backup.json';
+      var promise = $http.get(resourcePath).then(function (response) {
+        // window.__env.config = response.data;
+        window.__env.config = window.__env.controlsConfig;
+      });
+
+      return {
+        promise: promise,
+        setData: function (response) {
+          window.__env.config = window.__env.controlsConfig;
+        },
+        getControlsConfig: function () {
+          return window.__env.config;
+        }
+      };
+    }]);
 
     // init/configure SPA routing
     angular.module('kommonitorClient').

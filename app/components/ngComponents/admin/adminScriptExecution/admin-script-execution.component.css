@@ -1,0 +1,5 @@
+/* Reuse existing admin styles if present */
+.adminTableButtonWrapper { margin-top: 10px; }
+.small-box .inner h3 { font-weight: 600; }
+
+
