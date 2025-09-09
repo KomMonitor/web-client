@@ -55,6 +55,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   spatialUnitEditFeaturesDataSourceInputInvalidReason = '';
   spatialUnitEditFeaturesDataSourceInputInvalid = false;
   fileSelected: boolean = false;
+  selectedDataSourceFile: File | null = null;
   spatialUnitDataSourceIdProperty = '';
   spatialUnitDataSourceNameProperty = '';
 
@@ -422,6 +423,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.bboxType = '';
     this.bboxRefSpatialUnitLevel = '';
     this.bbox_minx = this.bbox_miny = this.bbox_maxx = this.bbox_maxy = null;
+    this.selectedDataSourceFile = null;
+    this.fileSelected = false;
   }
 
   refreshSpatialUnitEditFeaturesOverviewTable(): void {
@@ -669,8 +672,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     try {
       // Prefer robust Angular-native handling for FILE uploads (like Add modal)
       if (this.datasourceType?.type === 'FILE') {
-        const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
-        const file = inputEl?.files?.[0];
+        let file: File | undefined | null = this.selectedDataSourceFile;
+        if (!file) {
+          const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+          file = inputEl?.files?.[0];
+        }
         if (!file) {
           console.warn('[EditFeatures] buildDatasourceTypeDefinition - no file selected');
           return null;
@@ -917,8 +923,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     const input = event?.target as HTMLInputElement;
     if (input && input.files && input.files.length > 0) {
       console.log('[EditFeatures] onFileSelected', { name: input.files[0].name, size: input.files[0].size });
+      this.selectedDataSourceFile = input.files[0];
     } else {
       console.log('[EditFeatures] onFileSelected - no file');
+      this.selectedDataSourceFile = null;
     }
     this.fileSelected = !!(input && input.files && input.files.length > 0);
   }

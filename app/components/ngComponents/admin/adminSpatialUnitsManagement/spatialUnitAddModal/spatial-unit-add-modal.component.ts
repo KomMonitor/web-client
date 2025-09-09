@@ -81,6 +81,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   schema: string = '';
   mimeType: string = '';
   datasourceType: any = null;
+  selectedDataSourceFile: File | null = null;
   spatialUnitDataSourceIdProperty = '';
   spatialUnitDataSourceIdPropertyInvalid = false;
   spatialUnitDataSourceNameProperty = '';
@@ -565,6 +566,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Handle datasource type change
     this.datasourceType = datasourceType;
     // Reset related fields when datasource type changes
+    this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.bboxType = '';
@@ -574,6 +576,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.bbox_maxx = null;
     this.bbox_maxy = null;
     this.datasourceTypeParameterValues = {};
+  }
+
+  onSpatialUnitFileSelected(event: any) {
+    const file = event?.target?.files?.[0] as File | undefined;
+    this.selectedDataSourceFile = file ?? null;
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
@@ -695,8 +702,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
     try {
       // Prefer robust Angular-native handling for FILE uploads
       if (this.datasourceType?.type === 'FILE') {
-        const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
-        const file = inputEl?.files?.[0];
+        // Use persisted file across step changes
+        let file: File | undefined | null = this.selectedDataSourceFile;
+        if (!file) {
+          const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+          file = inputEl?.files?.[0];
+        }
         if (!file) {
           return null;
         }
@@ -1339,6 +1350,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.schema = '';
     this.mimeType = '';
     this.datasourceType = null;
+    this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.validityStartDate_perFeature = '';
