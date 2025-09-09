@@ -397,7 +397,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"isPublic": $scope.isPublic
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
-	
+
+				$scope.aggregationsDefinition = $scope.buildAggregationsDefinition();
+				$scope.aggregationsDefinition.forEach(e => {
+					e.indicatorPutBody = {...$scope.putBody_indicators, applicableSpatialUnit: e.targetSpatialUnitName};
+					delete e.targetSpatialUnitName;
+				});
+
 				if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_indicators){
 					return false;
 				}
@@ -472,14 +478,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 						var updateIndicatorResponse_dryRun = undefined;
 						try {
-							updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, true);
+							updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, $scope.aggregationsDefinition, true);
 	
 							// this callback will be called asynchronously
 							// when the response is available
 	
 							if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)){
 								// all good, really execute the request to import data against data management API
-								var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, false);						
+								var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, $scope.aggregationsDefinition, false);						
 	
 								$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 								// $scope.refreshIndicatorEditFeaturesOverviewTable();

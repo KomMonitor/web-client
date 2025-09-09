@@ -718,7 +718,7 @@ angular
         });        
       };
 
-      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI, isDryRun){
+      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI, aggregationsDefinition, isDryRun){
         console.log("Trying to POST to importer service to update indicator with id '" + indicatorId + "'.");
 
         var postBody = {
@@ -727,6 +727,7 @@ angular
           "propertyMapping": propertyMappingDefinition,
           "indicatorId": indicatorId,
           "indicatorPutBody": indicatorPutBody_managementAPI,
+          "aggregations": aggregationsDefinition,
           "dryRun": isDryRun
         };        
 
