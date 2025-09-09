@@ -381,7 +381,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       // Initialize defaults like in Add modal
       this.schema = this.converter.schemas ? this.converter.schemas[0] : '';
       this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : '';
-      {
+      console.log('onChangeConverter', {
         converter: this.converter?.name,
         schema: this.schema,
         mimeType: this.mimeType
@@ -834,7 +834,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
-      {
+      console.log('Missing importer objects', {
         converterDefinition: !!this.converterDefinition,
         datasourceTypeDefinition: !!this.datasourceTypeDefinition,
         propertyMappingDefinition: !!this.propertyMappingDefinition,
@@ -847,7 +847,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     try {
-      {
+      console.log('Updating spatial unit', {
         spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
         converterDefinition: this.converterDefinition?.name,
         datasourceTypeDefinition: this.datasourceTypeDefinition?.type,
