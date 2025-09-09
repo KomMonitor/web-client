@@ -480,7 +480,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
           }
         },
         error: (error) => {
-          console.error('Error fetching access control data:', error);
         }
       });
     }

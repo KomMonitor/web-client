@@ -230,7 +230,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       try {
         await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
       } catch (error) {
-        console.error('Error loading importer resources:', error);
       }
     }
     
@@ -382,7 +381,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       // Initialize defaults like in Add modal
       this.schema = this.converter.schemas ? this.converter.schemas[0] : '';
       this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : '';
-      console.log('[EditFeatures] onChangeConverter', {
+      {
         converter: this.converter?.name,
         schema: this.schema,
         mimeType: this.mimeType
@@ -412,7 +411,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onChangeDatasourceType(datasourceType: any): void {
     this.datasourceType = datasourceType;
-    console.log('[EditFeatures] onChangeDatasourceType', { datasourceType: this.datasourceType?.type });
     
     if (this.datasourceType && this.datasourceType.type === "OGCAPI_FEATURES") {
       // Use array of available spatial units like in Add modal
@@ -429,7 +427,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   refreshSpatialUnitEditFeaturesOverviewTable(): void {
     if (!this.currentSpatialUnitDataset) {
-      console.warn('No current spatial unit dataset selected');
       return;
     }
 
@@ -476,7 +473,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         }, 500); // Increased timeout to show loading state longer
       },
       error: (error) => {
-        console.error('Error fetching spatial unit features:', error);
         this.handleError(error);
         setTimeout(() => {
           this.loadingData = false;
@@ -535,7 +531,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.periodOfValidityInvalid = !validation.isValid;
     
     if (!validation.isValid && validation.error) {
-      console.warn('Period of validity validation error:', validation.error);
+      
     }
   }
 
@@ -678,7 +674,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           file = inputEl?.files?.[0];
         }
         if (!file) {
-          console.warn('[EditFeatures] buildDatasourceTypeDefinition - no file selected');
           return null;
         }
         const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file, file.name);
@@ -742,18 +737,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   async editSpatialUnitFeatures(): Promise<void> {
-    console.log('[EditFeatures] editSpatialUnitFeatures - start', {
-      currentSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
-      converter: this.converter?.name,
-      schema: this.schema,
-      mimeType: this.mimeType,
-      datasourceType: this.datasourceType?.type,
-      idProperty: this.spatialUnitDataSourceIdProperty,
-      nameProperty: this.spatialUnitDataSourceNameProperty,
-      periodStart: this.periodOfValidity?.startDate,
-      periodEnd: this.periodOfValidity?.endDate,
-      periodInvalid: this.periodOfValidityInvalid
-    });
     this.loadingData = true;
     this.importerErrors = [];
     this.successMessagePart = '';
@@ -793,11 +776,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           hasFile = true;
         }
       }
-      console.log('[EditFeatures] FILE datasource - fileSelected status', {
-        fileSelectedFlag: this.fileSelected,
-        viewChildHasFile: !!(fileInputEl && fileInputEl.files && fileInputEl.files.length > 0),
-        domIdHasFile: !!((document.getElementById('spatialUnitDataSourceInput_editFeatures') as HTMLInputElement | null)?.files?.length)
-      });
       if (!hasFile) {
         missing.push('Datei');
       }
@@ -811,11 +789,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           missing.push('Begrenzungsrahmen (minx, miny, maxx, maxy)');
         }
       }
-      console.log('[EditFeatures] OGCAPI_FEATURES params', {
-        bboxType: this.bboxType,
-        bboxRefSpatialUnitLevel: this.bboxRefSpatialUnitLevel,
-        bbox: [this.bbox_minx, this.bbox_miny, this.bbox_maxx, this.bbox_maxy]
-      });
       // Other datasourceType parameters
       if (Array.isArray(this.datasourceType.parameters) && this.datasourceType.parameters.length > 0) {
         for (const p of this.datasourceType.parameters) {
@@ -852,7 +825,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     if (missing.length > 0) {
-      console.warn('[EditFeatures] Validation failed - missing fields', missing);
+      
       this.loadingData = false;
       this.errorMessage = `Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: ${missing.join(', ')}.`;
       this.showErrorAlert();
@@ -861,7 +834,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
-      console.warn('[EditFeatures] buildImporterObjects returned false', {
+      {
         converterDefinition: !!this.converterDefinition,
         datasourceTypeDefinition: !!this.datasourceTypeDefinition,
         propertyMappingDefinition: !!this.propertyMappingDefinition,
@@ -874,7 +847,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     try {
-      console.log('[EditFeatures] Dry-run updateSpatialUnit POST about to fire', {
+      {
         spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
         converterDefinition: this.converterDefinition?.name,
         datasourceTypeDefinition: this.datasourceTypeDefinition?.type,
@@ -891,7 +864,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       );
 
       if (!this.kommonitorImporterHelperService?.importerResponseContainsErrors(updateSpatialUnitResponse_dryRun)) {
-        console.log('[EditFeatures] Dry-run successful, firing real POST');
         const updateSpatialUnitResponse = await this.kommonitorImporterHelperService?.updateSpatialUnit(
           this.converterDefinition, 
           this.datasourceTypeDefinition, 
@@ -906,14 +878,12 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.showSuccessAlert();
         this.loadingData = false;
       } else {
-        console.warn('[EditFeatures] Dry-run returned errors', updateSpatialUnitResponse_dryRun);
         this.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
         this.importerErrors = this.kommonitorImporterHelperService?.getErrorsFromImporterResponse(updateSpatialUnitResponse_dryRun) || [];
         this.showErrorAlert();
         this.loadingData = false;
       }
     } catch (error) {
-      console.error('[EditFeatures] Exception during POST', error);
       this.handleError(error);
       this.loadingData = false;
     }
@@ -922,10 +892,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   onFileSelected(event: any): void {
     const input = event?.target as HTMLInputElement;
     if (input && input.files && input.files.length > 0) {
-      console.log('[EditFeatures] onFileSelected', { name: input.files[0].name, size: input.files[0].size });
       this.selectedDataSourceFile = input.files[0];
     } else {
-      console.log('[EditFeatures] onFileSelected - no file');
       this.selectedDataSourceFile = null;
     }
     this.fileSelected = !!(input && input.files && input.files.length > 0);
@@ -952,7 +920,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       try {
         this.parseFromMappingConfigFile(event);
       } catch (error) {
-        console.error('Uploaded MappingConfig File cannot be parsed.', error);
         this.spatialUnitMappingConfigImportError = 'Uploaded MappingConfig File cannot be parsed correctly';
         this.showMappingConfigErrorAlert();
       }
@@ -1283,7 +1250,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private handleError(error: any): void {
-    console.error('Error occurred:', error);
     if (error.data) {
       this.errorMessagePart = this.kommonitorDataExchangeService?.syntaxHighlightJSON(error.data) || 'An error occurred';
     } else {

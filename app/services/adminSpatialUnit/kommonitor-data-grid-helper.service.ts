@@ -490,7 +490,7 @@ export class KommonitorDataGridHelperService {
     } else {
       // Create new grid options
       currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds, reducedRoleManagement);
-      console.log('Role management grid options created. Use in component template.');
+      
     }
     return currentTableOptionsObject;
   }
@@ -944,7 +944,7 @@ export class KommonitorDataGridHelperService {
 
     const gridContainer = document.querySelector('#' + tableId);
     if (!gridContainer) {
-      console.error(`Grid container #${tableId} not found`);
+      
       return this.buildFeatureTableGridOptions(headers, features, resourceId, resourceType, enableDelete);
     }
 
@@ -965,7 +965,7 @@ export class KommonitorDataGridHelperService {
       );
       
       // The actual grid creation should be done in the component template
-      console.log('Feature table grid options created. Use in component template.');
+      
     }
     
     return this.dataGridOptions_featureTable!;
@@ -1220,7 +1220,7 @@ export class KommonitorDataGridHelperService {
     // Parse button ID: btn__spatialUnit__deleteFeatureEntry__{datasetId}__{featureId}__{recordId}
     const idParts = buttonId.split('__');
     if (idParts.length < 6) {
-      console.error('Invalid button ID format:', buttonId);
+      
       return;
     }
 
@@ -1239,14 +1239,14 @@ export class KommonitorDataGridHelperService {
     } else if (resourceType === 'georesource') {
       url += `/georesources/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
     } else {
-      console.error('Unknown resource type:', resourceType);
+      
       return;
     }
 
     // Make DELETE request
     this.http.delete(url).subscribe({
       next: (response: any) => {
-        console.log('Successfully deleted database record');
+        
         
         // Update timestamps
         if (resourceType === 'georesource') {
@@ -1263,7 +1263,7 @@ export class KommonitorDataGridHelperService {
         });
       },
       error: (error) => {
-        console.error('Error while deleting database record:', error);
+        
         
         // Broadcast hide loading event
         this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
@@ -1453,7 +1453,7 @@ export class KommonitorDataGridHelperService {
       }
     }).subscribe({
       next: (response: any) => {
-        console.log("Successfully updated database record");
+        
 
         // On success: mark grid cell with green background
         newValueParams.colDef.cellStyle = (p: any) =>
@@ -1473,7 +1473,7 @@ export class KommonitorDataGridHelperService {
         }
       },
       error: (error) => {
-        console.error("Error while updating database record:", error);
+        
 
         // Reset cell value as an error occurred
         newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;

@@ -32,7 +32,6 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
-    console.log('SpatialUnitDeleteModalComponent constructor initialized');
   }
 
   ngOnInit(): void {
@@ -127,7 +126,6 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
       }
 
     } catch (error) {
-      console.error('Error during bulk deletion:', error);
       this.errorMessage = 'Ein unerwarteter Fehler ist aufgetreten.';
       this.loadingData = false;
     }

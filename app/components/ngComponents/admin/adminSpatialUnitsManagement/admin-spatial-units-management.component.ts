@@ -54,25 +54,21 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('AdminSpatialUnitsManagementComponent ngOnInit started');
+    
     
     // Subscribe to spatial units data
     const spatialUnitsSub = this.kommonitorDataExchangeService.spatialUnits$.subscribe(spatialUnits => {
-      console.log('Spatial units subscription received:', spatialUnits);
       if (spatialUnits && spatialUnits.length > 0) {
-        console.log('Building data grid with', spatialUnits.length, 'spatial units');
         this.loadingData = false;
         this.initializationCompleted = true;
         this.buildDataGrid_spatialUnits(spatialUnits);
       } else {
-        console.log('No spatial units data received yet');
       }
     });
     this.subscriptions.push(spatialUnitsSub);
 
     // Subscribe to loading state
     const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(loading => {
-      console.log('Loading state changed:', loading);
       this.loadingData = loading;
     });
     this.subscriptions.push(loadingSub);
@@ -80,7 +76,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // Subscribe to error state
     const errorSub = this.kommonitorDataExchangeService.error$.subscribe(error => {
       if (error) {
-        console.error('Data exchange error:', error);
         // You can add error handling UI here
       }
     });
@@ -94,12 +89,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
-        console.log('Fallback timeout reached, checking data again...');
         this.fetchSpatialUnitsData();
         
         // If still no data after fallback, stop loading anyway
         if (!this.kommonitorDataExchangeService.availableSpatialUnits || this.kommonitorDataExchangeService.availableSpatialUnits.length === 0) {
-          console.log('No data after fallback timeout, stopping loading');
           this.loadingData = false;
           this.initializationCompleted = true;
         }
@@ -159,19 +152,15 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
    * Fetch spatial units data from the service
    */
   private fetchSpatialUnitsData(): void {
-    console.log('Fetching spatial units data...');
     
     // Get current roles or use empty array as fallback
     const currentRoles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
-    console.log('Current roles:', currentRoles);
     
     this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(currentRoles).subscribe({
       next: (spatialUnits) => {
-        console.log('Spatial units data received:', spatialUnits);
         // The data will be handled by the subscription in ngOnInit
       },
       error: (error) => {
-        console.error('Error fetching spatial units:', error);
         this.loadingData = false;
         this.initializationCompleted = true;
       }
@@ -179,7 +168,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   public initializeOrRefreshOverviewTable(): void {
-    console.log('Initializing/refreshing overview table...');
     this.fetchSpatialUnitsData();
   }
 
@@ -322,7 +310,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           this.loadingData = false;
         },
         error: (response) => {
-          console.error('Error fetching spatial units metadata:', response);
           this.loadingData = false;
         }
       });
@@ -340,7 +327,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
             this.loadingData = false;
           },
           error: (response) => {
-            console.error('Error fetching single spatial unit metadata:', response);
             this.loadingData = false;
           }
         });
@@ -357,7 +343,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
             this.loadingData = false;
           },
           error: (response) => {
-            console.error('Error fetching single spatial unit metadata:', response);
             this.loadingData = false;
           }
         });
