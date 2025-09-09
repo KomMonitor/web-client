@@ -2328,6 +2328,10 @@ angular
                 latestJobIndex = 1;
               }
 
+              if (!params.data.jobIDs || !params.data.jobIDs[latestJobIndex]) {
+                return "<div id='latestJobSummary"+params.data.scheduleID+"'>Keine Jobs vorhanden</div>";
+              }
+
               $http({
                 url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex],
                 method: "GET"
@@ -2823,12 +2827,25 @@ angular
               getErrorTypeLongDescription = function(error){
                 let datasetName = kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(error.affectedDatasetId);
                 let resourceType = (error.affectedResourceType.toLowerCase() == "indicator")? "Indikator" : "Georessource";
-                console.log(error);
                 switch(error.type) {
-                  case "missingTimestamp": return "Zeitstempel fehlen für " + resourceType + " '" + datasetName + "'.";
+                  case "missingTimestamp": {
+                    let timestampList = "<ul>";
+                    for (const timestamp of error.affectedTimestamps) {
+                      timestampList += "<li>" + timestamp + "</li>"
+                    }
+                    timestampList += "</ul>";
+                    return "Zeitstempel fehlen für " + resourceType + " '" + datasetName + "'." + timestampList;
+                  }
                   case "missingDataset": return "" + resourceType + " '" + datasetName + "' fehlt.";
-                  case "missingSpatialUnit": return "Die ausgewählte Raumeinheit fehlt für '" + datasetName + "'.";
-                  case "missingSpatialUnitFeature": return "Raumeinheitsfeatures fehlen für '" + datasetName + "'.";
+                  case "missingSpatialUnit": return "Die ausgewählte Raumeinheit fehlt für " + resourceType + " '" + datasetName + "'.";
+                  case "missingSpatialUnitFeature": {
+                    let featureList = "<ul>";
+                    for (const feature of error.affectedSpatialUnitFeatures) {
+                      featureList += "<li>" + feature + "</li>"
+                    }
+                    featureList += "</ul>";
+                    return "Raumeinheitsfeatures fehlen für " + resourceType + " '" + datasetName + "'." + featureList;
+                  } 
                   case "dataManagementApiError": return "Fehler beim Aufrufen der API für " + resourceType + " '" + datasetName + "'.";
                   case "processingError": return "Fehler beim Prozessieren von " + resourceType + " '" + datasetName + "'.";
                   default: return "Fehlerbeschreibung";
@@ -2867,6 +2884,8 @@ angular
                             </tbody>
                           </table>
                       */
+                          //console.log('job-data:');
+                          //console.log(params.data);
                           if(params.data && params.data.jobSummary && params.data.jobSummary.length > 0){
                             let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheit</th><th width="250px">Modifizierte Ressource</th><th>Anzahl integrierter Indikator-Features</th><th>Integrierte Zielzeitpunkte</th><th>Fehler</th></tr></thead><tbody>';
             
@@ -2883,8 +2902,8 @@ angular
                                 html += getErrorTypeShortDescription(error);
                                 html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
                                 html += getErrorTypeLongDescription(error);
-                                html += "</br></br>"
-                                html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                //html += "</br></br>"
+                                //html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
                                 html += '</div></div>'
                               }
                               html += "</td>";
