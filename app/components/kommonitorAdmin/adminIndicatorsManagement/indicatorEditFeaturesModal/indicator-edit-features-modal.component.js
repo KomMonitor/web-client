@@ -614,6 +614,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 							break;
 						}
 					}
+
+					$scope.importAggregationsDefinition($scope.mappingConfigImportSettings.aggregations);
 	
 					$scope.$digest();
 	
@@ -672,12 +674,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				var converterDefinition = $scope.buildConverterDefinition();
 				var datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 				var propertyMappingDefinition = $scope.buildPropertyMappingDefinition();			
+				var aggregationsDefinition = $scope.buildAggregationsDefinition();
 	
 				var mappingConfigExport = {
 					"converter": converterDefinition,
 					"dataSource": datasourceTypeDefinition,
 					"propertyMapping": propertyMappingDefinition,
 					"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
+					"aggregations": aggregationsDefinition,
 					"permissions": []
 				};
 
@@ -763,6 +767,31 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.aggregationFunction = undefined;
 				$scope.aggregatedSpatialUnitRefKeyProperty = undefined;
 				$scope.aggregatedTargetSpatialUnitMetadata = undefined;
+			}
+
+			$scope.buildAggregationsDefinition = function() {
+				return this.aggregationsMapping.map(e => ({
+					aggregateFunction: e.aggregationFunction.apiName,
+					spatialReferenceKeyProperty: e.aggregatedSpatialUnitRefKeyProperty,
+					targetSpatialUnitName: e.aggregatedTargetSpatialUnitMetadata.spatialUnitLevel
+				}));
+			}
+
+			$scope.importAggregationsDefinition = function(aggDefinition) {
+				if (aggDefinition && aggDefinition instanceof Array) {
+					$scope.aggregationsMapping = aggDefinition.map(agg => {
+						const aggregationFunction = kommonitorImporterHelperService.aggregationsTypes.find(e => e.apiName === agg.aggregateFunction); 
+						const aggregatedSpatialUnitRefKeyProperty = agg.spatialReferenceKeyProperty;
+						const aggregatedTargetSpatialUnitMetadata = kommonitorDataExchangeService.availableSpatialUnits.find(e => e.spatialUnitLevel === agg.targetSpatialUnitName);
+						if (aggregationFunction && aggregatedSpatialUnitRefKeyProperty && aggregatedTargetSpatialUnitMetadata) {
+							return {
+								aggregationFunction,
+								aggregatedSpatialUnitRefKeyProperty,
+								aggregatedTargetSpatialUnitMetadata
+							}
+						}
+					}).filter(e => e !== undefined);
+				}
 			}
 
 			//#endregion
