@@ -128,12 +128,10 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
 
   // Remove manual SVG injection - now handled by Angular templates
   private injectSvgContentSimple() {
-    console.log('SVG injection no longer needed - using Angular templates');
   }
 
   // Remove the complex injection methods - not needed
   private injectSvgContent() {
-    console.log('SVG injection no longer needed - using Angular templates');
   }
 
   private checkElementsExist(): boolean {
@@ -141,7 +139,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   }
 
   private performSvgInjection() {
-    console.log('SVG injection no longer needed - using Angular templates');
   }
 
   // Color picker logic removed; handled by km-color-picker
@@ -308,15 +305,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
   }
 
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
-    console.log('=== onChangeOutlineDashArray called ===');
-    console.log('Selected object:', outlineDashArrayObject);
-    console.log('Object label:', outlineDashArrayObject?.label);
-    console.log('Object SVG string:', outlineDashArrayObject?.svgString?.substring(0, 50) + '...');
     
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
     this.selectedoutlineDashArrayObject = outlineDashArrayObject; // Keep both for compatibility
     
-    console.log('Updated selectedOutlineDashArrayObject:', this.selectedOutlineDashArrayObject);
+    
     
     // Update dropdown button display using helper method
     this.updateDropdownButtonDisplay();
@@ -324,7 +317,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     // Close the dropdown via Angular state
     this.closeOutlineDashArrayDropdown();
     
-    console.log('=== onChangeOutlineDashArray completed ===');
+    
   }
 
 
@@ -398,9 +391,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
         this.activeModal.close({ action: 'updated', spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId });
       }, 5000); // Close after 5 seconds
     } catch (error: any) {
-      console.error('Error updating spatial unit metadata:', error);
-      console.error('Error response:', error.error);
-      console.error('Error status:', error.status);
       
       this.errorMessagePart = error.error ? 
         this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error) : 
@@ -451,7 +441,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
       try {
         this.parseFromMetadataFile(event);
       } catch (error) {
-        console.error('Uploaded Metadata File cannot be parsed.');
         this.spatialUnitMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
       }
     };
@@ -463,7 +452,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      console.error('uploaded Metadata File cannot be parsed - wrong structure.');
       this.spatialUnitMetadataImportError = 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
       return;
     }

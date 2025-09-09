@@ -116,7 +116,7 @@
           </div>
         </div>
         <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
-          <div class="form-group" align="center">
+          <div class="form-group outline-color-group" align="center">
             <label>Linienfarbe (Umringslayer)</label>
             
             <km-color-picker [(color)]="outlineColor" label="Linienfarbe wählen"></km-color-picker>
@@ -390,7 +390,7 @@
     </fieldset>
 
     <!-- Step 3/4: Räumlicher Datensatz -->
-    <fieldset *ngIf="(currentStep === 3 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity)">
+    <fieldset [hidden]="!((currentStep === 3 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity))">
       <div style="position: absolute;">
         <button type="button" class="btn btn-info pull-left" (click)="onImportSpatialUnitAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei">
           <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
@@ -411,7 +411,7 @@
             <select 
               [(ngModel)]="converter"
               name="converter"
-              (ngModelChange)="onChangeConverter()"
+              (change)="onChangeConverter()"
               class="form-control" 
               required
             >
@@ -445,7 +445,7 @@
               <select 
                 [(ngModel)]="mimeType" 
                 name="mimeType"
-                (ngModelChange)="onChangeMimeType(mimeType)"
+                (change)="onChangeMimeType(mimeType)"
                 class="form-control" 
                 required
               >
@@ -489,7 +489,7 @@
               <select 
                 [(ngModel)]="datasourceType"
                 name="datasourceType"
-                (ngModelChange)="onChangeDatasourceType(datasourceType)"
+                (change)="onChangeDatasourceType(datasourceType)"
                 class="form-control" 
                 required
               >
@@ -503,7 +503,10 @@
 
             <div *ngIf="datasourceType?.type === 'FILE'">
               <label>Datei*</label>
-              <input id="spatialUnitDataSourceInput" type="file" class="form-control" #spatialUnitDataSourceInput required>
+              <input id="spatialUnitDataSourceInput" type="file" class="form-control" #spatialUnitDataSourceInput (change)="onSpatialUnitFileSelected($event)" required>
+              <div class="help-block" *ngIf="selectedDataSourceFile">
+                <p>Ausgewählt: {{selectedDataSourceFile.name}}</p>
+              </div>
             </div>
             <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
               <label>Räumlicher Filter*</label>

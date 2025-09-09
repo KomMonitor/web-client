@@ -1127,7 +1127,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
       await this.http.delete(url).toPromise();
       return true;
     } catch (error) {
-      console.error(`Failed to delete spatial unit ${spatialUnitId}:`, error);
       return false;
     }
   }

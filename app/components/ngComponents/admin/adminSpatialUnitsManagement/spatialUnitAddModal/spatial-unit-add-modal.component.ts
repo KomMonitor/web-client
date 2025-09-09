@@ -81,6 +81,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   schema: string = '';
   mimeType: string = '';
   datasourceType: any = null;
+  selectedDataSourceFile: File | null = null;
   spatialUnitDataSourceIdProperty = '';
   spatialUnitDataSourceIdPropertyInvalid = false;
   spatialUnitDataSourceNameProperty = '';
@@ -264,7 +265,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (this.kommonitorDataExchangeService.updateIntervalOptions) {
       this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
     } else {
-      console.warn('No update interval options available from service');
     }
 
     // Initialize attribute mapping types
@@ -277,7 +277,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     try {
       await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
     } catch (error) {
-      console.error('Failed to fetch importer resources:', error);
+      
     }
 
     // Load datasource types from importer helper after fetch
@@ -303,7 +303,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
           this.loadingData = false;
         },
         error: (error) => {
-          console.error('Error fetching access control data:', error);
           // Set empty arrays to avoid errors
           this.resourcesCreatorRights = [];
           this.loadingData = false;
@@ -499,7 +498,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.periodOfValidityInvalid = !validation.isValid;
 
     if (!validation.isValid && validation.error) {
-      console.warn('Period of validity validation error:', validation.error);
+      
     }
   }
 
@@ -565,6 +564,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Handle datasource type change
     this.datasourceType = datasourceType;
     // Reset related fields when datasource type changes
+    this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.bboxType = '';
@@ -576,11 +576,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.datasourceTypeParameterValues = {};
   }
 
+  onSpatialUnitFileSelected(event: any) {
+    const file = event?.target?.files?.[0] as File | undefined;
+    this.selectedDataSourceFile = file ?? null;
+  }
+
   onChangeOutlineDashArray(outlineDashArrayObject: any) {
-    console.log('=== onChangeOutlineDashArray called ===');
-    console.log('Selected object:', outlineDashArrayObject);
-    console.log('Object label:', outlineDashArrayObject?.label);
-    console.log('Object SVG string:', outlineDashArrayObject?.svgString?.substring(0, 50) + '...');
     
     // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
@@ -592,7 +593,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Close the dropdown via Angular state
     this.closeOutlineDashArrayDropdown();
     
-    console.log('=== onChangeOutlineDashArray completed ===');
   }
 
   // Toggle/close handlers for outline dash array dropdown
@@ -671,8 +671,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
                     this.postBody_spatialUnits;
 
     if (!allValid) {
-      console.error('=== BUILDING IMPORTER OBJECTS - FAILED ===');
-      console.error('One or more required objects could not be built');
+      
     }
 
     return allValid;
@@ -695,8 +694,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
     try {
       // Prefer robust Angular-native handling for FILE uploads
       if (this.datasourceType?.type === 'FILE') {
-        const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
-        const file = inputEl?.files?.[0];
+        // Use persisted file across step changes
+        let file: File | undefined | null = this.selectedDataSourceFile;
+        if (!file) {
+          const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+          file = inputEl?.files?.[0];
+        }
         if (!file) {
           return null;
         }
@@ -728,9 +731,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
       return result;
     } catch (error: any) {
-      console.error('=== BUILDING DATASOURCE TYPE DEFINITION - ERROR ===');
-      console.error('- Error:', error);
-      console.error('- Error data:', error.data);
       
       if (error.data) {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -831,12 +831,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const allDataSpecified = await this.buildImporterObjects();
 
     if (!allDataSpecified) {
-      console.error('=== VALIDATION FAILED ===');
-      console.error('- Not all data was specified correctly');
-      console.error('- converterDefinition exists:', !!this.converterDefinition);
-      console.error('- datasourceTypeDefinition exists:', !!this.datasourceTypeDefinition);
-      console.error('- propertyMappingDefinition exists:', !!this.propertyMappingDefinition);
-      console.error('- postBody_spatialUnits exists:', !!this.postBody_spatialUnits);
       
       // TODO: Add form validation here
       this.loadingData = false;
@@ -888,12 +882,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
           this.loadingData = false;
         }
       } catch (error: any) {
-        console.error('=== EXCEPTION DURING IMPORT ===');
-        console.error('- Error type:', typeof error);
-        console.error('- Error:', error);
-        console.error('- Error message:', error?.message);
-        console.error('- Error data:', error?.data);
-        console.error('- Error status:', error?.status);
         
         if (error.data) {
           this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -939,7 +927,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     
     // Validate step range
     if (step < 1 || step > maxSteps) {
-      console.log(`Invalid step: ${step}. Valid range: 1-${maxSteps}`);
       return;
     }
 
@@ -984,8 +971,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       try {
         this.parseFromMetadataFile(event);
       } catch (error) {
-        console.error(error);
-        console.error("Uploaded Metadata File cannot be parsed.");
         this.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
       }
     };
@@ -1000,8 +985,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       try {
         this.parseFromMappingConfigFile(event);
       } catch (error) {
-        console.error(error);
-        console.error("Uploaded MappingConfig File cannot be parsed.");
         this.spatialUnitMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
       }
     };
@@ -1013,7 +996,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      console.error("uploaded Metadata File cannot be parsed - wrong structure.");
       this.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
       return;
     }
@@ -1092,7 +1074,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.mappingConfigImportSettings = JSON.parse(event.target.result);
 
     if (!this.mappingConfigImportSettings.converter || !this.mappingConfigImportSettings.dataSource || !this.mappingConfigImportSettings.propertyMapping) {
-      console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
       this.spatialUnitMappingConfigImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
       return;
     }
@@ -1339,6 +1320,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.schema = '';
     this.mimeType = '';
     this.datasourceType = null;
+    this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.validityStartDate_perFeature = '';
@@ -1434,7 +1416,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   cancel() {
-    console.log('Modal cancelled');
     this.activeModal.dismiss('cancel');
   }
 
