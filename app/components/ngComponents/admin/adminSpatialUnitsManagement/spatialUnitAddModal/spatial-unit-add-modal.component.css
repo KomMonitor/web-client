@@ -935,3 +935,20 @@ input[type="color"]::-webkit-color-swatch {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
+
+/* Keep color picker stacked vertically at all sizes */
+.outline-color-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.outline-color-group label {
+  margin-bottom: 6px;
+  white-space: normal;
+}
+
+.outline-color-group km-color-picker {
+  display: block;
+}
