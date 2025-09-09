@@ -21,7 +21,8 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "app/"
+              "app/",
+              "app/assets/"
             ],
             "styles": [
               "app/app.css",

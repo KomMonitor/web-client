@@ -3,6 +3,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 declare const echarts: any;
 declare const $: any;
 
@@ -41,7 +42,8 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
     @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     private broadcastService: BroadcastService,
     private ngZone: NgZone,
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    private translateService: TranslateService
   ) {
     console.log('AdminDashboardManagementComponent constructor initialized');
   }
@@ -56,6 +58,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
     this.initCharts();
     this.setupEventListeners();
     this.setupBroadcastListeners();
+    this.setupLanguageChangeListener();
     
     // Check if data is already available and initialize immediately
     this.checkDataAvailabilityAndInitialize();
@@ -120,6 +123,15 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.refreshAdminDashboardDiagrams();
         }, 250);
+      }
+    });
+  }
+
+  private setupLanguageChangeListener(): void {
+    this.translateService.onLangChange.subscribe(() => {
+      console.log('Language changed, refreshing dashboard charts');
+      if (this.isDataAvailable()) {
+        this.refreshAdminDashboardDiagrams();
       }
     });
   }
@@ -214,7 +226,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
       
       this.indicatorsPerTopicChartOptions = {
         title: {
-          text: 'Indikatoren \npro Themenbereich',
+          text: this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'),
           left: 'center',
           show: true,
           top: 15,
@@ -223,7 +235,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
         tooltip: this.pieChartTooltip,
         series: [
           {
-            name: 'Indikatoren pro Themenbereich',
+            name: this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'),
             type: 'pie',
             radius: '90%',
             center: ['50%', '50%'],
@@ -275,18 +287,18 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
       
       const georesourcesPerTypeSeriesData: any[] = [];
       if (georesourcesPerTypeMap.has('POI')) {
-        georesourcesPerTypeSeriesData.push({ name: 'Points of Interest', value: georesourcesPerTypeMap.get('POI') });
+        georesourcesPerTypeSeriesData.push({ name: this.translateService.instant('ADMIN_DASHBOARD.POINTS_OF_INTEREST'), value: georesourcesPerTypeMap.get('POI') });
       }
       if (georesourcesPerTypeMap.has('LOI')) {
-        georesourcesPerTypeSeriesData.push({ name: 'Lines of Interest', value: georesourcesPerTypeMap.get('LOI') });
+        georesourcesPerTypeSeriesData.push({ name: this.translateService.instant('ADMIN_DASHBOARD.LINES_OF_INTEREST'), value: georesourcesPerTypeMap.get('LOI') });
       }
       if (georesourcesPerTypeMap.has('AOI')) {
-        georesourcesPerTypeSeriesData.push({ name: 'Areas of Interest', value: georesourcesPerTypeMap.get('AOI') });
+        georesourcesPerTypeSeriesData.push({ name: this.translateService.instant('ADMIN_DASHBOARD.AREAS_OF_INTEREST'), value: georesourcesPerTypeMap.get('AOI') });
       }
       
       this.georesourcesPerTypeChartOptions = {
         title: {
-          text: 'Georessourcen \npro Typ',
+          text: this.translateService.instant('ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE'),
           left: 'center',
           show: true,
           top: 15,
@@ -295,7 +307,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
         tooltip: this.pieChartTooltip,
         series: [
           {
-            name: 'Georessourcen pro Typ',
+            name: this.translateService.instant('ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE'),
             type: 'pie',
             radius: '90%',
             center: ['50%', '50%'],
@@ -358,7 +370,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
       
       this.indicatorsPerSpatialUnitChartOptions = {
         title: {
-          text: 'Indikatoren \npro Raumeinheit',
+          text: this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
           left: 'center',
           show: true,
           top: 15,
@@ -367,7 +379,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
         tooltip: this.pieChartTooltip,
         series: [
           {
-            name: 'Indikatoren pro Raumeinheit',
+            name: this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
             type: 'pie',
             radius: '90%',
             center: ['50%', '50%'],

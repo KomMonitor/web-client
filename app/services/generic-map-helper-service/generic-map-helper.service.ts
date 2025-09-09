@@ -180,9 +180,10 @@ export class GenericMapHelperService {
       drawControlObject = this.initDrawControl(map, drawResourceType, editMode);
     }
 
-    if(withScreenshoter){
+    // todo
+    /* if(withScreenshoter){
       screenshoter = L.simpleMapScreenshoter(this.screenshoterOptions).addTo(map);
-    }
+    } */
 
     this.invalidateMap(map);
 

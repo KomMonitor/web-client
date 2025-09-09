@@ -3607,3 +3607,61 @@ kommonitor-user-interface .irs {
   font-family: var(--custom-font-family);
   content: var(--custom-font-file);
 }
+
+/* Admin Language Switcher Styling */
+.main-header .language-switcher {
+  /* Remove margin-top since it's now in a flex container */
+  margin: 0;
+}
+
+.main-header .language-switcher .dropdown-toggle {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  height: 34px; /* Match button height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-header .language-switcher .dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.main-header .language-switcher .dropdown-menu {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+}
+
+.main-header .language-switcher .dropdown-item {
+  color: #333;
+  padding: 8px 15px;
+}
+
+.main-header .language-switcher .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.main-header .language-switcher .dropdown-item.active {
+  background-color: #337ab7;
+  color: white;
+}
+
+.main-header .language-switcher .flag {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.main-header .language-switcher .language-name {
+  font-size: 13px;
+  font-weight: 500;
+}
