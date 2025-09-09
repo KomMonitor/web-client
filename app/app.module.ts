@@ -53,6 +53,7 @@ import { DualListBoxComponent } from './components/ngComponents/customElements/d
 import { KommonitorBalanceComponent } from './components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
 import { KmDatePickerComponent } from './components/ngComponents/customElements/date-picker/km-date-picker.component';
 import { KmColorPickerComponent } from './components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmLinePatternPickerComponent } from './components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { NouisliderModule } from 'ng2-nouislider';
 import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { UserInterfaceComponent } from './components/ngComponents/userInterface/user-interface.component';
@@ -135,6 +136,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     ColorSketchModule,
     KmDatePickerComponent,
     KmColorPickerComponent,
+    KmLinePatternPickerComponent,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
       loader: {
