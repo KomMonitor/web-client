@@ -245,7 +245,17 @@
 								</div>							
 							</div>
 
-							<div class="row vertical-align">
+							<hr>
+							<br>
+							<div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+								<label class="switch">
+									<input type="checkbox" ng-model="aggregationsVis" ng-change="onChangeAggregationVis()">
+									<span class="switchslider round"></span>
+								</label>
+								<h4>Höhere Raumebenen ergänzen</h4>
+							</div>
+
+							<div class="row vertical-align" ng-hide="!aggregationsVis">
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
 										<label>Aggregierungsfunktion*</label>
@@ -282,7 +292,7 @@
 									</div>
 								</div>							
 							</div>
-							<div class="row vertical-align">
+							<div class="row vertical-align" ng-hide="!aggregationsVis">
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group" ng-if="editIdx === undefind">
 										<button class="btn btn-success btn-sm" 
@@ -300,7 +310,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="row vertical-align">
+							<div class="row vertical-align" ng-hide="!aggregationsVis">
 								<div class="col-md-12 col-sm-12 col-xs-12">
 									<label>&Uuml;bersicht der definierten Aggregationsfunktionen</label>
 									<table class="table table-condensed">
@@ -332,7 +342,7 @@
 									</table>
 								</div>
 							</div>
-
+							<br>
 
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 								<hr>

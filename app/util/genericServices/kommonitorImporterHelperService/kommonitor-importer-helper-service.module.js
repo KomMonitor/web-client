@@ -55,6 +55,10 @@ angular
           apiName: "MEAN"
         },
         {
+          displayName: "Median",
+          apiName: "MEDIAN"
+        },
+        {
           displayName: "Minimum",
           apiName: "MIN"
         },

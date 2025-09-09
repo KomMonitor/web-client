@@ -727,6 +727,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 			$scope.aggregationsMapping = [];
 			$scope.editIdx = undefined;
+			$scope.aggregationsVis = true;
+
+			$scope.onChangeAggregationVis = function() { }
 
 			$scope.onClickUpdateAggregationMapping = function() {
 				$scope.aggregationsMapping.push({
