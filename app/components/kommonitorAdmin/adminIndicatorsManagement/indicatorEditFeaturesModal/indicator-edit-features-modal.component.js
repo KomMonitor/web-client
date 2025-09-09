@@ -718,6 +718,54 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 				a.remove();
 			};
+
+			//#region  aggregation
+
+			$scope.aggregationsMapping = [];
+			$scope.editIdx = undefined;
+
+			$scope.onClickUpdateAggregationMapping = function() {
+				$scope.aggregationsMapping.push({
+					"aggregationFunction": $scope.aggregationFunction,
+					"aggregatedSpatialUnitRefKeyProperty": $scope.aggregatedSpatialUnitRefKeyProperty,
+					"aggregatedTargetSpatialUnitMetadata": $scope.aggregatedTargetSpatialUnitMetadata
+				});
+				$scope.clearAggregationInputs();
+			}
+
+			$scope.onClickEditAggregationsMappingEntry = function(entry, idx) {
+				$scope.editIdx = idx;
+				$scope.aggregationFunction = entry.aggregationFunction;
+				$scope.aggregatedSpatialUnitRefKeyProperty = entry.aggregatedSpatialUnitRefKeyProperty;
+				$scope.aggregatedTargetSpatialUnitMetadata = entry.aggregatedTargetSpatialUnitMetadata;			
+			}
+
+			$scope.onClickDeleteAggregationsMappingEntry = function(idx) {
+				$scope.aggregationsMapping.splice(idx, 1);
+			}
+
+			$scope.onConfirmEditAggregation = function() {
+				$scope.aggregationsMapping[$scope.editIdx] = {
+					"aggregationFunction": $scope.aggregationFunction,
+					"aggregatedSpatialUnitRefKeyProperty": $scope.aggregatedSpatialUnitRefKeyProperty,
+					"aggregatedTargetSpatialUnitMetadata": $scope.aggregatedTargetSpatialUnitMetadata
+				};
+				$scope.editIdx = undefined;
+				$scope.clearAggregationInputs();
+			}
+
+			$scope.onAbortEditAggregation = function() {
+				$scope.editIdx = undefined;
+				$scope.clearAggregationInputs();
+			}
+
+			$scope.clearAggregationInputs = function() {
+				$scope.aggregationFunction = undefined;
+				$scope.aggregatedSpatialUnitRefKeyProperty = undefined;
+				$scope.aggregatedTargetSpatialUnitMetadata = undefined;
+			}
+
+			//#endregion
 	
 	
 				$scope.hideSuccessAlert = function(){

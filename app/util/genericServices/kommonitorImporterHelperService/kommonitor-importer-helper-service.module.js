@@ -41,6 +41,29 @@ angular
         },
       ];
 
+      this.aggregationsTypes = [
+        {
+          displayName: "Summe",
+          apiName: "SUM"
+        },
+        {
+          displayName: "Anzahl",
+          apiName: "COUNT"
+        },
+        {
+          displayName: "Mittelwert",
+          apiName: "MEAN"
+        },
+        {
+          displayName: "Minimum",
+          apiName: "MIN"
+        },
+        {
+          displayName: "Maximum",
+          apiName: "MAX"
+        }
+      ]
+
       this.mappingConfigStructure = {
           "converter": {
             "encoding": "string",
