@@ -279,13 +279,6 @@
   transition: .4s;
 }
 
-input:checked + .switchslider {
-  background-color: #27AE60;
-}
-
-input:focus + .switchslider {
-  box-shadow: 0 0 1px #27AE60;
-}
 
 input:checked + .switchslider:before {
   transform: translateX(26px);

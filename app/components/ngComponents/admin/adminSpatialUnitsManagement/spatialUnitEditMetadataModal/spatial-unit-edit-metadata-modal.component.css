@@ -153,11 +153,6 @@
   font-size: 14px;
 }
 
-.form-control:focus {
-  border-color: #27AE60;
-  box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
-  outline: none;
-}
 
 /* Switch styles */
 .switch {
@@ -195,13 +190,6 @@
   transition: .4s;
 }
 
-input:checked + .switchslider {
-  background-color: #27AE60;
-}
-
-input:focus + .switchslider {
-  box-shadow: 0 0 1px #27AE60;
-}
 
 input:checked + .switchslider:before {
   transform: translateX(26px);
@@ -652,7 +640,6 @@ input[type="color"] {
 }
 
 .color-picker-button:focus {
-  outline: 2px solid #27AE60;
   outline-offset: 2px;
 }
 

@@ -833,7 +833,6 @@ input[type="color"]::-webkit-color-swatch {
   font-weight: bold;
   color: white;
   border: 0 none;
-  border-radius: 25px;
   cursor: pointer;
   padding: 10px 5px;
   margin: 10px 5px;
@@ -849,7 +848,6 @@ input[type="color"]::-webkit-color-swatch {
   font-weight: bold;
   color: white;
   border: 0 none;
-  border-radius: 25px;
   cursor: pointer;
   padding: 10px 5px;
   margin: 10px 5px;
