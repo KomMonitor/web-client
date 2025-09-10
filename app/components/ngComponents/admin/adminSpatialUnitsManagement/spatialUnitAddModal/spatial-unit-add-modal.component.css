@@ -294,6 +294,7 @@ input:checked + .switchslider:before {
 .multiStepForm .action-button {
   width: auto;
   background: var(--kommonitor-primary);
+  border-radius: 25px;
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -307,6 +308,7 @@ input:checked + .switchslider:before {
 }
 
 .multiStepForm .action-button-previous {
+  border-radius: 25px;
   width: 100px;
   background: rgb(236, 138, 138);
   font-weight: bold;
