@@ -107,6 +107,7 @@ import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin
 import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
 
 import { ColorSketchModule } from 'ngx-color/sketch';
+import { IconPickerModule } from 'ngx-icon-picker';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -135,6 +136,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     DualListBoxComponent,
     AgGridAngular,
     ColorSketchModule,
+    IconPickerModule,
     KmDatePickerComponent,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
