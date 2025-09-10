@@ -571,6 +571,7 @@ export class IndicatorAddComponent implements OnInit {
      this.template.pages = this.template.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
+    this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.templateData.template));
 
     let numberOfTargetSpatialUnitFeatures = 0;
     if(newVal && newVal.length){
@@ -787,7 +788,6 @@ export class IndicatorAddComponent implements OnInit {
     for(let area of newVal) {
       // get pages to insert from untouched template
       let pageToInsert =  JSON.parse(JSON.stringify(this.untouchedTemplateAsString)).pages[ this.indexOfFirstAreaSpecificPage ];
-      console.log(JSON.parse(JSON.stringify(this.untouchedTemplateAsString)))
       pageToInsert.area = area.name;
       pageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(pageToInsert);
@@ -1284,7 +1284,7 @@ export class IndicatorAddComponent implements OnInit {
 
           this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = response.features
           let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
-          this.updateAreasDualList(allAreas, undefined) // don't select any areas
+          this.updateAreasDualList(allAreas, allAreas) // don't select any areas
         }
       });
     } else {
@@ -1381,7 +1381,6 @@ export class IndicatorAddComponent implements OnInit {
   updateAreasDualList(data,selectedItems) {
     this.dualListAreasOptions.selectedItems = [];
 
-    console.log(data)
     let dualListInput = data.map( (el, i) => {
       return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
@@ -1594,6 +1593,7 @@ export class IndicatorAddComponent implements OnInit {
       });
       if(!this.selectedSpatialUnit) {
         this.selectedSpatialUnit = this.dataExchangeService.pipedData.availableSpatialUnits[0];
+        this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);
         await this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
       }
 
@@ -2234,7 +2234,7 @@ export class IndicatorAddComponent implements OnInit {
  
 
   // async
-  createMapForReachability(wrapper, page, pageElement) {
+  async createMapForReachability(wrapper, page, pageElement) {
     
     let options = JSON.parse(JSON.stringify( this.reachabilityTemplateGeoMapOptions ));
     // add indictor data if it is available
@@ -2335,152 +2335,7 @@ export class IndicatorAddComponent implements OnInit {
 
     map.setOption( options, {
       replaceMerge: ['series', 'geo']
-    })
-
-    // initialize the leaflet map beneath the transparent-background echarts map
-    setTimeout(async (page:any, pageElement, echartsMap) => {
-      let pageIdx = this.template.pages.indexOf(page);
-      let id = "reporting-addPoiLayer-reachability-leaflet-map-container-" + pageIdx;
-      let pageDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx);
-      let pageElementDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
-      let oldMapNode = document.getElementById(id);
-      if(oldMapNode) {
-        oldMapNode.remove();
-      }
-      let div:any = document.createElement("div");
-      div.id = id;
-      div.style.position = "absolute";
-      div.style.left = pageElement.dimensions.left;
-      div.style.top = pageElement.dimensions.top;
-      div.style.width = pageElement.dimensions.width;
-      div.style.height = pageElement.dimensions.height;
-      div.style.zIndex = 10;
-      pageDom.appendChild(div);
-      let echartsOptions = echartsMap.getOption();
-
-      let leafletMap = L.map(div.id, {
-        zoomControl: false,
-        dragging: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        trackResize: false,
-        attributionControl: false,
-        // prevents leaflet form snapping to closest pre-defined zoom level.
-        // In other words, it allows us to set exact map extend by a (echarts) bounding box
-        zoomSnap: 0 
-      });
-      // manually create a field for attribution so we can control the z-index.
-      let prevAttributionDiv = pageDom.querySelector(".map-attribution")
-      if(prevAttributionDiv) prevAttributionDiv.remove();
-      let attrDiv:any = document.createElement("div")
-      attrDiv.classList.add("map-attribution")
-      attrDiv.style.position = "absolute";
-      attrDiv.style.bottom = 0;
-      attrDiv.style.left = 0;
-      attrDiv.style.zIndex = 800;
-      let attrImg = this.diagramHelperService.createReportingReachabilityMapAttribution();
-      attrDiv.appendChild(attrImg);
-      pageElementDom.appendChild(attrDiv);
-      // also create the legend manually
-      let prevLegendDiv = pageDom.querySelector(".map-legend")
-      if(prevLegendDiv) prevLegendDiv.remove();
-      let legendDiv:any = document.createElement("div")
-      legendDiv.classList.add("map-legend")
-      legendDiv.style.position = "absolute";
-      legendDiv.style.bottom = 0;
-      legendDiv.style.right = 0;
-      legendDiv.style.zIndex = 800;
-      let legendImg = this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, this.selectedSpatialUnit, this.isochronesRangeType, this.isochronesRangeUnits);
-      legendDiv.appendChild(legendImg);
-      pageElementDom.appendChild(legendDiv)
-
-      // echarts uses [lon, lat], leaflet uses [lat, lon]
-      let boundingCoords = echartsOptions.series[0].boundingCoords;
-      let westLon = boundingCoords[0][0];
-      let southLat = boundingCoords[1][1];
-      let eastLon = boundingCoords[1][0];
-      let northLat = boundingCoords[0][1];
-
-      if(page.area && page.area.length) {
-        for(let feature of this.geoJsonForReachability.features) {
-          if(feature.properties.NAME === page.area) {
-            // set bounding box to this feature
-            let featureBbox = feature.properties.bbox;
-            westLon = featureBbox[0];
-            southLat = featureBbox[1];
-            eastLon = featureBbox[2];
-            northLat = featureBbox[3];
-            break;
-          }
-        }
-      }
-
-      // Add 2% space on all sides
-      let divisor = 50;
-      let bboxHeight = northLat - southLat;
-      let bboxWidth = eastLon - westLon;
-      northLat += bboxHeight/divisor;
-      southLat -= bboxHeight/divisor;
-      eastLon += bboxWidth/divisor;
-      westLon -= bboxWidth/divisor;
-
-      leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
-      let bounds = leafletMap.getBounds()
-      // now update every echarts series
-      boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-      for(let series of echartsOptions.series) {
-        series.top = 0;
-        series.bottom = 0;
-        series.aspectScale = 0.625
-        series.boundingCoords = boundingCoords
-      }
-      // also for the invisible geo component to update pois
-      echartsOptions.geo[0].top = 0;
-      echartsOptions.geo[0].bottom = 0;
-      echartsOptions.geo[0].aspectScale = 0.625
-      echartsOptions.geo[0].boundingCoords = boundingCoords
-
-      echartsMap.setOption(echartsOptions, {
-        notMerge: true
-      });
-      
-      // Attribution is handled in a custom element
-      let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-      osmLayer.addTo(leafletMap);
-
-      // add leaflet map to pageElement in case we need it again later
-      pageElement.leafletMap = leafletMap;
-
-      // can be used to check if positioning in echarts matches the one from leaflet
-      // let geoJsonLayer = L.geoJSON( this.geoJsonForReachability.features )
-      // geoJsonLayer.addTo(leafletMap)
-      // let isochronesLayer = L.geoJSON( this.isochrones.features )
-      // isochronesLayer.addTo(leafletMap);
-      // let poiMarkerLSource = {
-      // 	"type": "FeatureCollection",
-      // 	"features": []
-      // }
-      // for(let lonLatArr of centers) {
-      // 	poiMarkerLSource.features.push({
-      // 		"type": "Feature",
-      // 		"geometry": {
-      // 			"type": "Point",
-      // 			"coordinates": [
-      // 				lonLatArr[0],
-      // 				lonLatArr[1]
-      // 			]
-      // 		}
-      // 	})
-      // }
-      // poiMarkerLayer = L.geoJSON( poiMarkerLSource )
-      // poiMarkerLayer.addTo(leafletMap);
-
-      pageElement.leafletBbox = bounds;
-
-      if(pageIdx === this.template.pages.length-1) {
-        this.loadingData = false;
-      }
-    }, 0, true, page, pageElement, map)
+    });
 
     this.loadingData = false;
 
@@ -2705,10 +2560,10 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   // async
-  createPageElement_Map(wrapper, page, pageElement) {
+  async createPageElement_Map(wrapper, page, pageElement) {
 
     if(this.template.name.includes("reachability")) {
-      let map = this.createMapForReachability(wrapper, page, pageElement);
+      let map = await this.createMapForReachability(wrapper, page, pageElement);
       return map;
     }
     
