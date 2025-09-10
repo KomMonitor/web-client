@@ -110,26 +110,22 @@
               <div class="form-group" align="center">
                 <label>Symbol*</label>
                 <br />
-                <button id="poiSymbolPicker" class="btn btn-info" 
-                        [attr.data-icon]="'glyphicon-' + selectedPoiIconName"
-                        [attr.data-iconset]="'glyphicon'"
-                        data-placement="bottom"
-                        data-align="center"
-                        data-arrow-class="btn-default"
-                        data-arrow-prev-icon-class="fas fa-angle-left"
-                        data-arrow-next-icon-class="fas fa-angle-right"
-                        data-cols="10"
-                        data-rows="6"
-                        data-search="true"
-                        data-footer="true"
-                        data-header="true"
-                        data-label-header="{0} von {1} Seiten"
-                        data-label-footer="{0} - {1} von {2} Icons"
-                        data-search-text="Stichwortsuche (Bootstrap Glyphicons)"
-                        data-selected-class="btn-success"
-                        data-unselected-class=""
-                        (click)="onIconPickerClick($event)">
-                </button>
+                <app-icon-picker
+                  [selectedIcon]="selectedPoiIconName"
+                  [disabled]="false"
+                  [placeholder]="iconPickerConfig.placeholder"
+                  [buttonClass]="iconPickerConfig.buttonClass"
+                  [showSearch]="iconPickerConfig.showSearch"
+                  [showHeader]="iconPickerConfig.showHeader"
+                  [showFooter]="iconPickerConfig.showFooter"
+                  [cols]="iconPickerConfig.cols"
+                  [rows]="iconPickerConfig.rows"
+                  [searchText]="iconPickerConfig.searchText"
+                  [labelHeader]="iconPickerConfig.labelHeader"
+                  [labelFooter]="iconPickerConfig.labelFooter"
+                  (iconChange)="onIconPickerChange($event)"
+                  (iconSelect)="onIconPickerChange($event)">
+                </app-icon-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>

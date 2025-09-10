@@ -140,6 +140,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmDatePickerComponent,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
+    GeoresourceAddModalComponent,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
       loader: {
@@ -228,7 +229,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     IndicatorDeleteModalComponent,
     IndicatorBatchUpdateModalComponent,
     AdminGeoresourcesManagementComponent,
-    GeoresourceAddModalComponent,
     GeoresourceBatchUpdateModalComponent,
     GeoresourceEditMetadataModalComponent,
 
