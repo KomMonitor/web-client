@@ -449,7 +449,7 @@ angular
                 "endDate": scopeProperties.periodOfValidity.endDate,
                 "startDate": scopeProperties.periodOfValidity.startDate
             },
-            "isPartialUpdate": scopeProperties.isPartialUpdate
+            "isPartialUpdate": scopeProperties.isPartialUpdate ? scopeProperties.isPartialUpdate : false
         };
 
         return putBody;

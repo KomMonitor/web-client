@@ -268,6 +268,9 @@ angular
 						        to: $scope.valueRangeMaxValue,
 								   	force_edges: true,
 										step: 0.01,
+								prettify: function(value){
+									return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+								},
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",
@@ -351,7 +354,10 @@ angular
 
 								kommonitorFilterHelperService.applyRangeFilter($scope.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, $scope.currentLowerFilterValue, $scope.currentHigherFilterValue);
 
-								$scope.$digest();
+								setTimeout(function(){
+									$scope.$digest();
+								})
+								
 							}
 
 
@@ -448,10 +454,13 @@ angular
 						        max: $scope.movMaxValue,
 						        from: $scope.movMiddleValue,
 								   	force_edges: true,
-										step: 0.01,
+										step: 0.01,								
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",
+										prettify: function(value){
+											return kommonitorDataExchangeService.getIndicatorValue_asFormattedText(value);
+										},
 										onChange: $scope.onMeasureOfValueChange
 						    });
 
@@ -507,13 +516,7 @@ angular
 								//send request to datamanagement API
 								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
 								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
-								let upperSpatialUnitId = undefined;
-								
-								// spatial filter not applicable since no upper spatial unit is available or selected
-								if(! $scope.selectedSpatialUnitForFilter){
-									$scope.loadingData = false;
-									return;
-								}
+								let upperSpatialUnitId = undefined;															
 
 								if (selectionType === "byFeature" && $scope.selectedSpatialUnitForFilter) {									
 									upperSpatialUnitId = $scope.selectedSpatialUnitForFilter.spatialUnitId;																		

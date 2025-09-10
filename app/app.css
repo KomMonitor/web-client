@@ -3234,7 +3234,7 @@ input:checked + .switchslider:before {
 	flex-wrap: wrap;
 	align-items: center;
 	padding: 5px 0px 5px 0px;
-	cursor: pointer;
+	/* cursor: pointer;   */  /* that suggests to the user that the whole reporting row could be clicked in order to be edited, but that is not implemented - only the delete button shall be clickable  */
 }
 
 .reporting-hr-divider {

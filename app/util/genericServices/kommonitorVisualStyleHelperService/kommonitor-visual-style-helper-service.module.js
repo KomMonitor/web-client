@@ -453,7 +453,12 @@ angular
         }
         else {
           // no positive values
-          colorBrewerInstance = undefined;
+          // colorBrewerInstance = undefined;
+          colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+          colorBrewerInstance.breaks = [];
+
+          colorBrewerInstance.colors.shift(); // remove first element of array
+          colorBrewerInstance.colors.shift(); // remove first element of array
         }
 
         // round values 

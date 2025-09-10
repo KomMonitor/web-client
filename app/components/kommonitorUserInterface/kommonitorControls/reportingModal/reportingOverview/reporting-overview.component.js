@@ -33,30 +33,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// }
 			],
 			pages: [],
-			template: {},
-			pageConfig: {
-				mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-				showMapLabels: true,
-				showRankingChartPerArea: true,
-				showLineChartPerArea: true,
-				showFreeText: true,
-				showRankingMeanLine: true,
-				showTitle: true,
-				showSubtitle: true,
-				showLogo: true,
-				showFooterCreationInfo: true,
-				showPageNumber: true,
-				sections: {
-					showOverviewSection_unclassified: true,
-					showOverviewSection_classified: true,
-					showBarchartOverview: true,
-					showLinechartOverview: true,
-					showBoxplotchartOverview: true,
-					showAreaSpecific: true,
-					showOverviewSection_reachability: true,
-					showDatatable: true
-				}
-			}
+			template: {},			
 		};
 
 		this.kommonitorLeafletScreenshotCacheHelperServiceInstance = kommonitorLeafletScreenshotCacheHelperService;
@@ -64,6 +41,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		const mercatorProjection_d3 = d3.geoMercator();
 
 		$scope.loadingData = false;
+		$scope.lastPageOfAddedSectionPrepared = false;
 		$scope.echartsImgPixelRatio = 2;
 
     $scope.customFontFamily = undefined;
@@ -105,6 +83,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 	}
 
 		$scope.initialize = function(data) {
+			$scope.config.templateSections = [];
+
 			let configFileSelected = data[0];
 			data = data[1];
 			if(configFileSelected) {
@@ -113,9 +93,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.template = JSON.parse(JSON.stringify(data));
 				$scope.config.pages = $scope.config.template.pages;
 			}
-			$scope.config.templateSections = [];
+			
 			let deviceScreenDpi = calculateScreenDpi();
-      $scope.deviceScreenDpi = deviceScreenDpi;
+      		$scope.deviceScreenDpi = deviceScreenDpi;
 			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 
 			$scope.setCustomFont(); 
@@ -128,39 +108,43 @@ angular.module('reportingOverview').component('reportingOverview', {
 		};
 
 		$scope.checkVisibility = function(pageElement, page){
+			if(! page || !page.templateSection || !page.templateSection.pageConfig){
+				return true;
+			}
+
 			switch(pageElement.type) {
 				case "indicatorTitle-landscape":
 				case "indicatorTitle-portrait": {
-					return $scope.config.pageConfig.showTitle;
+					return page.templateSection.pageConfig.showTitle;
 				}
 	
 				case "communeLogo-landscape":
 				case "communeLogo-portrait": {
-					return $scope.config.pageConfig.showLogo;
+					return page.templateSection.pageConfig.showLogo;
 				}
 				case "dataTimestamp-landscape":
 				case "dataTimestamp-portrait": {
-					return $scope.config.pageConfig.showSubtitle;
+					return page.templateSection.pageConfig.showSubtitle;
 				}
 				case "dataTimeseries-landscape":
 				case "dataTimeseries-portrait": {
-					return $scope.config.pageConfig.showSubtitle;
+					return page.templateSection.pageConfig.showSubtitle;
 				}
 				case "reachability-subtitle-landscape":
 				case "reachability-subtitle-portrait": {
-					return $scope.config.pageConfig.showSubtitle;
+					return page.templateSection.pageConfig.showSubtitle;
 				}
 				case "footerHorizontalSpacer-landscape":
 				case "footerHorizontalSpacer-portrait": {
-					return $scope.config.pageConfig.showFooterCreationInfo;
+					return page.templateSection.pageConfig.showFooterCreationInfo;
 				}
 				case "footerCreationInfo-landscape":
 				case "footerCreationInfo-portrait": {  
-					return $scope.config.pageConfig.showFooterCreationInfo;
+					return page.templateSection.pageConfig.showFooterCreationInfo;
 				} 
 				case "pageNumber-landscape":
 				case "pageNumber-portrait": {
-					return $scope.config.pageConfig.showPageNumber;
+					return page.templateSection.pageConfig.showPageNumber;
 				}
 				// template-specific elements
 				case "map": {
@@ -180,21 +164,21 @@ angular.module('reportingOverview').component('reportingOverview', {
 				// }
 				case "barchart": {
 					if(page.type == 'area_specific'){
-						return $scope.config.pageConfig.showRankingChartPerArea;
+						return page.templateSection.pageConfig.showRankingChartPerArea;
 					}
 					return true;					
 				}
 				case "linechart": {
 					if(page.type == 'area_specific'){
-						return $scope.config.pageConfig.showLineChartPerArea;
+						return page.templateSection.pageConfig.showLineChartPerArea;
 					}
 					return true;
 				}
 				case "textInput": {
-					return $scope.config.pageConfig.showFreeText;
+					return page.templateSection.pageConfig.showFreeText;
 				}
 				case "datatable": {
-					return $scope.config.pageConfig.sections.showDatatable;
+					return page.templateSection.pageConfig.sections.showDatatable;
 				}
 				default:{
 					return true;
@@ -213,7 +197,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.pages[index] = new_page;
 			$scope.config.pages[index + 1] = old_page;
 
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 
@@ -226,14 +210,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 					if(mapElement && mapElement.leafletMap){
 
 						kommonitorLeafletScreenshotCacheHelperService.resetCounter(1, false);
-						$timeout(function(){
+						setTimeout(function(){
 							$scope.$digest();
 						});
 
 						let pageDom = document.querySelector("#reporting-overview-page-" + index);
 						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
 						let instance = echarts.getInstanceByDom(pElementDom);
-						$scope.initializeLeafletMap(new_page, mapElement, instance, $scope.currentSpatialUnit, true)
+						await $scope.initializeLeafletMap(new_page, mapElement, instance, $scope.currentSpatialUnit, true)
 
 					}		
 				}
@@ -259,7 +243,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let [indicator, template] = data;
 
 			// apply submitted pageConfig to all sections of the selected template
-			$scope.config.pageConfig = template.pageConfig;
 			
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
@@ -268,7 +251,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				spatialUnitName: template.spatialUnitName,
 				absoluteLabelPositions: template.absoluteLabelPositions,
 				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
-				echartsMaps: []
+				echartsMaps: [],
+				pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
 			}
 			for(let page of template.pages) {
 				page.templateSection = templateSection;
@@ -285,7 +269,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.pages.push(...template.pages);
 			
 			$scope.config.templateSections.push(templateSection);
-				
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
 			$scope.setupNewPages($scope.config.templateSections.at(-1));
@@ -296,6 +279,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// add indicator to 'added indicators'
 			let [poiLayer, indicator, template] = data;
 
+			// apply submitted pageConfig to all sections of the selected template
+
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
 				indicatorId: indicator ? indicator.indicatorId : "",
@@ -305,7 +290,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				echartsRegisteredMapNames: template.echartsRegisteredMapNames,
 				echartsMaps: [],
 				isochronesRangeType: template.isochronesRangeType,
-				isochronesRangeUnits: template.isochronesRangeUnits
+				isochronesRangeUnits: template.isochronesRangeUnits,
+				pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
 			}
 			for(let page of template.pages) {
 				page.templateSection = templateSection;
@@ -328,11 +314,31 @@ angular.module('reportingOverview').component('reportingOverview', {
 		});
 
 		$scope.removeTemplateSection = function(idx) {
+			let targetTemplateSection = $scope.config.templateSections[idx]; 
+			let isIndicatorTemplateSection = targetTemplateSection.indicatorId ? true : false;
+			let indicatorIdOrPoiName = isIndicatorTemplateSection ? targetTemplateSection.indicatorId : targetTemplateSection.poiLayerName
 			$scope.config.templateSections.splice(idx, 1)
 
 			// show empty template if this was the last indicator
 			if($scope.config.templateSections.length === 0) {
 				$scope.config.pages = $scope.config.template.pages;
+			}
+			else{
+				// also remove corresponding pages from $scope.config.pages
+				$scope.config.pages = $scope.config.pages.filter(item => {
+					let keepItem = true;
+
+					if (isIndicatorTemplateSection){
+						// indicator case
+						keepItem = item.templateSection.indicatorId != indicatorIdOrPoiName
+					}
+					else{
+						// poi case
+						keepItem = item.templateSection.poiLayer != indicatorIdOrPoiName
+					}
+
+					return keepItem;
+				} )
 			}
 		}
 
@@ -372,171 +378,197 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		});
 
-		$scope.setupNewPages = function(templateSection) {
+		$scope.setupNewPages = async function(templateSection) {
 
-			$timeout(async function(templateSection) {
 				if(!templateSection.poiLayerName) {
 
 					// for indicator without poi layer
 					let indicatorId = templateSection.indicatorId;
 					let spatialUnit, featureCollection, features, geoJSON;
-					let isFirstPageToAdd = true;
+					
+					spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName)
+					$scope.currentSpatialUnit = spatialUnit;
+					featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+					features = $scope.createLowerCaseNameProperty(featureCollection.features);
+
+					$scope.geoJsonForReachability_byFeatureName = new Map();
+
+					for (let feature of features) {
+						$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+					}
+
+					$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
+
+					geoJSON = { features: features };
+
+					$scope.lastPageOfAddedSectionPrepared = false;
+					$scope.pagePreparationIndex = 0;
+					// $scope.pagePreparationSize = $scope.config.pages.length; 
+					$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+
+					let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
+
+					setTimeout(function () {
+						$scope.$digest();
+					});
+
 					for(let [idx, page] of $scope.config.pages.entries()) {
 
 						if(page.templateSection.indicatorId !== indicatorId) {
-							continue; // only do changes to new pages
-						} else {
-							// Indicator and spatial unit are the same for all added pages
-							// We only need to query features on the first page that we add
-							if(isFirstPageToAdd) {
-								isFirstPageToAdd = false;
-								spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName)	
-								$scope.currentSpatialUnit = spatialUnit;					
-								featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
-								features = $scope.createLowerCaseNameProperty(featureCollection.features);
-
-								$scope.geoJsonForReachability_byFeatureName = new Map();
-
-								for(let feature of features) {
-									$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-								}	
-
-								$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
-								
-								geoJSON = { features: features };
-
-							}
+								continue; // only do changes to new pages
 						}
 
-						let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-						for(let pageElement of page.pageElements) {
-							// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-							// for now we more or less hardcode this, but it might have to change in the future
-							let pElementDom;
-							if(pageElement.type === "linechart") {
-								let arr = pageDom.querySelectorAll(".type-linechart");
-								if(pageElement.showPercentageChangeToPrevTimestamp) {
-									pElementDom = arr[1];
+						setTimeout(async function(){
+							// Indicator and spatial unit are the same for all added pages								
+
+							let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+							for(let pageElement of page.pageElements) {
+								// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+								// for now we more or less hardcode this, but it might have to change in the future
+								let pElementDom;
+								if(pageElement.type === "linechart") {
+									let arr = pageDom.querySelectorAll(".type-linechart");
+									if(pageElement.showPercentageChangeToPrevTimestamp) {
+										pElementDom = arr[1];
+									} else {
+										pElementDom = arr[0];
+									}
 								} else {
-									pElementDom = arr[0];
+									pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 								}
-							} else {
-								pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+								
+								// recreate boxplots, itemNameFormatter did not get transferred
+								if(pageElement.type === "linechart" && pageElement.showBoxplots) {
+									let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+									pageElement.echartsOptions.dataset[1].transform.config = {
+										itemNameFormatter: function (params) {
+											return xAxisLabels[params.value];
+										}
+									}
+								}
+
+								if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+									let instance = echarts.init( pElementDom );
+
+
+									if(pageElement.type === "map") {	
+										
+										for(let series of pageElement.echartsOptions.series) {
+
+											series.left = 0;
+											series.top = 0;
+											series.right = 0;
+											series.bottom = 0;
+											// series.boundingCoords = boundingCoords,
+											series.projection = {
+												project: (point) => mercatorProjection_d3(point),
+												unproject: (point) => mercatorProjection_d3.invert(point)
+											}
+										}
+						
+										if(pageElement.echartsOptions.geo){
+											pageElement.echartsOptions.geo[0].top = 0;
+											pageElement.echartsOptions.geo[0].left = 0;
+											pageElement.echartsOptions.geo[0].right = 0;
+											pageElement.echartsOptions.geo[0].bottom = 0;
+											pageElement.echartsOptions.geo[0].projection = {
+												project: (point) => mercatorProjection_d3(point),
+												unproject: (point) => mercatorProjection_d3.invert(point)
+											}				
+											// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
+										}
+										
+										if(page.area && page.area.length) {
+											// at this point we have not yet set echarts options, so we provide them as an extra parameter
+											$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+										} else {
+											// recreate label positions
+											pageElement.echartsOptions.labelLayout = function(feature) {
+												// Set fixed position for labels that were previously dragged by user
+												// For all other labels try to avoid overlaps
+												let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
+												let text = feature.text.split("\n")[0] // area name is the first line
+												if(names.includes(text)) {
+													let idx = names.indexOf(text)
+													return {
+														x: page.templateSection.absoluteLabelPositions[idx].x,
+														y: page.templateSection.absoluteLabelPositions[idx].y,
+														draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+													}
+												} else {
+													return {
+														moveOverlap: 'shiftY',
+														x: feature.rect.x + feature.rect.width / 2,
+														draggable: false
+													}
+												}	
+											}
+										}
+										
+									}
+
+									instance.setOption(pageElement.echartsOptions)
+
+									if(pageElement.type === "map") {
+										await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
+									}
+								}
+
+								// if(pageElement.type === "overallAverage") {
+								// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+								// }
+		
+								// if(pageElement.type === "selectionAverage") {
+								// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+								// }
+
+								if(pageElement.type === "mapLegend") {
+									pageElement.isPlaceholder = false;
+									pageDom.querySelector(".type-mapLegend").style.display = "none";
+								}
+
+								// if(pageElement.type === "overallChange") {
+								// 	let wrapper = pageDom.querySelector(".type-overallChange")
+								// 	wrapper.style.border = "none";
+								// }
+
+								// if(pageElement.type === "selectionChange") {
+								// 	let wrapper = pageDom.querySelector(".type-selectionChange")
+								// 	wrapper.style.border = "none";
+								// }
+
+								if(pageElement.type === "datatable") {
+									$scope.createDatatablePage(pElementDom, pageElement);
+								}
+							}
+
+							// if the last page is reached and full prepared we want to show that to the user
+							// wait additionally for 500 ms
+							$scope.pagePreparationIndex = idx;
+
+							// every 10 percent log progress to user
+							if($scope.pagePreparationIndex % logProgressIndexSeparator === 0){
+								$scope.$digest();	
+							}	
+
+							if(idx == $scope.pagePreparationSize - 1){
+								$scope.lastPageOfAddedSectionPrepared = true;
+								setTimeout(function(){
+									$scope.$digest();
+								}, 1000);
 							}
 							
-							// recreate boxplots, itemNameFormatter did not get transferred
-							if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-								let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
-								pageElement.echartsOptions.dataset[1].transform.config = {
-									itemNameFormatter: function (params) {
-										return xAxisLabels[params.value];
-									}
-								}
-							}
+						});
 
-							if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-								let instance = echarts.init( pElementDom );
-
-
-								if(pageElement.type === "map") {	
-									
-									for(let series of pageElement.echartsOptions.series) {
-
-										series.left = 0;
-										series.top = 0;
-										series.right = 0;
-										series.bottom = 0;
-										// series.boundingCoords = boundingCoords,
-										series.projection = {
-											project: (point) => mercatorProjection_d3(point),
-											unproject: (point) => mercatorProjection_d3.invert(point)
-										}
-									}
-					
-									if(pageElement.echartsOptions.geo){
-										pageElement.echartsOptions.geo[0].top = 0;
-										pageElement.echartsOptions.geo[0].left = 0;
-										pageElement.echartsOptions.geo[0].right = 0;
-										pageElement.echartsOptions.geo[0].bottom = 0;
-										pageElement.echartsOptions.geo[0].projection = {
-											project: (point) => mercatorProjection_d3(point),
-											unproject: (point) => mercatorProjection_d3.invert(point)
-										}				
-										// pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
-									}
-									
-									if(page.area && page.area.length) {
-										// at this point we have not yet set echarts options, so we provide them as an extra parameter
-										$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-									} else {
-										// recreate label positions
-										pageElement.echartsOptions.labelLayout = function(feature) {
-											// Set fixed position for labels that were previously dragged by user
-											// For all other labels try to avoid overlaps
-											let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-											let text = feature.text.split("\n")[0] // area name is the first line
-											if(names.includes(text)) {
-												let idx = names.indexOf(text)
-												return {
-													x: page.templateSection.absoluteLabelPositions[idx].x,
-													y: page.templateSection.absoluteLabelPositions[idx].y,
-													draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-												}
-											} else {
-												return {
-													moveOverlap: 'shiftY',
-													x: feature.rect.x + feature.rect.width / 2,
-													draggable: false
-												}
-											}	
-										}
-									}
-									
-								}
-
-								instance.setOption(pageElement.echartsOptions)
-
-								if(pageElement.type === "map") {
-									await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-								}
-							}
-
-							// if(pageElement.type === "overallAverage") {
-							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-							// }
-	
-							// if(pageElement.type === "selectionAverage") {
-							// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-							// }
-
-							if(pageElement.type === "mapLegend") {
-								pageElement.isPlaceholder = false;
-								pageDom.querySelector(".type-mapLegend").style.display = "none";
-							}
-
-							// if(pageElement.type === "overallChange") {
-							// 	let wrapper = pageDom.querySelector(".type-overallChange")
-							// 	wrapper.style.border = "none";
-							// }
-
-							// if(pageElement.type === "selectionChange") {
-							// 	let wrapper = pageDom.querySelector(".type-selectionChange")
-							// 	wrapper.style.border = "none";
-							// }
-
-							if(pageElement.type === "datatable") {
-								$scope.createDatatablePage(pElementDom, pageElement);
-							}
-						}
+						
 					}
 					$scope.loadingData = false;
-					$timeout(function(){
+					setTimeout(function(){
 						$scope.$digest();
 					});
-				} else {
+				} else {					
 					$scope.handleSetupNewPagesForReachability(templateSection)
 				}
-			}, 0, false, templateSection);
 		}
 
 		
@@ -548,312 +580,329 @@ angular.module('reportingOverview').component('reportingOverview', {
 			if( templateSection.indicatorId) {
 				indicatorId = templateSection.indicatorId;
 			}
-			let isFirstPageToAdd = true;
+			
+			if (indicatorId) {
+				spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+				featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+			} else {
+				spatialUnit = await $scope.getSpatialUnitByName(templateSection.spatialUnitName);
+				featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
+			}
+
+			features = $scope.createLowerCaseNameProperty(featureCollection.features);
+			geoJSON = { features: features };
+
+			$scope.geoJsonForReachability_byFeatureName = new Map();
+
+			for (let feature of features) {
+				$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+			}
+
+			$scope.geoJsonForReachability_byFeatureName.set("undefined", features);		
+
+			$scope.lastPageOfAddedSectionPrepared = false;
+			$scope.pagePreparationIndex = 0;
+			// $scope.pagePreparationSize = $scope.config.pages.length; 
+			$scope.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
 					continue; // only do changes to new pages
-				} else {
-					// PoiLayer, Indicator and spatial unit are the same for all added pages
-					// We only need to query features on the first page that we add
-					if(isFirstPageToAdd) {
-						isFirstPageToAdd = false;
-						if(indicatorId) {
-							spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, page.templateSection.spatialUnitName);
-							featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
-						} else {
-							spatialUnit = await $scope.getSpatialUnitByName(page.templateSection.spatialUnitName);
-							featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
-						}
-						
-						features = $scope.createLowerCaseNameProperty(featureCollection.features);
-						geoJSON = { features: features };
-
-						$scope.geoJsonForReachability_byFeatureName = new Map();
-
-						for(let feature of features) {
-							$scope.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-						}	
-						
-						$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
-
-					}
 				}
 
-				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-				for(let pageElement of page.pageElements) {
-					let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+				setTimeout(async function(){
+					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+					for(let pageElement of page.pageElements) {
+						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 
-					if(pageElement.type === "map") {
-						let instance = echarts.init( pElementDom );
+						if(pageElement.type === "map") {
+							let instance = echarts.init( pElementDom );
 
-						for(let series of pageElement.echartsOptions.series) {
+							for(let series of pageElement.echartsOptions.series) {
 
-							series.left = 0;
-							series.top = 0;
-							series.right = 0;
-							series.bottom = 0;
-							// series.boundingCoords = newBounds,
-							series.projection = {
-								project: (point) => mercatorProjection_d3(point),
-								unproject: (point) => mercatorProjection_d3.invert(point)
+								series.left = 0;
+								series.top = 0;
+								series.right = 0;
+								series.bottom = 0;
+								// series.boundingCoords = newBounds,
+								series.projection = {
+									project: (point) => mercatorProjection_d3(point),
+									unproject: (point) => mercatorProjection_d3.invert(point)
+								}
 							}
-						}
-		
-						if(pageElement.echartsOptions.geo){
-							pageElement.echartsOptions.geo[0].top = 0;
-							pageElement.echartsOptions.geo[0].left = 0;
-							pageElement.echartsOptions.geo[0].right = 0;
-							pageElement.echartsOptions.geo[0].bottom = 0;
-							pageElement.echartsOptions.geo[0].projection = {
-								project: (point) => mercatorProjection_d3(point),
-								unproject: (point) => mercatorProjection_d3.invert(point)
-							}				
-							// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
-						}
-
-						if(page.area && page.area.length) {
-							// at this point we have not yet set echarts options, so we provide them as an extra parameter
-							$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-						} else {
-							// recreate label positions
-							pageElement.echartsOptions.labelLayout = function(feature) {
-								// Set fixed position for labels that were previously dragged by user
-								// For all other labels try to avoid overlaps
-								let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-								let text = feature.text.split("\n")[0] // area name is the first line
-								if(names.includes(text)) {
-									let idx = names.indexOf(text)
-									return {
-										x: page.templateSection.absoluteLabelPositions[idx].x,
-										y: page.templateSection.absoluteLabelPositions[idx].y,
-										draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-									}
-								} else {
-									return {
-										moveOverlap: 'shiftY',
-										x: feature.rect.x + feature.rect.width / 2,
-										draggable: false
-									}
-								}	
+			
+							if(pageElement.echartsOptions.geo){
+								pageElement.echartsOptions.geo[0].top = 0;
+								pageElement.echartsOptions.geo[0].left = 0;
+								pageElement.echartsOptions.geo[0].right = 0;
+								pageElement.echartsOptions.geo[0].bottom = 0;
+								pageElement.echartsOptions.geo[0].projection = {
+									project: (point) => mercatorProjection_d3(point),
+									unproject: (point) => mercatorProjection_d3.invert(point)
+								}				
+								// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
 							}
+
+							if(page.area && page.area.length) {
+								// at this point we have not yet set echarts options, so we provide them as an extra parameter
+								$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+							} else {
+								// recreate label positions
+								pageElement.echartsOptions.labelLayout = function(feature) {
+									// Set fixed position for labels that were previously dragged by user
+									// For all other labels try to avoid overlaps
+									let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
+									let text = feature.text.split("\n")[0] // area name is the first line
+									if(names.includes(text)) {
+										let idx = names.indexOf(text)
+										return {
+											x: page.templateSection.absoluteLabelPositions[idx].x,
+											y: page.templateSection.absoluteLabelPositions[idx].y,
+											draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+										}
+									} else {
+										return {
+											moveOverlap: 'shiftY',
+											x: feature.rect.x + feature.rect.width / 2,
+											draggable: false
+										}
+									}	
+								}
+							}
+
+							instance.setOption( pageElement.echartsOptions )
+
+							await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 						}
-
-						instance.setOption( pageElement.echartsOptions )
-
-						await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
 					}
-				}
+
+					// if the last page is reached and full prepared we want to show that to the user
+					// wait additionally for 500 ms
+					$scope.pagePreparationIndex = idx;
+					setTimeout(function(){
+						$scope.$digest();
+					});
+
+					if (idx == $scope.pagePreparationSize - 1) {
+						$scope.lastPageOfAddedSectionPrepared = true;
+						setTimeout(function () {
+							$scope.$digest();
+						}, 1000);
+					}
+				})
+
 			}
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 		}
 
 		$rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
 			// update ui to enable button
-			$timeout(function() {
+			setTimeout(function() {
 				$scope.$digest();
 			})			
 		});
 
 		$scope.initializeLeafletMap = async function(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
-			await $timeout(async function(page, pageElement, echartsMap, spatialUnit) {
-				let pageIdx = $scope.config.pages.indexOf(page);
-				let id = "reporting-overview-leaflet-map-container-" + pageIdx;
-				let pageDom = document.getElementById("reporting-overview-page-" + pageIdx);
-				let pageElementDom = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
-				let oldMapNode = document.getElementById(id);
-				if(oldMapNode) {
-					oldMapNode.remove();
-				}
-				let div = document.createElement("div");
-				div.id = id;
-				div.style.position = "absolute";
-				div.style.left = pageElement.dimensions.left;
-				div.style.top = pageElement.dimensions.top;
-				div.style.width = pageElement.dimensions.width;
-				div.style.height = pageElement.dimensions.height;
-				div.style.zIndex = 10;
-				pageDom.appendChild(div);
-				let echartsOptions = echartsMap.getOption();
-			
-				let leafletMap = L.map(div.id, {
-					zoomControl: false,
-					dragging: false,
-					doubleClickZoom: false,
-					boxZoom: false,
-					trackResize: false,
-					attributionControl: false,
-					// prevents leaflet form snapping to closest pre-defined zoom level.
-					// In other words, it allows us to set exact map extend by a (echarts) bounding box
-					zoomSnap: 0,
-					// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
-					fadeAnimation: false,
-            		zoomAnimation: false,
-				});			
-
-				// manually create a field for attribution so we can control the z-index.
-				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
-				if(prevAttributionDiv) prevAttributionDiv.remove();
-				let attrDiv = document.createElement("div")
-				attrDiv.classList.add("map-attribution")
-				attrDiv.style.position = "absolute";
-				attrDiv.style.bottom = 0;
-				attrDiv.style.left = 0;
-				attrDiv.style.zIndex = 800;
-				let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
-				attrDiv.appendChild(attrImg);
-				pageElementDom.appendChild(attrDiv);
-
-				if($scope.config.template.name.includes("reachability")){
-					// also create the legend manually
-					let prevLegendDiv = pageDom.querySelector(".map-legend")
-					if(prevLegendDiv) prevLegendDiv.remove();
-					let legendDiv = document.createElement("div")
-					legendDiv.classList.add("map-legend")
-					legendDiv.style.position = "absolute";
-					legendDiv.style.bottom = 0;
-					legendDiv.style.right = 0;
-					legendDiv.style.zIndex = 800;
-					let isochronesRangeType = page.templateSection.isochronesRangeType;
-					let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-					let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
-					legendDiv.appendChild(legendImg);
-					pageElementDom.appendChild(legendDiv)
-				}
-
+				try {
+					let pageIdx = $scope.config.pages.indexOf(page);
+					let id = "reporting-overview-leaflet-map-container-" + pageIdx;
+					let pageDom = document.getElementById("reporting-overview-page-" + pageIdx);
+					let pageElementDom = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
+					let oldMapNode = document.getElementById(id);
+					if(oldMapNode) {
+						oldMapNode.remove();
+					}
+					let div = document.createElement("div");
+					div.id = id;
+					div.style.position = "absolute";
+					div.style.left = pageElement.dimensions.left;
+					div.style.top = pageElement.dimensions.top;
+					div.style.width = pageElement.dimensions.width;
+					div.style.height = pageElement.dimensions.height;
+					div.style.zIndex = 10;
+					pageDom.appendChild(div);
+					let echartsOptions = echartsMap.getOption();
 				
+					let leafletMap = L.map(div.id, {
+						zoomControl: false,
+						dragging: false,
+						doubleClickZoom: false,
+						boxZoom: false,
+						trackResize: false,
+						attributionControl: false,
+						// prevents leaflet form snapping to closest pre-defined zoom level.
+						// In other words, it allows us to set exact map extend by a (echarts) bounding box
+						zoomSnap: 0,
+						// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
+						fadeAnimation: false,
+						zoomAnimation: false,
+					});			
 
-				// we have the bbox stored in config
-				// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
-				// We create a new bounds object from the stored data
-				// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+					// manually create a field for attribution so we can control the z-index.
+					let prevAttributionDiv = pageDom.querySelector(".map-attribution")
+					if(prevAttributionDiv) prevAttributionDiv.remove();
+					let attrDiv = document.createElement("div")
+					attrDiv.classList.add("map-attribution")
+					attrDiv.style.position = "absolute";
+					attrDiv.style.bottom = 0;
+					attrDiv.style.left = 0;
+					attrDiv.style.zIndex = 800;
+					let attrImg = await kommonitorDiagramHelperService.createReportingReachabilityMapAttribution();
+					attrDiv.appendChild(attrImg);
+					pageElementDom.appendChild(attrDiv);
 
+					if($scope.config.template.name.includes("reachability")){
+						// also create the legend manually
+						let prevLegendDiv = pageDom.querySelector(".map-legend")
+						if(prevLegendDiv) prevLegendDiv.remove();
+						let legendDiv = document.createElement("div")
+						legendDiv.classList.add("map-legend")
+						legendDiv.style.position = "absolute";
+						legendDiv.style.bottom = 0;
+						legendDiv.style.right = 0;
+						legendDiv.style.zIndex = 800;
+						let isochronesRangeType = page.templateSection.isochronesRangeType;
+						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
+						let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						legendDiv.appendChild(legendImg);
+						pageElementDom.appendChild(legendDiv)
+					}
+
+					
+
+					// we have the bbox stored in config
+					// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
+					// We create a new bounds object from the stored data
 					// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
-					// let boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-					let boundingCoords = echartsOptions.series[0].boundingCoords;
 
-					// set bounding box to this feature
-					let westLon = boundingCoords[0][0];
-					let southLat = boundingCoords[1][1];
-					let eastLon = boundingCoords[1][0];
-					let northLat = boundingCoords[0][1];
+						// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+						// let boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+						let boundingCoords = echartsOptions.series[0].boundingCoords;
 
-				// Add 2% space on all sides
-				// let divisor = 50;
-				// let bboxHeight = northLat - southLat;
-				// let bboxWidth = eastLon - westLon;
-				// northLat += bboxHeight/divisor;
-				// southLat -= bboxHeight/divisor;
-				// eastLon += bboxWidth/divisor;
-				// westLon -= bboxWidth/divisor;
+						// set bounding box to this feature
+						let westLon = boundingCoords[0][0];
+						let southLat = boundingCoords[1][1];
+						let eastLon = boundingCoords[1][0];
+						let northLat = boundingCoords[0][1];
 
-				leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
-				// leafletMap.fitBounds( bounds );
+					// Add 2% space on all sides
+					// let divisor = 50;
+					// let bboxHeight = northLat - southLat;
+					// let bboxWidth = eastLon - westLon;
+					// northLat += bboxHeight/divisor;
+					// southLat -= bboxHeight/divisor;
+					// eastLon += bboxWidth/divisor;
+					// westLon -= bboxWidth/divisor;
 
-				let bounds = leafletMap.getBounds()
-				
-				/*
-				as we might have landscape and portrait versions of the same content
-				leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
-				
-				--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
-				then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+					leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
+					// leafletMap.fitBounds( bounds );
 
-				*/
+					let bounds = leafletMap.getBounds()
+					
+					/*
+					as we might have landscape and portrait versions of the same content
+					leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
+					
+					--> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
+					then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
 
-				if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
-					// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
-					// hence, simply use current echarts extent				
-				}
-				else{
-					// normal case, leaflet has properly rendered and zoomed to the given extent
-					// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
-					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-				}
+					*/
 
-				for(let series of echartsOptions.series) {
+					if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
+						// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
+						// hence, simply use current echarts extent				
+					}
+					else{
+						// normal case, leaflet has properly rendered and zoomed to the given extent
+						// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
+						boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+					}
 
-					series.left = 0;
-					series.top = 0;
-					series.right = 0;
-					series.bottom = 0;
-					series.boundingCoords = boundingCoords,
-					series.projection = {
+					for(let series of echartsOptions.series) {
+
+						series.left = 0;
+						series.top = 0;
+						series.right = 0;
+						series.bottom = 0;
+						series.boundingCoords = boundingCoords,
+						series.projection = {
+							project: (point) => mercatorProjection_d3(point),
+							unproject: (point) => mercatorProjection_d3.invert(point)
+						}
+					}
+
+					echartsOptions.geo[0].top = 0;
+					echartsOptions.geo[0].left = 0;
+					echartsOptions.geo[0].right = 0;
+					echartsOptions.geo[0].bottom = 0;
+					echartsOptions.geo[0].projection = {
 						project: (point) => mercatorProjection_d3(point),
 						unproject: (point) => mercatorProjection_d3.invert(point)
-					}
-				}
+					}				
+					echartsOptions.geo[0].boundingCoords = boundingCoords
+					
+					echartsMap.setOption(echartsOptions, {
+						notMerge: false
+					});	
+					
 
-				echartsOptions.geo[0].top = 0;
-				echartsOptions.geo[0].left = 0;
-				echartsOptions.geo[0].right = 0;
-				echartsOptions.geo[0].bottom = 0;
-				echartsOptions.geo[0].projection = {
-					project: (point) => mercatorProjection_d3(point),
-					unproject: (point) => mercatorProjection_d3.invert(point)
+					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
+					page.spatialUnitId = spatialUnit.spatialUnitId;			
+					if(page.area){
+						let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+						let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
+						page.spatialUnitFeatureId = spatialUnitFeatureId;
+					}						
+					
+					// Attribution is handled in a custom element
+					// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+					let leafletLayer; 
+					if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
+						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
+					}
+					else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
+						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
+					}
+					else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
+						leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
+					}	
+					else{
+						// i.e. if on import no baseLayer was available
+						// backup: set empty layer
+						leafletLayer = new L.tileLayer("");
+					}			
+					// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
+					// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
+					// for all spatial unit features		
+					let domNode = leafletMap["_container"];	
+					leafletLayer.on("load", function() { 
+						// there are pages for two page orientations (landscape and portait)
+						// only trigger the screenshot for those pages, that are actually present
+						if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
+							kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
+								page.spatialUnitFeatureId, page.orientation, domNode);
+						}
+										
+					});					
+					leafletLayer.addTo(leafletMap);		
+
+					// add leaflet map to pageElement in case we need it again later
+					pageElement.leafletMap = leafletMap;
+					pageElement.leafletBbox = bounds;
+					pageElement.echartsOptions = echartsOptions;
+				
+					// can be used to check if positioning in echarts matches the one from leaflet
+					//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
+					//geoJsonLayer.addTo(leafletMap)
+					//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
+					//isochronesLayer.addTo(leafletMap);
+				} catch (error) {
+					console.error(error)
 				}				
-				echartsOptions.geo[0].boundingCoords = boundingCoords
-				
-				echartsMap.setOption(echartsOptions, {
-					notMerge: false
-				});	
-				
-
-				// store spatial unit and feature id to page in order to access it later when the screenshot is needed
-				page.spatialUnitId = spatialUnit.spatialUnitId;			
-				if(page.area){
-					let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
-					let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
-					page.spatialUnitFeatureId = spatialUnitFeatureId;
-				}						
-				
-				// Attribution is handled in a custom element
-				// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-				let leafletLayer; 
-				if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
-					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-				  }
-				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
-					leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-				  }
-				  else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
-					leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
-				  }	
-				  else{
-					// i.e. if on import no baseLayer was available
-					// backup: set empty layer
-					leafletLayer = new L.tileLayer("");
-				  }			
-				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
-				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
-				// for all spatial unit features		
-				let domNode = leafletMap["_container"];	
-				leafletLayer.on("load", function() { 
-					// there are pages for two page orientations (landscape and portait)
-					// only trigger the screenshot for those pages, that are actually present
-					if(forceScreenshot || (page.orientation == $scope.config.template.orientation)){
-						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-							page.spatialUnitFeatureId, page.orientation, domNode);
-					}
-									
-				});					
-				leafletLayer.addTo(leafletMap);		
-
-				// add leaflet map to pageElement in case we need it again later
-				pageElement.leafletMap = leafletMap;
-				pageElement.leafletBbox = bounds;
-				pageElement.echartsOptions = echartsOptions;
-			
-				// can be used to check if positioning in echarts matches the one from leaflet
-				//let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
-				//geoJsonLayer.addTo(leafletMap)
-				//let isochronesLayer = L.geoJSON( $scope.isochrones.features )
-				//isochronesLayer.addTo(leafletMap);
-
-			}, 0, false, page, pageElement, echartsMap, spatialUnit)
 		}
 
 		$scope.getSpatialUnitByName = async function(spatialUnitName) {
@@ -990,7 +1039,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.importConfig = function(config) {
 			$scope.loadingData = true;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 			try {
@@ -1054,7 +1103,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 				}
 				
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.$digest();
 				});
 
@@ -1437,7 +1486,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							if (! $scope.config.pageConfig.showTitle){
+							if (! page.templateSection.pageConfig.showTitle){
 								// skip
 								continue;
 							}
@@ -1447,7 +1496,7 @@ angular.module('reportingOverview').component('reportingOverview', {
             
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
-							if (! $scope.config.pageConfig.showLogo){
+							if (! page.templateSection.pageConfig.showLogo){
 								// skip
 								continue;
 							}
@@ -1465,7 +1514,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1474,7 +1523,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1483,7 +1532,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "reachability-subtitle-landscape":
 						case "reachability-subtitle-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1492,7 +1541,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -1501,7 +1550,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {  
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;								
 							}
@@ -1510,7 +1559,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						} 
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							if (! $scope.config.pageConfig.showPageNumber){
+							if (! page.templateSection.pageConfig.showPageNumber){
 								// skip
 								continue;
 							}
@@ -1550,7 +1599,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// 				break;
 			// 			}
 						case "barchart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom);
@@ -1560,7 +1609,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom);
@@ -1570,7 +1619,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
-							if (! $scope.config.pageConfig.showFreeText){
+							if (! page.templateSection.pageConfig.showFreeText){
 								// skip
 								continue;
 							}
@@ -1625,7 +1674,7 @@ angular.module('reportingOverview').component('reportingOverview', {
       let now = getCurrentDateAndTime();
       doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
     }
@@ -1693,7 +1742,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							if (! $scope.config.pageConfig.showTitle){
+							if (! page.templateSection.pageConfig.showTitle){
 								// skip
 								continue;
 							}
@@ -1706,7 +1755,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
-							if (! $scope.config.pageConfig.showLogo){
+							if (! page.templateSection.pageConfig.showLogo){
 								// skip
 								continue;
 							}
@@ -1719,7 +1768,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimestamp-landscape":
 						case "dataTimestamp-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1728,7 +1777,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "dataTimeseries-landscape":
 						case "dataTimeseries-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1737,7 +1786,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "reachability-subtitle-landscape":
 						case "reachability-subtitle-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -1746,7 +1795,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -1760,7 +1809,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -1769,7 +1818,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							if (! $scope.config.pageConfig.showPageNumber){
+							if (! page.templateSection.pageConfig.showPageNumber){
 								// skip
 								continue;
 							}
@@ -1817,7 +1866,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						// 	break;
 						// }
 						case "barchart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom)
@@ -1827,7 +1876,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
 								continue;
 							}
 							let instance = echarts.getInstanceByDom(pElementDom)
@@ -1837,7 +1886,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
-							if (! $scope.config.pageConfig.showFreeText){
+							if (! page.templateSection.pageConfig.showFreeText){
 								// skip
 								continue;
 							}
@@ -1869,7 +1918,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let now = getCurrentDateAndTime();
 			doc.save(now + "_KomMonitor-Report.pdf");
 			$scope.loadingData = false;
-			$timeout(function(){
+			setTimeout(function(){
 				$scope.$digest();
 			});
 		}
@@ -1919,7 +1968,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			zip.generateAsync({type:"blob"}).then(function(content) {
 				saveAs(content, zipFileName + ".zip");
 				$scope.loadingData = false;
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.$digest();
 				});
 			});
@@ -1952,7 +2001,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					switch(pageElement.type) {
 						case "indicatorTitle-landscape":
 						case "indicatorTitle-portrait": {
-							if (! $scope.config.pageConfig.showTitle){
+							if (! page.templateSection.pageConfig.showTitle){
 								// skip
 								continue;
 							}
@@ -1988,7 +2037,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "communeLogo-landscape":
 						case "communeLogo-portrait": {
-							if (! $scope.config.pageConfig.showLogo){
+							if (! page.templateSection.pageConfig.showLogo){
 								// skip
 								continue;
 							}
@@ -2023,7 +2072,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "dataTimestamp-portrait":
 						case "dataTimeseries-portrait":
 						case "reachability-subtitle-portrait": {
-							if (! $scope.config.pageConfig.showSubtitle){
+							if (! page.templateSection.pageConfig.showSubtitle){
 								// skip
 								continue;
 							}
@@ -2059,7 +2108,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						
 						case "footerHorizontalSpacer-landscape":
 						case "footerHorizontalSpacer-portrait":
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -2095,7 +2144,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						case "footerCreationInfo-landscape":
 						case "footerCreationInfo-portrait": {
-							if (! $scope.config.pageConfig.showFooterCreationInfo){
+							if (! page.templateSection.pageConfig.showFooterCreationInfo){
 								// skip
 								continue;
 							}
@@ -2131,7 +2180,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "pageNumber-landscape":
 						case "pageNumber-portrait": {
-							if (! $scope.config.pageConfig.showPageNumber){
+							if (! page.templateSection.pageConfig.showPageNumber){
 								// skip
 								continue;
 							}
@@ -2167,10 +2216,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "map":
 						case "barchart":
 						case "linechart": {
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
 								continue;
 							}
-							if(page.type == 'area_specific' && ! $scope.config.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
+							if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
 								continue;
 							}
 							let pElementDom;
@@ -2369,7 +2418,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						// 	break;
 						// }
 						case "textInput": {
-							if (! $scope.config.pageConfig.showFreeText){
+							if (! page.templateSection.pageConfig.showFreeText){
 								// skip
 								continue;
 							}
@@ -2520,7 +2569,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			docx.Packer.toBlob(doc).then((blob) => {
 				saveAs(blob, filename + ".docx");
 				$scope.loadingData = false;
-				$timeout(function(){
+				setTimeout(function(){
 					$scope.$digest();
 				});
 			});
