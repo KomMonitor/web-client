@@ -103,7 +103,7 @@
           <div class="row vertical-align">
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
-                <label>als Umringslayer markieren?</label>
+                <label>als Umringslayer markieren?</label> <br>
                 <label class="switch">
                   <input type="checkbox" [(ngModel)]="isOutlineLayer" name="isOutlineLayer">
                   <span class="switchslider round"></span>
@@ -115,7 +115,7 @@
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
-                <label>Linienfarbe (Umringslayer)</label>
+                <label>Linienfarbe (Umringslayer)</label> <br>
                 <km-color-picker [(color)]="outlineColor" label="Linienfarbe wählen"></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>

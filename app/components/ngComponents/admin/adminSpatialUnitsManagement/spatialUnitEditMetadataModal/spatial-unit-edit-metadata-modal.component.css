@@ -4,11 +4,10 @@
   padding: 0;
 }
 
-/* Progress Bar Styles - Matching Add Modal */
+/* Progress Bar Styles */
 #progressbar {
   margin-bottom: 10px;
   overflow: hidden;
-  /*CSS counters to number the steps*/
   counter-reset: step;
 }
 
@@ -38,7 +37,6 @@
   transform: translateZ(-1px);
 }
 
-/*progressbar connectors*/
 #progressbar li:after {
   content: '';
   width: 100%;
@@ -47,17 +45,13 @@
   position: absolute;
   left: -50%;
   top: 9px;
-  /*put it behind the numbers */
   z-index: -1; 
 }
 
 #progressbar li:first-child:after {
-  /*connector not needed before the first step*/
   content: none;
 }
 
-/*marking active/completed steps green*/
-/*The number of the step and the connector before it = green*/
 #progressbar li.active:before, #progressbar li.active:after {
   background: var(--kommonitor-primary);
   color: white;
@@ -94,7 +88,7 @@
   text-align: center;
 }
 
-/* Action buttons - Centered */
+/* Action buttons */
 .action-button {
   width: 150px;
   background: var(--kommonitor-primary);
@@ -133,7 +127,6 @@
   color: white;
 }
 
-/* Center the button container */
 .button-container {
   text-align: center;
   margin-top: 20px;
@@ -152,7 +145,6 @@
   border-radius: 4px;
   font-size: 14px;
 }
-
 
 /* Switch styles */
 .switch {
@@ -189,7 +181,6 @@
   background-color: white;
   transition: .4s;
 }
-
 
 input:checked + .switchslider:before {
   transform: translateX(26px);
@@ -282,88 +273,11 @@ input:checked + .switchslider:before {
   color: inherit;
 }
 
-/* Dropdown styles */
-.dropdown-menu {
-  min-width: 200px;
-  z-index: 1050;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  float: none;
-  background-color: #fff;
-  border: 1px solid rgba(0,0,0,.15);
-  border-radius: 4px;
-  box-shadow: 0 6px 12px rgba(0,0,0,.175);
-}
-
-.dropdown-menu-center {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Ensure dropdown is visible when open */
-.dropdown.open .dropdown-menu {
-  display: block !important;
-}
-
-/* SVG content styling for dropdown items */
-#outlineDashArrayDropdownItem-editMetadata-0,
-#outlineDashArrayDropdownItem-editMetadata-1,
-#outlineDashArrayDropdownItem-editMetadata-2,
-#outlineDashArrayDropdownItem-editMetadata-3 {
-  padding: 8px 12px;
-  min-height: 60px;
-  display: block;
-  width: 100%;
-}
-
-#outlineDashArrayDropdownItem-editMetadata-0 svg,
-#outlineDashArrayDropdownItem-editMetadata-1 svg,
-#outlineDashArrayDropdownItem-editMetadata-2 svg,
-#outlineDashArrayDropdownItem-editMetadata-3 svg {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  max-width: 100% !important;
-  border: 1px solid #ddd !important;
-  background: #f9f9f9 !important;
-}
-
-/* Ensure dropdown items are visible */
-.dropdown-menu li a {
-  display: block;
-  padding: 0;
-  clear: both;
-  font-weight: normal;
-  line-height: 1.42857143;
-  color: #333;
-  white-space: nowrap;
-}
-
-.dropdown-menu li a:hover {
-  color: #262626;
-  text-decoration: none;
-  background-color: #f5f5f5;
-}
-
-/* Custom dropdown item styling */
-.dropdown-item {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.dropdown-item:hover {
-  background-color: #f5f5f5;
-}
-
-.dropdown-item:active {
-  background-color: #e9ecef;
-}
-
 /* Vertical alignment helper */
 .vertical-align {
   display: flex;
   align-items: flex-start;
+  margin-bottom: 1.5rem;
 }
 
 .vertical-align .form-group {
@@ -386,53 +300,6 @@ input:checked + .switchslider:before {
 
 .help-block.with-errors {
   color: #a94442;
-}
-
-/* Input group styles */
-.input-group {
-  position: relative;
-  display: table;
-  border-collapse: separate;
-}
-
-.input-group-addon {
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 1;
-  color: #555;
-  text-align: center;
-  background-color: #eee;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 1%;
-  white-space: nowrap;
-  vertical-align: middle;
-  display: table-cell;
-}
-
-.input-group .form-control {
-  position: relative;
-  z-index: 2;
-  float: left;
-  width: 100%;
-  margin-bottom: 0;
-  display: table-cell;
-}
-
-.input-group .form-control:not(:first-child):not(:last-child) {
-  border-radius: 0;
-}
-
-.input-group-addon:first-child {
-  border-right: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.input-group .form-control:last-child {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
 }
 
 /* Modal specific styles */
@@ -458,10 +325,6 @@ input:checked + .switchslider:before {
 
 .pull-left {
   float: left !important;
-}
-
-.pull-right {
-  float: right !important;
 }
 
 /* Button styles */
@@ -554,523 +417,9 @@ input:checked + .switchslider:before {
   box-shadow: none;
 }
 
-/* Pre styles for JSON display */
-pre {
-  display: block;
-  padding: 9.5px;
-  margin: 0 0 10px;
-  font-size: 13px;
-  line-height: 1.42857143;
-  color: #333;
-  word-break: break-all;
-  word-wrap: break-word;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Caret styles for dropdowns */
-.caret {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 2px;
-  vertical-align: middle;
-  border-top: 4px dashed;
-  border-top: 4px solid \9;
-  border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
-}
-
-/* Additional Bootstrap-like styles */
 .btn-sm {
   padding: 5px 10px;
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px;
-}
-
-.input-sm {
-  height: 30px;
-  padding: 5px 10px;
-  font-size: 12px;
-  line-height: 1.5;
-  border-radius: 3px;
-}
-
-/* Date input group */
-.input-group.date .input-group-addon {
-  cursor: pointer;
-}
-
-/* Color input styling */
-input[type="color"] {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 2px;
-  cursor: pointer;
-}
-
-/* Align center for form groups */
-.form-group[align="center"] {
-  text-align: center;
-}
-
-.form-group[align="center"] label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-/* Color picker specific styles */
-.color-picker-container {
-  position: relative;
-  display: inline-block;
-}
-
-.color-picker-button {
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-  overflow: hidden;
-}
-
-.color-picker-button:hover {
-  border-color: #999;
-}
-
-.color-picker-button:focus {
-  outline-offset: 2px;
-}
-
-.color-picker-overlay {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 5px;
-  z-index: 99999999;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  padding: 10px;
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-.color-display-text {
-  font-family: 'Courier New', monospace;
-  font-size: 11px;
-  font-weight: bold;
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.7);
-  color: white;
-  user-select: none;
-}
-
-.color-picker-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99999998; /* Below the color picker overlay but above everything else */
-  background: transparent;
-  cursor: default;
-}
-
-/* ng-bootstrap Datepicker Styles */
-.datepicker-dropdown {
-  position: absolute !important;
-  z-index: 9999 !important;
-  background: white !important;
-  border: 1px solid #ccc !important;
-  border-radius: 4px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-  margin-top: 2px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-  width: 320px !important;
-  left: 0 !important;
-  top: 100% !important;
-}
-
-/* Position the datepicker relative to the input group */
-.input-group {
-  position: relative !important;
-}
-
-.input-group .datepicker-dropdown {
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  right: auto !important;
-  margin-top: 2px !important;
-  z-index: 9999 !important;
-}
-
-/* Ensure datepicker renders above all other elements */
-.ngb-datepicker {
-  position: absolute !important;
-  z-index: 9999 !important;
-  background: white !important;
-  border: 1px solid #ccc !important;
-  border-radius: 4px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-  margin-top: 2px !important;
-  width: 320px !important;
-  left: 0 !important;
-  top: 100% !important;
-}
-
-/* Override any ng-bootstrap default positioning */
-.ngb-datepicker-picker {
-  position: absolute !important;
-  z-index: 9999 !important;
-  background: white !important;
-  border: 1px solid #ccc !important;
-  border-radius: 4px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-  margin-top: 2px !important;
-  width: 320px !important;
-  left: 0 !important;
-  top: 100% !important;
-}
-
-/* Ensure the datepicker container doesn't clip content */
-.date-input-group {
-  overflow: visible !important;
-  position: relative !important;
-}
-
-/* Force datepicker to render outside button group */
-.input-group-btn {
-  position: relative !important;
-  overflow: visible !important;
-}
-
-.input-group-btn .ngb-datepicker {
-  position: absolute !important;
-  z-index: 9999 !important;
-  left: 0 !important;
-  top: 100% !important;
-  margin-top: 2px !important;
-}
-
-/* Date input group specific styling - matching original AngularJS version */
-.date-input-group {
-  border-radius: 4px !important;
-  overflow: visible !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-  position: relative !important;
-}
-
-/* Left button styling for calendar icon */
-.date-input-group .input-group-btn {
-  position: relative !important;
-}
-
-.date-input-group .date-toggle-btn {
-  border-right: none !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  background-color: #f8f9fa !important;
-  border-color: #ced4da !important;
-  color: #495057 !important;
-  padding: 8px 12px !important;
-  min-width: 40px !important;
-  transition: all 0.15s ease-in-out !important;
-  border-top-left-radius: 4px !important;
-  border-bottom-left-radius: 4px !important;
-}
-
-.date-input-group .date-toggle-btn:hover {
-  background-color: #e9ecef !important;
-  border-color: #adb5bd !important;
-  color: #007bff !important;
-}
-
-.date-input-group .date-toggle-btn:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
-}
-
-.date-input-group .form-control {
-  border-left: none !important;
-  border-right: 1px solid #ced4da !important;
-  border-radius: 0 !important;
-  padding: 8px 42px !important;
-  font-size: 14px !important;
-  border-top-right-radius: 4px !important;
-  border-bottom-right-radius: 4px !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease-in-out !important;
-}
-
-.date-input-group .form-control:hover {
-  background-color: #f8f9fa !important;
-  border-color: #adb5bd !important;
-}
-
-.date-input-group .form-control:focus {
-  border-color: #80bdff !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
-  outline: none !important;
-  background-color: #fff !important;
-}
-
-/* Enhanced visual feedback for clickable elements */
-.date-input-group .date-toggle-btn {
-  cursor: pointer !important;
-}
-
-.date-input-group .date-toggle-btn:active {
-  background-color: #dee2e6 !important;
-  transform: translateY(1px) !important;
-}
-
-.date-input-group .form-control:active {
-  background-color: #f8f9fa !important;
-}
-
-/* Ensure proper spacing and alignment */
-.date-input-group .input-group-btn {
-  margin-right: 0 !important;
-}
-
-.date-input-group .form-control {
-  margin-left: 0 !important;
-}
-
-/* Align calendar button and input flush; remove unintended gaps */
-.date-input-group {
-  display: flex !important;
-  align-items: stretch !important;
-}
-
-.date-input-group .input-group-btn {
-  flex: 0 0 auto !important;
-  margin: 0 !important;
-}
-
-.date-input-group .date-toggle-btn {
-  height: 100% !important;
-  border-right: 0 !important;
-  z-index: 10;
-}
-
-.date-input-group > div {
-  flex: 1 1 auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.date-input-group > div > .form-control,
-.date-input-group > .form-control {
-  width: 100% !important;
-  height: 100% !important;
-  border-left: 0 !important;
-}
-
-/* Hover effect for the entire input group */
-.date-input-group:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Enhanced datepicker styling with larger fonts - matching original design */
-.datepicker-dropdown .ngb-dp-header {
-  background-color: #f8f9fa !important;
-  border-bottom: 1px solid #dee2e6 !important;
-  padding: 18px 15px !important;
-  border-radius: 4px 4px 0 0 !important;
-}
-
-.datepicker-dropdown .ngb-dp-month {
-  background: white !important;
-  padding: 15px !important;
-}
-
-.datepicker-dropdown .ngb-dp-weekday {
-  color: #6c757d !important;
-  font-weight: 600 !important;
-  font-size: 18px !important;
-  padding: 12px 8px !important;
-  text-align: center !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-.datepicker-dropdown .ngb-dp-day {
-  padding: 10px !important;
-  text-align: center !important;
-  cursor: pointer !important;
-  border-radius: 4px !important;
-  transition: all 0.15s ease-in-out !important;
-  font-weight: 500 !important;
-  font-size: 18px !important;
-  min-width: 45px !important;
-  height: 45px !important;
-  line-height: 25px !important;
-}
-
-.datepicker-dropdown .ngb-dp-day:hover {
-  background-color: #e9ecef !important;
-  transform: scale(1.05) !important;
-}
-
-.datepicker-dropdown .ngb-dp-day.selected {
-  background-color: #007bff !important;
-  color: white !important;
-  font-weight: bold !important;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
-}
-
-.datepicker-dropdown .ngb-dp-day.focused {
-  background-color: #007bff !important;
-  color: white !important;
-  font-weight: bold !important;
-}
-
-.datepicker-dropdown .ngb-dp-day.today {
-  background-color: #fff3cd !important;
-  color: #856404 !important;
-  font-weight: bold !important;
-  border: 2px solid #ffc107 !important;
-}
-
-.datepicker-dropdown .ngb-dp-day.disabled {
-  color: #6c757d !important;
-  cursor: not-allowed !important;
-  opacity: 0.4 !important;
-}
-
-.datepicker-dropdown .ngb-dp-day.outside {
-  color: #6c757d !important;
-  opacity: 0.5 !important;
-}
-
-.datepicker-dropdown .ngb-dp-navigation-chevron {
-  border-style: solid !important;
-  border-width: 0.35em 0.35em 0 0 !important;
-  content: "" !important;
-  display: inline-block !important;
-  height: 0.7em !important;
-  transform: rotate(-45deg) !important;
-  vertical-align: top !important;
-  width: 0.7em !important;
-  color: #495057 !important;
-}
-
-.datepicker-dropdown .ngb-dp-navigation-chevron.right {
-  transform: rotate(45deg) !important;
-}
-
-.datepicker-dropdown .ngb-dp-month-name {
-  font-size: 20px !important;
-  font-weight: 600 !important;
-  color: #495057 !important;
-  text-transform: capitalize !important;
-}
-
-.datepicker-dropdown .ngb-dp-arrow {
-  background: transparent !important;
-  border: none !important;
-  padding: 12px 18px !important;
-  cursor: pointer !important;
-  border-radius: 4px !important;
-  transition: all 0.15s ease-in-out !important;
-  min-width: 50px !important;
-}
-
-.datepicker-dropdown .ngb-dp-arrow:hover {
-  background-color: #e9ecef !important;
-  transform: scale(1.1) !important;
-}
-
-.datepicker-dropdown .ngb-dp-arrow:focus {
-  outline: 2px solid #007bff !important;
-  outline-offset: 2px !important;
-}
-
-/* Basic input group button styling */
-.input-group-btn .btn {
-  border-left: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-}
-
-.input-group-btn .btn:hover {
-  background-color: #e9ecef !important;
-  border-color: #adb5bd !important;
-}
-
-/* Ensure date input is properly styled */
-.input-group input[readonly] {
-  background-color: #fff !important;
-  cursor: pointer !important;
-}
-
-.input-group input[readonly]:hover {
-  background-color: #f8f9fa !important;
-}
-
-/* Input group addon styling */
-.input-group-addon {
-  background-color: #f8f9fa !important;
-  border-color: #ced4da !important;
-  color: #495057 !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease-in-out !important;
-}
-
-.input-group-addon:hover {
-  background-color: #e9ecef !important;
-  border-color: #adb5bd !important;
-  color: #212529 !important;
-}
-
-/* Calendar icon styling */
-.input-group-addon i {
-  font-size: 16px !important;
-  transition: color 0.15s ease-in-out !important;
-}
-
-.input-group-addon:hover i {
-  color: #007bff !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .datepicker-dropdown {
-    width: 300px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-  }
-  
-  .input-group .datepicker-dropdown {
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-  }
-  
-  .datepicker-dropdown .ngb-dp-day {
-    font-size: 16px !important;
-    min-width: 40px !important;
-    height: 40px !important;
-  }
-  
-  .datepicker-dropdown .ngb-dp-weekday {
-    font-size: 16px !important;
-  }
-  
-  .datepicker-dropdown .ngb-dp-month-name {
-    font-size: 18px !important;
-  }
 } 
