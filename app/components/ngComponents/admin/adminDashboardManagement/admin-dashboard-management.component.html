@@ -6,8 +6,8 @@
   </div>
   <section class="content-header">
     <h1>
-      &Uuml;bersicht
-      <small>Informationen &uuml;ber in KomMonitor enthaltene Daten</small>
+      {{ 'ADMIN_DASHBOARD.OVERVIEW' | translate }}
+      <small>{{ 'ADMIN_DASHBOARD.OVERVIEW_DESCRIPTION' | translate }}</small>
     </h1>
   </section>
   <section class="content container-fluid">
@@ -17,7 +17,7 @@
         <div class="small-box bg-aqua">
           <div class="inner">
             <h3>{{ kommonitorDataExchangeService.accessControl.length }}</h3>
-            <p>Organisationen </p>
+            <p>{{ 'ADMIN_DASHBOARD.ORGANIZATIONS' | translate }}</p>
           </div>
           <div class="icon">
             <i class="fas fa-users"></i>
@@ -29,7 +29,7 @@
         <div class="small-box bg-gray">
           <div class="inner">
             <h3>{{ numberOfMainTopics }}&nbsp; &nbsp; / &nbsp; &nbsp;{{ numberOfSubTopics }}</h3>
-            <p>Haupt- &nbsp; &nbsp; / &nbsp; &nbsp; Unterthemen</p>
+            <p>{{ 'ADMIN_DASHBOARD.MAIN_TOPICS' | translate }} &nbsp; &nbsp; / &nbsp; &nbsp; {{ 'ADMIN_DASHBOARD.SUB_TOPICS' | translate }}</p>
           </div>
           <div class="icon">
             <i class="fas fa-book"></i>
@@ -44,7 +44,7 @@
         <div class="small-box bg-primary">
           <div class="inner">
             <h3>{{ kommonitorDataExchangeService.availableSpatialUnits.length }}</h3>
-            <p>Raumeinheiten</p>
+            <p>{{ 'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate }}</p>
           </div>
           <div class="icon">
             <i class="fas fa-layer-group"></i>
@@ -57,7 +57,7 @@
         <div class="small-box bg-orange">
           <div class="inner">
             <h3>{{ kommonitorDataExchangeService.availableGeoresources.length }}</h3>
-            <p>Georessourcen</p>
+            <p>{{ 'ADMIN_DASHBOARD.GEORESOURCES' | translate }}</p>
           </div>
           <div class="icon">
             <i class="fas fa-map-marked-alt"></i>
@@ -69,7 +69,7 @@
         <div class="small-box bg-green">
           <div class="inner">
             <h3>{{ kommonitorDataExchangeService.availableIndicators.length }}</h3>
-            <p>Indikatoren</p>
+            <p>{{ 'ADMIN_DASHBOARD.INDICATORS' | translate }}</p>
           </div>
           <div class="icon">
             <i class="fas fa-sitemap"></i>
@@ -81,7 +81,7 @@
         <div class="small-box bg-purple">
           <div class="inner">
             <h3>{{ kommonitorDataExchangeService.availableProcessScripts.length }}</h3>
-            <p>Indikatorenskripte</p>
+            <p>{{ 'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate }}</p>
           </div>
           <div class="icon">
             <i class="fas fa-file-code"></i>

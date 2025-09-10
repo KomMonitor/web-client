@@ -1,0 +1,54 @@
+<div class="km-line-pattern-picker" #dropdownContainer>
+  <label *ngIf="label" class="form-label">{{ label }}</label>
+  
+  <div class="dropdown" [class.show]="isOpen">
+    <button 
+      type="button" 
+      class="btn btn-info dropdown-toggle km-pattern-button"
+      [style.width]="buttonWidth"
+      [disabled]="disabled"
+      (click)="toggle($event)"
+      [attr.aria-haspopup]="true" 
+      [attr.aria-expanded]="isOpen"
+    >
+      <div class="pattern-display">
+        <!-- Show selected pattern SVG or placeholder -->
+        <div *ngIf="selectedPattern" class="selected-pattern">
+          <div class="pattern-svg" [innerHTML]="getSafeSvgCached(selectedPattern.svgString)"></div>
+        </div>
+        <div *ngIf="!selectedPattern" class="placeholder-text">
+          {{ placeholder }}
+        </div>
+      </div> 
+      <span class="caret"></span>
+    </button>
+    
+    <ul class="dropdown-menu dropdown-menu-center" *ngIf="isOpen" (click)="onContainerClick($event)">
+      <!-- Clear selection option -->
+      <li class="clear-option" *ngIf="hasSelection">
+        <div class="dropdown-item" (click)="clearSelection($event)">
+          <div class="clear-text">Auswahl löschen</div>
+        </div>
+      </li>
+      
+      <!-- Pattern options -->
+      <li *ngFor="let option of options; let i = index; trackBy: trackByOption" class="pattern-option">
+        <div class="dropdown-item" 
+             [class.selected]="selectedPattern?.dashArrayValue === option.dashArrayValue"
+             (click)="selectPattern(option, $event)">
+          <div class="option-label">{{ option.label }}</div>
+          <div class="option-svg" [innerHTML]="getSafeSvgCached(option.svgString)"></div>
+        </div>
+      </li>
+      
+      <!-- No options available -->
+      <li *ngIf="options.length === 0" class="no-options">
+        <div class="dropdown-item disabled">
+          <div class="no-options-text">Keine Optionen verfügbar</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="help-block with-errors"></div>
+</div>

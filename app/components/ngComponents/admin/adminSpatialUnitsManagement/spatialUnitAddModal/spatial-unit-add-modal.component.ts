@@ -9,6 +9,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
 import { ColorEvent } from 'ngx-color';
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
+import { KmLinePatternPickerComponent, LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 // Removed in favor of standalone km-date-picker component providers
@@ -25,7 +26,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
   // datepickers handled by km-date-picker
   @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
-  @ViewChild('outlineDashArrayDropdown', { static: false }) outlineDashArrayDropdown!: ElementRef;
 
   // Multi-step form
   currentStep = 1;
@@ -150,7 +150,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Missing properties from original component
   outlineColor = "#000000";
-  selectedOutlineDashArrayObject: any = null;
+  selectedOutlineDashArrayObject: LinePatternOption | null = null;
   spatialUnitMetadataStructure_pretty: string = '';
   spatialUnitMappingConfigStructure: any = {};
   
@@ -158,9 +158,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   showRoleForm = false;
 
   // Color picker handled by km-color-picker
-
-  // Dropdown state for outline dash array (Angular-native toggle)
-  showOutlineDashArrayDropdown = false;
+  // Line pattern picker handled by km-line-pattern-picker
 
   // Grid ready event handler
   onRoleManagementGridReady(params: any) {
@@ -232,6 +230,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
       org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
     );
     return filtered;
+  }
+
+  get availableLinePatternOptions(): LinePatternOption[] {
+    return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(option => ({
+      label: option.label,
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString
+    }));
   }
 
   constructor(
@@ -353,15 +359,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private initializeOutlineLayerSettings() {
-    this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
-    this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
-    
-    // Remove jQuery-specific initialization - Angular will handle this automatically
-    
-    // Update dropdown button display with selected SVG
-    setTimeout(() => {
-      this.updateDropdownButtonDisplay();
-    }, 100);
+    const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    if (availableOptions.length > 0) {
+      this.selectedOutlineDashArrayObject = {
+        label: availableOptions[0].label,
+        dashArrayValue: availableOptions[0].dashArrayValue,
+        svgString: availableOptions[0].svgString
+      };
+    } else {
+      this.selectedOutlineDashArrayObject = null;
+    }
+    this.availableLoiDashArrayObjects = availableOptions;
   }
 
   private initializeMetadataStructures() {
@@ -581,44 +589,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.selectedDataSourceFile = file ?? null;
   }
 
-  onChangeOutlineDashArray(outlineDashArrayObject: any) {
+  onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
     
     // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
     this.outlineDashArray = outlineDashArrayObject;
     
-    // Update dropdown button display using helper method
-    this.updateDropdownButtonDisplay();
-    
-    // Close the dropdown via Angular state
-    this.closeOutlineDashArrayDropdown();
-    
+    // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
 
-  // Toggle/close handlers for outline dash array dropdown
-  toggleOutlineDashArrayDropdown(event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.showOutlineDashArrayDropdown = !this.showOutlineDashArrayDropdown;
-  }
-
-  closeOutlineDashArrayDropdown() {
-    this.showOutlineDashArrayDropdown = false;
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const clickTarget = event.target as Node;
-    // Close dropdown only if click is outside the dropdown container
-    if (this.showOutlineDashArrayDropdown && this.outlineDashArrayDropdown && this.outlineDashArrayDropdown.nativeElement && this.outlineDashArrayDropdown.nativeElement.contains) {
-      if (this.outlineDashArrayDropdown.nativeElement.contains(clickTarget)) {
-        return;
-      }
-    }
-    this.closeOutlineDashArrayDropdown();
-  }
 
   // Color picker logic removed; handled by km-color-picker
 
@@ -628,31 +607,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Ensure valid date or set to today's date on blur
   // Date normalization handled by km-date-picker
 
-  // Method to update dropdown button display
-  private updateDropdownButtonDisplay() {
-    // No-op: rendering handled via Angular bindings with cached SafeHtml
-    return;
-  }
-
-  // Method to safely sanitize SVG content
-  private svgSanitizeCache: Map<string, SafeHtml> = new Map();
-
-  getSafeSvgCached(svgString: string): SafeHtml {
-    if (!svgString) {
-      return '' as unknown as SafeHtml;
-    }
-    const cached = this.svgSanitizeCache.get(svgString);
-    if (cached) {
-      return cached;
-    }
-    const trusted = this.sanitizer.bypassSecurityTrustHtml(svgString);
-    this.svgSanitizeCache.set(svgString, trusted);
-    return trusted;
-  }
-
-  trackLoiOption(index: number, item: any) {
-    return item?.dashArrayValue ?? index;
-  }
 
   // Importer object building methods
   async buildImporterObjects() {
@@ -1052,15 +1006,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
     
     this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
-        this.selectedOutlineDashArrayObject = option;
+        this.selectedOutlineDashArrayObject = {
+          label: option.label,
+          dashArrayValue: option.dashArrayValue,
+          svgString: option.svgString
+        };
         this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
       }
     });
 
-    // Update dropdown button display with selected SVG
-    setTimeout(() => {
-      this.updateDropdownButtonDisplay();
-    }, 100);
+    // Line pattern picker will handle the display automatically
 
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
     this.ownerOrganization = this.metadataImportSettings.ownerId;
@@ -1192,10 +1147,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Initialize metadata structures
     this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
 
-    // Update dropdown button display with selected SVG
-    setTimeout(() => {
-      this.updateDropdownButtonDisplay();
-    }, 100);
+    // Line pattern picker will handle the display automatically
   }
 
   onExportSpatialUnitAddMetadataTemplate() {
@@ -1308,13 +1260,19 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.outlineColor = "#000000";
     this.outlineWidth = 3;
     this.outlineDashArray = null;
-    this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
+    const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    if (availableOptions.length > 0) {
+      this.selectedOutlineDashArrayObject = {
+        label: availableOptions[0].label,
+        dashArrayValue: availableOptions[0].dashArrayValue,
+        svgString: availableOptions[0].svgString
+      };
+    } else {
+      this.selectedOutlineDashArrayObject = null;
+    }
     this.spatialUnitMappingConfigStructure = {};
     
-    // Update dropdown button display with selected SVG
-    setTimeout(() => {
-      this.updateDropdownButtonDisplay();
-    }, 100);
+    // Line pattern picker will handle the display automatically
 
     this.converter = null;
     this.schema = '';

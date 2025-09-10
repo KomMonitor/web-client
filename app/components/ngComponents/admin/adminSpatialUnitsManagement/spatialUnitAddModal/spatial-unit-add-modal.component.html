@@ -142,33 +142,14 @@
         </div>
         <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
           <div class="form-group" align="center">
-            <label>Linienmuster (Umringslayer)</label>
-            <div class="dropdown" [class.open]="showOutlineDashArrayDropdown" #outlineDashArrayDropdown>
-              <button 
-                type="button" 
-                width="200px" 
-                class="btn btn-info dropdown-toggle"
-                (click)="toggleOutlineDashArrayDropdown($event)"
-                aria-haspopup="true" 
-                [attr.aria-expanded]="showOutlineDashArrayDropdown"
-              >
-                <div id="outlineDashArrayDropdownButton_addSpatialUnit">
-                  <!-- Show selected SVG or default -->
-                  <div *ngIf="selectedOutlineDashArrayObject" [innerHTML]="getSafeSvgCached(selectedOutlineDashArrayObject.svgString)"></div>
-                  <div *ngIf="!selectedOutlineDashArrayObject" style="color: #666; font-style: italic;">Linienmuster wählen</div>
-                </div> 
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-center" *ngIf="showOutlineDashArrayDropdown" (click)="$event.stopPropagation()">
-                <li *ngFor="let option of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index; trackBy: trackLoiOption" style="cursor: pointer;">
-                  <div class="dropdown-item" (click)="onChangeOutlineDashArray(option)">
-                    <div style="margin-bottom: 5px;">{{option.label}}</div>
-                    <div [innerHTML]="getSafeSvgCached(option.svgString)"></div>
-                  </div>
-                </li>
-              </ul>
-              <div class="help-block with-errors"></div>
-            </div>
+            <km-line-pattern-picker
+              [selectedPattern]="selectedOutlineDashArrayObject"
+              [options]="availableLinePatternOptions"
+              [label]="'Linienmuster (Umringslayer)'"
+              [placeholder]="'Linienmuster wählen'"
+              [width]="'200px'"
+              (patternChange)="onChangeOutlineDashArray($event)">
+            </km-line-pattern-picker>
           </div>
         </div>
       </div>
