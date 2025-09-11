@@ -31,6 +31,7 @@ export class IndicatorAddComponent implements OnInit {
 
   spatialUnitSelect = new FormControl;
   baseMapSelect = new FormControl;
+  indicatorSelect = new FormControl;
 
   numAreaSpecificPagesToShow:number = 20;
 
@@ -1125,166 +1126,168 @@ export class IndicatorAddComponent implements OnInit {
 
 
  
-  onSpatialUnitChanged() {
+  async onSpatialUnitChanged() {
 
-    let selectedSpatialUnit = this.spatialUnitSelect.value;
-   /* $scope.loadingData = true;			
+    this.selectedSpatialUnit = this.spatialUnitSelect.value;
+    this.loadingData = true;			
 
-			$("#reporting-spatialUnitChangeWarning").hide();
-			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
-			await $scope.updateAreasInDualList() // after that spatialUnitFeatures are available
-			// kommonitorLeafletScreenshotCacheHelperService.clearScreenshotMap();
+    $("#reporting-spatialUnitChangeWarning").hide();
+    this.timeseriesAdjustedOnSpatialUnitChange = false;
+    await this.updateAreasInDualList(false) // after that spatialUnitFeatures are available
+    // kommonitorLeafletScreenshotCacheHelperService.clearScreenshotMap();
 
-			let validTimestamps = []
-			// There might be different valid timestamps for the new spatial unit.
-			if($scope.selectedIndicator) {
-				validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit );
-			
-				// Check if the currently selected timestamps are also available for the new spatial unit.
-				// If one is not, deselect is and show an info to user
-				let selectedTimestamps_old = [...$scope.selectedTimestamps];
-				$scope.selectedTimestamps = $scope.selectedTimestamps.filter( el => {
-					return validTimestamps.includes(el.name);
-				});
-				// if any timestamp was deselected show a warning alert
-				// except for reachability template, it doesn't matter there
-				if(selectedTimestamps_old.length > $scope.selectedTimestamps.length && !$scope.template.name.includes("-reachability")) {
-					$("#reporting-spatialUnitChangeWarning").show();
-				}
-			} else {
-				// without selected indicator we have to fall back to the last update of the new spatial unit
-				let mostRecentTimestampName = $scope.selectedSpatialUnit.metadata.lastUpdate;
-				validTimestamps.push(mostRecentTimestampName)
-			}
-			
-			if($scope.template.name.includes("timeseries")) {
-				// Similar procedure as with timestamps
-				let oldTimeseries = $scope.getFormattedDateSliderValues(true);
-				
-				let from = new Date($scope.dateSlider.result.from_value);
-				let to = new Date($scope.dateSlider.result.to_value);
-				let filteredTimeseries = validTimestamps.filter( el => {
-					let date = new Date(el);
-					date.setHours(0); // remove time-offset...TODO is there a better way?
-					return from <= date && date <= to;
-				});
+    setTimeout(async () => {
+      let validTimestamps:any = []
+      // There might be different valid timestamps for the new spatial unit.
+      if(this.selectedIndicator) {
+        validTimestamps = this.getValidTimestampsForSpatialUnit(this.selectedSpatialUnit );
+      
+        // Check if the currently selected timestamps are also available for the new spatial unit.
+        // If one is not, deselect is and show an info to user
+        let selectedTimestamps_old = [...this.selectedTimestamps];
+        this.selectedTimestamps = this.selectedTimestamps.filter( (el:any) => {
+          return validTimestamps.includes(el.name);
+        });
+        // if any timestamp was deselected show a warning alert
+        // except for reachability template, it doesn't matter there
+        if(selectedTimestamps_old.length > this.selectedTimestamps.length && !this.template.name.includes("-reachability")) {
+          $("#reporting-spatialUnitChangeWarning").show();
+        }
+      } else {
+        // without selected indicator we have to fall back to the last update of the new spatial unit
+        let mostRecentTimestampName = this.selectedSpatialUnit.metadata.lastUpdate;
+        validTimestamps.push(mostRecentTimestampName)
+      }
+      
+      if(this.template.name.includes("timeseries")) {
+        // Similar procedure as with timestamps
+        let oldTimeseries = this.getFormattedDateSliderValues(true);
+        
+        let from = new Date(this.dateSlider.result.from_value);
+        let to = new Date(this.dateSlider.result.to_value);
+        let filteredTimeseries = validTimestamps.filter( el => {
+          let date = new Date(el);
+          date.setHours(0); // remove time-offset...TODO is there a better way?
+          return from <= date && date <= to;
+        });
 
-				let isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
-					return element === filteredTimeseries[index];
-				});
-				
-				if( !isEqualTimeseries) {
-					// timeseries changed
-					$("#reporting-spatialUnitChangeWarning").show();
-					// try to set slider to previously selected timestamps
-					if(validTimestamps.includes(oldTimeseries.from) && validTimestamps.includes(oldTimeseries.to)) {
-						$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));	
-					} else {
-						$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps );	
-						$scope.timeseriesAdjustedOnSpatialUnitChange = true; // show additional text in warning alert
-					}
-				} else {
-					// the selected part of the timeseries has the same dates so we don't have to show a warning
-					// but the timeseries could still include older or newer dates
-					$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));
-				}
-			}
-			
-			// prepare arrays for updateDualList
-			validTimestamps = validTimestamps.map( el => {
-				return {
-					properties: {
-						NAME: el
-					}
-				}
-			});
-			let timestampsToSelect = $scope.selectedTimestamps.map( el => {
-				return {
-					properties: {
-						NAME: el.name
-					}
-				}
-			});
-			
-			$scope.updateDualList($scope.dualListTimestampsOptions, validTimestamps, timestampsToSelect);
+        let isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
+          return element === filteredTimeseries[index];
+        });
+        
+        if( !isEqualTimeseries) {
+          // timeseries changed
+          $("#reporting-spatialUnitChangeWarning").show();
+          // try to set slider to previously selected timestamps
+          if(validTimestamps.includes(oldTimeseries.from) && validTimestamps.includes(oldTimeseries.to)) {
+            //this.dateSlider = this.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));	
+          } else {
+            //this.dateSlider = this.initializeDateRangeSlider( validTimestamps );	
+            this.timeseriesAdjustedOnSpatialUnitChange = true; // show additional text in warning alert
+          }
+        } else {
+          // the selected part of the timeseries has the same dates so we don't have to show a warning
+          // but the timeseries could still include older or newer dates
+          this.dateSlider = this.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));
+        }
+      }
+      
+      // prepare arrays for updateDualList
+      validTimestamps = validTimestamps.map( el => {
+        return {
+          properties: {
+            NAME: el
+          }
+        }
+      });
+      let timestampsToSelect = this.selectedTimestamps.map( el => {
+        return {
+          properties: {
+            NAME: el.name
+          }
+        }
+      });
+      
 
-			
-			
-			// fire $watch('selectedAreas') function manually to remove pages
-			$scope.selectedAreas = [];
-			$scope.onSelectedAreasChanged( $scope.selectedAreas , undefined)
-			// updateAreasInDualList does not trigger diagram updates
-			// we have the wrong geometries set at this point, causing area selection to fail.
-			// echarts requires properties.name to be present, create it from properties.NAME unless it exists
-			let features;
-			if($scope.template.name.includes("reachability")) {
-				if($scope.selectedIndicator) {
-					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
-				} else {
-					features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitLevel ];
-				}
-				features = $scope.createLowerCaseNameProperty(features);
-				$scope.geoJsonForReachability = { features: features }
-			} else {
-				features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ];
-				features = $scope.createLowerCaseNameProperty(features);
-				let geoJSON = { features: features }
-				$scope.selectedIndicator.geoJSON = geoJSON;
-			}
-			
+      //this.updateDualList(this.dualListTimestampsOptions, validTimestamps, timestampsToSelect);
+      
+      this.selectedTimestamps = timestampsToSelect;
+      // fire $watch('selectedAreas') function manually to remove pages
+      this.selectedAreas = [];
+      await this.onSelectedAreasChanged( this.selectedAreas)
+      // updateAreasInDualList does not trigger diagram updates
+      // we have the wrong geometries set at this point, causing area selection to fail.
+      // echarts requires properties.name to be present, create it from properties.NAME unless it exists
+      let features;
+      if(this.template.name.includes("reachability")) {
+        if(this.selectedIndicator) {
+          features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ];
+        } else {
+          features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitLevel ];
+        }
+        features = this.createLowerCaseNameProperty(features);
+        this.geoJsonForReachability = { features: features }
+      } else {
+        features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ];
+        features = this.createLowerCaseNameProperty(features);
+        let geoJSON = { features: features }
+        this.selectedIndicator.geoJSON = geoJSON;
+      }
+      
 
-			// no need to check if diagrams are prepared here since we have to prepare them again anyway
-			$timeout(async function() {
-				// prepare diagrams for all selected timestamps with all features
-				// Preparing all diagrams is not possible without an indicator, which might happen in the reachability template
-				// User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
-				// We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
-				if($scope.selectedIndicator) {
-					if($scope.template.name.includes("reachability")) {
-						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-					} else if ($scope.template.name.includes("timeseries")) {
-						let values = $scope.getFormattedDateSliderValues(true);
-						let classifyUsingWholeTimeseries = false;
-						let isTimeseries = true;
-						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
-						// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
-						classifyUsingWholeTimeseries = true;
-						isTimeseries = false;
-						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
-					} else {
-						for(let timestamp of $scope.selectedTimestamps) {
-							let classifyUsingWholeTimeseries = false;
-							let isTimeseries = false;
-							$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
-						}	
-					}
-				} else {
-					$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-				}
+      // no need to check if diagrams are prepared here since we have to prepare them again anyway
+      setTimeout(async () => {
+        // prepare diagrams for all selected timestamps with all features
+        // Preparing all diagrams is not possible without an indicator, which might happen in the reachability template
+        // User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
+        // We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
+        if(this.selectedIndicator) {
+          if(this.template.name.includes("reachability")) {
+            this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
+          } else if (this.template.name.includes("timeseries")) {
+            let values = this.getFormattedDateSliderValues(true);
+            let classifyUsingWholeTimeseries = false;
+            let isTimeseries = true;
+            this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
+            // prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
+            classifyUsingWholeTimeseries = true;
+            isTimeseries = false;
+            this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+          } else {
+            for(let timestamp of this.selectedTimestamps) {
+              let classifyUsingWholeTimeseries = false;
+              let isTimeseries = false;
+              this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+            }	
+          }
+        } else {
+          this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
+        }
 
-				await $scope.initializeAllDiagrams();
-				// if(!$scope.template.name.includes("reachability")) {
-				// 	// in reachability template we have to update leaflet maps, too
-				// 	$scope.loadingData = false;
-				// }
-				$scope.loadingData = false;
-			});
- */
+        await this.initializeAllDiagrams();
+        // if(!this.template.name.includes("reachability")) {
+        // 	// in reachability template we have to update leaflet maps, too
+        // 	this.loadingData = false;
+        // }
+        this.loadingData = false;
+      });
+    },1000);
   }
 
-  async updateAreasInDualList() {
+  async updateAreasInDualList(selectAll = true) {
     // this happens for the reachability template on poi selection
     if(typeof(this.selectedIndicator) === "undefined") {
       let spatialUnit = this.selectedSpatialUnit ?
       this.selectedSpatialUnit :
-      this.selectedIndicator!.applicableSpatialUnits[0]
+      this.selectedIndicator!.applicableSpatialUnits[0];
+
       // query spatial unit features using the most recent date
-      this.queryFeatures(undefined, this.selectedSpatialUnit).subscribe({
+      this.queryFeatures(undefined, spatialUnit).subscribe({
         next: (response:any) => {
 
           this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = response.features
           let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
-          this.updateAreasDualList(allAreas, allAreas) // don't select any areas
+          this.updateAreasDualList(allAreas, selectAll ? allAreas : undefined ) // don't select any areas
         }
       });
     } else {
@@ -1813,56 +1816,66 @@ export class IndicatorAddComponent implements OnInit {
   handleIndicatorSelectForReachability(indicator) {
     this.selectedIndicator = indicator;
     let indicatorId = this.selectedIndicator.indicatorId;
-    let featureCollection:any = this.queryFeatures(indicatorId, this.selectedSpatialUnit);
-    if(!this.selectedSpatialUnit.spatialUnitName) {
-      // set the applicable spatial unit from the indicator as selected spatial unit
-      let filter = this.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
-        return spatialUnit.spatialUnitName === this.selectedSpatialUnit.spatialUnitLevel;
-      })
-      if(filter && filter.length) {
-        this.selectedSpatialUnit = filter[0];
+    let featureCollection:any = this.queryFeatures(indicatorId, this.selectedSpatialUnit).subscribe({
+      next: (response:any) => {
+          this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel] = response.features
+          let allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel]
+          this.updateAreasDualList(allAreas, undefined ) // don't select any areas
       }
-    }
-
-    this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
-    this.selectedIndicator.geoJSON = featureCollection;
-    this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(this.selectedIndicator.geoJSON.features);
-    if(this.selectedIndicator.geoJSON.features[0] && !this.selectedIndicator.geoJSON.features[0].properties.bbox){
-      for(let feature of this.selectedIndicator.geoJSON.features) {
-        let bbox = turf.bbox(feature); // calculate bbox for each feature
-        feature.properties.bbox = bbox;
-      }
-    }
+    });
     
-    for(let page of this.template.pages) {
-      for(let pageElement of page.pageElements) {
-        if(pageElement.type === "map") {
-          let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.template.pages.indexOf(page) + "-map")
-          let map:any = echarts.getInstanceByDom(domNode)
-          let options:any = map.getOption();
-          let seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
-          options.series[0] = seriesOptions;
-          options.series[0].label.formatter = '{b}\n{c}';
-          map.setOption(options, {
-            replaceMerge: ['series']
-          });
-        }
-
-        if(pageElement.type.includes("reachability-subtitle-")) {
-          pageElement.text = this.selectedTimestamps[0].name;
-          if(this.isochrones) {
-            pageElement.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
-          }
-          pageElement.text += ", " + indicator.indicatorName;
-          pageElement.isPlaceholder = false;
+    setTimeout(() => {
+      if(!this.selectedSpatialUnit.spatialUnitName) {
+        // set the applicable spatial unit from the indicator as selected spatial unit
+        let filter = this.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
+          return spatialUnit.spatialUnitName === this.selectedSpatialUnit.spatialUnitLevel;
+        })
+        if(filter && filter.length) {
+          this.selectedSpatialUnit = filter[0];
         }
       }
-    }
-    this.loadingData = false;
+
+      this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
+      this.selectedIndicator.geoJSON = featureCollection;
+      this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(this.selectedIndicator.geoJSON.features);
+      if(this.selectedIndicator.geoJSON.features[0] && !this.selectedIndicator.geoJSON.features[0].properties.bbox){
+        for(let feature of this.selectedIndicator.geoJSON.features) {
+          let bbox = turf.bbox(feature); // calculate bbox for each feature
+          feature.properties.bbox = bbox;
+        }
+      }
+      
+      for(let page of this.template.pages) {
+        for(let pageElement of page.pageElements) {
+          if(pageElement.type === "map") {
+            let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.template.pages.indexOf(page) + "-map")
+            let map:any = echarts.getInstanceByDom(domNode)
+            let options:any = map.getOption();
+            let seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
+            options.series[0] = seriesOptions;
+            options.series[0].label.formatter = '{b}\n{c}';
+            map.setOption(options, {
+              replaceMerge: ['series']
+            });
+          }
+
+          if(pageElement.type.includes("reachability-subtitle-")) {
+            pageElement.text = this.selectedTimestamps[0].name;
+            if(this.isochrones) {
+              pageElement.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
+            }
+            pageElement.text += ", " + indicator.indicatorName;
+            pageElement.isPlaceholder = false;
+          }
+        }
+      }
+      this.loadingData = false;
+    },1000);
   }
 
-  //async
-  async onIndicatorSelected(indicator) {
+  async onIndicatorSelected() {
+
+    let indicator = this.indicatorSelect.value;
 
     try {
       this.loadingData = true;

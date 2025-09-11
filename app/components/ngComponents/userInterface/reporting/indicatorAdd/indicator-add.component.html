@@ -91,19 +91,17 @@
                           </div>
                           <div *ngIf="template.name.includes('-timeseries')">
                               <div id="reporting-indicator-select-box">
-                                  <select size="10" class="form-control" required>
+                                  <select size="10" [formControl]="indicatorSelect" class="form-control" (change)="onIndicatorSelected()">
                                       <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByNameTimeseries"
-                                          (click)="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByNameTimeseries" [ngValue]="indicator">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
                                   </select>
                               </div>
                           </div>
                           <div *ngIf="!template.name.includes('-timeseries')">
                               <div id="reporting-indicator-select-box">
-                                  <select size="10" class="form-control" required>
+                                  <select size="10" [formControl]="indicatorSelect" class="form-control" (change)="onIndicatorSelected()">
                                       <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByName"
-                                          (click)="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByName" [ngValue]="indicator">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
                                   </select>
                               </div>
                           </div>
@@ -127,12 +125,12 @@
                           <div id="reporting-spatial-unit-select-wrapper">
                               Raumebene: 
                               <select *ngIf="!selectedIndicator" [formControl]="spatialUnitSelect" (change)="onSpatialUnitChanged()">
-                                  <option *ngFor="let spatialUnit of allSpatialUnitsForReachability" [value]="spatialUnit">{{spatialUnit.spatialUnitLevel}}</option>
+                                  <option *ngFor="let spatialUnit of allSpatialUnitsForReachability" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitLevel}}</option>
                               </select>
 
                               <select *ngIf="selectedIndicator" [formControl]="spatialUnitSelect" (change)="onSpatialUnitChanged()" class="form-control">
                                 <option disabled> -- Raumebene w&auml;hlen -- </option>
-                                <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits" [value]="spatialUnit">{{spatialUnit.spatialUnitName}}</option>
+                                <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitName}}</option>
                               </select>
                           </div>
                           <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedAreas($event)"></app-dual-list-box>
