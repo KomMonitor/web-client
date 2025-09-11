@@ -438,6 +438,9 @@
 					<div ng-show="importedFeatures && importedFeatures.length > 0">
 						{{importedFeatures.length}} Zeitreihen wurden dabei importiert.
 					</div>
+					<div ng-show="importedAggregations && importedAggregations.length > 0">
+						Für folgende höhere Raumbbenen {{importedAggregations.join(', ')}} wurden Aggregation zugefügt.
+					</div>
 				</p>
       </div>
 
