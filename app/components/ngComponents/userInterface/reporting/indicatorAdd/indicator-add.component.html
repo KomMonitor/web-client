@@ -67,8 +67,8 @@
                               <span class="glyphicon glyphicon-refresh icon-spin"></span>
                           </div>
                           <div id="reporting-isochrones-config">
-                              <div ng-if="template.name.includes('-reachability')">
-                                 <!--  <reachability-scenario-configuration></reachability-scenario-configuration> -->
+                              <div *ngIf="template.name.includes('-reachability')">
+                                 <app-reachability-scenario-configuration></app-reachability-scenario-configuration>
                               </div>
                               <!-- <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" [hidden]="!(showResetIsochronesBtn">Isochronen entfernen</button>                                -->
                           </div>

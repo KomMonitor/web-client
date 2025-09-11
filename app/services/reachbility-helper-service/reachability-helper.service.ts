@@ -310,7 +310,7 @@ export class ReachabilityHelperService {
     if (isUsedInReporting) {
       // No need to add isochrones to main map.
       // Instead they are returned to reporting modal
-      this.broadcastService.broadcast("reportingIsochronesCalculationFinished", resultIsochrones);
+      this.broadcastService.broadcast("reportingIsochronesCalculationFinished", [resultIsochrones]);
       return;
     }
 

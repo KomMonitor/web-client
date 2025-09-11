@@ -16,13 +16,14 @@ import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot
 import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
+import { ReachabilityScenarioConfigurationComponent } from '../../sidebar/kommonitorReachability/reachability-scenario-modal/reachability-scenario-configuration/reachability-scenario-configuration.component';
 
 @Component({
   selector: 'app-indicator-add',
   standalone: true,
   templateUrl: './indicator-add.component.html',
   styleUrls: ['./indicator-add.component.css'],
-  imports: [CommonModule, FormsModule, DualListBoxComponent, ReactiveFormsModule, BaseMapFilter]
+  imports: [CommonModule, FormsModule, DualListBoxComponent, ReactiveFormsModule, BaseMapFilter, ReachabilityScenarioConfigurationComponent]
 })
 export class IndicatorAddComponent implements OnInit {
 
@@ -788,15 +789,15 @@ export class IndicatorAddComponent implements OnInit {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let pageToInsert =  JSON.parse(JSON.stringify(this.untouchedTemplateAsString)).pages[ this.indexOfFirstAreaSpecificPage ];
-      pageToInsert.area = area.name;
-      pageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsert.push(pageToInsert);
+      let landscapePageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage ]);
+      landscapePageToInsert.area = area.name;
+      landscapePageToInsert.id = this.templatePageIdCounter++;
+      pagesToInsert.push(landscapePageToInsert);
 
-      pageToInsert =  JSON.parse(JSON.stringify(this.untouchedTemplateAsString)).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
-      pageToInsert.area = area.name;
-      pageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsert.push(pageToInsert);
+      let portraitPageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage + 1 ]);
+      portraitPageToInsert.area = area.name;
+      portraitPageToInsert.id = this.templatePageIdCounter++;
+      pagesToInsert.push(portraitPageToInsert);
     }
 
     // sort alphabetically by area name
@@ -1498,6 +1499,7 @@ export class IndicatorAddComponent implements OnInit {
 
   async reportingIsochronesCalculationFinished([isochrones]) {
     this.isochrones = isochrones;
+
       // this.typeOfMovement = this.isochrones.metadata.query.profile;
     this.typeOfMovement = this.reachabilityHelperService.settings.transitMode;
 
