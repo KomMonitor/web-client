@@ -141,6 +141,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     GeoresourceAddModalComponent,
+    GeoresourceEditMetadataModalComponent,
+    AdminTopicsManagementComponent,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
       loader: {
@@ -208,7 +210,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
     LanguageSwitcherComponent,
-    AdminTopicsManagementComponent,
     TopicEditModalComponent,
     TopicDeleteModalComponent,
     AdminAppConfigComponent,
@@ -230,8 +231,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     IndicatorBatchUpdateModalComponent,
     AdminGeoresourcesManagementComponent,
     GeoresourceBatchUpdateModalComponent,
-    GeoresourceEditMetadataModalComponent,
-
+    
     GeoresourceEditUserRolesModalComponent,
     GeoresourceDeleteModalComponent,
     UserLoginComponent
