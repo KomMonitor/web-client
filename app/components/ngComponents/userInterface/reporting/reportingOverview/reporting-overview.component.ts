@@ -326,10 +326,11 @@ export class ReportingOverviewComponent implements OnInit {
 			this.setupNewPages(this.config.templateSections.at(-1));
 		}
 
-		reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template]) {
+		reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template, templateBlank]) {
 
       this.loadingData = true;
       this.config.template = template;
+      this.templateBlank = templateBlank;
 
 			// add indicator to 'added indicators'
 			let templateSection = {
@@ -392,6 +393,7 @@ export class ReportingOverviewComponent implements OnInit {
 					return keepItem;
 				});
 			}
+      console.log(this.config)
 		}
 
 		
