@@ -12,6 +12,8 @@ import { KommonitorMultiStepFormHelperService } from 'services/adminGeoresourceU
 import { KommonitorGeoresourceDataGridHelperService } from 'services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
 import { IconPickerComponent } from 'components/ngComponents/customElements/icon-picker/icon-picker.component';
 import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { KmLinePatternPickerComponent, LinePatternOption } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
 
 @Component({
   selector: 'georesource-add-modal-new',
@@ -19,7 +21,7 @@ import { KmDatePickerComponent } from 'components/ngComponents/customElements/da
   styleUrls: ['./georesource-add-modal.component.css'],
   providers: [],
   standalone: true,
-  imports: [CommonModule, FormsModule, IconPickerComponent, AgGridAngular, KmDatePickerComponent],
+  imports: [CommonModule, FormsModule, IconPickerComponent, AgGridAngular, KmDatePickerComponent, KmLinePatternPickerComponent, KmColorPickerComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GeoresourceAddModalComponent implements OnInit {
@@ -74,6 +76,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   selectedPoiMarkerColor: any = null;
   selectedPoiSymbolColor: any = null;
   selectedLoiDashArrayObject: any = null;
+  selectedLoiPattern: LinePatternOption | null = null;
   loiColor = '#bf3d2c';
   loiWidth = 3;
   aoiColor = '#bf3d2c';
@@ -99,6 +102,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   updateIntervalOptions: any[] = [];
   availablePoiMarkerColors: any[] = [];
   availableLoiDashArrayObjects: any[] = [];
+  linePatternOptions: LinePatternOption[] = [];
   availableDatasourceTypes: any[] = [];
   
   // Loading states
@@ -218,6 +222,28 @@ export class GeoresourceAddModalComponent implements OnInit {
     const m = String(now.getMonth() + 1).padStart(2, '0');
     const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+
+  private syncLinePatternOptionsAndSelection(): void {
+    // Map availableLoiDashArrayObjects into LinePatternOption[] used by km-line-pattern-picker
+    this.linePatternOptions = (this.availableLoiDashArrayObjects || []).map((o: any) => {
+      const display = o?.displayName || o?.dashArrayValue || '';
+      const dash = o?.dashArrayValue || '';
+      // Render an inline SVG showing the dash pattern
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="20" viewBox="0 0 180 20">
+          <line x1="5" y1="10" x2="175" y2="10" stroke="#333" stroke-width="3" stroke-dasharray="${dash}" stroke-linecap="butt"/>
+        </svg>
+      `;
+      return { label: display, dashArrayValue: dash, svgString: svg } as LinePatternOption;
+    });
+
+    // Align selected pattern with selectedLoiDashArrayObject
+    if (this.selectedLoiDashArrayObject) {
+      this.selectedLoiPattern = this.linePatternOptions.find(p => p.dashArrayValue === this.selectedLoiDashArrayObject.dashArrayValue) || null;
+    } else {
+      this.selectedLoiPattern = null;
+    }
   }
 
   private isValidDateString(value: string): boolean {
@@ -409,6 +435,8 @@ export class GeoresourceAddModalComponent implements OnInit {
     if (!this.selectedLoiDashArrayObject && this.availableLoiDashArrayObjects.length > 0) {
       this.selectedLoiDashArrayObject = this.availableLoiDashArrayObjects[0];
     }
+    // Sync line pattern options and selection for LOI picker
+    this.syncLinePatternOptionsAndSelection();
     
     // Initialize metadata structure pretty print
     this.georesourceMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
@@ -963,6 +991,10 @@ export class GeoresourceAddModalComponent implements OnInit {
       event.stopPropagation();
     }
     this.selectedLoiDashArrayObject = loiDashArrayObject;
+    // Update selected line pattern for the picker component
+    if (this.linePatternOptions && this.linePatternOptions.length > 0) {
+      this.selectedLoiPattern = this.linePatternOptions.find(p => p.dashArrayValue === this.selectedLoiDashArrayObject?.dashArrayValue) || null;
+    }
     this.cdr.detectChanges();
   }
 
@@ -1335,6 +1367,8 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
       }
     });
+    // Ensure LOI picker reflects imported selection
+    this.syncLinePatternOptionsAndSelection();
     
     this.loiColor = this.metadataImportSettings.loiColor;
     this.loiWidth = this.metadataImportSettings.loiWidth;
@@ -1477,6 +1511,8 @@ export class GeoresourceAddModalComponent implements OnInit {
       };
       this.periodOfValidityInvalid = false;
     }
+    // Reflect LOI dasharray selection in picker if available
+    this.syncLinePatternOptionsAndSelection();
   }
 
   private downloadFile(content: string, fileName: string): void {
@@ -1573,6 +1609,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.selectedPoiMarkerColor = this.availablePoiMarkerColors[0] || null;
     this.selectedPoiSymbolColor = this.availablePoiMarkerColors[1] || null;
     this.selectedLoiDashArrayObject = this.availableLoiDashArrayObjects[0] || null;
+    this.syncLinePatternOptionsAndSelection();
     this.loiColor = '#bf3d2c';
     this.loiWidth = 3;
     this.aoiColor = '#bf3d2c';
@@ -1702,7 +1739,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       postBody["poiMarkerStyle"] = null;
       postBody["poiMarkerText"] = null;
 
-      postBody["loiDashArrayString"] = (this.selectedLoiDashArrayObject as any)?.dashArrayValue || '';
+      postBody["loiDashArrayString"] = (this.selectedLoiDashArrayObject as any)?.dashArrayValue || this.selectedLoiPattern?.dashArrayValue || '';
       postBody["loiColor"] = this.loiColor;
       postBody["loiWidth"] = this.loiWidth;
 

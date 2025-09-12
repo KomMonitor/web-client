@@ -166,15 +166,12 @@
           <div *ngIf="georesourceType === 'loi'" class="row vertical-align">
             <div class="col-md-4 col-sm-4 col-xs-12">
               <div class="form-group" align="center">
-                <label>Linienfarbe*</label>
-                <div id="loiColorPicker" class="input-group" style="width: 50px;">
-                  <input type="text" style="display:none;" class="form-control input-sm"
-                    [(ngModel)]="loiColor" name="loiColor" placeholder="Line of Interest Farbauswahl"
-                    value="#bf3d2c" required />
-                  <span title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"><i></i></span>
-                </div>
+                <label>Linienfarbe*</label> <br/>
+                <km-color-picker
+                  [color]="loiColor"
+                  (colorChange)="loiColor = $event"
+                  [label]="'Linienfarbe wählen'"
+                ></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -189,23 +186,14 @@
             <div class="col-md-4 col-sm-4 col-xs-12">
               <div class="form-group" align="center">
                 <label>Linienmuster*</label>
-                <div class="dropdown">
-                  <button type="button" width="200px" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div id="loiDashArrayDropdownButton_addGeoresource">
-                      {{selectedLoiDashArrayObject?.displayName}}
-                    </div> <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let loiDashArrayObject of availableLoiDashArrayObjects; let i = index" (click)="onChangeLoiDashArray(loiDashArrayObject, $event)">
-                      <span>
-                        <div id="loiDashArrayDropdownItem-{{i}}">
-                          {{loiDashArrayObject.displayName}}
-                        </div>
-                      </span>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
+                <km-line-pattern-picker
+                  [label]="''"
+                  [options]="linePatternOptions"
+                  [selectedPattern]="selectedLoiPattern"
+                  (selectionChange)="onChangeLoiDashArray($event)"
+                  [width]="'200px'"
+                ></km-line-pattern-picker>
+                <div class="help-block with-errors"></div>
               </div>
             </div>
           </div>
@@ -213,15 +201,12 @@
           <div *ngIf="georesourceType === 'aoi'" class="row vertical-align">
             <div class="col-md-12 col-sm-12 col-xs-12">
               <div class="form-group" align="center">
-                <label>Objektfarbe*</label>
-                <div id="aoiColorPicker" class="input-group" style="width: 50px;">
-                  <input type="text" style="display:none;" class="form-control input-sm"
-                    [(ngModel)]="aoiColor" name="aoiColor" placeholder="Area of Interest Farbauswahl"
-                    value="#bf3d2c" required />
-                  <span title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"><i></i></span>
-                </div>
+                <label>Objektfarbe*</label> <br/>
+                <km-color-picker
+                  [color]="aoiColor"
+                  (colorChange)="aoiColor = $event"
+                  [label]="'Objektfarbe wählen'"
+                ></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -275,7 +260,7 @@
               <div class="form-group">
                 <label>Aktualisierungszyklus*</label>
                 <select [(ngModel)]="metadata.updateInterval" name="metadataUpdateInterval" class="form-control" required>
-                  <option disabled selected value> -- Aktualisierungszyklus wählen -- </option>
+                  <option [ngValue]="null" disabled selected> -- Aktualisierungszyklus wählen -- </option>
                   <option *ngFor="let interval of updateIntervalOptions" [ngValue]="interval">{{interval.displayName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -332,7 +317,7 @@
                   <span class="glyphicon glyphicon-refresh icon-spin"></span> Lade Themen...
                 </div>
                 <select *ngIf="!loadingTopics" [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" required>
-                  <option disabled selected value> -- Hauptthema wählen -- </option>
+                  <option [ngValue]="null" disabled selected> -- Hauptthema wählen -- </option>
                   <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">
                     {{mainTopic.topicName || mainTopic.name || 'Unnamed Topic'}}
                   </option>
