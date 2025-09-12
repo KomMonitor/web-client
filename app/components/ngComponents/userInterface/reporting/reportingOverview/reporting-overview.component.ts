@@ -110,6 +110,9 @@ export class ReportingOverviewComponent implements OnInit {
         case 'reportingIndicatorConfigurationCompleted' : {
           this.reportingIndicatorConfigurationCompleted(values);
         } break;
+        case 'reportingPoiLayerConfigurationCompleted' : {
+          this.reportingPoiLayerConfigurationCompleted(values);
+        } break;
         case 'reportGenerationInProgress': {
           this.loadingData = true;
         } break;
@@ -323,11 +326,12 @@ export class ReportingOverviewComponent implements OnInit {
 			this.setupNewPages(this.config.templateSections.at(-1));
 		}
 
-	/* 	$on("reportingPoiLayerConfigurationCompleted", function(event, data) {
-			this.loadingData = true;
-			// add indicator to 'added indicators'
-			let [poiLayer, indicator, template] = data;
+		reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template]) {
 
+      this.loadingData = true;
+      this.config.template = template;
+
+			// add indicator to 'added indicators'
 			let templateSection = {
 				indicatorName: indicator ? indicator.indicatorName : "",
 				indicatorId: indicator ? indicator.indicatorId : "",
@@ -358,7 +362,7 @@ export class ReportingOverviewComponent implements OnInit {
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
 			this.setupNewPages(this.config.templateSections.at(-1));
-		}); */
+		}
 
 		removeTemplateSection(idx) {
      
@@ -500,6 +504,7 @@ export class ReportingOverviewComponent implements OnInit {
                 let instance = echarts.init( pElementDom );
 
 
+                console.log("FEHLER?! GUCKSTU HIER!")
                 // todo 
                 // not necessary in v4 anymore?! works even without, creates error if active
                /*  if(pageElement.type === "map") {	
@@ -612,14 +617,14 @@ export class ReportingOverviewComponent implements OnInit {
 
         this.loadingData = false;
       } else {					
-        this.handleSetupNewPagesForReachability(templateSection)
+        await this.handleSetupNewPagesForReachability(templateSection)
       }
 		}
 
 		
     // async
 		async handleSetupNewPagesForReachability(templateSection) {
-			/* let poiLayerName = templateSection.poiLayerName;
+			let poiLayerName = templateSection.poiLayerName;
 			let spatialUnit, featureCollection, features, geoJSON, indicatorId;
 			// if indicator was chosen
 			if( templateSection.indicatorId) {
@@ -656,13 +661,13 @@ export class ReportingOverviewComponent implements OnInit {
 					continue; // only do changes to new pages
 				}
 
-				setTimeout(async function(){
-					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+				setTimeout(async () => {
+					let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
 					for(let pageElement of page.pageElements) {
 						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 
 						if(pageElement.type === "map") {
-							let instance = echarts.init( pElementDom );
+							 let instance = echarts.init( pElementDom );
 
 							for(let series of pageElement.echartsOptions.series) {
 
@@ -672,8 +677,8 @@ export class ReportingOverviewComponent implements OnInit {
 								series.bottom = 0;
 								// series.boundingCoords = newBounds,
 								series.projection = {
-									project: (point) => mercatorProjection_d3(point),
-									unproject: (point) => mercatorProjection_d3.invert(point)
+									project: (point) => this.mercatorProjection_d3(point),
+									unproject: (point) => this.mercatorProjection_d3.invert(point)
 								}
 							}
 			
@@ -683,15 +688,15 @@ export class ReportingOverviewComponent implements OnInit {
 								pageElement.echartsOptions.geo[0].right = 0;
 								pageElement.echartsOptions.geo[0].bottom = 0;
 								pageElement.echartsOptions.geo[0].projection = {
-									project: (point) => mercatorProjection_d3(point),
-									unproject: (point) => mercatorProjection_d3.invert(point)
+									project: (point) => this.mercatorProjection_d3(point),
+									unproject: (point) => this.mercatorProjection_d3.invert(point)
 								}				
 								// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
 							}
 
 							if(page.area && page.area.length) {
 								// at this point we have not yet set echarts options, so we provide them as an extra parameter
-								this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+								//this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
 							} else {
 								// recreate label positions
 								pageElement.echartsOptions.labelLayout = function(feature) {
@@ -725,23 +730,14 @@ export class ReportingOverviewComponent implements OnInit {
 					// if the last page is reached and full prepared we want to show that to the user
 					// wait additionally for 500 ms
 					this.pagePreparationIndex = idx;
-					setTimeout(function(){
-						this.$digest();
-					});
 
 					if (idx == this.pagePreparationSize - 1) {
 						this.lastPageOfAddedSectionPrepared = true;
-						setTimeout(function () {
-							this.$digest();
-						}, 1000);
 					}
 				})
 
 			}
 			this.loadingData = false;
-			setTimeout(function(){
-				this.$digest();
-			});*/
 		}
 
     /* $rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
@@ -831,12 +827,10 @@ export class ReportingOverviewComponent implements OnInit {
 						legendDiv.style.zIndex = 800;
 						let isochronesRangeType = page.templateSection.isochronesRangeType;
 						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-						let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						/* let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
 						legendDiv.appendChild(legendImg);
-						pageElementDom.appendChild(legendDiv)
+						pageElementDom.appendChild(legendDiv) */
 					}
-
-					
 
 					// we have the bbox stored in config
 					// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
@@ -867,8 +861,6 @@ export class ReportingOverviewComponent implements OnInit {
 
 					let bounds = leafletMap.getBounds()
 					
-				
-
 					if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
 						// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
 						// hence, simply use current echarts extent				
@@ -905,7 +897,6 @@ export class ReportingOverviewComponent implements OnInit {
 					echartsMap.setOption(echartsOptions, {
 						notMerge: false
 					});	
-					
 
 					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
 					page.spatialUnitId = spatialUnit.spatialUnitId;			
@@ -958,32 +949,36 @@ export class ReportingOverviewComponent implements OnInit {
 					//let isochronesLayer = L.geoJSON( this.isochrones.features )
 					//isochronesLayer.addTo(leafletMap);
 				} catch (error) {
+          console.log("df")
 					console.error(error)
 				}				
 		}
 
     //async
-		getSpatialUnitByName(spatialUnitName) {
+		getSpatialUnitByName(spatialUnitName): Promise<any> {
 			let url;
 			url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units"
 			// send request
-		/* 	return await $http({
-				url: url,
-				method: "GET"
-			}).then(function successCallback(response) {
-				let spatialUnit = response.data.filter( el => {
-					return el.spatialUnitLevel === spatialUnitName;
-				})
 
-				if(spatialUnit.length === 1)
-				return spatialUnit[0]
-			}, function errorCallback(error) {
-				// called asynchronously if an error occurs
-				// or server returns response with an error status.
-				this.loadingData = false;
-				this.dataExchangeService.displayMapApplicationError(error);
-				console.error(error);
-			}); */
+      return new Promise(resolve => {
+        this.http.get(url).subscribe({
+          next: (response:any) => {
+            let spatialUnit = response.filter( el => {
+              return el.spatialUnitLevel === spatialUnitName;
+            })
+
+            if(spatialUnit.length === 1)
+              resolve(spatialUnit[0]);
+          },
+          error: error => {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            this.loadingData = false;
+            this.dataExchangeService.displayMapApplicationError(error);
+            console.error(error);
+          }
+        });
+      });
 		}
 
     // async
