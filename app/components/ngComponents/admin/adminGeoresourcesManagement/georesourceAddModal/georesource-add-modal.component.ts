@@ -14,6 +14,7 @@ import { IconPickerComponent } from 'components/ngComponents/customElements/icon
 import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
 import { KmLinePatternPickerComponent, LinePatternOption } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 
 @Component({
   selector: 'georesource-add-modal-new',
@@ -21,7 +22,7 @@ import { KmColorPickerComponent } from 'components/ngComponents/customElements/c
   styleUrls: ['./georesource-add-modal.component.css'],
   providers: [],
   standalone: true,
-  imports: [CommonModule, FormsModule, IconPickerComponent, AgGridAngular, KmDatePickerComponent, KmLinePatternPickerComponent, KmColorPickerComponent],
+  imports: [CommonModule, FormsModule, IconPickerComponent, AgGridAngular, KmDatePickerComponent, KmLinePatternPickerComponent, KmColorPickerComponent, AdminTopicsManagementComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class GeoresourceAddModalComponent implements OnInit {
@@ -107,6 +108,11 @@ export class GeoresourceAddModalComponent implements OnInit {
   
   // Loading states
   loadingTopics = false;
+  loadingAccessControl = false;
+
+  get isModalLoading(): boolean {
+    return this.loadingData || this.loadingTopics || this.loadingAccessControl;
+  }
 
   // Importer functionality
   converter: any = null;
@@ -392,13 +398,21 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Initialize resources creator rights (for non-admin users)
   private async initializeResourcesCreatorRights() {
     try {
+      this.loadingAccessControl = true;
       // Try to load real access control data first
       await this.reloadAccessControlData();
+      console.log('[GeoresourceAddModal] Access control data loaded:', {
+        accessControlLength: this.kommonitorDataExchangeService.accessControl?.length || 0,
+        resourcesCreatorRightsLength: this.resourcesCreatorRights?.length || 0,
+        isAdmin: this.kommonitorDataExchangeService.checkAdminPermission()
+      });
     } catch (error) {
       console.warn('Failed to load access control data:', error);
       // Do not inject test data; keep empty to avoid showing fake organizations
       this.resourcesCreatorRights = [];
       this.filteredOrganizations = [];
+    } finally {
+      this.loadingAccessControl = false;
     }
     
     // Initialize the role management table options with transformed data
@@ -876,13 +890,16 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Method to manually reload access control data
   async reloadAccessControlData() {
     try {
+      this.loadingAccessControl = true;
       // Try to fetch from API first
       await this.kommonitorDataExchangeService.fetchAccessControlMetadata();
       
       // Reload access control from service
       if (this.kommonitorDataExchangeService.accessControl) {
+        console.log('[GeoresourceAddModal] Raw access control data:', this.kommonitorDataExchangeService.accessControl);
         // Transform API data to match the expected structure for the grid
         const transformedData = this.transformAccessControlData(this.kommonitorDataExchangeService.accessControl);
+        console.log('[GeoresourceAddModal] Transformed data:', transformedData);
         
         // Update local references
         this.resourcesCreatorRights = transformedData;
@@ -895,6 +912,8 @@ export class GeoresourceAddModalComponent implements OnInit {
       // Do not inject test data; keep empty to avoid showing fake organizations
       this.resourcesCreatorRights = [];
       this.filteredOrganizations = [];
+    } finally {
+      this.loadingAccessControl = false;
     }
   }
 
