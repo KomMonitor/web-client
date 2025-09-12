@@ -37,49 +37,82 @@
 
 /* Progress bar */
 #progressbar {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   overflow: hidden;
-  color: lightgrey;
-  padding-left: 0;
+  /*CSS counters to number the steps*/
+  counter-reset: step;
+  /* z-index: 10000; */
 }
 
 #progressbar li {
   list-style-type: none;
-  font-size: 12px;
-  width: 33.33%;
+  color: black;
+  text-transform: uppercase;
+  font-size: 9px;
+  /* width: 33.33%; */
   float: left;
   position: relative;
-  font-weight: 400;
+  letter-spacing: 1px;
+  /* transform-style: preserve-3d; */
+  /* z-index: 1; */
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#progressbar li:hover {
-  color: #27AE60;
-}
-
-#progressbar li:hover:before {
-  background: #27AE60;
-  transform: scale(1.1);
 }
 
 #progressbar li:before {
-  width: 30px;
-  height: 30px;
-  line-height: 25px;
+  content: counter(step);
+  counter-increment: step;
+  width: 24px;
+  height: 24px;
+  line-height: 26px;
   display: block;
   font-size: 12px;
-  color: #ffffff;
-  background: lightgray;
-  border-radius: 50%;
-  margin: 0 auto 5px auto;
-  padding: 2px;
-  transition: all 0.3s ease;
+  color: #333;
+  background: #cccc;
+  border-radius: 25px;
+  margin: 0 auto 10px auto;
+  transform: translateZ(-1px);
+  /* z-index: +1; */
 }
 
-#progressbar li.active:before,
-#progressbar li.active:after {
-  background: #27AE60;
+/*progressbar connectors*/
+#progressbar li:after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: #cccc;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  /*put it behind the numbers */
+  z-index: -1; 
+  /* transform: translateZ(-2px); */
+}
+
+#progressbar li:first-child:after {
+  /*connector not needed before the first step*/
+  content: none;
+}
+
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+#progressbar li.active:before, #progressbar li.active:after {
+  background: var(--kommonitor-primary);
+  color: white;
+}
+
+/* Clickable step styling */
+#progressbar li.clickable {
+  cursor: pointer;
+}
+
+#progressbar li.clickable:hover {
+  color: var(--kommonitor-primary);
+}
+
+#progressbar li.clickable:hover:before {
+  background: var(--kommonitor-primary);
+  color: white;
+  transform: scale(1.1);
 }
 
 /* Action buttons */

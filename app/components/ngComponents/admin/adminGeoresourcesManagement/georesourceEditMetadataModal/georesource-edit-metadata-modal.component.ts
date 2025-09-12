@@ -1,4 +1,6 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -6,19 +8,35 @@ import { Subscription } from 'rxjs';
 import { KommonitorGeoresourceDataExchangeService } from 'services/adminGeoresourceUnit/kommonitor-data-exchange.service';
 import { KommonitorMultiStepFormHelperService } from 'services/adminGeoresourceUnit/kommonitor-multi-step-form-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from 'services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
+import { IconPickerComponent } from 'components/ngComponents/customElements/icon-picker/icon-picker.component';
+import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { KmLinePatternPickerComponent, LinePatternOption } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
 
 @Component({
   selector: 'georesource-edit-metadata-modal-new',
+  standalone: true,
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.css'],
-  providers: []
+  providers: [],
+  imports: [CommonModule, FormsModule, IconPickerComponent, KmDatePickerComponent, AdminTopicsManagementComponent, KmLinePatternPickerComponent, KmColorPickerComponent]
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Component state
   loadingData = false;
-  currentGeoresourceDataset: any;
+  private _currentGeoresourceDataset: any;
+  get currentGeoresourceDataset(): any { return this._currentGeoresourceDataset; }
+  set currentGeoresourceDataset(value: any) {
+    this._currentGeoresourceDataset = value;
+    if (value) {
+      // Ensure form is populated whenever dataset is assigned programmatically or via broadcast
+      this.resetGeoresourceEditMetadataForm();
+      this.kommonitorMultiStepFormHelperService.registerClickHandler();
+    }
+  }
   currentStep = 1;
 
   // Form data
@@ -54,6 +72,8 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // LOI specific
   selectedLoiDashArrayObject: any;
+  selectedLoiPattern: LinePatternOption | null = null;
+  linePatternOptions: LinePatternOption[] = [];
   loiColor: string = '#bf3d2c';
   loiWidth: number = 3;
 
@@ -65,6 +85,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   georesourceTopic_subTopic: any;
   georesourceTopic_subsubTopic: any;
   georesourceTopic_subsubsubTopic: any;
+  mainTopicsForGeoresource: any[] = [];
+  private topicsLoaded = false;
+  private topicsLoading = false;
 
   // Role management
   roleManagementTableOptions: any;
@@ -144,22 +167,22 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   ngOnInit(): void {
     this.setupEventListeners();
     this.initializeMetadataStructure();
+    // React to role changes and load topics once available
+    const rolesSub = this.kommonitorDataExchangeService.currentRoles$.subscribe(() => {
+      if (!this.topicsLoaded && !this.topicsLoading) {
+        this.loadTopicsData();
+      }
+    });
+    this.subscriptions.push(rolesSub);
+    // Try an initial load in case roles are already set
     this.loadTopicsData();
+    this.updateMainTopicsForGeoresource();
     
-    // Add click outside handler for dropdown
-    document.addEventListener('click', this.onDocumentClick.bind(this));
     
-    // Initialize icon picker
-    setTimeout(() => {
-      this.initializeIconPicker();
-    }, 500);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
-    
-    // Remove document click listener
-    document.removeEventListener('click', this.onDocumentClick.bind(this));
   }
 
   /**
@@ -167,20 +190,21 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
    */
   private async loadTopicsData(): Promise<void> {
     try {
-      console.log('Loading topics data...');
-      const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles;
-      console.log('Current roles:', roles);
-      
-      if (roles && roles.length > 0) {
-        console.log('Fetching topics metadata...');
-        const topics = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
-        console.log('Topics fetched:', topics);
-        console.log('Available topics after fetch:', this.kommonitorDataExchangeService.availableTopics);
-      } else {
-        console.warn('No roles available for topics loading');
+      if (this.topicsLoaded || this.topicsLoading) { return; }
+      this.topicsLoading = true;
+      const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
+      const topics = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
+      this.updateMainTopicsForGeoresource();
+      // If a dataset is already selected, set its topic selection now
+      if (this.currentGeoresourceDataset?.topicReference) {
+        this.applyTopicSelectionFromDataset();
       }
+      this.topicsLoaded = true;
     } catch (error) {
       console.warn('Could not load topics data:', error);
+    }
+    finally {
+      this.topicsLoading = false;
     }
   }
 
@@ -198,7 +222,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     console.log('=== Topics Debug Info ===');
     console.log('Available topics:', this.kommonitorDataExchangeService.availableTopics);
     console.log('Topics length:', this.kommonitorDataExchangeService.availableTopics?.length);
-    console.log('Main topics for georesource:', this.getMainTopicsForGeoresource());
+    console.log('Main topics for georesource:', this.mainTopicsForGeoresource);
     console.log('Current main topic:', this.georesourceTopic_mainTopic);
     console.log('Current sub topic:', this.georesourceTopic_subTopic);
     console.log('Current subsub topic:', this.georesourceTopic_subsubTopic);
@@ -217,6 +241,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.length > 0) {
       this.selectedLoiDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
     }
+    this.syncLinePatternOptionsAndSelection();
   }
 
   private initializeMetadataStructure(): void {
@@ -255,9 +280,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     // Listen for edit georesource metadata event
     const editSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === 'onEditGeoresourceMetadata') {
-        this.currentGeoresourceDataset = data.georesourceDataset;
-        this.resetGeoresourceEditMetadataForm();
-        this.kommonitorMultiStepFormHelperService.registerClickHandler();
+        // Align with BroadcastService signature { msg, values }
+        const payload = (data && (data.values ?? data.georesourceDataset)) || null;
+        if (payload) {
+          this.currentGeoresourceDataset = payload;
+        }
       }
     });
     this.subscriptions.push(editSub);
@@ -355,30 +382,16 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         }
       });
     }
+    this.syncLinePatternOptionsAndSelection();
 
     this.loiColor = this.currentGeoresourceDataset.loiColor || '#bf3d2c';
     this.loiWidth = this.currentGeoresourceDataset.loiWidth || 3;
     this.aoiColor = this.currentGeoresourceDataset.aoiColor || '#bf3d2c';
     this.selectedPoiIconName = this.currentGeoresourceDataset.poiSymbolBootstrap3Name || 'home';
 
-    // Set topic hierarchy
-    if (this.kommonitorDataExchangeService.getTopicHierarchyForTopicId) {
-      const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-        this.currentGeoresourceDataset.topicReference
-      );
-
-      if (topicHierarchy && topicHierarchy[0]) {
-        this.georesourceTopic_mainTopic = topicHierarchy[0];
-      }
-      if (topicHierarchy && topicHierarchy[1]) {
-        this.georesourceTopic_subTopic = topicHierarchy[1];
-      }
-      if (topicHierarchy && topicHierarchy[2]) {
-        this.georesourceTopic_subsubTopic = topicHierarchy[2];
-      }
-      if (topicHierarchy && topicHierarchy[3]) {
-        this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
-      }
+    // Set topic hierarchy if topics are already loaded, otherwise defer until after load
+    if (this.topicsLoaded) {
+      this.applyTopicSelectionFromDataset();
     }
 
     // Reset messages
@@ -388,7 +401,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     // Initialize date picker
     setTimeout(() => {
       this.initializeDatePickers();
-      this.initializeIconPicker();
     }, 250);
   }
 
@@ -410,35 +422,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         (window as any).$('#aoiColorEditPicker').colorpicker('setValue', this.aoiColor);
       }
 
-      // Initialize icon picker
-      const iconPicker = document.getElementById('poiSymbolEditPicker');
-      if (iconPicker && (window as any).$) {
-        const iconPickerOptions = {
-          align: 'center',
-          arrowClass: 'btn-default',
-          arrowPrevIconClass: 'fas fa-angle-left',
-          arrowNextIconClass: 'fas fa-angle-right',
-          cols: 10,
-          footer: true,
-          header: true,
-          icon: 'glyphicon-' + this.selectedPoiIconName,
-          iconset: 'glyphicon',
-          labelHeader: '{0} von {1} Seiten',
-          labelFooter: '{0} - {1} von {2} Icons',
-          placement: 'bottom',
-          rows: 6,
-          search: true,
-          searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-          selectedClass: 'btn-success',
-          unselectedClass: ''
-        };
-
-        (window as any).$('#poiSymbolEditPicker').iconpicker(iconPickerOptions);
-        (window as any).$('#poiSymbolEditPicker').on('change', (e: any) => {
-          this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
-        });
-        (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-      }
 
       // Initialize LOI dash array dropdown
       setTimeout(() => {
@@ -498,20 +481,46 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   onChangeMarkerStyle(style: string): void {
     this.selectedPoiMarkerStyle = style;
-    // Reinitialize icon picker if switching to symbol mode
-    if (style === 'symbol') {
-      setTimeout(() => {
-        this.initializeIconPicker();
-      }, 100);
-    }
+  }
+
+  onIconSelect(iconName: string): void {
+    this.selectedPoiIconName = iconName;
   }
 
   // LOI methods
-  onChangeLoiDashArray(loiDashArrayObject: any): void {
-    this.selectedLoiDashArrayObject = loiDashArrayObject;
-    const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
-    if (buttonElement) {
-      buttonElement.innerHTML = loiDashArrayObject.svgString;
+  onChangeLoiDashArray(loiDashArrayObjectOrPattern: any): void {
+    const dash = loiDashArrayObjectOrPattern?.dashArrayValue;
+    if (dash) {
+      // Update selected pattern for the picker
+      this.selectedLoiPattern = this.linePatternOptions.find(p => p.dashArrayValue === dash) || null;
+      // Update legacy selected object from service list
+      const svcObj = (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).find((o: any) => o?.dashArrayValue === dash);
+      this.selectedLoiDashArrayObject = svcObj || loiDashArrayObjectOrPattern;
+      const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
+      if (buttonElement && (svcObj?.svgString || this.selectedLoiPattern?.svgString)) {
+        buttonElement.innerHTML = (svcObj?.svgString || this.selectedLoiPattern?.svgString) as string;
+      }
+    }
+  }
+
+  private syncLinePatternOptionsAndSelection(): void {
+    // Map available LOI patterns to LinePatternOption[] for the picker
+    const src = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    this.linePatternOptions = src.map((o: any) => {
+      const display = o?.displayName || o?.dashArrayValue || '';
+      const dash = o?.dashArrayValue || '';
+      const svg = o?.svgString || `
+        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="20" viewBox="0 0 180 20">
+          <line x1="5" y1="10" x2="175" y2="10" stroke="#333" stroke-width="3" stroke-dasharray="${dash}" stroke-linecap="butt"/>
+        </svg>
+      `;
+      return { label: display, dashArrayValue: dash, svgString: svg } as LinePatternOption;
+    });
+    if (this.selectedLoiDashArrayObject) {
+      const dashSel = this.selectedLoiDashArrayObject.dashArrayValue;
+      this.selectedLoiPattern = this.linePatternOptions.find(p => p.dashArrayValue === dashSel) || null;
+    } else {
+      this.selectedLoiPattern = null;
     }
   }
 
@@ -704,7 +713,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       metadataExport.poiSymbolBootstrap3Name = '';
       metadataExport.poiSymbolColor = '';
       metadataExport.poiMarkerColor = '';
-      metadataExport.loiDashArrayString = this.selectedLoiDashArrayObject.dashArrayValue;
+      metadataExport.loiDashArrayString = (this.selectedLoiDashArrayObject?.dashArrayValue) || (this.selectedLoiPattern?.dashArrayValue) || '';
       metadataExport.loiColor = this.loiColor;
       metadataExport.loiWidth = this.loiWidth;
       metadataExport.aoiColor = '';
@@ -812,7 +821,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       patchBody.poiSymbolBootstrap3Name = null;
       patchBody.poiSymbolColor = null;
       patchBody.poiMarkerColor = null;
-      patchBody.loiDashArrayString = this.selectedLoiDashArrayObject.dashArrayValue;
+      patchBody.loiDashArrayString = (this.selectedLoiDashArrayObject?.dashArrayValue) || (this.selectedLoiPattern?.dashArrayValue) || '';
       patchBody.loiColor = this.loiColor;
       patchBody.loiWidth = this.loiWidth;
       patchBody.aoiColor = null;
@@ -910,37 +919,44 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
   }
 
-  // Get filtered topics for georesource
-  getMainTopicsForGeoresource(): any[] {
-    console.log('getMainTopicsForGeoresource called');
-    console.log('Available topics:', this.kommonitorDataExchangeService.availableTopics);
-    
-    if (this.kommonitorDataExchangeService.availableTopics) {
-      // First, try the exact AngularJS filter
-      let filtered = this.kommonitorDataExchangeService.availableTopics.filter((topic: any) => {
-        return topic.topicType === 'main' && topic.topicResource === 'georesource';
-      });
-      
-      console.log('Filtered by topicType and topicResource:', filtered);
-      
-      // If no results, try alternative filtering approaches
-      if (filtered.length === 0) {
-        // Try filtering by topicType only
-        filtered = this.kommonitorDataExchangeService.availableTopics.filter((topic: any) => topic.topicType === 'main');
-        console.log('Filtered by topicType only:', filtered);
-        
-        if (filtered.length === 0) {
-          // If still no results, show all topics that have subTopics (likely main topics)
-          filtered = this.kommonitorDataExchangeService.availableTopics.filter((topic: any) => topic.subTopics && Array.isArray(topic.subTopics));
-          console.log('Filtered by subTopics:', filtered);
-        }
-      }
-      
-      console.log('Final filtered topics:', filtered);
-      return filtered;
+  // Compute and cache filtered topics for georesource
+  private updateMainTopicsForGeoresource(): void {
+    const topics = this.kommonitorDataExchangeService.availableTopics;
+    if (!topics) {
+      this.mainTopicsForGeoresource = [];
+      return;
     }
-    console.log('No available topics found');
-    return [];
+    // Use all top-level topics as main topics and remove duplicates by topicId
+    const uniqueById: any[] = [];
+    const seen = new Set<string>();
+    for (const t of (Array.isArray(topics) ? topics : [])) {
+      const id = (t && (t.topicId || t.name || t.title)) as string;
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        uniqueById.push(t);
+      }
+    }
+    this.mainTopicsForGeoresource = uniqueById;
+  }
+
+  private applyTopicSelectionFromDataset(): void {
+    if (!this.currentGeoresourceDataset?.topicReference) { return; }
+    if (!this.kommonitorDataExchangeService.getTopicHierarchyForTopicId) { return; }
+    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
+      this.currentGeoresourceDataset.topicReference
+    );
+    if (topicHierarchy && topicHierarchy[0]) {
+      this.georesourceTopic_mainTopic = topicHierarchy[0];
+    }
+    if (topicHierarchy && topicHierarchy[1]) {
+      this.georesourceTopic_subTopic = topicHierarchy[1];
+    }
+    if (topicHierarchy && topicHierarchy[2]) {
+      this.georesourceTopic_subsubTopic = topicHierarchy[2];
+    }
+    if (topicHierarchy && topicHierarchy[3]) {
+      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+    }
   }
 
   // Validation for form submission
@@ -973,397 +989,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
   }
 
-  // Icon picker methods (from add modal)
-  
-  /**
-   * Initialize Bootstrap Icon Picker (based on AngularJS implementation)
-   */
-  private initializeIconPicker(): void {
-    // Wait for the DOM to be ready and ensure jQuery and iconpicker are available
-    const initIconPicker = () => {
-      const element = document.getElementById('poiSymbolEditPicker');
-      
-      if (!element) {
-        setTimeout(initIconPicker, 100);
-        return;
-      }
-      
-      if (!(window as any).$) {
-        return;
-      }
-      
-      if (!(window as any).$.fn?.iconpicker) {
-        return;
-      }
-      
-      try {
-        // Check if already initialized
-        const existingIconPicker = (window as any).$('#poiSymbolEditPicker').data('bs.iconpicker');
-        if (existingIconPicker) {
-          (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-          return;
-        }
-        
-        // Initialize Bootstrap Icon Picker with same options as AngularJS
-        const iconPickerOptions = {
-            align: 'center',
-            arrowClass: 'btn-default',
-            arrowPrevIconClass: 'fas fa-angle-left',
-            arrowNextIconClass: 'fas fa-angle-right',
-            cols: 10,
-            footer: true,
-            header: true,
-            icon: 'glyphicon-' + this.selectedPoiIconName,
-            iconset: 'glyphicon',
-            labelHeader: '{0} von {1} Seiten',
-            labelFooter: '{0} - {1} von {2} Icons',
-            placement: 'bottom',
-            rows: 6,
-            search: true,
-            searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-            selectedClass: 'btn-success',
-          unselectedClass: '',
-          container: 'body' // Ensure popover is appended to body
-        };
-        
-        const iconPickerElement = (window as any).$('#poiSymbolEditPicker');
-        iconPickerElement.iconpicker(iconPickerOptions);
-
-        // Handle icon selection change (same logic as AngularJS)
-        (window as any).$('#poiSymbolEditPicker').on('change', (e: any) => {
-          // Extract icon name from full class (e.g., "glyphicon-home" -> "home")
-          this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
-          this.cdr.detectChanges();
-        });
-
-        // Set initial icon (like AngularJS version)
-        (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-          
-      } catch (error) {
-        // Handle error silently
-      }
-    };
-    
-    // Start initialization with a delay to ensure DOM is ready
-    setTimeout(initIconPicker, 200);
-  }
-
-  onIconPickerClick(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Check if icon picker is initialized
-    if ((window as any).$ && (window as any).$('#poiSymbolEditPicker').length > 0) {
-      const iconPicker = (window as any).$('#poiSymbolEditPicker');
-      
-      if (iconPicker.data('bs.iconpicker')) {
-        // Try to trigger the icon picker popover directly
-        try {
-          // The icon picker should automatically show when clicked
-          // Let's try to trigger the click event on the button
-          iconPicker.trigger('click');
-        } catch (error) {
-          // Fallback: try manual popover creation
-          this.createManualIconPicker();
-        }
-        
-        // Add a small delay and check if popover is visible
-        setTimeout(() => {
-          const popover = document.querySelector('.iconpicker-popover');
-          if (!popover) {
-            this.createManualIconPicker();
-          }
-        }, 200);
-        
-      } else {
-        this.initializeIconPicker();
-      }
-    } else {
-      // jQuery not available, use manual picker
-      this.createManualIconPicker();
-    }
-  }
-
-  onDocumentClick(event: Event): void {
-    // Close manual icon picker if clicking outside
-    const target = event.target as HTMLElement;
-    if (!target.closest('.manual-icon-picker')) {
-      this.closeManualIconPicker();
-    }
-  }
-
-  /**
-   * Create a manual icon picker as fallback
-   */
-  private createManualIconPicker(): void {
-    
-    // Remove any existing manual icon picker
-    this.closeManualIconPicker();
-    
-    // Create popover container
-    const popover = document.createElement('div');
-    popover.className = 'manual-icon-picker popover bottom';
-    popover.style.cssText = `
-      position: absolute;
-      z-index: 9999999;
-      display: block;
-      max-width: 400px;
-      min-width: 300px;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    `;
-    
-    // Get button position and parent container for proper positioning
-    const button = document.getElementById('poiSymbolEditPicker');
-    const buttonParent = button?.parentElement;
-    const modalElement = document.querySelector('.modal');
-    
-    if (button && buttonParent) {
-      // Position relative to the button's parent container
-      const buttonRect = button.getBoundingClientRect();
-      const parentRect = buttonParent.getBoundingClientRect();
-      
-      // Calculate position relative to parent
-      const relativeLeft = buttonRect.left - parentRect.left;
-      const relativeTop = buttonRect.bottom - parentRect.top + 5;
-      
-      popover.style.left = relativeLeft + 'px';
-      popover.style.top = relativeTop + 'px';
-      
-      // Ensure it doesn't go outside parent bounds
-      const maxLeft = parentRect.width - 400; // 400px is max-width
-      if (relativeLeft > maxLeft) {
-        popover.style.left = maxLeft + 'px';
-      }
-      
-      // If it would go below parent, show above button instead
-      if (relativeTop + 300 > parentRect.height) { // 300px is approximate height
-        popover.style.top = (buttonRect.top - parentRect.top - 305) + 'px';
-      }
-      
-
-    } else if (button) {
-      // Fallback to viewport positioning if parent not found
-      const rect = button.getBoundingClientRect();
-      popover.style.position = 'fixed';
-      popover.style.left = rect.left + 'px';
-      popover.style.top = (rect.bottom + 5) + 'px';
-
-    }
-    
-
-    
-    // Create popover content
-    const content = document.createElement('div');
-    content.className = 'popover-content';
-    content.style.cssText = `
-      padding: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-    `;
-    
-    // Add search input
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.className = 'form-control';
-    searchInput.placeholder = 'Search icons...';
-    searchInput.style.marginBottom = '10px';
-    content.appendChild(searchInput);
-    
-    // Add icon grid
-    const iconGrid = document.createElement('div');
-    iconGrid.style.cssText = `
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 5px;
-    `;
-    
-    // Common glyphicon icons
-    const icons = ['home', 'star', 'heart', 'user', 'cog', 'search', 'plus', 'minus', 'check', 'remove', 'edit', 'eye', 'download', 'upload', 'folder', 'file'];
-    
-    icons.forEach(iconName => {
-      const iconButton = document.createElement('button');
-      iconButton.className = 'btn btn-default';
-      iconButton.style.cssText = `
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-      `;
-      iconButton.innerHTML = `<i class="glyphicon glyphicon-${iconName}"></i>`;
-      iconButton.title = iconName;
-      
-      iconButton.addEventListener('click', () => {
-        // Update the component property within NgZone
-        this.ngZone.run(() => {
-          this.selectedPoiIconName = iconName;
-          
-          // Update the Bootstrap Icon Picker (like AngularJS version)
-          if ((window as any).$ && (window as any).$('#poiSymbolEditPicker').length > 0) {
-            (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + iconName);
-          }
-          
-          // Force change detection
-          this.cdr.detectChanges();
-          
-          // Update the button display
-          this.updateIconPickerButtonDisplay(iconName);
-          
-          // Force another change detection cycle
-          setTimeout(() => {
-            this.ngZone.run(() => {
-              this.cdr.detectChanges();
-            });
-          }, 200);
-        });
-        
-        this.closeManualIconPicker();
-      });
-      
-      iconGrid.appendChild(iconButton);
-    });
-    
-    content.appendChild(iconGrid);
-    popover.appendChild(content);
-    
-    // Try to append to the button's parent container first for better positioning
-    if (buttonParent) {
-      buttonParent.appendChild(popover);
-    } else if (modalElement) {
-      modalElement.appendChild(popover);
-    } else {
-      // Fallback to body if neither found
-      document.body.appendChild(popover);
-    }
-    
-    // Add search functionality
-    searchInput.addEventListener('input', (e) => {
-      const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
-      const iconButtons = iconGrid.querySelectorAll('button');
-      iconButtons.forEach(button => {
-        const iconName = button.title.toLowerCase();
-        if (iconName.includes(searchTerm)) {
-          (button as HTMLElement).style.display = 'flex';
-        } else {
-          (button as HTMLElement).style.display = 'none';
-        }
-      });
-    });
-    
-
-    
-    // Add resize and scroll handlers to reposition if needed
-    const repositionHandler = () => {
-      const existingPicker = document.querySelector('.manual-icon-picker') as HTMLElement;
-      if (existingPicker && button && buttonParent) {
-        const buttonRect = button.getBoundingClientRect();
-        const parentRect = buttonParent.getBoundingClientRect();
-        
-        // Update position relative to button parent
-        const relativeLeft = buttonRect.left - parentRect.left;
-        const relativeTop = buttonRect.bottom - parentRect.top + 5;
-        
-        existingPicker.style.left = relativeLeft + 'px';
-        existingPicker.style.top = relativeTop + 'px';
-        
-        // Ensure it doesn't go outside parent bounds
-        const maxLeft = parentRect.width - 400;
-        if (relativeLeft > maxLeft) {
-          existingPicker.style.left = maxLeft + 'px';
-        }
-        
-        // If it would go below parent, show above button instead
-        if (relativeTop + 300 > parentRect.height) {
-          existingPicker.style.top = (buttonRect.top - parentRect.top - 305) + 'px';
-        }
-      }
-    };
-    
-    window.addEventListener('resize', repositionHandler);
-    window.addEventListener('scroll', repositionHandler);
-    
-    // Store the handler for cleanup
-    (popover as any)._repositionHandler = repositionHandler;
-  }
-
-  /**
-   * Update the icon picker button display
-   */
-  private updateIconPickerButtonDisplay(iconName: string): void {
-    const button = document.getElementById('poiSymbolEditPicker');
-    if (button) {
-      // Method 1: Try to update existing elements
-      const iconElement = button.querySelector('i.glyphicon');
-      if (iconElement) {
-        // Remove all existing glyphicon classes and add the new one
-        iconElement.className = `glyphicon glyphicon-${iconName}`;
-      }
-      
-      const textElement = button.querySelector('span');
-      if (textElement) {
-        textElement.textContent = iconName;
-      }
-      
-      // Method 2: Update data attributes
-      button.setAttribute('data-icon', `glyphicon-${iconName}`);
-      
-      // Method 3: Force a complete button rebuild if the above didn't work
-      if (!iconElement || !textElement) {
-        this.rebuildIconPickerButton(iconName);
-      }
-      
-      // Method 4: Try to trigger a click event to force Angular to re-render
-      setTimeout(() => {
-        button.click();
-        button.blur();
-      }, 50);
-    }
-  }
-
-  /**
-   * Rebuild the icon picker button content completely
-   */
-  private rebuildIconPickerButton(iconName: string): void {
-    const button = document.getElementById('poiSymbolEditPicker');
-    if (button) {
-      // Clear the button content
-      button.innerHTML = '';
-      
-      // Recreate the icon element
-      const iconElement = document.createElement('i');
-      iconElement.className = `glyphicon glyphicon-${iconName}`;
-      iconElement.style.fontSize = '16px';
-      
-      // Recreate the text element
-      const textElement = document.createElement('span');
-      textElement.textContent = iconName;
-      textElement.style.marginLeft = '5px';
-      
-      // Append the new elements
-      button.appendChild(iconElement);
-      button.appendChild(textElement);
-    }
-  }
-
-  /**
-   * Close manual icon picker
-   */
-  private closeManualIconPicker(): void {
-    const existingPicker = document.querySelector('.manual-icon-picker') as HTMLElement;
-    if (existingPicker) {
-      // Clean up event listeners
-      const repositionHandler = (existingPicker as any)._repositionHandler;
-      if (repositionHandler) {
-        window.removeEventListener('resize', repositionHandler);
-        window.removeEventListener('scroll', repositionHandler);
-      }
-      existingPicker.remove();
-    }
-  }
 
   // Modal control
   cancel(): void {
