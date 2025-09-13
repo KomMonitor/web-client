@@ -64,10 +64,6 @@
           </div>
 
           <div>
-            <div *ngIf="kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
-              <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
-              {{kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_success}}
-            </div>
             <div *ngIf="kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_failure" style="background-color: #E79595;">
               <b>Letztes gescheitertes Update eines Einzeleintrags</b>
               {{kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_failure}}

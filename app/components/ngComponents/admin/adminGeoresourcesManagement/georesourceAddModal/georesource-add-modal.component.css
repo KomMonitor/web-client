@@ -7,15 +7,23 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 9999;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 99999999; /* ensure above any popovers/dialog content */
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: all;
+  color: #2C3E50;
 }
 
 .loading-overlay-admin-panel.ng-hide {
   display: none !important;
+}
+
+/* Make sure the spinner is visible over the overlay */
+.loading-overlay-admin-panel .glyphicon {
+  font-size: 28px;
+  color: #2C3E50;
 }
 
 /* Multi-step form styles */

@@ -6,9 +6,12 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!isModalLoading" *ngIf="isModalLoading">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  <div class="loading-overlay-admin-panel" [class.ng-hide]="!isModalLoading" *ngIf="isModalLoading">
+    <div style="text-align:center;">
+      <span class="glyphicon glyphicon-refresh icon-spin" style="font-size: 24px;"></span>
+      <div style="margin-top: 8px; color: #333;">
+        {{ loadingTopics && loadingAccessControl ? 'Lade Themen und Organisationseinheiten...' : (loadingTopics ? 'Lade Themen...' : (loadingAccessControl ? 'Lade Organisationseinheiten...' : 'Bitte warten...')) }}
+      </div>
     </div>
   </div>
 
@@ -316,15 +319,12 @@
                 <div *ngIf="loadingTopics" class="text-center">
                   <span class="glyphicon glyphicon-refresh icon-spin"></span> Lade Themen...
                 </div>
-                <select *ngIf="!loadingTopics" [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" required>
+                <select *ngIf="!loadingTopics" [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" (ngModelChange)="onMainTopicChange()" required>
                   <option [ngValue]="null" disabled selected> -- Hauptthema wählen -- </option>
                   <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">
                     {{mainTopic.topicName || mainTopic.name || 'Unnamed Topic'}}
                   </option>
                 </select>
-                <div *ngIf="!loadingTopics && (!availableTopics || availableTopics.length === 0)" class="alert alert-warning">
-                  Keine Themen verfügbar. Bitte versuchen Sie es später erneut.
-                </div>
                 <div class="help-block with-errors"></div>
                 
 
@@ -333,7 +333,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="georesourceTopic_mainTopic?.subTopics?.length > 0" class="form-group">
                 <label>Unterthema - erste Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subTopic" name="georesourceTopic_subTopic" class="form-control">
+                <select [(ngModel)]="georesourceTopic_subTopic" name="georesourceTopic_subTopic" class="form-control" (ngModelChange)="onSubTopicChange()">
                   <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
                   <option *ngFor="let subTopic of georesourceTopic_mainTopic.subTopics" [ngValue]="subTopic">{{subTopic.topicName}}</option>
                 </select>
@@ -343,7 +343,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="georesourceTopic_subTopic?.subTopics?.length > 0" class="form-group">
                 <label>Unterthema - zweite Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subsubTopic" name="georesourceTopic_subsubTopic" class="form-control">
+                <select [(ngModel)]="georesourceTopic_subsubTopic" name="georesourceTopic_subsubTopic" class="form-control" (ngModelChange)="onSubSubTopicChange()">
                   <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
                   <option *ngFor="let subsubTopic of georesourceTopic_subTopic.subTopics" [ngValue]="subsubTopic">{{subsubTopic.topicName}}</option>
                 </select>
@@ -915,4 +915,4 @@
   <br/>
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
   <pre id="georesourcesAddMappingConfigPre" style="overflow:auto; max-height:500px;" [innerHTML]="georesourceMappingConfigStructure_pretty"></pre>
-</div> 
+</div>

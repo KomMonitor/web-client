@@ -40,6 +40,9 @@
 #progressbar {
   margin-bottom: 10px;
   overflow: hidden;
+  /* remove default list padding to avoid left offset */
+  padding-left: 0;
+  margin-left: 0;
   /* CSS counters to number the steps */
   counter-reset: step;
 }
@@ -49,12 +52,14 @@
   color: black;
   text-transform: uppercase;
   font-size: 9px;
-  /* width is set inline in template for 3 steps */
+  /* ensure equal spacing for 3 steps */
+  width: 33.33%;
   float: left;
   position: relative;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-align: center;
 }
 
 #progressbar li:before {
@@ -66,7 +71,7 @@
   display: block;
   font-size: 12px;
   color: #333;
-  background: #cccc;
+  background: #ccc;
   border-radius: 25px;
   margin: 0 auto 10px auto;
 }
@@ -76,7 +81,7 @@
   content: '';
   width: 100%;
   height: 2px;
-  background: #cccc;
+  background: #ccc;
   position: absolute;
   left: -50%;
   top: 9px;

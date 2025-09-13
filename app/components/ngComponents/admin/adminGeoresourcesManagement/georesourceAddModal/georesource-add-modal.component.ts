@@ -353,7 +353,8 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private async initializeForm(): Promise<void> {
-    // Initialize form with default values
+    // Initialize form with default values and show overlay while bootstrapping
+    this.loadingData = true;
     this.resetGeoresourceAddForm();
     
     // Ensure importer resources (converters, datasource types) are fetched before binding options
@@ -371,6 +372,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // Adjust total steps based on security settings
     this.totalSteps = this.kommonitorDataExchangeService.enableKeycloakSecurity ? 5 : 4;
+
+    // Initial load completed: hide overlay
+    this.loadingData = false;
   }
 
   private setupEventListeners(): void {
@@ -468,11 +472,17 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.loadingTopics = true;
       
       const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles;
-      const topics = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
+      const topicsResult = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
+      // Prefer the service cache after fetch (AngularJS relied on service.availableTopics which preserves hierarchy)
+      const topics = (this.kommonitorDataExchangeService as any).availableTopics && Array.isArray((this.kommonitorDataExchangeService as any).availableTopics)
+        ? (this.kommonitorDataExchangeService as any).availableTopics
+        : topicsResult;
       
       if (topics && Array.isArray(topics)) {
         // Filter topics to only show main topics for georesources (like AngularJS component)
         this.availableTopics = this.filterTopicsForGeoresources(topics);
+        // Normalize keys to ensure subtopic tree uses 'subTopics' recursively
+        this.availableTopics = this.normalizeTopics(this.availableTopics);
     
       } else {
         this.availableTopics = [];
@@ -507,6 +517,95 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
     
     return filtered;
+  }
+
+  // Normalize topic tree to always use 'subTopics' (maps 'subtopics' or 'children' etc.)
+  private normalizeTopics(topics: any[]): any[] {
+    return (topics || []).map(t => this.normalizeTopicNode(t));
+  }
+
+  private normalizeTopicNode(topic: any): any {
+    if (!topic || typeof topic !== 'object') { return topic; }
+    // Normalize label fallbacks (no changes applied to structure, just ensure presence for templates)
+    topic.topicName = topic.topicName || topic.name || topic.title || topic.label || topic.text || topic.topicname;
+    // Normalize child list
+    const children = topic.subTopics || topic.subtopics || topic.children || [];
+    topic.subTopics = Array.isArray(children) ? children.map((c: any) => this.normalizeTopicNode(c)) : [];
+    return topic;
+  }
+
+  // Called when the main topic changes to reset deeper selections and ensure normalization
+  onMainTopicChange(): void {
+    if (this.georesourceTopic_mainTopic) {
+      this.georesourceTopic_mainTopic = this.normalizeTopicNode(this.georesourceTopic_mainTopic);
+    }
+    this.georesourceTopic_subTopic = null;
+    this.georesourceTopic_subsubTopic = null;
+    this.georesourceTopic_subsubsubTopic = null;
+  }
+
+  onSubTopicChange(): void {
+    if (this.georesourceTopic_subTopic) {
+      this.georesourceTopic_subTopic = this.normalizeTopicNode(this.georesourceTopic_subTopic);
+    }
+    this.georesourceTopic_subsubTopic = null;
+    this.georesourceTopic_subsubsubTopic = null;
+  }
+
+  onSubSubTopicChange(): void {
+    if (this.georesourceTopic_subsubTopic) {
+      this.georesourceTopic_subsubTopic = this.normalizeTopicNode(this.georesourceTopic_subsubTopic);
+    }
+    this.georesourceTopic_subsubsubTopic = null;
+  }
+
+  /**
+   * Remove duplicates by displayed label (topicName/name), case-insensitive
+   */
+  private deduplicateTopicsByLabel(topics: any[]): any[] {
+    const map = new Map<string, any>();
+    for (const t of topics) {
+      const label = ((t?.topicName ?? t?.name ?? '') + '').trim().toLowerCase();
+      const fallback = ((t?.topicId ?? t?.id ?? '') + '').trim().toLowerCase();
+      const key = label || fallback;
+      if (!key) { continue; }
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const current = map.get(key);
+        const currChildren = Array.isArray(current?.subTopics) ? current.subTopics.length : 0;
+        const newChildren = Array.isArray(t?.subTopics) ? t.subTopics.length : 0;
+        const currHasId = !!(current?.topicId || current?.id);
+        const newHasId = !!(t?.topicId || t?.id);
+        // Prefer the entry that has subTopics, or more children; fallback to one that has an id
+        if (newChildren > currChildren || (!currHasId && newHasId)) {
+          map.set(key, t);
+        }
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  /**
+   * Remove duplicates by stable identifier (topicId | id | name fallback)
+   */
+  private deduplicateTopicsById(topics: any[]): any[] {
+    const map = new Map<string, any>();
+    for (const t of topics) {
+      const key = ((t?.topicId ?? t?.id ?? t?.name) + '').trim();
+      if (!key) { continue; }
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const current = map.get(key);
+        const currChildren = Array.isArray(current?.subTopics) ? current.subTopics.length : 0;
+        const newChildren = Array.isArray(t?.subTopics) ? t.subTopics.length : 0;
+        if (newChildren > currChildren) {
+          map.set(key, t);
+        }
+      }
+    }
+    return Array.from(map.values());
   }
 
 
