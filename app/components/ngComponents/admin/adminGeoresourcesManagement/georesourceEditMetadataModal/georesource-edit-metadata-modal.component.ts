@@ -394,14 +394,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       this.applyTopicSelectionFromDataset();
     }
 
-    // Reset messages
+    // Clear any existing alert messages
     this.successMessagePart = '';
     this.errorMessagePart = '';
-    
-    // Hide any existing alerts
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
-    this.hideMetadataErrorAlert();
+    this.georesourceMetadataImportError = '';
 
     // Initialize date picker
     setTimeout(() => {
@@ -867,7 +863,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { crudType: 'edit', targetGeoresourceId: this.currentGeoresourceDataset.georesourceId });
         console.log('Refresh broadcast sent');
         
-        this.showSuccessAlert();
+        // Success alert will be shown via *ngIf since successMessagePart is set
         this.loadingData = false;
         
         // Auto-hide success message after 5 seconds and close modal
@@ -896,56 +892,41 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
             ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error)
             : JSON.stringify(error, null, 2);
         }
-        this.showErrorAlert();
+        // Error alert will be shown via *ngIf since errorMessagePart is set
         this.loadingData = false;
       }
     });
   }
 
-  // Alert methods
+  // Alert methods - simplified since we now use *ngIf
   showSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
-    if (alertElement) {
-      alertElement.removeAttribute('hidden');
-      console.log('Success alert shown for:', this.successMessagePart);
-    } else {
-      console.error('Success alert element not found!');
-    }
+    // Alerts are now shown/hidden via *ngIf based on message content
+    console.log('Success alert should be visible for:', this.successMessagePart);
   }
 
   showErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
-    if (alertElement) {
-      alertElement.removeAttribute('hidden');
-    }
+    // Alerts are now shown/hidden via *ngIf based on message content
+    console.log('Error alert should be visible for:', this.errorMessagePart);
   }
 
   showMetadataImportErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
-    if (alertElement) {
-      alertElement.removeAttribute('hidden');
-    }
+    // Alerts are now shown/hidden via *ngIf based on message content
+    console.log('Metadata import error alert should be visible');
   }
 
   hideSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
-    if (alertElement) {
-      alertElement.setAttribute('hidden', '');
-    }
+    this.successMessagePart = '';
+    console.log('Success alert hidden');
   }
 
   hideErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
-    if (alertElement) {
-      alertElement.setAttribute('hidden', '');
-    }
+    this.errorMessagePart = '';
+    console.log('Error alert hidden');
   }
 
   hideMetadataErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
-    if (alertElement) {
-      alertElement.setAttribute('hidden', '');
-    }
+    this.georesourceMetadataImportError = '';
+    console.log('Metadata import error alert hidden');
   }
 
   // Compute and cache filtered topics for georesource
@@ -1098,10 +1079,4 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.activeModal.dismiss();
   }
 
-  // Debug method to test success alert
-  testSuccessAlert(): void {
-    this.successMessagePart = 'Test Dataset Name';
-    this.showSuccessAlert();
-    console.log('Test success alert triggered');
-  }
 } 

@@ -414,7 +414,9 @@
   <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditMetadataForm()">Zurücksetzen</button>
 </div>
 
-<div id="georesourceEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+<!-- Success Alert -->
+<div id="georesourceEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="successMessagePart" 
   class="alert alert-success alert-dismissable">
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-check"></i>Georessource aktualisiert</h4>
@@ -422,7 +424,9 @@
   die Übersichtstabelle eingetragen.
 </div>
 
-<div id="georesourceEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+<!-- Error Alert -->
+<div id="georesourceEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="errorMessagePart" 
   class="alert alert-danger alert-dismissable">
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
@@ -431,8 +435,10 @@
   <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
 </div>
 
-<div id="georesourceEditMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;"
-  hidden class="alert alert-danger alert-dismissable">
+<!-- Metadata Import Error Alert -->
+<div id="georesourceEditMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="georesourceMetadataImportError" 
+  class="alert alert-danger alert-dismissable">
   <button type="button" class="close" (click)="hideMetadataErrorAlert()"
     aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
