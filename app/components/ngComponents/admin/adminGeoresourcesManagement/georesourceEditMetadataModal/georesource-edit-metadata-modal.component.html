@@ -74,8 +74,8 @@
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
                     <li *ngFor="let markerColor of kommonitorDataExchangeService.availablePoiMarkerColors"
-                      (click)="onChangeMarkerColor(markerColor)">
-                      <a href=""><i [style.background]="markerColor.colorValue"></i>{{markerColor.colorName}}</a>
+                      (click)="onChangeMarkerColor(markerColor); $event.preventDefault(); $event.stopPropagation();">
+                      <span style="cursor: pointer; display: block; padding: 3px 20px;"><i [style.background]="markerColor.colorValue"></i>{{markerColor.colorName}}</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -91,11 +91,11 @@
                     {{selectedPoiMarkerStyle.charAt(0).toUpperCase() + selectedPoiMarkerStyle.slice(1)}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li (click)="onChangeMarkerStyle('symbol')">
-                      <a href="">Symbol</a>
+                    <li (click)="onChangeMarkerStyle('symbol'); $event.preventDefault(); $event.stopPropagation();">
+                      <span style="cursor: pointer; display: block; padding: 3px 20px;">Symbol</span>
                     </li>
-                    <li (click)="onChangeMarkerStyle('text')">
-                      <a href="">Text</a>
+                    <li (click)="onChangeMarkerStyle('text'); $event.preventDefault(); $event.stopPropagation();">
+                      <span style="cursor: pointer; display: block; padding: 3px 20px;">Text</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -147,9 +147,9 @@
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
                     <li *ngFor="let symbolColor of kommonitorDataExchangeService.availablePoiMarkerColors"
-                      (click)="onChangeSymbolColor(symbolColor)">
-                      <a href=""><i [style.background]="symbolColor.colorValue"></i>
-                        {{symbolColor.colorName}}</a>
+                      (click)="onChangeSymbolColor(symbolColor); $event.preventDefault(); $event.stopPropagation();">
+                      <span style="cursor: pointer; display: block; padding: 3px 20px;"><i [style.background]="symbolColor.colorValue"></i>
+                        {{symbolColor.colorName}}</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -315,7 +315,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Hauptthema*</label>
-                <select [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopicMain" class="form-control" required>
+                <select [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopicMain" class="form-control" (ngModelChange)="debugTopicsState()" required>
                   <option [ngValue]="null" disabled selected> -- Hauptthema wählen -- </option>
                   <option *ngFor="let mainTopic of mainTopicsForGeoresource" 
                     [ngValue]="mainTopic">{{mainTopic.name || mainTopic.title}}</option>

@@ -397,6 +397,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     // Reset messages
     this.successMessagePart = '';
     this.errorMessagePart = '';
+    
+    // Hide any existing alerts
+    this.hideSuccessAlert();
+    this.hideErrorAlert();
+    this.hideMetadataErrorAlert();
 
     // Initialize date picker
     setTimeout(() => {
@@ -784,84 +789,105 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // Main edit method
   editGeoresourceMetadata(): void {
+    // Set topic reference
+    let topicReference = '';
+    if (this.georesourceTopic_subsubsubTopic) {
+      topicReference = this.georesourceTopic_subsubsubTopic.topicId;
+    } else if (this.georesourceTopic_subsubTopic) {
+      topicReference = this.georesourceTopic_subsubTopic.topicId;
+    } else if (this.georesourceTopic_subTopic) {
+      topicReference = this.georesourceTopic_subTopic.topicId;
+    } else if (this.georesourceTopic_mainTopic) {
+      topicReference = this.georesourceTopic_mainTopic.topicId;
+    }
+
     const patchBody: any = {
       metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.toIsoDateString(this.metadata.lastUpdate),
-        description: this.metadata.description,
-        databasis: this.metadata.databasis
+        note: this.metadata.note || '',
+        literature: this.metadata.literature || '',
+        updateInterval: this.metadata.updateInterval?.apiName || '',
+        sridEPSG: this.metadata.sridEPSG || 4326,
+        datasource: this.metadata.datasource || '',
+        contact: this.metadata.contact || '',
+        lastUpdate: this.toIsoDateString(this.metadata.lastUpdate) || '',
+        description: this.metadata.description || '',
+        databasis: this.metadata.databasis || ''
       },
-      allowedRoles: [],
-      datasetName: this.datasetName,
+      datasetName: this.datasetName || '',
       isAOI: this.isAOI,
       isLOI: this.isLOI,
       isPOI: this.isPOI,
-      topicReference: null
+      topicReference: topicReference,
+      poiSymbolBootstrap3Name: null,
+      poiSymbolColor: null,
+      poiMarkerColor: null,
+      poiMarkerStyle: null,
+      poiMarkerText: null,
+      loiDashArrayString: null,
+      loiColor: null,
+      loiWidth: null,
+      aoiColor: null
     };
 
-    const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
-    for (const roleId of roleIds) {
-      patchBody.allowedRoles.push(roleId);
-    }
-
+    // Set georesource-specific fields based on type
     if (this.isPOI) {
-      patchBody.poiSymbolBootstrap3Name = this.selectedPoiIconName;
-      patchBody.poiSymbolColor = this.selectedPoiSymbolColor.colorName;
-      patchBody.poiMarkerColor = this.selectedPoiMarkerColor.colorName;
-      patchBody.loiDashArrayString = null;
-      patchBody.loiColor = null;
-      patchBody.loiWidth = null;
-      patchBody.aoiColor = null;
+      patchBody.poiSymbolBootstrap3Name = this.selectedPoiIconName || '';
+      patchBody.poiSymbolColor = this.selectedPoiSymbolColor?.colorName || '';
+      patchBody.poiMarkerColor = this.selectedPoiMarkerColor?.colorName || '';
+      patchBody.poiMarkerStyle = this.selectedPoiMarkerStyle || 'symbol';
+      patchBody.poiMarkerText = this.poiMarkerText || '';
     } else if (this.isLOI) {
-      patchBody.poiSymbolBootstrap3Name = null;
-      patchBody.poiSymbolColor = null;
-      patchBody.poiMarkerColor = null;
-      patchBody.loiDashArrayString = (this.selectedLoiDashArrayObject?.dashArrayValue) || (this.selectedLoiPattern?.dashArrayValue) || '';
-      patchBody.loiColor = this.loiColor;
-      patchBody.loiWidth = this.loiWidth;
-      patchBody.aoiColor = null;
+      patchBody.loiDashArrayString = (this.selectedLoiDashArrayObject?.dashArrayValue) || (this.selectedLoiPattern?.dashArrayValue) || null;
+      patchBody.loiColor = this.loiColor || null;
+      patchBody.loiWidth = this.loiWidth || null;
     } else if (this.isAOI) {
-      patchBody.poiSymbolBootstrap3Name = null;
-      patchBody.poiSymbolColor = null;
-      patchBody.poiMarkerColor = null;
-      patchBody.loiDashArrayString = null;
-      patchBody.loiColor = null;
-      patchBody.loiWidth = null;
-      patchBody.aoiColor = this.aoiColor;
+      patchBody.aoiColor = this.aoiColor || null;
     }
 
-    // Set topic reference
-    if (this.georesourceTopic_subsubsubTopic) {
-      patchBody.topicReference = this.georesourceTopic_subsubsubTopic.topicId;
-    } else if (this.georesourceTopic_subsubTopic) {
-      patchBody.topicReference = this.georesourceTopic_subsubTopic.topicId;
-    } else if (this.georesourceTopic_subTopic) {
-      patchBody.topicReference = this.georesourceTopic_subTopic.topicId;
-    } else if (this.georesourceTopic_mainTopic) {
-      patchBody.topicReference = this.georesourceTopic_mainTopic.topicId;
-    } else {
-      patchBody.topicReference = '';
-    }
+    // Debug logging
+    console.log('PATCH Request Body:', JSON.stringify(patchBody, null, 2));
+    console.log('PATCH URL:', this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId);
 
     this.loadingData = true;
 
     this.http.patch(
       this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
-      patchBody
+      patchBody,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     ).subscribe({
       next: (response: any) => {
+        console.log('PATCH Request Success:', response);
         this.successMessagePart = this.datasetName;
+        console.log('Success message part set to:', this.successMessagePart);
+        
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { crudType: 'edit', targetGeoresourceId: this.currentGeoresourceDataset.georesourceId });
+        console.log('Refresh broadcast sent');
+        
         this.showSuccessAlert();
         this.loadingData = false;
+        
+        // Auto-hide success message after 5 seconds and close modal
+        setTimeout(() => {
+          console.log('Auto-hiding success alert and closing modal');
+          this.hideSuccessAlert();
+          this.activeModal.close();
+        }, 5000);
       },
       error: (error: any) => {
-        if (error.data) {
+        console.error('PATCH Request Error:', error);
+        console.error('Error Status:', error.status);
+        console.error('Error Message:', error.message);
+        console.error('Error Body:', error.error);
+        
+        if (error.error) {
+          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON 
+            ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error)
+            : JSON.stringify(error.error, null, 2);
+        } else if (error.data) {
           this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON 
             ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data)
             : JSON.stringify(error.data, null, 2);
@@ -880,42 +906,45 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   showSuccessAlert(): void {
     const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
     if (alertElement) {
-      alertElement.hidden = false;
+      alertElement.removeAttribute('hidden');
+      console.log('Success alert shown for:', this.successMessagePart);
+    } else {
+      console.error('Success alert element not found!');
     }
   }
 
   showErrorAlert(): void {
     const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
     if (alertElement) {
-      alertElement.hidden = false;
+      alertElement.removeAttribute('hidden');
     }
   }
 
   showMetadataImportErrorAlert(): void {
     const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
     if (alertElement) {
-      alertElement.hidden = false;
+      alertElement.removeAttribute('hidden');
     }
   }
 
   hideSuccessAlert(): void {
     const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
     if (alertElement) {
-      alertElement.hidden = true;
+      alertElement.setAttribute('hidden', '');
     }
   }
 
   hideErrorAlert(): void {
     const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
     if (alertElement) {
-      alertElement.hidden = true;
+      alertElement.setAttribute('hidden', '');
     }
   }
 
   hideMetadataErrorAlert(): void {
     const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
     if (alertElement) {
-      alertElement.hidden = true;
+      alertElement.setAttribute('hidden', '');
     }
   }
 
@@ -926,17 +955,91 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       this.mainTopicsForGeoresource = [];
       return;
     }
-    // Use all top-level topics as main topics and remove duplicates by topicId
-    const uniqueById: any[] = [];
-    const seen = new Set<string>();
-    for (const t of (Array.isArray(topics) ? topics : [])) {
-      const id = (t && (t.topicId || t.name || t.title)) as string;
-      if (id && !seen.has(id)) {
-        seen.add(id);
-        uniqueById.push(t);
+    // 1) Filter to main topics for georesources (align with Add modal)
+    let filtered = this.filterTopicsForGeoresources(Array.isArray(topics) ? topics : []);
+    // 2) Normalize to ensure consistent keys and child arrays
+    filtered = this.normalizeTopics(filtered);
+    // 3) Deduplicate by displayed label first (case-insensitive)
+    filtered = this.deduplicateTopicsByLabel(filtered);
+    // 4) Ensure uniqueness by ID as well
+    this.mainTopicsForGeoresource = this.deduplicateTopicsById(filtered);
+  }
+
+  /**
+   * Filter topics to only show main topics for georesources (like AngularJS component)
+   */
+  private filterTopicsForGeoresources(topics: any[]): any[] {
+    let filtered = topics.filter(topic => {
+      return topic.topicType === 'main' && topic.topicResource === 'georesource';
+    });
+    if (filtered.length === 0) {
+      filtered = topics.filter(topic => topic.topicType === 'main');
+      if (filtered.length === 0) {
+        filtered = topics.filter(topic => topic.subTopics && Array.isArray(topic.subTopics));
       }
     }
-    this.mainTopicsForGeoresource = uniqueById;
+    return filtered;
+  }
+
+  /**
+   * Remove duplicates by the displayed label (case-insensitive), e.g., topicName/name.
+   */
+  private deduplicateTopicsByLabel(topics: any[]): any[] {
+    const map = new Map<string, any>();
+    for (const t of topics) {
+      const label = ((t?.topicName ?? t?.name ?? '') + '').trim().toLowerCase();
+      const fallback = ((t?.topicId ?? t?.id ?? '') + '').trim().toLowerCase();
+      const key = label || fallback;
+      if (!key) { continue; }
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const current = map.get(key);
+        const currChildren = Array.isArray(current?.subTopics) ? current.subTopics.length : 0;
+        const newChildren = Array.isArray(t?.subTopics) ? t.subTopics.length : 0;
+        const currHasId = !!(current?.topicId || current?.id);
+        const newHasId = !!(t?.topicId || t?.id);
+        if (newChildren > currChildren || (!currHasId && newHasId)) {
+          map.set(key, t);
+        }
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  /**
+   * Remove duplicates from topics array by stable identifier (topicId | id | name fallback)
+   */
+  private deduplicateTopicsById(topics: any[]): any[] {
+    const map = new Map<string, any>();
+    for (const t of topics) {
+      const key = ((t?.topicId ?? t?.id ?? t?.name) + '').trim();
+      if (!key) { continue; }
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const current = map.get(key);
+        const currChildren = Array.isArray(current?.subTopics) ? current.subTopics.length : 0;
+        const newChildren = Array.isArray(t?.subTopics) ? t.subTopics.length : 0;
+        if (newChildren > currChildren) {
+          map.set(key, t);
+        }
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  // Normalize topic tree to always use 'subTopics' recursively and provide label fallback
+  private normalizeTopics(topics: any[]): any[] {
+    return (topics || []).map(t => this.normalizeTopicNode(t));
+  }
+
+  private normalizeTopicNode(topic: any): any {
+    if (!topic || typeof topic !== 'object') { return topic; }
+    topic.topicName = topic.topicName || topic.name || topic.title || topic.label || topic.text || topic.topicname;
+    const children = topic.subTopics || topic.subtopics || topic.children || [];
+    topic.subTopics = Array.isArray(children) ? children.map((c: any) => this.normalizeTopicNode(c)) : [];
+    return topic;
   }
 
   private applyTopicSelectionFromDataset(): void {
@@ -993,5 +1096,12 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Modal control
   cancel(): void {
     this.activeModal.dismiss();
+  }
+
+  // Debug method to test success alert
+  testSuccessAlert(): void {
+    this.successMessagePart = 'Test Dataset Name';
+    this.showSuccessAlert();
+    console.log('Test success alert triggered');
   }
 } 
