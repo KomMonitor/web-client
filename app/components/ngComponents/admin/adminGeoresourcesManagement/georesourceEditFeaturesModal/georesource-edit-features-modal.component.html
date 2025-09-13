@@ -47,7 +47,7 @@
               <div class="form-group">
                 <label>Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>                                        
                 <label class="switch">
-                  <input class="elementCheckbox" type="checkbox"
+                  <input class="elementCheckbox" type="checkbox" name="enableDeleteFeatures"
                     [(ngModel)]="enableDeleteFeatures"
                     [checked]="enableDeleteFeatures" (ngModelChange)="onChangeEnableDeleteFeatures()">
                   <span class="switchslider round text-left" style="line-height:25px;"></span>
@@ -116,7 +116,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Geodaten-Quellformat*</label>
-                <select [(ngModel)]="converter" (ngModelChange)="onChangeConverter()" class="form-control" required>
+                <select name="converter" [(ngModel)]="converter" (ngModelChange)="onChangeConverter()" class="form-control" required>
                   <option disabled selected value> -- Quellformat wählen -- </option>
                   <option *ngFor="let conv of getFilteredConverters()" [ngValue]="conv">{{conv.name}}</option>
                 </select>
@@ -126,7 +126,7 @@
               <div *ngIf="converter?.schemas">
                 <div class="form-group">
                   <label>Schema*</label>
-                  <select [(ngModel)]="schema" class="form-control" required>
+                  <select name="schema" [(ngModel)]="schema" class="form-control" required>
                     <option disabled selected value> -- Schema wählen -- </option>
                     <option *ngFor="let sch of converter.schemas" [value]="sch">{{sch}}</option>
                   </select>
@@ -137,7 +137,7 @@
               <div *ngIf="converter?.mimeTypes">
                 <div class="form-group">
                   <label>Quellformat*</label>
-                  <select [(ngModel)]="mimeType" (ngModelChange)="onChangeMimeType(mimeType)" class="form-control" required>
+                  <select name="mimeType" [(ngModel)]="mimeType" (ngModelChange)="onChangeMimeType(mimeType)" class="form-control" required>
                     <option disabled selected value> -- Format wählen -- </option>
                     <option *ngFor="let mime of converter.mimeTypes" [value]="mime">{{mime}}</option>
                   </select>
@@ -169,7 +169,7 @@
                 <div *ngIf="converter">
                   <div class="form-group">
                     <label>Datenquelltyp*</label>
-                    <select [(ngModel)]="datasourceType" (ngModelChange)="onChangeDatasourceType(datasourceType)" class="form-control" required>
+                    <select name="datasourceType" [(ngModel)]="datasourceType" (ngModelChange)="onChangeDatasourceType(datasourceType)" class="form-control" required>
                       <option disabled selected value> -- Quelltyp wählen -- </option>
                       <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">{{dsType.type}}</option>
                     </select>
@@ -183,7 +183,7 @@
                   
                   <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
                     <label>Räumlicher Filter*</label>
-                    <select id="datasourceTypeParameter_georesourceEditFeatures_bboxType" [(ngModel)]="bboxType" class="form-control" required>
+                    <select id="datasourceTypeParameter_georesourceEditFeatures_bboxType" name="bboxType" [(ngModel)]="bboxType" class="form-control" required>
                       <option disabled selected value> -- Filter wählen -- </option>
                       <option value="ref"> Referenzraumebene </option>
                       <option value="literal"> Manueller Begrenzungsrahmen </option>
@@ -191,7 +191,7 @@
 
                     <div *ngIf="bboxType == 'ref'">
                       <!-- select available spatialUnits -->
-                      <select id="datasourceTypeParameter_georesourceEditFeatures_bboxRef"
+                      <select id="datasourceTypeParameter_georesourceEditFeatures_bboxRef" name="bboxRefSpatialUnit"
                         [(ngModel)]="bboxRefSpatialUnit" class="form-control" [required]="bboxType == 'ref'">
                         <option disabled selected value> -- Raumebene wählen -- </option>
                         <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitLevel}}</option>
@@ -248,7 +248,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>ID Attributname*</label>
-                <input type="text" class="form-control" [(ngModel)]="georesourceDataSourceIdProperty" required>
+                <input type="text" class="form-control" name="georesourceDataSourceIdProperty" [(ngModel)]="georesourceDataSourceIdProperty" required>
                 <div class="help-block">
                   <p>Name des Attributs, welches den eindeutigen Identifier des Features enthält.</p>
                 </div>
@@ -259,7 +259,7 @@
               </div>
               <div class="form-group">
                 <label>NAME Attributname*</label>
-                <input type="text" class="form-control" [(ngModel)]="georesourceDataSourceNameProperty" required>
+                <input type="text" class="form-control" name="georesourceDataSourceNameProperty" [(ngModel)]="georesourceDataSourceNameProperty" required>
                 <div class="help-block">
                   <p>Name des Attributs, welches den eindeutigen Namen des Features enthält.</p>
                 </div>
@@ -273,7 +273,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Lebenszeit-Beginn Attributname</label>
-                <input type="text" [(ngModel)]="validityStartDate_perFeature" class="form-control pull-right">
+                <input type="text" name="validityStartDate_perFeature" [(ngModel)]="validityStartDate_perFeature" class="form-control pull-right">
                 <div class="help-block">
                   <p>Eintrag nur, falls die räumlichen Features über ein Attribut
                     für den Lebenszeitraum (Beginn) verfügen.</p>
@@ -282,7 +282,7 @@
               </div>
               <div class="form-group">
                 <label>Lebenszeit-Ende Attributname</label>
-                <input type="text" [(ngModel)]="validityEndDate_perFeature" class="form-control pull-right">
+                <input type="text" name="validityEndDate_perFeature" [(ngModel)]="validityEndDate_perFeature" class="form-control pull-right">
                 <div class="help-block">
                   <p>Eintrag nur, falls die räumlichen Features über ein Attribut
                     für den Lebenszeitraum (Ende) verfügen.</p>
@@ -351,7 +351,7 @@
 
                 <br/>    
                 <label class="switch">
-                  <input type="checkbox" value="isPartialUpdate" [(ngModel)]="isPartialUpdate">
+                  <input type="checkbox" name="isPartialUpdate" value="isPartialUpdate" [(ngModel)]="isPartialUpdate">
                   <span class="switchslider round"></span>
                 </label>
 
@@ -372,7 +372,7 @@
 
                 <br/>    
                 <label class="switch">
-                  <input type="checkbox" value="keepAttributes" [(ngModel)]="keepAttributes">
+                  <input type="checkbox" name="keepAttributes" value="keepAttributes" [(ngModel)]="keepAttributes">
                   <span class="switchslider round"></span>
                 </label>
 
@@ -388,7 +388,7 @@
 
                 <br/>    
                 <label class="switch">
-                  <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues">
+                  <input type="checkbox" name="keepMissingValues" value="keepMissingValues" [(ngModel)]="keepMissingValues">
                   <span class="switchslider round"></span>
                 </label>
 
@@ -404,19 +404,19 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Attributname im zu importierenden Datensatz*</label>
-                <input type="text" class="form-control input-sm" placeholder="Quell-Attributname" [(ngModel)]="attributeMapping_sourceAttributeName">
+                <input type="text" class="form-control input-sm" name="attributeMapping_sourceAttributeName" placeholder="Quell-Attributname" [(ngModel)]="attributeMapping_sourceAttributeName">
                 <div class="help-block with-errors"></div>
               </div>
 
               <div class="form-group">
                 <label>Ziel-Attributname in Datenbank nach Import*</label>
-                <input type="text" class="form-control input-sm" placeholder="Ziel-Attributname" [(ngModel)]="attributeMapping_destinationAttributeName">
+                <input type="text" class="form-control input-sm" name="attributeMapping_destinationAttributeName" placeholder="Ziel-Attributname" [(ngModel)]="attributeMapping_destinationAttributeName">
                 <div class="help-block with-errors"></div>
               </div>
 
               <div class="form-group">
                 <label>Datentyp*</label>
-                <select [(ngModel)]="attributeMapping_attributeType" class="form-control" required>
+                <select name="attributeMapping_attributeType" [(ngModel)]="attributeMapping_attributeType" class="form-control" required>
                   <option disabled selected value> -- Datentyp wählen -- </option>
                   <option *ngFor="let type of kommonitorImporterHelperService.attributeMapping_attributeTypes" [ngValue]="type">{{type.displayName}}</option>
                 </select>

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
+import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { 
   GridOptions, 
@@ -81,8 +83,11 @@ export class KommonitorGeoresourceDataGridHelperService {
   readonly resourceType_indicator = "indicator";
 
   constructor(
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private http: HttpClient,
+    private kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService
   ) {}
+
 
   /**
    * Simple function-based cell renderer for edit buttons (like original)
@@ -1473,7 +1478,7 @@ export class KommonitorGeoresourceDataGridHelperService {
           'word-break': 'break-word !important', 
           'padding-top': '17px', 
           'padding-bottom': '17px' 
-        }
+        },
       },
       columnDefs: columnDefs,
       rowData: rowData,
@@ -1605,5 +1610,135 @@ export class KommonitorGeoresourceDataGridHelperService {
         </button>
       </div>
     `;
+  }
+
+  /**
+   * Handle cell value changes for feature table
+   */
+  handleCellValueChanged(newValueParams: any, resourceId?: string, resourceType?: string): void {
+    console.log('handleCellValueChanged called with:', { resourceId, resourceType, componentRef: !!this.componentRef });
+    
+    // Get the resourceId from the component context if not provided
+    if (!resourceId && this.componentRef && this.componentRef.currentGeoresourceDataset) {
+      resourceId = this.componentRef.currentGeoresourceDataset.georesourceId;
+      console.log('Got resourceId from component:', resourceId);
+    }
+    
+    // If we still don't have a resourceId, log error and return
+    if (!resourceId) {
+      console.error('ResourceId is undefined. Cannot update feature.');
+      console.error('Available data:', newValueParams.data);
+      console.error('Component ref:', this.componentRef);
+      return;
+    }
+
+    // Validate date properties
+    if (!newValueParams.data.validStartDate) {
+      newValueParams.data.validStartDate = newValueParams.oldValue;
+    }
+    
+    const isDate = (date: any) => {
+      const dateObj = new Date(date);
+      return dateObj.toString() !== "Invalid Date" && !isNaN(dateObj.getTime());
+    };
+    
+    if (!isDate(newValueParams.data.validStartDate)) {
+      newValueParams.data.validStartDate = newValueParams.oldValue;
+    }
+    
+    if (newValueParams.data.validEndDate === "") {
+      newValueParams.data.validEndDate = undefined;
+    }
+    
+    if (newValueParams.data.validEndDate) {
+      if (!isDate(newValueParams.data.validEndDate)) {
+        newValueParams.data.validEndDate = newValueParams.oldValue;
+      }
+    }
+
+    // Build GeoJSON for API request
+    const geoJSON: any = {
+      "type": "Feature",
+      geometry: null,
+      properties: null,
+      id: null
+    };
+
+    // Clone properties and extract geometry/ID
+    geoJSON.geometry = JSON.parse(JSON.stringify(newValueParams.data.kommonitorGeometry));
+    geoJSON.id = JSON.parse(JSON.stringify(newValueParams.data.kommonitorRecordId));
+    geoJSON.properties = JSON.parse(JSON.stringify(newValueParams.data));
+
+    // Remove internal properties
+    delete geoJSON.properties.kommonitorGeometry;
+    delete geoJSON.properties.kommonitorRecordId;
+
+    // Build URL
+    let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
+    if (resourceType === this.resourceType_georesource) {
+      url += "/georesources/";
+    } else {
+      url += "/spatial-units/";
+    }
+    
+    url += `${resourceId}/singleFeature/${newValueParams.data.ID}/singleFeatureRecord/${newValueParams.data.kommonitorRecordId}`;
+
+    console.log('Making PUT request to:', url);
+
+    // Make HTTP PUT request
+    this.http.put(url, geoJSON, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).subscribe({
+      next: (response: any) => {
+        console.log('Feature update successful:', response);
+        // On success: mark grid cell with green background
+        newValueParams.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+
+        newValueParams.api.refreshCells({
+          force: true,
+          columns: [newValueParams.column.getId()],
+          rowNodes: [newValueParams.node]
+        });
+        
+        // Update success timestamp
+        if (resourceType === this.resourceType_georesource) {
+          this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        } else {
+          this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        }
+      },
+      error: (error) => {
+        console.error('Feature update failed:', error);
+        // Reset cell value as an error occurred
+        newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+
+        // On failure: mark grid cell with red background
+        newValueParams.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
+
+        newValueParams.api.refreshCells({
+          force: true,
+          columns: [newValueParams.column.getId()],
+          rowNodes: [newValueParams.node]
+        });
+        
+        // Update failure timestamp
+        if (resourceType === this.resourceType_georesource) {
+          this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        } else {
+          this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        }
+      }
+    });
+  }
+
+  /**
+   * Get current timestamp
+   */
+  private getCurrentTimestamp(): Date {
+    return new Date();
   }
 } 

@@ -213,6 +213,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.setupEventListeners();
     this.initializeMappingConfigStructure();
     this.buildFeatureTable();
+    
+    // Set component reference in data grid helper service
+    this.kommonitorDataGridHelperService.setComponentRef(this);
   }
 
   ngAfterViewInit(): void {
@@ -1266,9 +1269,22 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   onCellValueChanged(params: any): void {
     // Handle cell value changes here
+    // The actual API call is handled by the data grid helper service
+    // This method is called by the ag-grid component when a cell value changes
     
-    // TODO: Implement API call to update the feature in the backend
-    // Similar to the AngularJS version's cell update functionality
+    // The kommonitorDataGridHelperService.handleCellValueChanged method
+    // will be called automatically from the grid's defaultColDef.onCellValueChanged
+    // which was configured in buildDataGrid_featureTable_spatialResource
+    
+    // We can add any component-specific logic here if needed
+    console.log('Cell value changed:', params);
+    
+    // Call the data grid helper service with the current georesource ID
+    this.kommonitorDataGridHelperService.handleCellValueChanged(
+      params, 
+      this.currentGeoresourceDataset?.georesourceId, 
+      this.kommonitorDataGridHelperService.resourceType_georesource
+    );
   }
 
   private handleError(error: any): void {
