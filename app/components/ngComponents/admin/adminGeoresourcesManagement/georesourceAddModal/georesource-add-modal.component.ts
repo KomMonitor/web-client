@@ -434,6 +434,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private async loadAvailableOptions(): Promise<void> {
     // Load available options from services
+    console.log('[GeoresourceAddModal] loadAvailableOptions: start');
     this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions || [];
     this.availablePoiMarkerColors = this.kommonitorDataExchangeService.availablePoiMarkerColors || [];
     this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
@@ -462,6 +463,10 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // Load topics data
     await this.loadTopicsData();
+    console.log('[GeoresourceAddModal] loadAvailableOptions: topics after load', {
+      rawAvailableTopicsLength: (this.kommonitorDataExchangeService as any)?.availableTopics?.length,
+      localAvailableTopicsLength: this.availableTopics?.length
+    });
   }
 
   /**
@@ -472,17 +477,28 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.loadingTopics = true;
       
       const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles;
+      console.log('[GeoresourceAddModal] loadTopicsData: fetching topics with roles', roles);
       const topicsResult = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
+      console.log('[GeoresourceAddModal] loadTopicsData: fetch result length', Array.isArray(topicsResult) ? topicsResult.length : 'n/a');
       // Prefer the service cache after fetch (AngularJS relied on service.availableTopics which preserves hierarchy)
       const topics = (this.kommonitorDataExchangeService as any).availableTopics && Array.isArray((this.kommonitorDataExchangeService as any).availableTopics)
         ? (this.kommonitorDataExchangeService as any).availableTopics
         : topicsResult;
+      console.log('[GeoresourceAddModal] loadTopicsData: topics from service/cache length', Array.isArray(topics) ? topics.length : 'n/a');
       
       if (topics && Array.isArray(topics)) {
         // Filter topics to only show main topics for georesources (like AngularJS component)
         this.availableTopics = this.filterTopicsForGeoresources(topics);
+        console.log('[GeoresourceAddModal] loadTopicsData: after filter', {
+          filteredLength: this.availableTopics.length,
+          sample: this.availableTopics.slice(0, 3)
+        });
         // Normalize keys to ensure subtopic tree uses 'subTopics' recursively
         this.availableTopics = this.normalizeTopics(this.availableTopics);
+        console.log('[GeoresourceAddModal] loadTopicsData: after normalize', {
+          normalizedLength: this.availableTopics.length,
+          sample: this.availableTopics.slice(0, 3)
+        });
     
       } else {
         this.availableTopics = [];
@@ -500,23 +516,16 @@ export class GeoresourceAddModalComponent implements OnInit {
    * Filter topics to only show main topics for georesources (like AngularJS component)
    */
   private filterTopicsForGeoresources(topics: any[]): any[] {
-    // First, try the exact AngularJS filter
-    let filtered = topics.filter(topic => {
-      return topic.topicType === 'main' && topic.topicResource === 'georesource';
+    // Strictly enforce: only main topics with topicResource 'georesource'
+    const result = (topics || []).filter((topic: any) =>
+      topic && topic.topicType === 'main' && topic.topicResource === 'georesource'
+    );
+    console.log('[GeoresourceAddModal] filterTopicsForGeoresources', {
+      inputLength: Array.isArray(topics) ? topics.length : 'n/a',
+      outputLength: result.length,
+      firstItem: result[0]
     });
-    
-    // If no results, try alternative filtering approaches
-    if (filtered.length === 0) {
-      // Try filtering by topicType only
-      filtered = topics.filter(topic => topic.topicType === 'main');
-      
-      if (filtered.length === 0) {
-        // If still no results, show all topics that have subTopics (likely main topics)
-        filtered = topics.filter(topic => topic.subTopics && Array.isArray(topic.subTopics));
-      }
-    }
-    
-    return filtered;
+    return result;
   }
 
   // Normalize topic tree to always use 'subTopics' (maps 'subtopics' or 'children' etc.)

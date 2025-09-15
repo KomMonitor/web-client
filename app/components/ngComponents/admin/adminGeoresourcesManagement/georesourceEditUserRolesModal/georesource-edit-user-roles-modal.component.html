@@ -102,7 +102,7 @@
                       (ngModelChange)="onChangeOwner(ownerOrganization)" 
                       required>
                 <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
-                <option *ngFor="let org of getFilteredOrganizations()" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of filteredOrganizations" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
               </select>
               <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission() && accessControlDataAvailable" 
                       id="targetUserRoleSelect" 
@@ -112,7 +112,7 @@
                       (ngModelChange)="onChangeOwner(ownerOrganization)" 
                       required>
                 <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
-                <option *ngFor="let org of getFilteredCreatorRights()" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of filteredCreatorRights" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
               </select>
               <div *ngIf="!accessControlDataAvailable" class="form-control" style="color: #999;">
                 Lade Organisationseinheiten...

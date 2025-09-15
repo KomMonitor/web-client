@@ -50,6 +50,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   activeRolesOnly: boolean = true;
   permissions: any[] = [];
   resourcesCreatorRights: any[] = [];
+  filteredOrganizations: any[] = [];
   
   loadingData: boolean = false;
   currentStep: number = 1;
@@ -69,6 +70,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     this.prepareCreatorList();
     this.setupBroadcastSubscription();
     this.loadAccessControlData();
+    this.updateFilteredOrganizations();
   }
 
   ngAfterViewInit(): void {
@@ -121,6 +123,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       this.resourcesCreatorRights = this.kommonitorDataExchangeService.accessControl.filter(
         (elem: any) => creatorRights.includes(elem.name)
       );
+      this.updateFilteredOrganizations();
     }
   }
 
@@ -303,6 +306,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     this.errorMessagePart = '';
     this.currentStep = 1;
     this.updateProgressBar();
+    this.updateFilteredOrganizations();
   }
 
   nextStep(): void {
@@ -432,17 +436,24 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   getFilteredOrganizations(): any[] {
+    // Deprecated: avoid calling methods from template repeatedly. Use filteredOrganizations instead.
+    return this.filteredOrganizations;
+  }
+
+  onOwnerOrgFilterChange(): void {
+    this.updateFilteredOrganizations();
+  }
+
+  private updateFilteredOrganizations(): void {
+    const base = this.kommonitorDataExchangeService.checkAdminPermission() ?
+      (this.kommonitorDataExchangeService.accessControl || []) :
+      (this.resourcesCreatorRights || []);
     if (!this.ownerOrgFilter) {
-      return this.kommonitorDataExchangeService.checkAdminPermission() ? 
-        this.kommonitorDataExchangeService.accessControl : this.resourcesCreatorRights;
+      this.filteredOrganizations = base.slice();
+      return;
     }
-    
-    const orgs = this.kommonitorDataExchangeService.checkAdminPermission() ? 
-      this.kommonitorDataExchangeService.accessControl : this.resourcesCreatorRights;
-    
-    return orgs.filter((org: any) => 
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-    );
+    const filter = this.ownerOrgFilter.toLowerCase();
+    this.filteredOrganizations = base.filter((org: any) => org.name?.toLowerCase().includes(filter));
   }
 
   hideSuccessAlert(): void {
@@ -470,6 +481,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       if (this.currentSpatialUnitDataset) {
         this.refreshRoleManagementTable();
       }
+      this.updateFilteredOrganizations();
     } else {
       // Fetch access control data from server
       this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
@@ -478,6 +490,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
           if (this.currentSpatialUnitDataset) {
             this.refreshRoleManagementTable();
           }
+          this.updateFilteredOrganizations();
         },
         error: (error) => {
         }

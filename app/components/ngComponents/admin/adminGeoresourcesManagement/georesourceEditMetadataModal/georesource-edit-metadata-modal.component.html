@@ -324,33 +324,33 @@
               </div>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
-              <div *ngIf="georesourceTopic_mainTopic?.subTopics?.length > 0" class="form-group">
+              <div *ngIf="(filteredSubTopicsLevel1?.length || 0) > 0" class="form-group">
                 <label>Unterthema - erste Ebene</label>
                 <select [(ngModel)]="georesourceTopic_subTopic" name="georesourceTopicSub" class="form-control">
                   <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
-                  <option *ngFor="let subTopic of georesourceTopic_mainTopic.subTopics" 
+                  <option *ngFor="let subTopic of filteredSubTopicsLevel1" 
                     [ngValue]="subTopic">{{subTopic.name || subTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
-              <div *ngIf="georesourceTopic_subTopic?.subTopics?.length > 0" class="form-group">
+              <div *ngIf="(filteredSubTopicsLevel2?.length || 0) > 0" class="form-group">
                 <label>Unterthema - zweite Ebene</label>
                 <select [(ngModel)]="georesourceTopic_subsubTopic" name="georesourceTopicSubSub" class="form-control">
                   <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
-                  <option *ngFor="let subsubTopic of georesourceTopic_subTopic.subTopics" 
+                  <option *ngFor="let subsubTopic of filteredSubTopicsLevel2" 
                     [ngValue]="subsubTopic">{{subsubTopic.name || subsubTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
-              <div *ngIf="georesourceTopic_subsubTopic?.subTopics?.length > 0" class="form-group">
+              <div *ngIf="(filteredSubTopicsLevel3?.length || 0) > 0" class="form-group">
                 <label>Unterthema - dritte Ebene</label>
                 <select [(ngModel)]="georesourceTopic_subsubsubTopic" name="georesourceTopicSubSubSub" class="form-control">
                   <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
-                  <option *ngFor="let subsubsubTopic of georesourceTopic_subsubTopic.subTopics" 
+                  <option *ngFor="let subsubsubTopic of filteredSubTopicsLevel3" 
                     [ngValue]="subsubsubTopic">{{subsubsubTopic.name || subsubsubTopic.title}}</option>
                 </select>
                 <div class="help-block with-errors"></div>

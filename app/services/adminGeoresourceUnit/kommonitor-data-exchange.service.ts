@@ -39,6 +39,9 @@ export interface TopicHierarchy {
   topicId: string;
   name: string;
   title?: string;
+  topicType?: string;
+  topicResource?: string;
+  topicName?: string;
   subTopics?: TopicHierarchy[];
 }
 
@@ -978,12 +981,22 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
    * Transform API response to TopicHierarchy format
    */
   private transformTopicsResponse(apiTopics: any[]): TopicHierarchy[] {
-    return apiTopics.map(topic => ({
+    const transformed = apiTopics.map(topic => ({
       topicId: topic.topicId || topic.id,
       name: topic.name || topic.topicName,
       title: topic.title || topic.name || topic.topicName,
-      subTopics: topic.subTopics ? this.transformTopicsResponse(topic.subTopics) : undefined
+      topicType: topic.topicType,
+      topicResource: topic.topicResource,
+      topicName: topic.topicName || topic.name || topic.title,
+      subTopics: Array.isArray(topic.subTopics) ? this.transformTopicsResponse(topic.subTopics) : undefined
     }));
+    try {
+      console.log('[DataExchangeService] transformTopicsResponse -> counts', {
+        inputCount: Array.isArray(apiTopics) ? apiTopics.length : 0,
+        outputCount: Array.isArray(transformed) ? transformed.length : 0
+      });
+    } catch {}
+    return transformed;
   }
 
   // Check if user has admin permission (matches original AngularJS implementation)

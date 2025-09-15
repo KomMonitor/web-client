@@ -193,7 +193,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       if (this.topicsLoaded || this.topicsLoading) { return; }
       this.topicsLoading = true;
       const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
+      console.log('[GeoresourceEditMetadataModal] loadTopicsData: fetching topics with roles', roles);
       const topics = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
+      console.log('[GeoresourceEditMetadataModal] loadTopicsData: fetched topics length', Array.isArray(topics) ? topics.length : 'n/a');
       this.updateMainTopicsForGeoresource();
       // If a dataset is already selected, set its topic selection now
       if (this.currentGeoresourceDataset?.topicReference) {
@@ -228,6 +230,24 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     console.log('Current subsub topic:', this.georesourceTopic_subsubTopic);
     console.log('Current subsubsub topic:', this.georesourceTopic_subsubsubTopic);
     console.log('========================');
+  }
+
+  // Filtered subtopics by topicResource === 'georesource' to align with backend hierarchy
+  get filteredSubTopicsLevel1(): any[] {
+    return this.filterSubTopicsByResource(this.georesourceTopic_mainTopic);
+  }
+
+  get filteredSubTopicsLevel2(): any[] {
+    return this.filterSubTopicsByResource(this.georesourceTopic_subTopic);
+  }
+
+  get filteredSubTopicsLevel3(): any[] {
+    return this.filterSubTopicsByResource(this.georesourceTopic_subsubTopic);
+  }
+
+  private filterSubTopicsByResource(parentTopic: any): any[] {
+    const subs = (parentTopic?.subTopics || []);
+    return subs.filter((t: any) => t?.topicResource === 'georesource');
   }
 
   private initializeDefaultValues(): void {
@@ -938,8 +958,17 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
     // 1) Filter to main topics for georesources (align with Add modal)
     let filtered = this.filterTopicsForGeoresources(Array.isArray(topics) ? topics : []);
+    console.log('[GeoresourceEditMetadataModal] updateMainTopicsForGeoresource: after filter', {
+      inputLength: Array.isArray(topics) ? topics.length : 'n/a',
+      filteredLength: filtered.length,
+      sample: filtered.slice(0, 3)
+    });
     // 2) Normalize to ensure consistent keys and child arrays
     filtered = this.normalizeTopics(filtered);
+    console.log('[GeoresourceEditMetadataModal] updateMainTopicsForGeoresource: after normalize', {
+      normalizedLength: filtered.length,
+      sample: filtered.slice(0, 3)
+    });
     // 3) Deduplicate by displayed label first (case-insensitive)
     filtered = this.deduplicateTopicsByLabel(filtered);
     // 4) Ensure uniqueness by ID as well
@@ -950,16 +979,15 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
    * Filter topics to only show main topics for georesources (like AngularJS component)
    */
   private filterTopicsForGeoresources(topics: any[]): any[] {
-    let filtered = topics.filter(topic => {
-      return topic.topicType === 'main' && topic.topicResource === 'georesource';
+    const result = (topics || []).filter((topic: any) =>
+      topic && topic.topicType === 'main' && topic.topicResource === 'georesource'
+    );
+    console.log('[GeoresourceEditMetadataModal] filterTopicsForGeoresources', {
+      inputLength: Array.isArray(topics) ? topics.length : 'n/a',
+      outputLength: result.length,
+      firstItem: result[0]
     });
-    if (filtered.length === 0) {
-      filtered = topics.filter(topic => topic.topicType === 'main');
-      if (filtered.length === 0) {
-        filtered = topics.filter(topic => topic.subTopics && Array.isArray(topic.subTopics));
-      }
-    }
-    return filtered;
+    return result;
   }
 
   /**
