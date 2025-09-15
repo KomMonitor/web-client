@@ -1272,12 +1272,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     // The actual API call is handled by the data grid helper service
     // This method is called by the ag-grid component when a cell value changes
     
-    // The kommonitorDataGridHelperService.handleCellValueChanged method
-    // will be called automatically from the grid's defaultColDef.onCellValueChanged
-    // which was configured in buildDataGrid_featureTable_spatialResource
-    
-    // We can add any component-specific logic here if needed
-    console.log('Cell value changed:', params);
+    console.log('Cell value changed:', {
+      column: params.colDef?.field,
+      oldValue: params.oldValue,
+      newValue: params.newValue,
+      data: params.data
+    });
     
     // Call the data grid helper service with the current georesource ID
     this.kommonitorDataGridHelperService.handleCellValueChanged(

@@ -1518,15 +1518,13 @@ export class KommonitorGeoresourceDataGridHelperService {
         headerName: 'Valid Start Date', 
         field: 'validStartDate', 
         minWidth: 150,
-        editable: true,
-        cellEditor: 'agDateCellEditor'
+        editable: true
       },
       { 
         headerName: 'Valid End Date', 
         field: 'validEndDate', 
         minWidth: 150,
-        editable: true,
-        cellEditor: 'agDateCellEditor'
+        editable: true
       }
     );
     
@@ -1616,7 +1614,14 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Handle cell value changes for feature table
    */
   handleCellValueChanged(newValueParams: any, resourceId?: string, resourceType?: string): void {
-    console.log('handleCellValueChanged called with:', { resourceId, resourceType, componentRef: !!this.componentRef });
+    console.log('handleCellValueChanged called with:', { 
+      resourceId, 
+      resourceType, 
+      componentRef: !!this.componentRef,
+      column: newValueParams.colDef?.field,
+      oldValue: newValueParams.oldValue,
+      newValue: newValueParams.newValue
+    });
     
     // Get the resourceId from the component context if not provided
     if (!resourceId && this.componentRef && this.componentRef.currentGeoresourceDataset) {
