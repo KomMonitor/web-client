@@ -194,7 +194,7 @@
 
 											<div ng-show="datasourceType.type === 'FILE'">
 												<label>Datei*</label>
-												<input type="file" class="form-control" id="indicatorDataSourceInput_editFeatures" required></input>
+												<input type="file" class="form-control" onchange="angular.element(this).scope().datasourceInputChanged(this)" id="indicatorDataSourceInput_editFeatures" required></input>
 											</div>
 											<div ng-show="! (datasourceType.type === 'FILE')">
 												<div ng-repeat="parameter in datasourceType.parameters">
@@ -427,7 +427,11 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-disabled=" !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty" ng-click="editIndicatorFeatures()">Zeitreihen fortf&uuml;hren</button>
+					<button type="button" class="btn btn-success"
+							ng-disabled="!converter || !datasourceType || !datasourceInputSelected || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty || timeseriesMappingReference.length === 0"
+							ng-click="editIndicatorFeatures()">
+						Zeitreihen fortf&uuml;hren
+					</button>
 					<button type="button" class="btn btn-danger" ng-click="resetIndicatorEditFeaturesForm()">Zur&uuml;cksetzen</button>
 			</div>
 
