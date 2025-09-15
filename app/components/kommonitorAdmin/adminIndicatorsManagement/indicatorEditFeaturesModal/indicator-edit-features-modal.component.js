@@ -494,7 +494,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 								$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
 								$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateIndicatorResponse);
-								$scope.importedAggregations = updateIndicatorResponse.importedAggregations?.map(e => e.spatialUnit);
+								if (updateIndicatorResponse.importedAggregations) {
+									$scope.importedAggregations = updateIndicatorResponse.importedAggregations.map(e => e.spatialUnit);
+								}
 	
 								$("#indicatorEditFeaturesSuccessAlert").show();
 								$scope.loadingData = false;
