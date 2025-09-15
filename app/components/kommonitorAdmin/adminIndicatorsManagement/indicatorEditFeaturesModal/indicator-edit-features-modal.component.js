@@ -116,6 +116,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.datasourceType = undefined;
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
+			$scope.datasourceInputSelected = false;
 
 			$scope.converterDefinition = undefined;
 			$scope.datasourceTypeDefinition = undefined;
@@ -375,7 +376,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.getFeatureName = function(jsonFeature){
 				return jsonFeature[__env.FEATURE_NAME_PROPERTY_NAME];
 			};
-	
+
+			$scope.datasourceInputChanged = function(target) {
+				$scope.datasourceInputSelected = target.files.length !== 0;
+				$timeout(function() {
+					$scope.$digest();
+				}, 250);					
+			}
 			
 			$scope.buildImporterObjects = async function(){
 				$scope.converterDefinition = $scope.buildConverterDefinition();
