@@ -289,7 +289,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.targetSpatialUnitMetadata = undefined;
 				$scope.targetApplicableSpatialUnit = undefined;
 
-		
+				$scope.aggregationsMapping = [];
+				$scope.editIdx = undefined;
+
 				$scope.converter = undefined;
 				$scope.schema = undefined;
 				$scope.mimeType = undefined;
@@ -492,6 +494,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 								$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
 								$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateIndicatorResponse);
+								$scope.importedAggregations = updateIndicatorResponse.importedAggregations?.map(e => e.spatialUnit);
 	
 								$("#indicatorEditFeaturesSuccessAlert").show();
 								$scope.loadingData = false;
