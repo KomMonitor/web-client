@@ -7,7 +7,7 @@
 
 <div class="modal-body">
   <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
+    <div class="loading-overlay-admin-panel" [hidden]="!loadingData">
       <span class="glyphicon glyphicon-refresh icon-spin"></span>
     </div>
   </div>
@@ -77,8 +77,6 @@
               style="height: 50vh; width: 100%;"
               class="ag-theme-alpine"
               [gridOptions]="featureTableGridOptions"
-                             [rowData]="featureTableGridOptions.rowData || []"
-               [columnDefs]="featureTableGridOptions.columnDefs || []"
               (gridReady)="onGridReady($event)"
               (firstDataRendered)="onFirstDataRendered($event)"
               (columnResized)="onColumnResized($event)"

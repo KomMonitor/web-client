@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Inject, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -49,9 +49,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     
     // If we have valid data and the view is initialized, refresh the table
     if (value && value.georesourceId && this.featureTableGridOptions) {
+      // Defer to next tick to avoid change detection errors
       setTimeout(() => {
         this.refreshGeoresourceEditFeaturesOverviewTable();
-      }, 100);
+        // Mark for check after model update
+        this.cdr.detectChanges();
+      }, 0);
     }
   }
 
@@ -149,7 +152,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
     @Inject(ajskommonitorSingleFeatureMapHelperServiceProvider.provide) private kommonitorSingleFeatureMapHelperService: any,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {
     this.initializeDefaultValues();
   }
@@ -213,16 +217,17 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.setupEventListeners();
     this.initializeMappingConfigStructure();
     this.buildFeatureTable();
-    
-    // Set component reference in data grid helper service
-    this.kommonitorDataGridHelperService.setComponentRef(this);
   }
 
   ngAfterViewInit(): void {
-    // If we have data, initialize the features table
-    if (this.currentGeoresourceDataset && this.currentGeoresourceDataset.georesourceId) {
-      this.refreshGeoresourceEditFeaturesOverviewTable();
-    }
+    // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      if (this.currentGeoresourceDataset && this.currentGeoresourceDataset.georesourceId) {
+        this.refreshGeoresourceEditFeaturesOverviewTable();
+      }
+    }, 0);
+    // Stabilize view after initial async scheduling
+    Promise.resolve().then(() => this.cdr.detectChanges());
   }
 
   ngOnDestroy(): void {
@@ -264,17 +269,15 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       if (broadcastMsg) {
         if (broadcastMsg.msg === 'onEditGeoresourceFeatures') {
-          this.onEditGeoresourceFeatures(broadcastMsg.values);
+          // Defer handling to avoid changing bound values mid-cycle
+          setTimeout(() => { this.onEditGeoresourceFeatures(broadcastMsg.values); }, 0);
         } else if (broadcastMsg.msg === 'showLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource) {
-          this.loadingData = true;
+          setTimeout(() => { this.loadingData = true; }, 0);
         } else if (broadcastMsg.msg === 'hideLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource) {
-          this.loadingData = false;
+          setTimeout(() => { this.loadingData = false; }, 0);
         } else if (broadcastMsg.msg === 'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_georesource) {
-          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { 
-            crudType: 'edit', 
-            targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId 
-          });
-          this.refreshGeoresourceEditFeaturesOverviewTable();
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { crudType: 'edit', targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId });
+          setTimeout(() => { this.refreshGeoresourceEditFeaturesOverviewTable(); }, 0);
         } else if (broadcastMsg.msg === 'onUpdateSingleFeatureGeometry') {
           this.onUpdateSingleFeatureGeometry(broadcastMsg.values);
         }
@@ -312,7 +315,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     // If we're in Step 2, broadcast to the single-feature-edit component
     if (this.currentStep === 2) {
-      this.broadcastService.broadcast('onEditGeoresourceFeatures', this.currentGeoresourceDataset);
+      // SingleFeatureEditComponent expects an array [georesourceDataset, isReachabilityDatasetOnly]
+      this.broadcastService.broadcast('onEditGeoresourceFeatures', [this.currentGeoresourceDataset, false]);
       return; // Let the single-feature-edit component handle the rest
     }
 
@@ -495,7 +499,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     return filteredFeatures.length === 0;
   }
 
-  onUpdateSingleFeatureGeometry(geoJSON: any): void {
+  onUpdateSingleFeatureGeometry(geoJSONOrArray: any): void {
+    const geoJSON = Array.isArray(geoJSONOrArray) ? geoJSONOrArray[0] : geoJSONOrArray;
     this.featureGeometryValue = geoJSON;
   }
 
@@ -663,7 +668,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       return;
     }
 
+    // Set synchronously, but stabilize the view immediately
     this.loadingData = true;
+    this.cdr.detectChanges();
     this.hideSuccessAlert();
     this.hideErrorAlert();
     
@@ -715,16 +722,13 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           this.gridApi.refreshCells();
         }
 
-        // Use setTimeout to ensure proper change detection and DOM updates
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 500); // Increased timeout to show loading state longer
+        this.loadingData = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.handleError(error);
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 500); // Increased timeout to show loading state longer
+        this.loadingData = false;
+        this.cdr.detectChanges();
       }
     });
   }
