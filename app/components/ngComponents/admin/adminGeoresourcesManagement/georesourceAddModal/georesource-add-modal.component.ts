@@ -124,6 +124,8 @@ export class GeoresourceAddModalComponent implements OnInit {
   georesourceDataSourceIdPropertyInvalid = false;
   georesourceDataSourceNameProperty = '';
   georesourceDataSourceNamePropertyInvalid = false;
+  selectedDataSourceFile: File | null = null;
+  selectedDataSourceFileName: string = '';
 
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
@@ -140,6 +142,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Persisted converter/datasource parameter values
   converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
 
   // Validity dates per feature
   validityStartDate_perFeature = '';
@@ -148,6 +151,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Event subscriptions for role management (like AngularJS component)
   private roleUpdateSubscription?: Subscription;
   private metadataLoadingSubscription?: Subscription;
+  private fileInputChangeHandler?: (e: Event) => void;
 
   // Grid API references for role management
   roleManagementGridApi: any = null;
@@ -333,6 +337,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // Add click outside handler for dropdown
     document.addEventListener('click', this.onDocumentClick.bind(this));
+    
+    // Attach file input listener in case template does not wire (change)
+    setTimeout(() => this.attachFileInputListener(), 0);
   }
 
 
@@ -349,7 +356,13 @@ export class GeoresourceAddModalComponent implements OnInit {
     // Remove document click listener
     document.removeEventListener('click', this.onDocumentClick.bind(this));
     
-
+    // Remove file input listener
+    try {
+      const inputEl = document.getElementById('georesourceDataSourceInput_add');
+      if (inputEl && this.fileInputChangeHandler) {
+        inputEl.removeEventListener('change', this.fileInputChangeHandler);
+      }
+    } catch {}
   }
 
   private async initializeForm(): Promise<void> {
@@ -375,6 +388,9 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     // Initial load completed: hide overlay
     this.loadingData = false;
+
+    // Reapply any dynamic importer fields that may have been set (e.g., from import)
+    setTimeout(() => this.reapplyDynamicImporterFields(), 0);
   }
 
   private setupEventListeners(): void {
@@ -758,19 +774,31 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Multi-step form navigation
   goToStep(step: number): void {
     if (step >= 1 && step <= this.totalSteps) {
+      // Persist dynamic fields before leaving current step
+      this.persistDynamicImporterFields();
       this.currentStep = step;
+      // Reapply after DOM updates
+      setTimeout(() => this.reapplyDynamicImporterFields(), 0);
     }
   }
 
   nextStep(): void {
     if (this.currentStep < this.totalSteps) {
+      // Persist dynamic fields before leaving current step
+      this.persistDynamicImporterFields();
       this.currentStep++;
+      // Reapply after DOM updates
+      setTimeout(() => this.reapplyDynamicImporterFields(), 0);
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
+      // Persist dynamic fields before leaving current step
+      this.persistDynamicImporterFields();
       this.currentStep--;
+      // Reapply after DOM updates
+      setTimeout(() => this.reapplyDynamicImporterFields(), 0);
     }
   }
 
@@ -1056,6 +1084,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   onChangeConverter(): void {
     this.schema = this.converter?.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter?.mimeTypes ? this.converter.mimeTypes[0] : undefined;
+    this.converterParameterValues = {};
 
     // Filter available datasource types based on selected converter's supported datasources
     const allTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes() || [];
@@ -1088,6 +1117,13 @@ export class GeoresourceAddModalComponent implements OnInit {
   onChangeDatasourceType(datasourceType: any): void {
     this.datasourceType = datasourceType;
     console.log('[GeoresourceAddModal] onChangeDatasourceType', this.datasourceType);
+    // Reset related fields when datasource type changes
+    this.selectedDataSourceFile = null;
+    this.georesourceDataSourceIdProperty = '';
+    this.georesourceDataSourceNameProperty = '';
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
+    this.datasourceTypeParameterValues = {};
   }
 
   // Color and styling methods
@@ -1353,6 +1389,30 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   // File handling methods
+  onGeoresourceFileSelected(event: any): void {
+    const file = event?.target?.files?.[0] as File | undefined;
+    this.selectedDataSourceFile = file ?? null;
+    this.selectedDataSourceFileName = this.selectedDataSourceFile?.name || '';
+  }
+
+  onClickGeoresourceFileBrowse(): void {
+    try {
+      const inputEl = (this.georesourceDataSourceInput?.nativeElement as HTMLInputElement) || (document.getElementById('georesourceDataSourceInput_add') as HTMLInputElement | null);
+      inputEl?.click();
+    } catch {}
+  }
+
+  clearSelectedFile(): void {
+    try {
+      const inputEl = (this.georesourceDataSourceInput?.nativeElement as HTMLInputElement) || (document.getElementById('georesourceDataSourceInput_add') as HTMLInputElement | null);
+      if (inputEl) {
+        inputEl.value = '';
+      }
+    } catch {}
+    this.selectedDataSourceFile = null;
+    this.selectedDataSourceFileName = '';
+  }
+
   onMetadataFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
@@ -1597,12 +1657,22 @@ export class GeoresourceAddModalComponent implements OnInit {
       }
     }
 
-    // datasourceTypes parameters
-    if (this.datasourceType) {
+    // datasourceTypes parameters (persist + reflect bbox fields)
+    this.datasourceTypeParameterValues = {};
+    if (this.datasourceType && Array.isArray(this.mappingConfigImportSettings.dataSource.parameters)) {
       for (const dsParameter of this.mappingConfigImportSettings.dataSource.parameters) {
         const element = document.getElementById("datasourceTypeParameter_georesourceAdd_" + dsParameter.name) as HTMLInputElement;
         if (element) {
-          element.value = dsParameter.value;
+          element.value = dsParameter.value ?? '';
+        }
+        if (dsParameter.name === 'bboxType') {
+          this.bboxType = dsParameter.value || '';
+        } else if (dsParameter.name === 'bbox') {
+          if (this.bboxType === 'ref') {
+            this.bboxRefSpatialUnit = dsParameter.value;
+          }
+        } else {
+          this.datasourceTypeParameterValues[dsParameter.name] = dsParameter.value ?? '';
         }
       }
     }
@@ -1771,6 +1841,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.schema = '';
     this.mimeType = '';
     this.datasourceType = null;
+    this.selectedDataSourceFile = null;
 
     this.converterDefinition = null;
     this.datasourceTypeDefinition = null;
@@ -1797,6 +1868,12 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.mappingConfigImportSettings = null;
     this.georesourceMetadataImportError = '';
     this.georesourceMappingConfigImportError = '';
+
+    // Reset persisted parameter maps and bbox refs
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
   }
 
   // Build post body for API request
@@ -2098,7 +2175,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private buildConverterDefinition(): any {
-    const formValues: { [key: string]: string } = {};
+    const formValues: { [key: string]: string } = { ...this.converterParameterValues };
     // Collect currently rendered converter parameter inputs (if any)
     if (this.converter?.parameters && Array.isArray(this.converter.parameters)) {
       for (const p of this.converter.parameters) {
@@ -2128,10 +2205,13 @@ export class GeoresourceAddModalComponent implements OnInit {
         datasourceType: this.datasourceType
       });
 
-      // Pre-validate FILE datasource: require a selected file
+      // Pre-validate FILE datasource: require a selected file (persisted or from input)
       if (this.datasourceType?.type === 'FILE') {
         const fileInput: HTMLInputElement | null = (this.georesourceDataSourceInput?.nativeElement as HTMLInputElement) || (document.getElementById('georesourceDataSourceInput_add') as HTMLInputElement);
-        const file = fileInput?.files?.[0];
+        let file: File | undefined | null = this.selectedDataSourceFile;
+        if (!file) {
+          file = fileInput?.files?.[0];
+        }
         const hasFile = !!file;
         console.log('[GeoresourceAddModal] FILE datasource pre-check', {
           fileInputFound: !!fileInput,
@@ -2158,10 +2238,16 @@ export class GeoresourceAddModalComponent implements OnInit {
         console.log('[GeoresourceAddModal] buildDatasourceTypeDefinition FILE result (local)', localDef);
         return localDef;
       }
+      const formValues: { [key: string]: string } = {
+        ...this.datasourceTypeParameterValues,
+        bboxType: this.bboxType as any,
+        bboxRef: this.bboxRefSpatialUnit as any
+      } as any;
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
         this.datasourceType, 
         'datasourceTypeParameter_georesourceAdd_', 
-        'georesourceDataSourceInput_add'
+        'georesourceDataSourceInput_add',
+        formValues
       );
       console.log('[GeoresourceAddModal] buildDatasourceTypeDefinition result', result);
       return result;
@@ -2250,5 +2336,81 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.lastDisabledReasonsLogMs = now;
     }
     return reasons.length > 0;
+  }
+
+  private persistDynamicImporterFields(): void {
+    try {
+      // Persist converter parameter inputs
+      const convNodes = Array.from(document.querySelectorAll("[id^='converterParameter_georesourceAdd_']")) as HTMLInputElement[];
+      for (const el of convNodes) {
+        const id = el.id || '';
+        const key = id.replace('converterParameter_georesourceAdd_', '');
+        if (key) {
+          this.converterParameterValues[key] = el.value ?? '';
+        }
+      }
+      // Persist datasource type parameter inputs
+      const dsNodes = Array.from(document.querySelectorAll("[id^='datasourceTypeParameter_georesourceAdd_']")) as HTMLInputElement[];
+      for (const el of dsNodes) {
+        const id = el.id || '';
+        const key = id.replace('datasourceTypeParameter_georesourceAdd_', '');
+        if (key === 'bboxType') {
+          this.bboxType = el.value || '';
+        } else if (key === 'bboxRef') {
+          this.bboxRefSpatialUnit = el.value || null;
+        } else if (key) {
+          this.datasourceTypeParameterValues[key] = el.value ?? '';
+        }
+      }
+      // Persist selected file if present
+      const fileInput = (this.georesourceDataSourceInput?.nativeElement as HTMLInputElement) || (document.getElementById('georesourceDataSourceInput_add') as HTMLInputElement | null);
+      const file = fileInput?.files?.[0];
+      if (file) {
+        this.selectedDataSourceFile = file;
+      }
+    } catch {}
+  }
+
+  private reapplyDynamicImporterFields(): void {
+    try {
+      // Reapply converter parameter inputs
+      Object.keys(this.converterParameterValues || {}).forEach((key) => {
+        const el = document.getElementById(`converterParameter_georesourceAdd_${key}`) as HTMLInputElement | null;
+        if (el) {
+          el.value = this.converterParameterValues[key] ?? '';
+        }
+      });
+      // Reapply datasource type parameter inputs
+      Object.keys(this.datasourceTypeParameterValues || {}).forEach((key) => {
+        const el = document.getElementById(`datasourceTypeParameter_georesourceAdd_${key}`) as HTMLInputElement | null;
+        if (el) {
+          el.value = this.datasourceTypeParameterValues[key] ?? '';
+        }
+      });
+      // Reapply bbox fields if dedicated inputs exist
+      const bboxTypeEl = document.getElementById('datasourceTypeParameter_georesourceAdd_bboxType') as HTMLInputElement | null;
+      if (bboxTypeEl && this.bboxType) {
+        bboxTypeEl.value = this.bboxType;
+      }
+      const bboxRefEl = document.getElementById('datasourceTypeParameter_georesourceAdd_bboxRef') as HTMLInputElement | null;
+      if (bboxRefEl && this.bboxRefSpatialUnit) {
+        bboxRefEl.value = `${this.bboxRefSpatialUnit}`;
+      }
+      // Reattach file listener after DOM changes
+      this.attachFileInputListener();
+      // Note: File inputs cannot be programmatically set for security reasons; selectedDataSourceFile is used during upload.
+    } catch {}
+  }
+
+  private attachFileInputListener(): void {
+    try {
+      const inputEl = document.getElementById('georesourceDataSourceInput_add');
+      if (!inputEl) { return; }
+      if (this.fileInputChangeHandler) {
+        inputEl.removeEventListener('change', this.fileInputChangeHandler);
+      }
+      this.fileInputChangeHandler = (e: Event) => this.onGeoresourceFileSelected(e);
+      inputEl.addEventListener('change', this.fileInputChangeHandler);
+    } catch {}
   }
 } 

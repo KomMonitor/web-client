@@ -717,6 +717,20 @@ export class KommonitorGeoresourceDataExchangeService implements OnDestroy {
       }
     }
     this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+    // Keep cache in sync so a subsequent cached fetch does not overwrite fresh data
+    if (this.georesourcesCache && Array.isArray(this.georesourcesCache.data)) {
+      const cacheIndex = this.georesourcesCache.data.findIndex(
+        (g) => g.georesourceId === georesourceMetadata.georesourceId
+      );
+      if (cacheIndex !== -1) {
+        this.georesourcesCache.data[cacheIndex] = georesourceMetadata;
+      } else {
+        // If it wasn't present, prepend to keep behavior consistent with add
+        this.georesourcesCache.data.unshift(georesourceMetadata);
+      }
+      // Refresh cache timestamp to avoid immediate refetch churn
+      this.georesourcesCache.timestamp = Date.now();
+    }
     
     // Update the subject
     this.georesourcesSubject.next(this._availableGeoresources);

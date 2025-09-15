@@ -377,6 +377,8 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       this.permissions = putBody.permissions;
       if (this.currentSpatialUnitDataset) {
         this.currentSpatialUnitDataset.permissions = putBody.permissions;
+        // Update shared cache so reopening modal uses fresh data
+        this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(this.currentSpatialUnitDataset as any);
       }
       // Optionally refresh the table to sync checkbox state
       setTimeout(() => this.refreshRoleManagementTable(), 0);
@@ -410,6 +412,11 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
       this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset.spatialUnitId]);
+      // Update local and shared dataset owner so reopening shows correct owner and disabled states
+      if (this.currentSpatialUnitDataset) {
+        this.currentSpatialUnitDataset.ownerId = putBody.ownerId;
+        this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(this.currentSpatialUnitDataset as any);
+      }
       
     } catch (error: any) {
       this.errorMessagePart = 'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
@@ -470,7 +477,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   // Method to initialize the component with data (called from parent)
   initializeWithData(spatialUnitDataset: any): void {
-    this.currentSpatialUnitDataset = spatialUnitDataset;
+    // Prefer the freshest copy from the shared service if available
+    const latest = spatialUnitDataset?.spatialUnitId ? this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitDataset.spatialUnitId) : null;
+    this.currentSpatialUnitDataset = latest || spatialUnitDataset;
     this.resetForm();
   }
 

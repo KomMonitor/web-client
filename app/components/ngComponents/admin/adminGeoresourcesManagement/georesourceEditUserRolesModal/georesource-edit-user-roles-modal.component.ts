@@ -40,8 +40,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   set currentGeoresourceDataset(value: any) {
-    console.log('Setting currentGeoresourceDataset:', value);
-    this._currentGeoresourceDataset = value;
+    // Prefer freshest copy from service if available
+    const latest = value?.georesourceId ? this.kommonitorDataExchangeService.getGeoresourceMetadataById(value.georesourceId) : undefined;
+    this._currentGeoresourceDataset = latest || value;
   }
 
   // Role management
@@ -113,7 +114,11 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   async onEditGeoresourcesUserRoles(georesourceDataset: any): Promise<void> {
-    this.currentGeoresourceDataset = georesourceDataset;
+    // Prefer freshest copy from service if available
+    const latest = georesourceDataset?.georesourceId ? this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceDataset.georesourceId) : undefined;
+    this.currentGeoresourceDataset = latest || georesourceDataset;
+    // Force a re-resolve right before showing the form
+    this.currentGeoresourceDataset = this.resolveLatestDataset(this.currentGeoresourceDataset);
     this.resetGeoresourceEditUserRolesForm();
     this.kommonitorMultiStepFormHelperService?.registerClickHandler('georesourceEditUserRolesForm');
     
@@ -180,6 +185,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   refreshRoleManagementTable(): void {
+    // Ensure we operate on the freshest dataset
+    this.currentGeoresourceDataset = this.resolveLatestDataset(this.currentGeoresourceDataset);
     this.permissions = this.currentGeoresourceDataset ? this.currentGeoresourceDataset.permissions : [];
 
     // Check if accessControl data is available
@@ -472,6 +479,12 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
           crudType: 'edit',
           targetGeoresourceId: this.currentGeoresourceDataset.georesourceId
         });
+        // Update local dataset and shared cache to prevent stale reopen
+        if (this.currentGeoresourceDataset) {
+          this.currentGeoresourceDataset.permissions = putBody.permissions;
+          this.currentGeoresourceDataset.isPublic = putBody.isPublic;
+          this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(this.currentGeoresourceDataset);
+        }
         this.showSuccessAlert();
         setTimeout(() => {
           this.loadingData = false;
@@ -514,6 +527,11 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
           crudType: 'edit',
           targetGeoresourceId: this.currentGeoresourceDataset.georesourceId
         });
+        // Update local dataset and shared cache so owner and disabled states are fresh
+        if (this.currentGeoresourceDataset) {
+          this.currentGeoresourceDataset.ownerId = putBody.ownerId;
+          this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(this.currentGeoresourceDataset);
+        }
         this.showSuccessAlert();
         setTimeout(() => {
           this.loadingData = false;
@@ -535,6 +553,8 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   resetGeoresourceEditUserRolesForm(): void {
+    // Force a re-resolve when resetting to ensure UI reflects latest data
+    this.currentGeoresourceDataset = this.resolveLatestDataset(this.currentGeoresourceDataset);
     this.ownerOrganization = this.currentGeoresourceDataset?.ownerId;
     this.ownerOrgFilter = '';
     this.activeRolesOnly = false; // Reset the toggle to false
@@ -546,6 +566,18 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     // Refresh the table after resetting the toggle
     this.refreshRoleManagementTable();
     this.updateFilteredLists();
+  }
+
+  // Ensure we always use the freshest dataset instance from the service cache
+  private resolveLatestDataset(current: any): any {
+    try {
+      const id = current?.georesourceId;
+      if (!id) { return current; }
+      const latest = this.kommonitorDataExchangeService.getGeoresourceMetadataById(id);
+      return latest || current;
+    } catch {
+      return current;
+    }
   }
 
   // Helper methods

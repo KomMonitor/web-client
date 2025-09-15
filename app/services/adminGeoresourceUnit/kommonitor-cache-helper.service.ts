@@ -234,14 +234,6 @@ export class KommonitorGeoresourceCacheHelperService implements OnDestroy {
       this.loadingSubject.next(true);
       this.errorSubject.next(null);
 
-      // Check cache first
-      const cachedData = this.getCachedGeoresource(georesourceId, keycloakRolesArray);
-      if (cachedData) {
-        // Refresh the full list in the background (like original AngularJS service)
-        this.fetchGeoresourceMetadata(keycloakRolesArray).subscribe();
-        return cachedData;
-      }
-
       // Fetch from server
       const url = `${this.baseUrl}${this.georesourcesEndpoint}/${georesourceId}`;
       const headers = this.getAuthHeaders();
@@ -255,8 +247,10 @@ export class KommonitorGeoresourceCacheHelperService implements OnDestroy {
       // Cache the result
       this.cacheGeoresource(georesourceId, response, keycloakRolesArray);
 
-      // Refresh the full list in the background (like original AngularJS service)
-      this.fetchGeoresourceMetadata(keycloakRolesArray).subscribe();
+      // Optionally refresh the full list in the background to keep list fresh
+      this.fetchGeoresourceMetadata(keycloakRolesArray).subscribe({
+        error: () => { /* ignore background errors */ }
+      });
 
       return response;
 

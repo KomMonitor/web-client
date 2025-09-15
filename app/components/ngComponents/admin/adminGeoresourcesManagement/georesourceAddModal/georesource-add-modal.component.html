@@ -490,7 +490,7 @@
           <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
         </fieldset>
 
-        <fieldset *ngIf="(currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity)">
+        <fieldset [hidden]="!((currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity))">
           <div style="position: absolute;">
             <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceAddMappingConfig()" 
               title="Importieren der Mapping-Konfigurationen aus einer Datei">
@@ -576,7 +576,7 @@
 
                   <div *ngIf="datasourceType?.type === 'FILE'">
                     <label>Datei*</label>
-                    <input type="file" class="form-control" #georesourceDataSourceInput id="georesourceDataSourceInput_add" required>
+                    <input type="file" class="form-control" #georesourceDataSourceInput id="georesourceDataSourceInput_add" required (change)="onGeoresourceFileSelected($event)">
                   </div>
                   
                   <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
