@@ -289,7 +289,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.targetSpatialUnitMetadata = undefined;
 				$scope.targetApplicableSpatialUnit = undefined;
 
-		
+				$scope.aggregationsMapping = [];
+				$scope.editIdx = undefined;
+
 				$scope.converter = undefined;
 				$scope.schema = undefined;
 				$scope.mimeType = undefined;
