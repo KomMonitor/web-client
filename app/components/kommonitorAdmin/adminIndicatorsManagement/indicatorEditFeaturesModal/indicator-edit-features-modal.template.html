@@ -252,7 +252,7 @@
 									<input type="checkbox" ng-model="aggregationsVis" ng-change="onChangeAggregationVis()">
 									<span class="switchslider round"></span>
 								</label>
-								<h4>Höhere Raumebenen ergänzen</h4>
+								<h4>Höhere Raumebenen aggregieren</h4>
 							</div>
 
 							<div class="row vertical-align" ng-hide="!aggregationsVis">
@@ -312,7 +312,7 @@
 							</div>
 							<div class="row vertical-align" ng-hide="!aggregationsVis">
 								<div class="col-md-12 col-sm-12 col-xs-12">
-									<label>&Uuml;bersicht der definierten Aggregationsfunktionen</label>
+									<label>&Uuml;bersicht der Aggregationen</label>
 									<table class="table table-condensed">
 										<thead>
 											<tr>
@@ -443,7 +443,7 @@
 						{{importedFeatures.length}} Zeitreihen wurden dabei importiert.
 					</div>
 					<div ng-show="importedAggregations && importedAggregations.length > 0">
-						Für folgende höhere Raumbbenen {{importedAggregations.join(', ')}} wurden Aggregation zugefügt.
+						Für folgende höhere Raumebenen wurden Aggregationen hinzugefügt: {{importedAggregations.join(', ')}}.
 					</div>
 				</p>
       </div>
