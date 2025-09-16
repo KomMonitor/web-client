@@ -177,6 +177,8 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     // Try an initial load in case roles are already set
     this.loadTopicsData();
     this.updateMainTopicsForGeoresource();
+    // Reapply dynamic UI state after initial render
+    setTimeout(() => this.reapplyDynamicUiFields(), 0);
     
     
   }
@@ -1086,18 +1088,24 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   nextStep(): void {
     if (this.currentStep < 3) {
       this.currentStep++;
+      // Reapply dynamic UI after step change
+      setTimeout(() => this.reapplyDynamicUiFields(), 0);
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      // Reapply dynamic UI after step change
+      setTimeout(() => this.reapplyDynamicUiFields(), 0);
     }
   }
 
   goToStep(step: number): void {
     if (step >= 1 && step <= 3) {
       this.currentStep = step;
+      // Reapply dynamic UI after step change
+      setTimeout(() => this.reapplyDynamicUiFields(), 0);
     }
   }
 
@@ -1105,6 +1113,22 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Modal control
   cancel(): void {
     this.activeModal.dismiss();
+  }
+
+  // Reapply dynamic UI state (patterns, color pickers) after DOM updates
+  private reapplyDynamicUiFields(): void {
+    try {
+      // Ensure line pattern options and selection are in sync
+      this.syncLinePatternOptionsAndSelection();
+      // Reinitialize pickers and restore LOI button preview
+      this.initializeDatePickers();
+      const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
+      const svg = (this.selectedLoiDashArrayObject && this.selectedLoiDashArrayObject.svgString)
+        || (this.selectedLoiPattern && this.selectedLoiPattern.svgString);
+      if (buttonElement && svg) {
+        buttonElement.innerHTML = svg;
+      }
+    } catch {}
   }
 
 } 
