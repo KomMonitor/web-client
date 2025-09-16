@@ -17,6 +17,7 @@ import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import { ReachabilityScenarioConfigurationComponent } from '../../sidebar/kommonitorReachability/reachability-scenario-modal/reachability-scenario-configuration/reachability-scenario-configuration.component';
+import * as noUiSlider from 'nouislider';
 
 @Component({
   selector: 'app-indicator-add',
@@ -29,6 +30,22 @@ export class IndicatorAddComponent implements OnInit {
 
   @Output() selectedWorkflow = new EventEmitter<any[]>();
   @Input() data:any = [];
+  
+  months = [
+    'Januar',
+    'Fabruar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember'
+  ];
+  datesAsMs;
 
   spatialUnitSelect = new FormControl;
   baseMapSelect = new FormControl;
@@ -113,7 +130,6 @@ export class IndicatorAddComponent implements OnInit {
   isochronesSeriesData;
 
   selectedTimestamps:any[] = [];
-  dateSlider:any = undefined;
   absoluteLabelPositions:any[] = [];
   showMapLabels = true;
   showRankingMeanLine = true;
@@ -184,6 +200,8 @@ export class IndicatorAddComponent implements OnInit {
   pagePreparationIndex;
   pagePreparationSize;
 
+  dateSlider;
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     private broadcastSerice: BroadcastService,
@@ -225,7 +243,16 @@ export class IndicatorAddComponent implements OnInit {
 
     // init leafletScreenshot service after DB has beeon initialized
     this.leafletScreenshotCacheHelperService.init();
+
+    //this.setupSlider();
   }
+ 
+/*   setupSlider() {
+    this.dateSlider = document.getElementById('reportingDateSlider');
+
+    noUiSlider.cssClasses.target += ' custom-dateSlider';
+    noUiSlider.create(this.dateSlider, this.dateSliderConfig);
+  } */
   
   initialize() {
     this.loadingData = true;
@@ -1097,7 +1124,6 @@ export class IndicatorAddComponent implements OnInit {
     };
   }
 
-  //hier
   queryMostRecentGeoresourceFeatures(georesource) {
     // Most likely this is only a temporary method
     // It checks the availablePeriodsOfValidity and takes the most recent one to query features.
@@ -1945,9 +1971,8 @@ export class IndicatorAddComponent implements OnInit {
         let mostRecentTimestamp = availableTimestamps.filter( el => {
           return el.properties.NAME === mostRecentTimestampName;
         })
-        
         if(this.template.name.includes("timeseries")) {
-          this.dateSlider = this.initializeDateRangeSlider( timestampsForSelectedSpatialUnit,0,1 );
+          this.initializeDateRangeSlider( timestampsForSelectedSpatialUnit,0,1 );
         }
         // update information in preview
         for(let page of this.template.pages) {
@@ -3808,9 +3833,9 @@ export class IndicatorAddComponent implements OnInit {
 								break;
 							}
 								
-							/*
-								June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-							*/
+							
+								//June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+							
 							// case "overallAverage": {
 							// 	this.createPageElement_Average(page, pageElement, false);
 							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
@@ -4063,28 +4088,57 @@ export class IndicatorAddComponent implements OnInit {
     return datesAsMs;
   }
 
+  getFormatedSliderReturn() {
+
+    let data = this.dateSlider.noUiSlider.get(true);
+    
+    return {
+      from: this.datesAsMs[Math.round(data[0])],
+      to: this.datesAsMs[Math.round(data[1])]
+    };
+  }
+
+  dateStringToMs(dateStr) {
+
+    let parts = dateStr.split(' ');
+    // get timezoneOffset w/o daylight saving time by referencing a specific date
+    let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
+   
+    let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
+    return tms+offset;
+  }
+
+  tsToDateString (dateAsMs) {
+    var date = new Date(dateAsMs);
+    return date.getFullYear();
+
+    /* return date.toLocaleDateString("de-DE", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }); */
+  }
+
   prettifyDateSliderLabels(dateAsMs) {
     return this.dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, this.selectedIndicator.metadata.updateInterval);
   }
-/*
-  $scope.onChangeDateSliderInterval = function() {
-    $scope.loadingData = true;
+
+  onChangeDateSliderInterval() {
+    this.loadingData = true;
     // needed to tell angular something has changed
-    $timeout(function(){
-      $scope.$digest();
-    });
+
     // setup all pages with the new timeseries
-    let values = $scope.getFormattedDateSliderValues(true);
+    let values = this.getFormattedDateSliderValues(true);
     // prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
     let classifyUsingWholeTimeseries = false;
     let isTimeseries = true;			
-    $scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
+    this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
     isTimeseries = false;
     classifyUsingWholeTimeseries = true;
-    $scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+    this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
     
     // set dates on all pages according to new slider values
-    for(let page of $scope.template.pages) {
+    for(let page of this.template.pages) {
       let dateEl = page.pageElements.find( el => {
         return el.type.includes("dataTimestamp-") || el.type.includes("dataTimeseries-")
       });
@@ -4097,31 +4151,30 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    function updateDiagrams() {
-      if($scope.diagramsPrepared) {
-        $interval.cancel(updateDiagramsInterval); // code below still executes once
+    let updateDiagramsInterval = setInterval(() => {
+       if(this.diagramsPrepared) {
+        clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
         return;
       }
       // diagrams are prepared, but dom has to be updated first, too
-      $timeout(async function() {
-        await $scope.initializeAllDiagrams();
-        $scope.loadingData = false;
+      setTimeout(async () => {
+        await this.initializeAllDiagrams();
+        this.loadingData = false;
       })
-      
-    }
-
-    let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
+    }, 0, 100)
   }
-  */
+ 
 
   getFormattedDateSliderValues(includeInBetweenValues) {
+
+    let dateSliderDate = this.getFormatedSliderReturn();
+
     if(!this.dateSlider)
-      throw new Error("Tried to get dateslider values but dateslider was not defined.");
-    
-    let slider = this.dateSlider
-    let from:any = new Date(slider.result.from_value);
-    let to:any = new Date(slider.result.to_value);
+				throw new Error("Tried to get dateslider values but dateslider was not defined.");
+			
+    let from:any = new Date(dateSliderDate.from);
+    let to:any = new Date(dateSliderDate.to);
 
     let inBetweenDates;
     if(includeInBetweenValues) {
@@ -4161,100 +4214,52 @@ export class IndicatorAddComponent implements OnInit {
 
 
   initializeDateRangeSlider(availableDates, min, max) {
-/* 
-    if($scope.dateSlider){
-      $scope.dateSlider.destroy();
-    }
 
-    let domNode = document.getElementById("reporting-dateSlider");
+    this.datesAsMs = this.createDatesFromIndicatorDates(availableDates);
 
-    while (domNode.hasChildNodes()) {
-      domNode.removeChild(domNode.lastChild);
-    }
-
-    //let mostRecentDate = availableDates[availableDates.length - 1];
-    //let selectedDate = availableDates[availableDates.length - 1];
-
-    let datesAsMs = $scope.createDatesFromIndicatorDates(availableDates);
-
-    // new Date() uses month between 0-11!
-    $("#reporting-dateSlider").ionRangeSlider({
-      skin: "big",
-      type: "double",
-      grid: true,
-      values: datesAsMs,
-      from: 0,
-      to: availableDates.length-1, // index
-      force_edges: true,
-      prettify: prettifyDateSliderLabels,
-      onFinish: $scope.onChangeDateSliderInterval
-    });
-
-    let dateSlider = $("#reporting-dateSlider").data("ionRangeSlider");
-    // make sure that the handles are properly set
-    let minIdx = 0;
-    let maxIdx = availableDates.length-1;
-    if(typeof(min) !== "undefined")
-      minIdx = availableDates.indexOf(min)
-    if(typeof(max) !== "undefined")
-      maxIdx = availableDates.indexOf(max);
-
-    dateSlider.update({
-      from: minIdx,
-      to: maxIdx
-    });
-    return dateSlider; */
-  }
-/*
-  $scope.onChangeShowMapLabels = function() {
-
-    for(let i=0; i<$scope.template.pages.length; i++) {
-      let map = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
-      if(!map) {
-        continue; // no map on current page
-      }
-
-      let instance = echarts.getInstanceByDom(map);
-      let options = instance.getOption();
-     options.series[0].label.show = $scope.pageConfig.showMapLabels;
-				options.series[0].select.label.show = $scope.pageConfig.showMapLabels;
-      for(let item of options.series[0].data) {
-        if(typeof item.label === "undefined") {
-          item.label = {};
+    this.dateSlider = document.getElementById('reportingDateSlider');
+    let config: any  = {
+      behaviour: 'drag',
+      connect: true,
+      keyboard: true, 
+      range: {
+          'min': 0, // index from
+          'max': this.datesAsMs.length-1
+      },
+      start: [0, this.datesAsMs.length-1 ], // index 
+      step: 1,
+      tooltips: true,
+      format: {
+        to: (value) => { 
+          // index value to UI format
+          return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
+        },
+        from: (value) => { 
+          return value;
         }
-        item.label.show = $scope.pageConfig.showMapLabels;
+      },
+      pips: {
+        mode: 'range',
+        density: 1,
+        format: {
+          to: (value) => { 
+            // index value to UI format
+            return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
+          },
+          from: (value) => { 
+            return value;
+          }
+        }
       }
-      instance.setOption(options, {
-        replaceMerge: ['series']
-      });
-    }
+    };
+
+    noUiSlider.cssClasses.target += ' custom-dateSlider';
+    noUiSlider.create(this.dateSlider, config);
+
+    this.dateSlider.noUiSlider.on('end', () => {
+      this.onChangeDateSliderInterval();
+    });
   }
-
-  $scope.onChangeShowRankingMeanLine = function() {
-
-    for(let i=0; i<$scope.template.pages.length; i++) {
-      let barChart = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
-      if(!barChart) {
-        continue; // no map on current page
-      }
-
-      let instance = echarts.getInstanceByDom(barChart);
-      let options = instance.getOption();				
-     if (! $scope.pageConfig.showRankingMeanLine){
-        options.series[0].markLine_backup = options.series[0].markLine;
-        options.series[0].markLine = {};
-      }
-      else{
-        options.series[0].markLine = options.series[0].markLine_backup;
-      }				
-      instance.setOption(options, {
-        replaceMerge: ['series']
-      });
-    }
-  }
-
-  
-  */
 
   validateConfiguration() {
     // indicator has to be selected (unless template is reachability)
