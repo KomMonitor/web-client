@@ -92,6 +92,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   georesourceDataSourceInputInvalidReason: string = '';
   georesourceDataSourceIdProperty: string = '';
   georesourceDataSourceNameProperty: string = '';
+  selectedDataSourceFile: File | null = null;
+  selectedDataSourceFileName: string = '';
   idPropertyNotFound = false;
   namePropertyNotFound = false;
 
@@ -285,6 +287,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     });
 
     this.subscriptions.push(broadcastSubscription);
+  }
+
+  // File handling for FILE datasource (align with Add modal)
+  onGeoresourceFileSelected(event: any): void {
+    const file = event?.target?.files?.[0] as File | undefined;
+    this.selectedDataSourceFile = file ?? null;
+    this.selectedDataSourceFileName = this.selectedDataSourceFile?.name || '';
+    try { this.cdr.detectChanges(); } catch {}
   }
 
   onEditGeoresourceFeatures(georesourceDataset: any): void {
@@ -916,14 +926,23 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Import/Export methods
   onImportGeoresourceEditFeaturesMappingConfig(): void {
     this.georesourceMappingConfigImportError = '';
-    this.mappingConfigImportFile.nativeElement.click();
+    try {
+      const inputEl = document.getElementById('georesourceMappingConfigEditFeaturesImportFile_ng') as HTMLInputElement | null;
+      (inputEl || this.mappingConfigImportFile?.nativeElement)?.click();
+    } catch {
+      this.mappingConfigImportFile?.nativeElement?.click();
+    }
   }
 
   onMappingConfigFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.parseMappingConfigFromFile(file);
+    const inputEl = (event?.target as HTMLInputElement) || (document.getElementById('georesourceMappingConfigEditFeaturesImportFile_ng') as HTMLInputElement | null);
+    const file = inputEl?.files?.[0];
+    if (!file) {
+      this.georesourceMappingConfigImportError = 'Keine Datei ausgewählt oder ungültige Eingabe.';
+      this.showMappingConfigImportErrorAlert();
+      return;
     }
+    this.parseMappingConfigFromFile(file as File);
   }
 
   private parseMappingConfigFromFile(file: File): void {
@@ -942,23 +961,165 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       }
     };
 
-    fileReader.readAsText(file);
+    try {
+      fileReader.readAsText(file as Blob);
+    } catch (err) {
+      this.georesourceMappingConfigImportError = 'Fehler beim Lesen der Datei.';
+      this.showMappingConfigImportErrorAlert();
+    }
   }
 
   private parseFromMappingConfigFile(event: any): void {
     const mappingConfig = JSON.parse(event.target.result);
 
-    // Apply mapping configuration
-    if (mappingConfig.converter) {
-      this.converter = mappingConfig.converter;
+    // Basic structure validation (align with Add modal expectations)
+    if (!mappingConfig.converter || !mappingConfig.dataSource || !mappingConfig.propertyMapping) {
+      this.georesourceMappingConfigImportError = 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      const pre = document.getElementById('georesourcesEditFeaturesMappingConfigPre');
+      if (pre) {
+        pre.innerHTML = this.georesourceMappingConfigStructure_pretty;
+      }
+      this.showMappingConfigImportErrorAlert();
+      return;
     }
-    if (mappingConfig.datasourceType) {
-      this.datasourceType = mappingConfig.datasourceType;
+
+    // 1) Resolve converter by name or fallbacks (mimeType/name heuristics)
+    this.converter = undefined as any;
+    const allConverters = this.kommonitorImporterHelperService.availableConverters || [];
+    for (const conv of allConverters) {
+      if (conv.name === mappingConfig.converter.name) {
+        this.converter = conv;
+        break;
+      }
     }
-    if (mappingConfig.propertyMapping) {
-      this.attributeMappings_adminView = mappingConfig.propertyMapping || [];
+    if (!this.converter) {
+      const byMime = allConverters.find((c: any) => Array.isArray(c.mimeTypes) && c.mimeTypes.includes(mappingConfig.converter.mimeType));
+      if (byMime) {
+        this.converter = byMime;
+      } else {
+        const wantedName = (mappingConfig.converter.name || '').toLowerCase();
+        const byName = allConverters.find((c: any) => (c.name || '').toLowerCase().includes(wantedName));
+        if (byName) {
+          this.converter = byName;
+        } else {
+          // Heuristic for GeoJSON
+          const geojsonConv = allConverters.find((c: any) => Array.isArray(c.mimeTypes) && c.mimeTypes.some((m: string) => m.includes('geo+json')));
+          if (geojsonConv) {
+            this.converter = geojsonConv;
+          }
+        }
+      }
     }
-    // Add more mapping config properties as needed
+
+    // 2) Schema and mimeType
+    this.schema = '';
+    if (this.converter && this.converter.schemas && mappingConfig.converter.schema) {
+      for (const sch of this.converter.schemas) {
+        if (sch === mappingConfig.converter.schema) {
+          this.schema = sch;
+        }
+      }
+    }
+
+    this.mimeType = '';
+    if (this.converter && this.converter.mimeTypes && mappingConfig.converter.mimeType) {
+      for (const mt of this.converter.mimeTypes) {
+        if (mt === mappingConfig.converter.mimeType) {
+          this.mimeType = mt;
+        }
+      }
+    }
+
+    // 3) Datasource type
+    this.datasourceType = undefined as any;
+    const allTypes = this.kommonitorImporterHelperService.availableDatasourceTypes || [];
+    for (const dsType of allTypes) {
+      if (dsType.type === mappingConfig.dataSource.type) {
+        this.datasourceType = dsType;
+        break;
+      }
+    }
+
+    // 4) Apply converter parameters to DOM inputs so helper can pick them up later
+    if (Array.isArray(mappingConfig.converter.parameters)) {
+      for (const p of mappingConfig.converter.parameters) {
+        const el = document.getElementById('converterParameter_georesourceEditFeatures_' + p.name) as HTMLInputElement | null;
+        if (el) {
+          el.value = p.value ?? '';
+        }
+      }
+    }
+
+    // 5) Apply datasource parameters and bbox specifics
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = undefined as any;
+    if (this.datasourceType && Array.isArray(mappingConfig.dataSource.parameters)) {
+      for (const dsParam of mappingConfig.dataSource.parameters) {
+        const el = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_' + dsParam.name) as HTMLInputElement | null;
+        if (el) {
+          el.value = dsParam.value ?? '';
+        }
+        if (dsParam.name === 'bboxType') {
+          this.bboxType = dsParam.value || '';
+          const bboxTypeEl = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bboxType') as HTMLInputElement | null;
+          if (bboxTypeEl) { bboxTypeEl.value = this.bboxType; }
+        } else if (dsParam.name === 'bbox') {
+          if (this.bboxType === 'ref') {
+            this.bboxRefSpatialUnit = dsParam.value;
+            const bboxRefEl = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bboxRef') as HTMLInputElement | null;
+            if (bboxRefEl) { bboxRefEl.value = `${this.bboxRefSpatialUnit}`; }
+          } else if (this.bboxType === 'literal' && typeof dsParam.value === 'string') {
+            // Try to split "minx,miny,maxx,maxy"
+            const parts = dsParam.value.split(/[,\s]+/).map((s: string) => s.trim()).filter((s: string) => s.length > 0);
+            if (parts.length >= 4) {
+              const [minx, miny, maxx, maxy] = parts;
+              const minxEl = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_minx') as HTMLInputElement | null;
+              const minyEl = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_miny') as HTMLInputElement | null;
+              const maxxEl = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_maxx') as HTMLInputElement | null;
+              const maxyEl = document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_maxy') as HTMLInputElement | null;
+              if (minxEl) { minxEl.value = minx; }
+              if (minyEl) { minyEl.value = miny; }
+              if (maxxEl) { maxxEl.value = maxx; }
+              if (maxyEl) { maxyEl.value = maxy; }
+            }
+          }
+        }
+      }
+    }
+
+    // 6) Property mapping fields and flags
+    this.georesourceDataSourceNameProperty = mappingConfig.propertyMapping.nameProperty || '';
+    this.georesourceDataSourceIdProperty = mappingConfig.propertyMapping.identifierProperty || '';
+    this.validityStartDate_perFeature = mappingConfig.propertyMapping.validStartDateProperty || '';
+    this.validityEndDate_perFeature = mappingConfig.propertyMapping.validEndDateProperty || '';
+    this.keepAttributes = !!mappingConfig.propertyMapping.keepAttributes;
+    this.keepMissingValues = !!mappingConfig.propertyMapping.keepMissingOrNullValueAttributes;
+
+    this.attributeMappings_adminView = [];
+    if (Array.isArray(mappingConfig.propertyMapping.attributes)) {
+      for (const attr of mappingConfig.propertyMapping.attributes) {
+        const tmp: any = {
+          sourceName: attr.name,
+          destinationName: attr.mappingName
+        };
+        for (const dataType of this.kommonitorImporterHelperService.attributeMapping_attributeTypes) {
+          if (dataType.apiName === attr.type) {
+            tmp.dataType = dataType;
+            break;
+          }
+        }
+        this.attributeMappings_adminView.push(tmp);
+      }
+    }
+
+    // 7) Period of validity
+    if (mappingConfig.periodOfValidity) {
+      this.periodOfValidity = {
+        startDate: mappingConfig.periodOfValidity.startDate || '',
+        endDate: mappingConfig.periodOfValidity.endDate || ''
+      };
+      this.periodOfValidityInvalid = false;
+    }
   }
 
   onExportGeoresourceEditFeaturesMappingConfig(): void {
@@ -1095,9 +1256,37 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private async buildDatasourceTypeDefinition(): Promise<any> {
     try {
+      // Pre-validate FILE datasource: require a selected file and upload it first
+      if (this.datasourceType?.type === 'FILE') {
+        // Prefer selectedDataSourceFile captured by onGeoresourceFileSelected, fallback to input element
+        const fileInput = document.getElementById('georesourceDataSourceInput_editFeatures') as HTMLInputElement | null;
+        let file: File | undefined | null = this.selectedDataSourceFile as File | null | undefined;
+        if (!file) {
+          file = fileInput?.files?.[0];
+        }
+        const hasFile = !!file;
+        if (!hasFile) {
+          this.georesourceDataSourceInputInvalid = true;
+          this.georesourceDataSourceInputInvalidReason = 'Bitte eine Datei auswählen.';
+          return null;
+        }
+        this.georesourceDataSourceInputInvalid = false;
+        this.georesourceDataSourceInputInvalidReason = '';
+
+        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file as File, (file as File).name);
+        const localDef = {
+          type: 'FILE',
+          parameters: [
+            { name: 'NAME', value: uploadedName }
+          ]
+        };
+        return localDef;
+      }
+
+      // Non-FILE: let helper build from parameter inputs
       return await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType, 
-        'datasourceTypeParameter_georesourceEditFeatures_', 
+        this.datasourceType,
+        'datasourceTypeParameter_georesourceEditFeatures_',
         'georesourceDataSourceInput_editFeatures'
       );
     } catch (error) {
@@ -1177,6 +1366,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     
     this.bboxType = '';
     this.bboxRefSpatialUnit = undefined;
+    this.selectedDataSourceFile = null;
+    this.selectedDataSourceFileName = '';
     
     // Reset messages
     this.successMessagePart = '';
@@ -1192,14 +1383,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Alert methods
   showSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesSuccessAlert');
+    const alertElement = document.getElementById('georesourceEditFeaturesSuccessAlert_ng');
     if (alertElement) {
       alertElement.hidden = false;
     }
   }
 
   showErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesErrorAlert');
+    const alertElement = document.getElementById('georesourceEditFeaturesErrorAlert_ng');
     if (alertElement) {
       alertElement.hidden = false;
     }
@@ -1213,14 +1404,14 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   hideSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesSuccessAlert');
+    const alertElement = document.getElementById('georesourceEditFeaturesSuccessAlert_ng');
     if (alertElement) {
       alertElement.hidden = true;
     }
   }
 
   hideErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesErrorAlert');
+    const alertElement = document.getElementById('georesourceEditFeaturesErrorAlert_ng');
     if (alertElement) {
       alertElement.hidden = true;
     }

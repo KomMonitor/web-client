@@ -102,7 +102,7 @@
         <fieldset [style.display]="currentStep === 3 ? 'block' : 'none'">
           <div style="position: absolute;">
             <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceEditFeaturesMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
-            <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" id="georesourceMappingConfigEditFeaturesImportFile" accept=".json" (change)="onMappingConfigFileSelected($event)">
+            <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" id="georesourceMappingConfigEditFeaturesImportFile_ng" accept=".json" (change)="onMappingConfigFileSelected($event)">
             <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceEditFeaturesMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>                                
           </div>
           
@@ -176,7 +176,7 @@
 
                   <div *ngIf="datasourceType?.type === 'FILE'">
                     <label>Datei*</label>
-                    <input type="file" class="form-control" #dataSourceInput id="georesourceDataSourceInput_editFeatures" required>
+                    <input type="file" class="form-control" #dataSourceInput id="georesourceDataSourceInput_editFeatures" (change)="onGeoresourceFileSelected($event)" required>
                   </div>
                   
                   <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
@@ -472,7 +472,7 @@
   <button type="button" class="btn btn-danger" (click)="resetGeoresourceEditFeaturesForm()">Zurücksetzen</button>
 </div>
 
-<div id="georesourceEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+<div id="georesourceEditFeaturesSuccessAlert_ng" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgeführt</h4>
   <p>Fortführen der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.</p>
@@ -481,7 +481,7 @@
   </div>
 </div>
 
-<div id="georesourceEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+<div id="georesourceEditFeaturesErrorAlert_ng" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Features fortführen gescheitert</h4>
   Beim Fortführen der Features ist ein Fehler aufgetreten. Fehlermeldung:
