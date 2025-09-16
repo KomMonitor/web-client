@@ -5,6 +5,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { FormsModule } from '@angular/forms';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
   selector: 'app-template-select',
@@ -20,7 +21,8 @@ export class TemplateSelectComponent implements OnInit {
   datePickerDate!: any;
 
   constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private broadcastService: BroadcastService
   ) {}
 
   //prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
@@ -2871,6 +2873,7 @@ export class TemplateSelectComponent implements OnInit {
   }
 
   onTemplateSelected() {
+
     // update selected template with general settings
     for(let [idx, page] of this.selectedTemplate.pages.entries()) {
       for(let el of page.pageElements) {
@@ -2887,6 +2890,7 @@ export class TemplateSelectComponent implements OnInit {
         }
       }
     }
+    console.log(this.selectedTemplate);
     this.onWorkflowSelect([2,[false,this.selectedTemplate]]);
   }
 

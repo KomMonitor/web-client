@@ -74,9 +74,10 @@ export class ReportingOverviewComponent implements OnInit {
   ngOnInit(): void {
     
     if(this.data.templateData) {
+
       this.config.templateSections = [];
       this.config.template = {};
-      this.config.pages = {};
+      this.config.pages = [];
 
       let configFileSelected = this.data.templateData[0];
       let data:any = this.data.templateData[1];
@@ -111,7 +112,11 @@ export class ReportingOverviewComponent implements OnInit {
           this.reportingIndicatorConfigurationCompleted(values);
         } break;
         case 'reportingPoiLayerConfigurationCompleted' : {
-          this.reportingPoiLayerConfigurationCompleted(values);
+          // check if broadcast has been done shortly prior. ghost-broadcasts in the air... 
+          if(values[values.length-1]>(Date.now()-1000)) 
+            this.reportingPoiLayerConfigurationCompleted(values);
+          else
+            console.log("reportingPoiLayerConfigurationCompleted - blocked")
         } break;
         case 'reportGenerationInProgress': {
           this.loadingData = true;
@@ -393,7 +398,6 @@ export class ReportingOverviewComponent implements OnInit {
 					return keepItem;
 				});
 			}
-      console.log(this.config)
 		}
 
 		
@@ -506,7 +510,6 @@ export class ReportingOverviewComponent implements OnInit {
                 let instance = echarts.init( pElementDom );
 
 
-                console.log("FEHLER?! GUCKSTU HIER!")
                 // todo 
                 // not necessary in v4 anymore?! works even without, creates error if active
                /*  if(pageElement.type === "map") {	
@@ -951,7 +954,6 @@ export class ReportingOverviewComponent implements OnInit {
 					//let isochronesLayer = L.geoJSON( this.isochrones.features )
 					//isochronesLayer.addTo(leafletMap);
 				} catch (error) {
-          console.log("df")
 					console.error(error)
 				}				
 		}

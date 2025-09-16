@@ -2166,7 +2166,7 @@ export class IndicatorAddComponent implements OnInit {
     if(!this.template.name.includes("reachability")) {
       this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template, this.untouchedTemplateAsObj])
     } else {
-      this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.template, this.untouchedTemplateAsObj])
+      this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.template, this.untouchedTemplateAsObj, Date.now()])
     }
     this.onWorkflowSelect([2]);
     //this.reset();
