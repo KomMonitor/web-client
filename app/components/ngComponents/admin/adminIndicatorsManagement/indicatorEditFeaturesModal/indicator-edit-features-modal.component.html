@@ -1,0 +1,402 @@
+<div class="modal fade" id="modal-edit-indicator-features" role="dialog">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <div align="center">
+        <div class="loading-overlay-admin-panel ng-hide" *ngIf="loadingData">
+          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        </div>
+      </div>
+
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Zeitreihen des Indikators <i><b>{{currentIndicatorDataset?.indicatorName}}</b></i> fortführen</h4>
+      </div>
+      
+      <div class="modal-body">
+        <!-- MultiStep Form -->
+        <div class="row">
+          <div class="col-md-12">
+            <form class="multiStepForm form-group" id="indicatorEditFeaturesForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+              <!-- Progress bar -->
+              <div> 
+                <ul id="progressbar">
+                  <li style="width: 50%;" [class.active]="currentStep >= 1" (click)="goToStep(1)">Zeitreihen Übersicht</li>
+                  <li style="width: 50%;" [class.active]="currentStep >= 2" (click)="goToStep(2)">Räumlicher Datensatz</li>
+                </ul>
+              </div>
+              
+              <!-- Step 1: Zeitreihen Übersicht -->
+              <fieldset *ngIf="currentStep === 1">
+                <h2 class="fs-title">Zeitreihen Übersicht</h2>
+                <h3 class="fs-subtitle">Optionale Anzeige der Zeitreihen-Details</h3>
+
+                <div class="row vertical-align">
+                  <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group">
+                      <label>Raumebene wählen</label>
+                      <select [(ngModel)]="overviewTableTargetSpatialUnitMetadata" 
+                              [ngModelOptions]="{standalone: true}"
+                              class="form-control" required>
+                        <option disabled selected value> -- Ziel-Raumebene wählen -- </option>
+                        <option *ngFor="let spatialUnit of angularJsDataExchangeService.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()" 
+                                [value]="spatialUnit">
+                          {{spatialUnit.spatialUnitLevel}}
+                        </option>
+                      </select>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group">
+                      <label>Datenbank-Zeitreihen abrufen</label>
+                      <button class="btn btn-info" (click)="refreshIndicatorEditFeaturesOverviewTable()"
+                              [disabled]="!overviewTableTargetSpatialUnitMetadata">
+                        <i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Zeitreihen
+                      </button>
+                      <div class="help-block">
+                        <p>Das Anzeigen aller Zeitreihen des Indikators kann je nach Anzahl und Komplexität der Objekte einige Zeit in Anspruch nehmen</p>
+                        <p>Editieren einzelner Zellwerte via Doppelklick. Bestätigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
+                      </div>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group">
+                      <label>Datenbank-Zeitreihen bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>
+                      <label class="switch">
+                        <input class="elementCheckbox" type="checkbox"
+                               [(ngModel)]="enableDeleteFeatures" 
+                               [ngModelOptions]="{standalone: true}"
+                               (change)="onChangeEnableDeleteFeatures()">
+                        <span class="switchslider round text-left" style="line-height:25px;"></span>
+                      </label>
+
+                      &nbsp;&nbsp;
+
+                      <button class="btn btn-danger" (click)="clearAllIndicatorFeatures()" 
+                              [disabled]="!enableDeleteFeatures">
+                        <i class="fas fa-trash"></i>&nbsp;Lösche Indikator-Zeitreihen der selektierten Raumebene
+                      </button>
+                      <div class="help-block">
+                        <p>Das Löschen aller Zeitreihen des Indikators für die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p>
+                      </div>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div *ngIf="angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success" style="background-color: #9DC89F;">
+                    <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+                    {{angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success}}
+                  </div>
+                  <div *ngIf="angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure" style="background-color: #E79595;">
+                    <b>Letztes gescheitertes Update eines Einzeleintrags</b>
+                    {{angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure}}
+                  </div>
+                </div>
+   
+                <div class="admin-table-wrapper featureTableWrapper">
+                  <table id="indicatorFeatureTable" style="height: 50vh; width: 100%;" class="ag-theme-alpine"></table>
+                </div>
+   
+                <input type="button" name="next" class="next next_editFeaturesIndicator action-button" 
+                       value="Nächster Schritt" (click)="nextStep()"/>
+              </fieldset>
+
+              <!-- Step 2: Räumlicher Datensatz -->
+              <fieldset *ngIf="currentStep === 2">
+                <div style="position: absolute;">
+                  <button type="button" class="btn btn-info pull-left" 
+                          (click)="onImportIndicatorEditFeaturesMappingConfig()" 
+                          title="Importieren der Mapping-Konfigurationen aus einer Datei">
+                    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
+                  </button>
+                  <input style="display:none;" class="pull-left" type="file" class="form-control" 
+                         id="indicatorMappingConfigEditFeaturesImportFile" accept=".json,">
+                  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" 
+                          (click)="onExportIndicatorEditFeaturesMappingConfig()" 
+                          title="Exportieren der Mapping-Konfigurationen in eine Datei">
+                    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
+                  </button>
+                </div>
+
+                <h2 class="fs-title">Zeitreihen-Import</h2>
+                <h3 class="fs-subtitle">Angaben über den Datensatz, aus dem die Indikatoren-Zeitreihen-Werte importiert werden</h3>
+                <p><b><i>* = Pflichtfeld</i></b></p>
+
+                <div class="row vertical-align">
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Datensatz-Quellformat*</label>
+                      <select [(ngModel)]="converter" 
+                              [ngModelOptions]="{standalone: true}"
+                              (change)="onChangeConverter()"
+                              class="form-control" required>
+                        <option disabled selected value> -- Quellformat wählen -- </option>
+                        <option *ngFor="let converter of angularJsImporterHelperService.availableConverters | filter:angularJsImporterHelperService.filterConverters('indicator')" 
+                                [value]="converter">
+                          {{converter.name}}
+                        </option>
+                      </select>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                    
+                    <div *ngIf="converter?.schemas">
+                      <div class="form-group">
+                        <label>Schema*</label>
+                        <select [(ngModel)]="schema" 
+                                [ngModelOptions]="{standalone: true}"
+                                class="form-control" required>
+                          <option disabled selected value> -- Schema wählen -- </option>
+                          <option *ngFor="let schema of converter.schemas" [value]="schema">
+                            {{schema}}
+                          </option>
+                        </select>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+
+                    <div *ngIf="converter?.mimeTypes">
+                      <div class="form-group">
+                        <label>Quellformat*</label>
+                        <select [(ngModel)]="mimeType" 
+                                [ngModelOptions]="{standalone: true}"
+                                (change)="onChangeMimeType(mimeType)" 
+                                class="form-control" required>
+                          <option disabled selected value> -- Format wählen -- </option>
+                          <option *ngFor="let mimeType of converter.mimeTypes" [value]="mimeType">
+                            {{mimeType}}
+                          </option>
+                        </select>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+
+                    <ng-container *ngFor="let parameter of converter?.parameters">
+                      <div *ngIf="!parameter.name.includes('CRS')">
+                      <div class="form-group">
+                        <label>{{parameter.name}}<i *ngIf="parameter.mandatory">*</i></label>
+                        <input *ngIf="!(parameter.name === 'CRS')" type="text" 
+                               id="converterParameter_indicatorEditFeatures_{{parameter.name}}" 
+                               class="form-control"
+                               placeholder="{{parameter.name}}" 
+                               [required]="parameter.mandatory">
+                        <input *ngIf="parameter.name === 'CRS'" value="EPSG:4326" type="text" 
+                               id="converterParameter_indicatorEditFeatures_{{parameter.name}}" 
+                               class="form-control"
+                               placeholder="{{parameter.name}}" 
+                               [required]="parameter.mandatory">
+                        <div class="help-block">
+                          <p>{{parameter.description}}</p>
+                        </div>
+                        <div *ngIf="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+                          <p>CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der räumlichen Features</p>
+                        </div>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                        </div>
+                    </ng-container>
+                  </div>
+                  
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <div *ngIf="!converter">
+                        <p>bitte zuerst das Quellformat wählen</p>
+                      </div>
+                      <div *ngIf="converter">
+                        <div class="form-group">
+                          <label>Datenquelltyp*</label>
+                          <select [(ngModel)]="datasourceType" 
+                                  [ngModelOptions]="{standalone: true}"
+                                  class="form-control" required>
+                            <option disabled selected value> -- Quelltyp wählen -- </option>
+                            <option *ngFor="let datasourceType of angularJsImporterHelperService.availableDatasourceTypes" 
+                                    [value]="datasourceType">
+                              {{datasourceType.type}}
+                            </option>
+                          </select>
+                          <div class="help-block with-errors"></div>
+                        </div>
+
+                        <div *ngIf="datasourceType?.type === 'FILE'">
+                          <label>Datei*</label>
+                          <input type="file" class="form-control" id="indicatorDataSourceInput_editFeatures" required>
+                        </div>
+                        <div *ngIf="!(datasourceType?.type === 'FILE')">
+                          <div *ngFor="let parameter of datasourceType?.parameters">
+                            <div class="form-group">
+                              <label>{{parameter.name}}*</label>
+                              <textarea rows="1" id="datasourceTypeParameter_indicatorEditFeatures_{{parameter.name}}"
+                                        class="form-control" placeholder="{{parameter.name}}" required></textarea>
+                              <div class="help-block">
+                                <p>{{parameter.description}}</p>
+                              </div>
+                              <div class="help-block with-errors"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>ID Attributname der Raumeinheiten*</label>
+                      <input type="text" class="form-control" [(ngModel)]="spatialUnitRefKeyProperty" 
+                             [ngModelOptions]="{standalone: true}" required>
+                      <div class="help-block">
+                        <p>Name des Attributs, welches den eindeutigen Identifier der Zeitreihe enthält. Dieser muss identisch sein mit den Raumeinheiten-IDs der selektierten Raumebene</p>
+                      </div>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Ziel-Raumebene*</label>
+                      <select [(ngModel)]="targetSpatialUnitMetadata" 
+                              [ngModelOptions]="{standalone: true}"
+                              (change)="onChangeSelectedSpatialUnit(targetSpatialUnitMetadata)"
+                              class="form-control" required>
+                        <option disabled selected value> -- Ziel-Raumebene wählen -- </option>
+                        <option *ngFor="let spatialUnit of angularJsDataExchangeService.availableSpatialUnits" 
+                                [value]="spatialUnit">
+                          {{spatialUnit.spatialUnitLevel}}
+                        </option>
+                      </select>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="angularJsDataExchangeService.enableKeycloakSecurity">
+                  <hr>
+                  <br/>
+                  <h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe für Raumebene {{targetSpatialUnitMetadata?.spatialUnitLevel}}</h4>
+                  <p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gewährt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumebene besitzen.</strong></p>
+
+                  <div class="row vertical-align">
+                    <div class="col-md-3">
+                      <label>Öffentliche Lesefreigabe*</label>
+                      <label class="switch">
+                        <input type="checkbox" [(ngModel)]="isPublic" 
+                               [ngModelOptions]="{standalone: true}"
+                               (change)="onChangeIsPublic(isPublic)">
+                        <span class="switchslider round"></span>
+                      </label>
+                      <div class="help-block">
+                        <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="alert alert-info">
+                        Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
+                      </div>
+                      <br/>
+                      <div class="alert alert-warning">
+                        Lese- und Editierrechte wurden anhand der selektierten Raumeinheit und für die von Eigentümer-Organisationseinheit vorab markiert.
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </div>
+                
+                <hr>
+                <br/>
+                <h4>Zeitreihen-Mapping</h4>
+                <indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping>
+
+                <div class="row vertical-align">
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="form-group">
+                      <label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
+                      <br/>
+                      <label class="switch">
+                        <input type="checkbox" value="keepMissingValues" [(ngModel)]="keepMissingValues" 
+                               [ngModelOptions]="{standalone: true}">
+                        <span class="switchslider round"></span>
+                      </label>
+                      <div class="help-block">
+                        <p>Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Diese werden wie <i>NoData</i>-Werte behandelt. Bei deaktivierter Option wird bei einem solchen Fall ein Fehler geworfen.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <input type="button" name="previous" class="previous previous_editFeaturesIndicator action-button-previous" 
+                       value="Voriger Schritt" (click)="previousStep()"/>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" (click)="closeModal()">Schließen</button>
+        <button type="button" class="btn btn-success" 
+                [disabled]="!converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty" 
+                (click)="editIndicatorFeatures()">
+          Zeitreihen fortführen
+        </button>
+        <button type="button" class="btn btn-danger" (click)="resetIndicatorEditFeaturesForm()">Zurücksetzen</button>
+      </div>
+
+      <!-- Success Alert -->
+      <div id="indicatorEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+           class="alert alert-success alert-dismissable" style="display: none;">
+        <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-check"></i>Zeitreihen erfolgreich fortgeführt</h4>
+        <p>Fortführen der Zeitreihen des Indikators mit Namen {{successMessagePart}} war erfolgreich.</p>
+        <div *ngIf="importedFeatures && importedFeatures.length > 0">
+          {{importedFeatures.length}} Zeitreihen wurden dabei importiert.
+        </div>
+      </div>
+
+      <!-- Error Alert -->
+      <div id="indicatorEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+           class="alert alert-danger alert-dismissable" style="display: none;">
+        <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-ban"></i>Zeitreihen fortführen gescheitert</h4>
+        Beim Fortführen der Zeitreihen ist ein Fehler aufgetreten. Fehlermeldung:
+        <br/>
+        <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+        <br/>
+        <br/>
+        <div *ngIf="importerErrors">
+          <p>Bei den {{importerErrors.length}} Zeitreihen mit folgenden IDs scheitert der Import:</p>
+          <pre style="overflow:auto; max-height:500px;">
+            <ul>
+              <li *ngFor="let error of importerErrors">{{error}}</li>
+            </ul>
+          </pre>
+          <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+        </div>
+      </div>
+      
+      <!-- Mapping Config Import Error Alert -->
+      <div id="indicatorEditFeaturesMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+           class="alert alert-danger alert-dismissable" style="display: none;">
+        <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
+        Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+        <br/>
+        <pre [innerHTML]="indicatorMappingConfigImportError"></pre>
+        <br/>
+        <br/>
+        <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+        <pre id="indicatorsEditFeaturesMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+      </div>
+
+    </div>
+  </div>
+</div> 

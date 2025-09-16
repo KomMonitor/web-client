@@ -1,0 +1,255 @@
+/* Georesource Edit Metadata Modal Styles */
+
+/* Multi-step form styles */
+.multiStepForm {
+  position: relative;
+  margin: 0 auto;
+}
+
+.multiStepForm fieldset {
+  background: white;
+  border: 0 none;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.multiStepForm fieldset:not(:first-of-type) {
+  display: none;
+}
+
+.multiStepForm .fs-title {
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #2C3E50;
+  margin-bottom: 10px;
+}
+
+.multiStepForm .fs-subtitle {
+  font-weight: normal;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Progress bar */
+#progressbar {
+  margin-bottom: 30px;
+  overflow: hidden;
+  color: lightgrey;
+  padding-left: 0;
+}
+
+#progressbar li {
+  list-style-type: none;
+  font-size: 12px;
+  width: 33.33%;
+  float: left;
+  position: relative;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#progressbar li:hover {
+  color: #27AE60;
+}
+
+#progressbar li:hover:before {
+  background: #27AE60;
+  transform: scale(1.1);
+}
+
+#progressbar li:before {
+  width: 30px;
+  height: 30px;
+  line-height: 25px;
+  display: block;
+  font-size: 12px;
+  color: #ffffff;
+  background: lightgray;
+  border-radius: 50%;
+  margin: 0 auto 5px auto;
+  padding: 2px;
+  transition: all 0.3s ease;
+}
+
+#progressbar li.active:before,
+#progressbar li.active:after {
+  background: #27AE60;
+}
+
+/* Action buttons */
+.action-button {
+  width: 100px;
+  background: #27AE60;
+  font-weight: bold;
+  color: white;
+  border: 0 none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 5px;
+  margin: 10px 5px;
+}
+
+.action-button-previous {
+  width: 100px;
+  background: #616161;
+  font-weight: bold;
+  color: white;
+  border: 0 none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 5px;
+  margin: 10px 5px;
+}
+
+.action-button:hover,
+.action-button:focus {
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+}
+
+.action-button-previous:hover,
+.action-button-previous:focus {
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #616161;
+}
+
+/* Color picker styles */
+.customColorPicker .dropdown-menu {
+  min-width: 200px;
+}
+
+.customColorPicker .dropdown-menu li {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.customColorPicker .dropdown-menu li:hover {
+  background-color: #f5f5f5;
+}
+
+.customColorPicker .dropdown-menu li i {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+}
+
+.customColorPicker .btn i {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  margin-right: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Loading overlay */
+.loading-overlay-admin-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  font-size: 2em;
+  color: #337ab7;
+}
+
+.loading-overlay-admin-panel.ng-hide {
+  display: none;
+}
+
+.icon-spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Form adjustments */
+.form-control {
+  font-size: 12px;
+}
+
+.help-block {
+  font-size: 11px;
+  color: #737373;
+}
+
+/* Alert styles */
+.alert {
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+.alert pre {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Box styles for topics management */
+.box.box-primary {
+  border-top-color: #3c8dbc;
+}
+
+.box.box-primary.collapsed-box .box-body,
+.box.box-primary.collapsed-box .box-footer {
+  display: none;
+}
+
+.box-header {
+  padding: 10px;
+  border-bottom: 1px solid #f4f4f4;
+  color: #444;
+  display: block;
+  font-size: 18px;
+  line-height: 1.42857143;
+  background-color: #ffffff;
+}
+
+.box-tools {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+}
+
+.btn-box-tool {
+  padding: 5px;
+  font-size: 12px;
+  background: transparent;
+  color: #97a0b3;
+  border: none;
+}
+
+.btn-box-tool:hover {
+  color: #606c84;
+}
+
+/* Vertical alignment helper */
+.vertical-align {
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vertical-align {
+    display: block;
+  }
+  
+  .col-md-3,
+  .col-md-4,
+  .col-md-6 {
+    margin-bottom: 15px;
+  }
+} 

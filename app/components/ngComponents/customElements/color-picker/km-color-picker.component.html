@@ -1,0 +1,26 @@
+<div #container class="km-color-picker" [class.disabled]="disabled">
+  <button 
+    type="button"
+    class="km-color-trigger"
+    [disabled]="disabled"
+    (click)="toggle($event)"
+    [title]="label"
+    [style.background-color]="color"
+    [style.border-color]="color">
+    <span class="km-color-text">{{ color }}</span>
+  </button>
+
+  <div *ngIf="isOpen" class="km-color-overlay" (click)="onContainerClick($event)" [style.z-index]="zIndex">
+    <color-sketch 
+      [color]="color"
+      (onChange)="onChange($event)"
+      (onChangeComplete)="onChangeComplete($event)"
+      [disableAlpha]="true"
+      [width]="220">
+    </color-sketch>
+  </div>
+
+  <div *ngIf="isOpen" class="km-color-backdrop" (click)="close($event)" [style.z-index]="zIndex - 1"></div>
+</div>
+
+

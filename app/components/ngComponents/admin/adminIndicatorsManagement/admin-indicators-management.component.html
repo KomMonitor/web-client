@@ -1,0 +1,345 @@
+<div id="adminIndicatorsContent">
+
+  <div align="center">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Verwalten der Indikatoren
+      <small>Info</small>
+    </h1>
+
+    <div class="adminTableButtonWrapper">
+      <div class="verticalAlign">
+        <span>Nur editierbare Datensätze anzeigen</span>
+        <div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="tableViewSwitcher" (ngModelChange)="onTableViewSwitch()">
+            <span class="switchslider round"></span>
+          </label>
+        </div>
+      </div>
+      <!-- batch update indicators -->
+      <button id="button-batch-update-indicators" class="btn btn-success btn-sm" type="button" 
+              [disabled]="!checkEditorPermission()"
+              (click)="onClickBatchUpdate()">
+        <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
+      </button>
+      <!-- add indicator -->
+      <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" 
+              (click)="openAddIndicatorModal()">
+        <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
+      </button>
+      <!-- delete selected completely -->
+      <button class="btn btn-danger btn-sm" type="button" 
+              [disabled]="!checkDeletePermission()"
+              (click)="onClickDeleteSelected()">
+        <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
+      </button>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <section class="content container-fluid">
+    <!--------------------------
+      | Your Page Content Here |
+      -------------------------->
+
+    <!-- POI -->
+
+    <div class="box box-primary">
+      <div class="box-header">
+        <h3 class="box-title">Indikatoren-Metadaten</h3>
+
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse">
+            <i class="fa fa-minus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- /.box-header -->
+      <div class="box-body">
+
+        <div class="admin-table-wrapper">
+
+          <ag-grid-angular
+            #agGrid
+            style="height: 70vh;"
+            class="ag-theme-alpine"
+            [columnDefs]="columnDefs"
+            [rowData]="rowData"
+            [gridOptions]="gridOptions"
+            [defaultColDef]="gridOptions.defaultColDef"
+            [pagination]="true"
+            [paginationPageSize]="10"
+            [rowSelection]="'multiple'"
+            [suppressRowClickSelection]="true"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [suppressColumnVirtualisation]="true">
+          </ag-grid-angular>
+
+        </div>
+      </div>
+      <!-- /.box-body -->
+    </div>
+    <!-- /.box -->
+
+    <!-- /.box-header -->
+    <div class="box box-primary collapsed-box">
+      <div class="box-header">
+        <h3 class="box-title">Indikatoren-Reihenfolge in Themenkatalog</h3>
+
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse">
+            <i class="fa fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="box-body">
+
+        <div class="just-padding">
+
+          <div id="indicatorHierarchyOrderView" class="list-group list-group-root well">
+
+            <label>Erläuterungen zur Symbolik </label>
+            <div class="list-group-item list-group-item-default style-simple-indicator">
+              <p style="cursor:pointer; color: black;"> 
+                <i class="fas fa-sitemap"></i> &nbsp;&nbsp;
+                <b>Standardindikator (numerische Wertverteilung)</b> [Einheitsbezeichnung]
+              </p>
+            </div>
+            
+            <div class="list-group-item list-group-item-default style-headline-indicator">
+              <p style="cursor:pointer; color: white;">
+                <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;
+                <b>Leitindikator (bewertende Aussage)</b> [Einheitsbezeichnung]
+              </p>
+            </div>
+            
+            <br />
+
+            <label> Via Drag and Drop Einträge innerhalb eines (Unter-)Themas sortieren </label>
+
+            <div *ngIf="!hasTopicData" class="alert alert-info">
+              Laden der Themenhierarchie...
+            </div>
+
+            <!-- Main Topics -->
+            <div *ngFor="let mainTopic of kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView | orderBy: 'topicName'">
+              <div class="list-group-item list-group-item-default kommonitor-theme"
+                   style="background: #2171b5; color: white;">
+                <a href="javascript:void(0)" 
+                   [title]="mainTopic.topicDescription" 
+                   class="collapseTrigger"
+                   style="color: white;" 
+                   (click)="toggleTopicCollapse(mainTopic.topicId)">
+                  <i class="glyphicon" 
+                     [ngClass]="{'glyphicon-chevron-right': isTopicCollapsed(mainTopic.topicId), 'glyphicon-chevron-down': !isTopicCollapsed(mainTopic.topicId)}"></i>
+                  {{mainTopic.topicName}} ({{mainTopic.indicatorCount}})
+                </a>
+              </div>
+
+              <div class="list-group" 
+                   *ngIf="!isTopicCollapsed(mainTopic.topicId)">
+                
+                <!-- Sub Topics -->
+                <div *ngFor="let subTopic of mainTopic.subTopics | orderBy: 'topicName'">
+                  <div class="list-group-item list-group-item-default kommonitor-theme-light"
+                       style="background: #6baed6; color: white;">
+                    <a class="collapseTrigger" 
+                       style="color: white;"
+                       [title]="subTopic.topicDescription" 
+                       href="javascript:void(0)"
+                       (click)="toggleTopicCollapse(subTopic.topicId)">
+                      <i class="glyphicon" 
+                         [ngClass]="{'glyphicon-chevron-right': isTopicCollapsed(subTopic.topicId), 'glyphicon-chevron-down': !isTopicCollapsed(subTopic.topicId)}"></i>
+                      {{subTopic.topicName}} ({{subTopic.indicatorCount}})
+                    </a>
+                  </div>
+                  
+                  <div class="list-group" 
+                       *ngIf="!isTopicCollapsed(subTopic.topicId)">
+                    
+                    <!-- Sub-Sub Topics -->
+                    <div *ngFor="let subsubTopic of subTopic.subTopics | orderBy: 'topicName'">
+                      <div class="list-group-item list-group-item-default"
+                           style="background: #bdd7e7; color: white;">
+                        <a class="collapseTrigger" 
+                           style="color: black;"
+                           [title]="subsubTopic.topicDescription" 
+                           href="javascript:void(0)"
+                           (click)="toggleTopicCollapse(subsubTopic.topicId)">
+                          <i class="glyphicon" 
+                             [ngClass]="{'glyphicon-chevron-right': isTopicCollapsed(subsubTopic.topicId), 'glyphicon-chevron-down': !isTopicCollapsed(subsubTopic.topicId)}"></i>
+                          {{subsubTopic.topicName}} ({{subsubTopic.indicatorCount}})
+                        </a>
+                      </div>
+                      
+                      <div class="list-group" 
+                           *ngIf="!isTopicCollapsed(subsubTopic.topicId)">
+                        
+                        <!-- Sub-Sub-Sub Topics -->
+                        <div *ngFor="let subsubsubTopic of subsubTopic.subTopics | orderBy: 'topicName'">
+                          <div class="list-group-item list-group-item-default"
+                               style="background: #eff3ff; color: white;">
+                            <a class="collapseTrigger" 
+                               style="color: black;"
+                               [title]="subsubsubTopic.topicDescription"
+                               href="javascript:void(0)"
+                               (click)="toggleTopicCollapse(subsubsubTopic.topicId)">
+                              <i class="glyphicon" 
+                                 [ngClass]="{'glyphicon-chevron-right': isTopicCollapsed(subsubsubTopic.topicId), 'glyphicon-chevron-down': !isTopicCollapsed(subsubsubTopic.topicId)}"></i>
+                              {{subsubsubTopic.topicName}} ({{subsubsubTopic.indicatorCount}})
+                            </a>
+                          </div>
+                          
+                          <!-- Indicators in Sub-Sub-Sub Topics -->
+                          <div class="list-group indicatorInputForm" 
+                               *ngIf="!isTopicCollapsed(subsubsubTopic.topicId)"
+                               cdkDropList
+                               (cdkDropListDropped)="onDragEnd($event, subsubsubTopic.indicatorData)">
+                            <div *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData; let i = index"
+                                 id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}"
+                                 [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator}"
+                                 class="list-group-item list-group-item-default"
+                                 cdkDrag>
+                              <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                                <p style="cursor:pointer; color: white;"
+                                   [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                                   style="color: white;">
+                                  <i class="fas fa-tachometer-alt"></i>
+                                  &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                                  [{{indicatorMetadata.unit}}]
+                                </p>
+                              </div>
+                              <div *ngIf="!indicatorMetadata.isHeadlineIndicator">
+                                <p style="cursor:pointer;"
+                                   [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                                   style="color: white;">
+                                  <i class="fas fa-sitemap"></i>
+                                  &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                                  [{{indicatorMetadata.unit}}]
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Indicators in Sub-Sub Topics -->
+                        <div class="list-group indicatorInputForm" 
+                             *ngIf="!isTopicCollapsed(subsubTopic.topicId)"
+                             cdkDropList
+                             (cdkDropListDropped)="onDragEnd($event, subsubTopic.indicatorData)">
+                          <div *ngFor="let indicatorMetadata of subsubTopic.indicatorData; let i = index"
+                               id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}"
+                               [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator}"
+                               class="list-group-item list-group-item-default"
+                               cdkDrag>
+                            <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                              <p style="cursor:pointer; color: white;"
+                                 [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                                 style="color: white;">
+                                <i class="fas fa-tachometer-alt"></i>
+                                &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                                [{{indicatorMetadata.unit}}]
+                              </p>
+                            </div>
+                            <div *ngIf="!indicatorMetadata.isHeadlineIndicator">
+                              <p style="cursor:pointer;"
+                                 [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                                 style="color: white;">
+                                <i class="fas fa-sitemap"></i>
+                                &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                                [{{indicatorMetadata.unit}}]
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Indicators in Sub Topics -->
+                    <div class="list-group indicatorInputForm" 
+                         *ngIf="!isTopicCollapsed(subTopic.topicId)"
+                         cdkDropList
+                         (cdkDropListDropped)="onDragEnd($event, subTopic.indicatorData)">
+                      <div *ngFor="let indicatorMetadata of subTopic.indicatorData; let i = index"
+                           id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}"
+                           [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator}"
+                           class="list-group-item list-group-item-default"
+                           cdkDrag>
+                        <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                          <p style="cursor:pointer; color: white;"
+                             [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                             style="color: white;">
+                            <i class="fas fa-tachometer-alt"></i>
+                            &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                            [{{indicatorMetadata.unit}}]
+                          </p>
+                        </div>
+                        <div *ngIf="!indicatorMetadata.isHeadlineIndicator">
+                          <p style="cursor:pointer;"
+                             [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                             style="color: white;">
+                            <i class="fas fa-sitemap"></i>
+                            &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                            [{{indicatorMetadata.unit}}]
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Indicators in Main Topics -->
+                <div class="list-group indicatorInputForm" 
+                     *ngIf="!isTopicCollapsed(mainTopic.topicId)"
+                     cdkDropList
+                     (cdkDropListDropped)="onDragEnd($event, mainTopic.indicatorData)">
+                  <div *ngFor="let indicatorMetadata of mainTopic.indicatorData; let i = index"
+                       id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}"
+                       [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator}"
+                       class="list-group-item list-group-item-default"
+                       cdkDrag>
+                    <div *ngIf="indicatorMetadata.isHeadlineIndicator">
+                      <p style="cursor:pointer; color: white;"
+                         [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                         style="color: white;">
+                        <i class="fas fa-tachometer-alt"></i>
+                        &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                        [{{indicatorMetadata.unit}}]
+                      </p>
+                    </div>
+                    <div *ngIf="!indicatorMetadata.isHeadlineIndicator">
+                      <p style="cursor:pointer;"
+                         [title]="'<b>' + indicatorMetadata.indicatorName + '</b> [' + indicatorMetadata.unit + ']'"
+                         style="color: white;">
+                        <i class="fas fa-sitemap"></i>
+                        &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b>
+                        [{{indicatorMetadata.unit}}]
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+      <!-- /.box-body -->
+    </div>
+    <!-- /.box -->
+
+  </section>
+  <!-- /.content -->
+
+</div> 

@@ -91,6 +91,17 @@ export const ajskommonitorFilterHelperServiceProvider: any = {
     useFactory:kommonitorFilterHelperServiceFactory,
   };
 
+//importer helper
+export function kommonitorImporterHelperServiceFactory (injector:any){
+    return injector.get('kommonitorImporterHelperService')
+}
+
+export const ajskommonitorImporterHelperServiceProvider: any = {
+    deps: ['$injector'],
+    provide: 'kommonitorImporterHelperService',
+    useFactory:kommonitorImporterHelperServiceFactory,
+  };
+
 //keycloack helper
   export function kommonitorKeycloackHelperServiceFactory (injector:any){
     return injector.get('kommonitorKeycloackHelperService')

@@ -1,0 +1,415 @@
+/* Georesource Add Modal Component Styles */
+
+/* Loading overlay */
+.loading-overlay-admin-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-overlay-admin-panel.ng-hide {
+  display: none !important;
+}
+
+/* Multi-step form styles */
+.multiStepForm {
+  margin-bottom: 0px;
+}
+
+#progressbar {
+  margin-bottom: 30px;
+  overflow: hidden;
+  color: lightgrey;
+  padding-left: 0;
+}
+
+#progressbar li {
+  list-style-type: none;
+  font-size: 15px;
+  width: 25%;
+  float: left;
+  position: relative;
+  font-weight: 400;
+}
+
+#progressbar li:before {
+  width: 50px;
+  height: 50px;
+  line-height: 45px;
+  display: block;
+  font-size: 20px;
+  color: #ffffff;
+  background: lightgray;
+  border-radius: 50%;
+  margin: 0 auto 10px auto;
+  padding: 2px;
+}
+
+#progressbar li.active:before,
+#progressbar li.active:after {
+  background: #27AE60;
+}
+
+#progressbar li.clickable {
+  cursor: pointer;
+}
+
+/* Form fieldset styles */
+.fs-title {
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #2C3E50;
+  margin-bottom: 10px;
+}
+
+.fs-subtitle {
+  font-weight: normal;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Form group spacing */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Vertical alignment helper */
+.vertical-align {
+  display: flex;
+  align-items: center;
+}
+
+/* Modal body padding */
+.modal-body {
+  padding: 20px;
+}
+
+/* Modal footer styling */
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Switch toggle styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switchslider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switchslider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .switchslider {
+  background-color: #2196F3;
+}
+
+input:focus + .switchslider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .switchslider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.switchslider.round {
+  border-radius: 34px;
+}
+
+.switchslider.round:before {
+  border-radius: 50%;
+}
+
+/* Custom color picker dropdown styles */
+.customColorPicker .dropdown-menu {
+  min-width: 200px;
+}
+
+.customColorPicker .dropdown-menu li a {
+  padding: 5px 10px;
+}
+
+.customColorPicker .dropdown-menu li a i {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+}
+
+/* Table styles for attribute mappings */
+.table-condensed > thead > tr > th,
+.table-condensed > tbody > tr > th,
+.table-condensed > tfoot > tr > th,
+.table-condensed > thead > tr > td,
+.table-condensed > tbody > tr > td,
+.table-condensed > tfoot > tr > td {
+  padding: 5px;
+}
+
+.modal-footer .btn {
+  margin-left: 5px;
+}
+
+/* Form validation styles */
+.help-block {
+  color: #737373;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.help-block.with-errors {
+  color: #a94442;
+}
+
+/* Error message styling */
+.error-message {
+  color: #a94442;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+/* Success message styling */
+.success-message {
+  color: #3c763d;
+  background-color: #dff0d8;
+  border: 1px solid #d6e9c6;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+/* Checkbox styling */
+.checkbox {
+  margin-top: 10px;
+}
+
+.checkbox label {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+/* File input styling */
+input[type="file"] {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+/* Color input styling */
+input[type="color"] {
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Select styling */
+select.form-control {
+  height: 34px;
+  padding: 6px 12px;
+}
+
+/* Textarea styling */
+textarea.form-control {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* Button styling */
+.btn {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-success {
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+}
+
+.btn-success:hover {
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+.btn-danger {
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+
+.btn-danger:hover {
+  background-color: #c9302c;
+  border-color: #ac2925;
+}
+
+.btn-info {
+  background-color: #5bc0de;
+  border-color: #46b8da;
+}
+
+.btn-info:hover {
+  background-color: #31b0d5;
+  border-color: #269abc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vertical-align {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .col-xs-12 {
+    margin-bottom: 15px;
+  }
+  
+  #progressbar li {
+    font-size: 12px;
+  }
+  
+  #progressbar li:before {
+    width: 40px;
+    height: 40px;
+    line-height: 35px;
+    font-size: 16px;
+  }
+}
+
+/* Modal size adjustments */
+.modal-xl {
+  width: 90%;
+  max-width: 1200px;
+}
+
+/* Form validation states */
+.form-control.ng-invalid.ng-touched {
+  border-color: #a94442;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
+}
+
+.form-control.ng-valid.ng-touched {
+  border-color: #3c763d;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
+}
+
+/* Navigation buttons */
+.navigation-buttons {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.navigation-buttons .btn {
+  margin: 0 5px;
+}
+
+/* Step content transitions */
+.step-content {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Icon picker styling (if used) */
+.icon-picker {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+/* Role management table styling */
+.role-management-table {
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Topic hierarchy styling */
+.topic-hierarchy {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.topic-hierarchy select {
+  margin-bottom: 10px;
+}
+
+/* Visual styling section */
+.visual-styling {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.visual-styling .form-group {
+  margin-bottom: 10px;
+}
+
+/* Period of validity styling */
+.period-of-validity {
+  background-color: #e8f4f8;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.period-of-validity .form-group {
+  margin-bottom: 10px;
+}
+
+/* Importer section styling */
+.importer-section {
+  background-color: #f0f8ff;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.importer-section .form-group {
+  margin-bottom: 10px;
+} 

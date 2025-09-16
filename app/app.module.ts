@@ -4,6 +4,7 @@ import { DoBootstrap, NgModule, Version, inject, Input, Inject, CUSTOM_ELEMENTS_
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { downgradeComponent } from '@angular/upgrade/static';
+import { AgGridAngular } from 'ag-grid-angular';
 
 import $ from 'jquery';
 import Keycloak from 'keycloak-js';
@@ -21,6 +22,7 @@ import {
   ajskommonitorDataGridHelperServiceProvider,
   ajskommonitorDiagramHelperServiceProvider,
   ajskommonitorFilterHelperServiceProvider,
+  ajskommonitorImporterHelperServiceProvider,
   ajskommonitorKeycloackHelperServiceProvider,
   ajskommonitorMultiStepFormHelperServiceProvider, 
   ajskommonitorSingleFeatureMapServiceProvider,
@@ -40,6 +42,7 @@ import { KommonitorLegendComponent } from 'components/ngComponents/userInterface
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { KommonitorClassificationComponent } from './components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { KommonitorDataSetupComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { SidebarComponent } from './components/ngComponents/userInterface/sidebar/sidebar.component';
@@ -48,6 +51,9 @@ import { KommonitorFilterComponent } from './components/ngComponents/userInterfa
 import { KommonitorMapComponent } from './components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
 import { DualListBoxComponent } from './components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { KommonitorBalanceComponent } from './components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
+import { KmDatePickerComponent } from './components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { KmColorPickerComponent } from './components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmLinePatternPickerComponent } from './components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { NouisliderModule } from 'ng2-nouislider';
 import { KommonitorDiagramsComponent } from './components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { UserInterfaceComponent } from './components/ngComponents/userInterface/user-interface.component';
@@ -70,12 +76,36 @@ import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
+import { FilterPipe } from 'pipes/filter.pipe';
+import { OrderByPipe } from 'pipes/order-by.pipe';
 
 import { AdminAppConfigComponent } from './components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
+import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
+import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
+import { SpatialUnitEditFeaturesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitEditUserRolesModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
+import { SpatialUnitDeleteModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import { AdminIndicatorsManagementComponent } from './components/ngComponents/admin/adminIndicatorsManagement/admin-indicators-management.component';
+import { IndicatorAddModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.component';
+import { IndicatorEditMetadataModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
+import { IndicatorEditFeaturesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
+import { IndicatorDeleteModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.component';
+import { IndicatorBatchUpdateModalComponent } from './components/ngComponents/admin/adminIndicatorsManagement/indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { AdminGeoresourcesManagementComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/admin-georesources-management.component';
+import { GeoresourceAddModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.component';
+import { GeoresourceBatchUpdateModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceBatchUpdateModal/georesource-batch-update-modal.component';
+import { GeoresourceEditMetadataModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
+import { GeoresourceEditFeaturesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component';
+import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
+import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
 import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
+
+import { ColorSketchModule } from 'ngx-color/sketch';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -100,7 +130,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
+    DragDropModule,
     DualListBoxComponent,
+    AgGridAngular,
+    ColorSketchModule,
+    KmDatePickerComponent,
+    KmColorPickerComponent,
+    KmLinePatternPickerComponent,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
       loader: {
@@ -122,6 +158,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     ajskommonitorSingleFeatureMapServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,
     ajskommonitorFilterHelperServiceProvider,
+    ajskommonitorImporterHelperServiceProvider,
     ajskommonitorElementVisibilityHelperServiceProvider, 
     ajskommonitorShareHelperServiceProvider,
     ajskommonitorVisualStyleHelperServiceProvider, 
@@ -160,6 +197,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     IndicatorFavFilter,
     GeoFavFilter,
     GeoFavItemFilter,
+    FilterPipe,
+    OrderByPipe,
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
     RegressionDiagramComponent,
@@ -172,6 +211,26 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
     AdminDashboardManagementComponent,
+    AdminSpatialUnitsManagementComponent,
+    SpatialUnitAddModalComponent,
+    SpatialUnitEditMetadataModalComponent,
+    SpatialUnitEditFeaturesModalComponent,
+    SpatialUnitEditUserRolesModalComponent,
+    SpatialUnitDeleteModalComponent,
+    AdminIndicatorsManagementComponent,
+    IndicatorAddModalComponent,
+    IndicatorEditMetadataModalComponent,
+    IndicatorEditFeaturesModalComponent,
+    IndicatorEditIndicatorSpatialUnitRolesModalComponent,
+    IndicatorDeleteModalComponent,
+    IndicatorBatchUpdateModalComponent,
+    AdminGeoresourcesManagementComponent,
+    GeoresourceAddModalComponent,
+    GeoresourceBatchUpdateModalComponent,
+    GeoresourceEditMetadataModalComponent,
+    GeoresourceEditFeaturesModalComponent,
+    GeoresourceEditUserRolesModalComponent,
+    GeoresourceDeleteModalComponent,
     UserLoginComponent
   ],
   schemas: [
@@ -307,6 +366,71 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorUserInterface')
       .directive('userLanguageSwitcher', downgradeComponent({
         component: LanguageSwitcherComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminSpatialUnitsManagementNew', downgradeComponent({
+        component: AdminSpatialUnitsManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditMetadataModalNew', downgradeComponent({
+        component: SpatialUnitEditMetadataModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditFeaturesModalNew', downgradeComponent({
+        component: SpatialUnitEditFeaturesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitEditUserRolesModalNew', downgradeComponent({
+        component: SpatialUnitEditUserRolesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('spatialUnitDeleteModalNew', downgradeComponent({
+        component: SpatialUnitDeleteModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminIndicatorsManagementNew', downgradeComponent({
+        component: AdminIndicatorsManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('adminGeoresourcesManagementNew', downgradeComponent({
+        component: AdminGeoresourcesManagementComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceAddModalNew', downgradeComponent({
+        component: GeoresourceAddModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceBatchUpdateModalNew', downgradeComponent({
+        component: GeoresourceBatchUpdateModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceEditMetadataModalNew', downgradeComponent({
+        component: GeoresourceEditMetadataModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceEditFeaturesModalNew', downgradeComponent({
+        component: GeoresourceEditFeaturesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceEditUserRolesModalNew', downgradeComponent({
+        component: GeoresourceEditUserRolesModalComponent
+      }) as angular.IDirectiveFactory);
+
+    angular.module('kommonitorAdmin')
+      .directive('georesourceDeleteModalNew', downgradeComponent({
+        component: GeoresourceDeleteModalComponent
       }) as angular.IDirectiveFactory);
 
     console.log("registered downgraded Angular components for AngularJS usage");

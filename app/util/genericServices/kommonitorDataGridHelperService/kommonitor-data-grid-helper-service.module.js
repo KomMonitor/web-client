@@ -108,7 +108,7 @@ angular
         html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt" ></i></button>';
         html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
         html += '<button id="'+ editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesources-user-roles" title="Zugriffsschutz und Eigentümerschaft editieren"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>'
-        html += '<button id="btn_georesource_deleteGeoresource_' + params.data.georesourceId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-georesources" title="Georessource entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
+        html += '<button id="btn_georesource_deleteGeoresource_' + params.data.georesourceId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
 
         return html;
@@ -1005,16 +1005,28 @@ angular
         $(".georesourceDeleteBtn").off();
         $(".georesourceDeleteBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
-          // manually open modal
           event.stopPropagation();
-          let modalId = document.getElementById(this.id).getAttribute("data-target");
-          $(modalId).modal('show');
-                 
+          
           let georesourceId = this.id.split("_")[3]; 
-
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
-          $rootScope.$broadcast("onDeleteGeoresources", [georesourceMetadata]); //handler function takes an array
+          // Try to use the new Angular component method first
+          try {
+            let angularComponent = angular.element(document.querySelector('admin-georesources-management-new')).controller('admin-georesources-management-new');
+            if (angularComponent && angularComponent.onClickDeleteGeoresource) {
+              angularComponent.onClickDeleteGeoresource(georesourceMetadata);
+            } else {
+              // Fallback to AngularJS broadcast
+              let modalId = document.getElementById(this.id).getAttribute("data-target");
+              $(modalId).modal('show');
+              $rootScope.$broadcast("onDeleteGeoresources", [georesourceMetadata]);
+            }
+          } catch (error) {
+            // Fallback to AngularJS broadcast
+            let modalId = document.getElementById(this.id).getAttribute("data-target");
+            $(modalId).modal('show');
+            $rootScope.$broadcast("onDeleteGeoresources", [georesourceMetadata]);
+          }
         });
 
       };
@@ -1338,16 +1350,28 @@ angular
         $(".spatialUnitEditUserRolesBtn").off();
         $(".spatialUnitEditUserRolesBtn").on("click", function (event) {
           // ensure that only the target button gets clicked
-          // manually open modal
           event.stopPropagation();
-          let modalId = document.getElementById(this.id).getAttribute("data-target");
-          $(modalId).modal('show');
           
           let spatialUnitId = this.id.split("_")[3];
-
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
-          $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
+          // Try to use the new Angular component method first
+          try {
+            let angularComponent = angular.element(document.querySelector('admin-spatial-units-management-new')).controller('admin-spatial-units-management-new');
+            if (angularComponent && angularComponent.onClickEditUserRoles) {
+              angularComponent.onClickEditUserRoles(spatialUnitMetadata);
+            } else {
+              // Fallback to AngularJS broadcast
+              let modalId = document.getElementById(this.id).getAttribute("data-target");
+              $(modalId).modal('show');
+              $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
+            }
+          } catch (error) {
+            // Fallback to AngularJS broadcast
+            let modalId = document.getElementById(this.id).getAttribute("data-target");
+            $(modalId).modal('show');
+            $rootScope.$broadcast("onEditSpatialUnitUserRoles", spatialUnitMetadata);
+          }
         });
 
         $(".spatialUnitDeleteBtn").off();
