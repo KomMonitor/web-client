@@ -1880,7 +1880,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   buildPostBody_georesources(): any {
     const postBody: any = {
       "geoJsonString": this.geoJsonString || "",
-      "allowedRoles": [],
+      "permissions": [],
       "metadata": {
         "note": this.metadata.note,
         "literature": this.metadata.literature,
@@ -1910,7 +1910,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
-          postBody.allowedRoles.push(roleId);
+          postBody.permissions.push(roleId);
         }
       }
     }
