@@ -155,14 +155,12 @@ export class LeafletScreenshotCacheHelperService {
             console.error('oops, something went wrong!', error);
           });
       }, 150);
-    }
-    else{
+    } else {
       // only increase executedCacheMap due to log progress
       this.executedScreenshotMapKeys.set(CacheKey, CacheKey);
       // send UI update information
       this.logProgress();     
     }
-
   }
 
   clearScreenshotMap(){

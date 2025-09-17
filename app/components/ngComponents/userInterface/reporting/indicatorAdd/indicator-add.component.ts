@@ -244,15 +244,7 @@ export class IndicatorAddComponent implements OnInit {
     // init leafletScreenshot service after DB has beeon initialized
     this.leafletScreenshotCacheHelperService.init();
 
-    //this.setupSlider();
   }
- 
-/*   setupSlider() {
-    this.dateSlider = document.getElementById('reportingDateSlider');
-
-    noUiSlider.cssClasses.target += ' custom-dateSlider';
-    noUiSlider.create(this.dateSlider, this.dateSliderConfig);
-  } */
   
   initialize() {
     this.loadingData = true;
@@ -760,15 +752,15 @@ export class IndicatorAddComponent implements OnInit {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
-      pageToInsert.area = area.name;
-      pageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsert.push(pageToInsert);
+      let landscapePageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage ]);
+      landscapePageToInsert.area = area.name;
+      landscapePageToInsert.id = this.templatePageIdCounter++;
+      pagesToInsert.push(landscapePageToInsert);
 
-      pageToInsert = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
-      pageToInsert.area = area.name;
-      pageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsert.push(pageToInsert);
+      let portraitPageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage + 1 ]);
+      portraitPageToInsert.area = area.name;
+      portraitPageToInsert.id = this.templatePageIdCounter++;
+      pagesToInsert.push(portraitPageToInsert);
     }
 
     // sort alphabetically by area name
@@ -2545,7 +2537,7 @@ export class IndicatorAddComponent implements OnInit {
         if(page.orientation == this.template.orientation){
           // hier
           setTimeout(async() => {
-
+          copy unten
             await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
                         page.spatialUnitFeatureId, page.orientation, domNode);
           },1000);
@@ -2557,8 +2549,6 @@ export class IndicatorAddComponent implements OnInit {
 
       leafletMap.whenReady(async () => {
         if(page.orientation == this.template.orientation){
-          // hier
-
           await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
                       page.spatialUnitFeatureId, page.orientation, domNode, leafletMap);
           
@@ -3772,7 +3762,6 @@ export class IndicatorAddComponent implements OnInit {
 				setTimeout(async () => {
 					pageIdx++;
 					let page = this.template.pages[i];
-					
 					let prevPage = i>1 ? this.template.pages[i-1] : undefined;
 					let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
 
