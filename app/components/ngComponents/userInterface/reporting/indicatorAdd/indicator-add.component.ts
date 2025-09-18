@@ -594,7 +594,7 @@ export class IndicatorAddComponent implements OnInit {
      this.template.pages = this.template.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
-    this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.reportingConfig.template));
+    //this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.reportingConfig.template));
 
     let numberOfTargetSpatialUnitFeatures = 0;
     if(newVal && newVal.length){
@@ -663,12 +663,12 @@ export class IndicatorAddComponent implements OnInit {
     for(let area of newVal) {
 
       // get page to insert from untouched template
-      let landscapePage:any = this.copy(fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage]);
+      let landscapePage:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage];
       landscapePage.area = area.name;
       landscapePage.id = this.templatePageIdCounter++;
       pagesToInsertPerTimestamp.push(landscapePage);
 
-      let portraitPage:any = this.copy(fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1]);
+      let portraitPage:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage + 1];
       portraitPage.area = area.name;
       portraitPage.id = this.templatePageIdCounter++;
       pagesToInsertPerTimestamp.push(portraitPage);
@@ -754,12 +754,12 @@ export class IndicatorAddComponent implements OnInit {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let landscapePageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage ]);
+      let landscapePageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage ];
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(landscapePageToInsert);
 
-      let portraitPageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage + 1 ]);
+      let portraitPageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(portraitPageToInsert);
@@ -807,16 +807,15 @@ export class IndicatorAddComponent implements OnInit {
 
   updateAreasForReachabilityTemplates(newVal) {
     // we only have one timestamp here (the most recent one)
-    console.log(newVal)
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      let landscapePageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage ]);
+      let landscapePageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage ];
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(landscapePageToInsert);
 
-      let portraitPageToInsert:any = this.copy(this.untouchedTemplateAsObj.pages[ this.indexOfFirstAreaSpecificPage + 1 ]);
+      let portraitPageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(portraitPageToInsert);
@@ -828,7 +827,6 @@ export class IndicatorAddComponent implements OnInit {
       let textB = b.area.toLowerCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
-    console.log(pagesToInsert)
 
     // we select the most recent timestamp programmatically and don't allow user to change it, so this should be 1 here
     if(this.selectedTimestamps.length === 1) {
@@ -2206,7 +2204,6 @@ export class IndicatorAddComponent implements OnInit {
     if(!this.template.name.includes("reachability")) {
       this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template, this.untouchedTemplateAsObj, Date.now()])
     } else {
-      console.log('call')
       this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.template, this.untouchedTemplateAsObj, Date.now()])
     }
 

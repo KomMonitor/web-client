@@ -120,7 +120,6 @@ export class ReportingOverviewComponent implements OnInit {
 
   generateReport() {
     const reportingModalRef = this.modalService.open(GenerateReportComponent, {windowClass: 'modal-holder', centered: true});
-    console.log(this.data.reportingConfig)
     reportingModalRef.componentInstance.data = this.data.reportingConfig;
    // this.onWorkflowSelect([4,this.data.reportingConfig]);
   }
@@ -316,11 +315,13 @@ export class ReportingOverviewComponent implements OnInit {
 			// append to array
 			//this.data.reportingConfig.pages.push(...template.pages);
 
-			this.data.reportingConfig.templateSections.push(templateSection);
+      let exists = this.data.reportingConfig.templateSections.filter(e => e.indicatorId==indicator.indicatorId);
+      if(exists.length==0)
+			  this.data.reportingConfig.templateSections.push(templateSection);
 				
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
-			//this.setupNewPages(this.data.reportingConfig.templateSections.at(-1));
+			this.setupNewPages(this.data.reportingConfig.templateSections.at(-1));
 		}
 
 		reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template, templateBlank]) {

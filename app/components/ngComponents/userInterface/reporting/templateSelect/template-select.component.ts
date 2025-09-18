@@ -2707,7 +2707,8 @@ export class TemplateSelectComponent implements OnInit {
     this.data.reportingConfig = {
       template: {},
       templateSections: [],
-      pages: []
+      pages: [],
+      backupTemplate: {}
     }
   }
 
@@ -2906,8 +2907,17 @@ export class TemplateSelectComponent implements OnInit {
     }
 
     this.data.reportingConfig.template = this.selectedTemplate;
+    this.data.reportingConfig.backupTemplate = JSON.stringify(this.selectedTemplate);
 
     this.onWorkflowSelect([2,this.data]);
+  }
+  
+  copy(obj) {
+    var cp = {};
+    for (var o in obj) {
+        cp[o] = obj[o];
+    }
+    return cp;
   }
 
   onBackToWorkflowSelectionClicked() {

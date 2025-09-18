@@ -15,6 +15,7 @@ export interface reportingData {
   templateSections:any[],
   pages:any[];
   template:any;
+  backupTemplate:any;
 }
 
 @Component({
@@ -60,7 +61,8 @@ export class ReportingModalComponent {
     reportingConfig: {
       templateSections: [],
       pages: [],
-      template: {}
+      template: {},
+      backupTemplate: {}
     }
   }
 
@@ -102,7 +104,6 @@ export class ReportingModalComponent {
   };
  */
   onWorkflowDefined(workflow) {
-    console.log(workflow, this.workflowStatus, this.data)
     this.workflowStatus = workflow[0];
 
     // for workflow select and template select, don´t override initial this.data
