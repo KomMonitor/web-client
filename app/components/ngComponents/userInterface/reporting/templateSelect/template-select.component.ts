@@ -1,11 +1,13 @@
+import { reportingData } from './../reporting-modal.component';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ReportingTemplateFilter } from 'pipes/reporting-template-filter.pipe';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FormsModule } from '@angular/forms';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { sharedReportingData } from '../reporting-modal.component';
 
 @Component({
   selector: 'app-template-select',
@@ -16,6 +18,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 })
 export class TemplateSelectComponent implements OnInit {
  
+  @Input() data!:sharedReportingData;
   @Output() selectedWorkflow = new EventEmitter<any[]>();
 
   datePickerDate!: any;
@@ -2665,6 +2668,9 @@ export class TemplateSelectComponent implements OnInit {
   selectedTemplate:any = this.availableTemplates[0];
 
   ngOnInit(): void {
+
+    this.resetReportingConfig()
+
        // todo
   /*   this.datePicker = $('#reporting-general-settings-datefield').datepicker({
       autoclose: true,
@@ -2694,6 +2700,14 @@ export class TemplateSelectComponent implements OnInit {
             ) ? false : true;
         }
       }
+    }
+  }
+
+  resetReportingConfig() {
+    this.data.reportingConfig = {
+      template: {},
+      templateSections: [],
+      pages: []
     }
   }
 
@@ -2890,8 +2904,10 @@ export class TemplateSelectComponent implements OnInit {
         }
       }
     }
-    console.log(this.selectedTemplate);
-    this.onWorkflowSelect([2,[false,this.selectedTemplate]]);
+
+    this.data.reportingConfig.template = this.selectedTemplate;
+
+    this.onWorkflowSelect([2,this.data]);
   }
 
   onBackToWorkflowSelectionClicked() {

@@ -18,6 +18,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import { ReachabilityScenarioConfigurationComponent } from '../../sidebar/kommonitorReachability/reachability-scenario-modal/reachability-scenario-configuration/reachability-scenario-configuration.component';
 import * as noUiSlider from 'nouislider';
+import { sharedReportingData } from '../reporting-modal.component';
 
 @Component({
   selector: 'app-indicator-add',
@@ -29,7 +30,7 @@ import * as noUiSlider from 'nouislider';
 export class IndicatorAddComponent implements OnInit {
 
   @Output() selectedWorkflow = new EventEmitter<any[]>();
-  @Input() data:any = [];
+  @Input() data!:sharedReportingData;
   
   months = [
     'Januar',
@@ -248,11 +249,12 @@ export class IndicatorAddComponent implements OnInit {
   
   initialize() {
     this.loadingData = true;
-    let template = this.data.templateData.template;
+    
+    const template = this.data.reportingConfig.template;
     // deep copy template before any changes are made.
     // this is needed when additional timestamps are inserted.
     this.untouchedTemplateAsObj = template;
-    this.untouchedTemplateAsString = JSON.parse(JSON.stringify((template)));
+    this.untouchedTemplateAsString = fromJson(template);
     // give each page a unique id to track it by in ng-repeat
     for(let page of template.pages) {
       page.id = this.templatePageIdCounter++;
@@ -592,7 +594,7 @@ export class IndicatorAddComponent implements OnInit {
      this.template.pages = this.template.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
-    this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.templateData.template));
+    this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.reportingConfig.template));
 
     let numberOfTargetSpatialUnitFeatures = 0;
     if(newVal && newVal.length){
@@ -805,6 +807,7 @@ export class IndicatorAddComponent implements OnInit {
 
   updateAreasForReachabilityTemplates(newVal) {
     // we only have one timestamp here (the most recent one)
+    console.log(newVal)
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
@@ -825,6 +828,7 @@ export class IndicatorAddComponent implements OnInit {
       let textB = b.area.toLowerCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
+    console.log(pagesToInsert)
 
     // we select the most recent timestamp programmatically and don't allow user to change it, so this should be 1 here
     if(this.selectedTimestamps.length === 1) {
@@ -855,7 +859,7 @@ export class IndicatorAddComponent implements OnInit {
       }
 
       // create a deep copy so we can assign new ids
-      pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
+      //pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
       let numberOfPagesToReplace = this.template.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
       // insert area-specific pages
       for(let page of pagesToInsert)
@@ -863,6 +867,25 @@ export class IndicatorAddComponent implements OnInit {
 
       this.template.pages.splice(this.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
     }
+  }
+
+  getCircularReplacer() {
+    const ancestors:any = [];
+    return  (key, value) => {
+      if (typeof value !== "object" || value === null) {
+        return value;
+      }
+      // `this` is the object that value is contained in,
+      // i.e., its direct parent.
+      while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+        ancestors.pop();
+      }
+      if (ancestors.includes(value)) {
+        return "[Circular]";
+      }
+      ancestors.push(value);
+      return value;
+    };
   }
 
   // internal array changes do not work with ng-change
@@ -2181,11 +2204,16 @@ export class IndicatorAddComponent implements OnInit {
     this.template.isochronesRangeType = this.isochronesRangeType;
     this.template.isochronesRangeUnits = this.isochronesRangeUnits;
     if(!this.template.name.includes("reachability")) {
-      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template, this.untouchedTemplateAsObj])
+      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.template, this.untouchedTemplateAsObj, Date.now()])
     } else {
+      console.log('call')
       this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.template, this.untouchedTemplateAsObj, Date.now()])
     }
-    this.onWorkflowSelect([2]);
+
+    this.data.reportingConfig.template = this.template;
+    this.data.reportingConfig.pages = this.template.pages;
+
+    this.onWorkflowSelect([2,this.data]);
     //this.reset();
   }
 
@@ -3295,96 +3323,6 @@ export class IndicatorAddComponent implements OnInit {
         this.template.pages.splice(currentPageIndex + 1, 0, newPage);
       }
     }
-
-   /*  // create table rows once the pages exist
-    function insertDatatableRows(rowsData, page, maxRows) {
-      // get current index of page (might have changed in the meantime)
-      let idx = this.template.pages.indexOf(page)
-      let wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
-      if(wrapper) {
-        $interval.cancel(insertDatatableRowsInterval); // code below still executes once
-      } else {
-        return;
-      }
-      
-      wrapper.innerHTML = "";
-      wrapper.style.border = "none"; // hide dotted border from outer dom element
-      wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-
-      let columnNames;
-      if(this.template.name.includes("timeseries")) {
-        columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
-      } else {
-        columnNames  = ["Bereich", "Wert"]
-      }
-
-      let table = this.createDatatableSkeleton(columnNames);
-      wrapper.appendChild(table);
-      let tbody = table.querySelector("tbody");
-      let pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
-      pageElement.isPlaceholder = false;
-
-      for(let i=0;i<rowsData.length; i++) {
-        // see which page we have to add the row to
-        // switch to next page if necessary
-        let intervalArr = [];
-        if((i % maxRows) == 0) {
-          if(i > 0) idx++
-          const idx_save = idx;
-          const i_save = i;
-          intervalArr[idx_save] = $interval(insertDatatableRowsPerPage, 0, 100, true, pageElement, idx_save, columnNames, maxRows, rowsData, i_save)
-
-          function insertDatatableRowsPerPage(pageElement, idx, columnNames, maxRows, rowsData, i) {
-            // check if page exists already in dom, if not try again later
-            wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
-            if(wrapper) {
-              $interval.cancel(intervalArr[idx]); // code below still executes once
-            } else {
-              return;
-            }
-            // page exists
-            wrapper.innerHTML = "";
-            wrapper.style.border = "none"; // hide dotted border from outer dom element
-            wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-            table = this.createDatatableSkeleton(columnNames);
-            wrapper.appendChild(table);
-            tbody = table.querySelector("tbody");
-            pageElement = this.template.pages[idx].pageElements.find( el => el.type === "datatable");
-            pageElement.isPlaceholder = false;
-            
-            for(let j=i; j<(i + maxRows); j++) {
-              if(!rowsData[j])
-                break; // on last page
-
-              let row = document.createElement("tr");
-              row.style.height = "25px";
-
-              for(let colName of columnNames) {
-                let td = document.createElement("td");
-                if(colName === "Bereich") {
-                  td.innerText = rowsData[j].name;
-                  td.classList.add("text-left");
-                }
-              
-                if(colName === "Zeitpunkt") {
-                  td.innerText = rowsData[j].timestamp;
-                }
-              
-                if(colName === "Wert") {
-                  td.innerText = rowsData[j].value;
-                  td.classList.add("text-right");
-                }
-              
-                row.appendChild(td);
-              }
-
-              tbody.appendChild(row)
-            }
-          }
-        }
-      }
-    }
- */
 
     // create table rows once the pages exist
     this.insertDatatableRowsInterval = setInterval(() => {

@@ -10,6 +10,7 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { reportingData, sharedReportingData } from '../reporting-modal.component';
 
 @Component({
   selector: 'app-generate-report',
@@ -21,10 +22,9 @@ export class GenerateReportComponent implements OnInit {
 
   activeModal = inject(NgbActiveModal);
   
-  @Input() data:any = [];
+  @Input() data!:reportingData;
 
   loadingData = false;
-  config: any;
   
   deviceScreenDpi;
   echartsImgPixelRatio = 2;
@@ -37,7 +37,6 @@ export class GenerateReportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.config = this.data;
 
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
@@ -92,7 +91,7 @@ export class GenerateReportComponent implements OnInit {
     doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
     doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
 
-    doc.layout = 'A4-'+this.config.pages[0].orientation;
+    doc.layout = 'A4-'+this.data.pages[0].orientation;
 
     var fontSize = 42;
     var fontFace = "Source Sans Pro";
@@ -177,7 +176,7 @@ export class GenerateReportComponent implements OnInit {
 
     // Pages
 
-    for(let [idx, page] of this.config.pages.entries()) {
+    for(let [idx, page] of this.data.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -407,8 +406,8 @@ export class GenerateReportComponent implements OnInit {
   filterPagesToShow() {
     let pagesToShow:any[] = [];
     let skipNextPage = false;
-    for (let i = 0; i < this.config.pages.length; i ++) {
-      let page = this.config.pages[i];
+    for (let i = 0; i < this.data.pages.length; i ++) {
+      let page = this.data.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
@@ -427,7 +426,7 @@ export class GenerateReportComponent implements OnInit {
   }
 
   pageContainsDatatable(pageID) {
-    let page = this.config.pages[pageID];
+    let page = this.data.pages[pageID];
     let pageContainsDatatable = false;
     for(let pageElement of page.pageElements) {
       if(pageElement.type == "datatable") {
@@ -457,7 +456,7 @@ export class GenerateReportComponent implements OnInit {
     let doc:any = new jsPDF({
       unit: 'mm',
       format: 'a4',
-      orientation: this.config.pages[0].orientation
+      orientation: this.data.pages[0].orientation
     });
  
     let fontName = "Helvetica"; // standard
@@ -474,7 +473,7 @@ export class GenerateReportComponent implements OnInit {
     doc.setDrawColor(148, 148, 148);
     doc.setFont(fontName, "normal", "normal"); 
     
-    for(let [idx, page] of this.config.pages.entries()) {
+    for(let [idx, page] of this.data.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -781,7 +780,7 @@ export class GenerateReportComponent implements OnInit {
   getPageNumber(index) {
     let pageNumber = 1;
     for(let i = 0; i < index; i ++) {
-      if (this.showThisPage(this.config.template.pages[i])) {
+      if (this.showThisPage(this.data.template.pages[i])) {
         pageNumber ++;
       }
     }
@@ -848,7 +847,7 @@ export class GenerateReportComponent implements OnInit {
     let zip = new JSZip();
     
     // screenshot map attribution and legend only once per section
-    for(let [idx, page] of this.config.pages.entries()) {
+    for(let [idx, page] of this.data.pages.entries()) {
     
       if(!this.showThisPage(page)) {
         continue;
@@ -911,7 +910,7 @@ export class GenerateReportComponent implements OnInit {
     /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
     } */
-    for(let [idx, page] of this.config.pages.entries()) {
+    for(let [idx, page] of this.data.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;

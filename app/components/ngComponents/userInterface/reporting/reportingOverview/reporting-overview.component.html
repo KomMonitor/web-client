@@ -8,29 +8,29 @@
       <div class="row">
           <div class="col-sm-3" id="reporting-overview-sidebar">
               <div id="reporting-overwiew-indicators-wrapper">
-                  <button *ngIf="!config.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
+                  <button *ngIf="!data.reportingConfig.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
                        class="btn btn-success" (click)='onConfigureNewIndicatorClicked()'
                         (disabled)="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)">
                       <i class="fa fa-plus"></i>
                       <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                   </button>
-                  <button *ngIf="config.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
+                  <button *ngIf="data.reportingConfig.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
                       class="btn btn-success" (click)='onConfigureNewPoiLayerClicked()'
                         (disabled)="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)">
                       <i class="fa fa-plus"></i>
                       <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                   </button>
-                  <h3 [hidden]="config.template.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
-                  <h3 [hidden]="!config.template.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
+                  <h3 [hidden]="data.reportingConfig.template.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
+                  <h3 [hidden]="!data.reportingConfig.template.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
                   <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                   <div class="list-group" ng-sortable="sortableConfig">
 
-                      <div *ngFor="let section of config.templateSections; let i = index">
+                      <div *ngFor="let section of data.reportingConfig.templateSections; let i = index">
                           <hr class="reporting-hr-divider">
                           <div class="row row-no-gutters reporting-added-templateSections-row">
                               <div class="col-sm-11">
-                                  <b [hidden]="config.template.name.includes('-reachability')">{{section.indicatorName}}</b>
-                                  <b [hidden]="!config.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
+                                  <b [hidden]="data.reportingConfig.template.name.includes('-reachability')">{{section.indicatorName}}</b>
+                                  <b [hidden]="!data.reportingConfig.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
                               </div>
                               <div class="col-sm-1 text-right" style="cursor: pointer;">
                                   <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
@@ -49,12 +49,12 @@
               </div>
               <div class="row" style="margin:0">
                   <div id="reporting-overview-preview-area">
-                      <div *ngFor="let page of config.pages; index as iPage"
+                      <div *ngFor="let page of data.reportingConfig.pages; index as iPage"
                           [ngClass]="{'hiddenPage': !showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}"
                           id="reporting-overview-page-{{iPage}}">
                           <button class="orientationChangeBtn" 
-                              [hidden]="pageContainsDatatable(iPage) && config.template.name.includes('-reachability')"
+                              [hidden]="pageContainsDatatable(iPage) && data.reportingConfig.template.name.includes('-reachability')"
                               (click)="onPageTurnClicked(page.orientation, iPage)">
                               <img src="icons/swap.png" width="100%" height="100%">
                           </button>
@@ -181,12 +181,12 @@
                       &nbsp;&nbsp;Report erzeugen
                   </button> 
                   
-                  <button ng-disabled="true" style="margin-right: 15px;" *ngIf="! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
+                  <button [disabled]="true" style="margin-right: 15px;" *ngIf="! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
                       <span class="glyphicon glyphicon-refresh icon-spin"></span>
                       <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
                   </button>
 
-                  <button ng-disabled="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
+                  <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
                       <span class="glyphicon glyphicon-refresh icon-spin"></span>
                       <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
                   </button>
