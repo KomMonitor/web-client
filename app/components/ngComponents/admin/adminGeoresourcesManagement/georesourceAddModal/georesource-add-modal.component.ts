@@ -35,10 +35,6 @@ export class GeoresourceAddModalComponent implements OnInit {
   currentStep = 1;
   totalSteps = 4; // Will be adjusted based on security settings
 
-  // Debug logging state (prevents spam in console)
-  private lastDisabledReasonsKey: string = '';
-  private lastDisabledReasonsLogMs: number = 0;
-  private hasLoggedAccessControlEmptyWarning: boolean = false;
 
   // Form data
   isSubmitting = false;
@@ -421,11 +417,6 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.loadingAccessControl = true;
       // Try to load real access control data first
       await this.reloadAccessControlData();
-      console.log('[GeoresourceAddModal] Access control data loaded:', {
-        accessControlLength: this.kommonitorDataExchangeService.accessControl?.length || 0,
-        resourcesCreatorRightsLength: this.resourcesCreatorRights?.length || 0,
-        isAdmin: this.kommonitorDataExchangeService.checkAdminPermission()
-      });
     } catch (error) {
       console.warn('Failed to load access control data:', error);
       // Do not inject test data; keep empty to avoid showing fake organizations
@@ -450,7 +441,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private async loadAvailableOptions(): Promise<void> {
     // Load available options from services
-    console.log('[GeoresourceAddModal] loadAvailableOptions: start');
     this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions || [];
     this.availablePoiMarkerColors = this.kommonitorDataExchangeService.availablePoiMarkerColors || [];
     this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
@@ -479,10 +469,6 @@ export class GeoresourceAddModalComponent implements OnInit {
     
     // Load topics data
     await this.loadTopicsData();
-    console.log('[GeoresourceAddModal] loadAvailableOptions: topics after load', {
-      rawAvailableTopicsLength: (this.kommonitorDataExchangeService as any)?.availableTopics?.length,
-      localAvailableTopicsLength: this.availableTopics?.length
-    });
   }
 
   /**
@@ -493,28 +479,17 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.loadingTopics = true;
       
       const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles;
-      console.log('[GeoresourceAddModal] loadTopicsData: fetching topics with roles', roles);
       const topicsResult = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
-      console.log('[GeoresourceAddModal] loadTopicsData: fetch result length', Array.isArray(topicsResult) ? topicsResult.length : 'n/a');
       // Prefer the service cache after fetch (AngularJS relied on service.availableTopics which preserves hierarchy)
       const topics = (this.kommonitorDataExchangeService as any).availableTopics && Array.isArray((this.kommonitorDataExchangeService as any).availableTopics)
         ? (this.kommonitorDataExchangeService as any).availableTopics
         : topicsResult;
-      console.log('[GeoresourceAddModal] loadTopicsData: topics from service/cache length', Array.isArray(topics) ? topics.length : 'n/a');
       
       if (topics && Array.isArray(topics)) {
         // Filter topics to only show main topics for georesources (like AngularJS component)
         this.availableTopics = this.filterTopicsForGeoresources(topics);
-        console.log('[GeoresourceAddModal] loadTopicsData: after filter', {
-          filteredLength: this.availableTopics.length,
-          sample: this.availableTopics.slice(0, 3)
-        });
         // Normalize keys to ensure subtopic tree uses 'subTopics' recursively
         this.availableTopics = this.normalizeTopics(this.availableTopics);
-        console.log('[GeoresourceAddModal] loadTopicsData: after normalize', {
-          normalizedLength: this.availableTopics.length,
-          sample: this.availableTopics.slice(0, 3)
-        });
     
       } else {
         this.availableTopics = [];
@@ -536,11 +511,6 @@ export class GeoresourceAddModalComponent implements OnInit {
     const result = (topics || []).filter((topic: any) =>
       topic && topic.topicType === 'main' && topic.topicResource === 'georesource'
     );
-    console.log('[GeoresourceAddModal] filterTopicsForGeoresources', {
-      inputLength: Array.isArray(topics) ? topics.length : 'n/a',
-      outputLength: result.length,
-      firstItem: result[0]
-    });
     return result;
   }
 
@@ -1032,10 +1002,8 @@ export class GeoresourceAddModalComponent implements OnInit {
       
       // Reload access control from service
       if (this.kommonitorDataExchangeService.accessControl) {
-        console.log('[GeoresourceAddModal] Raw access control data:', this.kommonitorDataExchangeService.accessControl);
         // Transform API data to match the expected structure for the grid
         const transformedData = this.transformAccessControlData(this.kommonitorDataExchangeService.accessControl);
-        console.log('[GeoresourceAddModal] Transformed data:', transformedData);
         
         // Update local references
         this.resourcesCreatorRights = transformedData;
@@ -1116,7 +1084,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   onChangeDatasourceType(datasourceType: any): void {
     this.datasourceType = datasourceType;
-    console.log('[GeoresourceAddModal] onChangeDatasourceType', this.datasourceType);
     // Reset related fields when datasource type changes
     this.selectedDataSourceFile = null;
     this.georesourceDataSourceIdProperty = '';
@@ -1507,7 +1474,6 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.updateIntervalOptions = [fallbackInterval];
       }
       this.metadata.updateInterval = fallbackInterval;
-      console.warn('[GeoresourceAddModal] Added fallback updateInterval option from import:', fallbackInterval);
     }
     
     this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
@@ -1975,29 +1941,6 @@ export class GeoresourceAddModalComponent implements OnInit {
       postBody.topicReference = "";
     }
 
-    console.log('[GeoresourceAddModal] buildPostBody_georesources', {
-      inputState: {
-        metadata: this.metadata,
-        datasetName: this.datasetName,
-        periodOfValidity: this.periodOfValidity,
-        isPOI: this.isPOI,
-        isLOI: this.isLOI,
-        isAOI: this.isAOI,
-        selectedPoiIconName: this.selectedPoiIconName,
-        selectedPoiSymbolColor: this.selectedPoiSymbolColor,
-        selectedPoiMarkerColor: this.selectedPoiMarkerColor,
-        selectedPoiMarkerStyle: this.selectedPoiMarkerStyle,
-        poiMarkerText: this.poiMarkerText,
-        selectedLoiDashArrayObject: this.selectedLoiDashArrayObject,
-        loiColor: this.loiColor,
-        loiWidth: this.loiWidth,
-        aoiColor: this.aoiColor,
-        ownerOrganization: this.ownerOrganization,
-        isPublic: this.isPublic
-      },
-      result: postBody,
-      datasourceTypeDefinition: this.datasourceTypeDefinition
-    });
     return postBody;
   }
 
@@ -2007,40 +1950,18 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.importerErrors = [];
     this.successMessagePart = '';
     this.errorMessagePart = '';
-    console.log('[GeoresourceAddModal] addGeoresource called', {
-      currentStep: this.currentStep,
-      totalSteps: this.totalSteps,
-      datasetName: this.datasetName,
-      georesourceType: this.georesourceType,
-      isPOI: this.isPOI,
-      isLOI: this.isLOI,
-      isAOI: this.isAOI
-    });
 
     try {
       // Build importer objects
       const allDataSpecified = await this.buildImporterObjects();
-      console.log('[GeoresourceAddModal] buildImporterObjects ->', allDataSpecified, {
-        converterDefinition: this.converterDefinition,
-        datasourceTypeDefinition: this.datasourceTypeDefinition,
-        propertyMappingDefinition: this.propertyMappingDefinition,
-        postBody: this.postBody_georesources
-      });
 
       if (!allDataSpecified) {
         // Validation failed
         this.loadingData = false;
-        console.warn('[GeoresourceAddModal] Missing required importer objects. Aborting submit.');
         return;
       }
 
       // Perform dry run
-      console.log('[GeoresourceAddModal] Sending DRY RUN request', {
-        converterDefinition: this.converterDefinition,
-        datasourceTypeDefinition: this.datasourceTypeDefinition,
-        propertyMappingDefinition: this.propertyMappingDefinition,
-        postBody: this.postBody_georesources
-      });
       const newGeoresourceResponse_dryRun = await this.kommonitorImporterHelperService.registerNewGeoresource(
         this.converterDefinition,
         this.datasourceTypeDefinition,
@@ -2048,11 +1969,9 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.postBody_georesources,
         true
       );
-      console.log('[GeoresourceAddModal] DRY RUN response', newGeoresourceResponse_dryRun);
 
       if (!this.kommonitorImporterHelperService.importerResponseContainsErrors(newGeoresourceResponse_dryRun)) {
         // all good, really execute the request to import data against data management API
-        console.log('[GeoresourceAddModal] Dry run successful. Sending REAL request');
         const newGeoresourceResponse = await this.kommonitorImporterHelperService.registerNewGeoresource(
           this.converterDefinition,
           this.datasourceTypeDefinition,
@@ -2060,7 +1979,6 @@ export class GeoresourceAddModalComponent implements OnInit {
           this.postBody_georesources,
           false
         );
-        console.log('[GeoresourceAddModal] REAL response', newGeoresourceResponse);
 
         // Broadcast refresh events
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { action: 'add', id: this.kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse) });
@@ -2104,23 +2022,9 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private async buildImporterObjects(): Promise<boolean> {
-    console.log('[GeoresourceAddModal] Building importer objects with state', {
-      converter: this.converter,
-      schema: this.schema,
-      mimeType: this.mimeType,
-      datasourceType: this.datasourceType,
-      georesourceDataSourceNameProperty: this.georesourceDataSourceNameProperty,
-      georesourceDataSourceIdProperty: this.georesourceDataSourceIdProperty,
-      validityStartDate_perFeature: this.validityStartDate_perFeature,
-      validityEndDate_perFeature: this.validityEndDate_perFeature,
-      datasetName: this.datasetName,
-      ownerOrganization: this.ownerOrganization,
-      isPublic: this.isPublic
-    });
 
     this.converterDefinition = this.buildConverterDefinition();
     if (!this.converterDefinition) {
-      console.warn('[GeoresourceAddModal] converterDefinition missing. Ensure schema/mimeType and all mandatory converter parameters are set.');
       this.errorMessage = 'Validierung fehlgeschlagen';
       this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON({
         cause: 'converterDefinition missing',
@@ -2131,7 +2035,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     if (!this.datasourceTypeDefinition) {
-      console.warn('[GeoresourceAddModal] datasourceTypeDefinition missing. Ensure datasource type and its required parameters/file are set.');
       this.errorMessage = 'Validierung fehlgeschlagen';
       if (!this.errorMessagePart) {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON({
@@ -2144,7 +2047,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
     if (!this.propertyMappingDefinition) {
-      console.warn('[GeoresourceAddModal] propertyMappingDefinition missing. Ensure ID/NAME properties are provided.');
       this.errorMessage = 'Validierung fehlgeschlagen';
       this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON({
         cause: 'propertyMappingDefinition missing',
@@ -2155,7 +2057,6 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.postBody_georesources = this.buildPostBody_georesources();
     if (!this.postBody_georesources) {
-      console.warn('[GeoresourceAddModal] postBody_georesources missing.');
       this.errorMessage = 'Validierung fehlgeschlagen';
       this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON({
         cause: 'postBody missing',
@@ -2164,12 +2065,6 @@ export class GeoresourceAddModalComponent implements OnInit {
       return false;
     }
 
-    console.log('[GeoresourceAddModal] Built objects', {
-      converterDefinition: this.converterDefinition,
-      datasourceTypeDefinition: this.datasourceTypeDefinition,
-      propertyMappingDefinition: this.propertyMappingDefinition,
-      postBody: this.postBody_georesources
-    });
 
     return true;
   }
@@ -2192,18 +2087,11 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.mimeType,
       formValues
     );
-    console.log('[GeoresourceAddModal] buildConverterDefinition', {
-      input: { converter: this.converter, schema: this.schema, mimeType: this.mimeType },
-      result: def
-    });
     return def;
   }
 
   private async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      console.log('[GeoresourceAddModal] buildDatasourceTypeDefinition input', {
-        datasourceType: this.datasourceType
-      });
 
       // Pre-validate FILE datasource: require a selected file (persisted or from input)
       if (this.datasourceType?.type === 'FILE') {
@@ -2213,11 +2101,6 @@ export class GeoresourceAddModalComponent implements OnInit {
           file = fileInput?.files?.[0];
         }
         const hasFile = !!file;
-        console.log('[GeoresourceAddModal] FILE datasource pre-check', {
-          fileInputFound: !!fileInput,
-          filesLength: fileInput?.files?.length || 0,
-          hasFile
-        });
         if (!hasFile) {
           this.georesourceDataSourceInputInvalid = true;
           this.georesourceDataSourceInputInvalidReason = 'Bitte eine Datei auswählen.';
@@ -2235,7 +2118,6 @@ export class GeoresourceAddModalComponent implements OnInit {
             { name: 'NAME', value: uploadedName }
           ]
         };
-        console.log('[GeoresourceAddModal] buildDatasourceTypeDefinition FILE result (local)', localDef);
         return localDef;
       }
       const formValues: { [key: string]: string } = {
@@ -2249,7 +2131,6 @@ export class GeoresourceAddModalComponent implements OnInit {
         'georesourceDataSourceInput_add',
         formValues
       );
-      console.log('[GeoresourceAddModal] buildDatasourceTypeDefinition result', result);
       return result;
     } catch (error: any) {
       console.error('[GeoresourceAddModal] buildDatasourceTypeDefinition error', error);
@@ -2275,18 +2156,6 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.keepMissingValues, 
       this.attributeMappings_adminView
     );
-    console.log('[GeoresourceAddModal] buildPropertyMappingDefinition', {
-      input: {
-        georesourceDataSourceNameProperty: this.georesourceDataSourceNameProperty,
-        georesourceDataSourceIdProperty: this.georesourceDataSourceIdProperty,
-        validityStartDate_perFeature: this.validityStartDate_perFeature,
-        validityEndDate_perFeature: this.validityEndDate_perFeature,
-        keepAttributes: this.keepAttributes,
-        keepMissingValues: this.keepMissingValues,
-        attributeMappings_adminView: this.attributeMappings_adminView
-      },
-      result: def
-    });
     return def;
   }
 
@@ -2317,24 +2186,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     // Only require owner when security is enabled AND access control data is available
     const hasAccessControl = Array.isArray(this.kommonitorDataExchangeService.accessControl) && this.kommonitorDataExchangeService.accessControl.length > 0;
     if (this.kommonitorDataExchangeService.enableKeycloakSecurity && hasAccessControl && !this.ownerOrganization) { reasons.push('ownerOrganization'); }
-    if (this.kommonitorDataExchangeService.enableKeycloakSecurity && !hasAccessControl) {
-      if (!this.hasLoggedAccessControlEmptyWarning) {
-        console.warn('[GeoresourceAddModal] Keycloak security enabled but access control is empty. Allowing submit without owner selection.');
-        this.hasLoggedAccessControlEmptyWarning = true;
-      }
-    }
     return reasons;
   }
 
   isRegisterDisabled(): boolean {
     const reasons = this.getRegisterDisabledReasons();
-    const key = reasons.slice().sort().join('|');
-    const now = Date.now();
-    if (reasons.length > 0 && key !== this.lastDisabledReasonsKey && (now - this.lastDisabledReasonsLogMs) > 1000) {
-      console.log('[GeoresourceAddModal] Register button disabled due to:', reasons);
-      this.lastDisabledReasonsKey = key;
-      this.lastDisabledReasonsLogMs = now;
-    }
     return reasons.length > 0;
   }
 
