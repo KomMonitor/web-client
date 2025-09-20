@@ -1,17 +1,25 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { ColorEvent } from 'ngx-color';
+import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
+import { KmLinePatternPickerComponent, LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+// Remove jQuery declaration - no longer needed
+// declare var $: any;
 
 @Component({
   selector: 'spatial-unit-edit-metadata-modal-new',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-metadata-modal.component.css']
+  styleUrls: ['./spatial-unit-edit-metadata-modal.component.css'],
+  providers: []
 })
-export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy {
+export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Multi-step form
@@ -42,6 +50,13 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     sridEPSG: 4326
   };
 
+  // Date picker model for ng-bootstrap - using string format directly
+  // Remove the custom visibility control since ng-bootstrap handles it
+  // showDatepicker = false;
+  
+  // Date picker visibility control
+  // showDatepicker = false;
+
   // Hierarchy
   nextLowerHierarchySpatialUnit: any = null;
   nextUpperHierarchySpatialUnit: any = null;
@@ -51,14 +66,16 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   isOutlineLayer = false;
   outlineColor = '#bf3d2c';
   outlineWidth = 2;
-  selectedOutlineDashArrayObject: any = null;
+  selectedOutlineDashArrayObject: LinePatternOption | null = null;
+  selectedoutlineDashArrayObject: LinePatternOption | null = null; // Keep both for compatibility with original
+  
+  // Color picker handled by km-color-picker component
+  // Line pattern picker handled by km-line-pattern-picker component
 
   // Available options
   availableSpatialUnits: any[] = [];
   updateIntervalOptions: any[] = [];
   availableLoiDashArrayObjects: any[] = [];
-
-
 
   // Import/Export functionality
   metadataImportSettings: any = null;
@@ -71,45 +88,66 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
+  // Add flag to track if SVGs have been injected
+  private svgInjected = false;
+
+  get availableLinePatternOptions(): LinePatternOption[] {
+    return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(option => ({
+      label: option.label,
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString
+    }));
+  }
+
   constructor(
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private http: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private sanitizer: DomSanitizer
   ) {
-    console.log('SpatialUnitEditMetadataModalComponent constructor initialized');
   }
 
   ngOnInit() {
-    console.log('SpatialUnitEditMetadataModalComponent ngOnInit');
     this.loadInitialData();
     this.setupEventListeners();
     
-    // Initialize date picker
-    setTimeout(() => {
-      if (this.kommonitorDataExchangeService.datePickerOptions) {
-        ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
-      }
-    }, 100);
-
-    // Initialize dash array dropdown
-    setTimeout(() => {
-      if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
-        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
-          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
-          if (element) {
-            element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
-          }
-        }
-      }
-    }, 1000);
+    // Remove jQuery date picker initialization - no longer needed
     
     // If currentSpatialUnitDataset is already set (from parent component), initialize form
     if (this.currentSpatialUnitDataset) {
       this.resetForm();
     }
   }
+
+  ngAfterViewInit() {
+    // Remove Bootstrap dropdown initialization - no longer needed for date picker
+    // setTimeout(() => {
+    //   try {
+    //     $('.dropdown-toggle').dropdown();
+    //   } catch (error) {
+    //     // Bootstrap dropdown initialization failed
+    //   }
+    // }, 300);
+  }
+
+  // Remove manual SVG injection - now handled by Angular templates
+  private injectSvgContentSimple() {
+  }
+
+  // Remove the complex injection methods - not needed
+  private injectSvgContent() {
+  }
+
+  private checkElementsExist(): boolean {
+    return true;
+  }
+
+  private performSvgInjection() {
+  }
+
+  // Color picker logic removed; handled by km-color-picker
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
@@ -144,7 +182,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     this.loadingData = false;
   }
 
+  // Date picker change handler - now using ng-bootstrap's built-in functionality
+  // The datepicker will automatically handle the date selection and close
+  // No need for custom methods since ng-bootstrap handles everything
 
+  // Remove custom click outside and escape key handlers since ng-bootstrap handles this
 
   resetForm() {
     if (!this.currentSpatialUnitDataset) return;
@@ -165,6 +207,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       lastUpdate: metadata.lastUpdate || '',
       updateInterval: null
     };
+
+    // km-date-picker binds directly to string; no separate model needed
 
     // Set update interval with null check
     if (metadata.updateInterval) {
@@ -193,46 +237,40 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       }
     });
 
-    // Set outline layer settings
+    // Set outline layer settings - FIXED: Properly initialize outline layer properties
     this.isOutlineLayer = this.currentSpatialUnitDataset.isOutlineLayer || false;
     this.outlineColor = this.currentSpatialUnitDataset.outlineColor || '#bf3d2c';
     this.outlineWidth = this.currentSpatialUnitDataset.outlineWidth || 2;
 
     // Set dash array
     this.selectedOutlineDashArrayObject = null;
+    this.selectedoutlineDashArrayObject = null;
     if (this.availableLoiDashArrayObjects && this.availableLoiDashArrayObjects.length > 0) {
       this.availableLoiDashArrayObjects.forEach(option => {
         if (option.dashArrayValue === this.currentSpatialUnitDataset.outlineDashArrayString) {
-          this.selectedOutlineDashArrayObject = option;
+          this.selectedOutlineDashArrayObject = {
+            label: option.label,
+            dashArrayValue: option.dashArrayValue,
+            svgString: option.svgString
+          };
+          this.selectedoutlineDashArrayObject = this.selectedOutlineDashArrayObject;
         }
       });
       if (!this.selectedOutlineDashArrayObject) {
-        this.selectedOutlineDashArrayObject = this.availableLoiDashArrayObjects[0];
+        const firstOption = this.availableLoiDashArrayObjects[0];
+        this.selectedOutlineDashArrayObject = {
+          label: firstOption.label,
+          dashArrayValue: firstOption.dashArrayValue,
+          svgString: firstOption.svgString
+        };
+        this.selectedoutlineDashArrayObject = this.selectedOutlineDashArrayObject;
       }
+      
+      // Line pattern picker will handle the display automatically
     }
 
-    // Initialize dash array dropdown
-    setTimeout(() => {
-      if (this.availableLoiDashArrayObjects) {
-        for (let i = 0; i < this.availableLoiDashArrayObjects.length; i++) {
-          const element = document.getElementById(`outlineDashArrayDropdownItem-editMetadata-${i}`);
-          if (element) {
-            element.innerHTML = this.availableLoiDashArrayObjects[i].svgString;
-          }
-        }
-      }
-      if (this.selectedOutlineDashArrayObject) {
-        this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
-      }
-    }, 1000);
-
-    // Set date picker value with null check
-    setTimeout(() => {
-      const datePicker = ($ as any)('#spatialUnitEditMetadataLastUpdateDatepicker');
-      if (datePicker && datePicker.datepicker && metadata.lastUpdate) {
-        datePicker.datepicker('setDate', metadata.lastUpdate);
-      }
-    }, 100);
+    // Set date picker value with null check - now using ng-bootstrap
+    // The datepicker will automatically display the date from metadata.lastUpdate
 
     this.hierarchyInvalid = false;
     this.successMessagePart = '';
@@ -278,20 +316,17 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     }
   }
 
-  onChangeOutlineDashArray(outlineDashArrayObject: any) {
-    this.selectedOutlineDashArrayObject = outlineDashArrayObject;
+  onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
     
-    // Update dropdown button display
-    const buttonElement = document.getElementById('outlineDashArrayDropdownButton_editSpatialUnit');
-    if (buttonElement && outlineDashArrayObject && outlineDashArrayObject.svgString) {
-      buttonElement.innerHTML = outlineDashArrayObject.svgString;
-    }
+    this.selectedOutlineDashArrayObject = outlineDashArrayObject;
+    this.selectedoutlineDashArrayObject = outlineDashArrayObject; // Keep both for compatibility
+    
+    // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
 
-  onColorPickerClick() {
-    // Implement color picker functionality if needed
-    console.log('Color picker clicked');
-  }
+
+
+  // Deprecated inline color picker click handler removed
 
   async editSpatialUnitMetadata() {
     if (!this.currentSpatialUnitDataset) return;
@@ -302,43 +337,31 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     const spatialUnitName_old = this.currentSpatialUnitDataset.spatialUnitLevel;
     const spatialUnitName_new = this.spatialUnitLevel;
 
-    // Helper function to convert empty strings to null
-    const convertEmptyToNull = (value: any) => {
-      return value === '' || value === undefined || value === null ? null : value;
-    };
-
-    // Validate required fields
-    if (!this.spatialUnitLevel || this.spatialUnitLevel.trim() === '') {
-      this.errorMessage = 'Raumebene Name ist erforderlich.';
+    // Validate using service method
+    const validation = this.kommonitorDataExchangeService.validateSpatialUnitMetadata(
+      this.metadata, 
+      this.spatialUnitLevel
+    );
+    
+    if (!validation.isValid) {
+      this.errorMessage = validation.errors.join('\n');
       this.loadingData = false;
       return;
     }
 
-    const patchBody = {
-      datasetName: this.spatialUnitLevel.trim(),
-      metadata: {
-        note: convertEmptyToNull(this.metadata.note),
-        literature: convertEmptyToNull(this.metadata.literature),
-        updateInterval: this.metadata.updateInterval && this.metadata.updateInterval.apiName ? this.metadata.updateInterval.apiName : null,
-        sridEPSG: this.metadata.sridEPSG || 4326,
-        datasource: convertEmptyToNull(this.metadata.datasource),
-        contact: convertEmptyToNull(this.metadata.contact),
-        lastUpdate: convertEmptyToNull(this.metadata.lastUpdate),
-        description: convertEmptyToNull(this.metadata.description),
-        databasis: convertEmptyToNull(this.metadata.databasis)
-      },
-      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
-      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
-      isOutlineLayer: this.isOutlineLayer,
-      outlineColor: this.outlineColor || '#bf3d2c',
-      outlineWidth: this.outlineWidth || 2,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
-    };
+    // Build patch body using service method
+    const patchBody = this.kommonitorDataExchangeService.buildSpatialUnitMetadataPatchBody(
+      this.spatialUnitLevel,
+      this.metadata,
+      this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+      this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
+    );
 
     // No role management in this version to match AngularJS
-
-    // Debug: Log the payload being sent
-    console.log('Sending patch body:', JSON.stringify(patchBody, null, 2));
 
     this.loadingData = true;
     this.errorMessage = '';
@@ -370,11 +393,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       // User can close manually or we can auto-close after a delay
       setTimeout(() => {
         this.activeModal.close({ action: 'updated', spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId });
-      }, 2000); // Close after 2 seconds
+      }, 5000); // Close after 5 seconds
     } catch (error: any) {
-      console.error('Error updating spatial unit metadata:', error);
-      console.error('Error response:', error.error);
-      console.error('Error status:', error.status);
       
       this.errorMessagePart = error.error ? 
         this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error) : 
@@ -425,7 +445,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       try {
         this.parseFromMetadataFile(event);
       } catch (error) {
-        console.error('Uploaded Metadata File cannot be parsed.');
         this.spatialUnitMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
       }
     };
@@ -437,12 +456,11 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      console.error('uploaded Metadata File cannot be parsed - wrong structure.');
       this.spatialUnitMetadataImportError = 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
       return;
     }
 
-    // Apply imported metadata
+    // Apply imported metadata using service method for consistency
     this.metadata = {
       note: this.metadataImportSettings.metadata.note,
       literature: this.metadataImportSettings.metadata.literature,
@@ -454,6 +472,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       databasis: this.metadataImportSettings.metadata.databasis,
       updateInterval: null
     };
+
+    // km-date-picker binds directly to string; no separate model needed
 
     // Set update interval
     this.updateIntervalOptions.forEach(option => {
@@ -483,41 +503,34 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     if (this.metadataImportSettings.outlineDashArrayString && this.availableLoiDashArrayObjects) {
       this.availableLoiDashArrayObjects.forEach(option => {
         if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
-          this.selectedOutlineDashArrayObject = option;
+          this.selectedOutlineDashArrayObject = {
+            label: option.label,
+            dashArrayValue: option.dashArrayValue,
+            svgString: option.svgString
+          };
+          this.selectedoutlineDashArrayObject = this.selectedOutlineDashArrayObject;
         }
       });
     }
+
+    // Set date picker value from import
+    // The datepicker will automatically display the imported date
 
     // No role management in this version to match AngularJS
   }
 
   onExportSpatialUnitEditMetadata() {
-    // Helper function to convert empty strings to null for export
-    const convertEmptyToNull = (value: any) => {
-      return value === '' || value === undefined ? null : value;
-    };
-
-    const metadataExport = {
-      ...this.spatialUnitMetadataStructure,
-      metadata: {
-        note: convertEmptyToNull(this.metadata.note),
-        literature: convertEmptyToNull(this.metadata.literature),
-        sridEPSG: this.metadata.sridEPSG || null,
-        datasource: convertEmptyToNull(this.metadata.datasource),
-        contact: convertEmptyToNull(this.metadata.contact),
-        lastUpdate: convertEmptyToNull(this.metadata.lastUpdate),
-        description: convertEmptyToNull(this.metadata.description),
-        databasis: convertEmptyToNull(this.metadata.databasis),
-        updateInterval: this.metadata.updateInterval ? this.metadata.updateInterval.apiName : null
-      },
-      spatialUnitLevel: this.spatialUnitLevel || null,
-      nextLowerHierarchyLevel: this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
-      nextUpperHierarchyLevel: this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
-      isOutlineLayer: this.isOutlineLayer,
-      outlineColor: this.outlineColor,
-      outlineWidth: this.outlineWidth,
-      outlineDashArrayString: this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
-    };
+    // Build export data using service method
+    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+      this.metadata,
+      this.spatialUnitLevel,
+      this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+      this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject ? this.selectedOutlineDashArrayObject.dashArrayValue : null
+    );
 
     // No role management in this version to match AngularJS
 
@@ -539,25 +552,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     URL.revokeObjectURL(url);
   }
 
-  // Metadata structure for export
+  // Metadata structure for export - now using service
   get spatialUnitMetadataStructure() {
-    return {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis"
-      },
-      "allowedRoles": ['roleId'],
-      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
-      "spatialUnitLevel": "Name of spatial unit dataset",
-      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
-    };
+    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
   }
 
   hideSuccessAlert() {
@@ -599,4 +596,8 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
+
+
+  // km-date-picker handles validation and coercion itself; no blur handler needed
+
 } 

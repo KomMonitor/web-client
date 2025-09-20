@@ -1,3 +1,76 @@
+/* Georesource Edit User Roles Modal: independent wide styling */
+body .modal-holder.georesource-edit-user-roles-modal-window .modal-dialog,
+body .georesource-edit-user-roles-modal-window .modal-dialog,
+body .modal.georesource-edit-user-roles-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-user-roles-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-user-roles-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Edit Metadata Modal: independent wide styling */
+body .modal-holder.georesource-edit-metadata-modal-window .modal-dialog,
+body .georesource-edit-metadata-modal-window .modal-dialog,
+body .modal.georesource-edit-metadata-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-metadata-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-metadata-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Edit Features Modal: independent wide styling */
+body .modal-holder.georesource-edit-features-modal-window .modal-dialog,
+body .georesource-edit-features-modal-window .modal-dialog,
+body .modal.georesource-edit-features-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-features-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-features-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Delete Modal: independent wide styling */
+body .modal-holder.georesource-delete-modal-window .modal-dialog,
+body .georesource-delete-modal-window .modal-dialog,
+body .modal.georesource-delete-modal-window .modal-dialog,
+.modal-dialog.georesource-delete-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-delete-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Batch Update Modal: independent wide styling */
+body .modal-holder.georesource-batch-update-modal-window .modal-dialog,
+body .georesource-batch-update-modal-window .modal-dialog,
+body .modal.georesource-batch-update-modal-window .modal-dialog,
+.modal-dialog.georesource-batch-update-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-batch-update-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Add Modal: match Spatial Unit modal sizing but with independent classes */
+body .modal-holder.georesource-add-modal-window .modal-dialog,
+body .georesource-add-modal-window .modal-dialog,
+body .modal.georesource-add-modal-window .modal-dialog,
+.modal-dialog.georesource-add-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+/* Optional: ensure content stretches appropriately */
+.georesource-add-modal .modal-content {
+  width: 100%;
+}
 /* app css stylesheet */
 
 :root {
@@ -1646,6 +1719,28 @@ table, th, td {
 @media (min-width: 992px){
 	.modal-xl {
 			width: 1500px;
+	}
+}
+
+/* Custom width for Spatial Unit Add modal (ng-bootstrap modalDialogClass) */
+@media (min-width: 768px){
+	.modal-dialog.spatial-unit-add-modal {
+		/* Bootstrap 5: use CSS var plus hard width to be robust */
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
+	}
+}
+
+/* Fallback for older ng-bootstrap/Bootstrap versions: target modal dialog within windowClass */
+@media (min-width: 768px){
+	/* High-specificity, robust override */
+	body .modal-holder.spatial-unit-add-modal-window .modal-dialog,
+	body .spatial-unit-add-modal-window .modal-dialog,
+	body .modal.spatial-unit-add-modal-window .modal-dialog {
+		--bs-modal-width: 95vw;
+		max-width: 95vw !important;
+		width: 95vw !important;
 	}
 }
 
@@ -3584,4 +3679,62 @@ kommonitor-user-interface .irs {
   display: none;
   font-family: var(--custom-font-family);
   content: var(--custom-font-file);
+}
+
+/* Admin Language Switcher Styling */
+.main-header .language-switcher {
+  /* Remove margin-top since it's now in a flex container */
+  margin: 0;
+}
+
+.main-header .language-switcher .dropdown-toggle {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  height: 34px; /* Match button height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-header .language-switcher .dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.main-header .language-switcher .dropdown-menu {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+}
+
+.main-header .language-switcher .dropdown-item {
+  color: #333;
+  padding: 8px 15px;
+}
+
+.main-header .language-switcher .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.main-header .language-switcher .dropdown-item.active {
+  background-color: #337ab7;
+  color: white;
+}
+
+.main-header .language-switcher .flag {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.main-header .language-switcher .language-name {
+  font-size: 13px;
+  font-weight: 500;
 }

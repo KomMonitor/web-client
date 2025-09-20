@@ -1,10 +1,13 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { KommonitorGeoresourceDataExchangeService } from 'services/adminGeoresourceUnit/kommonitor-data-exchange.service';
+import { KommonitorImporterHelperService } from 'services/adminGeoresourceUnit/kommonitor-importer-helper.service';
+import { KommonitorBatchUpdateHelperService } from 'services/adminGeoresourceUnit/kommonitor-batch-update-helper.service';
 
 @Component({
   selector: 'georesource-batch-update-modal-new',
@@ -34,9 +37,9 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorBatchUpdateHelperService') public kommonitorBatchUpdateHelperService: any,
+    public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
+    public kommonitorImporterHelperService: KommonitorImporterHelperService,
+    public kommonitorBatchUpdateHelperService: KommonitorBatchUpdateHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {}
@@ -69,10 +72,10 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
       const endDatePicker = document.getElementById('georesourceDefaultColumnDatePickerEnd');
       
       if (startDatePicker && (window as any).$) {
-        (window as any).$('#georesourceDefaultColumnDatePickerStart').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+        (window as any).$('#georesourceDefaultColumnDatePickerStart').datepicker(this.kommonitorBatchUpdateHelperService.datePickerOptions);
       }
       if (endDatePicker && (window as any).$) {
-        (window as any).$('#georesourceDefaultColumnDatePickerEnd').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+        (window as any).$('#georesourceDefaultColumnDatePickerEnd').datepicker(this.kommonitorBatchUpdateHelperService.datePickerOptions);
       }
 
       // Initialize row date pickers

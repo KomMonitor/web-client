@@ -36,7 +36,7 @@
               <div class="form-group vertical-align">
                 <label class="margin-right">Zeige nur zugewiesene Rechte</label>
                 <label class="switch">
-                  <input type="checkbox" value="activeRolesOnly" [(ngModel)]="activeRolesOnly" (ngModelChange)="onActiveRolesOnlyChange()" [disabled]="permissions.length === 0">
+                  <input type="checkbox" value="activeRolesOnly" name="activeRolesOnly" [(ngModel)]="activeRolesOnly" (ngModelChange)="onActiveRolesOnlyChange()" [disabled]="permissions.length === 0">
                   <span class="switchslider round"></span>
                 </label>
               </div>
@@ -44,7 +44,7 @@
             <div class="col-md-3">
               <label>Öffentliche Lesefreigabe*</label>
               <label class="switch">
-                <input type="checkbox" [(ngModel)]="currentGeoresourceDataset.isPublic">
+                <input type="checkbox" name="isPublic" [(ngModel)]="currentGeoresourceDataset.isPublic" (ngModelChange)="onPublicPrivateChange()">
                 <span class="switchslider round"></span>
               </label>
               <div class="help-block">
@@ -59,12 +59,14 @@
                 id="georesourceEditRoleManagementTable"
                 style="height: 45vh; width: 100%;"
                 class="ag-theme-alpine"
-                [gridOptions]="roleManagementTableOptions"
-                [rowData]="roleManagementTableOptions.rowData || []"
-                [columnDefs]="roleManagementTableOptions.columnDefs || []"
-                (gridReady)="onGridReady($event)"
-                (firstDataRendered)="onFirstDataRendered($event)"
-                (columnResized)="onColumnResized($event)">
+                [components]="kommonitorDataGridHelperService.getRoleManagementComponents()"
+                [defaultColDef]="roleManagementDefaultColDef"
+                [columnDefs]="roleManagementColumnDefs"
+                [rowData]="roleManagementRowData"
+                [gridOptions]="roleManagementGridOptions"
+                (gridReady)="onRoleManagementGridReady($event)"
+                (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+                (columnResized)="onRoleManagementColumnResized($event)">
               </ag-grid-angular>
             </div>
             <div class="col-md-3">
@@ -80,6 +82,7 @@
         <fieldset [style.display]="currentStep === 2 ? 'block' : 'none'">
           <h2 class="fs-title">Eigentuümerschaft eines Datensatzes</h2>
           <h3 class="fs-subtitle">Übetragen der Eigentuümerschaft von Datensätzen mit allen dazugehörigen Rechten</h3>
+          
           <div class="alert alert-danger">
             Bitte beachten Sie, dass Sie beim Übertragen einer Eigentuümerschaft einer Resource unter Umständen jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigentümer übertragen.
           </div>
@@ -89,30 +92,36 @@
               <label for="targetUserRoleSelect"><b>Eigentuümerschaft übertragen an</b></label>
               <div class="input-group">
                 <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter">
+                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" name="ownerOrgFilter" [(ngModel)]="ownerOrgFilter" (ngModelChange)="onOwnerOrgFilterChange()">
               </div>
-              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" 
+              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission() && accessControlDataAvailable" 
                       id="targetUserRoleSelect" 
+                      name="ownerOrganization" 
                       [(ngModel)]="ownerOrganization" 
                       class="form-control" 
                       (ngModelChange)="onChangeOwner(ownerOrganization)" 
                       required>
                 <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
-                <option *ngFor="let org of getFilteredOrganizations()" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of filteredOrganizations" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
               </select>
-              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" 
+              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission() && accessControlDataAvailable" 
                       id="targetUserRoleSelect" 
+                      name="ownerOrganizationNonAdmin" 
                       [(ngModel)]="ownerOrganization" 
                       class="form-control" 
                       (ngModelChange)="onChangeOwner(ownerOrganization)" 
                       required>
                 <option [ngValue]="undefined"><b>Eigentuümerschaft nicht übertragen</b></option>
-                <option *ngFor="let org of getFilteredCreatorRights()" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of filteredCreatorRights" [ngValue]="org.organizationalUnitId">{{org.name}}</option>
               </select>
+              <div *ngIf="!accessControlDataAvailable" class="form-control" style="color: #999;">
+                Lade Organisationseinheiten...
+              </div>
             </div>
             <div class="col-md-3">
               <label>aktuelle Eigentümer-Organisationseinheit</label>
-              <p>{{getCurrentOwnerName()}}</p>
+              <p *ngIf="accessControlDataAvailable">{{getCurrentOwnerName()}}</p>
+              <p *ngIf="!accessControlDataAvailable" style="color: #999;">Lade...</p>
               <div class="help-block" style="color: red" *ngIf="ownerOrganization !== currentGeoresourceDataset?.ownerId">
                 <p>
                   ACHTUNG: Sie sind dabei, die Eigentuümerschaft an diesem Datensatz zu ändern.

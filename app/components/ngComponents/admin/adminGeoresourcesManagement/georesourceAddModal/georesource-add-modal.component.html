@@ -6,9 +6,12 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  <div class="loading-overlay-admin-panel" [class.ng-hide]="!isModalLoading" *ngIf="isModalLoading">
+    <div style="text-align:center;">
+      <span class="glyphicon glyphicon-refresh icon-spin" style="font-size: 24px;"></span>
+      <div style="margin-top: 8px; color: #333;">
+        {{ loadingTopics && loadingAccessControl ? 'Lade Themen und Organisationseinheiten...' : (loadingTopics ? 'Lade Themen...' : (loadingAccessControl ? 'Lade Organisationseinheiten...' : 'Bitte warten...')) }}
+      </div>
     </div>
   </div>
 
@@ -79,8 +82,8 @@
                     {{selectedPoiMarkerColor?.colorName || 'Farbe wählen'}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let markerColor of availablePoiMarkerColors" (click)="onChangeMarkerColor(markerColor)">
-                      <a href=""><i [style.background]="markerColor?.colorValue || '#ccc'"></i>{{markerColor?.colorName || markerColor}}</a>
+                    <li *ngFor="let markerColor of availablePoiMarkerColors" (click)="onChangeMarkerColor(markerColor, $event)">
+                      <span><i [style.background]="markerColor?.colorValue || '#ccc'"></i>{{markerColor?.colorName || markerColor}}</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -91,15 +94,15 @@
               <div class="form-group" align="center">
                 <label>Art*</label>
                 <div class="dropdown customColorPicker">
-                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button type="button" class="btn btn-info dropdown-toggle" (click)="onDropdownButtonClick($event)">
                     {{selectedPoiMarkerStyle.charAt(0).toUpperCase() + selectedPoiMarkerStyle.slice(1)}} <span class="caret"></span>
                   </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li (click)="onChangeMarkerStyle('symbol')">
-                      <a href="">Symbol</a>
+                  <ul class="dropdown-menu dropdown-menu-center" [class.show]="isMarkerStyleDropdownOpen">
+                    <li (click)="onChangeMarkerStyle('symbol', $event); closeMarkerStyleDropdown()" style="cursor: pointer;">
+                      <span>Symbol</span>
                     </li>
-                    <li (click)="onChangeMarkerStyle('text')">
-                      <a href="">Text</a>
+                    <li (click)="onChangeMarkerStyle('text', $event); closeMarkerStyleDropdown()" style="cursor: pointer;">
+                      <span>Text</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -110,7 +113,22 @@
               <div class="form-group" align="center">
                 <label>Symbol*</label>
                 <br />
-                <button id="poiSymbolPicker" class="btn btn-info"></button>
+                <app-icon-picker
+                  [selectedIcon]="selectedPoiIconName"
+                  [disabled]="false"
+                  [placeholder]="iconPickerConfig.placeholder"
+                  [buttonClass]="iconPickerConfig.buttonClass"
+                  [showSearch]="iconPickerConfig.showSearch"
+                  [showHeader]="iconPickerConfig.showHeader"
+                  [showFooter]="iconPickerConfig.showFooter"
+                  [cols]="iconPickerConfig.cols"
+                  [rows]="iconPickerConfig.rows"
+                  [searchText]="iconPickerConfig.searchText"
+                  [labelHeader]="iconPickerConfig.labelHeader"
+                  [labelFooter]="iconPickerConfig.labelFooter"
+                  (iconChange)="onIconPickerChange($event)"
+                  (iconSelect)="onIconPickerChange($event)">
+                </app-icon-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -138,8 +156,8 @@
                     {{selectedPoiSymbolColor?.colorName || 'Farbe wählen'}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let symbolColor of availablePoiMarkerColors" (click)="onChangeSymbolColor(symbolColor)">
-                      <a href=""><i [style.background]="symbolColor?.colorValue || '#ccc'"></i>{{symbolColor?.colorName || symbolColor}}</a>
+                    <li *ngFor="let symbolColor of availablePoiMarkerColors" (click)="onChangeSymbolColor(symbolColor, $event)">
+                      <span><i [style.background]="symbolColor?.colorValue || '#ccc'"></i>{{symbolColor?.colorName || symbolColor}}</span>
                     </li>
                   </ul>
                   <div class="help-block with-errors"></div>
@@ -151,15 +169,12 @@
           <div *ngIf="georesourceType === 'loi'" class="row vertical-align">
             <div class="col-md-4 col-sm-4 col-xs-12">
               <div class="form-group" align="center">
-                <label>Linienfarbe*</label>
-                <div id="loiColorPicker" class="input-group" style="width: 50px;">
-                  <input type="text" style="display:none;" class="form-control input-sm"
-                    [(ngModel)]="loiColor" name="loiColor" placeholder="Line of Interest Farbauswahl"
-                    value="#bf3d2c" required />
-                  <span title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"><i></i></span>
-                </div>
+                <label>Linienfarbe*</label> <br/>
+                <km-color-picker
+                  [color]="loiColor"
+                  (colorChange)="loiColor = $event"
+                  [label]="'Linienfarbe wählen'"
+                ></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -174,23 +189,14 @@
             <div class="col-md-4 col-sm-4 col-xs-12">
               <div class="form-group" align="center">
                 <label>Linienmuster*</label>
-                <div class="dropdown">
-                  <button type="button" width="200px" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div id="loiDashArrayDropdownButton_addGeoresource">
-                      {{selectedLoiDashArrayObject?.displayName}}
-                    </div> <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let loiDashArrayObject of availableLoiDashArrayObjects; let i = index" (click)="onChangeLoiDashArray(loiDashArrayObject)">
-                      <a href="">
-                        <div id="loiDashArrayDropdownItem-{{i}}">
-                          {{loiDashArrayObject.displayName}}
-                        </div>
-                      </a>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
+                <km-line-pattern-picker
+                  [label]="''"
+                  [options]="linePatternOptions"
+                  [selectedPattern]="selectedLoiPattern"
+                  (selectionChange)="onChangeLoiDashArray($event)"
+                  [width]="'200px'"
+                ></km-line-pattern-picker>
+                <div class="help-block with-errors"></div>
               </div>
             </div>
           </div>
@@ -198,15 +204,12 @@
           <div *ngIf="georesourceType === 'aoi'" class="row vertical-align">
             <div class="col-md-12 col-sm-12 col-xs-12">
               <div class="form-group" align="center">
-                <label>Objektfarbe*</label>
-                <div id="aoiColorPicker" class="input-group" style="width: 50px;">
-                  <input type="text" style="display:none;" class="form-control input-sm"
-                    [(ngModel)]="aoiColor" name="aoiColor" placeholder="Area of Interest Farbauswahl"
-                    value="#bf3d2c" required />
-                  <span title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"><i></i></span>
-                </div>
+                <label>Objektfarbe*</label> <br/>
+                <km-color-picker
+                  [color]="aoiColor"
+                  (colorChange)="aoiColor = $event"
+                  [label]="'Objektfarbe wählen'"
+                ></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -260,7 +263,7 @@
               <div class="form-group">
                 <label>Aktualisierungszyklus*</label>
                 <select [(ngModel)]="metadata.updateInterval" name="metadataUpdateInterval" class="form-control" required>
-                  <option disabled selected value> -- Aktualisierungszyklus wählen -- </option>
+                  <option [ngValue]="null" disabled selected> -- Aktualisierungszyklus wählen -- </option>
                   <option *ngFor="let interval of updateIntervalOptions" [ngValue]="interval">{{interval.displayName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -269,13 +272,12 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadataLastUpdate"
-                    class="form-control pull-right" id="georesourceAddLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
-                </div>
+                <km-date-picker
+                  name="metadataLastUpdate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="metadata.lastUpdate"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -308,22 +310,31 @@
           <p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
           <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
 
+
+
           <div class="row vertical-align">
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Hauptthema*</label>
-                <select [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" required>
-                  <option disabled selected value> -- Hauptthema wählen -- </option>
-                  <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">{{mainTopic.topicName}}</option>
+                <div *ngIf="loadingTopics" class="text-center">
+                  <span class="glyphicon glyphicon-refresh icon-spin"></span> Lade Themen...
+                </div>
+                <select *ngIf="!loadingTopics" [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" (ngModelChange)="onMainTopicChange()" required>
+                  <option [ngValue]="null" disabled selected> -- Hauptthema wählen -- </option>
+                  <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">
+                    {{mainTopic.topicName || mainTopic.name || 'Unnamed Topic'}}
+                  </option>
                 </select>
                 <div class="help-block with-errors"></div>
+                
+
               </div>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="georesourceTopic_mainTopic?.subTopics?.length > 0" class="form-group">
                 <label>Unterthema - erste Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subTopic" name="georesourceTopic_subTopic" class="form-control">
-                  <option disabled selected value> -- Unterthema wählen -- </option>
+                <select [(ngModel)]="georesourceTopic_subTopic" name="georesourceTopic_subTopic" class="form-control" (ngModelChange)="onSubTopicChange()">
+                  <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
                   <option *ngFor="let subTopic of georesourceTopic_mainTopic.subTopics" [ngValue]="subTopic">{{subTopic.topicName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -332,8 +343,8 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="georesourceTopic_subTopic?.subTopics?.length > 0" class="form-group">
                 <label>Unterthema - zweite Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subsubTopic" name="georesourceTopic_subsubTopic" class="form-control">
-                  <option disabled selected value> -- Unterthema wählen -- </option>
+                <select [(ngModel)]="georesourceTopic_subsubTopic" name="georesourceTopic_subsubTopic" class="form-control" (ngModelChange)="onSubSubTopicChange()">
+                  <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
                   <option *ngFor="let subsubTopic of georesourceTopic_subTopic.subTopics" [ngValue]="subsubTopic">{{subsubTopic.topicName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -343,7 +354,7 @@
               <div *ngIf="georesourceTopic_subsubTopic?.subTopics?.length > 0" class="form-group">
                 <label>Unterthema - dritte Ebene</label>
                 <select [(ngModel)]="georesourceTopic_subsubsubTopic" name="georesourceTopic_subsubsubTopic" class="form-control">
-                  <option disabled selected value> -- Unterthema wählen -- </option>
+                  <option [ngValue]="null" disabled selected> -- Unterthema wählen -- </option>
                   <option *ngFor="let subsubsubTopic of georesourceTopic_subsubTopic.subTopics" [ngValue]="subsubsubTopic">{{subsubsubTopic.topicName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -354,7 +365,7 @@
           <hr>
           <br/>
 
-          <div class="row vertical-align" *ngIf="kommonitorDataExchangeService.checkAdminPermission && kommonitorDataExchangeService.checkAdminPermission()">
+          <div class="row vertical-align" *ngIf="kommonitorDataExchangeService.checkAdminPermission()">
             <div class="col-md-10 col-sm-12 col-xs-12">
               <div style="text-align: left;">
                 <div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
@@ -391,20 +402,29 @@
                 Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten
               </div>
               <label for="addGeoresourceUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
+              <div *ngIf="loadingAccessControl" class="text-center" style="margin: 10px 0;">
+                <span class="glyphicon glyphicon-refresh icon-spin"></span> Lade Organisationseinheiten...
               </div>
-              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission && kommonitorDataExchangeService.checkAdminPermission()" 
+              <div class="input-group" [class.disabled]="loadingAccessControl">
+                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter" [disabled]="loadingAccessControl">
+              </div>
+              <select *ngIf="!loadingAccessControl && kommonitorDataExchangeService.checkAdminPermission()" 
                 id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
                 class="form-control" (ngModelChange)="onChangeOwner($event)" required>
+                <option [ngValue]="null" disabled selected> -- Organisationseinheit wählen -- </option>
                 <option *ngFor="let org of kommonitorDataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
-              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission || !kommonitorDataExchangeService.checkAdminPermission()" 
+              <select *ngIf="!loadingAccessControl && !kommonitorDataExchangeService.checkAdminPermission()" 
                 id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
                 class="form-control" (ngModelChange)="onChangeOwner($event)" required>
+                <option [ngValue]="null" disabled selected> -- Organisationseinheit wählen -- </option>
                 <option *ngFor="let org of resourcesCreatorRights" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
+              <div *ngIf="!loadingAccessControl && (kommonitorDataExchangeService.checkAdminPermission() ? !kommonitorDataExchangeService.accessControl?.length : !resourcesCreatorRights?.length)" class="alert alert-warning" style="margin-top: 10px;">
+                Keine Organisationseinheiten verfügbar.
+              </div>
+              
               <p></p>
             </div>
             <div class="col-md-3"></div>
@@ -414,14 +434,14 @@
           <hr>
           <br>
 
-          <div id="georesourceRoleForm">
+          <div id="georesourceRoleForm" *ngIf="showRoleManagementForm">
             <label>Datensatz-Freigaben</label>
             
             <div class="row vertical-align">
               <div class="col-md-3">
                 <label>Öffentliche Lesefreigabe*</label>
                 <label class="switch">
-                  <input type="checkbox" [(ngModel)]="isPublic" name="isPublic" (ngModelChange)="onChangeIsPublic($event)">
+                  <input type="checkbox" [(ngModel)]="isPublic" name="isPublic" (ngModelChange)="onChangeIsPublic($event)" [disabled]="loadingAccessControl">
                   <span class="switchslider round"></span>
                 </label>
                 <div class="help-block">
@@ -429,7 +449,21 @@
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-xs-12">
-                <div id="georesourceAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                <div *ngIf="loadingAccessControl" class="text-center" style="margin: 10px 0;">
+                  <span class="glyphicon glyphicon-refresh icon-spin"></span> Lade Berechtigungen...
+                </div>
+                <ag-grid-angular
+                  #roleManagementGrid
+                  style="width: 100%; height: 45vh;"
+                  class="ag-theme-alpine"
+                  [gridOptions]="roleManagementTableOptions"
+                  [class.ng-hide]="loadingAccessControl"
+                  (gridReady)="onRoleManagementGridReady($event)"
+                  (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+                  (columnResized)="onRoleManagementColumnResized($event)"
+                  (modelUpdated)="onRoleManagementModelUpdated()"
+                  (viewportChanged)="onRoleManagementViewportChanged()">
+                </ag-grid-angular>
               </div>
               <div class="col-md-3">
                 <div class="alert alert-info">
@@ -447,14 +481,14 @@
           <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
         </fieldset>
 
-        <fieldset *ngIf="(currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity)">
+        <fieldset [hidden]="!((currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity))">
           <div style="position: absolute;">
             <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceAddMappingConfig()" 
               title="Importieren der Mapping-Konfigurationen aus einer Datei">
               <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
             </button>
             <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" 
-              id="georesourceMappingConfigAddImportFile" accept=".json" (change)="onMappingConfigFileSelected($event)">
+              id="georesourceMappingConfigAddImportFile_new" accept=".json" (change)="onMappingConfigFileSelected($event)">
             <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMappingConfig()" 
               title="Exportieren der Mapping-Konfigurationen in eine Datei">
               <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
@@ -470,7 +504,7 @@
               <div class="form-group">
                 <label>Geodaten-Quellformat*</label>
                 <select [(ngModel)]="converter" name="converter" (ngModelChange)="onChangeConverter()" class="form-control" required>
-                  <option disabled selected value> -- Quellformat wählen -- </option>
+                  <option [ngValue]="null" disabled selected> -- Quellformat wählen -- </option>
                   <option *ngFor="let conv of kommonitorImporterHelperService.availableConverters" [ngValue]="conv">{{conv.name}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -480,7 +514,7 @@
                 <div class="form-group">
                   <label>Schema*</label>
                   <select [(ngModel)]="schema" name="schema" class="form-control" required>
-                    <option disabled selected value> -- Schema wählen -- </option>
+                    <option [ngValue]="null" disabled selected> -- Schema wählen -- </option>
                     <option *ngFor="let schemaOption of converter.schemas" [value]="schemaOption">{{schemaOption}}</option>
                   </select>
                   <div class="help-block with-errors"></div>
@@ -491,7 +525,7 @@
                 <div class="form-group">
                   <label>Quellformat*</label>
                   <select [(ngModel)]="mimeType" name="mimeType" (ngModelChange)="onChangeMimeType($event)" class="form-control" required>
-                    <option disabled selected value> -- Format wählen -- </option>
+                    <option [ngValue]="null" disabled selected> -- Format wählen -- </option>
                     <option *ngFor="let mimeTypeOption of converter.mimeTypes" [value]="mimeTypeOption">{{mimeTypeOption}}</option>
                   </select>
                   <div class="help-block with-errors"></div>
@@ -502,7 +536,8 @@
                 <div class="form-group">
                   <label>{{parameter.name}}<i *ngIf="parameter.mandatory">*</i></label>
                   <input type="text" [id]="'converterParameter_georesourceAdd_' + parameter.name" class="form-control"
-                    [placeholder]="parameter.name" [required]="parameter.mandatory">
+                    [placeholder]="parameter.name" [required]="parameter.mandatory"
+                    [value]="converterParameterValues[parameter.name] || ''">
                   <div class="help-block">
                     <p>{{parameter.description}}</p>
                   </div>
@@ -524,7 +559,7 @@
                     <label>Datenquelltyp*</label>
                     <select [(ngModel)]="datasourceType" name="datasourceType" (ngModelChange)="onChangeDatasourceType($event)" 
                       class="form-control" required>
-                      <option disabled selected value> -- Quelltyp wählen -- </option>
+                      <option [ngValue]="null" disabled selected> -- Quelltyp wählen -- </option>
                       <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">{{dsType.type}}</option>
                     </select>
                     <div class="help-block"></div>
@@ -532,13 +567,13 @@
 
                   <div *ngIf="datasourceType?.type === 'FILE'">
                     <label>Datei*</label>
-                    <input type="file" class="form-control" #georesourceDataSourceInput id="georesourceDataSourceInput_add" required>
+                    <input type="file" class="form-control" #georesourceDataSourceInput id="georesourceDataSourceInput_add" required (change)="onGeoresourceFileSelected($event)">
                   </div>
                   
                   <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
                     <label>Räumlicher Filter*</label>
                     <select [id]="'datasourceTypeParameter_georesourceAdd_bboxType'" [(ngModel)]="bboxType" name="bboxType" class="form-control" required>
-                      <option disabled selected value> -- Filter wählen -- </option>
+                      <option [ngValue]="null" disabled selected> -- Filter wählen -- </option>
                       <option value="ref"> Referenzraumebene </option>
                       <option value="literal"> Manueller Begrenzungsrahmen </option>
                     </select>
@@ -546,7 +581,7 @@
                     <div *ngIf="bboxType == 'ref'">
                       <select [id]="'datasourceTypeParameter_georesourceAdd_bboxRef'" [(ngModel)]="bboxRefSpatialUnit" name="bboxRefSpatialUnit"
                         class="form-control" [required]="bboxType == 'ref'">
-                        <option disabled selected value> -- Raumebene wählen -- </option>
+                        <option [ngValue]="null" disabled selected> -- Raumebene wählen -- </option>
                         <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
                           [value]="spatialUnit.spatialUnitId">{{spatialUnit.spatialUnitLevel}}</option>
                       </select>
@@ -652,13 +687,15 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" name="periodOfValidityStart" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceAddDatepickerStart" placeholder="YYYY-MM-DD" required>
-                </div>
+                <km-date-picker
+                  name="periodOfValidityStart"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.startDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein Lebenszeitraum-Attribut verfügen.</p>
                 </div>
@@ -671,13 +708,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" name="periodOfValidityEnd" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceAddDatepickerEnd" placeholder="YYYY-MM-DD">
-                </div>
+                <km-date-picker
+                  name="periodOfValidityEnd"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.endDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Features handelt.</p>
                 </div>
@@ -738,7 +776,7 @@
               <div class="form-group">
                 <label>Datentyp*</label>
                 <select [(ngModel)]="attributeMapping_attributeType" name="attributeMapping_attributeType" class="form-control" required>
-                  <option disabled selected value> -- Datentyp wählen -- </option>
+                  <option [ngValue]="null" disabled selected> -- Datentyp wählen -- </option>
                   <option *ngFor="let type of kommonitorImporterHelperService.attributeMapping_attributeTypes" [ngValue]="type">{{type.displayName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>
@@ -794,14 +832,14 @@
     <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
   </button>
   <input style="display:none;" class="pull-left" type="file" #metadataImportFile class="form-control"
-    id="georesourceMetadataImportFile" accept=".json" (change)="onMetadataFileSelected($event)">
+    id="georesourceMetadataImportFile_new" accept=".json" (change)="onMetadataFileSelected($event)">
   <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMetadata()" 
     title="Exportieren der Metadaten in eine Datei">
     <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
   </button>
 
   <button type="button" class="btn btn-success" 
-    [disabled]="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || poiMarkerTextInvalid || periodOfValidityInvalid || !converter || !datasourceType || (kommonitorDataExchangeService.enableKeycloakSecurity && !ownerOrganization)"
+    [disabled]="isRegisterDisabled()"
     (click)="addGeoresource()">
     Georessource registrieren
   </button>
@@ -868,4 +906,4 @@
   <br/>
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
   <pre id="georesourcesAddMappingConfigPre" style="overflow:auto; max-height:500px;" [innerHTML]="georesourceMappingConfigStructure_pretty"></pre>
-</div> 
+</div>

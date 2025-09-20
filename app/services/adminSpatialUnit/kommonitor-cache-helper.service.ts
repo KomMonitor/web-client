@@ -98,7 +98,7 @@ export class KommonitorCacheHelperService {
     this.localStorageKey_prefix = env?.localStoragePrefix || 'kommonitor';
     this.localStorageKey_spatialUnits = this.localStorageKey_prefix + '_lastModification_spatialUnits';
     
-    console.log('KommonitorCacheHelperService initialized with base URL:', this.baseUrlToKomMonitorDataAPI);
+    
     
     // Check authentication and set appropriate endpoints
     this.checkAuthentication();
@@ -121,7 +121,7 @@ export class KommonitorCacheHelperService {
       this.spatialUnitsEndpoint = this.spatialUnitsPublicEndpoint;
     }
     
-    console.log('Authentication check completed. Using endpoint:', this.spatialUnitsEndpoint);
+    
   }
 
   /**
@@ -144,7 +144,7 @@ export class KommonitorCacheHelperService {
       tap(info => {
         this.lastDatabaseModificationInfo = info;
         this.lastModificationSubject.next(info);
-        console.log('Database modification info fetched:', info);
+        
       }),
       catchError(this.handleError)
     );
@@ -154,18 +154,18 @@ export class KommonitorCacheHelperService {
    * Fetch spatial units metadata with caching
    */
   fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
-    console.log('Fetching spatial units metadata with roles:', keycloakRolesArray);
+    
     
     // Check cache first
     const cachedData = this.getCachedSpatialUnits(keycloakRolesArray);
     if (cachedData) {
-      console.log('Returning cached spatial units data');
+      
       this.spatialUnitsSubject.next(cachedData);
       return of(cachedData);
     }
 
     // Fetch from server
-    console.log('Cache miss, fetching from server...');
+    
     this.setLoading(true);
     this.clearError();
 
@@ -178,7 +178,7 @@ export class KommonitorCacheHelperService {
       tap((data: SpatialUnitMetadata[]) => {
         this.spatialUnitsSubject.next(data);
         this.setLoading(false);
-        console.log('Spatial units data fetched from server:', data.length, 'items');
+        
       }),
       catchError(error => {
         this.setError(error);
@@ -249,7 +249,7 @@ export class KommonitorCacheHelperService {
     const serverLastModified = this.lastDatabaseModificationInfo['spatial-units'];
 
     if (cachedLastModified !== serverLastModified) {
-      console.log('Cache invalid - timestamps differ');
+      
       return null;
     }
 
@@ -260,10 +260,10 @@ export class KommonitorCacheHelperService {
 
     try {
       const parsedData = JSON.parse(cachedData);
-      console.log('Valid cache found, returning cached data');
+      
       return parsedData;
     } catch (error) {
-      console.error('Error parsing cached data:', error);
+      
       return null;
     }
   }
@@ -290,7 +290,7 @@ export class KommonitorCacheHelperService {
     // Store data
     localStorage.setItem(metadataKey, JSON.stringify(data));
     
-    console.log('Cache updated for', lastModificationResourceName);
+    
   }
 
   /**
@@ -321,7 +321,7 @@ export class KommonitorCacheHelperService {
     const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
     localStorage.removeItem(timestampKey);
     localStorage.removeItem(metadataKey);
-    console.log('Spatial units cache cleared');
+    
   }
 
   /**
@@ -331,7 +331,7 @@ export class KommonitorCacheHelperService {
     const keys = Object.keys(localStorage);
     const cacheKeys = keys.filter(key => key.startsWith(this.localStorageKey_prefix));
     cacheKeys.forEach(key => localStorage.removeItem(key));
-    console.log('All cache cleared');
+    
   }
 
   /**
@@ -405,7 +405,7 @@ export class KommonitorCacheHelperService {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
     
-    console.error('HTTP Error:', errorMessage);
+    
     return throwError(() => new Error(errorMessage));
   }
 

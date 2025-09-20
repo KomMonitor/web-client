@@ -54,25 +54,21 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('AdminSpatialUnitsManagementComponent ngOnInit started');
+    
     
     // Subscribe to spatial units data
     const spatialUnitsSub = this.kommonitorDataExchangeService.spatialUnits$.subscribe(spatialUnits => {
-      console.log('Spatial units subscription received:', spatialUnits);
       if (spatialUnits && spatialUnits.length > 0) {
-        console.log('Building data grid with', spatialUnits.length, 'spatial units');
         this.loadingData = false;
         this.initializationCompleted = true;
         this.buildDataGrid_spatialUnits(spatialUnits);
       } else {
-        console.log('No spatial units data received yet');
       }
     });
     this.subscriptions.push(spatialUnitsSub);
 
     // Subscribe to loading state
     const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(loading => {
-      console.log('Loading state changed:', loading);
       this.loadingData = loading;
     });
     this.subscriptions.push(loadingSub);
@@ -80,7 +76,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // Subscribe to error state
     const errorSub = this.kommonitorDataExchangeService.error$.subscribe(error => {
       if (error) {
-        console.error('Data exchange error:', error);
         // You can add error handling UI here
       }
     });
@@ -94,12 +89,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
-        console.log('Fallback timeout reached, checking data again...');
         this.fetchSpatialUnitsData();
         
         // If still no data after fallback, stop loading anyway
         if (!this.kommonitorDataExchangeService.availableSpatialUnits || this.kommonitorDataExchangeService.availableSpatialUnits.length === 0) {
-          console.log('No data after fallback timeout, stopping loading');
           this.loadingData = false;
           this.initializationCompleted = true;
         }
@@ -159,19 +152,15 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
    * Fetch spatial units data from the service
    */
   private fetchSpatialUnitsData(): void {
-    console.log('Fetching spatial units data...');
     
     // Get current roles or use empty array as fallback
     const currentRoles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
-    console.log('Current roles:', currentRoles);
     
     this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(currentRoles).subscribe({
       next: (spatialUnits) => {
-        console.log('Spatial units data received:', spatialUnits);
         // The data will be handled by the subscription in ngOnInit
       },
       error: (error) => {
-        console.error('Error fetching spatial units:', error);
         this.loadingData = false;
         this.initializationCompleted = true;
       }
@@ -179,7 +168,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   public initializeOrRefreshOverviewTable(): void {
-    console.log('Initializing/refreshing overview table...');
     this.fetchSpatialUnitsData();
   }
 
@@ -204,11 +192,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   // Modal event handlers
   onClickAddSpatialUnit(): void {
     const modalRef = this.modalService.open(SpatialUnitAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.result.then((result) => {
@@ -222,11 +212,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditMetadata(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -242,11 +233,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditFeatures(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -262,11 +254,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditUserRoles(spatialUnitMetadata: any): void {
     const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -282,11 +275,12 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: any[]): void {
     const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'spatial-unit-add-modal',
+      windowClass: 'spatial-unit-add-modal-window'
     });
     
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
@@ -316,7 +310,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           this.loadingData = false;
         },
         error: (response) => {
-          console.error('Error fetching spatial units metadata:', response);
           this.loadingData = false;
         }
       });
@@ -334,7 +327,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
             this.loadingData = false;
           },
           error: (response) => {
-            console.error('Error fetching single spatial unit metadata:', response);
             this.loadingData = false;
           }
         });
@@ -351,7 +343,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
             this.loadingData = false;
           },
           error: (response) => {
-            console.error('Error fetching single spatial unit metadata:', response);
             this.loadingData = false;
           }
         });
@@ -371,12 +362,65 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // AG Grid methods
+  // AG Grid methods - using hybrid approach
   private buildDataGrid_spatialUnits(spatialUnitMetadataArray: any[]): void {
-    this.columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
-    this.rowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
-    this.defaultColDef = this.buildDefaultColDef();
-    this.gridOptions = this.buildGridOptions(spatialUnitMetadataArray);
+    // Get base configuration from service
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildDataGridOptions_spatialUnits(spatialUnitMetadataArray);
+    
+    // Extract service configuration
+    this.columnDefs = baseGridOptions.columnDefs || [];
+    this.rowData = baseGridOptions.rowData || [];
+    this.defaultColDef = baseGridOptions.defaultColDef || {};
+    
+    // Add component-specific columns that are not in the service
+    this.addComponentSpecificColumns();
+    
+    // Override with component-specific settings
+    this.gridOptions = {
+      ...baseGridOptions,
+      columnDefs: this.columnDefs, // Use updated columnDefs
+      paginationPageSize: this.paginationPageSize,
+      paginationPageSizeSelector: this.paginationPageSizeSelector,
+      onGridReady: (params) => {
+        this.gridApi = params.api;
+        this.columnApi = params.columnApi;
+      },
+      onFirstDataRendered: (event) => {
+        this.headerHeightSetter();
+        // Click handler registration is now handled by the service
+      },
+      onColumnResized: (event) => {
+        this.headerHeightSetter();
+      }
+    };
+  }
+
+  // Add component-specific columns that are not in the service
+  private addComponentSpecificColumns(): void {
+    // Add the missing Umringslayer columns after the existing columns
+    this.columnDefs.push(
+      { 
+        headerName: 'Linienfarbe (Umringslayer)', 
+        minWidth: 200, 
+        cellRenderer: (params: any) => params.data.outlineColor || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.outlineColor || '-')
+      },
+      { 
+        headerName: 'Linienbreite (Umringslayer)', 
+        minWidth: 200, 
+        cellRenderer: (params: any) => params.data.outlineWidth || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.outlineWidth || '-')
+      },
+      { 
+        headerName: 'Linienmuster (Umringslayer)', 
+        minWidth: 200, 
+        cellRenderer: (params: any) => params.data.outlineDashArrayString || '-',
+        filter: 'agTextColumnFilter',
+        filterValueGetter: (params: any) => '' + (params.data.outlineDashArrayString || '-')
+      }
+    );
   }
 
   private buildDefaultColDef(): ColDef {
@@ -417,7 +461,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       },
       onFirstDataRendered: (event) => {
         this.headerHeightSetter();
-        this.registerClickHandler_spatialUnits();
+        // Click handler registration is now handled by the service
       },
       onColumnResized: (event) => {
         this.headerHeightSetter();
@@ -580,15 +624,15 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   onRowDataChanged(): void {
-    this.registerClickHandler_spatialUnits();
+    // Click handler registration is now handled by the service
   }
 
   onModelUpdated(): void {
-    this.registerClickHandler_spatialUnits();
+    // Click handler registration is now handled by the service
   }
 
   onViewportChanged(): void {
-    this.registerClickHandler_spatialUnits();
+    // Click handler registration is now handled by the service
   }
 
   private registerClickHandler_spatialUnits(): void {

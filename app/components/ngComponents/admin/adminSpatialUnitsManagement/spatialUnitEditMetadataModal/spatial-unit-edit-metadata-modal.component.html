@@ -116,25 +116,7 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
                 <label>Linienfarbe (Umringslayer)</label>
-                <div id="outlineColorPicker_editSpatialUnit" class="input-group" style="width: 50px;">
-                  <input 
-                    type="text" 
-                    style="display:none;" 
-                    class="form-control input-sm"
-                    [(ngModel)]="outlineColor" 
-                    name="outlineColor"
-                    placeholder="Umringsfarbwahl"
-                    value="#bf3d2c"
-                  />
-                  <span 
-                    title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"
-                    (click)="onColorPickerClick()"
-                  >
-                    <i></i>
-                  </span>
-                </div>
+                <km-color-picker [(color)]="outlineColor" label="Linienfarbe wählen"></km-color-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -156,31 +138,14 @@
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div *ngIf="isOutlineLayer" class="form-group" align="center">
-                <label>Linienmuster (Umringslayer)</label>
-                <div class="dropdown">
-                  <button 
-                    type="button" 
-                    width="200px" 
-                    class="btn btn-info dropdown-toggle"
-                    data-toggle="dropdown" 
-                    aria-haspopup="true" 
-                    aria-expanded="false"
-                  >
-                    <div id="outlineDashArrayDropdownButton_editSpatialUnit"></div> 
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li 
-                      *ngFor="let outlineDashArrayObject of availableLoiDashArrayObjects; let i = index"
-                      (click)="onChangeOutlineDashArray(outlineDashArrayObject)"
-                    >
-                      <a href="">
-                        <div id="outlineDashArrayDropdownItem-editMetadata-{{i}}"></div>
-                      </a>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
+                <km-line-pattern-picker
+                  [selectedPattern]="selectedOutlineDashArrayObject"
+                  [options]="availableLinePatternOptions"
+                  [label]="'Linienmuster (Umringslayer)'"
+                  [placeholder]="'Linienmuster wählen'"
+                  [width]="'200px'"
+                  (patternChange)="onChangeOutlineDashArray($event)">
+                </km-line-pattern-picker>
               </div>
             </div>
           </div>
@@ -275,20 +240,12 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="metadata.lastUpdate" 
-                    name="lastUpdate"
-                    class="form-control pull-right"
-                    id="spatialUnitEditMetadataLastUpdateDatepicker" 
-                    placeholder="YYYY-MM-DD" 
-                    required
-                  />
-                </div>
+                <km-date-picker
+                  name="lastUpdate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="metadata.lastUpdate"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>

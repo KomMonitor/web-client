@@ -12,37 +12,12 @@
     </div>
   </div>
 
-  <!-- Success Alert -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissable">
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-check"></i>Erfolg!</h4>
-    {{ successMessage }}
-  </div>
-
-  <!-- Error Alert -->
-  <div *ngIf="errorMessage || errorMessagePart" class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-ban"></i>Fehler!</h4>
-    {{ errorMessage }}
-    <div *ngIf="errorMessagePart" [innerHTML]="errorMessagePart"></div>
-    <div *ngIf="importerErrors && importerErrors.length > 0">
-      <ul>
-        <li *ngFor="let error of importerErrors">{{ error }}</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Mapping Config Import Error Alert -->
-  <div *ngIf="spatialUnitMappingConfigImportError" class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Fehler!</h4>
-    {{ spatialUnitMappingConfigImportError }}
-  </div>
+  
 
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form class="multiStepForm form-group" style="margin-bottom: 0px;">
+      <form id="spatialUnitEditFeaturesForm" class="multiStepForm form-group" style="margin-bottom: 0px;">
         <!-- div required for click logic -->
         <div> 
           <!-- progressbar -->
@@ -73,12 +48,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datenbank-Raumeinheiten bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>
+                <div class="toggle-center">
                 <label class="switch">
                   <input class="elementCheckbox" type="checkbox" [(ngModel)]="enableDeleteFeatures" 
                          name="enableDeleteFeatures"
                          (change)="onChangeEnableDeleteFeatures()" id="enableDeleteFeatures">
                   <span class="switchslider round text-left" style="line-height:25px;"></span>
                 </label>
+                </div>
                 <button class="btn btn-danger" (click)="clearAllSpatialUnitFeatures()" 
                         [disabled]="!enableDeleteFeatures">
                   <i class="fas fa-trash"></i>&nbsp;Lösche alle Raumeinheiten
@@ -106,9 +83,20 @@
             <ag-grid-angular
               #spatialUnitFeatureTable
               id="spatialUnitFeatureTable"
-              style="height: 50vh; width: 100%;"
+              style="height: 60vh; width: 100%;"
               class="ag-theme-alpine"
+              [columnDefs]="columnDefs"
+              [rowData]="rowData"
+              [defaultColDef]="defaultColDef"
               [gridOptions]="featureTableGridOptions"
+              [pagination]="true"
+              [paginationPageSize]="paginationPageSize"
+              [paginationPageSizeSelector]="paginationPageSizeSelector"
+              [rowSelection]="'multiple'"
+              [suppressRowClickSelection]="true"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true"
               (gridReady)="onGridReady($event)"
               (firstDataRendered)="onFirstDataRendered($event)"
               (columnResized)="onColumnResized($event)"
@@ -120,7 +108,7 @@
         </fieldset>
 
         <!-- Step 2: Spatial Dataset -->
-        <fieldset *ngIf="currentStep === 2">
+        <fieldset [hidden]="!(currentStep === 2)">
           <div style="position: absolute;">
             <button type="button" class="btn btn-info pull-left" (click)="onImportSpatialUnitEditFeaturesMappingConfig()"
                     title="Importieren der Mapping-Konfigurationen aus einer Datei">
@@ -144,9 +132,9 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Geodaten-Quellformat*</label>
-                <select class="form-control" [(ngModel)]="converter" name="converter" (change)="onChangeConverter()" required>
+                <select class="form-control" [(ngModel)]="converter" name="converter" [compareWith]="compareConverter" (change)="onChangeConverter()" required>
                   <option value="" disabled>-- Quellformat wählen --</option>
-                  <option *ngFor="let conv of kommonitorImporterHelperService?.getAvailableConverters()" 
+                  <option *ngFor="let conv of availableConverters" 
                           [ngValue]="conv">
                     {{ conv.name }}
                   </option>
@@ -179,7 +167,8 @@
                        [id]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
                        [placeholder]="parameter.name" 
                        [required]="parameter.mandatory"
-                       [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name">
+                       [name]="'converterParameter_spatialUnitEditFeatures_' + parameter.name"
+                       [(ngModel)]="converterParameters[parameter.name]">
                 <div class="help-block">
                   <p>{{ parameter.description }}</p>
                 </div>
@@ -198,7 +187,7 @@
               <div *ngIf="converter">
                 <div class="form-group">
                   <label>Datenquelltyp*</label>
-                  <select class="form-control" [(ngModel)]="datasourceType" name="datasourceType"
+                  <select class="form-control" [(ngModel)]="datasourceType" name="datasourceType" [compareWith]="compareDatasourceType"
                           (change)="onChangeDatasourceType(datasourceType)" required>
                     <option value="" disabled>-- Quelltyp wählen --</option>
                     <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">
@@ -210,21 +199,24 @@
                 <div *ngIf="datasourceType?.type === 'FILE'">
                   <label>Datei*</label>
                   <input #spatialUnitDataSourceInput type="file" class="form-control" 
-                         id="spatialUnitDataSourceInput_editFeatures" required>
+                         id="spatialUnitDataSourceInput_editFeatures" required (change)="onFileSelected($event)">
+                  <div class="help-block" *ngIf="selectedDataSourceFile">
+                    <p>Ausgewählt: {{ selectedDataSourceFile.name }}</p>
+                  </div>
                 </div>
 
                 <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
                   <label>Räumlicher Filter*</label>
-                  <select class="form-control" [(ngModel)]="bboxType" name="bboxType" required>
+                  <select class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bboxType" [(ngModel)]="bboxType" name="bboxType" required>
                     <option value="" disabled>-- Filter wählen --</option>
                     <option value="ref">Referenzraumebene</option>
                     <option value="literal">Manueller Begrenzungsrahmen</option>
                   </select>
 
                   <div *ngIf="bboxType === 'ref'" class="form-group">
-                    <select class="form-control" [(ngModel)]="bboxRefSpatialUnit" name="bboxRefSpatialUnit" required>
+                    <select class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bboxRef" [(ngModel)]="bboxRefSpatialUnitLevel" name="bboxRefSpatialUnit" required>
                       <option value="" disabled>-- Raumebene wählen --</option>
-                      <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
+                      <option *ngFor="let spatialUnit of availableSpatialUnits" [value]="spatialUnit.spatialUnitLevel">
                         {{ spatialUnit.spatialUnitLevel }}
                       </option>
                     </select>
@@ -235,13 +227,13 @@
 
                   <div *ngIf="bboxType === 'literal'">
                     <label>Begrenzungsrahmen*</label>
-                    <input type="number" class="form-control" placeholder="-180" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_minx" placeholder="-180" required [(ngModel)]="bbox_minx" name="bbox_minx">
                     <div class="help-block"><p>Minimale x-Koordinate</p></div>
-                    <input type="number" class="form-control" placeholder="-90" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_miny" placeholder="-90" required [(ngModel)]="bbox_miny" name="bbox_miny">
                     <div class="help-block"><p>Minimale y-Koordinate</p></div>
-                    <input type="number" class="form-control" placeholder="180" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxx" placeholder="180" required [(ngModel)]="bbox_maxx" name="bbox_maxx">
                     <div class="help-block"><p>Maximale x-Koordinate</p></div>
-                    <input type="number" class="form-control" placeholder="90" required>
+                    <input type="number" class="form-control" id="datasourceTypeParameter_spatialUnitEditFeatures_bbox_maxy" placeholder="90" required [(ngModel)]="bbox_maxy" name="bbox_maxy">
                     <div class="help-block"><p>Maximale y-Koordinate</p></div>
                   </div>
                 </div>
@@ -254,7 +246,8 @@
                               [id]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"
                               [placeholder]="parameter.name" 
                               [required]="parameter.mandatory"
-                              [name]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"></textarea>
+                              [name]="'datasourceTypeParameter_spatialUnitEditFeatures_' + parameter.name"
+                              [(ngModel)]="datasourceTypeParameters[parameter.name]"></textarea>
                     <div class="help-block">
                       <p>{{ parameter.description }}</p>
                     </div>
@@ -311,13 +304,15 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" name="periodOfValidityStartDate" (ngModelChange)="checkPeriodOfValidity()"
-                         class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
-                </div>
+                <km-date-picker
+                  name="periodOfValidityStartDate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.startDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein Lebenszeitraum-Attribut verfügen.</p>
                 </div>
@@ -331,13 +326,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" name="periodOfValidityEndDate" (ngModelChange)="checkPeriodOfValidity()"
-                         class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
-                </div>
+                <km-date-picker
+                  name="periodOfValidityEndDate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="periodOfValidity.endDate"
+                  (ngModelChange)="checkPeriodOfValidity()"
+                  (valueChange)="checkPeriodOfValidity()"
+                  [invalid]="periodOfValidityInvalid"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten handelt.</p>
                 </div>
@@ -357,10 +353,12 @@
               <div class="form-group">
                 <label>Partielles Update einzelner Geometrien*</label>
                 <br/>	
+                <div class="toggle-center">
                 <label class="switch">
                   <input type="checkbox" value="isPartialUpdate" [(ngModel)]="isPartialUpdate" name="isPartialUpdate">
                   <span class="switchslider round"></span>
                 </label>
+                </div>
                 <div class="help-block">
                   <p>Angabe, ob das Update nur einen Teil der räumlichen Objekte enthält (bspw. 20/50 Stadtteilen). Wird der vollständige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und löscht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.</p>
                 </div>
@@ -376,10 +374,12 @@
               <div class="form-group">
                 <label>Import weiterer Attribute*</label>
                 <br/>	
+                <div class="toggle-center">
                 <label class="switch">
                   <input type="checkbox" value="keepAttributes" [(ngModel)]="keepAttributes" name="keepAttributes">
                   <span class="switchslider round"></span>
                 </label>
+                </div>
                 <div class="help-block">
                   <p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen übernommen werden sollen. Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
                 </div>
@@ -493,3 +493,45 @@
     <i class="fas fa-undo"></i>&nbsp;Zurücksetzen
   </button>
 </div> 
+
+<!-- Success Alert -->
+<div id="spatialUnitEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="successMessage" 
+  class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Erfolg!</h4>
+  {{ successMessage }}
+  <div *ngIf="successMessagePart">
+    <p>Raumebene: {{successMessagePart}}</p>
+  </div>
+</div>
+
+<!-- Error Alert -->
+<div id="spatialUnitEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="errorMessage || errorMessagePart" 
+  class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Fehler!</h4>
+  {{ errorMessage }}
+  <br/>
+  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+  <br/>
+  <div *ngIf="importerErrors && importerErrors.length > 0">
+    <p>Bei den {{importerErrors.length}} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <pre style="overflow:auto; max-height:500px;">
+      <ul>
+        <li *ngFor="let error of importerErrors">{{error}}</li>
+      </ul>
+    </pre>
+    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+  </div>
+</div>
+
+<!-- Mapping Config Import Error Alert -->
+<div id="spatialUnitEditFeaturesMappingConfigErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  *ngIf="spatialUnitMappingConfigImportError" 
+  class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Fehler!</h4>
+  <pre [innerHTML]="spatialUnitMappingConfigImportError"></pre>
+</div>

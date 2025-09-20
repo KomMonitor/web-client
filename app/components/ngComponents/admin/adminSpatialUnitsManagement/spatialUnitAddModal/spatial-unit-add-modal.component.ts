@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Inject, ViewChild, ElementRef, HostListener, Injectable } from '@angular/core';
+import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -7,6 +7,12 @@ import { KommonitorDataGridHelperService } from '../../../../../services/adminSp
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
+import { ColorEvent } from 'ngx-color';
+import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
+import { KmLinePatternPickerComponent, LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+// Removed in favor of standalone km-date-picker component providers
 
 @Component({
   selector: 'spatial-unit-add-modal-new',
@@ -18,6 +24,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false }) spatialUnitDataSourceInput!: ElementRef;
   @ViewChild('roleManagementGrid', { static: false }) roleManagementGrid!: AgGridAngular;
+  // datepickers handled by km-date-picker
+  @ViewChild('lastUpdateDatepicker', { static: false }) lastUpdateDatepicker!: NgbDatepicker;
 
   // Multi-step form
   currentStep = 1;
@@ -56,7 +64,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   outlineDashArray: any = null;
 
   // Period of validity
-  periodOfValidity: { startDate: string; endDate: string } = {
+  periodOfValidity: { startDate: any; endDate: any } = {
     startDate: '',
     endDate: ''
   };
@@ -73,6 +81,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   schema: string = '';
   mimeType: string = '';
   datasourceType: any = null;
+  selectedDataSourceFile: File | null = null;
   spatialUnitDataSourceIdProperty = '';
   spatialUnitDataSourceIdPropertyInvalid = false;
   spatialUnitDataSourceNameProperty = '';
@@ -81,6 +90,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Bbox parameters for OGCAPI_FEATURES
   bboxType: string = '';
   bboxRefSpatialUnit: any = null;
+  bbox_minx: any = null;
+  bbox_miny: any = null;
+  bbox_maxx: any = null;
+  bbox_maxy: any = null;
 
   // Attribute mapping
   attributeMapping_sourceAttributeName = '';
@@ -89,6 +102,10 @@ export class SpatialUnitAddModalComponent implements OnInit {
   attributeMappings_adminView: any[] = [];
   keepAttributes = true;
   keepMissingValues = true;
+
+  // Persisted parameter values for converter and datasource type
+  converterParameterValues: { [key: string]: string } = {};
+  datasourceTypeParameterValues: { [key: string]: string } = {};
 
   // Validity dates per feature
   validityStartDate_perFeature = '';
@@ -133,11 +150,15 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Missing properties from original component
   outlineColor = "#000000";
-  selectedOutlineDashArrayObject: any = null;
+  selectedOutlineDashArrayObject: LinePatternOption | null = null;
   spatialUnitMetadataStructure_pretty: string = '';
+  spatialUnitMappingConfigStructure: any = {};
   
   // Role form visibility
   showRoleForm = false;
+
+  // Color picker handled by km-color-picker
+  // Line pattern picker handled by km-line-pattern-picker
 
   // Grid ready event handler
   onRoleManagementGridReady(params: any) {
@@ -211,13 +232,22 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return filtered;
   }
 
+  get availableLinePatternOptions(): LinePatternOption[] {
+    return (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).map(option => ({
+      label: option.label,
+      dashArrayValue: option.dashArrayValue,
+      svgString: option.svgString
+    }));
+  }
+
   constructor(
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
     private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private http: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private sanitizer: DomSanitizer
   ) {
   }
 
@@ -229,7 +259,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.setupEventListeners();
   }
 
-  private loadInitialData() {
+  private async loadInitialData() {
     this.loadingData = true;
     
     // Load available spatial units
@@ -241,7 +271,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (this.kommonitorDataExchangeService.updateIntervalOptions) {
       this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
     } else {
-      console.warn('No update interval options available from service');
     }
 
     // Initialize attribute mapping types
@@ -250,12 +279,21 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.attributeMapping_attributeType = attributeMappingTypes[0];
     }
 
-    // Load converters and datasource types
-    this.loadConverters();
+    // Ensure importer resources are fetched before reading converters/datasource types
+    try {
+      await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
+    } catch (error) {
+      
+    }
+
+    // Load datasource types from importer helper after fetch
     this.loadDatasourceTypes();
 
     // Load access control data and prepare creator list
     this.loadAccessControlData();
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   private loadAccessControlData() {
@@ -271,7 +309,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
           this.loadingData = false;
         },
         error: (error) => {
-          console.error('Error fetching access control data:', error);
           // Set empty arrays to avoid errors
           this.resourcesCreatorRights = [];
           this.loadingData = false;
@@ -311,28 +348,33 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   private loadConverters(): void {
-    const converters = this.kommonitorImporterHelperService.getAvailableConverters();
-    if (converters) {
-      // Filter converters for spatial units
-      this.availableDatasourceTypes = converters
-        .filter((converter: any) => converter.type === 'spatialUnit');
-    }
+    // Converters are fetched and exposed by the importer helper service.
+    // The template reads them directly from the service; no component state needed here.
+    return;
   }
 
   private loadDatasourceTypes(): void {
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
-    if (datasourceTypes) {
-      this.availableDatasourceTypes = datasourceTypes;
-    }
+    this.availableDatasourceTypes = datasourceTypes || [];
   }
 
   private initializeOutlineLayerSettings() {
-    this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
-    this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    if (availableOptions.length > 0) {
+      this.selectedOutlineDashArrayObject = {
+        label: availableOptions[0].label,
+        dashArrayValue: availableOptions[0].dashArrayValue,
+        svgString: availableOptions[0].svgString
+      };
+    } else {
+      this.selectedOutlineDashArrayObject = null;
+    }
+    this.availableLoiDashArrayObjects = availableOptions;
   }
 
   private initializeMetadataStructures() {
-    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.spatialUnitMetadataStructure);
+    this.spatialUnitMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.kommonitorDataExchangeService.spatialUnitMetadataStructure);
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   prepareCreatorList() {
@@ -451,15 +493,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   checkPeriodOfValidity() {
-    this.periodOfValidityInvalid = false;
-    if (this.periodOfValidity.startDate && this.periodOfValidity.endDate) {
-      const startDate = new Date(this.periodOfValidity.startDate);
-      const endDate = new Date(this.periodOfValidity.endDate);
+    // Normalize to ISO strings first (handles NgbDateStruct or string)
+    const startIso = this.toIsoDateString(this.periodOfValidity.startDate);
+    const endIso = this.toIsoDateString(this.periodOfValidity.endDate);
 
-      if ((startDate.getTime() === endDate.getTime()) || startDate > endDate) {
-        // failure
-        this.periodOfValidityInvalid = true;
-      }
+    // Use service validation (guards optional end)
+    const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
+      startIso as any,
+      endIso as any
+    );
+
+    this.periodOfValidityInvalid = !validation.isValid;
+
+    if (!validation.isValid && validation.error) {
+      
     }
   }
 
@@ -514,6 +561,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   onChangeConverter(schema?: any) {
     this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : undefined;
+    this.converterParameterValues = {};
   }
 
   onChangeMimeType(mimeType: any) {
@@ -524,17 +572,41 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Handle datasource type change
     this.datasourceType = datasourceType;
     // Reset related fields when datasource type changes
+    this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.bboxType = '';
     this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
+    this.datasourceTypeParameterValues = {};
   }
 
-  onChangeOutlineDashArray(outlineDashArrayObject: any) {
+  onSpatialUnitFileSelected(event: any) {
+    const file = event?.target?.files?.[0] as File | undefined;
+    this.selectedDataSourceFile = file ?? null;
+  }
+
+  onChangeOutlineDashArray(outlineDashArrayObject: LinePatternOption | null) {
+    
     // Handle outline dash array change
     this.selectedOutlineDashArrayObject = outlineDashArrayObject;
     this.outlineDashArray = outlineDashArrayObject;
+    
+    // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
+
+
+  // Color picker logic removed; handled by km-color-picker
+
+  // Date picker methods
+  // Datepicker toggling handled by km-date-picker
+
+  // Ensure valid date or set to today's date on blur
+  // Date normalization handled by km-date-picker
+
 
   // Importer object building methods
   async buildImporterObjects() {
@@ -553,8 +625,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
                     this.postBody_spatialUnits;
 
     if (!allValid) {
-      console.error('=== BUILDING IMPORTER OBJECTS - FAILED ===');
-      console.error('One or more required objects could not be built');
+      
     }
 
     return allValid;
@@ -566,26 +637,54 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.converter, 
       "converterParameter_spatialUnitAdd_", 
       this.schema, 
-      this.mimeType
+      this.mimeType,
+      this.converterParameterValues
     );
     
     return result;
   }
 
   async buildDatasourceTypeDefinition() {
-    
     try {
+      // Prefer robust Angular-native handling for FILE uploads
+      if (this.datasourceType?.type === 'FILE') {
+        // Use persisted file across step changes
+        let file: File | undefined | null = this.selectedDataSourceFile;
+        if (!file) {
+          const inputEl = this.spatialUnitDataSourceInput?.nativeElement as HTMLInputElement | undefined;
+          file = inputEl?.files?.[0];
+        }
+        if (!file) {
+          return null;
+        }
+        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(file, file.name);
+        return {
+          type: 'FILE',
+          parameters: [
+            { name: 'NAME', value: uploadedName }
+          ]
+        };
+      }
+
+      const formValues: { [key: string]: string } = {
+        ...this.datasourceTypeParameterValues,
+        bboxType: this.bboxType as any,
+        bboxRef: this.bboxRefSpatialUnit as any,
+        bbox_minx: this.bbox_minx as any,
+        bbox_miny: this.bbox_miny as any,
+        bbox_maxx: this.bbox_maxx as any,
+        bbox_maxy: this.bbox_maxy as any
+      } as any;
+
       const result = await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType, 
-        'datasourceTypeParameter_spatialUnitAdd_', 
-        'spatialUnitDataSourceInput'
+        this.datasourceType,
+        'datasourceTypeParameter_spatialUnitAdd_',
+        'spatialUnitDataSourceInput',
+        formValues
       );
-      
+
       return result;
     } catch (error: any) {
-      console.error('=== BUILDING DATASOURCE TYPE DEFINITION - ERROR ===');
-      console.error('- Error:', error);
-      console.error('- Error data:', error.data);
       
       if (error.data) {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -614,6 +713,23 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return result;
   }
 
+  private toIsoDateString(value: any): string | null {
+    if (!value) {
+      return null;
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    const maybeStruct = value as { year?: number; month?: number; day?: number };
+    if (maybeStruct && typeof maybeStruct.year === 'number' && typeof maybeStruct.month === 'number' && typeof maybeStruct.day === 'number') {
+      const y = maybeStruct.year;
+      const m = String(maybeStruct.month).padStart(2, '0');
+      const d = String(maybeStruct.day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return null;
+  }
+
   buildPostBody_spatialUnits() {
     
     const postBody: any = {
@@ -625,7 +741,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
         "sridEPSG": this.metadata.sridEPSG,
         "datasource": this.metadata.datasource,
         "contact": this.metadata.contact,
-        "lastUpdate": this.metadata.lastUpdate,
+        "lastUpdate": this.toIsoDateString(this.metadata.lastUpdate),
         "description": this.metadata.description,
         "databasis": this.metadata.databasis
       },
@@ -634,8 +750,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
       "nextLowerHierarchyLevel": this.nextLowerHierarchySpatialUnit ? this.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
       "spatialUnitLevel": this.spatialUnitLevel,
       "periodOfValidity": {
-        "endDate": this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null,
-        "startDate": this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null
+        "endDate": this.toIsoDateString(this.periodOfValidity && this.periodOfValidity.endDate ? this.periodOfValidity.endDate : null),
+        "startDate": this.toIsoDateString(this.periodOfValidity && this.periodOfValidity.startDate ? this.periodOfValidity.startDate : null)
       },
       "nextUpperHierarchyLevel": this.nextUpperHierarchySpatialUnit ? this.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
       // Add missing outline layer properties
@@ -669,12 +785,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const allDataSpecified = await this.buildImporterObjects();
 
     if (!allDataSpecified) {
-      console.error('=== VALIDATION FAILED ===');
-      console.error('- Not all data was specified correctly');
-      console.error('- converterDefinition exists:', !!this.converterDefinition);
-      console.error('- datasourceTypeDefinition exists:', !!this.datasourceTypeDefinition);
-      console.error('- propertyMappingDefinition exists:', !!this.propertyMappingDefinition);
-      console.error('- postBody_spatialUnits exists:', !!this.postBody_spatialUnits);
       
       // TODO: Add form validation here
       this.loadingData = false;
@@ -726,12 +836,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
           this.loadingData = false;
         }
       } catch (error: any) {
-        console.error('=== EXCEPTION DURING IMPORT ===');
-        console.error('- Error type:', typeof error);
-        console.error('- Error:', error);
-        console.error('- Error message:', error?.message);
-        console.error('- Error data:', error?.data);
-        console.error('- Error status:', error?.status);
         
         if (error.data) {
           this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -777,7 +881,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     
     // Validate step range
     if (step < 1 || step > maxSteps) {
-      console.log(`Invalid step: ${step}. Valid range: 1-${maxSteps}`);
       return;
     }
 
@@ -822,8 +925,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       try {
         this.parseFromMetadataFile(event);
       } catch (error) {
-        console.error(error);
-        console.error("Uploaded Metadata File cannot be parsed.");
         this.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
       }
     };
@@ -838,8 +939,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
       try {
         this.parseFromMappingConfigFile(event);
       } catch (error) {
-        console.error(error);
-        console.error("Uploaded MappingConfig File cannot be parsed.");
         this.spatialUnitMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
       }
     };
@@ -851,7 +950,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      console.error("uploaded Metadata File cannot be parsed - wrong structure.");
       this.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
       return;
     }
@@ -861,11 +959,17 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
     
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    // Use the same array instance as the select options to ensure object identity matches
+    const intervalOptions = this.updateIntervalOptions && this.updateIntervalOptions.length
+      ? this.updateIntervalOptions
+      : this.kommonitorDataExchangeService.updateIntervalOptions;
+
+    for (const option of intervalOptions) {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
+        break;
       }
-    });
+    }
     
     this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
     this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
@@ -902,21 +1006,29 @@ export class SpatialUnitAddModalComponent implements OnInit {
     
     this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.outlineDashArrayString) {
-        this.selectedOutlineDashArrayObject = option;
+        this.selectedOutlineDashArrayObject = {
+          label: option.label,
+          dashArrayValue: option.dashArrayValue,
+          svgString: option.svgString
+        };
         this.onChangeOutlineDashArray(this.selectedOutlineDashArrayObject);
       }
     });
 
+    // Line pattern picker will handle the display automatically
+
     this.spatialUnitLevel = this.metadataImportSettings.spatialUnitLevel;
     this.ownerOrganization = this.metadataImportSettings.ownerId;
-    this.isPublic = this.metadataImportSettings.isPublic || false;
+    this.isPublic = this.metadataImportSettings.isPublic;
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
   }
 
   parseFromMappingConfigFile(event: any) {
     this.mappingConfigImportSettings = JSON.parse(event.target.result);
 
     if (!this.mappingConfigImportSettings.converter || !this.mappingConfigImportSettings.dataSource || !this.mappingConfigImportSettings.propertyMapping) {
-      console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
       this.spatialUnitMappingConfigImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
       return;
     }
@@ -948,12 +1060,54 @@ export class SpatialUnitAddModalComponent implements OnInit {
       }
     }
 
+    // Populate converter parameters (e.g., CRS) from imported mapping config
+    // Defer to ensure inputs exist in the DOM after bindings render
+    setTimeout(() => {
+      const params = this.mappingConfigImportSettings?.converter?.parameters || [];
+      if (this.converter && Array.isArray(params)) {
+        for (const convParameter of params) {
+          const el = document.getElementById(`converterParameter_spatialUnitAdd_${convParameter.name}`) as HTMLInputElement | null;
+          if (el) {
+            el.value = convParameter.value ?? '';
+          }
+          this.converterParameterValues[convParameter.name] = convParameter.value ?? '';
+        }
+      }
+    }, 0);
+
     this.datasourceType = null;
     const datasourceTypes = this.kommonitorImporterHelperService.getAvailableDatasourceTypes();
     for (const datasourceType of datasourceTypes) {
       if (datasourceType.type === this.mappingConfigImportSettings.dataSource.type) {
         this.datasourceType = datasourceType;
         break;
+      }
+    }
+
+    // Populate datasource type params and bbox
+    this.datasourceTypeParameterValues = {};
+    const dsParams = this.mappingConfigImportSettings?.dataSource?.parameters || [];
+    const bboxTypeParam = dsParams.find((p: any) => p.name === 'bboxType');
+    if (bboxTypeParam) {
+      this.bboxType = bboxTypeParam.value || '';
+    }
+    const bboxParam = dsParams.find((p: any) => p.name === 'bbox');
+    if (bboxParam && typeof bboxParam.value === 'string') {
+      if (this.bboxType === 'ref') {
+        this.bboxRefSpatialUnit = bboxParam.value;
+      } else {
+        const parts = bboxParam.value.split(',');
+        if (parts.length === 4) {
+          this.bbox_minx = parts[0];
+          this.bbox_miny = parts[1];
+          this.bbox_maxx = parts[2];
+          this.bbox_maxy = parts[3];
+        }
+      }
+    }
+    for (const p of dsParams) {
+      if (p.name !== 'bbox' && p.name !== 'bboxType') {
+        this.datasourceTypeParameterValues[p.name] = p.value ?? '';
       }
     }
 
@@ -989,47 +1143,38 @@ export class SpatialUnitAddModalComponent implements OnInit {
       };
       this.periodOfValidityInvalid = false;
     }
+
+    // Initialize metadata structures
+    this.spatialUnitMappingConfigStructure = this.kommonitorImporterHelperService.mappingConfigStructure;
+
+    // Line pattern picker will handle the display automatically
   }
 
   onExportSpatialUnitAddMetadataTemplate() {
-    const metadataJSON = JSON.stringify(this.spatialUnitMetadataStructure);
+    const metadataJSON = JSON.stringify(this.kommonitorDataExchangeService.spatialUnitMetadataStructure);
     const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
 
   onExportSpatialUnitAddMetadata() {
-    const metadataExport: any = { ...this.spatialUnitMetadataStructure };
+    // Use service method to build export structure
+    const metadataExport = this.kommonitorDataExchangeService.buildSpatialUnitMetadataExport(
+      this.metadata,
+      this.spatialUnitLevel,
+      this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || null,
+      this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || null,
+      this.isOutlineLayer,
+      this.outlineColor,
+      this.outlineWidth,
+      this.selectedOutlineDashArrayObject?.dashArrayValue || null
+    );
 
-    // Update metadata fields
-    metadataExport.metadata.note = this.metadata.note || "";
-    metadataExport.metadata.literature = this.metadata.literature || "";
-    metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || "";
-    metadataExport.metadata.datasource = this.metadata.datasource || "";
-    metadataExport.metadata.contact = this.metadata.contact || "";
-    metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || "";
-    metadataExport.metadata.description = this.metadata.description || "";
-    metadataExport.metadata.databasis = this.metadata.databasis || "";
-    metadataExport.spatialUnitLevel = this.spatialUnitLevel || "";
-
-    // Update permissions (changed from allowedRoles)
+    // Add component-specific properties
     metadataExport.permissions = [];
     if (this.roleManagementTableOptions) {
       const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       metadataExport.permissions.push(...roleIds);
     }
-
-    // Update hierarchy levels
-    if (this.metadata.updateInterval) {
-      metadataExport.metadata.updateInterval = this.metadata.updateInterval.apiName;
-    }
-    metadataExport.nextLowerHierarchyLevel = this.nextLowerHierarchySpatialUnit?.spatialUnitLevel || "";
-    metadataExport.nextUpperHierarchyLevel = this.nextUpperHierarchySpatialUnit?.spatialUnitLevel || "";
-
-    // Add outline layer properties
-    metadataExport.isOutlineLayer = this.isOutlineLayer;
-    metadataExport.outlineDashArrayString = this.selectedOutlineDashArrayObject?.dashArrayValue;
-    metadataExport.outlineColor = this.outlineColor;
-    metadataExport.outlineWidth = this.outlineWidth;
 
     // Add owner properties
     metadataExport.ownerId = this.ownerOrganization;
@@ -1045,13 +1190,13 @@ export class SpatialUnitAddModalComponent implements OnInit {
     const datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     const propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const mappingConfigExport = {
-      "converter": converterDefinition,
-      "dataSource": datasourceTypeDefinition,
-      "propertyMapping": propertyMappingDefinition,
-    };
-
-    (mappingConfigExport as any).periodOfValidity = this.periodOfValidity;
+    // Use service method to build export structure
+    const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
+      converterDefinition,
+      datasourceTypeDefinition,
+      propertyMappingDefinition,
+      this.periodOfValidity
+    );
 
     const name = this.spatialUnitLevel;
     const metadataJSON = JSON.stringify(mappingConfigExport);
@@ -1082,23 +1227,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Metadata structure for export
   get spatialUnitMetadataStructure() {
-    return {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis",
-      },
-      "permissions": ['roleId'],
-      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
-      "spatialUnitLevel": "Name of spatial unit dataset",
-      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
-    };
+    return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
   }
 
   get spatialUnitMappingConfigStructure_pretty() {
@@ -1131,16 +1260,37 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.outlineColor = "#000000";
     this.outlineWidth = 3;
     this.outlineDashArray = null;
-    this.selectedOutlineDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.[0] || null;
+    const availableOptions = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    if (availableOptions.length > 0) {
+      this.selectedOutlineDashArrayObject = {
+        label: availableOptions[0].label,
+        dashArrayValue: availableOptions[0].dashArrayValue,
+        svgString: availableOptions[0].svgString
+      };
+    } else {
+      this.selectedOutlineDashArrayObject = null;
+    }
+    this.spatialUnitMappingConfigStructure = {};
     
+    // Line pattern picker will handle the display automatically
+
     this.converter = null;
     this.schema = '';
     this.mimeType = '';
     this.datasourceType = null;
+    this.selectedDataSourceFile = null;
     this.spatialUnitDataSourceIdProperty = '';
     this.spatialUnitDataSourceNameProperty = '';
     this.validityStartDate_perFeature = '';
     this.validityEndDate_perFeature = '';
+    this.converterParameterValues = {};
+    this.datasourceTypeParameterValues = {};
+    this.bboxType = '';
+    this.bboxRefSpatialUnit = null;
+    this.bbox_minx = null;
+    this.bbox_miny = null;
+    this.bbox_maxx = null;
+    this.bbox_maxy = null;
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
     this.attributeMappings_adminView = [];
@@ -1183,6 +1333,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMappingConfigImportError = '';
     this.spatialUnitDataSourceIdPropertyInvalid = false;
     this.spatialUnitDataSourceNamePropertyInvalid = false;
+    this.spatialUnitMappingConfigStructure = {};
+    this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     this.attributeMapping_attributeType = attributeMappingTypes[0];
     this.errorMessage = '';
@@ -1222,50 +1374,19 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   cancel() {
-    console.log('Modal cancelled');
     this.activeModal.dismiss('cancel');
   }
 
   private buildRoleManagementGridConfig() {
-    this.roleManagementDefaultColDef = this.buildRoleManagementDefaultColDef();
-    this.roleManagementGridOptions = this.buildRoleManagementGridOptions();
-  }
-
-  private buildRoleManagementDefaultColDef(): ColDef {
-    return {
-      editable: false,
-      sortable: true,
-      flex: 1,
-      minWidth: 100,
-      filter: false,
-      resizable: true,
-      wrapText: true,
-      autoHeight: false,
-      cellStyle: { 
-        'font-size': '12px', 
-        'white-space': 'normal !important', 
-        'line-height': '20px !important', 
-        'word-break': 'break-word !important', 
-        'padding-top': '8px', 
-        'padding-bottom': '8px' 
-      }
-    };
-  }
-
-  private buildRoleManagementGridOptions(): GridOptions {
-    // Use components from the table options if available
-    const components = this.roleManagementTableOptions?.components || {};
-
-    return {
-      components: components,
-      suppressRowClickSelection: true,
-      rowSelection: 'multiple',
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      pagination: false,
-      suppressColumnVirtualisation: true,
-      headerHeight: 40,
-      rowHeight: 35,
+    // Use service methods for base grid configuration
+    this.roleManagementDefaultColDef = this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementTableOptions?.components
+    );
+    
+    // Apply component-specific overrides
+    this.roleManagementGridOptions = {
+      ...baseGridOptions,
       onGridReady: (params) => {
         this.onRoleManagementGridReady(params);
       },

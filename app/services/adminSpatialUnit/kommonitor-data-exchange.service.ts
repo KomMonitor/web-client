@@ -441,11 +441,33 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Get available line of interest dash array objects
    */
   get availableLoiDashArrayObjects(): any[] {
+    // Align with legacy AngularJS values so persisted datasets map correctly
     return [
-      { value: 'solid', label: 'Durchgezogen', dashArray: null },
-      { value: 'dashed', label: 'Gestrichelt', dashArray: '10,5' },
-      { value: 'dotted', label: 'Gepunktet', dashArray: '2,2' },
-      { value: 'dash-dot', label: 'Strich-Punkt', dashArray: '10,2,2,2' }
+      {
+        label: 'Durchgezogen',
+        dashArrayValue: '',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>'
+      },
+      {
+        label: 'Gestrichelt (20)',
+        dashArrayValue: '20',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>'
+      },
+      {
+        label: 'Gestrichelt (20 10)',
+        dashArrayValue: '20 10',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>'
+      },
+      {
+        label: 'Strich-Punkt (20 10 5 10)',
+        dashArrayValue: '20 10 5 10',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>'
+      },
+      {
+        label: 'Gepunktet (5)',
+        dashArrayValue: '5',
+        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>'
+      }
     ];
   }
 
@@ -882,5 +904,268 @@ export class KommonitorDataExchangeService implements OnDestroy {
     }
     
     return false;
+  }
+
+  /**
+   * Validate spatial unit metadata form data
+   */
+  validateSpatialUnitMetadata(metadata: any, spatialUnitLevel: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    // Check required fields
+    if (!spatialUnitLevel || spatialUnitLevel.trim() === '') {
+      errors.push('Raumebene Name ist erforderlich.');
+    }
+
+    // Check hierarchy validity
+    if (metadata.nextLowerHierarchyLevel && metadata.nextUpperHierarchyLevel) {
+      // This would need access to availableSpatialUnits to fully validate
+      // For now, just check if both are set
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Convert empty strings to null for API calls
+   */
+  convertEmptyToNull(value: any): any {
+    return value === '' || value === undefined || value === null ? null : value;
+  }
+
+  /**
+   * Build patch body for spatial unit metadata update
+   */
+  buildSpatialUnitMetadataPatchBody(
+    spatialUnitLevel: string,
+    metadata: any,
+    nextLowerHierarchyLevel: string | null,
+    nextUpperHierarchyLevel: string | null,
+    isOutlineLayer: boolean,
+    outlineColor: string,
+    outlineWidth: number,
+    outlineDashArrayString: string | null
+  ): any {
+    return {
+      datasetName: spatialUnitLevel.trim(),
+      metadata: {
+        note: this.convertEmptyToNull(metadata.note),
+        literature: this.convertEmptyToNull(metadata.literature),
+        updateInterval: metadata.updateInterval && metadata.updateInterval.apiName ? metadata.updateInterval.apiName : null,
+        sridEPSG: metadata.sridEPSG || 4326,
+        datasource: this.convertEmptyToNull(metadata.datasource),
+        contact: this.convertEmptyToNull(metadata.contact),
+        lastUpdate: this.convertEmptyToNull(metadata.lastUpdate),
+        description: this.convertEmptyToNull(metadata.description),
+        databasis: this.convertEmptyToNull(metadata.databasis)
+      },
+      nextLowerHierarchyLevel,
+      nextUpperHierarchyLevel,
+      isOutlineLayer,
+      outlineColor: outlineColor || '#bf3d2c',
+      outlineWidth: outlineWidth || 2,
+      outlineDashArrayString
+    };
+  }
+
+  /**
+   * Build export data for spatial unit metadata
+   */
+  buildSpatialUnitMetadataExport(
+    metadata: any,
+    spatialUnitLevel: string,
+    nextLowerHierarchyLevel: string | null,
+    nextUpperHierarchyLevel: string | null,
+    isOutlineLayer: boolean,
+    outlineColor: string,
+    outlineWidth: number,
+    outlineDashArrayString: string | null
+  ): any {
+    return {
+      metadata: {
+        note: this.convertEmptyToNull(metadata.note),
+        literature: this.convertEmptyToNull(metadata.literature),
+        updateInterval: metadata.updateInterval ? metadata.updateInterval.apiName : null,
+        sridEPSG: metadata.sridEPSG || 4326,
+        datasource: this.convertEmptyToNull(metadata.datasource),
+        contact: this.convertEmptyToNull(metadata.contact),
+        lastUpdate: this.convertEmptyToNull(metadata.lastUpdate),
+        description: this.convertEmptyToNull(metadata.description),
+        databasis: this.convertEmptyToNull(metadata.databasis)
+      },
+      allowedRoles: ['roleId'],
+      spatialUnitLevel: spatialUnitLevel || null,
+      nextLowerHierarchyLevel,
+      nextUpperHierarchyLevel,
+      isOutlineLayer,
+      outlineColor,
+      outlineWidth,
+      outlineDashArrayString
+    };
+  }
+
+  /**
+   * Get metadata structure template for export
+   */
+  get spatialUnitMetadataStructure() {
+    return {
+      "metadata": {
+        "note": "an optional note",
+        "literature": "optional text about literature",
+        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
+        "sridEPSG": 4326,
+        "datasource": "text about data source",
+        "contact": "text about contact details",
+        "lastUpdate": "YYYY-MM-DD",
+        "description": "description about spatial unit dataset",
+        "databasis": "text about data basis"
+      },
+      "allowedRoles": ['roleId'],
+      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
+      "spatialUnitLevel": "Name of spatial unit dataset",
+      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
+    };
+  }
+
+  /**
+   * Validate period of validity dates
+   */
+  validatePeriodOfValidity(startDate: string, endDate: string): { isValid: boolean; error?: string } {
+    if (!startDate || !endDate) {
+      return { isValid: true }; // Both dates are optional
+    }
+
+    const start = new Date(startDate as any);
+    const end = new Date(endDate as any);
+
+    // If either date is invalid, do not block submission here
+    const startTime = start.getTime();
+    const endTime = end.getTime();
+    if (isNaN(startTime) || isNaN(endTime)) {
+      return { isValid: true };
+    }
+
+    if (startTime >= endTime) {
+      return {
+        isValid: false,
+        error: 'Start date must be before end date and they cannot be the same'
+      };
+    }
+
+    return { isValid: true };
+  }
+
+  /**
+   * Transform GeoJSON features for grid display
+   */
+  transformFeaturesForGrid(features: any[]): any[] {
+    return (features || []).map((feature: any) => {
+      if (feature.properties) {
+        // Add geometry and record ID to properties for grid display
+        feature.properties.kommonitorGeometry = feature.geometry;
+        feature.properties.kommonitorRecordId = feature.id;
+        return feature.properties;
+      }
+      return feature;
+    });
+  }
+
+  /**
+   * Extract remaining headers from GeoJSON features
+   */
+  extractRemainingHeaders(features: any[]): string[] {
+    if (!features || features.length === 0) return [];
+
+    const firstFeature = features[0];
+    if (!firstFeature.properties) return [];
+
+    const komMonitorProperties = ['ID', 'NAME', 'validStartDate', 'validEndDate'];
+    return Object.keys(firstFeature.properties).filter(
+      property => !komMonitorProperties.includes(property)
+    );
+  }
+
+  /**
+   * Build mapping config export structure
+   */
+  buildMappingConfigExport(
+    converterDefinition: any,
+    datasourceTypeDefinition: any,
+    propertyMappingDefinition: any,
+    periodOfValidity: any
+  ): any {
+    return {
+      converter: converterDefinition,
+      dataSource: datasourceTypeDefinition,
+      propertyMapping: propertyMappingDefinition,
+      periodOfValidity
+    };
+  }
+
+  /**
+   * Validate mapping config import structure
+   */
+  validateMappingConfigImport(config: any): { isValid: boolean; error?: string } {
+    if (!config.converter || !config.dataSource || !config.propertyMapping) {
+      return { 
+        isValid: false, 
+        error: 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.' 
+      };
+    }
+    return { isValid: true };
+  }
+
+  /**
+   * Delete a spatial unit by ID
+   */
+  async deleteSpatialUnit(spatialUnitId: string): Promise<boolean> {
+    try {
+      const url = `${this.baseUrl}/spatial-units/${spatialUnitId}`;
+      await this.http.delete(url).toPromise();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Format error message consistently across components
+   */
+  formatErrorMessage(error: any): string {
+    if (error && (error as any).error) {
+      return this.syntaxHighlightJSON((error as any).error);
+    }
+    return this.syntaxHighlightJSON(error);
+  }
+
+  /**
+   * Bulk delete spatial units with error handling
+   */
+  async bulkDeleteSpatialUnits(spatialUnitIds: string[]): Promise<{
+    successful: string[],
+    failed: Array<{ id: string, error: string }>
+  }> {
+    const successful: string[] = [];
+    const failed: Array<{ id: string, error: string }> = [];
+
+    for (const id of spatialUnitIds) {
+      try {
+        const success = await this.deleteSpatialUnit(id);
+        if (success) {
+          successful.push(id);
+          // Remove from local cache
+          this.deleteSingleSpatialUnitMetadata(id);
+        } else {
+          failed.push({ id, error: 'Deletion failed' });
+        }
+      } catch (error) {
+        failed.push({ id, error: this.formatErrorMessage(error) });
+      }
+    }
+
+    return { successful, failed };
   }
 } 

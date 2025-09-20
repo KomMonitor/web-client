@@ -21,12 +21,16 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "app/"
+              "app/",
+              "app/assets/"
             ],
             "styles": [
               "app/app.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/nouislider/dist/nouislider.css"
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "node_modules/nouislider/dist/nouislider.css",
+              "node_modules/ag-grid-community/styles/ag-grid.css",
+              "node_modules/ag-grid-community/styles/ag-theme-alpine.css"
             ],
             "scripts": ["node_modules/mathjax/es5/tex-mml-chtml.js"]
           },

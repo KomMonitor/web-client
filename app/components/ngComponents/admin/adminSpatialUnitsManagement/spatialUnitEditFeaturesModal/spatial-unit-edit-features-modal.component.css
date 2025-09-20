@@ -1,3 +1,94 @@
+/* AG Grid CSS imports */
+@import '~ag-grid-community/styles/ag-grid.css';
+@import '~ag-grid-community/styles/ag-theme-alpine.css';
+
+/* AG Grid specific styles for this component */
+.ag-theme-alpine {
+  --ag-header-height: 50px;
+  --ag-row-height: 48px;
+  --ag-header-foreground-color: #333;
+  --ag-header-background-color: #f8f9fa;
+  --ag-odd-row-background-color: #f8f9fa;
+  --ag-row-hover-color: #e9ecef;
+  --ag-selected-row-background-color: #007bff;
+  --ag-font-size: 14px;
+  --ag-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Grid container styling */
+.featureTableWrapper {
+  margin: 20px 0;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.featureTableWrapper ag-grid-angular {
+  display: block;
+  width: 100%;
+  height: 50vh;
+  min-height: 400px;
+}
+
+/* Ensure grid has proper dimensions */
+#spatialUnitFeatureTable {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ag-theme-alpine .ag-header-cell {
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+}
+
+.ag-theme-alpine .ag-header-cell-filtered {
+  background-color: #e3f2fd;
+}
+
+.ag-theme-alpine .ag-floating-filter-body input {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.ag-theme-alpine .ag-paging-panel {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 10px;
+}
+
+.ag-theme-alpine .ag-paging-button {
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+.ag-theme-alpine .ag-paging-button:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.ag-theme-alpine .ag-paging-button:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.ag-theme-alpine .ag-paging-page-summary-panel {
+  margin: 0 15px;
+}
+
+.ag-theme-alpine .ag-paging-page-size-select {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
 /* Loading overlay */
 .loading-overlay-admin-panel {
   position: fixed;
@@ -25,7 +116,6 @@
 }
 
 .modal-header .modal-title {
-  font-size: 1.25rem;
   font-weight: 500;
   color: #343a40;
 }
@@ -65,7 +155,6 @@
   display: block;
   width: 100%;
   padding: 0.5rem 0.75rem;
-  font-size: 1rem;
   line-height: 1.5;
   color: #495057;
   background-color: #fff;
@@ -160,12 +249,12 @@
 fieldset {
   border: none;
   margin: 0;
-  padding: 0;
+  padding: 1rem 3.5rem;
   min-width: 0;
 }
 
 .fs-title {
-  font-size: 1.5rem;
+  font-size: 18px;
   font-weight: 500;
   color: #343a40;
   margin-bottom: 0.5rem;
@@ -202,7 +291,6 @@ fieldset {
   user-select: none;
   border: 1px solid transparent;
   padding: 0.375rem 0.75rem;
-  font-size: 1rem;
   line-height: 1.5;
   border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -509,7 +597,7 @@ fieldset {
 /* Alert styles */
 .alert {
   position: relative;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 3.25rem;
   margin-bottom: 1rem;
   border: 1px solid transparent;
   border-radius: 0.25rem;
@@ -716,3 +804,513 @@ fieldset {
   margin-bottom: 0.5rem;
   font-weight: 500;
 } 
+
+/* ng-bootstrap Datepicker Styles */
+.datepicker-dropdown {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-top: 2px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  width: 320px !important;
+  left: 0 !important;
+  top: 100% !important;
+}
+
+/* Position the datepicker relative to the input group */
+.input-group {
+  position: relative !important;
+}
+
+.input-group .datepicker-dropdown {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: auto !important;
+  margin-top: 2px !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure datepicker renders above all other elements */
+.ngb-datepicker {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-top: 2px !important;
+  width: 320px !important;
+  left: 0 !important;
+  top: 100% !important;
+}
+
+/* Override any ng-bootstrap default positioning */
+.ngb-datepicker-picker {
+  position: absolute !important;
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-top: 2px !important;
+  width: 320px !important;
+  left: 0 !important;
+  top: 100% !important;
+}
+
+/* Ensure the datepicker container doesn't clip content */
+.date-input-group {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Force datepicker to render outside button group */
+.input-group-btn {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.input-group-btn .ngb-datepicker {
+  position: absolute !important;
+  z-index: 9999 !important;
+  left: 0 !important;
+  top: 100% !important;
+  margin-top: 2px !important;
+}
+
+/* Date input group specific styling - matching original AngularJS version */
+.date-input-group {
+  border-radius: 4px !important;
+  overflow: visible !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+}
+
+/* Left button styling for calendar icon */
+.date-input-group .input-group-btn {
+  position: relative !important;
+}
+
+.date-input-group .date-toggle-btn {
+  border-right: none !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  background-color: #f8f9fa !important;
+  border-color: #ced4da !important;
+  color: #495057 !important;
+  padding: 8px 12px !important;
+  min-width: 40px !important;
+  transition: all 0.15s ease-in-out !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+.date-input-group .date-toggle-btn:hover {
+  background-color: #e9ecef !important;
+  border-color: #adb5bd !important;
+  color: #007bff !important;
+}
+
+.date-input-group .date-toggle-btn:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.date-input-group .form-control {
+  border-left: none !important;
+  border-right: 1px solid #ced4da !important;
+  border-radius: 0 !important;
+  padding: 8px 42px !important;
+  font-size: 14px !important;
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.date-input-group .form-control:hover {
+  background-color: #f8f9fa !important;
+  border-color: #adb5bd !important;
+}
+
+.date-input-group .form-control:focus {
+  border-color: #80bdff !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  outline: none !important;
+  background-color: #fff !important;
+}
+
+/* Enhanced visual feedback for clickable elements */
+.date-input-group .date-toggle-btn {
+  cursor: pointer !important;
+}
+
+.date-input-group .date-toggle-btn:active {
+  background-color: #dee2e6 !important;
+  transform: translateY(1px) !important;
+}
+
+.date-input-group .form-control:active {
+  background-color: #f8f9fa !important;
+}
+
+/* Ensure proper spacing and alignment */
+.date-input-group .input-group-btn {
+  margin-right: 0 !important;
+}
+
+.date-input-group .form-control {
+  margin-left: 0 !important;
+}
+
+/* Align calendar button and input flush; remove unintended gaps */
+.date-input-group {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+.date-input-group .input-group-btn {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+.date-input-group .date-toggle-btn {
+  height: 100% !important;
+  border-right: 0 !important;
+  z-index: 10;
+}
+
+.date-input-group > div {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.date-input-group > div > .form-control,
+.date-input-group > .form-control {
+  width: 100% !important;
+  height: 100% !important;
+  border-left: 0 !important;
+}
+
+/* Hover effect for the entire input group */
+.date-input-group:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Enhanced datepicker styling with larger fonts - matching original design */
+.datepicker-dropdown .ngb-dp-header {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  padding: 18px 15px !important;
+  border-radius: 4px 4px 0 0 !important;
+}
+
+.datepicker-dropdown .ngb-dp-month {
+  background: white !important;
+  padding: 15px !important;
+}
+
+.datepicker-dropdown .ngb-dp-weekday {
+  color: #6c757d !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  padding: 12px 8px !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.datepicker-dropdown .ngb-dp-day {
+  padding: 10px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+  font-weight: 500 !important;
+  font-size: 18px !important;
+  min-width: 45px !important;
+  height: 45px !important;
+  line-height: 25px !important;
+}
+
+.datepicker-dropdown .ngb-dp-day:hover {
+  background-color: #e9ecef !important;
+  transform: scale(1.05) !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.selected {
+  background-color: #007bff !important;
+  color: white !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.focused {
+  background-color: #007bff !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.today {
+  background-color: #fff3cd !important;
+  color: #856404 !important;
+  font-weight: bold !important;
+  border: 2px solid #ffc107 !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.disabled {
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+  opacity: 0.4 !important;
+}
+
+.datepicker-dropdown .ngb-dp-day.outside {
+  color: #6c757d !important;
+  opacity: 0.5 !important;
+}
+
+.datepicker-dropdown .ngb-dp-navigation-chevron {
+  border-style: solid !important;
+  border-width: 0.35em 0.35em 0 0 !important;
+  content: "" !important;
+  display: inline-block !important;
+  height: 0.7em !important;
+  transform: rotate(-45deg) !important;
+  vertical-align: top !important;
+  width: 0.7em !important;
+  color: #495057 !important;
+}
+
+.datepicker-dropdown .ngb-dp-navigation-chevron.right {
+  transform: rotate(45deg) !important;
+}
+
+.datepicker-dropdown .ngb-dp-month-name {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+  text-transform: capitalize !important;
+}
+
+.datepicker-dropdown .ngb-dp-arrow {
+  background: transparent !important;
+  border: none !important;
+  padding: 12px 18px !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+  min-width: 50px !important;
+}
+
+.datepicker-dropdown .ngb-dp-arrow:hover {
+  background-color: #e9ecef !important;
+  transform: scale(1.1) !important;
+}
+
+.datepicker-dropdown .ngb-dp-arrow:focus {
+  outline: 2px solid #007bff !important;
+  outline-offset: 2px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .datepicker-dropdown {
+    width: 300px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .input-group .datepicker-dropdown {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .datepicker-dropdown .ngb-dp-day {
+    font-size: 16px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .datepicker-dropdown .ngb-dp-weekday {
+    font-size: 16px !important;
+  }
+  
+  .datepicker-dropdown .ngb-dp-month-name {
+    font-size: 18px !important;
+  }
+}
+
+/* Calendar Icon Fallback - Ensure icons are always visible */
+.calendar-icon-fallback {
+  display: inline-block !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  margin-left: 4px !important;
+}
+
+/* Font Awesome Calendar Icon Styling */
+.date-toggle-btn .fas.fa-calendar-alt {
+  display: inline-block !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  color: #495057 !important;
+  margin-right: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+/* Fallback: If Font Awesome is not available, show text prominently */
+.date-toggle-btn .fas.fa-calendar-alt:not([class*="fa-calendar-alt"]) {
+  display: none !important;
+}
+
+.date-toggle-btn .fas.fa-calendar-alt:not([class*="fa-calendar-alt"]) + .calendar-text {
+  font-size: 16px !important;
+  font-weight: bold !important;
+  margin-left: 0 !important;
+} 
+
+/* New Calendar Icon Styling */
+.calendar-icon {
+  display: inline-block !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  color: #495057 !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.date-toggle-btn:hover .calendar-icon {
+  color: #007bff !important;
+  transform: scale(1.1) !important;
+}
+
+.date-toggle-btn:active .calendar-icon {
+  transform: scale(0.95) !important;
+}
+
+/* Ensure Font Awesome calendar icons are always visible */
+.date-toggle-btn .fas.fa-calendar-alt {
+  display: inline-block !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  color: #495057 !important;
+  margin-right: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.date-toggle-btn:hover .fas.fa-calendar-alt {
+  color: #007bff !important;
+  transform: scale(1.1) !important;
+}
+
+.date-toggle-btn:active .fas.fa-calendar-alt {
+  transform: scale(0.95) !important;
+}
+
+/* Calendar Text Styling - Always visible fallback */
+.calendar-text {
+  display: inline-block !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  color: #495057 !important;
+  margin-left: 4px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.date-toggle-btn:hover .calendar-text {
+  color: #007bff !important;
+}
+
+/* Ensure button has proper sizing for both icon and text */
+.date-toggle-btn {
+  min-width: 60px !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* SVG Calendar Icon Styling */
+.calendar-svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #495057 !important;
+  transition: all 0.15s ease-in-out !important;
+  margin-right: 4px !important;
+}
+
+.date-toggle-btn:hover .calendar-svg {
+  color: #007bff !important;
+  transform: scale(1.1) !important;
+}
+
+.date-toggle-btn:active .calendar-svg {
+  transform: scale(0.95) !important;
+} 
+
+/* Text sizing to MATCH add modal */
+.multiStepForm {
+  font-size: 12px !important;
+}
+
+/* Progress bar text sizes like add modal */
+#progressbar li {
+  font-size: 9px !important;
+}
+#progressbar li:before {
+  font-size: 12px !important;
+}
+
+/* Remove inflated modal-body font, keep default like add modal */
+:host ::ng-deep .modal-body {
+  font-size: inherit !important;
+}
+
+/* Override small admin wrapper defaults within this modal */
+/* Use app defaults for admin table wrappers (matches add modal behavior) */
+:host ::ng-deep .admin-table-wrapper,
+:host ::ng-deep .featureTableWrapper {
+  font-size: inherit !important;
+}
+
+/* Strengthen progress bar overrides against global app styles (match add modal) */
+:host ::ng-deep #progressbar li {
+  font-size: 9px !important;
+}
+:host ::ng-deep #progressbar li:before {
+  font-size: 12px !important;
+}
+
+/* Normalize key text elements */
+/* Keep form element sizes consistent with add modal (inputs 13px base) */
+:host ::ng-deep .form-group label {
+  font-size: inherit !important;
+}
+:host ::ng-deep .form-control {
+  font-size: 13px !important;
+}
+:host ::ng-deep .help-block {
+  font-size: 13px !important;
+}
+:host ::ng-deep table,
+:host ::ng-deep th,
+:host ::ng-deep td {
+  font-size: inherit !important;
+}
+
+/* Center alignment for specific toggle switches */
+.toggle-center {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.toggle-center .switch {
+  display: inline-flex;
+}

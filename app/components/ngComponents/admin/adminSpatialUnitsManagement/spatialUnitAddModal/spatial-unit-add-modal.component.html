@@ -33,8 +33,8 @@
       <h3 class="fs-subtitle">Angaben über die neue Raumebene</h3>
       <p><b><i>* = Pflichtfeld</i></b></p>
 
-      <div class="row vertical-align">
-        <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="row vertical-align meta-row">
+        <div class="col-md-4 col-sm-4 col-xs-4">
           <div class="form-group">
             <label>Name der Raumebene*</label>
             <input 
@@ -52,7 +52,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-4 col-sm-4 col-xs-4">
           <div class="form-group">
             <label>Hierarchie: nächst niedrigere Ebene</label>
             <select 
@@ -76,7 +76,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="col-md-4 col-sm-4 col-xs-4">
           <div class="form-group">
             <label>Hierarchie: nächst höhere Ebene</label>
             <select 
@@ -103,7 +103,7 @@
       </div>
 
       <div class="row vertical-align">
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-3 col-xs-12">
           <div class="form-group">
             <label>als Umringslayer markieren?</label>
             <label class="switch">
@@ -115,22 +115,16 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
-          <div class="form-group" align="center">
+        <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
+          <div class="form-group outline-color-group" align="center">
             <label>Linienfarbe (Umringslayer)</label>
-            <div id="outlineColorPicker" class="input-group" style="width: 50px;">
-              <input 
-                type="color" 
-                class="form-control input-sm"
-                [(ngModel)]="outlineColor"
-                name="outlineColor"
-                style="width: 100%; height: 34px;"
-              />
-            </div>
+            
+            <km-color-picker [(color)]="outlineColor" label="Linienfarbe wählen"></km-color-picker>
+            
             <div class="help-block with-errors"></div>
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+        <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
           <div class="form-group" align="center">
             <label>Linienbreite (Umringslayer)</label>
             <br/>
@@ -146,26 +140,16 @@
             <div class="help-block with-errors"></div>
           </div>
         </div>
-        <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="isOutlineLayer">
+        <div class="col-md-3 col-sm-3 col-xs-12" *ngIf="isOutlineLayer">
           <div class="form-group" align="center">
-            <label>Linienmuster (Umringslayer)</label>
-            <div class="dropdown">
-              <button type="button" width="200px" class="btn btn-info dropdown-toggle"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <div id="outlineDashArrayDropdownButton_addSpatialUnit">
-                </div> <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-center">
-                <li *ngFor="let outlineDashArrayObject of availableLoiDashArrayObjects; let i = index"
-                  (click)="onChangeOutlineDashArray(outlineDashArrayObject)">
-                  <a href="">
-                    <div id="outlineDashArrayDropdownItem-{{i}}">
-                    </div>
-                  </a>
-                </li>
-              </ul>
-              <div class="help-block with-errors"></div>
-            </div>
+            <km-line-pattern-picker
+              [selectedPattern]="selectedOutlineDashArrayObject"
+              [options]="availableLinePatternOptions"
+              [label]="'Linienmuster (Umringslayer)'"
+              [placeholder]="'Linienmuster wählen'"
+              [width]="'200px'"
+              (patternChange)="onChangeOutlineDashArray($event)">
+            </km-line-pattern-picker>
           </div>
         </div>
       </div>
@@ -258,19 +242,12 @@
         <div class="col-md-3 col-sm-6 col-xs-12">
           <div class="form-group">
             <label>Datum der letzten Aktualisierung*</label>
-            <div class="input-group date">
-              <div class="input-group-addon">
-                <i class="far fa-calendar-alt"></i>
-              </div>
-              <input 
-                type="text" 
-                [(ngModel)]="metadata.lastUpdate"
-                name="lastUpdate"
-                class="form-control pull-right"
-                placeholder="YYYY-MM-DD" 
-                required
-              >
-            </div>
+            <km-date-picker
+              name="lastUpdate"
+              placeholder="YYYY-MM-DD"
+              [(ngModel)]="metadata.lastUpdate"
+              [required]="true"
+            ></km-date-picker>
             <div class="help-block with-errors"></div>
           </div>
         </div>
@@ -318,9 +295,9 @@
           </div>
           
           <label for="addSpatialUnitUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-          <div class="input-group">
+          <div class="input-group owner-filter-group">
             <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-            <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
+            <input type="text" class="form-control" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
           </div>
           <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
             <option [ngValue]="null"> -- Eigentümer-Organisationseinheit wählen -- </option>
@@ -394,7 +371,7 @@
     </fieldset>
 
     <!-- Step 3/4: Räumlicher Datensatz -->
-    <fieldset *ngIf="(currentStep === 3 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity)">
+    <fieldset [hidden]="!((currentStep === 3 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity))">
       <div style="position: absolute;">
         <button type="button" class="btn btn-info pull-left" (click)="onImportSpatialUnitAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei">
           <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
@@ -415,7 +392,7 @@
             <select 
               [(ngModel)]="converter"
               name="converter"
-              (ngModelChange)="onChangeConverter()"
+              (change)="onChangeConverter()"
               class="form-control" 
               required
             >
@@ -449,7 +426,7 @@
               <select 
                 [(ngModel)]="mimeType" 
                 name="mimeType"
-                (ngModelChange)="onChangeMimeType(mimeType)"
+                (change)="onChangeMimeType(mimeType)"
                 class="form-control" 
                 required
               >
@@ -470,6 +447,8 @@
                 class="form-control"
                 [placeholder]="parameter.name" 
                 [required]="parameter.mandatory"
+                [(ngModel)]="converterParameterValues[parameter.name]"
+                [name]="'converterParam_' + parameter.name"
               >
               <div class="help-block">
                 <p>{{parameter.description}}</p>
@@ -482,100 +461,103 @@
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="form-group">
-            <div *ngIf="!converter">
-              <p>bitte zuerst das Quellformat wählen</p>
+          <div *ngIf="!converter" class="form-group">
+            <p>bitte zuerst das Quellformat wählen</p>
+          </div>
+          <div *ngIf="converter">
+            <div class="form-group">
+              <label>Datenquelltyp*</label>
+              <select 
+                [(ngModel)]="datasourceType"
+                name="datasourceType"
+                (change)="onChangeDatasourceType(datasourceType)"
+                class="form-control" 
+                required
+              >
+                <option [ngValue]="null"> -- Quelltyp wählen -- </option>
+                <option *ngFor="let datasourceType of availableDatasourceTypes" [ngValue]="datasourceType">
+                  {{datasourceType.type}}
+                </option>
+              </select>
+              <div class="help-block"></div>
             </div>
-            <div *ngIf="converter">
-              <div class="form-group">
-                <label>Datenquelltyp*</label>
-                <select 
-                  [(ngModel)]="datasourceType"
-                  name="datasourceType"
-                  (ngModelChange)="onChangeDatasourceType(datasourceType)"
+
+            <div *ngIf="datasourceType?.type === 'FILE'">
+              <label>Datei*</label>
+              <input id="spatialUnitDataSourceInput" type="file" class="form-control" #spatialUnitDataSourceInput (change)="onSpatialUnitFileSelected($event)" required>
+              <div class="help-block" *ngIf="selectedDataSourceFile">
+                <p>Ausgewählt: {{selectedDataSourceFile.name}}</p>
+              </div>
+            </div>
+            <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
+              <label>Räumlicher Filter*</label>
+              <select id="datasourceTypeParameter_spatialUnitAdd_bboxType" [(ngModel)]="bboxType" name="bboxType" class="form-control" required>
+                <option value=""> -- Filter wählen -- </option>
+                <option value="ref"> Referenzraumebene </option>
+                <option value="literal"> Manueller Begrenzungsrahmen </option>
+              </select>
+
+              <div *ngIf="bboxType === 'ref'">
+                <!-- select available spatialUnits -->
+                <select id="datasourceTypeParameter_spatialUnitAdd_bboxRef"
+                  [(ngModel)]="bboxRefSpatialUnit"
+                  name="bboxRefSpatialUnit"
                   class="form-control" 
-                  required
-                >
-                  <option [ngValue]="null"> -- Quelltyp wählen -- </option>
-                  <option *ngFor="let datasourceType of availableDatasourceTypes" [ngValue]="datasourceType">
-                    {{datasourceType.type}}
+                  required>
+                  <option [ngValue]="null"> -- Raumebene wählen -- </option>
+                  <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit.spatialUnitId">
+                    {{spatialUnit.spatialUnitLevel}}
                   </option>
                 </select>
-                <div class="help-block"></div>
+                <div class="help-block">
+                  <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
+                </div>
               </div>
-
-              <div *ngIf="datasourceType?.type === 'FILE'">
-                <label>Datei*</label>
-                <input type="file" class="form-control" #spatialUnitDataSourceInput required>
+              <div *ngIf="bboxType === 'literal'">
+                <label>Begrenzungsrahmen*</label>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" required [(ngModel)]="bbox_minx" name="bbox_minx">
+                <div class="help-block">
+                  <p>Minimale x-Koordinate</p>
+                </div>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" required [(ngModel)]="bbox_miny" name="bbox_miny">
+                <div class="help-block">
+                  <p>Minimale y-Koordinate</p>
+                </div>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" required [(ngModel)]="bbox_maxx" name="bbox_maxx">
+                <div class="help-block">
+                  <p>Maximale x-Koordinate</p>
+                </div>
+                <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" required [(ngModel)]="bbox_maxy" name="bbox_maxy">
+                <div class="help-block">
+                  <p>Maximale y-Koordinate</p>
+                </div>
               </div>
-              <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
-                <label>Räumlicher Filter*</label>
-                <select id="datasourceTypeParameter_spatialUnitAdd_bboxType" [(ngModel)]="bboxType" name="bboxType" class="form-control" required>
-                  <option value=""> -- Filter wählen -- </option>
-                  <option value="ref"> Referenzraumebene </option>
-                  <option value="literal"> Manueller Begrenzungsrahmen </option>
-                </select>
-
-                <div *ngIf="bboxType === 'ref'">
-                  <!-- select available spatialUnits -->
-                  <select id="datasourceTypeParameter_spatialUnitAdd_bboxRef"
-                    [(ngModel)]="bboxRefSpatialUnit"
-                    name="bboxRefSpatialUnit"
+            </div>
+            <div *ngIf="datasourceType && datasourceType.type !== 'FILE'">
+              <div *ngFor="let parameter of datasourceType.parameters">
+                <div class="form-group" *ngIf="parameter.name !== 'bbox'">
+                  <label *ngIf="parameter.mandatory">{{parameter.name}}*</label>
+                  <label *ngIf="!parameter.mandatory">{{parameter.name}}</label>
+                  <textarea 
+                    rows="1" 
+                    [id]="'datasourceTypeParameter_spatialUnitAdd_' + parameter.name"
                     class="form-control" 
-                    required>
-                    <option [ngValue]="null"> -- Raumebene wählen -- </option>
-                    <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">
-                      {{spatialUnit.spatialUnitLevel}}
-                    </option>
-                  </select>
+                    [placeholder]="parameter.name" 
+                    [required]="parameter.mandatory"
+                    [(ngModel)]="datasourceTypeParameterValues[parameter.name]"
+                    [name]="'datasourceParam_' + parameter.name"
+                  ></textarea>
                   <div class="help-block">
-                    <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
+                    <p>{{parameter.description}}</p>
                   </div>
-                </div>
-                <div *ngIf="bboxType === 'literal'">
-                  <label>Begrenzungsrahmen*</label>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" required>
-                  <div class="help-block">
-                    <p>Minimale x-Koordinate</p>
-                  </div>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" required>
-                  <div class="help-block">
-                    <p>Minimale y-Koordinate</p>
-                  </div>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" required>
-                  <div class="help-block">
-                    <p>Maximale x-Koordinate</p>
-                  </div>
-                  <input id="datasourceTypeParameter_spatialUnitAdd_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" required>
-                  <div class="help-block">
-                    <p>Maximale y-Koordinate</p>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="datasourceType && datasourceType.type !== 'FILE'">
-                <div *ngFor="let parameter of datasourceType.parameters">
-                  <div class="form-group" *ngIf="parameter.name !== 'bbox'">
-                    <label *ngIf="parameter.mandatory">{{parameter.name}}*</label>
-                    <label *ngIf="!parameter.mandatory">{{parameter.name}}</label>
-                    <textarea 
-                      rows="1" 
-                      [id]="'datasourceTypeParameter_spatialUnitAdd_' + parameter.name"
-                      class="form-control" 
-                      [placeholder]="parameter.name" 
-                      [required]="parameter.mandatory"
-                    ></textarea>
-                    <div class="help-block">
-                      <p>{{parameter.description}}</p>
-                    </div>
-                    <div class="help-block with-errors"></div>
-                  </div>
+                  <div class="help-block with-errors"></div>
                 </div>
               </div>
             </div>
-            <div class="help-block with-errors"></div>
-            <div *ngIf="spatialUnitDataSourceInputInvalid" style="color: red;">
-              <p>Eingabe ungültig. Grund: {{spatialUnitDataSourceInputInvalidReason}}</p>
-            </div>
+          </div>
+          <div class="help-block with-errors"></div>
+          <div *ngIf="spatialUnitDataSourceInputInvalid" style="color: red;">
+            <p>Eingabe ungültig. Grund: {{spatialUnitDataSourceInputInvalidReason}}</p>
           </div>
         </div>
         <div class="col-md-3 col-sm-6 col-xs-12">
@@ -648,20 +630,15 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <label>Gültigkeitszeitraum: gültig seit*</label>
-            <div class="input-group date">
-              <div class="input-group-addon">
-                <i class="far fa-calendar-alt"></i>
-              </div>
-              <input 
-                type="text" 
-                [(ngModel)]="periodOfValidity.startDate"
-                name="periodStartDate"
-                (ngModelChange)="checkPeriodOfValidity()"
-                class="form-control pull-right" 
-                placeholder="YYYY-MM-DD" 
-                required
-              >
-            </div>
+            <km-date-picker
+              name="periodStartDate"
+              placeholder="YYYY-MM-DD"
+              [(ngModel)]="periodOfValidity.startDate"
+              (ngModelChange)="checkPeriodOfValidity()"
+              (valueChange)="checkPeriodOfValidity()"
+              [invalid]="periodOfValidityInvalid"
+              [required]="true"
+            ></km-date-picker>
             <div class="help-block">
               <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Raumeinheiten über ein Lebenszeitraum-Attribut verfügen.</p>
             </div>
@@ -674,19 +651,14 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="form-group">
             <label>Gültigkeitszeitraum: gültig bis</label>
-            <div class="input-group date">
-              <div class="input-group-addon">
-                <i class="far fa-calendar-alt"></i>
-              </div>
-              <input 
-                type="text" 
-                [(ngModel)]="periodOfValidity.endDate"
-                name="periodEndDate"
-                (ngModelChange)="checkPeriodOfValidity()"
-                class="form-control pull-right" 
-                placeholder="YYYY-MM-DD"
-              >
-            </div>
+            <km-date-picker
+              name="periodEndDate"
+              placeholder="YYYY-MM-DD"
+              [(ngModel)]="periodOfValidity.endDate"
+              (ngModelChange)="checkPeriodOfValidity()"
+              (valueChange)="checkPeriodOfValidity()"
+              [invalid]="periodOfValidityInvalid"
+            ></km-date-picker>
             <div class="help-block">
               <p>Eintrag ist erforderlich, falls die räumlichen Raumeinheiten nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Raumeinheiten handelt.</p>
             </div>

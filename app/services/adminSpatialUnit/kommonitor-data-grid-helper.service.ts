@@ -62,66 +62,64 @@ export class KommonitorDataGridHelperService {
     return this.dataGridOptions_spatialUnits;
   }
 
+
+
   // Store current spatial units data
   private currentSpatialUnitsData: any[] = [];
 
   /**
    * Build the grid options configuration for ag-grid-angular
+   * Returns base configuration that component can extend
    */
-  private buildDataGridOptions_spatialUnits(spatialUnitMetadataArray: any[]): GridOptions {
+  buildDataGridOptions_spatialUnits(spatialUnitMetadataArray: any[]): GridOptions {
     const columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
     const rowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
 
     const gridOptions: GridOptions = {
       columnDefs: columnDefs,
       rowData: rowData,
-      defaultColDef: {
-        editable: false,
-        sortable: true,
-        flex: 1,
-        minWidth: 200,
-        filter: true,
-        floatingFilter: true,
-        resizable: true,
-        wrapText: true,
-        autoHeight: true,
-        cellStyle: { 
-          'font-size': '12px', 
-          'white-space': 'normal !important', 
-          'line-height': '20px !important', 
-          'word-break': 'break-word !important', 
-          'padding-top': '17px', 
-          'padding-bottom': '17px' 
-        }
-      },
+      defaultColDef: this.buildDefaultColDef(),
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
       enableCellTextSelection: true,
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
-      suppressColumnVirtualisation: true,
-      onGridReady: (params) => {
-        this.gridApi_spatialUnits = params.api;
-        this.headerHeightSetter();
-        this.registerClickHandler_spatialUnits();
-      },
-      onFirstDataRendered: () => {
-        this.headerHeightSetter();
-        this.registerClickHandler_spatialUnits();
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
-      }
+      suppressColumnVirtualisation: true
     };
 
     return gridOptions;
   }
 
   /**
+   * Build default column definition
+   */
+  buildDefaultColDef(): ColDef {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 200,
+      filter: true,
+      floatingFilter: true,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      }
+    };
+  }
+
+  /**
    * Build column configuration for spatial units with proper cell renderers
    */
-  private buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
+  buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
     const columnDefs: ColDef[] = [
       { 
         headerName: 'Editierfunktionen', 
@@ -213,14 +211,86 @@ export class KommonitorDataGridHelperService {
   /**
    * Build row data for spatial units (just return the input array)
    */
-  private buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
+  buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
     return spatialUnitMetadataArray;
   }
 
   /**
+   * Build grid options for spatial units
+   */
+  buildGridOptions(): GridOptions {
+    return {
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true
+    };
+  }
+
+  /**
+   * Build default column definition for role management grids
+   */
+  buildRoleManagementDefaultColDef(): any {
+    return {
+      editable: false,
+      sortable: true,
+      flex: 1,
+      minWidth: 100,
+      filter: false,
+      floatingFilter: false,
+      resizable: true,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { 
+        'font-size': '12px', 
+        'white-space': 'normal !important', 
+        'line-height': '20px !important', 
+        'word-break': 'break-word !important', 
+        'padding-top': '17px', 
+        'padding-bottom': '17px' 
+      },
+      headerComponentParams: {
+        template:
+          '<div class="ag-cell-label-container" role="presentation">' +
+          '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+          '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+          '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+          '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+          '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+          '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+          '  </div>' +
+          '</div>',
+      },
+    };
+  }
+
+  /**
+   * Build grid options for role management grids (public method for components)
+   */
+  buildRoleManagementGridOptionsPublic(components?: any): GridOptions {
+    return {
+      components: components || {},
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      headerHeight: 40,
+      rowHeight: 35
+    };
+  }
+
+
+
+  /**
    * Cell renderer for edit buttons
    */
-  private displayEditButtons_spatialUnits(params: any): string {
+  displayEditButtons_spatialUnits(params: any): string {
     const data = params.data;
     let html = '<div class="btn-group btn-group-sm">';
     
@@ -407,11 +477,20 @@ export class KommonitorDataGridHelperService {
     if (currentTableOptionsObject && this.gridApi_spatialUnits) {
       // Grid already exists, just update the data
       const newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+      // update underlying options so callers get the latest data
+      currentTableOptionsObject.rowData = newRowData;
       this.gridApi_spatialUnits.setRowData(newRowData);
+      // ensure cells re-render to apply disabled state and checks
+      setTimeout(() => {
+        try {
+          this.gridApi_spatialUnits?.refreshCells({ force: true });
+          this.gridApi_spatialUnits?.redrawRows();
+        } catch (e) {}
+      }, 0);
     } else {
       // Create new grid options
       currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds, reducedRoleManagement);
-      console.log('Role management grid options created. Use in component template.');
+      
     }
     return currentTableOptionsObject;
   }
@@ -432,14 +511,18 @@ export class KommonitorDataGridHelperService {
       elem.creator = false;
       if (elem.permissions && Array.isArray(elem.permissions)) {
         for (const permission of elem.permissions) {
+          const isChecked = !!(permissionIds && permissionIds.includes(permission.permissionId));
+          // keep permissions[] state in sync (as in AngularJS)
+          permission.isChecked = isChecked;
+
           if (permission.permissionLevel === 'viewer') {
-            elem.viewer = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.viewer = isChecked;
           }
           if (permission.permissionLevel === 'editor') {
-            elem.editor = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.editor = isChecked;
           }
           if (permission.permissionLevel === 'creator') {
-            elem.creator = permissionIds && permissionIds.includes(permission.permissionId);
+            elem.creator = isChecked;
           }
         }
       }
@@ -475,7 +558,7 @@ export class KommonitorDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_viewer',
         editable: true
       },
       { 
@@ -484,7 +567,7 @@ export class KommonitorDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_editor',
         editable: true
       }
     ];
@@ -495,7 +578,7 @@ export class KommonitorDataGridHelperService {
         filter: false, 
         sortable: false, 
         width: 100, 
-        cellRenderer: 'agCheckboxCellRenderer',
+        cellRenderer: 'CheckboxRenderer_creator',
         editable: true
       });
     }
@@ -506,6 +589,11 @@ export class KommonitorDataGridHelperService {
     const columnDefs = this.buildRoleManagementGridColumnConfig(reducedRoleManagement);
     const rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
     const gridOptions = {
+      components: {
+        CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
+        CheckboxRenderer_editor: this.CheckboxRenderer_editor,
+        CheckboxRenderer_creator: this.CheckboxRenderer_creator
+      },
       defaultColDef: {
         editable: false,
         sortable: true,
@@ -562,31 +650,42 @@ export class KommonitorDataGridHelperService {
   }
 
   /**
+   * Expose role management checkbox renderer components for early binding in templates
+   */
+  public getRoleManagementComponents(): any {
+    return {
+      CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
+      CheckboxRenderer_editor: this.CheckboxRenderer_editor,
+      CheckboxRenderer_creator: this.CheckboxRenderer_creator
+    };
+  }
+
+  /**
    * Get selected role IDs from role management grid
    */
   getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
-    const ids: string[] = [];
-    const deselectedIds: string[] = [];
-    
-    if (roleManagementTableOptions && this.gridApi_spatialUnits) {
-      this.gridApi_spatialUnits.forEachNode((node: any, index: number) => {
-        if (node.data) {
-          for (const permission of node.data.permissions) {
-            if (permission) {
-              if (permission.isChecked) {
-                if (!deselectedIds.includes(permission.permissionId)) {
-                  ids.push(permission.permissionId);
-                }
-              } else {
-                deselectedIds.push(permission.permissionId);
-              }
-            }
-          }
+    const selectedIds = new Set<string>();
+
+    const collectFromRow = (row: any) => {
+      if (!row || !row.permissions) return;
+      for (const permission of row.permissions) {
+        if (permission && permission.isChecked && permission.permissionId) {
+          selectedIds.add(permission.permissionId);
         }
-      });
+      }
+    };
+
+    // Prefer live grid data when API is available
+    if (this.gridApi_spatialUnits && !(this.gridApi_spatialUnits as any).isDestroyed?.()) {
+      this.gridApi_spatialUnits.forEachNode((node: any) => collectFromRow(node.data));
+    } else if (roleManagementTableOptions && Array.isArray(roleManagementTableOptions.rowData)) {
+      // Fallback to current table options rowData
+      for (const row of roleManagementTableOptions.rowData) {
+        collectFromRow(row);
+      }
     }
-    
-    return ids;
+
+    return Array.from(selectedIds);
   }
 
   /**
@@ -594,7 +693,7 @@ export class KommonitorDataGridHelperService {
    */
   private CheckboxRenderer_viewer = class {
     private params: any;
-    private eGui: HTMLInputElement | null = null;
+    private eGui: HTMLElement | null = null;
     private boundCheckedHandler: any;
 
     init(params: any) {
@@ -615,18 +714,24 @@ export class KommonitorDataGridHelperService {
       }
       
       if(exists){
-        this.eGui = document.createElement('input') as HTMLInputElement;
-        this.eGui.className = className;
-        this.eGui.type = 'checkbox';
-        this.eGui.checked = isChecked;
-        
-        if(this.params.data.datasetOwner===true)
-          this.eGui.disabled = true;
-        else
-          this.eGui.disabled = false;
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
+
+        // Disable viewer if dataset owner or if editor/creator selection implies viewer
+        if (this.params.data.datasetOwner === true || this.params.data._viewerDisabledBecauseOfEditor === true || this.params.data._viewerDisabledBecauseOfCreator === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
-        this.eGui.addEventListener('click', this.boundCheckedHandler);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
       }
     }
 
@@ -641,9 +746,7 @@ export class KommonitorDataGridHelperService {
       }  
     }
 
-    getGui() {
-      return this.eGui;
-    }
+    getGui() { return this.eGui; }
 
     destroy() {
       if(this.eGui && this.boundCheckedHandler){
@@ -657,7 +760,7 @@ export class KommonitorDataGridHelperService {
    */
   private CheckboxRenderer_editor = class {
     private params: any;
-    private eGui: HTMLInputElement | null = null;
+    private eGui: HTMLElement | null = null;
     private boundCheckedHandler: any;
 
     init(params: any) {
@@ -678,18 +781,24 @@ export class KommonitorDataGridHelperService {
       }
 
       if(exists){
-        this.eGui = document.createElement('input') as HTMLInputElement;
-        this.eGui.className = className;
-        this.eGui.type = 'checkbox';
-        this.eGui.checked = isChecked;
-
-        if(this.params.data.datasetOwner===true)
-          this.eGui.disabled = true;
-        else
-          this.eGui.disabled = false;
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        
+        // Disable editor if dataset owner or if creator selection implies editor
+        if (this.params.data.datasetOwner === true || this.params.data._editorDisabledBecauseOfCreator === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
-        this.eGui.addEventListener('click', this.boundCheckedHandler);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
       }
     }
 
@@ -699,21 +808,32 @@ export class KommonitorDataGridHelperService {
         if (permission.permissionLevel == "viewer"){    
           if (checked){
             permission.isChecked = true;
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }                    
-          else{
-            // Note: jQuery selectors removed as they may not be available in Angular context
+          } else {
+            permission.isChecked = false;
           }
         }
         else if (permission.permissionLevel == "editor"){            
           permission.isChecked = checked;
         }
       }  
+      // If editor is checked, enforce viewer checked+disabled
+      if (checked) {
+        this.params.data._viewerDisabledBecauseOfEditor = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._viewerDisabledBecauseOfEditor = false;
+      }
+      // Ask grid to refresh this row to update disabled state of viewer column
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
     }
 
-    getGui() {
-      return this.eGui;
-    }
+    getGui() { return this.eGui; }
 
     destroy() {
       if(this.eGui && this.boundCheckedHandler){
@@ -727,7 +847,7 @@ export class KommonitorDataGridHelperService {
    */
   private CheckboxRenderer_creator = class {
     private params: any;
-    private eGui: HTMLInputElement | null = null;
+    private eGui: HTMLElement | null = null;
     private boundCheckedHandler: any;
 
     init(params: any) {
@@ -746,55 +866,54 @@ export class KommonitorDataGridHelperService {
       }  
 
       if(exists){
-        this.eGui = document.createElement('input') as HTMLInputElement;
-        this.eGui.className = className;
-        this.eGui.type = 'checkbox';
-        this.eGui.checked = isChecked;
-
-        if(this.params.data.datasetOwner===true)
-          this.eGui.disabled = true;
-        else
-          this.eGui.disabled = false;
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        
+        // Disable creator if dataset owner is true
+        if (this.params.data.datasetOwner === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
 
         this.boundCheckedHandler = this.checkedHandler.bind(this);
-        this.eGui.addEventListener('click', this.boundCheckedHandler);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
       }
     }
 
     checkedHandler(e: any) {
       let checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "publisher"){            
-          if(!checked)
-            permission.isChecked = false;
-        }
-        else if (permission.permissionLevel == "editor"){            
-          if (checked){
-            permission.isChecked = true;
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }                    
-          else{
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }
-        }
-        else if (permission.permissionLevel == "viewer"){            
-          if (checked){
-            permission.isChecked = true;
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }                    
-          else{
-            // Note: jQuery selectors removed as they may not be available in Angular context
-          }
-        }
-        else if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
+        if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
           permission.isChecked = checked;
         }
       }  
+      // If creator is checked, enforce editor and viewer checked+disabled
+      if (checked) {
+        this.params.data._editorDisabledBecauseOfCreator = true;
+        this.params.data._viewerDisabledBecauseOfCreator = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._editorDisabledBecauseOfCreator = false;
+        this.params.data._viewerDisabledBecauseOfCreator = false;
+      }
+      // Ask grid to refresh this row to update disabled state of editor/viewer columns
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
     }
 
-    getGui() {
-      return this.eGui;
-    }
+    getGui() { return this.eGui; }
 
     destroy() {
       if(this.eGui && this.boundCheckedHandler){
@@ -825,7 +944,7 @@ export class KommonitorDataGridHelperService {
 
     const gridContainer = document.querySelector('#' + tableId);
     if (!gridContainer) {
-      console.error(`Grid container #${tableId} not found`);
+      
       return this.buildFeatureTableGridOptions(headers, features, resourceId, resourceType, enableDelete);
     }
 
@@ -846,7 +965,7 @@ export class KommonitorDataGridHelperService {
       );
       
       // The actual grid creation should be done in the component template
-      console.log('Feature table grid options created. Use in component template.');
+      
     }
     
     return this.dataGridOptions_featureTable!;
@@ -885,20 +1004,6 @@ export class KommonitorDataGridHelperService {
           'padding-top': '17px', 
           'padding-bottom': '17px' 
         },
-        headerComponentParams: {
-          template:
-            '<div class="ag-cell-label-container" role="presentation">' +
-            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-            '  </div>' +
-            '</div>',
-        },
         onCellValueChanged: (newValueParams: any) => {
           // Handle cell value changes for date validation and API updates
           this.handleCellValueChanged(newValueParams, resourceId, resourceType);
@@ -919,8 +1024,12 @@ export class KommonitorDataGridHelperService {
       rowSelection: 'multiple',
       enableCellTextSelection: true,
       ensureDomOrder: true,
+      // Pagination settings
       pagination: true,
       paginationPageSize: 20,
+      paginationPageSizeSelector: [10, 20, 50, 100],
+      // Filtering is controlled via defaultColDef.filter and per-column filters
+      // Grid features
       suppressColumnVirtualisation: true,
       onFirstDataRendered: () => {
         this.headerHeightSetter();
@@ -1111,7 +1220,7 @@ export class KommonitorDataGridHelperService {
     // Parse button ID: btn__spatialUnit__deleteFeatureEntry__{datasetId}__{featureId}__{recordId}
     const idParts = buttonId.split('__');
     if (idParts.length < 6) {
-      console.error('Invalid button ID format:', buttonId);
+      
       return;
     }
 
@@ -1130,14 +1239,14 @@ export class KommonitorDataGridHelperService {
     } else if (resourceType === 'georesource') {
       url += `/georesources/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
     } else {
-      console.error('Unknown resource type:', resourceType);
+      
       return;
     }
 
     // Make DELETE request
     this.http.delete(url).subscribe({
       next: (response: any) => {
-        console.log('Successfully deleted database record');
+        
         
         // Update timestamps
         if (resourceType === 'georesource') {
@@ -1154,7 +1263,7 @@ export class KommonitorDataGridHelperService {
         });
       },
       error: (error) => {
-        console.error('Error while deleting database record:', error);
+        
         
         // Broadcast hide loading event
         this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
@@ -1344,7 +1453,7 @@ export class KommonitorDataGridHelperService {
       }
     }).subscribe({
       next: (response: any) => {
-        console.log("Successfully updated database record");
+        
 
         // On success: mark grid cell with green background
         newValueParams.colDef.cellStyle = (p: any) =>
@@ -1364,7 +1473,7 @@ export class KommonitorDataGridHelperService {
         }
       },
       error: (error) => {
-        console.error("Error while updating database record:", error);
+        
 
         // Reset cell value as an error occurred
         newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
