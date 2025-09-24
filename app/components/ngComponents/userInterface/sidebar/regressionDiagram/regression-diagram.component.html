@@ -14,11 +14,11 @@
 						<h3 *ngIf="exchangeData.enableScatterPlotRegression" class="box-title">Lineare Regression zwischen zwei Indikatoren</h3>
 						<h3 *ngIf="!exchangeData.enableScatterPlotRegression" class="box-title">Streudiagramm für zwei Indikatoren</h3>
 						<div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							<button (click)="indicatorSelectCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
 						</div>
 					</div>
-					<div class="box-body">
+					<div class="box-body" #indicatorSelectCollapse="ngbCollapse" [(ngbCollapse)]="isIndicatorSelectCollapsed">
 
 						<label class="switch">
 							<input type="checkbox" [(ngModel)]="diagramHelperService.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
@@ -382,11 +382,11 @@
 								<h3 *ngIf="!exchangeData.enableScatterPlotRegression" class="box-title">Streudiagramm - {{spatialUnitName}}</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+									<button (click)="radarCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #radarCollapse="ngbCollapse" [(ngbCollapse)]="isRadarCollapsed">
 								<div class="chart">
 
 									<div class="row">

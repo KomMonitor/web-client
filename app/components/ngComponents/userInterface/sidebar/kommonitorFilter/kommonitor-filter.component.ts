@@ -8,6 +8,8 @@ import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-kommonitor-filter',
@@ -15,6 +17,8 @@ import { ConfigStorageService } from 'services/config-storage-service/config-sto
   styleUrls: ['./kommonitor-filter.component.css']
 })
 export class KommonitorFilterComponent implements OnInit, AfterViewInit{
+
+  spatialLevel;
 
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
   /* kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -226,6 +230,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       });
       
       this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
+      
+      setTimeout(()=>{
+        this.spatialLevel = new FormControl(this.higherSpatialUnits[this.higherSpatialUnits.length-1].spatialUnitId);
+      },500);
       
       // only show those spatial units that are actually visible according to keycloak role
       // and associated to the current indicator as well
@@ -484,6 +492,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
                       'max': this.valueRangeMaxValue
                   },
                   start: [middle],
+                  connect: [true, false],
                   step: 0.01,
                   tooltips: true,
                   pips: {
@@ -586,6 +595,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
                       'max': this.movMaxValue
                   },
                   start: [middle],
+                  connect: [true, false],
                   step: 0.01,
                   tooltips: true,
                   pips: {
@@ -735,7 +745,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
 							onChangeSelectedSpatialUnitForFilter(){
 
-								this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(e => e.spatialUnitId==this.selectedSpatialUnitIdForFilter)[0];
+								this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(e => e.spatialUnitId==this.spatialLevel.value)[0];
 
 								if (this.showSelectionByFeatureSpatialFilter) 
 									this.updateSelectableAreas("byFeature");

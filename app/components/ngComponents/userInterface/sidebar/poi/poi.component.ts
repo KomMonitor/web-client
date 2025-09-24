@@ -59,6 +59,9 @@ export class PoiComponent implements OnInit {
     'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
     'Auswahl erfolgreich gespeichert'];
 
+  isPoiSelectCollapsed = false;
+  poiAlphListCollapse:any[] = [true,true,true,true,true];
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     private mapService: MapService,
@@ -131,6 +134,10 @@ export class PoiComponent implements OnInit {
     return tree;
   }
 
+  isFavSubTopicCollapsed(topicId) {
+    return (document.getElementById('georesourcesFavSubTopic-'+topicId)!.style.display=='none');
+  }
+
   onTopicClick(topicID:string) {
     if(this.topicsCollapsed.includes(topicID))
       this.topicsCollapsed = this.topicsCollapsed.filter(e => e!=topicID);
@@ -199,9 +206,9 @@ export class PoiComponent implements OnInit {
 
     this.dataExchangeService.onChangeGeoresourceKeywordFilter(this.georesourceNameFilter.value, this.showPOI, this.showLOI, this.showAOI, this.showWMS, this.showWFS);
 
-    window.setTimeout( () => {
+    setTimeout(() => {
       this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
-       this.addClickListenerToEachCollapseTrigger();
+      this.addClickListenerToEachCollapseTrigger();
     },250);
   }						
   
@@ -713,6 +720,7 @@ export class PoiComponent implements OnInit {
   refreshPoiLayers(){
 
     this.exchangeData.selectedPOISize = this.exchangeData.POISizes.filter(e => e.id==this.selectedPoiSize)[0];
+
     for (var poi of this.exchangeData.displayableGeoresources_keywordFiltered){
       if (poi.isSelected){
         //remove POI layer from map

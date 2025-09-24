@@ -113,8 +113,8 @@
 							<label>Raumebene</label>							
 						</div>
 						<div class="col-sm-12 col-md-6 col-lg-6">
-              <select [(ngModel)]="selectedSpatialUnitIdForFilter" (change)="onChangeSelectedSpatialUnitForFilter()">
-								<option disabled selected value> -- Raumebene w&auml;hlen -- </option>
+              <select [formControl]="spatialLevel" (change)="onChangeSelectedSpatialUnitForFilter()" class="form-control">
+                <option disabled> -- Raumebene w&auml;hlen -- </option>
                 <option *ngFor="let item of higherSpatialUnits" [value]="item.spatialUnitId">{{item.metadata.description}}</option>
               </select>
 						</div>
@@ -126,13 +126,13 @@
           <app-dual-list-box [data]="selectionByFeatureSpatialFilterDuallistOptions" [reload]="reloadList" (selectedItems)="onUpdatedSelectedItems($event)"></app-dual-list-box>
 				<!-- 	<excalibur-dual-list class="spatialFilterDuallist" 
 						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list> -->
-          <div style="margin-top: 4em;">
+          <div class="dual-list-button-wrapper">
             <button class="btn btn-primary" (click)="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
-              ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
+              (disabled)="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
                 Selektion durchf&uuml;hren
             </button> 
             <br/>
-            <button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
+            <button class="btn btn-danger" 
               (click)="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
             </div>
 				</div>
@@ -148,28 +148,12 @@
 					<span class="switchslider round"></span>
 				</label>
 				<div id="manualSelectionSpatialFilter" *ngIf="showManualSelectionSpatialFilter">
-          <app-dual-list-box [data]="manualSelectionSpatialFilterDuallistOptions" [reload]="reloadManualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>
-				<!-- 
-					<excalibur-dual-list class="spatialFilterDuallist" 
-						options="manualSelectionSpatialFilterDuallistOptions"></excalibur-dual-list> -->
-					
-					<!-- selection via any drawable item on map - hidden for now -->
-						<!-- <div>
-						<p>Selektion &uuml;ber Kartenbild</p>
-						<label class="switch">
-							<input id="manualSelectionSpatialFilterSelectByMapToggle" type="checkbox" (change)="onChangeManualSelectionSpatialFilterSelectByMapToggle()"
-								[(ngModel)]="manualSelectionSpatialFilterSelectByMap" 
-								(checked)="manualSelectionSpatialFilterSelectByMap">
-							<span class="switchslider round"></span>
-						</label><br />
-						<div id="manualSelectionSpatialFilterSelectByMapBtn" > 
-							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" (click)="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
-						</div>
-					</div>						 -->					
-					<button class="btn btn-primary" (click)="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchf&uuml;hren</button>
-					<button class="btn btn-danger"
-					(click)="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
-
+          <app-dual-list-box [data]="manualSelectionSpatialFilterDuallistOptions" [reload]="reloadManualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>			
+          <div class="dual-list-button-wrapper">
+            <button class="btn btn-primary" (click)="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchf&uuml;hren</button>
+            <br/>
+            <button class="btn btn-danger" (click)="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zur&uuml;cksetzen</button>
+          </div>
 					<br/>
 					<br/>
 					<!-- <button class="btn btn-primary" ng-disabled="$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size == 0" (click)="onManualSelectionBySelectedMapFeaturesBtnPressed()">{{$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size}} aktuell gew&auml;hlte Kartenobjekte filtern</button>

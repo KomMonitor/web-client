@@ -13,11 +13,11 @@
 			<h3 class="box-title">Georessourcenauswahl</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button (click)="poiSelectCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 				</button>
 			</div>
 		</div>
-		<div class="box-body">
+    <div class="box-body boxedLegend" #poiSelectCollapse="ngbCollapse" [(ngbCollapse)]="isPoiSelectCollapsed">
 
 			<div style="text-align: center">
 
@@ -51,7 +51,7 @@
 				<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 				<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
 					[(ngModel)]="georesourceNameFilter.value"
-					(change)="dataExchangeService.onChangeGeoresourceKeywordFilter(georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)">
+					(keyup)="onChangeGeoresourceKeywordFilter()">
 			</div>
 
 			<br />
@@ -136,12 +136,9 @@
 								<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 									style="background: #2171b5; color: white;">
                   <div>
-                    <p id="{{mainTopic.topicId}}"
-                      title="{{mainTopic.topicDescription}}" class="collapseTrigger"
-                      style="color: white;" (click)="onTopicClick(mainTopic.topicId)"
-                      ng-init="isCollapsed_mainTopic=true"><i
-                        class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}
-                      ({{mainTopic.totalCount}})</p>
+                    <p id="{{mainTopic.topicId}}" title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="onTopicClick(mainTopic.topicId)">
+                    <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}
+                    ({{mainTopic.totalCount}})</p>
                     <input type="checkbox" [(ngModel)]="mainTopic.isSelected"
                       value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}"
                       (change)="handleShowAllOnTopic(mainTopic)">
@@ -151,16 +148,13 @@
                   </div>
 								</div>
 
-								<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}"
-								uib-collapse="isCollapsed_mainTopic">
+								<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}" uib-collapse="isCollapsed_mainTopic">
 								<div *ngFor="let subTopic of mainTopic.subTopics">
 
 									<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80">
                     <div>
-                      <p id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
-                        title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"
-                        ng-init="isCollapsed_subTopic=true"><i
-                          class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}
+                      <p id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)">
+                        <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}
                         ({{subTopic.totalCount}})</p>
                       <input type="checkbox" [(ngModel)]="subTopic.isSelected"
                         value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}"
@@ -171,17 +165,13 @@
                     </div>
 									</div>
 
-									<div class="list-group collapse"  [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}"
-									uib-collapse="isCollapsed_subTopic">
+									<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
 									<div *ngFor="let subsubTopic of subTopic.subTopics">
 
 										<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout kommonitor-60">
                       <div>
-                        <p id="{{subsubTopic.topicId}}" class="collapseTrigger"
-                          style="color: black;" title="{{subsubTopic.topicDescription}}"
-                          (click)="onTopicClick(subsubTopic.topicId)"
-                          ng-init="isCollapsed_subsubTopic=true"><i
-                            class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}
+                        <p id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}" (click)="onTopicClick(subsubTopic.topicId)">
+                          <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}
                           ({{subsubTopic.totalCount}})</p>
                         <input type="checkbox" [(ngModel)]="subsubTopic.isSelected"
                           value="subsubTopic.isSelected"
@@ -198,12 +188,8 @@
 
 											<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout kommonitor-40">
                         <div>
-                          <p id="{{subsubsubTopic.topicId}}" class="collapseTrigger"
-                            style="color: black;"
-                            title="{{subsubsubTopic.topicDescription}}"
-                            (click)="onTopicClick(subsubsubTopic.topicId)"
-                            ng-init="isCollapsed_subsubsubTopic=true"><i
-                            class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}
+                          <p id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}" (click)="onTopicClick(subsubsubTopic.topicId)">
+                            <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}
                             ({{subsubsubTopic.totalCount}})</p>
                           &nbsp;&nbsp; <input type="checkbox" [(ngModel)]="subsubsubTopic.isSelected"
                             value="subsubsubTopic.isSelected"
@@ -286,12 +272,12 @@
 																		ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																	<a href="" (click)="getExportLinkForPoi(poi)"
+																	<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																		title="Download Features as GeoJSON"><i
-																			class="fas fa-file-download fa-lg"></i></a>
+																			class="fas fa-file-download fa-lg"></i></p>
 																			
-																	<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																	<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
                                 <td>
@@ -337,12 +323,12 @@
 																	</select>
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																	<a href="" (click)="getExportLinkForLoi(loi)"
+																	<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																		title="Download Features as GeoJSON"><i
-																			class="fas fa-file-download fa-lg"></i></a>
+																			class="fas fa-file-download fa-lg"></i></p>
 
-																	<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																	<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
                                 <td>
@@ -387,12 +373,12 @@
 																	</select>
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																	<a href="" (click)="getExportLinkForAoi(aoi)"
+																	<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																		title="Download Features as GeoJSON"><i
-																			class="fas fa-file-download fa-lg"></i></a>
+																			class="fas fa-file-download fa-lg"></i></p>
 
-																	<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																	<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 																</td>
                                 <td>
@@ -600,12 +586,12 @@
 																	ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																<a href="" (click)="getExportLinkForPoi(poi)"
+																<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																	title="Download Features as GeoJSON"><i
-																		class="fas fa-file-download fa-lg"></i></a>
+																		class="fas fa-file-download fa-lg"></i></p>
 
-																<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
                               <td>
@@ -651,12 +637,12 @@
 																</select>
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																<a href="" (click)="getExportLinkForLoi(loi)"
+																<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																	title="Download Features as GeoJSON"><i
-																		class="fas fa-file-download fa-lg"></i></a>
+																		class="fas fa-file-download fa-lg"></i></p>
 
-																<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
                               <td>
@@ -701,12 +687,12 @@
 																</select>
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-																<a href="" (click)="getExportLinkForAoi(aoi)"
+																<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																	title="Download Features as GeoJSON"><i
-																		class="fas fa-file-download fa-lg"></i></a>
+																		class="fas fa-file-download fa-lg"></i></p>
 
-																<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+																<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 															</td>
                               <td>
@@ -911,12 +897,12 @@
 																ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 														</td>
 														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-															<a href="" (click)="getExportLinkForPoi(poi)"
+															<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																title="Download Features as GeoJSON"><i
-																	class="fas fa-file-download fa-lg"></i></a>
+																	class="fas fa-file-download fa-lg"></i></p>
 
-															<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+															<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 															<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
                             <td>
@@ -958,13 +944,13 @@
 																class="form-control" required>
 															</select>
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-															<a href="" (click)="getExportLinkForLoi(loi)"
+														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+															<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																title="Download Features as GeoJSON"><i
-																	class="fas fa-file-download fa-lg"></i></a>
+																	class="fas fa-file-download fa-lg"></i></p>
 
-															<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+															<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
                             <td>
@@ -1005,13 +991,13 @@
 																class="form-control" required>
 															</select>
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-															<a href="" (click)="getExportLinkForAoi(aoi)"
+														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+															<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																title="Download Features as GeoJSON"><i
-																	class="fas fa-file-download fa-lg"></i></a>
+																	class="fas fa-file-download fa-lg"></i></p>
 
-															<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+															<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 															<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 														</td>
                             <td>
@@ -1217,13 +1203,13 @@
 															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForPoi(poi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1265,13 +1251,13 @@
 															class="form-control" required>
 														</select>
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForLoi(loi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1313,13 +1299,13 @@
 															class="form-control" required>
 														</select>
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForAoi(aoi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1455,21 +1441,22 @@
 							</div>
 							<!-- end main Topics -->
 
-							<div class="list-group-item list-group-item-default kommonitor-theme"
+							<div class="list-group-item list-group-item-default list-group-item-grid-layout"
 								style="background: #2171b5; color: white;" *ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
-								<a id="noHierarchyGeoresourceDatasets" href=""
-									title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
-									style="color: white;" 
-									ng-init="isCollapsed_noTopic=true"
-									(click)="toggleNoTopicHierarchy()">
-										<i	class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug
-									({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</a>
-								&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null"
-									[(ngModel)]="showAllForTopic_null" (change)="handleShowAllOnTopic(null)">
+								<div>
+                  <p id="noHierarchyGeoresourceDatasets"
+                    title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
+                    style="color: white;" 
+                    (click)="toggleNoTopicHierarchy()">
+                      <i	class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isCollapsed_noTopic, 'glyphicon-chevron-down':!isCollapsed_noTopic}"></i>ohne Themenbezug
+                    ({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
+								  <input type="checkbox" value="showAllForTopic_null"
+									  [(ngModel)]="showAllForTopic_null" (change)="handleShowAllOnTopic(null)">
+                </div>
 							</div>
 
 
-							<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
+							<div class="list-group collapse" [ngClass]="{'in': !isCollapsed_noTopic}"  uib-collapse="isCollapsed_noTopic">
 
 								<div class="georesourceInputForm"
 									*ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
@@ -1539,13 +1526,13 @@
 														ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 														ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<a href="" (click)="getExportLinkForPoi(poi)"
+												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 														title="Download Features as GeoJSON"><i
-															class="fas fa-file-download fa-lg"></i></a>
+															class="fas fa-file-download fa-lg"></i></p>
 
-													<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+													<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 													<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
                         <td>
@@ -1588,13 +1575,13 @@
 														class="form-control" required>
 													</select>
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<a href="" (click)="getExportLinkForLoi(loi)"
+												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 														title="Download Features as GeoJSON"><i
-															class="fas fa-file-download fa-lg"></i></a>
+															class="fas fa-file-download fa-lg"></i></p>
 
-													<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+													<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
                         <td>
@@ -1637,13 +1624,13 @@
 														class="form-control" required>
 													</select>
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<a href="" (click)="getExportLinkForAoi(aoi)"
+												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 														title="Download Features as GeoJSON"><i
-															class="fas fa-file-download fa-lg"></i></a>
+															class="fas fa-file-download fa-lg"></i></p>
 
-													<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+													<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 												</td>
                         <td>
@@ -1794,12 +1781,12 @@
 								<h3 class="box-title">Points of Interest</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListPOICollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[0], 'fa-minus':!poiAlphListCollapse[0]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListPOICollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[0]">
 
 								<div class="">
 
@@ -1864,13 +1851,13 @@
 															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForPoi(poi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink" (click)="getExportLinkForPoi(poi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
                           <td>
@@ -1900,12 +1887,12 @@
 								<h3 class="box-title">Lines of Interest</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListLinesCollapse.toggle()"  type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[1], 'fa-minus':!poiAlphListCollapse[1]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListLinesCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[1]">
 
 								<div class="">
 
@@ -1957,13 +1944,13 @@
                             <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForLoi(loi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 														
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
 												</tr>
@@ -1985,12 +1972,12 @@
 								<h3 class="box-title">Areas of Interest</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListAreasCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[2], 'fa-minus':!poiAlphListCollapse[2]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListAreasCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[2]">
 
 								<div class="">
 
@@ -2045,13 +2032,13 @@
 															ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-														<a href="" (click)="getExportLinkForAoi(aoi)"
+													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></a>
+																class="fas fa-file-download fa-lg"></i></p>
 
-														<a href="" (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></a>
+														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
 													</td>
 												</tr>
@@ -2073,12 +2060,12 @@
 								<h3 class="box-title">Web Map Service (WMS)</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListWmsCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[3], 'fa-minus':!poiAlphListCollapse[3]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListWmsCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[3]">
 
 								<div id="wmsInputForm">
 
@@ -2151,12 +2138,12 @@
 								<h3 class="box-title">Web Feature Service (WFS)</h3>
 
 								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa fa-plus"></i>
+									<button (click)="poiAlphListWfsCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i
+											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[4], 'fa-minus':!poiAlphListCollapse[4]}"></i>
 									</button>
 								</div>
 							</div>
-							<div class="box-body">
+							<div class="box-body" #poiAlphListWfsCollapse="ngbCollapse" [(ngbCollapse)]="poiAlphListCollapse[4]">
 
 								<p>Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern.
 									Die Features werden zudem nach dem aktuellen Raumausschnitt der Kartendarstellung
@@ -2475,7 +2462,7 @@
                   <div class="list-group-item list-group-item-default list-group-item-grid-centered-georesources georesources-grid-item list-group-item-level-{{topic.level}}">
                     <p *ngIf="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
                       class="georesourcesFavCollapseTrigger" style="color: white;">
-                    <i class="glyphicon glyphicon-chevron-right"></i>{{topic.topicName}}</p>
+                    <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'glyphicon-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
                     <p *ngIf="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0">{{topic.topicName}}</p>
                     <input type="checkbox" [(ngModel)]="topic.isSelected"
                       value="topic.isSelected" id="showAllForTopic_{{topic.topicId}}"

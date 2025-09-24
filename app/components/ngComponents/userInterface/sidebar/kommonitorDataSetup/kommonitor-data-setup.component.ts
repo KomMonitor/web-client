@@ -18,6 +18,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   exchangeData!:DataExchange;
   topicsCollapsed:string[] = [];
+  headlineTopicsCollapsed:string[] = [];
 
   isCollapsed_headlineIndicatorHierarchyItem = true;
 
@@ -109,12 +110,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     },2000);
 
-    $(document).ready(function() {
-      $(".nav li.disabled a").click(function() {
-        return false;
-      });
-    });
-
     this.broadcastService.currentBroadcastMsg.subscribe(res => {
       let msg = res.msg;
       let values:any = res.values;
@@ -148,6 +143,8 @@ export class KommonitorDataSetupComponent implements OnInit {
   
   setupSlider() {
     this.dateSlider = document.getElementById('dateSlider');
+
+    noUiSlider.cssClasses.target += ' custom-dateSlider';
     noUiSlider.create(this.dateSlider, this.config);
   }
 
@@ -155,6 +152,8 @@ export class KommonitorDataSetupComponent implements OnInit {
     console.log("Load an initial example indicator");
 
     this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
+
+    this.prepareHeadlineIndicatorTopics();
 
     if (this.exchangeData.displayableIndicators == null || this.exchangeData.displayableIndicators == undefined || this.exchangeData.displayableIndicators.length === 0){
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
@@ -231,12 +230,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     //reinit visibility of elements due to fact that now some HTML elements are actually available
     this.elementVisibilityHelperService.initElementVisibility();
 
-    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
-    this.indicatorFavTopicsTreePimped = {
-      topicName: 'Test',
-      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
-    };
-    this.addClickListenerToEachCollapseTrigger();
+    
 
     var userInfo = this.favService.getUserInfo();
     if(userInfo.indicatorFavourites) {
@@ -249,8 +243,25 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.FavTabIndicatorTopicFavItems = userInfo.indicatorTopicFavourites;
     }
 
+    setTimeout(() => {
     if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
       this.showFavSelection = true;
+    },1000)
+
+    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
+    this.indicatorFavTopicsTreePimped = {
+      topicName: 'Test',
+      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
+    };
+    this.addClickListenerToEachCollapseTrigger();
+  }
+
+  prepareHeadlineIndicatorTopics() {
+    this.exchangeData.headlineIndicatorHierarchy.forEach( (elem:any) => {
+
+      if(!this.headlineTopicsCollapsed.includes(elem.headlineIndicator.indicatorId))
+        this.headlineTopicsCollapsed.push(elem.headlineIndicator.indicatorId);
+    });
   }
 
   prepTopicsTree(tree, level, parent) {
@@ -285,6 +296,13 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     return retTree;
   }
+  
+  onHeadlineTopicClick(topicID:string) {
+    if(this.headlineTopicsCollapsed.includes(topicID))
+      this.headlineTopicsCollapsed = this.headlineTopicsCollapsed.filter(e => e!=topicID);
+    else
+      this.headlineTopicsCollapsed.push(topicID);
+  }
 
   onTopicClick(topicID:string) {
     if(this.topicsCollapsed.includes(topicID))
@@ -295,40 +313,31 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   addClickListenerToEachCollapseTrigger(){
     setTimeout(function(){
-      $('.list-group-item > .collapseTrigger').on('click', function(e) {
-        
-        $('.glyphicon', e)
-        .toggleClass('glyphicon-chevron-right')
-        .toggleClass('glyphicon-chevron-down');
-
-          // manage uncollapsed entries
-          // var clickedTopicId = $(this).attr('id');
-          // if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
-          // 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
-          // 	$scope.unCollapsedTopicIds.splice(index, 1);
-          // }
-          // else{
-          // 	$scope.unCollapsedTopicIds.push(clickedTopicId);
-          // }
-      });
 
       // addClass "clickBound" sets trigger, that listener has been added, not:.clickBound filters for that. otherwise multiple listeners will be added
       $('.list-group-item > .indicatorFavCollapseTrigger:not(.clickBound)').addClass('clickBound').on('click', (e) => {
-        $('.glyphicon', e)
+
+        // todo rebuild dirty elem[0] structure, maybe with ngb
+        let elem:any = $(e);
+        var clickedTopicId = elem[0].currentTarget.id;
+
+        $('.glyphicon', clickedTopicId)
           .toggleClass('glyphicon-chevron-right')
           .toggleClass('glyphicon-chevron-down');
 
         // manage entries;
-        // todo rebuild dirty elem[0] structure, maybe with ngb
-        let elem:any = $(e);
-        var clickedTopicId = elem[0].currentTarget.id;
+        
         if(document.getElementById('indicatorFavSubTopic-'+clickedTopicId)?.style.display=='none')
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style.display = 'block';
         else
           document.getElementById('indicatorFavSubTopic-'+clickedTopicId)!.style!.display = 'none';
       });
-    }, 500);
+    }, 1000);
   };
+
+  isFavSubTopicCollapsed(topicId) {
+    return (document.getElementById('indicatorFavSubTopic-'+topicId)!.style.display=='none');
+  }
 
 /*
 					
@@ -603,21 +612,25 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
 
     this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
-   
+
     this.dateSlider.noUiSlider.updateOptions({
       range: {
           'min': 0, // index from
           'max': this.datesAsMs.length-1 // index to
       },
-      start: [ this.tsToDateString(this.datesAsMs[this.datesAsMs.length-1])],
+      start: [this.datesAsMs.length-1 ], // index 
       step: 1,
       tooltips: true,
       format: {
-        to: (value) => {
-          return this.tsToDateString(this.datesAsMs[Math.round(value)]);  
+        to: (value) => { // test
+          console.log("to",value)
+          if(value)
+            return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
+          else
+            return;
         },
-        from: (value) => {
-          return this.datesAsMs.indexOf(this.dateStringToMs(value));
+        from: (value) => { 
+          return this.datesAsMs[value];
         }
       },
       pips: {
@@ -634,7 +647,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       }
     });
   
-    this.dateSlider.noUiSlider.on('set', () => {
+    this.dateSlider.noUiSlider.on('end', () => {
       this.onChangeDateSliderItem(this.getFormatedSliderReturn());
     })
   };
@@ -656,6 +669,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   dateStringToMs(dateStr) {
+
     let parts = dateStr.split(' ');
     // get timezoneOffset w/o daylight saving time by referencing a specific date
     let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
@@ -666,13 +680,13 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   tsToDateString (dateAsMs) {
     var date = new Date(dateAsMs);
-    // return date.getFullYear();
+    return date.getFullYear();
 
-    return date.toLocaleDateString("de-DE", {
+    /* return date.toLocaleDateString("de-DE", {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    });
+    }); */
   }
 
   setupDatePickerForIndicator(){
@@ -684,6 +698,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     let ngbDates = this.prepNgbDates(availableDates);
     this.broadcastService.broadcast('updateDatePickerAvailableDates',[ngbDates]);																
+    this.broadcastService.broadcast('updateDatePickerSelectedDate',[ngbDates[ngbDates.length-1]]);		
   };
 
   prepNgbDates(dates):NgbDateStruct[] {
@@ -800,16 +815,17 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   changeIndicatorDate([datePickerDate]){	
-    
+
     if(this.exchangeData.selectedIndicator && this.exchangeData.selectedDate){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change selected date");
 
-      this.dateSlider.noUiSlider.updateOptions({
+      // hier problem, wählt nicht das korrekte datum aus
+     /*  this.dateSlider.noUiSlider.updateOptions({
         start: [ this.datePickerToDateSlider(datePickerDate) ],
-      });
+      }); */
 
       this.date = this.exchangeData.selectedDate;
       this.selectedDate = this.exchangeData.selectedDate;
@@ -960,7 +976,9 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.broadcastService.broadcast("updateBalanceSlider", [this.exchangeData.selectedDate]);
     setTimeout(() => {
       this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.exchangeData.selectedDate, this.exchangeData.selectedIndicator]);
-    },2000); 
+    },1000); 
+    // time here seems to be crucial, "500" does not work.. maybe fix, maybe leave it
+
     this.addSelectedIndicatorToMap(changeIndicator);
 
   }

@@ -15,6 +15,8 @@ export class RegressionDiagramComponent implements OnInit {
   
   activeTab = 0;
 
+  isIndicatorSelectCollapsed = false;
+  isRadarCollapsed = false
 
   selection:any = {
     indicatorNameFilterForXAxis: undefined,

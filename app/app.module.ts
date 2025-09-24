@@ -37,7 +37,9 @@ import {
   ajskommonitorSingleFeatureMapHelperServiceProvider,
   ajskommonitorScriptHelperServiceProvider,
   ajskommonitorGlobalFilterHelperServiceProvider,
-  ajskommonitorFavServiceProvider} from 'app-upgraded-providers';
+  ajskommonitorFavServiceProvider,
+  ajskommonitorLeafletScreenshotCacheHelperServiceProvider
+} from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -83,6 +85,8 @@ import { AdminAppConfigComponent } from './components/ngComponents/admin/adminCo
 import { AdminControlsConfigComponent } from './components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+
+import { MathjaxModule } from "mathjax-angular";
 import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
 import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
@@ -110,7 +114,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
 
-declare var MathJax;
+/* declare var MathJax; */
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -125,13 +129,14 @@ export function HttpLoaderFactory(http: HttpClient) {
     NgbDatepickerModule, 
     NgbAccordionModule,
     FormsModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule,  
     HttpClientModule,
     JsonPipe,
     NouisliderModule,
     NgbCollapseModule,
     DragDropModule,
     DualListBoxComponent,
+    MathjaxModule.forRoot(),
     AgGridAngular,
     ColorSketchModule,
     KmDatePickerComponent,
@@ -171,6 +176,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     ajskommonitorScriptHelperServiceProvider,
     ajskommonitorGlobalFilterHelperServiceProvider,
     ajskommonitorFavServiceProvider,
+    ajskommonitorLeafletScreenshotCacheHelperServiceProvider,
     NgbModule,
     {
       provide: HTTP_INTERCEPTORS,
@@ -649,7 +655,7 @@ export class AppModule implements DoBootstrap {
     angular.module('kommonitorClient').constant('__env', window.__env);
 
     // MathJx directive
-    angular.module('kommonitorClient').directive("mathjaxBind", () => {
+   /*  angular.module('kommonitorClient').directive("mathjaxBind", () => {
       return {
         restrict: "EA",
         controller: [
@@ -668,7 +674,7 @@ export class AppModule implements DoBootstrap {
           },
         ],
       };
-    });
+    }); */
 
     // custom unique filter
     angular.module('kommonitorClient').filter('unique', function () {

@@ -1,0 +1,9 @@
+:host {
+  .dual-list-select{
+    height: 34em;
+  }
+
+  .reporting-page .hidden-override {
+    display: none !important;
+  }
+}

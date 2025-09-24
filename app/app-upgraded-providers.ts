@@ -17,8 +17,7 @@ import {kommonitorVisualStyleHelperService} from 'util/genericServices/kommonito
 import {kommonitorReachabilityHelperService} from 'util/genericServices/kommonitorReachabilityHelperService/kommonitor-reachability-helper-service.module'
 import {kommonitorReachabilityCoverageReportsHelper} from 'util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module'
 import {kommonitorSpatialDataProcessorHelper} from 'util/genericServices/kommonitorSpatialDataProcessorHelperService/kommonitor-spatial-data-processor-helper-service.module'
-
-
+import {kommonitorLeafletScreenshotCacheHelper} from 'util/genericServices/kommonitorLeafletScreenshotCacheHelperService/kommonitor-leaflet-screenshot-cache-helper-service.module'
 
 export function kommonitorCacheHelperServiceFactory(injector:any){
     return injector.get('kommonitorCacheHelperService');
@@ -293,6 +292,17 @@ export const ajskommonitorFavServiceProvider: any = {
   useFactory:kommonitorFavServiceFactory,
 };
 
+// kommonitorLeafletScreenshotCacheHelperService
+export function kommonitorLeafletScreenshotCacheHelperServiceFactory (injector:any){
+  return injector.get('kommonitorLeafletScreenshotCacheHelperService')
+}
+
+export const ajskommonitorLeafletScreenshotCacheHelperServiceProvider: any = {
+  deps: ['$injector'],
+  provide: 'kommonitorLeafletScreenshotCacheHelperService',
+  useFactory:kommonitorLeafletScreenshotCacheHelperServiceFactory,
+};
+
 
   export const serviceProviders: any[] = [
     ajskommonitorCacheHelperServiceProvider,
@@ -318,5 +328,6 @@ export const ajskommonitorFavServiceProvider: any = {
     ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
     ajskommonitorSpatialDataProcessorHelperServiceProvider,
     ajskommonitorGlobalFilterHelperServiceProvider,
-    ajskommonitorFavServiceProvider
+    ajskommonitorFavServiceProvider,
+    ajskommonitorLeafletScreenshotCacheHelperServiceProvider
   ];

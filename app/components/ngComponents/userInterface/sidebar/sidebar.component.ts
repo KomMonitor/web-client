@@ -9,8 +9,14 @@ export class SidebarComponent implements OnInit{
 
   @Input() element:any = undefined;
 
+  expandedWidthElements = [
+    'sidebarDiagramsCollapse',
+    'sidebarRadarDiagramCollapse',
+    'sidebarRegressionDiagramCollapse'
+  ];
+
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarFilterCollapse';
+    //this.element = 'sidebarFilterCollapse';
   }
 }

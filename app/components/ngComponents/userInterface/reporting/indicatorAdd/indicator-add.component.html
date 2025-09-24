@@ -33,7 +33,10 @@
                               [innerHTML]="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                       </li>
                       <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
-                          <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
+                          <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Konfiguration</a>
+                      </li>  
+                      <li id="reporting-add-indicator-tab7" role="presentation" class="tab-disabled">
+                          <a href="#screenshotmanagement" aria-controls="screenshotmanagement" role="tab" data-toggle="tab" tabindex="-1">Kartenbild-Verwaltung</a>
                       </li>
                   </ul>
                   
@@ -42,31 +45,30 @@
                   <div id="reporting-add-indicator-tab-content" class="tab-content">
                       <div role="tabpanel" id="pois"
                           [ngClass]="template.name.includes('-reachability') ? 'tab-pane active' : 'tab-pane'">
-              <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
-            </div>
-                          <p style="margin-top: 10px;"><b>Eine Auswahlmöglichkeit des Datenstands / Datums ist noch nicht verfügbar.
-                              Momentan wird das aktuellste Datum abgefragt.</b></p>
-                          <div class="input-group">
-                              <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                              <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
-                                  [value]="poiNameFilter">
-                          </div>
-                          <div id="reporting-poi-select-box">
-                              <select size="30" class="form-control" required>
-                <option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
-                <option style="white-space: pre !important;" *ngFor="let layer of this.filteredAvailablePoiLayers"
-                                      (click)="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
-              </select>
-                          </div>
+                        <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+                          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        </div>
+                        <p style="margin-top: 10px;"><b>Eine Auswahlmöglichkeit des Datenstands / Datums ist noch nicht verfügbar.
+                            Momentan wird das aktuellste Datum abgefragt.</b></p>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                            <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+                                [value]="poiNameFilter" (keyup)="onPOINameFilterChange($event)">
+                        </div>
+                        <div id="reporting-poi-select-box">
+                          <select size="10" class="form-control" required>
+                            <option disabled selected value> -- POI-Layer w&auml;hlen -- </option>
+                            <option style="white-space: pre !important;" *ngFor="let layer of this.filteredAvailablePoiLayers" (click)="onPoiLayerSelected(layer)">{{layer.datasetName}}</option>
+                          </select>
+                        </div>
                       </div>
                       <div role="tabpanel" id="isochrones" class="tab-pane">
                           <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
                               <span class="glyphicon glyphicon-refresh icon-spin"></span>
                           </div>
                           <div id="reporting-isochrones-config">
-                              <div ng-if="template.name.includes('-reachability')">
-                                 <!--  <reachability-scenario-configuration></reachability-scenario-configuration> -->
+                              <div *ngIf="template.name.includes('-reachability')">
+                                 <app-reachability-scenario-configuration></app-reachability-scenario-configuration>
                               </div>
                               <!-- <button type="button" class="btn btn-danger" style="margin-left: 1%; margin-top: 10px;" ng-click="resetIsochrones()" [hidden]="!(showResetIsochronesBtn">Isochronen entfernen</button>                                -->
                           </div>
@@ -89,25 +91,23 @@
                           </div>
                           <div *ngIf="template.name.includes('-timeseries')">
                               <div id="reporting-indicator-select-box">
-                                  <select size="30" class="form-control" required>
+                                  <select size="10" [formControl]="indicatorSelect" class="form-control" (change)="onIndicatorSelected()">
                                       <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByNameTimeseries"
-                                          (click)="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByNameTimeseries" [ngValue]="indicator">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
                                   </select>
                               </div>
                           </div>
                           <div *ngIf="!template.name.includes('-timeseries')">
                               <div id="reporting-indicator-select-box">
-                                  <select size="30" class="form-control" required>
+                                  <select size="10" [formControl]="indicatorSelect" class="form-control" (change)="onIndicatorSelected()">
                                       <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByName"
-                                          (click)="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                      <option style="white-space: pre !important;" *ngFor="let indicator of displayableIndicatorsByName" [ngValue]="indicator">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
                                   </select>
                               </div>
                           </div>
                           
                       </div>
-                      <div role="tabpanel" class="tab-pane" id="area">
+                      <div role="tabpanel" class="tab-pane dual-list-select" id="area">
                           <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
                               <span class="glyphicon glyphicon-refresh icon-spin"></span>
                           </div>
@@ -124,69 +124,288 @@
                           </div>
                           <div id="reporting-spatial-unit-select-wrapper">
                               Raumebene: 
-                              <select ng-model="selectedSpatialUnit"
-                                  *ngIf="!selectedIndicator"
-                                  ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
-                                  <option *ngFor="let spatialUnit of allSpatialUnitsForReachability">{{spatialUnit.spatialUnitLevel}}</option>
+                              <select *ngIf="!selectedIndicator" [formControl]="spatialUnitSelect" (change)="onSpatialUnitChanged()">
+                                  <option *ngFor="let spatialUnit of allSpatialUnitsForReachability" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitLevel}}</option>
                               </select>
-                              <select ng-model="selectedSpatialUnit"
-                                  *ngIf="selectedIndicator"
-                                  ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
-                                  <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits">{{spatialUnit.spatialUnitName}}</option>
+
+                              <select *ngIf="selectedIndicator" [formControl]="spatialUnitSelect" (change)="onSpatialUnitChanged()" class="form-control">
+                                <option disabled> -- Raumebene w&auml;hlen -- </option>
+                                <option *ngFor="let spatialUnit of selectedIndicator.applicableSpatialUnits" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitName}}</option>
                               </select>
                           </div>
-                          <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedItems($event)"></app-dual-list-box>
-                          <!-- <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list> -->
+                          <app-dual-list-box [data]="dualListAreasOptions" [reload]="reloadAreasDualList" (selectedItems)="onUpdatedManualSelectedAreas($event)"></app-dual-list-box>
                       </div>
-                      <div role="tabpanel" class="tab-pane" id="time">
-              <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
-            </div>
-                          <div [hidden]="template.name.includes('-timeseries')">
-                            <app-dual-list-box [data]="dualListTimestampsOptions" [reload]="reloadTimestampsDualList" (selectedItems)="onUpdatedManualSelectedTimestamps($event)"></app-dual-list-box>
-                              <!-- <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list> -->
-                          </div>
-                          <div [hidden]="!(template.name.includes('-timeseries'))">
-                              <div id="reporting-dateSliderWrapper">
-                                  <input id="reporting-dateSlider" type="text" class="js-range-slider" value="">
-                              </div>
-                          </div>
-                          
+                      <div role="tabpanel" class="tab-pane" [ngClass]="{'dual-list-select':!(template.name.includes('-timeseries'))}" id="time">
+                        <div class="loading-overlay-reporting" [hidden]="!(loadingData)">
+                          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                        </div>
+                        <div [hidden]="template.name.includes('-timeseries')">
+                          <app-dual-list-box [data]="dualListTimestampsOptions" [reload]="reloadTimestampsDualList" (selectedItems)="onUpdatedManualSelectedTimestamps($event)"></app-dual-list-box>
+                        </div>
+                        <div [hidden]="!(template.name.includes('-timeseries'))">
+                            <div id="reporting-dateSliderWrapper">
+                                <div id="reportingDateSlider"></div>
+                            </div>
+                        </div>
                       </div>
                       <div role="tabpanel" class="tab-pane" id="elements">
 
-                          <h4>Element-Konfiguration</h4>
-                          <div id="reporting-element-configuration" class="container-fluid">
-                              <div class="row">
-                                  <div class="col-md-4">
-                                      <div class="reporting-element-config-box">
-                                          <h5>Karte</h5>
-                                          <p>Label anzeigen?</p>
-                                          <label class="switch" title="Label anzeigen">
-                                              <input type="checkbox"
-                                                  ng-model="showMapLabels"
-                                                  ng-checked="showMapLabels"
-                                                  ng-change="onChangeShowMapLabels()">
-                                              <span class="switchslider round"></span>
-                                          </label>
-                                      </div>
-                                  </div>
-                                  <div class="col-md-4">
-                                      <div class="reporting-element-config-box">
-                                          <h5>Ranking-Chart</h5>
-                                          <p>Ranking-Durchschnittslinie anzeigen?</p>
-                                          <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
-                                              <input type="checkbox"
-                                                  ng-model="showRankingMeanLine"
-                                                  ng-checked="showRankingMeanLine"
-                                                  ng-change="onChangeShowRankingMeanLine()">
-                                              <span class="switchslider round"></span>
-                                          </label>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
+                        <form [formGroup]="configForm">
+                        <h4>Element-Konfiguration</h4>
+                            <div id="reporting-element-configuration" class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-4" formGroupName="sectionControl">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Abschnitte</h5>  
+                                            
+                                            <div *ngIf="! template.name.includes('-reachability')">
+                                            
+                                                <label class="switch" title="Karte gesamt unklassifiziert">
+                                                    <input type="checkbox" 
+                                                      formControlName="showOverviewSection_unclassified"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Gesamtkarte - einheitliche Farbe
+
+                                                <br/>
+
+                                                <label class="switch" title="Karte gesamt klassifiziert">
+                                                    <input type="checkbox"
+                                                      formControlName="showOverviewSection_classified"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Gesamtkarte - farbklassifiziert
+
+                                                <br/>
+
+                                                <label class="switch" title="Ranking-Diagramm">
+                                                    <input type="checkbox"
+                                                      formControlName="showBarchartOverview"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Diagramm - &Uuml;bersicht
+
+                                            </div>
+
+                                            <div *ngIf="template.name.includes('-timeseries')">
+                                                <label class="switch" title="Zeitreihen-Diagramm">
+                                                    <input type="checkbox"
+                                                      formControlName="showLinechartOverview"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen-Diagramm - &Uuml;bersicht
+
+                                                <br/>
+
+                                                <label class="switch" title="Boxplot-Diagramm">
+                                                    <input type="checkbox"
+                                                      formControlName="showBoxplotchartOverview"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Boxplot-Diagramm - &Uuml;bersicht
+                                            </div>
+
+                                            <div *ngIf="template.name.includes('-reachability')">
+                                                <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                    <input type="checkbox"
+                                                      formControlName="showOverviewSection_reachability"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                &Uuml;bersichtskarte - Erreichbarkeit
+                                            </div>
+
+                                            <label class="switch" title="Karte Erreichbarkeit gesamt">
+                                                <input type="checkbox"
+                                                  formControlName="showAreaSpecific"
+                                                  (change)="onChangePageSettings()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Einzelseite pro Raumeinheit
+
+                                            <div *ngIf="! template.name.includes('-reachability')">
+                                                <label class="switch" title="Datentabelle">
+                                                    <input type="checkbox"
+                                                      formControlName="showDatatable"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Datentabelle
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3" formGroupName="headerFooterControl">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Kopf- und Fu&szlig;leiste</h5>                                            
+                                            <label class="switch" title="Titel anzeigen">
+                                                <input type="checkbox"
+                                                  formControlName="showTitle"
+                                                  (change)="onChangePageSettings()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Titel
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Untertitel anzeigen">
+                                                <input type="checkbox"
+                                                  formControlName="showSubtitle"
+                                                  (change)="onChangePageSettings()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Untertitel
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Logo anzeigen">
+                                                <input type="checkbox"
+                                                  formControlName="showLogo"
+                                                  (change)="onChangePageSettings()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Logo
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Erstelldetails anzeigen">
+                                                <input type="checkbox"
+                                                  formControlName="showFooterCreationInfo"
+                                                  (change)="onChangePageSettings()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Erstelldetails 
+
+                                            <br>
+                                            
+                                            <label class="switch" title="Seitenzahl anzeigen">
+                                                <input type="checkbox"
+                                                  formControlName="showPageNumber"
+                                                  (change)="onChangePageSettings()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Seitenzahl
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" formGroupName="sectionContentControl">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Abschnittssinhalte</h5>   
+                                            <i>Kartendarstellungen</i> 
+                                            <br/>                                           
+                                            <label class="switch" title="Label anzeigen">
+                                                <input type="checkbox"
+                                                  formControlName="showMapLabels"
+                                                  (change)="onChangeShowMapLabels()">
+                                                <span class="switchslider round"></span>
+                                            </label>
+                                            Label anzeigen
+
+                                            <div>
+                                                Hintergrundkarte
+                                                <select [formControl]="baseMapSelect" [(ngModel)]="selectedBaseMap" class="form-control" (change)="onChangeSelectedBaseMap()" required>
+                                                    <option disabled selected value> -- Hintergrundkarte w&auml;hlen --</option>
+                                                    <option *ngFor="let baseMap of dataExchangeService.pipedData.baseLayerDefinitionsArray | baseMapFilter" [ngValue]="baseMap">{{baseMap.layerConfig.name}}</option>
+                                                </select>
+                                            </div>
+                                                
+                                            <div *ngIf="template.name.includes('-timestamp')">
+
+                                                <br/>
+                                                <i>Ranking Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Ranking Chart anzeigen">
+                                                    <input type="checkbox"
+                                                      formControlName="showRankingChartPerArea"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking Chart pro Raumeinheit
+                                                
+
+                                                <br>
+
+                                                <label class="switch" title="Ranking-Durchschnittslinie anzeigen">
+                                                    <input type="checkbox"
+                                                      formControlName="showRankingMeanLine"
+                                                      (change)="onChangeShowRankingMeanLine()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Ranking-Durchschnittslinie
+
+                                            </div>
+                                            
+                                            <div *ngIf="template.name.includes('-timeseries')">
+
+                                                <br/>
+                                                <i>Zeitreihen Chart</i> 
+                                                <br/>
+                                                
+                                                <label class="switch" title="Zeitreihen Chart anzeigen">
+                                                    <input type="checkbox"
+                                                      formControlName="showLineChartPerArea"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Zeitreihen Chart pro Raumeinheit
+
+                                            </div>
+
+                                            <div *ngIf="! template.name.includes('-reachability')">
+                                                <br/>
+                                                <i>Sonstiges</i> 
+                                                <br/>
+
+                                                <label class="switch" title="Freitext anzeigen">
+                                                    <input type="checkbox"
+                                                      formControlName="showFreeText"
+                                                      (change)="onChangePageSettings()">
+                                                    <span class="switchslider round"></span>
+                                                </label>
+                                                Freitextfeld
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                          </form>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="screenshotmanagement">
+                    <div class="loading-overlay-reporting" *ngIf="loadingData">
+                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                    </div>
+
+                    <div style="margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                        <h3 style="text-align: center; margin-bottom: 20px;">Kartenbilder brauchen Zeit – aber wir haben eine Lösung!</h3>
+                        <p>Kartenbilder sind wie kleine Zeichnungen. Jede Kombination aus Raumeinheits-Geometrie und Hintergrundkarte muss neu positioniert, gerendert und als Bild gespeichert werden, was Zeit kostet.</p>                                
+                        <p><strong>Die gute Nachricht:</strong> KomMonitor speichert Kartenbilder im Browser-Cache. Bei wiederholter Nutzung werden Raumeinheiten und Hintergrundkarten schneller geladen.</p>
+                        <h4 style="margin-top: 20px;">Ihr Vorteil: Weniger Wartezeit</h4>
+                        <p>Häufig genutzte Elemente laden fast sofort, was Ihre Arbeit effizienter macht.</p>
+                        <h4 style="color: #d9534f; margin-top: 20px;">Wichtig: Cache-Einstellungen beachten!</h4>
+                        <p>Dies erlaubt es Ihrem Browser, die für unsere Anwendung wichtigen Daten (einschließlich der erzeugten Screenshots) dauerhaft zu speichern, auch wenn andere Cache-Daten gelöscht werden. Die genaue Vorgehensweise variiert je nach Browser, aber Sie finden diese Option üblicherweise unter den Datenschutz- oder Website-Einstellungen im Bereich "Cookies und Websitedaten" oder "Website-Berechtigungen".</p>
+                        <p style="font-size: 0.9em; color: #666;">
+                            <span style="font-weight: bold;">Tipp:</span> Suchen Sie in den Einstellungen Ihres Browsers nach Stichworten wie "Website-Berechtigungen", "Ausnahmen hinzufügen" oder "Seiten, die immer Cookies verwenden dürfen". Fügen Sie dort die Internet-Adresse Ihrer KomMonitor Instanz hinzu.
+                        </p>
+                        <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">Wir arbeiten daran, Ihre Arbeit zu erleichtern!</p>
+                    
+                        
+                        <hr>
+
+                        <h4 style="margin-top: 20px;">Aktuelle Anzahl Kartenbilder im Cache: {{leafletScreenshotCacheHelperService.indexedDbCount}}  <button *ngIf="leafletScreenshotCacheHelperService.indexedDbCount > 0" class="btn btn-info" (click)="clearScreenshotCache()"><i class="fas fa-trash"></i> &nbsp; &nbsp;leeren und neu generieren</button></h4>
+                        <div *ngIf="leafletScreenshotCacheHelperService.indexedDbCount > 0">                                    
+                            <p style="font-size: 0.9em; color: #666;">
+                                <span style="font-weight: bold;">Tipp:</span> Durch manuelles Leeren des Caches werden alle gespeicherten Kartenbilder verworfen und ein Neugenerieren und -speichern erzwungen. 
+                            </p>
+                        </div>                                
+                        
+                    </div>
+                      
                   </div>
 
                   <!-- not affected by tab changes -->
@@ -195,18 +414,20 @@
                           [ngClass]="{'hiddenPage': !showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}"
                           id="reporting-addIndicator-page-{{iPage}}">
+                          <!-- class "hidden-override" due to [hidden] not beeing effective enough here -->
                           <div *ngFor="let pageElement of page.pageElements"
-                              class="type-{{pageElement.type}}"
-                              id="reporting-addIndicator-page-{{iPage}}-{{pageElement.type}}"
-                              [ngStyle]="{position: 'absolute',
-                                  top: pageElement.dimensions.top,
-                                  left: pageElement.dimensions.left,
-                                  width: pageElement.dimensions.width,
-                                  height: pageElement.dimensions.height,
-                                  'z-index': pageElement.type == 'map' ? 20 : 1,
-                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
-                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
-                                <!--   z-index:  show echarts map above leaflet container, leaflet container gets created dynamically -->
+                            [ngClass]="{'hidden-override': !checkVisibility(pageElement,page)}"
+                            class="type-{{pageElement.type}}"
+                            id="reporting-addIndicator-page-{{iPage}}-{{pageElement.type}}"
+                            [ngStyle]="{position: 'absolute',
+                                top: pageElement.dimensions.top,
+                                left: pageElement.dimensions.left,
+                                width: pageElement.dimensions.width,
+                                height: pageElement.dimensions.height,
+                                'z-index': pageElement.type == 'map' ? 20 : 1,
+                                border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
+                                'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
+                              <!--   z-index:  show echarts map above leaflet container, leaflet container gets created dynamically -->
 
                               <span [hidden]="!(pageElement.isPlaceholder == true)"
                                   [style]="pageElement.css ? pageElement.css : ''"
@@ -299,10 +520,20 @@
                       &nbsp;&nbsp;Zurück zur Übersicht
                   </button>
                   
-                  <button ng-disabled="!validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
+                  <button [disabled]="!validateConfiguration() || ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-success pull-right" (click)='onAddBtnClicked()'>
                       <i class="fa fa-plus"></i>
                       <span [hidden]="!(template.name.includes('-reachability'))">POI-Layer hinzufügen</span>
                       <span [hidden]="!(!template.name.includes('-reachability'))">Indikator hinzufügen</span>
+                  </button>
+
+                  <button [disabled]="true" *ngIf="! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0 "style="margin-right: 15px;" type="button" class="btn btn-info pull-right">
+                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                      <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
+                  </button>
+
+                  <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
+                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                      <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
                   </button>
               </div>
           </div>

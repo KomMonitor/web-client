@@ -27,8 +27,8 @@
                           </div>
                           <div id="collapse{{category.id}}" class="panel-collapse" [ngClass]="{'collapse': i!=0}">
                               <div class="panel-body">
-                                  <div *ngFor="let template of availableTemplates | reportingTemplateFilter:category.id; index as i"
-                                      class="reporting-selectable-template"
+                                  <div *ngFor="let template of availableTemplates | reportingTemplateFilter:category.id; index as ti"
+                                      class="reporting-selectable-template" [ngClass]="{'template-selected': (ti == 0 && i==0) }"
                                       (click)="onTemplateElementClicked($event, template)"
                                       id="collapse{{category.id}}-template{{i}}">
                                           {{template.displayName}}

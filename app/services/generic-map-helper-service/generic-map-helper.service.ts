@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import Draw from 'leaflet-draw';
 
 import 'leaflet-draw';
 
@@ -61,7 +60,7 @@ export class GenericMapHelperService {
  
     var customMarker;
     // todo VectorMarkers
-   /*  var customMarker = L.VectorMarkers.icon({
+  /*  var customMarker = L.VectorMarkers.icon({
       viewBox: '0 0 32 52',
       iconSize: [30 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor],
       iconAnchor: [ 15 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor ],
@@ -74,7 +73,7 @@ export class GenericMapHelperService {
       iconColor: poiSymbolColor,
       extraClasses: this.exchangeData.selectedPOISize.iconClassName
     });
-
+ 
     // special treatment for geocoded results
     if(metadataObject.isGeocodedDataset){
       if (poiFeature.properties["geocoder_geocoderank"] == 2){

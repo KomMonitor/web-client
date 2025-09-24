@@ -5,9 +5,14 @@
 }
 
 .modal-content {
-  width: 80vw;
+  width: 25vw;
+  min-width: 350px;
 
   &.content-small {
     width: 40vw;
+  }
+
+  .modal-body {
+    text-align: center;
   }
 }

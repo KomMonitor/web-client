@@ -30,6 +30,10 @@ body {
 	overflow-y: auto !important;
 }
 
+.kommonitorOrange{
+	color: rgb(247, 147, 30)
+}
+
 /* toastr library override of transparency */
 .toast { opacity: 0.8 }
 
@@ -446,6 +450,10 @@ pre.CodeMirror-line {
     border-width: 1px 0 0 0;
 }
 
+.list-group.list-group-root .list-group-item p {
+  cursor: pointer;
+}
+
 .list-group.list-group-root .glyphicon.glyphicon-custom {
   cursor: pointer;
 }
@@ -487,7 +495,7 @@ pre.CodeMirror-line {
 
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources {
   display: grid;
-  grid-template-columns: min-content min-content auto;
+  grid-template-columns: auto min-content min-content;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources *:first-child{
@@ -1189,12 +1197,39 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	}
 }
 
+#statusButtonContainer {
+	position: absolute;
+	left: 280px;
+	top: 10px;
+	z-index: 3;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+#filterStatusButtonContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	align-items: flex-start;
+}
+
+.btn-purple {
+	background-color: rgb(117,107,177);
+	border-color: rgb(98, 89, 148);
+	color: white !important;
+}
+
+.btn-purple:hover,.btn-purple:active,.btn-purple.hover {
+	background-color: rgb(98, 89, 148);
+}
+
 #header{
 	background: rgb(236,240,245);
 	z-index: 1003;
 	border-bottom: 2px solid gray;
-	max-height: 6vh !important;
-	height: 6vh !important;
+	/* max-height: 6vh !important;
+	height: 6vh !important; */
 }
 
 #map {
@@ -1445,51 +1480,51 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
     top: .2em;
 }
 
-#dateSliderWrapper{
-	position: absolute;
+/*#dateSliderWrapper{
+	 position: absolute;
   bottom: 25px;
   margin-right: auto;
   margin-left: auto;
   left: 100px;
   right: 20px;
 	z-index: 1004;
-	font: 16px/18px Arial, Helvetica, sans-serif;
+	font: 16px/18px Arial, Helvetica, sans-serif; */
 	/* border: 2px solid black;
-  border-radius: 8px; */
-}
+  border-radius: 8px; 
+}*/
 
-#dateSliderWrapper .irs-grid-text{
+/* #dateSliderWrapper .irs-grid-text{
 	color: black;
 	font-size: 16px;
 	margin-top: 3px;
 	padding: 0px 5px;
-	/* font-weight: bold; */
+
 	background-color: white;
   border-radius: 3px;
 	line-height: 20px;
-	/* opacity: 0.8; */
+
 }
 
 #dateSliderWrapper .irs-min{
 	font-size: 16px;
-	/* opacity: 0.8; */
+
 }
 
 #dateSliderWrapper .irs-single{
 	font-size: 16px;
 	background: var(--kommonitor-primary);
-	/* opacity: 0.8; */
-}
+	
+} */
 
 .irs--big .irs-bar {
     border: 1px solid var(--kommonitor-primary);
     background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
 }
 
-#dateSliderWrapper .irs--big .irs-line {
+/* #dateSliderWrapper .irs--big .irs-line {
     border: 1px solid var(--kommonitor-primary);;
     background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
-}
+} */
 
 
 .irs--big .irs-grid-pol {
@@ -3058,10 +3093,11 @@ input:checked + .switchslider:before {
 }
 
 .reporting-element-config-box {
-	height: 150px;
+	height: fit-content;
 	border: solid lightgray 1px;
 	padding:10px;
 	margin-bottom: 15px;
+	z-index: 99999;
 }
 
 .reporting-element-config-box > h5 {
@@ -3256,7 +3292,7 @@ input:checked + .switchslider:before {
 	flex-wrap: wrap;
 	align-items: center;
 	padding: 5px 0px 5px 0px;
-	cursor: pointer;
+	/* cursor: pointer;   */  /* that suggests to the user that the whole reporting row could be clicked in order to be edited, but that is not implemented - only the delete button shall be clickable  */
 }
 
 .reporting-hr-divider {
@@ -3607,6 +3643,67 @@ kommonitor-user-interface .irs {
   font-family: var(--custom-font-family);
   content: var(--custom-font-file);
 }
+
+/* noUi dateslider, one slider */
+.custom-dateSlider .noUi-connects {
+  background-color: var(--kommonitor-primary-80);
+}
+
+/* noUi dateslider, draggable (two sliders) */
+.custom-dateSlider .noUi-connects:has(.noUi-draggable) {
+  background-color: transparent !important;
+
+  .noUi-draggable {
+    background-color: var(--kommonitor-primary-80);
+  }
+}
+
+.custom-dateSlider.noUi-horizontal {
+  height: 12px !important;
+
+  .noUi-handle {
+    height: 20px !important;
+    width: 20px !important;
+    cursor: pointer;
+  }
+
+  .noUi-handle::before {
+    display: none !important;
+  }
+
+  .noUi-pips-horizontal {
+    padding: 0 !important;
+  }
+
+  .noUi-value-horizontal {
+    color: #000;
+    background-color: #fff;
+    padding: .1em .2em;
+    border-radius: .2em;
+  }
+
+  .noUi-tooltip {
+    color: #fff;
+    background-color: var(--kommonitor-primary);
+    padding: .1em .2em;
+    border-radius: .2em;
+  }
+}
+
+.btn-custom.filterActive {
+	border: 5px solid #f39c12;
+	/*background-color: #f39c12;*/
+}
+
+.btn-custom.balanceActive {
+	border: 5px solid #f39c12;
+}
+
+input:checked + .switchsliderOrange {
+	background-color: rgb(247, 147, 30);
+}
+
+
 
 /* Admin Language Switcher Styling */
 .main-header .language-switcher {

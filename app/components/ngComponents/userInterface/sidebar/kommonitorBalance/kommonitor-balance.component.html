@@ -82,28 +82,26 @@
 						<tr>
 							<td class="text-center" >
 								<label class="switch">
-									<input type="checkbox" value="trendConfig_allFeatures.showMinMax" [(ngModel)]="trendConfig_allFeatures.showMinMax"
-									(change)="onChangeTrendConfig()" ng-init="trendConfig_allFeatures.showMinMax = true;" checked>
+									<input type="checkbox" [(ngModel)]="trendConfig_allFeatures.showMinMax" (change)="onChangeTrendConfig()" checked>
 									<span class="switchslider round"></span>
 								</label>
 							</td>
 							<td class="text-center">
 								<label class="switch">
-									<input type="checkbox" value="trendConfig_allFeatures.showCompleteTimeseries" [(ngModel)]="trendConfig_allFeatures.showCompleteTimeseries"
-									(change)="onChangeTrendConfig()" ng-init="trendConfig_allFeatures.showCompleteTimeseries = true;" checked>
+									<input type="checkbox" [(ngModel)]="trendConfig_allFeatures.showCompleteTimeseries" (change)="onChangeTrendConfig()" checked>
 									<span class="switchslider round"></span>
 								</label>
 							</td>
 							<td>				
 								<label class="switch">
-									<input type="checkbox" value="exchangeData.enableBilanceTrend" [(ngModel)]="exchangeData.enableBilanceTrend" (change)="onChangeEnableBilanceTrend()"
+									<input type="checkbox" [(ngModel)]="exchangeData.enableBilanceTrend" (change)="onChangeEnableBilanceTrend()"
 										checked>
 									<span class="switchslider round"></span>
 								</label>
 							</td>
 							<td *ngIf="exchangeData.enableBilanceTrend">
 								<select style="font-size: 12px;"
-									[(ngModel)]="trendConfig_allFeatures.trendComputationType" ng-init="trendConfig_allFeatures.trendComputationType = 'linear'"
+									[(ngModel)]="trendConfig_allFeatures.trendComputationType"
 									(change)="onChangeTrendConfig()" class="form-control" required>
 									<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 									<option value="linear" selected>Linear</option>

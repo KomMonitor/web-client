@@ -217,7 +217,7 @@ function initAngularComponents(){
   appModule.constant('__env', env);
 
   // MathJx directive
-  appModule.directive("mathjaxBind", function () {
+/*   appModule.directive("mathjaxBind", function () {
     return {
       restrict: "EA",
       controller: [
@@ -236,7 +236,7 @@ function initAngularComponents(){
         },
       ],
     };
-  });
+  }); */
 
   // custom unique filter
   appModule.filter('unique', function() {

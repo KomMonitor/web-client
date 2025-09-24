@@ -14,16 +14,16 @@
 			<h3 class="box-title">Auswahl der darzustellenden Indikatoren</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button (click)="indicatorSelect.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 				</button>
 			</div>
 		</div>
-		<div class="box-body">
+		<div class="box-body" #indicatorSelect="ngbCollapse" [(ngbCollapse)]="isIndicatorSelectCollapsed">
 
 			<div *ngIf="diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime">
 
         <input type="checkbox" id="sameUnit" [(ngModel)]="diagramHelperService.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
-				<label class="switch" for="sameUnit">
+				<label class="switch same-unit-label" for="sameUnit">
           <strong>nur gleicher Zeitschnitt</strong>									
         </label>
 
@@ -193,11 +193,11 @@
 						<h3 class="box-title">Indikatorenradar - {{spatialUnitName}}</h3>
 
 						<div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							<button (click)="radarChart.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
 						</div>
 					</div>
-					<div class="box-body">
+					<div class="box-body" #radarChart="ngbCollapse" [(ngbCollapse)]="isRadarChartCollapsed">
 						<div class="chart">
 							<div id="radarDiagram" style="width:100%; min-height:60vh;"></div>
 						</div>

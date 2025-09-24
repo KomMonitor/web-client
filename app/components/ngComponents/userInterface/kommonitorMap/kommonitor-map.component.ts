@@ -11,6 +11,9 @@ import { GenericMapHelperService } from 'services/generic-map-helper-service/gen
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
+//import 'leaflet-groupedlayercontrol';
+
+import '../../../../../customizedExternalLibs/leaflet-groupedLayerControl/leaflet.groupedLayerControl';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -106,7 +109,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   customPropertyName;
 
   currentCustomIndicatorLayer;
-  isochronesLayer = undefined;
+  isochronesLayer:any = undefined;
   isochroneMarkerLayer = undefined;
   
 
@@ -250,7 +253,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.changeNumClasses(values);
         } break;
         case 'replaceIndicatorAsGeoJSON': {
-          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 2000);
+          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 3000);
         } break;
         case 'changeSpatialUnit': {
           this.onChangeSpatialUnit();
@@ -333,6 +336,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'onGlobalFilterChange': {
           this.onGlobalFilterChange();
         } break;
+        case 'openLayerControl': {
+          this.openLayerControl();
+        } break;
+        case 'highlightFeatureOnMap': {
+          this.highlightFeatureOnMap(values);
+        } break;
+        case 'switchHighlightFeatureOnMap': {
+          this.switchHighlightFeatureOnMap(values);
+        } break;
+        case 'unhighlightFeatureOnMap': {
+          this.unhighlightFeatureOnMap(values);
+        } break;
       }
     });
   }
@@ -354,20 +369,40 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.loadingData = true;
 
     let baseLayerDefinitionsMap = new Map();
+    this.exchangeData.baseLayerDefinitionsArray = [{
+      "layerConfig": {
+        name: "leere Karte", 
+        url: "",
+        layerType: "TILE_LAYER", 
+        layerName_WMS: "", 
+        attribution_html: "", 
+        minZoomLevel: window.__env.minZoomLevel, 
+        maxZoomLevel: window.__env.maxZoomLevel 
+      }
+    }];
 
     for (let baseMapEntry of window.__env.baseLayers) {              
       
       if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE"){
         let grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
-        baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
+        baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer); 
+        this.dataExchangeService.pipedData.baseLayerDefinitionsArray.push({
+          "layerConfig": baseMapEntry
+        });
       }
       else if (baseMapEntry.layerType === "TILE_LAYER"){
         let tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
         baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
+        this.dataExchangeService.pipedData.baseLayerDefinitionsArray.push({
+          "layerConfig": baseMapEntry
+        });
       }
       else if (baseMapEntry.layerType === "WMS"){
         let wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
         baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
+        this.dataExchangeService.pipedData.baseLayerDefinitionsArray.push({
+          "layerConfig": baseMapEntry
+        });
       }
     }
 
@@ -441,20 +476,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     };
     
-    // todo see old version
-    //this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
-    
-    this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);
+    this.layerControl = L.control.groupedLayers(this.baseMaps, groupedOverlays, {collapsed: false, position: 'topleft', layers: this.sortableLayers });
+
+    //backup ico groupedLayers not working properly
+    //this.layerControl = L.control.layers(this.baseMaps, [], {position: 'topleft'}).addTo(this.map);  
+
+    delete this.layerControl._groupList;
+    this.layerControl._groupList = ["","Raumebene Umringe", "Indikatoren"];
+
     this.map.addControl(this.layerControl);
 
     // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
-   /*  $('.leaflet-control-layers').hide();
-    this.$on("openLayerControl", function (event) {
-      $('.leaflet-control-layers').toggle();
-    }); */
-
+    $('.leaflet-control-layers').hide();
+    
     // Disable dragging when user's cursor enters the element
-   /*  this.layerControl.getContainer().addEventListener('mouseover', () => {
+    this.layerControl.getContainer().addEventListener('mouseover', () => {
       this.map.dragging.disable();
       this.map.touchZoom.disable();
       this.map.doubleClickZoom.disable();
@@ -467,7 +503,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.map.touchZoom.enable();
       this.map.doubleClickZoom.enable();
       this.map.scrollWheelZoom.enable();
-    }); */
+    });
 
     this.scaleBar = L.control.scale({position: 'bottomleft'});
     this.scaleBar.addTo(this.map);
@@ -566,7 +602,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.layerControl._layers = this.layerControl._layers.filter(e => e.overlay===undefined);
   }
 
-
+  openLayerControl() {
+    $('.leaflet-control-layers').toggle();
+  }
 
  /*  MultipleResultsLeafletSearch = L.Control.Search.extend({
 
@@ -764,12 +802,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let node = document.getElementById("ngMap");
 
     return domtoimage
-        .toBlob(node, {"quality": 1.0, filter: this.filterForScreenshot})
-        .then( (blob) => {
+        .toBlob(node, {
+          "quality": 1.0, 
+          filter: this.filterForScreenshot,
+          width: this.map.getSize().x,
+          height: this.map.getSize().y
+        }).then( (blob) => {
           // FileSaver saveAs method
           saveAs(blob, 'KomMonitor-Screenshot.png');
-        })
-        .catch( (error) => {
+        }).catch( (error) => {
           console.log("Error while exporting map view.");
           console.error(error);
 
@@ -1404,26 +1445,27 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     layer.bindTooltip(tooltipHtml, {
       sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
     });
+
     layer.on({
-      mouseover: this.highlightFeature,
-      mouseout: this.resetHighlight,
-      click: this.switchHighlightFeature
+      mouseover: (l) => this.highlightFeature(l),
+      mouseout: (l) => this.resetHighlight(l),
+      click: (l) => this.switchHighlightFeature(l)
     });
   }
 
   switchHighlightFeature(layer) {
-    
+
     // add or remove feature within a list of "clicked features"
     // those shall be treated specially, i.e. keep being highlighted
-    if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-      this.filterHelperService.addFeatureToSelection(layer.feature);
-      this.highlightClickedFeature(layer);
+    if (!this.filterHelperService.featureIsCurrentlySelected(layer.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+      this.filterHelperService.addFeatureToSelection(layer.target.feature);
+      this.highlightClickedFeature(layer.target);
     }
 
     else {
       //remove from array
-      this.filterHelperService.removeFeatureFromSelection(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
-      this.resetHighlightClickedFeature(layer);
+      this.filterHelperService.removeFeatureFromSelection(layer.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+      this.resetHighlightClickedFeature(layer.target);
     }
   }
 /*
@@ -2170,6 +2212,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   });
   */
   highlightFeature(e) {
+
     let layer = e.target;
     this.visualStyleHelperService.setOpacity(layer.options.fillOpacity);
 
@@ -2181,9 +2224,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setTemporarilyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    // todo
-    // $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-
+    this.broadcastService.broadcast("updateDiagramsForHoveredFeature", [layer.feature.properties]);
   }
 
   highlightClickedFeature(layer) {
@@ -2191,8 +2232,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setPermanentlyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    // todo
-    // $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+    this.broadcastService.broadcast("updateDiagramsForHoveredFeature", [layer.feature.properties]);
   }
 
   setPermanentlyHighlightedStyle(layer) {
@@ -2213,8 +2253,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // also bring possible isochrone layer to front
       // so it will not disapper behing indicator layer
       if (this.isochronesLayer) {
-        // todo
-        // this.isochronesLayer.bringToFront();
+        this.isochronesLayer.bringToFront();
       }
     }
   }
@@ -2238,7 +2277,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // so it will not disapper behing indicator layer
       if (this.isochronesLayer) {
         // todo
-        // this.isochronesLayer.bringToFront();
+        this.isochronesLayer.bringToFront();
       }
     }
   }
@@ -2298,8 +2337,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     //update diagrams for unhoveredFeature
-    // todo
-    // $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
+    this.broadcastService.broadcast("updateDiagramsForUnhoveredFeature", [layer.feature.properties]);
   }
  
   resetHighlightClickedFeature(layer) {
@@ -2598,10 +2636,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.exchangeData.classifyZeroSeparately_backup = undefined;
     }
   }
-/*
-  // hier
-  // data-setup -> initMetadatLoadingComplete -> onChangeSelectedIndicator -> modifyExports -> addSelectedIndicatorToMap -> mapModule -> broadcast: replaceIndicatorAsGeoJSON 
-  */
 
   onReplaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
 
@@ -2646,6 +2680,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     console.log("Remove old indicatorLayer if exists");
     if (this.currentIndicatorLayer) {
+      // todo "removeLayer" expects key "layer" on each "_layer" elem in currentIndicatorLayer. This may be introduced by the groupedLayer, check
       this.layerControl.removeLayer(this.currentIndicatorLayer);
       this.map.removeLayer(this.currentIndicatorLayer);
     }
@@ -2743,7 +2778,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           }
           return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
         },
-        onEachFeature: this.onEachFeatureIndicator
+        onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
       });
 
       // this.makeMeasureOfValueLegend(isCustomComputation);
@@ -2801,7 +2836,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             }
             return this.visualStyleHelperService.styleDefault(feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
           },
-          onEachFeature: this.onEachFeatureIndicator
+          onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l) }
         });
         // this.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, this.datasetContainsNegativeValues, isCustomComputation);
       }
@@ -2829,7 +2864,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             }
             return this.visualStyleHelperService.styleDynamicIndicator(feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, true);
           },
-          onEachFeature: this.onEachFeatureIndicator
+          onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
         });
         // this.makeDynamicIndicatorLegend(isCustomComputation);
       }
@@ -2869,7 +2904,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           }
           return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
         },
-        onEachFeature: this.onEachFeatureIndicator
+        onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
       });
     }
 
@@ -3239,70 +3274,64 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.visualStyleHelperService.manualMOVBreaks[0] = ltBreaks;
     this.visualStyleHelperService.manualMOVBreaks[1] = gtBreaks;
   }
-/*
-  $scope.$on("highlightFeatureOnMap", function (event, spatialFeatureName) {
+
+  highlightFeatureOnMap([spatialFeatureName]) {
 
     // console.log("highlight feature on map for featureName " + spatialFeatureName);
 
     if(!spatialFeatureName){
       return;
     }
-    done = false;
+    let done = false;
 
-    $scope.map.eachLayer(function (layer) {
+    this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
         if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
-          highlightFeatureForLayer(layer);
+          this.highlightFeatureForLayer(layer);
           done = true;
         }
       }
-
     });
+  }
 
-  });
-
-  $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
+  unhighlightFeatureOnMap ([spatialFeatureName]) {
     if(!spatialFeatureName){
       return;
     }
 
     // console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
-    done = false;
+    let done = false;
 
-    $scope.map.eachLayer(function (layer) {
+    this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
         if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
-          resetHighlightForLayer(layer);
+          this.resetHighlightForLayer(layer);
           done = true;
         }
       }
-
     });
+  }
 
-  });
-
-  $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
+  switchHighlightFeatureOnMap(spatialFeatureName) {
     if(!spatialFeatureName){
       return;
     }
 
     // console.log("switch highlight feature on map for featureName " + spatialFeatureName);
 
-    done = false;
+    let done = false;
 
-    $scope.map.eachLayer(function (layer) {
+    this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
         if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
-          switchHighlightFeature(layer);
+          this.switchHighlightFeature(layer);
           done = true;
         }
       }
-
     });
-
-  });
-  */
+  }
+ 
   unselectAllFeatures() {
 
     this.filterHelperService.clearSelectedFeatures();

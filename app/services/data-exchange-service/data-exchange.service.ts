@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import jsPDF from 'jspdf';
 
 export interface DataExchange {
   customGreetingsContact_mail: string;
@@ -93,6 +94,10 @@ export interface DataExchange {
   adminPassword;
   adminIsLoggedIn;
   loginInfoText:any;
+  wmsDatasets:any;
+  spatialFilterIsApplied:any;
+  rangeFilterIsApplied:any;
+  baseLayerDefinitionsArray: any[];
 }
 
 export interface KeycloakUser {
@@ -129,6 +134,10 @@ export interface Indicator {
   metadata: {
     updateInterval: any;
     description: string;
+    databasis: any;
+    datasource: any;
+    contact: any;
+    note: any;
   }
   unit: any;
   indicatorType: any;
@@ -143,6 +152,7 @@ export interface Indicator {
   ogcServices: any;
   applicableDates: any;
   creationType: any;
+  processDescription:any;
 }
 
 @Injectable({
@@ -195,8 +205,8 @@ export class DataExchangeService {
     this.ajskommonitorDataExchangeServiceeProvider.generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions);
   }
 
-  generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave) {	
-    this.ajskommonitorDataExchangeServiceeProvider.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave);
+  async generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave) {	
+    return await this.ajskommonitorDataExchangeServiceeProvider.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, autosave);
   }
 
   getIndicatorValue_asFormattedText(indicatorValue:any, precision=undefined) {
@@ -326,5 +336,9 @@ export class DataExchangeService {
 
   getIndicatorValue_asFixedPrecisionNumber(cartographicFeature,precision) {
     return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature,precision);
+  }
+
+  getIndicatorAbbreviationFromIndicatorId(id:any) {
+    return this.ajskommonitorDataExchangeServiceeProvider.getIndicatorAbbreviationFromIndicatorId(id);
   }
 }

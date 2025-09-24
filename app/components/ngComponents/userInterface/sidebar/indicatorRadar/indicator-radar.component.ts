@@ -14,6 +14,9 @@ export class IndicatorRadarComponent implements OnInit {
 
   
   activeTab = 0;
+
+  isRadarChartCollapsed = false;
+  isIndicatorSelectCollapsed = false;
   
   date;
   spatialUnitName;
@@ -81,7 +84,7 @@ export class IndicatorRadarComponent implements OnInit {
           this.onUpdateDiagramsForHoveredFeature(val);
         } break;
         case 'updateDiagramsForUnhoveredFeature': {
-          this.onUpdateDiagramsForHoveredFeature(val);
+          this.onUpdateDiagramsForUnhoveredFeature(val);
         } break;
       }
     });
@@ -252,8 +255,9 @@ export class IndicatorRadarComponent implements OnInit {
           // 	this.radarChart.dispose();
           // 	this.radarChart = echarts.init(document.getElementById('radarDiagram'));
           // }
-          //get custom fontFamilyAdd commentMore actions
 
+
+          //get custom fontFamilyAdd 
           var elem:any = document.querySelector('#fontFamily-reference');
           var style = getComputedStyle(elem);
 
@@ -396,6 +400,7 @@ export class IndicatorRadarComponent implements OnInit {
                       ]
                   }]
           };
+
           // check if any feature is still clicked/selected
           // then append those as series within radar chart
           this.appendSelectedFeaturesIfNecessary(sampleProperties);
@@ -409,6 +414,7 @@ export class IndicatorRadarComponent implements OnInit {
       }
       
     },1000);
+
   };
 
   appendSelectedFeaturesIfNecessary(sampleProperties) {
@@ -450,7 +456,8 @@ export class IndicatorRadarComponent implements OnInit {
       }
   }
 
-  onUpdateDiagramsForHoveredFeature(featureProperties) {
+  onUpdateDiagramsForHoveredFeature([featureProperties]) {
+
       if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
           return;
       }
@@ -520,7 +527,7 @@ export class IndicatorRadarComponent implements OnInit {
       }
   }
 
-  onUpdateDiagramsForUnhoveredFeature(featureProperties) {
+  onUpdateDiagramsForUnhoveredFeature([featureProperties]) {
       if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
           return;
       }
