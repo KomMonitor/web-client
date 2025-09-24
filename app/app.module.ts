@@ -86,7 +86,6 @@ import { AdminControlsConfigComponent } from './components/ngComponents/admin/ad
 import { AdminRoleExplanationComponent } from './components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminDashboardManagementComponent } from './components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
 
-import { MathjaxModule } from "mathjax-angular";
 import { AdminSpatialUnitsManagementComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
 import { SpatialUnitAddModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
@@ -110,6 +109,8 @@ import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin
 import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
 
 import { ColorSketchModule } from 'ngx-color/sketch';
+
+import { MathjaxModule } from "mathjax-angular";
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -136,7 +137,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     NgbCollapseModule,
     DragDropModule,
     DualListBoxComponent,
-    MathjaxModule.forRoot(),
     AgGridAngular,
     ColorSketchModule,
     KmDatePickerComponent,
@@ -149,7 +149,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       }
-    })
+    }),
+    MathjaxModule.forRoot()
   ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
