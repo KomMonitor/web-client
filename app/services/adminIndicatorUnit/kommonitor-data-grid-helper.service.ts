@@ -135,6 +135,16 @@ export class KommonitorIndicatorDataGridHelperService {
   buildDataGridColumnConfig_indicators(indicatorMetadataArray: any[]): ColDef[] {
     const columnDefs: ColDef[] = [
       { 
+        headerName: '', 
+        checkboxSelection: true, 
+        headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true,
+        pinned: 'left', 
+        maxWidth: 50, 
+        sortable: false,
+        filter: false
+      },
+      { 
         headerName: 'Editierfunktionen', 
         pinned: 'left', 
         maxWidth: 150, 

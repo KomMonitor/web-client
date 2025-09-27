@@ -266,18 +266,37 @@ export class KommonitorIndicatorDataExchangeService {
    * Get indicator unit options
    */
   get indicatorUnitOptions(): any[] {
-    // Provide simple string list as expected by templates (Angular and AngularJS)
-    return [
-      'Prozent',
+    // Source base list from environment (aligns with legacy AngularJS behavior)
+    const envUnits = Array.isArray(this.env?.indicatorUnitOptions) ? this.env.indicatorUnitOptions : [];
+
+    // Derive additional units present in loaded indicators to avoid missing values
+    const indicatorUnits = (this.availableIndicators || [])
+      .map(i => i?.unit)
+      .filter(u => typeof u === 'string' && u.trim().length > 0) as string[];
+
+    // Merge and normalize
+    const merged = new Set<string>([...envUnits, ...indicatorUnits]);
+
+    // If merged is empty, fall back to a sensible default list
+    const base = merged.size > 0 ? Array.from(merged) : [
       'Anzahl',
-      'Verhältnis',
-      'Index',
-      'Punkte',
-      'km²',
+      'Anteil',
+      'Prozent',
+      'Einwohner',
+      'm',
       'm²',
       'km',
-      'm'
+      'km²',
+      'ha',
+      'dimensionslos',
+      'standardisiert',
+      'z-transformierte Werte',
+      'Verhältnis',
+      'Index',
+      'Punkte'
     ];
+
+    return base.sort((a, b) => String(a).localeCompare(String(b), 'de'));
   }
 
   /**

@@ -223,9 +223,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       else if (data.msg === 'refreshIndicatorOverviewTable') {
         this.zone.run(() => {
           this.loadingData = true;
-          // Extract crudType and targetIndicatorId from the broadcast data
-          const crudType = (data as any).crudType;
-          const targetIndicatorId = (data as any).targetIndicatorId;
+          // Extract from BroadcastService signature { msg, values }, but keep fallback for legacy shapes
+          const values: any = (data as any).values || {};
+          const crudType = values.crudType !== undefined ? values.crudType : (data as any).crudType;
+          const targetIndicatorId = values.targetIndicatorId !== undefined ? values.targetIndicatorId : (data as any).targetIndicatorId;
           this.refreshIndicatorOverviewTable(crudType, targetIndicatorId);
         });
       }
@@ -288,6 +289,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         flex: 1,
         minWidth: 200,
         filter: true,
+        floatingFilter: true,
         resizable: true,
         wrapText: true,
         autoHeight: true,
@@ -323,7 +325,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       paginationPageSize: 10,
       suppressColumnVirtualisation: true,
       rowSelection: 'multiple',
-      suppressRowClickSelection: true,
+      suppressRowClickSelection: false,
+      rowMultiSelectWithClick: true,
       onGridReady: (params: GridReadyEvent) => {
         this.onGridReady(params);
       },
@@ -394,6 +397,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onSelectionChanged(event: SelectionChangedEvent): void {
     this.selectedRows = event.api.getSelectedRows();
+    try {
+      const ids = this.selectedRows.map((r: any) => r.indicatorId);
+      console.log('[AdminIndicators] onSelectionChanged - selected count:', this.selectedRows.length, 'ids:', ids);
+    } catch {}
   }
 
   private registerClickHandler_indicators(): void {
@@ -413,6 +420,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     gridContainer.off('click', '.indicatorEditFeaturesBtn');
     gridContainer.off('click', '.indicatorEditRoleBasedAccessBtn');
 
+    console.log('[AdminIndicators] Binding grid button click handlers');
+
     // Edit Metadata Button - use event delegation
     gridContainer.on('click', '.indicatorEditMetadataBtn', (event: any) => {
       event.stopPropagation();
@@ -423,6 +432,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       
       if (button && button.id) {
         const indicatorId = button.id.split('_')[3];
+        console.log('[AdminIndicators] EditMetadata clicked for indicatorId:', indicatorId);
         
         const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
         
@@ -447,6 +457,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       const button = $(event.target).closest('.indicatorEditFeaturesBtn')[0];
       
       const indicatorId = button.id.split('_')[3];
+      console.log('[AdminIndicators] EditFeatures clicked for indicatorId:', indicatorId);
       const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
       
       if (indicatorMetadata) {
@@ -464,6 +475,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       // Get the button element (could be the icon inside)
       const button = $(event.target).closest('.indicatorEditRoleBasedAccessBtn')[0];
       const indicatorId = button.id.split('_')[3];
+      console.log('[AdminIndicators] EditRoleBasedAccess clicked for indicatorId:', indicatorId);
       const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
       
       if (indicatorMetadata) {
@@ -601,16 +613,17 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickDeleteIndicators(indicatorsMetadata: any[]): void {
-    if (indicatorsMetadata.length === 1) {
-      // Open the Angular delete modal for single indicator
+    if (indicatorsMetadata && indicatorsMetadata.length > 0) {
+      try {
+        const ids = indicatorsMetadata.map((m: any) => m.indicatorId);
+        console.log('[AdminIndicators] onClickDeleteIndicators - will open modal for first of:', ids);
+      } catch {}
       this.openDeleteIndicatorModal(indicatorsMetadata[0]);
-    } else {
-      // For multiple indicators, we might need to handle differently
-      // For now, just open the modal with the first indicator
     }
   }
 
   openDeleteIndicatorModal(indicatorDataset: any): void {
+    console.log('[AdminIndicators] Opening IndicatorDeleteModal with dataset:', indicatorDataset?.indicatorId, indicatorDataset?.indicatorName);
     const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
       // omit size to avoid Bootstrap max-width caps like modal-lg
       backdrop: true,
@@ -653,8 +666,24 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   onClickDeleteSelected(): void {
-    const selectedIndicators = this.getSelectedIndicatorsMetadata();
-    if (selectedIndicators.length > 0) {
+    // Read current selection directly from grid API to avoid timing issues
+    let selectedIndicators = (this.agGrid && this.agGrid.api) ? this.agGrid.api.getSelectedRows() : this.getSelectedIndicatorsMetadata();
+    try {
+      const ids = selectedIndicators.map((r: any) => r.indicatorId);
+      console.log('[AdminIndicators] DeleteSelected clicked - selected count:', selectedIndicators.length, 'ids:', ids);
+    } catch {}
+    // Fallback to focused row if nothing is selected
+    if ((!selectedIndicators || selectedIndicators.length === 0) && this.agGrid && this.agGrid.api) {
+      const focusedCell = this.agGrid.api.getFocusedCell();
+      if (focusedCell) {
+        const node = this.agGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex);
+        if (node && node.data) {
+          selectedIndicators = [node.data];
+          console.log('[AdminIndicators] Fallback to focused row:', node.data.indicatorId);
+        }
+      }
+    }
+    if (selectedIndicators && selectedIndicators.length > 0) {
       this.onClickDeleteIndicators(selectedIndicators);
     } else {
       // Show message that no indicators are selected

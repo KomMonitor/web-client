@@ -348,7 +348,7 @@
                 <select [(ngModel)]="selectedTopic" name="selectedTopic" (ngModelChange)="onTopicChange()"
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Thema wählen --</option>
-                  <option *ngFor="let topic of availableTopics" [ngValue]="topic">
+                  <option *ngFor="let topic of getMainIndicatorTopics()" [ngValue]="topic">
                     {{topic.topicName}}
                   </option>
                 </select>
@@ -412,7 +412,7 @@
                 <label>Zusätzliches Thema</label>
                 <select [(ngModel)]="additionalTopic" name="additionalTopic" (ngModelChange)="onAdditionalTopicChange()" class="form-control">
                   <option [ngValue]="null" selected>-- Zusätzliches Thema wählen --</option>
-                  <option *ngFor="let topic of availableTopics" [ngValue]="topic">
+                  <option *ngFor="let topic of getMainIndicatorTopics()" [ngValue]="topic">
                     {{topic.topicName}}
                   </option>
                 </select>

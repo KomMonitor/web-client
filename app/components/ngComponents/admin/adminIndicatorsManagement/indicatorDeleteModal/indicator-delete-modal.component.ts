@@ -99,6 +99,11 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.resetIndicatorsDeleteForm();
+    // If a dataset was provided by the opener, initialize dependent state
+    if (this.selectedIndicatorDataset) {
+      console.log('[IndicatorDeleteModal] Init with preselected dataset:', this.selectedIndicatorDataset?.indicatorId, this.selectedIndicatorDataset?.indicatorName);
+      this.onChangeSelectedIndicator();
+    }
   }
 
   ngOnDestroy(): void {
@@ -122,8 +127,10 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   }
 
   onChangeSelectedIndicator(): void {
+    console.log('[IndicatorDeleteModal] onChangeSelectedIndicator called');
     if (this.selectedIndicatorDataset) {
       this.currentIndicatorId = this.selectedIndicatorDataset.indicatorId;
+      console.log('[IndicatorDeleteModal] Current indicator set:', this.currentIndicatorId);
       
       this.successfullyDeletedDatasets = [];
       this.successfullyDeletedTimestamps = [];
@@ -155,11 +162,11 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       this.affectedScripts = this.gatherAffectedScripts();
       this.affectedIndicatorReferences = this.gatherAffectedIndicatorReferences();
       this.affectedGeoresourceReferences = this.gatherAffectedGeoresourceReferences();
+      console.log('[IndicatorDeleteModal] Computed counts - dates:', this.currentApplicableDates.length, 'spatialUnits:', this.currentApplicableSpatialUnits.length);
     }
   }
 
   resetIndicatorsDeleteForm(): void {
-    this.selectedIndicatorDataset = undefined;
     this.currentApplicableDates = [];
     this.selectIndicatorTimestampsInput = false;
     this.currentApplicableSpatialUnits = [];
@@ -249,6 +256,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   }
 
   deleteIndicatorData(): void {
+    console.log('[IndicatorDeleteModal] deleteIndicatorData clicked - type:', this.indicatorDeleteType?.apiName);
     this.loadingData = true;
 
     this.successfullyDeletedDatasets = [];
@@ -261,12 +269,15 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     // Depending on deleteType we must execute different DELETE requests
     if (this.indicatorDeleteType.apiName === "indicatorDataset") {
       // Delete complete dataset
+      console.log('[IndicatorDeleteModal] Deleting whole dataset');
       this.deleteWholeIndicatorDataset();
     } else if (this.indicatorDeleteType.apiName === "indicatorTimestamp") {
       // Delete all selected timestamps from indicator
+      console.log('[IndicatorDeleteModal] Deleting selected timestamps');
       this.deleteSelectedIndicatorTimestamps();
     } else if (this.indicatorDeleteType.apiName === "indicatorSpatialUnit") {
       // Delete all selected spatial units from indicator
+      console.log('[IndicatorDeleteModal] Deleting selected spatial units');
       this.deleteSelectedIndicatorSpatialUnits();
     }
   }
