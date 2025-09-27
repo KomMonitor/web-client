@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy, OnInit, NgZone, ViewChild } from '@angula
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, ColDef, GridApi, ColumnApi, FirstDataRenderedEvent, ColumnResizedEvent, RowClickedEvent } from 'ag-grid-community';
+import { GridOptions, ColDef, GridApi, ColumnApi, FirstDataRenderedEvent, ColumnResizedEvent, RowClickedEvent, GridReadyEvent } from 'ag-grid-community';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -200,6 +200,11 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
         console.log('[RoleMgmt] Removed invalid gridOptions.floatingFilter');
       }
     } catch {}
+  }
+  public onGridReady(event: GridReadyEvent): void {
+    try { console.log('[RoleMgmt] onGridReady (template)'); } catch {}
+    this.gridApi = event.api;
+    this.columnApi = event.columnApi;
   }
 
   private buildAccessControlColumnDefs(): ColDef[] {
@@ -475,37 +480,82 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickDeleteDatasets(): void {
-    this.loadingData = true;
     try { console.log('[RoleMgmt] Delete clicked'); } catch {}
     let selectedDatasets: any[] = [];
-    if (this.gridApi) {
-      const selectedNodes = this.gridApi.getSelectedNodes();
-      try { console.log('[RoleMgmt] Selected nodes', selectedNodes.length); } catch {}
-      selectedDatasets = selectedNodes.map(node => node.data);
-      // If nothing is selected, try to use the focused row
-      if ((!selectedDatasets || selectedDatasets.length === 0)) {
-        const focused = this.gridApi.getFocusedCell();
-        try { console.log('[RoleMgmt] Focused cell', focused); } catch {}
-        if (focused && typeof focused.rowIndex === 'number') {
-          const rowNode = this.gridApi.getDisplayedRowAtIndex(focused.rowIndex);
-          if (rowNode && rowNode.data) {
-            selectedDatasets = [rowNode.data];
+    try {
+      if (this.gridApi) {
+        const byRows = (this.gridApi as any).getSelectedRows ? (this.gridApi as any).getSelectedRows() : [];
+        if (byRows && byRows.length > 0) {
+          selectedDatasets = byRows;
+          try { console.log('[RoleMgmt] Selected rows', byRows.length); } catch {}
+        } else {
+          const selectedNodes = this.gridApi.getSelectedNodes ? this.gridApi.getSelectedNodes() : [];
+          try { console.log('[RoleMgmt] Selected nodes', selectedNodes.length); } catch {}
+          selectedDatasets = (selectedNodes || []).map((node: any) => node.data).filter(Boolean);
+        }
+        // If nothing is selected, try to use the focused row
+        if ((!selectedDatasets || selectedDatasets.length === 0)) {
+          const focused = this.gridApi.getFocusedCell && this.gridApi.getFocusedCell();
+          try { console.log('[RoleMgmt] Focused cell', focused); } catch {}
+          if (focused && typeof focused.rowIndex === 'number') {
+            const rowNode = this.gridApi.getDisplayedRowAtIndex && this.gridApi.getDisplayedRowAtIndex(focused.rowIndex);
+            if (rowNode && rowNode.data) {
+              selectedDatasets = [rowNode.data];
+            }
           }
         }
+        // As another fallback, scan nodes for isSelected
+        if ((!selectedDatasets || selectedDatasets.length === 0) && (this.gridApi as any).forEachNode) {
+          const tmp: any[] = [];
+          (this.gridApi as any).forEachNode((node: any) => { if (node && node.isSelected && node.isSelected()) { tmp.push(node.data); } });
+          if (tmp.length > 0) { selectedDatasets = tmp; }
+        }
+        // Final fallback: read from DOM selected rows and map back by displayed index
+        if ((!selectedDatasets || selectedDatasets.length === 0)) {
+          try {
+            const host = document.getElementById('accessControlOverviewTable');
+            if (host) {
+              const selectedRowEls = host.querySelectorAll('.ag-row.ag-row-selected, .ag-row[aria-selected="true"]');
+              const domSelected: any[] = [];
+              selectedRowEls.forEach((el: Element) => {
+                const asAny = el as any;
+                const rowIndexAttr = (asAny.getAttribute && (asAny.getAttribute('row-index') || asAny.getAttribute('row-id') || asAny.getAttribute('data-row-index'))) || null;
+                const idx = rowIndexAttr !== null ? parseInt(rowIndexAttr, 10) : NaN;
+                if (!Number.isNaN(idx) && (this.gridApi as any).getDisplayedRowAtIndex) {
+                  const rowNode = (this.gridApi as any).getDisplayedRowAtIndex(idx);
+                  if (rowNode && rowNode.data) {
+                    domSelected.push(rowNode.data);
+                  }
+                }
+              });
+              if (domSelected.length > 0) {
+                selectedDatasets = domSelected;
+                try { console.log('[RoleMgmt] DOM-based selected rows', domSelected.length); } catch {}
+              }
+            }
+          } catch {}
+        }
       }
-    }
+    } catch {}
     // Fallback: if no selection was registered, but a row was clicked, use it
     if ((!selectedDatasets || selectedDatasets.length === 0) && this.lastClickedRowData) {
       try { console.log('[RoleMgmt] Using last clicked row fallback'); } catch {}
       selectedDatasets = [this.lastClickedRowData];
     }
-    if (!selectedDatasets || selectedDatasets.length === 0) {
-      try { console.warn('[RoleMgmt] No dataset resolved for deletion'); } catch {}
-    } else {
+    // Normalize to full access control records
+    if (selectedDatasets && selectedDatasets.length > 0) {
       try {
-        console.log('[RoleMgmt] Datasets to delete', selectedDatasets.map(d => `${d?.name} (${d?.organizationalUnitId})`));
+        selectedDatasets = (selectedDatasets || [])
+          .map((d: any) => d && d.organizationalUnitId ? (this.kommonitorDataExchangeService.getAccessControlById(d.organizationalUnitId) || d) : d)
+          .filter(Boolean);
+        console.log('[RoleMgmt] Normalized datasets to access control records', selectedDatasets.length);
       } catch {}
     }
+
+    // Always open modal, even with zero selection (legacy behavior shows empty message in modal)
+    try {
+      console.log('[RoleMgmt] Datasets to delete', (selectedDatasets || []).map(d => `${d?.name} (${d?.organizationalUnitId})`));
+    } catch {}
     const modalRef = this.modalService.open(RoleDeleteModalComponent, {
       backdrop: true,
       keyboard: false,
@@ -515,19 +565,20 @@ export class AdminRoleManagementComponent implements OnInit, OnDestroy {
       windowClass: 'role-add-modal-window'
     });
     try { console.log('[RoleMgmt] Opened RoleDeleteModalComponent'); } catch {}
-    // Initialize modal directly with datasets
-    if (modalRef.componentInstance && typeof modalRef.componentInstance.onDeleteOrganizationalUnit === 'function') {
-      setTimeout(() => {
-        try { console.log('[RoleMgmt] Passing datasets to modal', selectedDatasets?.length || 0); } catch {}
-        modalRef.componentInstance.onDeleteOrganizationalUnit(selectedDatasets);
-      }, 0);
-    } else {
-      try { console.warn('[RoleMgmt] Modal missing onDeleteOrganizationalUnit hook'); } catch {}
+    // Pass datasets via input and also call the initializer for compatibility
+    if ((modalRef as any).componentInstance) {
+      (modalRef as any).componentInstance.initialDatasets = selectedDatasets || [];
+      if (typeof (modalRef as any).componentInstance.onDeleteOrganizationalUnit === 'function') {
+        setTimeout(() => {
+          try { console.log('[RoleMgmt] Passing datasets to modal', selectedDatasets?.length || 0); } catch {}
+          (modalRef as any).componentInstance.onDeleteOrganizationalUnit(selectedDatasets || []);
+        }, 0);
+      }
     }
     modalRef.result.then(() => {
       this.initializeOrRefreshOverviewTable();
     }).catch(() => {});
-    this.loadingData = false;
+    try { console.log('[RoleMgmt] Modal opened and datasets passed, leaving loadingData unchanged'); } catch {}
   }
 
   public onClickCreateRole(): void {

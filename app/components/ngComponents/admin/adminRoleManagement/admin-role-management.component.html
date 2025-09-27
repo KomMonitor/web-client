@@ -72,6 +72,7 @@
                 [enableCellTextSelection]="true"
                 [ensureDomOrder]="true"
                 [suppressColumnVirtualisation]="true"
+                (gridReady)="onGridReady($event)"
                 (rowClicked)="onRowClicked($event)"
                 (firstDataRendered)="onFirstDataRendered($event)"
                 (columnResized)="onColumnResized($event)">
