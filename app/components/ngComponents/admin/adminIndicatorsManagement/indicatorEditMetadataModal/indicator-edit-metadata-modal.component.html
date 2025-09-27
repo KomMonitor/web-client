@@ -277,12 +277,13 @@
         <div class="col-md-3 col-sm-6 col-xs-12">
       <div class="form-group">
             <label>Datum der letzten Aktualisierung*</label>
-            <div class="input-group date">
-              <div class="input-group-addon">
-                <i class="far fa-calendar-alt"></i>
-              </div>
-              <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadata.lastUpdate" class="form-control pull-right" placeholder="YYYY-MM-DD" id="indicatorEditLastUpdateDatepicker" required>
-            </div>
+            <km-date-picker
+              [(ngModel)]="metadata.lastUpdate"
+              name="metadata.lastUpdate"
+              placeholder="YYYY-MM-DD"
+              ariaLabel="Datum der letzten Aktualisierung"
+              [required]="true"
+            ></km-date-picker>
             <div class="help-block with-errors"></div>
       </div>
       </div>

@@ -516,11 +516,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   // Modal event handlers
   onClickAddIndicator(): void {
     const modalRef = this.modalService.open(IndicatorAddModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'indicator-add-modal',
+      windowClass: 'indicator-add-modal-window'
     });
 
     modalRef.result.then((result) => {
@@ -534,11 +536,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditMetadata(indicatorMetadata: any): void {
     const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'indicator-edit-metadata-modal',
+      windowClass: 'indicator-edit-metadata-modal-window'
     });
     
     modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
@@ -554,11 +558,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditFeatures(indicatorMetadata: any): void {
     const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'indicator-edit-features-modal',
+      windowClass: 'indicator-edit-features-modal-window'
     });
     
     modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
@@ -574,11 +580,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
     const modalRef = this.modalService.open(IndicatorEditIndicatorSpatialUnitRolesModalComponent, {
-      size: 'xl',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'indicator-edit-roles-modal',
+      windowClass: 'indicator-edit-roles-modal-window'
     });
     
     modalRef.componentInstance.currentIndicatorDataset = indicatorMetadata;
@@ -604,11 +612,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   openDeleteIndicatorModal(indicatorDataset: any): void {
     const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'indicator-delete-modal',
+      windowClass: 'indicator-delete-modal-window'
     });
 
     modalRef.componentInstance.selectedIndicatorDataset = indicatorDataset;
@@ -624,11 +634,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickBatchUpdate(): void {
     const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      // omit size to avoid Bootstrap max-width caps like modal-lg
+      backdrop: true,
       keyboard: false,
       container: 'body',
-      animation: false
+      animation: false,
+      modalDialogClass: 'indicator-batch-update-modal',
+      windowClass: 'indicator-batch-update-modal-window'
     });
 
     modalRef.result.then((result) => {

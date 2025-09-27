@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -166,10 +165,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
   comparisonDescription = '';
   evaluationDirection: string | null = null;
   toleranceRange: number | null = null;
-  // Ngb datepicker models
-  metadataLastUpdateModel: NgbDateStruct | null = null;
-  accessStartDateModel: NgbDateStruct | null = null;
-  accessEndDateModel: NgbDateStruct | null = null;
+  // Dates are handled as ISO strings by km-date-picker
   
   // Additional comparison values
   additionalComparisonType: string | null = null;
@@ -248,10 +244,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
     // Set up event listeners for role management (like AngularJS component)
     this.setupEventListeners();
 
-    // Initialize datepicker models from existing string values
-    this.metadataLastUpdateModel = this.parseDateStringToStruct(this.metadata.lastUpdate);
-    this.accessStartDateModel = this.parseDateStringToStruct(this.accessStartDate);
-    this.accessEndDateModel = this.parseDateStringToStruct(this.accessEndDate);
+    // Date inputs are bound directly to strings via km-date-picker
   }
 
   private async loadInitialData() {
@@ -736,46 +729,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
                                           this.colorbrewerPalettes[0];
   }
 
-  // Date helpers for NgbDatepicker
-  private parseDateStringToStruct(dateString: string | null | undefined): NgbDateStruct | null {
-    if (!dateString || typeof dateString !== 'string') {
-      return null;
-    }
-    const parts = dateString.split('-');
-    if (parts.length !== 3) {
-      return null;
-    }
-    const year = Number(parts[0]);
-    const month = Number(parts[1]);
-    const day = Number(parts[2]);
-    if (!year || !month || !day) {
-      return null;
-    }
-    return { year, month, day };
-  }
-
-  private formatStructToDateString(model: NgbDateStruct | null): string {
-    if (!model) {
-      return '';
-    }
-    const pad = (n: number) => (n && n >= 10 ? `${n}` : `0${n || 0}`);
-    return `${model.year}-${pad(model.month)}-${pad(model.day)}`;
-  }
-
-  onMetadataLastUpdateChange(model: NgbDateStruct | null) {
-    this.metadataLastUpdateModel = model;
-    this.metadata.lastUpdate = this.formatStructToDateString(model);
-  }
-
-  onAccessStartDateChange(model: NgbDateStruct | null) {
-    this.accessStartDateModel = model;
-    this.accessStartDate = this.formatStructToDateString(model);
-  }
-
-  onAccessEndDateChange(model: NgbDateStruct | null) {
-    this.accessEndDateModel = model;
-    this.accessEndDate = this.formatStructToDateString(model);
-  }
+  // km-date-picker binds directly to ISO strings, no conversion helpers needed
 
   checkDatasetName() {
     this.datasetNameInvalid = false;
@@ -1561,10 +1515,7 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
       sridEPSG: 4326
     };
 
-    // Reset datepicker models
-    this.metadataLastUpdateModel = null;
-    this.accessStartDateModel = null;
-    this.accessEndDateModel = null;
+    // Dates reset as plain strings
 
     // Reset temporary variables
     this.indicatorNameFilter = '';
@@ -2455,7 +2406,6 @@ export class IndicatorAddModalComponent implements OnInit, OnDestroy {
   }
 
   cancel() {
-
     this.activeModal.dismiss('cancel');
   }
 

@@ -266,17 +266,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       console.log('No currentIndicatorDataset available, form will be initialized later');
     }
 
-    // Initialize datepicker for last update date (align with spatial unit component)
-    setTimeout(() => {
-      try {
-        ($ as any)('#indicatorEditLastUpdateDatepicker').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
-        if (this.metadata?.lastUpdate) {
-          ($ as any)('#indicatorEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
-        }
-      } catch (e) {
-        console.warn('Failed to initialize datepicker for indicator edit metadata:', e);
-      }
-    }, 100);
+    // Date input now handled by standalone km-date-picker component bound to metadata.lastUpdate
   }
 
   ngOnDestroy(): void {
@@ -1070,17 +1060,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       lastUpdate: metadata.lastUpdate || ''
     };
 
-    // Set datepicker value after metadata is assigned
-    setTimeout(() => {
-      try {
-        const datePicker = ($ as any)('#indicatorEditLastUpdateDatepicker');
-        if (datePicker && this.metadata.lastUpdate) {
-          datePicker.datepicker('setDate', this.metadata.lastUpdate);
-        }
-      } catch (e) {
-        // ignore
-      }
-    }, 100);
+    // Date value is bound to km-date-picker via ngModel; no manual jQuery interaction needed
 
     // Set update interval
     this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {

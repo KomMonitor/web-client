@@ -301,21 +301,13 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group">
-                  <div class="input-group-addon" (click)="metadataLastUpdatePicker.toggle()" style="cursor: pointer;">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input class="form-control pull-right"
-                         placeholder="YYYY-MM-DD"
-                         name="metadataLastUpdate"
-                         ngbDatepicker #metadataLastUpdatePicker="ngbDatepicker"
-                         [autoClose]="true"
-                         [readonly]="true"
-                         (click)="metadataLastUpdatePicker.open()"
-                         [(ngModel)]="metadataLastUpdateModel"
-                         (dateSelect)="onMetadataLastUpdateChange($event)"
-                         required>
-                </div>
+                <km-date-picker
+                  [(ngModel)]="metadata.lastUpdate"
+                  name="metadataLastUpdate"
+                  placeholder="YYYY-MM-DD"
+                  ariaLabel="Datum der letzten Aktualisierung"
+                  [required]="true"
+                ></km-date-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -1599,20 +1591,12 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Zugriff von</label>
-                <div class="input-group">
-                  <div class="input-group-addon" (click)="accessStartPicker.toggle()" style="cursor: pointer;">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input class="form-control pull-right"
-                         placeholder="YYYY-MM-DD"
-                         name="accessStartDate"
-                         ngbDatepicker #accessStartPicker="ngbDatepicker"
-                         [autoClose]="true"
-                         [readonly]="true"
-                         (click)="accessStartPicker.open()"
-                         [(ngModel)]="accessStartDateModel"
-                         (dateSelect)="onAccessStartDateChange($event)">
-                </div>
+                <km-date-picker
+                  [(ngModel)]="accessStartDate"
+                  name="accessStartDate"
+                  placeholder="YYYY-MM-DD"
+                  ariaLabel="Zugriff von"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Startdatum für den Zugriff auf den Indikator</p>
                 </div>
@@ -1621,20 +1605,12 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Zugriff bis</label>
-                <div class="input-group">
-                  <div class="input-group-addon" (click)="accessEndPicker.toggle()" style="cursor: pointer;">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input class="form-control pull-right"
-                         placeholder="YYYY-MM-DD"
-                         name="accessEndDate"
-                         ngbDatepicker #accessEndPicker="ngbDatepicker"
-                         [autoClose]="true"
-                         [readonly]="true"
-                         (click)="accessEndPicker.open()"
-                         [(ngModel)]="accessEndDateModel"
-                         (dateSelect)="onAccessEndDateChange($event)">
-                </div>
+                <km-date-picker
+                  [(ngModel)]="accessEndDate"
+                  name="accessEndDate"
+                  placeholder="YYYY-MM-DD"
+                  ariaLabel="Zugriff bis"
+                ></km-date-picker>
                 <div class="help-block">
                   <p>Enddatum für den Zugriff auf den Indikator</p>
                 </div>

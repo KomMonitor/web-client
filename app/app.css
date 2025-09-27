@@ -1744,6 +1744,60 @@ table, th, td {
 	}
 }
 
+/* Custom width for Indicator Add modal (ng-bootstrap modalDialogClass) */
+@media (min-width: 768px){
+	.modal-dialog.indicator-add-modal {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
+@media (min-width: 768px){
+	body .modal-holder.indicator-add-modal-window .modal-dialog,
+	body .indicator-add-modal-window .modal-dialog,
+	body .modal.indicator-add-modal-window .modal-dialog {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
+/* Custom widths for other Indicator modals */
+@media (min-width: 768px){
+	.modal-dialog.indicator-edit-metadata-modal,
+	.modal-dialog.indicator-edit-features-modal,
+	.modal-dialog.indicator-edit-roles-modal,
+	.modal-dialog.indicator-delete-modal,
+	.modal-dialog.indicator-batch-update-modal {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
+@media (min-width: 768px){
+	body .modal-holder.indicator-edit-metadata-modal-window .modal-dialog,
+	body .indicator-edit-metadata-modal-window .modal-dialog,
+	body .modal.indicator-edit-metadata-modal-window .modal-dialog,
+	body .modal-holder.indicator-edit-features-modal-window .modal-dialog,
+	body .indicator-edit-features-modal-window .modal-dialog,
+	body .modal.indicator-edit-features-modal-window .modal-dialog,
+	body .modal-holder.indicator-edit-roles-modal-window .modal-dialog,
+	body .indicator-edit-roles-modal-window .modal-dialog,
+	body .modal.indicator-edit-roles-modal-window .modal-dialog,
+	body .modal-holder.indicator-delete-modal-window .modal-dialog,
+	body .indicator-delete-modal-window .modal-dialog,
+	body .modal.indicator-delete-modal-window .modal-dialog,
+	body .modal-holder.indicator-batch-update-modal-window .modal-dialog,
+	body .indicator-batch-update-modal-window .modal-dialog,
+	body .modal.indicator-batch-update-modal-window .modal-dialog {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
 select {
 	overflow: auto;
 }
