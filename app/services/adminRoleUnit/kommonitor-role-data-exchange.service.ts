@@ -38,7 +38,7 @@ export class KommonitorRoleDataExchangeService {
   /**
    * Create a new organizational unit in KomMonitor Data API
    */
-  createOrganizationalUnit(body: { name: string; description: string; contact: string }): Observable<any> {
+  createOrganizationalUnit(body: { name: string; description: string; contact: string; mandant?: boolean; parentId?: string | null }): Observable<any> {
     const url = this.core.baseUrlToKomMonitorDataAPI + '/organizationalUnits';
     return this.http.post(url, body);
   }

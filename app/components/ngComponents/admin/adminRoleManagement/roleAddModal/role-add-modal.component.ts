@@ -33,6 +33,13 @@ export class RoleAddModalComponent {
   parentOrganizationalUnitFilter: string = '';
   parentOrganizationalUnit: any = null;
 
+  // Alerts/state flags
+  unitAddSuccess: boolean = false;
+  roleDelegatesSuccess: boolean = false;
+  keycloakGroupAddSuccess: boolean = false;
+  unitAddError: string | undefined = undefined;
+  roleDelegatesError: string | undefined = undefined;
+
   constructor(
     public activeModal: NgbActiveModal,
     private http: HttpClient,
@@ -42,6 +49,20 @@ export class RoleAddModalComponent {
     public roleDataGridHelper: KommonitorRoleDataGridHelperService,
     private broadcastService: BroadcastService
   ) {}
+
+  private async resolveCreatedOuIdByName(name: string, maxAttempts: number = 6, delayMs: number = 500): Promise<string | null> {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        await this.kommonitorDataExchangeService.fetchAccessControlMetadata().toPromise();
+        const created = (this.kommonitorDataExchangeService.accessControl || []).find(e => e.name === name);
+        if (created?.organizationalUnitId) {
+          return created.organizationalUnitId;
+        }
+      } catch (_) { /* noop */ }
+      await new Promise(res => setTimeout(res, delayMs));
+    }
+    return null;
+  }
 
   get accessControlList(): any[] {
     return this.kommonitorDataExchangeService.accessControl || [];
@@ -219,7 +240,6 @@ export class RoleAddModalComponent {
         }
       ];
       this.delegatedRowData = this.delegatedRoleManagementTableOptions.rowData || [];
-      // Enable floating filters as in AngularJS version for visual parity
       this.delegatedDefaultColDef = {
         ...this.roleDataGridHelper.buildRoleManagementDefaultColDef(),
         filter: true,
@@ -262,17 +282,25 @@ export class RoleAddModalComponent {
   async addRole(): Promise<void> {
     this.errorMessagePart = undefined;
     this.keycloakErrorMessagePart = undefined;
+    this.unitAddError = undefined;
+    this.roleDelegatesError = undefined;
+    this.unitAddSuccess = false;
+    this.roleDelegatesSuccess = false;
+    this.keycloakGroupAddSuccess = false;
 
     try {
       const postBody: any = {
         name: this.newOrganizationalUnit.name,
         description: this.newOrganizationalUnit.description,
-        contact: this.newOrganizationalUnit.contact
+        contact: this.newOrganizationalUnit.contact,
+        mandant: !!this.newOrganizationalUnit.mandant,
+        parentId: this.newOrganizationalUnit.parentId ? this.newOrganizationalUnit.parentId : null
       };
 
       this.loadingData = true;
 
       const response: any = await this.roleDataExchange.createOrganizationalUnit(postBody).toPromise();
+      this.unitAddSuccess = true;
 
       try {
         await this.kommonitorDataExchangeService.fetchAccessControlMetadata().toPromise();
@@ -287,6 +315,7 @@ export class RoleAddModalComponent {
           };
           await this.roleKeycloakHelper.postNewGroup(organizationalUnitForKeycloak, parent);
           await this.roleKeycloakHelper.fetchAndSetKeycloakRoles();
+          this.keycloakGroupAddSuccess = true;
         } catch (kcError: any) {
           this.keycloakErrorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(kcError?.data || kcError);
         }
@@ -294,6 +323,10 @@ export class RoleAddModalComponent {
         // After creating the OU, build delegated role PUT body from selected checkboxes (advanced grid)
         try {
           const createdOu = created;
+          let createdOuId = response?.organizationalUnitId || createdOu?.organizationalUnitId;
+          if (!createdOuId) {
+            createdOuId = await this.resolveCreatedOuIdByName(this.newOrganizationalUnit.name);
+          }
           const permissionIdList: string[] = this.roleDataGridHelper.getSelectedRoleIds_roleManagementGrid(this.delegatedRoleManagementTableOptions);
 
           const unitToRoles: Record<string, string[]> = {};
@@ -320,11 +353,20 @@ export class RoleAddModalComponent {
             }
           });
 
-          if (createdOu?.organizationalUnitId && putBody.length > 0) {
-            await this.http.put(
-              `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/organizationalUnits/${createdOu.organizationalUnitId}/role-delegates`,
+          // Always send PUT like AngularJS version, even when no roles are selected
+          if (createdOuId) {
+            this.http.put(
+              `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/organizationalUnits/${createdOuId}/role-delegates`,
               putBody
-            ).toPromise();
+            ).subscribe({ 
+              next: () => {
+                this.roleDelegatesSuccess = true;
+                this.broadcastService.broadcast('refreshAccessControlTable', { crudType: 'add', targetId: createdOuId });
+              }, 
+              error: (err) => {
+                this.roleDelegatesError = this.kommonitorDataExchangeService.syntaxHighlightJSON(err?.error || err);
+              } 
+            });
           }
         } catch (e) {
           // non-fatal; continue
@@ -337,13 +379,17 @@ export class RoleAddModalComponent {
       }
 
       this.loadingData = false;
-      this.activeModal.close('success');
+      // do not auto-close; show alerts instead
     } catch (error: any) {
       if (error && error.error) {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error);
       } else {
         this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
+      this.unitAddError = 'failed';
+      this.loadingData = false;
+    }
+    finally {
       this.loadingData = false;
     }
   }

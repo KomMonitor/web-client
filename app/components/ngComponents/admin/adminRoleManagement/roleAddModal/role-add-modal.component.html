@@ -22,6 +22,12 @@
         </div>
 
         <fieldset *ngIf="currentStep === 0">
+          <div *ngIf="unitAddSuccess" class="alert alert-success" role="alert" style="margin-top: 10px;">
+            Gruppe erfolgreich erstellt.
+          </div>
+          <div *ngIf="unitAddError" class="alert alert-danger" role="alert" style="margin-top: 10px;">
+            Erstellen der Gruppe fehlgeschlagen.
+          </div>
           <h2 class="fs-title">Basisinformationen</h2>
           <h3 class="fs-subtitle">Angaben &uuml;ber die neue Organisationseinheit</h3>
           <p><b><i>* = Pflichtfeld</i></b></p>
@@ -89,6 +95,18 @@
         </fieldset>
 
         <fieldset *ngIf="currentStep === 1">
+          <div *ngIf="roleDelegatesSuccess" class="alert alert-success" role="alert" style="margin-top: 10px;">
+            Delegierte Rechte erfolgreich aktualisiert.
+          </div>
+          <div *ngIf="roleDelegatesError" class="alert alert-danger" role="alert" style="margin-top: 10px;">
+            Aktualisieren der delegierten Rechte fehlgeschlagen.
+          </div>
+          <div *ngIf="keycloakGroupAddSuccess" class="alert alert-success" role="alert" style="margin-top: 10px;">
+            Keycloak Gruppe/Rollen erfolgreich erstellt.
+          </div>
+          <div *ngIf="keycloakErrorMessagePart" class="alert alert-warning" role="alert" style="margin-top: 10px;">
+            Keycloak Fehler w&auml;hrend der Erstellung, Details im Konsolen-Log.
+          </div>
           <h2 class="fs-title">Delegierte administrative Rechte</h2>
           <div class="box box-info" [ngClass]="{ 'collapsed-box': !infoExpanded }">
             <div class="box-header">
