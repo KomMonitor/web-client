@@ -746,9 +746,6 @@ input:checked + .switchslider:before {
 .modal-header {
   padding: 15px;
   border-bottom: 1px solid #e5e5e5;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .modal-title {
