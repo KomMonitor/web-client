@@ -24,6 +24,8 @@ angular
       this.dynamicBrew = undefined;
       this.manualBrew = undefined;
 
+      this.classificationImpossible = false;
+
       //allowesValues: equal_interval, quantile, jenks
       this.classifyMethods = [{
         name: "Jenks",
@@ -399,7 +401,7 @@ angular
 
         /*
           2025-09-30
-          we must include a check for jenks and quantile method:
+          we must include a check for jenks and quantile method in cases where at least 5 different indicator values are provided:
           check if the number of actual indicator values is smaller than specififed number of classes
           otherwise the jenks algorithm of classybrew.js might fail with an error or quantile algorithm may produce nonsense-breaks
           
@@ -407,7 +409,7 @@ angular
           adjust maxNumberOfClasses and kommonitorVisualStyleHelperService.numClasses if necessary
           inform users with a toast message
         */
-       if(classifyMethod == "jenks" || classifyMethod == "quantile"){
+       if((valuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
         if (valuesArray.length <= maxNumberOfClasses){
           maxNumberOfClasses = valuesArray.length - 1;
           self.numClasses = valuesArray.length - 1;
@@ -417,6 +419,11 @@ angular
             $rootScope.$apply();
           }, 750)
         }
+       }
+
+       self.classificationImpossible = false;
+       if(valuesArray.length < 5){
+          self.classificationImpossible = true;
        }
 
         if (valuesArray.length >= 5) {

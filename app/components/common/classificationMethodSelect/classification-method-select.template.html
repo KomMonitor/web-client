@@ -2,7 +2,8 @@
   <div 
     id="method-select-selected" 
     class="form-control"
-    ng-click="showMethodSelection = !showMethodSelection">
+    ng-disabled="$ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible"
+    ng-click="$ctrl.onClickClassificationMethodSelect()">
     {{selectedMethod.name}}
   </div>
   <div ng-show="showMethodSelection" id="method-select-selection" class="select-border"> 
