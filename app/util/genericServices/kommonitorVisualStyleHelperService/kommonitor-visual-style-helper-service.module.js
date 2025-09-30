@@ -1,4 +1,4 @@
-angular.module('kommonitorVisualStyleHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorVisualStyleHelper', ['kommonitorDataExchange', 'kommonitorToastHelper']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -13,8 +13,9 @@ angular
   .module('kommonitorVisualStyleHelper', [])
   .service(
     'kommonitorVisualStyleHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+      'kommonitorToastHelperService',
     function ($rootScope, $timeout,
-      kommonitorDataExchangeService, $http, __env) {
+      kommonitorDataExchangeService, $http, __env, kommonitorToastHelperService) {
 
       const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -395,6 +396,28 @@ angular
 
         var tempBrew = self.createNewClassyBrewInstance();
         var colorBrewerInstance = self.createNewClassyBrewInstance();
+
+        /*
+          2025-09-30
+          we must include a check for jenks and quantile method:
+          check if the number of actual indicator values is smaller than specififed number of classes
+          otherwise the jenks algorithm of classybrew.js might fail with an error or quantile algorithm may produce nonsense-breaks
+          
+          solution: if jenks/quantile is selected then check maxNumberOfClasses and valuesArray.length
+          adjust maxNumberOfClasses and kommonitorVisualStyleHelperService.numClasses if necessary
+          inform users with a toast message
+        */
+       if(classifyMethod == "jenks" || classifyMethod == "quantile"){
+        if (valuesArray.length <= maxNumberOfClasses){
+          maxNumberOfClasses = valuesArray.length - 1;
+          self.numClasses = valuesArray.length - 1;
+          kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_Werte > Anzahl_Klassen");
+
+          $timeout(function(){
+            $rootScope.$apply();
+          }, 750)
+        }
+       }
 
         if (valuesArray.length >= 5) {
           // pass array to our classyBrew series
