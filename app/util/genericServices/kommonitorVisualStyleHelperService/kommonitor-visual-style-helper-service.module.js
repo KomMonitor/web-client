@@ -419,20 +419,23 @@ angular
         */
        let uniqueValuesArray = [...new Set(valuesArray)];
 
-       if((uniqueValuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
-        if (uniqueValuesArray.length <= maxNumberOfClasses){
-          maxNumberOfClasses = uniqueValuesArray.length - 1;
-          self.numClasses = uniqueValuesArray.length - 1;
-          kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_eindeutiger_Werte > Anzahl_Klassen");
+       if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.isMeasureOfValueChecked){
+          if((uniqueValuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
+            if (uniqueValuesArray.length <= maxNumberOfClasses){
+              maxNumberOfClasses = uniqueValuesArray.length - 1;
+              self.numClasses = uniqueValuesArray.length - 1;
+              kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_eindeutiger_Werte > Anzahl_Klassen");
 
-          $timeout(function(){
-            $rootScope.$apply();
-          }, 750)
+              $timeout(function(){
+                $rootScope.$apply();
+              }, 750)
+            }
         }
        }
+       
 
        self.classificationImpossible = false;
-       if(uniqueValuesArray.length < 5){
+       if(uniqueValuesArray.length < 5 || (kommonitorDataExchangeService.isBalanceChecked || kommonitorDataExchangeService.isMeasureOfValueChecked)){
           self.classificationImpossible = true;
        }
 
