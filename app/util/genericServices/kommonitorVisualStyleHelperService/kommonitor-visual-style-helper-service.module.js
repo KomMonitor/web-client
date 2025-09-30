@@ -217,9 +217,10 @@ angular
             continue;
           }
 
-          if(! values.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-            values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          }
+          // if(! values.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+          //   values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          // }
+          values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
         }
 
         return values;
@@ -370,14 +371,16 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue)){
-            if(! this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
           else{
-            if(! this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
         }
       };
@@ -401,7 +404,12 @@ angular
 
         /*
           2025-09-30
-          we must include a check for jenks and quantile method in cases where at least 5 different indicator values are provided:
+          the valuesArray may have severeal duplicate indicatorValues. a classification algorithm should take this into account when computing class breaks
+
+          however, a classification is only valid and may produce reasonable class breaks, if the number of unique indicator values is higher than the number of classes
+          hence we should compute the number of unique indicator values and compare that to the number of classes (+ adjust number of classes if necessary) 
+
+          we must include a check for jenks and quantile method in cases where at least 5 different unique indicator values are provided:
           check if the number of actual indicator values is smaller than specififed number of classes
           otherwise the jenks algorithm of classybrew.js might fail with an error or quantile algorithm may produce nonsense-breaks
           
@@ -409,11 +417,13 @@ angular
           adjust maxNumberOfClasses and kommonitorVisualStyleHelperService.numClasses if necessary
           inform users with a toast message
         */
-       if((valuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
-        if (valuesArray.length <= maxNumberOfClasses){
-          maxNumberOfClasses = valuesArray.length - 1;
-          self.numClasses = valuesArray.length - 1;
-          kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_Werte > Anzahl_Klassen");
+       let uniqueValuesArray = [...new Set(valuesArray)];
+
+       if((uniqueValuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
+        if (uniqueValuesArray.length <= maxNumberOfClasses){
+          maxNumberOfClasses = uniqueValuesArray.length - 1;
+          self.numClasses = uniqueValuesArray.length - 1;
+          kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_eindeutiger_Werte > Anzahl_Klassen");
 
           $timeout(function(){
             $rootScope.$apply();
@@ -422,12 +432,13 @@ angular
        }
 
        self.classificationImpossible = false;
-       if(valuesArray.length < 5){
+       if(uniqueValuesArray.length < 5){
           self.classificationImpossible = true;
        }
 
-        if (valuesArray.length >= 5) {
+        if (uniqueValuesArray.length >= 5) {
           // pass array to our classyBrew series
+          // use all indicator values, even duplicates as they might have an impact on classification breaks!
           tempBrew.setSeries(valuesArray);
           // define number of classes
           tempBrew.setNumClasses(maxNumberOfClasses);
@@ -451,32 +462,32 @@ angular
           }
         }
 
-        else if (valuesArray.length === 4) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 4) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['4'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
         }
 
-        else if (valuesArray.length === 3) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 3) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
         }
-        else if (valuesArray.length === 2) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 2) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
 
           colorBrewerInstance.colors.shift(); // remove first element of array
         }
-        else if (valuesArray.length === 1) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 1) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
 
           colorBrewerInstance.colors.shift(); // remove first element of array
           colorBrewerInstance.colors.shift(); // remove first element of array
@@ -610,14 +621,16 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= 0){
-            if(! this.positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0){
-            if(! this.negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
         }
       };
