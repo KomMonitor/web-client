@@ -16,6 +16,24 @@
 						Anpassungen in der <b>Kartenapp</b>
 						<ul>
 							<li>
+								<b>Verbessertes Handling der Indikatoren-Klassifikation</b>
+								Bei der Farbklassifikation von Indikatoren gibt es viele M&ouml;glichkeiten. Der Standard-Fall ist, dass die Indiaktorenwerte mittels eines statistischen Verfahrens 
+								(Jenks, Gleiche Intervalle, Quantile, Manuelle Klassengrenzen / regionaler Standard) in Farbklassen eingeteilt werden. 
+								In Sonderf&auml;llen versucht KomMonitor, durch vorgegebene Farbpaletten und maximale Klassenanzahlen eine optimierte Darstellung zu gew&auml;hrleisten.
+								Folgende F&auml;lle werden 
+								unterschieden:  
+								<ul>
+									<li><i>weniger als 5 eindeutige Indikatorenwerte</i></li>
+									<li><i>Bilanzierung</i></li>
+									<li><i>Schwellenwertklassifikation</i></li>
+									<li><i>Dynamik-Indikatoren</i></li>
+									<li><i>sonstige Daten mit negativen und positiven Indikatorenwerten</i></li>
+								</ul>   
+
+								Bei all diesen F&auml;llen erlaubt KomMonitor weiterhin die Wahl unterschiedlicher Klassifikationsmethoden, begrenzt jedoch die Auswahl der Klassen. 
+								Stattdessen legt KomMonitor je nach Fall geeignete Klassenzahlen fest.   
+							</li>
+							<li>
 								<b>Pr&uuml;fen/Reduzieren der Klassenzahl bei Klassifikationsverfahren Jenks, Quantile:</b>
 								Die Klassifikationsverfahren <i>Jenks</i> (Nat&uuml;rliche Umbr&uuml;che) und <i>Quantile</i> erzeugen nur valide und sinnhafte Klassengrenzen, wenn <i>Anzahl_Indikatorenwerte &lt;= Anzahl_Klassen</i>. 
 								KomMonitor pr&uuml;ft nun darauf und reduziert bei Bedarf automatisch die <i>Anzahl_Klassen</i>.   
