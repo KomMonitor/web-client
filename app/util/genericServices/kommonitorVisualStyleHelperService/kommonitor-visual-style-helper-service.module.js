@@ -294,6 +294,10 @@ angular
         --> treat all other cases equally to measureOfValue
         */
 
+        if (numClasses < 6){
+          numClasses = 6;
+        }
+
        let manualMOVBreaks = manualBreaks ? [
         [kommonitorDataExchangeService.measureOfValue, ...manualBreaks.filter(val => val > kommonitorDataExchangeService.measureOfValue)],
         [...manualBreaks.filter(val => val < kommonitorDataExchangeService.measureOfValue), kommonitorDataExchangeService.measureOfValue]
@@ -419,20 +423,29 @@ angular
         */
        let uniqueValuesArray = [...new Set(valuesArray)];
 
-       if((uniqueValuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
-        if (uniqueValuesArray.length <= maxNumberOfClasses){
-          maxNumberOfClasses = uniqueValuesArray.length - 1;
-          self.numClasses = uniqueValuesArray.length - 1;
-          kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_eindeutiger_Werte > Anzahl_Klassen");
+       if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.isMeasureOfValueChecked){
+          if((uniqueValuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
+            if (uniqueValuesArray.length <= maxNumberOfClasses){
+              maxNumberOfClasses = uniqueValuesArray.length - 1;
+              self.numClasses = uniqueValuesArray.length - 1;
+              kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_eindeutiger_Werte > Anzahl_Klassen");
 
-          $timeout(function(){
-            $rootScope.$apply();
-          }, 750)
+              $timeout(function(){
+                $rootScope.$apply();
+              }, 750)
+            }
+          }
+       }
+       
+       let containsNegativeValues = false;
+       for (const value of uniqueValuesArray) {
+        if (value < 0){
+          containsNegativeValues = true;
         }
        }
 
        self.classificationImpossible = false;
-       if(uniqueValuesArray.length < 5){
+       if(uniqueValuesArray.length < 5 && !(kommonitorDataExchangeService.isBalanceChecked || kommonitorDataExchangeService.isMeasureOfValueChecked || containsNegativeValues || kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) ){
           self.classificationImpossible = true;
        }
 
@@ -546,6 +559,10 @@ angular
         --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
         --> treat all other cases equally to measureOfValue
         */
+
+        if (numClasses < 6){
+          numClasses = 6;
+        }
 
         let manualDynamicBreaks = manualBreaks ? [
           [...manualBreaks.filter(val => val >= 0)],
