@@ -38,40 +38,66 @@
       </div>	
     </div>
 
-    <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible">
-      <div style="font-weight: bold; color:red;">Keine Klassifikation berechenbar</div>
-      <br>
-    </div>
-    <div ng-if="containsNegativeValues || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
-      <div style="font-weight: bold; color:red;">Klassenzahl durch KomMonitor festgesetzt</div>
-      <br>
+    <div ng-show="! $ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible">      
+      <div title="Hier können Sie die Klassifizierungsmethode ändern.">
+        <div style="font-weight: bold;">Methode</div>
+        <classification-method-select 
+          on-method-selected="onMethodSelected(method)"
+          default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}"
+          hidden-method-ids="{{hiddenMethodIds}}">
+        </classification-method-select>
+      </div>
     </div>
 
-    <div title="Hier können Sie die Klassifizierungsmethode ändern.">
-      <div style="font-weight: bold;">Methode</div>
-      <classification-method-select 
-        on-method-selected="onMethodSelected(method)"
-        default-method-id="{{$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod}}"
-        hidden-method-ids="{{hiddenMethodIds}}">
-      </classification-method-select>
+    <div ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible">
+        <div style="font-weight: bold; color:red;">Keine Klassifikationsmethode anwendbar. Weniger als 5 eindeutige Werte erkannt.</div>
+        <br>
+        <div title="Hier können Sie die Klassifizierungsmethode ändern.">
+        <div style="font-weight: bold;">Methode</div>
+        <input 
+            type="text" class="form-control" disabled value="Darstellung eindeutiger Werte">            
+          </input>
+      </div>
     </div>
+
+    
 
     <!-- number of classes -->
-    <form class="nrClassSelection" 
-          ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'
-                && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
-      <label>
-        Anzahl Klassen 
-        <input 
-          type="number"
-          min="3"
-          max="7"
-          ng-change="onChangeNumberOfClasses()"
-          ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.numClasses"
-          ng-disabled="$ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible || containsNegativeValues || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
-          class="form-control">
-      </label>
-    </form>
+     <div ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible || containsNegativeValues || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+      <br>
+      <div style="font-weight: bold; color:red;">Klassenzahl durch KomMonitor festgesetzt</div>
+      <br>
+
+      <form class="nrClassSelection" 
+            ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'
+                  && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
+        <label>
+          Anzahl Klassen 
+          <input 
+            type="text" class="form-control" disabled value="von KomMonitor gesetzt">            
+          </input>
+        </label>
+      </form>
+    </div>
+    <div ng-show="!($ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible || containsNegativeValues || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked)">
+        
+      <form class="nrClassSelection" 
+            ng-show="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'manual'
+                  && $ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod !== 'regional_default'">
+        <label>
+          Anzahl Klassen 
+          <input 
+            type="number"
+            min="3"
+            max="7"
+            ng-change="onChangeNumberOfClasses()"
+            ng-model="$ctrl.kommonitorVisualStyleHelperServiceInstance.numClasses"
+            ng-disabled="$ctrl.kommonitorVisualStyleHelperServiceInstance.classificationImpossible || containsNegativeValues || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"
+            class="form-control">
+        </label>
+      </form>
+    </div>
+    
 
     <!-- manual breaks -->
     <div ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.classifyMethod=='manual'">
