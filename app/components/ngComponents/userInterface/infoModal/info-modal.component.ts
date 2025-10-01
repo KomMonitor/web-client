@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, Renderer2, SimpleChanges, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
@@ -6,6 +7,7 @@ import { CommonModule } from "@angular/common";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { VersionInfoComponent } from 'components/ngComponents/userInterface/versionInfo/version-info.component';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 
 @Component({
 	selector: 'ngbd-modal-content',
@@ -30,10 +32,13 @@ export class InfoModal implements OnInit {
 
     hideGreeting: boolean = true;
 
+    landingpageContent;
+
     @Input() open!: any;
 
     constructor(
-      private exchangeService: DataExchangeService
+      private exchangeService: DataExchangeService,
+      private configStorageService: ConfigStorageService
     ) {}
 
     ngOnInit(): void {
@@ -50,6 +55,13 @@ export class InfoModal implements OnInit {
 				this.tab3Title = window.__env.extendedInfoModalTabTitle;
 				this.tab3Content = window.__env.extendedInfoModalHTMLMessage;				
 			}
+
+      this.initCustomLandingpage();
+    }
+
+    async initCustomLandingpage() {
+
+      this.landingpageContent = await firstValueFrom(this.configStorageService.getLandingpageConfig());
     }
 
     onHideGreetingChange(event: any) {

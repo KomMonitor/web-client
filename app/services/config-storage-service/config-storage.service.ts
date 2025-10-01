@@ -3,6 +3,11 @@ import { ajskommonitorConfigStorageServiceProvider } from '../../app-upgraded-pr
 import { Inject, Injectable, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
+export interface LandingpageConfig {
+  startPage: string;
+  pageName: string | undefined;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -66,6 +71,19 @@ export class ConfigStorageService  {
     return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig, formdata, {headers: headers});
   }
 
+  postLandingpageConfig(landingpageConfig: LandingpageConfig) {
+
+    console.log("Trying to POST to config storage service to upload new landingpage config.");
+    var formdata = new FormData();
+    formdata.append("startPage", new Blob([landingpageConfig.startPage], { type: "application/json"}));  
+    // only if set 
+    // formdata.append("pageName", '');
+    
+    let headers = new HttpHeaders({"Accept": "text/plain" });
+
+    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig, formdata, {headers: headers});
+  }
+
   getKeycloakConfig():Observable<any> {
 
     return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
@@ -91,4 +109,8 @@ export class ConfigStorageService  {
   getFilterConfig(){
     return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig);
   };
+
+  getLandingpageConfig() {
+    return this.httpClient.get<any>(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig);
+  }
 }

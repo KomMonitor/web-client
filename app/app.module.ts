@@ -111,6 +111,7 @@ import { UserLoginComponent } from './components/ngComponents/userInterface/user
 import { ColorSketchModule } from 'ngx-color/sketch';
 
 import { MathjaxModule } from "mathjax-angular";
+import { AdminLandingpageConfigComponent } from './components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -238,7 +239,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     GeoresourceEditFeaturesModalComponent,
     GeoresourceEditUserRolesModalComponent,
     GeoresourceDeleteModalComponent,
-    UserLoginComponent
+    UserLoginComponent,
+    AdminLandingpageConfigComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -333,7 +335,10 @@ export class AppModule implements DoBootstrap {
     angular.module('adminRoleExplanation')
       .directive('adminRoleExplanationNew', downgradeComponent({ component: AdminRoleExplanationComponent }) as angular.IDirectiveFactory);
 
-
+                    // inject in (AJS component)
+    angular.module('kommonitorAdmin')
+      .directive('adminLandingpageConfig', downgradeComponent({ component: AdminLandingpageConfigComponent }) as angular.IDirectiveFactory);
+          // any name -> called as >admin-landingpage-config> in template     // ng component
 
    /*  angular.module('kommonitorUserInterface')
     .directive('kommonitorLegendNew',  downgradeComponent({ component: KommonitorLegendComponent }) as angular.IDirectiveFactory);
