@@ -69,19 +69,27 @@
 
           <ag-grid-angular
             #agGrid
+            id="adminIndicatorsOverviewTable"
             style="height: 70vh;"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
             [rowData]="rowData"
             [gridOptions]="gridOptions"
             [defaultColDef]="gridOptions.defaultColDef"
+            [floatingFilter]="true"
             [pagination]="true"
             [paginationPageSize]="10"
             [rowSelection]="'multiple'"
-            [suppressRowClickSelection]="true"
+            [suppressRowClickSelection]="false"
+            [rowMultiSelectWithClick]="true"
             [enableCellTextSelection]="true"
             [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true">
+            [suppressColumnVirtualisation]="true"
+            (firstDataRendered)="onFirstDataRendered($event)"
+            (columnResized)="onColumnResized($event)"
+            (rowDataChanged)="onRowDataChanged()"
+            (modelUpdated)="onModelUpdated()"
+            (viewportChanged)="onViewportChanged()">
           </ag-grid-angular>
 
         </div>

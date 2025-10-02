@@ -66,6 +66,10 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupEventListeners();
+    // If datasets were passed directly via component instance, initialize immediately
+    if (this.datasetsToDelete && this.datasetsToDelete.length > 0) {
+      this.onDeleteGeoresources(this.datasetsToDelete);
+    }
   }
 
   ngOnDestroy(): void {
@@ -218,7 +222,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
       // Refresh overview table
       this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
         crudType: 'delete',
-        targetIds: this.successfullyDeletedDatasets.map(dataset => dataset.georesourceId)
+        targetGeoresourceId: this.successfullyDeletedDatasets.map(dataset => dataset.georesourceId)
       });
       
       // Refresh admin dashboard diagrams

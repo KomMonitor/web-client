@@ -1,20 +1,42 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { KommonitorGeoresourceDataExchangeService } from 'services/adminGeoresourceUnit/kommonitor-data-exchange.service';
+import { KommonitorMultiStepFormHelperService } from 'services/adminGeoresourceUnit/kommonitor-multi-step-form-helper.service';
+import { KommonitorGeoresourceDataGridHelperService } from 'services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
+import { IconPickerComponent } from 'components/ngComponents/customElements/icon-picker/icon-picker.component';
+import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import { KmLinePatternPickerComponent, LinePatternOption } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
 
 @Component({
   selector: 'georesource-edit-metadata-modal-new',
+  standalone: true,
   templateUrl: './georesource-edit-metadata-modal.component.html',
-  styleUrls: ['./georesource-edit-metadata-modal.component.css']
+  styleUrls: ['./georesource-edit-metadata-modal.component.css'],
+  providers: [],
+  imports: [CommonModule, FormsModule, IconPickerComponent, KmDatePickerComponent, AdminTopicsManagementComponent, KmLinePatternPickerComponent, KmColorPickerComponent]
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Component state
   loadingData = false;
-  currentGeoresourceDataset: any;
+  private _currentGeoresourceDataset: any;
+  get currentGeoresourceDataset(): any { return this._currentGeoresourceDataset; }
+  set currentGeoresourceDataset(value: any) {
+    this._currentGeoresourceDataset = value;
+    if (value) {
+      // Ensure form is populated whenever dataset is assigned programmatically or via broadcast
+      this.resetGeoresourceEditMetadataForm();
+      this.kommonitorMultiStepFormHelperService.registerClickHandler();
+    }
+  }
   currentStep = 1;
 
   // Form data
@@ -50,6 +72,8 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // LOI specific
   selectedLoiDashArrayObject: any;
+  selectedLoiPattern: LinePatternOption | null = null;
+  linePatternOptions: LinePatternOption[] = [];
   loiColor: string = '#bf3d2c';
   loiWidth: number = 3;
 
@@ -61,6 +85,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   georesourceTopic_subTopic: any;
   georesourceTopic_subsubTopic: any;
   georesourceTopic_subsubsubTopic: any;
+  mainTopicsForGeoresource: any[] = [];
+  private topicsLoaded = false;
+  private topicsLoading = false;
 
   // Role management
   roleManagementTableOptions: any;
@@ -80,28 +107,163 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
+    public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
+    private kommonitorMultiStepFormHelperService: KommonitorMultiStepFormHelperService,
+    private kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.initializeDefaultValues();
+  }
+
+  // Date helpers
+  private getTodayDateString(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private isValidDateString(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { return false; }
+    const [yStr, mStr, dStr] = value.split('-');
+    const y = Number(yStr);
+    const m = Number(mStr);
+    const d = Number(dStr);
+    if (m < 1 || m > 12 || d < 1 || d > 31) { return false; }
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+
+  private ensureValidDateOrToday(value: any): string {
+    if (!value) { return this.getTodayDateString(); }
+    if (typeof value === 'string') {
+      return this.isValidDateString(value) ? value : this.getTodayDateString();
+    }
+    const asIso = this.toIsoDateString(value);
+    return asIso ?? this.getTodayDateString();
+  }
+
+  private toIsoDateString(value: any): string | null {
+    if (!value) { return null; }
+    if (typeof value === 'string') { return value; }
+    const maybeStruct = value as { year?: number; month?: number; day?: number };
+    if (maybeStruct && typeof maybeStruct.year === 'number' && typeof maybeStruct.month === 'number' && typeof maybeStruct.day === 'number') {
+      const y = maybeStruct.year;
+      const m = String(maybeStruct.month).padStart(2, '0');
+      const d = String(maybeStruct.day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return null;
+  }
+
+  onLastUpdateBlur(): void {
+    this.metadata.lastUpdate = this.ensureValidDateOrToday(this.metadata.lastUpdate);
   }
 
   ngOnInit(): void {
     this.setupEventListeners();
     this.initializeMetadataStructure();
+    // React to role changes and load topics once available
+    const rolesSub = this.kommonitorDataExchangeService.currentRoles$.subscribe(() => {
+      if (!this.topicsLoaded && !this.topicsLoading) {
+        this.loadTopicsData();
+      }
+    });
+    this.subscriptions.push(rolesSub);
+    // Try an initial load in case roles are already set
+    this.loadTopicsData();
+    this.updateMainTopicsForGeoresource();
+    // Reapply dynamic UI state after initial render
+    setTimeout(() => this.reapplyDynamicUiFields(), 0);
+    
+    
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  /**
+   * Load topics data for the dropdowns
+   */
+  private async loadTopicsData(): Promise<void> {
+    try {
+      if (this.topicsLoaded || this.topicsLoading) { return; }
+      this.topicsLoading = true;
+      const roles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
+      console.log('[GeoresourceEditMetadataModal] loadTopicsData: fetching topics with roles', roles);
+      const topics = await this.kommonitorDataExchangeService.fetchTopicsMetadata(roles);
+      console.log('[GeoresourceEditMetadataModal] loadTopicsData: fetched topics length', Array.isArray(topics) ? topics.length : 'n/a');
+      this.updateMainTopicsForGeoresource();
+      // If a dataset is already selected, set its topic selection now
+      if (this.currentGeoresourceDataset?.topicReference) {
+        this.applyTopicSelectionFromDataset();
+      }
+      this.topicsLoaded = true;
+    } catch (error) {
+      console.warn('Could not load topics data:', error);
+    }
+    finally {
+      this.topicsLoading = false;
+    }
+  }
+
+  /**
+   * Public method to manually refresh topics (for debugging)
+   */
+  public refreshTopics(): void {
+    this.loadTopicsData();
+  }
+
+  /**
+   * Debug method to check topics state
+   */
+  public debugTopicsState(): void {
+    console.log('=== Topics Debug Info ===');
+    console.log('Available topics:', this.kommonitorDataExchangeService.availableTopics);
+    console.log('Topics length:', this.kommonitorDataExchangeService.availableTopics?.length);
+    console.log('Main topics for georesource:', this.mainTopicsForGeoresource);
+    console.log('Current main topic:', this.georesourceTopic_mainTopic);
+    console.log('Current sub topic:', this.georesourceTopic_subTopic);
+    console.log('Current subsub topic:', this.georesourceTopic_subsubTopic);
+    console.log('Current subsubsub topic:', this.georesourceTopic_subsubsubTopic);
+    console.log('========================');
+  }
+
+  // Filtered subtopics by topicResource === 'georesource' to align with backend hierarchy
+  get filteredSubTopicsLevel1(): any[] {
+    return this.filterSubTopicsByResource(this.georesourceTopic_mainTopic);
+  }
+
+  get filteredSubTopicsLevel2(): any[] {
+    return this.filterSubTopicsByResource(this.georesourceTopic_subTopic);
+  }
+
+  get filteredSubTopicsLevel3(): any[] {
+    return this.filterSubTopicsByResource(this.georesourceTopic_subsubTopic);
+  }
+
+  private filterSubTopicsByResource(parentTopic: any): any[] {
+    const subs = (parentTopic?.subTopics || []);
+    return subs.filter((t: any) => t?.topicResource === 'georesource');
+  }
+
   private initializeDefaultValues(): void {
-    this.selectedPoiMarkerColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[0];
-    this.selectedPoiSymbolColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[1];
-    this.selectedLoiDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+    // Initialize with default values from the service
+    if (this.kommonitorDataExchangeService.availablePoiMarkerColors?.length > 0) {
+      this.selectedPoiMarkerColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[0];
+    }
+    if (this.kommonitorDataExchangeService.availablePoiMarkerColors?.length > 1) {
+      this.selectedPoiSymbolColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[1];
+    }
+    if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects?.length > 0) {
+      this.selectedLoiDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+    }
+    this.syncLinePatternOptionsAndSelection();
   }
 
   private initializeMetadataStructure(): void {
@@ -131,16 +293,20 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       "aoiColor": "color for area of interest dataset"
     };
 
-    this.georesourceMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
+    this.georesourceMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON 
+      ? this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure)
+      : JSON.stringify(this.georesourceMetadataStructure, null, 2);
   }
 
   private setupEventListeners(): void {
     // Listen for edit georesource metadata event
     const editSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === 'onEditGeoresourceMetadata') {
-        this.currentGeoresourceDataset = data.georesourceDataset;
-        this.resetGeoresourceEditMetadataForm();
-        this.kommonitorMultiStepFormHelperService.registerClickHandler();
+        // Align with BroadcastService signature { msg, values }
+        const payload = (data && (data.values ?? data.georesourceDataset)) || null;
+        if (payload) {
+          this.currentGeoresourceDataset = payload;
+        }
       }
     });
     this.subscriptions.push(editSub);
@@ -172,37 +338,42 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.datasetName = this.currentGeoresourceDataset.datasetName;
     this.datasetNameInvalid = false;
 
+    // Load topics data if not already loaded
+    this.loadTopicsData();
+
     // Reset metadata
     this.metadata = {
-      note: this.currentGeoresourceDataset.metadata.note,
-      literature: this.currentGeoresourceDataset.metadata.literature,
+      note: this.currentGeoresourceDataset.metadata?.note || '',
+      literature: this.currentGeoresourceDataset.metadata?.literature || '',
       sridEPSG: 4326,
-      datasource: this.currentGeoresourceDataset.metadata.datasource,
-      databasis: this.currentGeoresourceDataset.metadata.databasis,
-      contact: this.currentGeoresourceDataset.metadata.contact,
-      description: this.currentGeoresourceDataset.metadata.description,
-      lastUpdate: this.currentGeoresourceDataset.metadata.lastUpdate
+      datasource: this.currentGeoresourceDataset.metadata?.datasource || '',
+      databasis: this.currentGeoresourceDataset.metadata?.databasis || '',
+      contact: this.currentGeoresourceDataset.metadata?.contact || '',
+      description: this.currentGeoresourceDataset.metadata?.description || '',
+      lastUpdate: this.currentGeoresourceDataset.metadata?.lastUpdate || ''
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.currentGeoresourceDataset.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
+      this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+        if (option.apiName === this.currentGeoresourceDataset.metadata?.updateInterval) {
+          this.metadata.updateInterval = option;
+        }
+      });
+    }
 
     // Set role management
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable', 
       this.roleManagementTableOptions, 
       this.kommonitorDataExchangeService.accessControl, 
-      this.currentGeoresourceDataset.allowedRoles
+      this.currentGeoresourceDataset.allowedRoles || []
     );
 
     // Set georesource type
-    this.isPOI = this.currentGeoresourceDataset.isPOI;
-    this.isLOI = this.currentGeoresourceDataset.isLOI;
-    this.isAOI = this.currentGeoresourceDataset.isAOI;
+    this.isPOI = this.currentGeoresourceDataset.isPOI || false;
+    this.isLOI = this.currentGeoresourceDataset.isLOI || false;
+    this.isAOI = this.currentGeoresourceDataset.isAOI || false;
 
     if (this.isPOI) {
       this.georesourceType = 'poi';
@@ -213,49 +384,42 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Set POI colors
-    this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
-      if (option.colorName === this.currentGeoresourceDataset.poiMarkerColor) {
-        this.selectedPoiMarkerColor = option;
-      }
-      if (option.colorName === this.currentGeoresourceDataset.poiSymbolColor) {
-        this.selectedPoiSymbolColor = option;
-      }
-    });
+    if (this.kommonitorDataExchangeService.availablePoiMarkerColors) {
+      this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
+        if (option.colorName === this.currentGeoresourceDataset.poiMarkerColor) {
+          this.selectedPoiMarkerColor = option;
+        }
+        if (option.colorName === this.currentGeoresourceDataset.poiSymbolColor) {
+          this.selectedPoiSymbolColor = option;
+        }
+      });
+    }
 
     // Set LOI properties
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
-      if (option.dashArrayValue === this.currentGeoresourceDataset.loiDashArrayString) {
-        this.selectedLoiDashArrayObject = option;
-        this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
-      }
-    });
+    if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
+      this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
+        if (option.dashArrayValue === this.currentGeoresourceDataset.loiDashArrayString) {
+          this.selectedLoiDashArrayObject = option;
+          this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
+        }
+      });
+    }
+    this.syncLinePatternOptionsAndSelection();
 
-    this.loiColor = this.currentGeoresourceDataset.loiColor;
+    this.loiColor = this.currentGeoresourceDataset.loiColor || '#bf3d2c';
     this.loiWidth = this.currentGeoresourceDataset.loiWidth || 3;
-    this.aoiColor = this.currentGeoresourceDataset.aoiColor;
-    this.selectedPoiIconName = this.currentGeoresourceDataset.poiSymbolBootstrap3Name;
+    this.aoiColor = this.currentGeoresourceDataset.aoiColor || '#bf3d2c';
+    this.selectedPoiIconName = this.currentGeoresourceDataset.poiSymbolBootstrap3Name || 'home';
 
-    // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-      this.currentGeoresourceDataset.topicReference
-    );
-
-    if (topicHierarchy && topicHierarchy[0]) {
-      this.georesourceTopic_mainTopic = topicHierarchy[0];
-    }
-    if (topicHierarchy && topicHierarchy[1]) {
-      this.georesourceTopic_subTopic = topicHierarchy[1];
-    }
-    if (topicHierarchy && topicHierarchy[2]) {
-      this.georesourceTopic_subsubTopic = topicHierarchy[2];
-    }
-    if (topicHierarchy && topicHierarchy[3]) {
-      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+    // Set topic hierarchy if topics are already loaded, otherwise defer until after load
+    if (this.topicsLoaded) {
+      this.applyTopicSelectionFromDataset();
     }
 
-    // Reset messages
+    // Clear any existing alert messages
     this.successMessagePart = '';
     this.errorMessagePart = '';
+    this.georesourceMetadataImportError = '';
 
     // Initialize date picker
     setTimeout(() => {
@@ -265,13 +429,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   private initializeDatePickers(): void {
     try {
-      const datePicker = document.getElementById('georesourceEditLastUpdateDatepicker');
-      if (datePicker && (window as any).$) {
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(
-          this.kommonitorDataExchangeService.datePickerOptions
-        );
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
-      }
+      // Datepicker initialization is handled by ngbDatepicker in the template.
 
       // Initialize color pickers
       const loiColorPicker = document.getElementById('loiColorEditPicker');
@@ -287,48 +445,21 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         (window as any).$('#aoiColorEditPicker').colorpicker('setValue', this.aoiColor);
       }
 
-      // Initialize icon picker
-      const iconPicker = document.getElementById('poiSymbolEditPicker');
-      if (iconPicker && (window as any).$) {
-        const iconPickerOptions = {
-          align: 'center',
-          arrowClass: 'btn-default',
-          arrowPrevIconClass: 'fas fa-angle-left',
-          arrowNextIconClass: 'fas fa-angle-right',
-          cols: 10,
-          footer: true,
-          header: true,
-          icon: 'glyphicon-' + this.selectedPoiIconName,
-          iconset: 'glyphicon',
-          labelHeader: '{0} von {1} Seiten',
-          labelFooter: '{0} - {1} von {2} Icons',
-          placement: 'bottom',
-          rows: 6,
-          search: true,
-          searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-          selectedClass: 'btn-success',
-          unselectedClass: ''
-        };
-
-        (window as any).$('#poiSymbolEditPicker').iconpicker(iconPickerOptions);
-        (window as any).$('#poiSymbolEditPicker').on('change', (e: any) => {
-          this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
-        });
-        (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
-      }
 
       // Initialize LOI dash array dropdown
       setTimeout(() => {
-        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
-          const element = document.getElementById('loiDashArrayEditDropdownItem-' + i);
-          if (element) {
-            element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
+        if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
+          for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
+            const element = document.getElementById('loiDashArrayEditDropdownItem-' + i);
+            if (element) {
+              element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
+            }
           }
-        }
 
-        const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
-        if (buttonElement) {
-          buttonElement.innerHTML = this.selectedLoiDashArrayObject.svgString;
+          const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
+          if (buttonElement) {
+            buttonElement.innerHTML = this.selectedLoiDashArrayObject.svgString;
+          }
         }
       }, 1000);
 
@@ -340,13 +471,15 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Validation methods
   checkDatasetName(): void {
     this.datasetNameInvalid = false;
-    this.kommonitorDataExchangeService.availableGeoresources.forEach((georesource: any) => {
-      if (georesource.datasetName === this.datasetName && 
-          georesource.georesourceId !== this.currentGeoresourceDataset?.georesourceId) {
-        this.datasetNameInvalid = true;
-        return;
-      }
-    });
+    if (this.kommonitorDataExchangeService.availableGeoresources) {
+      this.kommonitorDataExchangeService.availableGeoresources.forEach((georesource: any) => {
+        if (georesource.datasetName === this.datasetName && 
+            georesource.georesourceId !== this.currentGeoresourceDataset?.georesourceId) {
+          this.datasetNameInvalid = true;
+          return;
+        }
+      });
+    }
   }
 
   checkPoiMarkerText(): void {
@@ -373,12 +506,44 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.selectedPoiMarkerStyle = style;
   }
 
+  onIconSelect(iconName: string): void {
+    this.selectedPoiIconName = iconName;
+  }
+
   // LOI methods
-  onChangeLoiDashArray(loiDashArrayObject: any): void {
-    this.selectedLoiDashArrayObject = loiDashArrayObject;
-    const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
-    if (buttonElement) {
-      buttonElement.innerHTML = loiDashArrayObject.svgString;
+  onChangeLoiDashArray(loiDashArrayObjectOrPattern: any): void {
+    const dash = loiDashArrayObjectOrPattern?.dashArrayValue;
+    if (dash) {
+      // Update selected pattern for the picker
+      this.selectedLoiPattern = this.linePatternOptions.find(p => p.dashArrayValue === dash) || null;
+      // Update legacy selected object from service list
+      const svcObj = (this.kommonitorDataExchangeService.availableLoiDashArrayObjects || []).find((o: any) => o?.dashArrayValue === dash);
+      this.selectedLoiDashArrayObject = svcObj || loiDashArrayObjectOrPattern;
+      const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
+      if (buttonElement && (svcObj?.svgString || this.selectedLoiPattern?.svgString)) {
+        buttonElement.innerHTML = (svcObj?.svgString || this.selectedLoiPattern?.svgString) as string;
+      }
+    }
+  }
+
+  private syncLinePatternOptionsAndSelection(): void {
+    // Map available LOI patterns to LinePatternOption[] for the picker
+    const src = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    this.linePatternOptions = src.map((o: any) => {
+      const display = o?.displayName || o?.dashArrayValue || '';
+      const dash = o?.dashArrayValue || '';
+      const svg = o?.svgString || `
+        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="20" viewBox="0 0 180 20">
+          <line x1="5" y1="10" x2="175" y2="10" stroke="#333" stroke-width="3" stroke-dasharray="${dash}" stroke-linecap="butt"/>
+        </svg>
+      `;
+      return { label: display, dashArrayValue: dash, svgString: svg } as LinePatternOption;
+    });
+    if (this.selectedLoiDashArrayObject) {
+      const dashSel = this.selectedLoiDashArrayObject.dashArrayValue;
+      this.selectedLoiPattern = this.linePatternOptions.find(p => p.dashArrayValue === dashSel) || null;
+    } else {
+      this.selectedLoiPattern = null;
     }
   }
 
@@ -442,11 +607,13 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
-      if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
-        this.metadata.updateInterval = option;
-      }
-    });
+    if (this.kommonitorDataExchangeService.updateIntervalOptions) {
+      this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+        if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
+          this.metadata.updateInterval = option;
+        }
+      });
+    }
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
@@ -472,22 +639,26 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Set POI colors
-    this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
-      if (option.colorName === this.metadataImportSettings.poiMarkerColor) {
-        this.selectedPoiMarkerColor = option;
-      }
-      if (option.colorName === this.metadataImportSettings.poiSymbolColor) {
-        this.selectedPoiSymbolColor = option;
-      }
-    });
+    if (this.kommonitorDataExchangeService.availablePoiMarkerColors) {
+      this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
+        if (option.colorName === this.metadataImportSettings.poiMarkerColor) {
+          this.selectedPoiMarkerColor = option;
+        }
+        if (option.colorName === this.metadataImportSettings.poiSymbolColor) {
+          this.selectedPoiSymbolColor = option;
+        }
+      });
+    }
 
     // Set LOI properties
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
-      if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
-        this.selectedLoiDashArrayObject = option;
-        this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
-      }
-    });
+    if (this.kommonitorDataExchangeService.availableLoiDashArrayObjects) {
+      this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
+        if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
+          this.selectedLoiDashArrayObject = option;
+          this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
+        }
+      });
+    }
 
     this.loiColor = this.metadataImportSettings.loiColor;
     this.loiWidth = this.metadataImportSettings.loiWidth;
@@ -504,21 +675,23 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }, 200);
 
     // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-      this.metadataImportSettings.topicReference
-    );
+    if (this.kommonitorDataExchangeService.getTopicHierarchyForTopicId) {
+      const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
+        this.metadataImportSettings.topicReference
+      );
 
-    if (topicHierarchy && topicHierarchy[0]) {
-      this.georesourceTopic_mainTopic = topicHierarchy[0];
-    }
-    if (topicHierarchy && topicHierarchy[1]) {
-      this.georesourceTopic_subTopic = topicHierarchy[1];
-    }
-    if (topicHierarchy && topicHierarchy[2]) {
-      this.georesourceTopic_subsubTopic = topicHierarchy[2];
-    }
-    if (topicHierarchy && topicHierarchy[3]) {
-      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+      if (topicHierarchy && topicHierarchy[0]) {
+        this.georesourceTopic_mainTopic = topicHierarchy[0];
+      }
+      if (topicHierarchy && topicHierarchy[1]) {
+        this.georesourceTopic_subTopic = topicHierarchy[1];
+      }
+      if (topicHierarchy && topicHierarchy[2]) {
+        this.georesourceTopic_subsubTopic = topicHierarchy[2];
+      }
+      if (topicHierarchy && topicHierarchy[3]) {
+        this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+      }
     }
   }
 
@@ -563,7 +736,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       metadataExport.poiSymbolBootstrap3Name = '';
       metadataExport.poiSymbolColor = '';
       metadataExport.poiMarkerColor = '';
-      metadataExport.loiDashArrayString = this.selectedLoiDashArrayObject.dashArrayValue;
+      metadataExport.loiDashArrayString = (this.selectedLoiDashArrayObject?.dashArrayValue) || (this.selectedLoiPattern?.dashArrayValue) || '';
       metadataExport.loiColor = this.loiColor;
       metadataExport.loiWidth = this.loiWidth;
       metadataExport.aoiColor = '';
@@ -613,144 +786,291 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     a.remove();
   }
 
+  // Export template method (missing from AngularJS version)
+  onExportGeoresourceEditMetadataTemplate(): void {
+    const metadataJSON = JSON.stringify(this.georesourceMetadataStructure);
+    const fileName = "Georessource_Metadaten_Vorlage_Export.json";
+
+    const blob = new Blob([metadataJSON], { type: "application/json" });
+    const data = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.download = fileName;
+    a.href = data;
+    a.textContent = "JSON";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.click();
+
+    a.remove();
+  }
+
   // Main edit method
   editGeoresourceMetadata(): void {
+    // Set topic reference
+    let topicReference = '';
+    if (this.georesourceTopic_subsubsubTopic) {
+      topicReference = this.georesourceTopic_subsubsubTopic.topicId;
+    } else if (this.georesourceTopic_subsubTopic) {
+      topicReference = this.georesourceTopic_subsubTopic.topicId;
+    } else if (this.georesourceTopic_subTopic) {
+      topicReference = this.georesourceTopic_subTopic.topicId;
+    } else if (this.georesourceTopic_mainTopic) {
+      topicReference = this.georesourceTopic_mainTopic.topicId;
+    }
+
     const patchBody: any = {
       metadata: {
-        note: this.metadata.note,
-        literature: this.metadata.literature,
-        updateInterval: this.metadata.updateInterval.apiName,
-        sridEPSG: this.metadata.sridEPSG,
-        datasource: this.metadata.datasource,
-        contact: this.metadata.contact,
-        lastUpdate: this.metadata.lastUpdate,
-        description: this.metadata.description,
-        databasis: this.metadata.databasis
+        note: this.metadata.note || '',
+        literature: this.metadata.literature || '',
+        updateInterval: this.metadata.updateInterval?.apiName || '',
+        sridEPSG: this.metadata.sridEPSG || 4326,
+        datasource: this.metadata.datasource || '',
+        contact: this.metadata.contact || '',
+        lastUpdate: this.toIsoDateString(this.metadata.lastUpdate) || '',
+        description: this.metadata.description || '',
+        databasis: this.metadata.databasis || ''
       },
-      allowedRoles: [],
-      datasetName: this.datasetName,
+      datasetName: this.datasetName || '',
       isAOI: this.isAOI,
       isLOI: this.isLOI,
       isPOI: this.isPOI,
-      topicReference: null
+      topicReference: topicReference,
+      poiSymbolBootstrap3Name: null,
+      poiSymbolColor: null,
+      poiMarkerColor: null,
+      poiMarkerStyle: null,
+      poiMarkerText: null,
+      loiDashArrayString: null,
+      loiColor: null,
+      loiWidth: null,
+      aoiColor: null
     };
 
-    const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
-    for (const roleId of roleIds) {
-      patchBody.allowedRoles.push(roleId);
-    }
-
+    // Set georesource-specific fields based on type
     if (this.isPOI) {
-      patchBody.poiSymbolBootstrap3Name = this.selectedPoiIconName;
-      patchBody.poiSymbolColor = this.selectedPoiSymbolColor.colorName;
-      patchBody.poiMarkerColor = this.selectedPoiMarkerColor.colorName;
-      patchBody.loiDashArrayString = null;
-      patchBody.loiColor = null;
-      patchBody.loiWidth = null;
-      patchBody.aoiColor = null;
+      patchBody.poiSymbolBootstrap3Name = this.selectedPoiIconName || '';
+      patchBody.poiSymbolColor = this.selectedPoiSymbolColor?.colorName || '';
+      patchBody.poiMarkerColor = this.selectedPoiMarkerColor?.colorName || '';
+      patchBody.poiMarkerStyle = this.selectedPoiMarkerStyle || 'symbol';
+      patchBody.poiMarkerText = this.poiMarkerText || '';
     } else if (this.isLOI) {
-      patchBody.poiSymbolBootstrap3Name = null;
-      patchBody.poiSymbolColor = null;
-      patchBody.poiMarkerColor = null;
-      patchBody.loiDashArrayString = this.selectedLoiDashArrayObject.dashArrayValue;
-      patchBody.loiColor = this.loiColor;
-      patchBody.loiWidth = this.loiWidth;
-      patchBody.aoiColor = null;
+      patchBody.loiDashArrayString = (this.selectedLoiDashArrayObject?.dashArrayValue) || (this.selectedLoiPattern?.dashArrayValue) || null;
+      patchBody.loiColor = this.loiColor || null;
+      patchBody.loiWidth = this.loiWidth || null;
     } else if (this.isAOI) {
-      patchBody.poiSymbolBootstrap3Name = null;
-      patchBody.poiSymbolColor = null;
-      patchBody.poiMarkerColor = null;
-      patchBody.loiDashArrayString = null;
-      patchBody.loiColor = null;
-      patchBody.loiWidth = null;
-      patchBody.aoiColor = this.aoiColor;
+      patchBody.aoiColor = this.aoiColor || null;
     }
 
-    // Set topic reference
-    if (this.georesourceTopic_subsubsubTopic) {
-      patchBody.topicReference = this.georesourceTopic_subsubsubTopic.topicId;
-    } else if (this.georesourceTopic_subsubTopic) {
-      patchBody.topicReference = this.georesourceTopic_subsubTopic.topicId;
-    } else if (this.georesourceTopic_subTopic) {
-      patchBody.topicReference = this.georesourceTopic_subTopic.topicId;
-    } else if (this.georesourceTopic_mainTopic) {
-      patchBody.topicReference = this.georesourceTopic_mainTopic.topicId;
-    } else {
-      patchBody.topicReference = '';
-    }
+    // Debug logging
+    console.log('PATCH Request Body:', JSON.stringify(patchBody, null, 2));
+    console.log('PATCH URL:', this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId);
 
     this.loadingData = true;
 
     this.http.patch(
       this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
-      patchBody
+      patchBody,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     ).subscribe({
       next: (response: any) => {
+        console.log('PATCH Request Success:', response);
         this.successMessagePart = this.datasetName;
+        console.log('Success message part set to:', this.successMessagePart);
+        
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { crudType: 'edit', targetGeoresourceId: this.currentGeoresourceDataset.georesourceId });
-        this.showSuccessAlert();
+        console.log('Refresh broadcast sent');
+        
+        // Success alert will be shown via *ngIf since successMessagePart is set
         this.loadingData = false;
+        
+        // Auto-hide success message after 5 seconds and close modal
+        setTimeout(() => {
+          console.log('Auto-hiding success alert and closing modal');
+          this.hideSuccessAlert();
+          this.activeModal.close();
+        }, 5000);
       },
       error: (error: any) => {
-        if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+        console.error('PATCH Request Error:', error);
+        console.error('Error Status:', error.status);
+        console.error('Error Message:', error.message);
+        console.error('Error Body:', error.error);
+        
+        if (error.error) {
+          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON 
+            ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error)
+            : JSON.stringify(error.error, null, 2);
+        } else if (error.data) {
+          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON 
+            ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data)
+            : JSON.stringify(error.data, null, 2);
         } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON 
+            ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error)
+            : JSON.stringify(error, null, 2);
         }
-        this.showErrorAlert();
+        // Error alert will be shown via *ngIf since errorMessagePart is set
         this.loadingData = false;
       }
     });
   }
 
-  // Alert methods
+  // Alert methods - simplified since we now use *ngIf
   showSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
+    // Alerts are now shown/hidden via *ngIf based on message content
+    console.log('Success alert should be visible for:', this.successMessagePart);
   }
 
   showErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
+    // Alerts are now shown/hidden via *ngIf based on message content
+    console.log('Error alert should be visible for:', this.errorMessagePart);
   }
 
   showMetadataImportErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = false;
-    }
+    // Alerts are now shown/hidden via *ngIf based on message content
+    console.log('Metadata import error alert should be visible');
   }
 
   hideSuccessAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataSuccessAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.successMessagePart = '';
+    console.log('Success alert hidden');
   }
 
   hideErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.errorMessagePart = '';
+    console.log('Error alert hidden');
   }
 
   hideMetadataErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditMetadataImportErrorAlert');
-    if (alertElement) {
-      alertElement.hidden = true;
-    }
+    this.georesourceMetadataImportError = '';
+    console.log('Metadata import error alert hidden');
   }
 
-  // Get filtered topics for georesource
-  getMainTopicsForGeoresource(): any[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter((topic: any) => 
-      topic.topicType === 'main' && topic.topicResource === 'georesource'
+  // Compute and cache filtered topics for georesource
+  private updateMainTopicsForGeoresource(): void {
+    const topics = this.kommonitorDataExchangeService.availableTopics;
+    if (!topics) {
+      this.mainTopicsForGeoresource = [];
+      return;
+    }
+    // 1) Filter to main topics for georesources (align with Add modal)
+    let filtered = this.filterTopicsForGeoresources(Array.isArray(topics) ? topics : []);
+    console.log('[GeoresourceEditMetadataModal] updateMainTopicsForGeoresource: after filter', {
+      inputLength: Array.isArray(topics) ? topics.length : 'n/a',
+      filteredLength: filtered.length,
+      sample: filtered.slice(0, 3)
+    });
+    // 2) Normalize to ensure consistent keys and child arrays
+    filtered = this.normalizeTopics(filtered);
+    console.log('[GeoresourceEditMetadataModal] updateMainTopicsForGeoresource: after normalize', {
+      normalizedLength: filtered.length,
+      sample: filtered.slice(0, 3)
+    });
+    // 3) Deduplicate by displayed label first (case-insensitive)
+    filtered = this.deduplicateTopicsByLabel(filtered);
+    // 4) Ensure uniqueness by ID as well
+    this.mainTopicsForGeoresource = this.deduplicateTopicsById(filtered);
+  }
+
+  /**
+   * Filter topics to only show main topics for georesources (like AngularJS component)
+   */
+  private filterTopicsForGeoresources(topics: any[]): any[] {
+    const result = (topics || []).filter((topic: any) =>
+      topic && topic.topicType === 'main' && topic.topicResource === 'georesource'
     );
+    console.log('[GeoresourceEditMetadataModal] filterTopicsForGeoresources', {
+      inputLength: Array.isArray(topics) ? topics.length : 'n/a',
+      outputLength: result.length,
+      firstItem: result[0]
+    });
+    return result;
+  }
+
+  /**
+   * Remove duplicates by the displayed label (case-insensitive), e.g., topicName/name.
+   */
+  private deduplicateTopicsByLabel(topics: any[]): any[] {
+    const map = new Map<string, any>();
+    for (const t of topics) {
+      const label = ((t?.topicName ?? t?.name ?? '') + '').trim().toLowerCase();
+      const fallback = ((t?.topicId ?? t?.id ?? '') + '').trim().toLowerCase();
+      const key = label || fallback;
+      if (!key) { continue; }
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const current = map.get(key);
+        const currChildren = Array.isArray(current?.subTopics) ? current.subTopics.length : 0;
+        const newChildren = Array.isArray(t?.subTopics) ? t.subTopics.length : 0;
+        const currHasId = !!(current?.topicId || current?.id);
+        const newHasId = !!(t?.topicId || t?.id);
+        if (newChildren > currChildren || (!currHasId && newHasId)) {
+          map.set(key, t);
+        }
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  /**
+   * Remove duplicates from topics array by stable identifier (topicId | id | name fallback)
+   */
+  private deduplicateTopicsById(topics: any[]): any[] {
+    const map = new Map<string, any>();
+    for (const t of topics) {
+      const key = ((t?.topicId ?? t?.id ?? t?.name) + '').trim();
+      if (!key) { continue; }
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const current = map.get(key);
+        const currChildren = Array.isArray(current?.subTopics) ? current.subTopics.length : 0;
+        const newChildren = Array.isArray(t?.subTopics) ? t.subTopics.length : 0;
+        if (newChildren > currChildren) {
+          map.set(key, t);
+        }
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  // Normalize topic tree to always use 'subTopics' recursively and provide label fallback
+  private normalizeTopics(topics: any[]): any[] {
+    return (topics || []).map(t => this.normalizeTopicNode(t));
+  }
+
+  private normalizeTopicNode(topic: any): any {
+    if (!topic || typeof topic !== 'object') { return topic; }
+    topic.topicName = topic.topicName || topic.name || topic.title || topic.label || topic.text || topic.topicname;
+    const children = topic.subTopics || topic.subtopics || topic.children || [];
+    topic.subTopics = Array.isArray(children) ? children.map((c: any) => this.normalizeTopicNode(c)) : [];
+    return topic;
+  }
+
+  private applyTopicSelectionFromDataset(): void {
+    if (!this.currentGeoresourceDataset?.topicReference) { return; }
+    if (!this.kommonitorDataExchangeService.getTopicHierarchyForTopicId) { return; }
+    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
+      this.currentGeoresourceDataset.topicReference
+    );
+    if (topicHierarchy && topicHierarchy[0]) {
+      this.georesourceTopic_mainTopic = topicHierarchy[0];
+    }
+    if (topicHierarchy && topicHierarchy[1]) {
+      this.georesourceTopic_subTopic = topicHierarchy[1];
+    }
+    if (topicHierarchy && topicHierarchy[2]) {
+      this.georesourceTopic_subsubTopic = topicHierarchy[2];
+    }
+    if (topicHierarchy && topicHierarchy[3]) {
+      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+    }
   }
 
   // Validation for form submission
@@ -768,23 +1088,47 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   nextStep(): void {
     if (this.currentStep < 3) {
       this.currentStep++;
+      // Reapply dynamic UI after step change
+      setTimeout(() => this.reapplyDynamicUiFields(), 0);
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      // Reapply dynamic UI after step change
+      setTimeout(() => this.reapplyDynamicUiFields(), 0);
     }
   }
 
   goToStep(step: number): void {
     if (step >= 1 && step <= 3) {
       this.currentStep = step;
+      // Reapply dynamic UI after step change
+      setTimeout(() => this.reapplyDynamicUiFields(), 0);
     }
   }
+
 
   // Modal control
   cancel(): void {
     this.activeModal.dismiss();
   }
+
+  // Reapply dynamic UI state (patterns, color pickers) after DOM updates
+  private reapplyDynamicUiFields(): void {
+    try {
+      // Ensure line pattern options and selection are in sync
+      this.syncLinePatternOptionsAndSelection();
+      // Reinitialize pickers and restore LOI button preview
+      this.initializeDatePickers();
+      const buttonElement = document.getElementById('loiDashArrayEditDropdownButton');
+      const svg = (this.selectedLoiDashArrayObject && this.selectedLoiDashArrayObject.svgString)
+        || (this.selectedLoiPattern && this.selectedLoiPattern.svgString);
+      if (buttonElement && svg) {
+        buttonElement.innerHTML = svg;
+      }
+    } catch {}
+  }
+
 } 

@@ -1,0 +1,86 @@
+<div class="icon-picker-container" [class.disabled]="disabled">
+  <!-- Icon Picker Button -->
+  <button 
+    type="button" 
+    [class]="buttonClass"
+    [disabled]="disabled"
+    (click)="togglePicker()"
+    class="icon-picker-button">
+    <i [class]="getIconClass(selectedIcon)" *ngIf="selectedIcon"></i>
+    <span class="icon-text">{{ getDisplayText() }}</span>
+    <i class="fa fa-caret-down pull-right" *ngIf="!disabled"></i>
+  </button>
+
+  <!-- Icon Picker Dropdown -->
+  <div class="icon-picker-dropdown" *ngIf="isOpen" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="icon-picker-header" *ngIf="showHeader">
+      <div class="icon-picker-title">Select Icon</div>
+      <button type="button" class="close" (click)="closePicker()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="icon-picker-search" *ngIf="showSearch">
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterIcons()"
+        [placeholder]="searchText"
+        (click)="$event.stopPropagation()">
+    </div>
+
+    <!-- Icon Grid -->
+    <div class="icon-picker-content">
+      <div class="icon-grid" 
+           [style.grid-template-columns]="'repeat(' + cols + ', 1fr)'">
+        <button 
+          *ngFor="let icon of getCurrentPageIcons()" 
+          type="button"
+          class="icon-item"
+          [class.selected]="icon === selectedIcon"
+          (click)="selectIcon(icon)"
+          [title]="icon">
+          <i [class]="getIconClass(icon)"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="icon-picker-pagination" *ngIf="totalPages > 1">
+      <div class="pagination-controls">
+        <button 
+          type="button" 
+          class="btn btn-sm btn-default"
+          [disabled]="currentPage === 1"
+          (click)="previousPage()">
+          <i class="fa fa-angle-left"></i>
+        </button>
+        
+        <span class="page-info">
+          {{ getFormattedLabel(labelHeader, currentPage, totalPages) }}
+        </span>
+        
+        <button 
+          type="button" 
+          class="btn btn-sm btn-default"
+          [disabled]="currentPage === totalPages"
+          (click)="nextPage()">
+          <i class="fa fa-angle-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="icon-picker-footer" *ngIf="showFooter">
+      <div class="icon-count">
+        {{ getFormattedLabel(labelFooter, 
+            (currentPage - 1) * iconsPerPage + 1, 
+            Math.min(currentPage * iconsPerPage, filteredIcons.length), 
+            filteredIcons.length) }}
+      </div>
+    </div>
+  </div>
+</div>

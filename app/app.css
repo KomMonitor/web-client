@@ -1,3 +1,76 @@
+/* Georesource Edit User Roles Modal: independent wide styling */
+body .modal-holder.georesource-edit-user-roles-modal-window .modal-dialog,
+body .georesource-edit-user-roles-modal-window .modal-dialog,
+body .modal.georesource-edit-user-roles-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-user-roles-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-user-roles-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Edit Metadata Modal: independent wide styling */
+body .modal-holder.georesource-edit-metadata-modal-window .modal-dialog,
+body .georesource-edit-metadata-modal-window .modal-dialog,
+body .modal.georesource-edit-metadata-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-metadata-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-metadata-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Edit Features Modal: independent wide styling */
+body .modal-holder.georesource-edit-features-modal-window .modal-dialog,
+body .georesource-edit-features-modal-window .modal-dialog,
+body .modal.georesource-edit-features-modal-window .modal-dialog,
+.modal-dialog.georesource-edit-features-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-edit-features-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Delete Modal: independent wide styling */
+body .modal-holder.georesource-delete-modal-window .modal-dialog,
+body .georesource-delete-modal-window .modal-dialog,
+body .modal.georesource-delete-modal-window .modal-dialog,
+.modal-dialog.georesource-delete-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-delete-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Batch Update Modal: independent wide styling */
+body .modal-holder.georesource-batch-update-modal-window .modal-dialog,
+body .georesource-batch-update-modal-window .modal-dialog,
+body .modal.georesource-batch-update-modal-window .modal-dialog,
+.modal-dialog.georesource-batch-update-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+.georesource-batch-update-modal .modal-content {
+  width: 100%;
+}
+/* Georesource Add Modal: match Spatial Unit modal sizing but with independent classes */
+body .modal-holder.georesource-add-modal-window .modal-dialog,
+body .georesource-add-modal-window .modal-dialog,
+body .modal.georesource-add-modal-window .modal-dialog,
+.modal-dialog.georesource-add-modal {
+  max-width: 95vw;
+  width: 95vw;
+}
+
+/* Optional: ensure content stretches appropriately */
+.georesource-add-modal .modal-content {
+  width: 100%;
+}
 /* app css stylesheet */
 
 :root {
@@ -1703,6 +1776,60 @@ table, th, td {
 		--bs-modal-width: 95vw;
 		max-width: 95vw !important;
 		width: 95vw !important;
+	}
+}
+
+/* Custom width for Indicator Add modal (ng-bootstrap modalDialogClass) */
+@media (min-width: 768px){
+	.modal-dialog.indicator-add-modal {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
+@media (min-width: 768px){
+	body .modal-holder.indicator-add-modal-window .modal-dialog,
+	body .indicator-add-modal-window .modal-dialog,
+	body .modal.indicator-add-modal-window .modal-dialog {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
+/* Custom widths for other Indicator modals */
+@media (min-width: 768px){
+	.modal-dialog.indicator-edit-metadata-modal,
+	.modal-dialog.indicator-edit-features-modal,
+	.modal-dialog.indicator-edit-roles-modal,
+	.modal-dialog.indicator-delete-modal,
+	.modal-dialog.indicator-batch-update-modal {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
+	}
+}
+
+@media (min-width: 768px){
+	body .modal-holder.indicator-edit-metadata-modal-window .modal-dialog,
+	body .indicator-edit-metadata-modal-window .modal-dialog,
+	body .modal.indicator-edit-metadata-modal-window .modal-dialog,
+	body .modal-holder.indicator-edit-features-modal-window .modal-dialog,
+	body .indicator-edit-features-modal-window .modal-dialog,
+	body .modal.indicator-edit-features-modal-window .modal-dialog,
+	body .modal-holder.indicator-edit-roles-modal-window .modal-dialog,
+	body .indicator-edit-roles-modal-window .modal-dialog,
+	body .modal.indicator-edit-roles-modal-window .modal-dialog,
+	body .modal-holder.indicator-delete-modal-window .modal-dialog,
+	body .indicator-delete-modal-window .modal-dialog,
+	body .modal.indicator-delete-modal-window .modal-dialog,
+	body .modal-holder.indicator-batch-update-modal-window .modal-dialog,
+	body .indicator-batch-update-modal-window .modal-dialog,
+	body .modal.indicator-batch-update-modal-window .modal-dialog {
+		--bs-modal-width: 85vw;
+		max-width: 85vw !important;
+		width: 85vw !important;
 	}
 }
 

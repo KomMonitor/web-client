@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -10,6 +12,8 @@ import { TopicDeleteModalComponent } from './topicDeleteModal/topic-delete-modal
 
 @Component({
   selector: 'admin-topics-management-new',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-topics-management.component.html',
   styleUrls: ['./admin-topics-management.component.css']
 })

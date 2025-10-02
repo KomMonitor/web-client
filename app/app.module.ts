@@ -104,11 +104,13 @@ import { GeoresourceAddModalComponent } from './components/ngComponents/admin/ad
 import { GeoresourceBatchUpdateModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceBatchUpdateModal/georesource-batch-update-modal.component';
 import { GeoresourceEditMetadataModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
 import { GeoresourceEditFeaturesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component';
+import { SingleFeatureEditComponent } from './components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { GeoresourceEditUserRolesModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './components/ngComponents/admin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component';
 import { UserLoginComponent } from './components/ngComponents/userInterface/userLogin/user-login.component';
 
 import { ColorSketchModule } from 'ngx-color/sketch';
+import { IconPickerModule } from 'ngx-icon-picker';
 
 import { MathjaxModule } from "mathjax-angular";
 import { AdminLandingpageConfigComponent } from './components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
@@ -140,9 +142,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     DualListBoxComponent,
     AgGridAngular,
     ColorSketchModule,
+    IconPickerModule,
     KmDatePickerComponent,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
+    GeoresourceAddModalComponent,
+    GeoresourceEditMetadataModalComponent,
+    AdminTopicsManagementComponent,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
       loader: {
@@ -212,7 +218,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     RegressionDiagramComponent,
     KommonitorReachabilityComponent,
     LanguageSwitcherComponent,
-    AdminTopicsManagementComponent,
     TopicEditModalComponent,
     TopicDeleteModalComponent,
     AdminAppConfigComponent,
@@ -233,10 +238,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     IndicatorDeleteModalComponent,
     IndicatorBatchUpdateModalComponent,
     AdminGeoresourcesManagementComponent,
-    GeoresourceAddModalComponent,
     GeoresourceBatchUpdateModalComponent,
-    GeoresourceEditMetadataModalComponent,
-    GeoresourceEditFeaturesModalComponent,
+    
     GeoresourceEditUserRolesModalComponent,
     GeoresourceDeleteModalComponent,
     UserLoginComponent,
