@@ -14,6 +14,7 @@
         <div class="box-header">
           <h3 class="box-title">Startseiten-Konfiguration</h3>
         </div>
+        <!-- <textarea #codeEditor></textarea> -->
         <!-- /.box-header -->
         <div class="box-body">
           <p>Nehmen Sie Anpassungen an der Startseite des Web-Clients vor und speichern Sie diese. Die Editierungen erfolgen direkt im HTML-Format. Dies speichert die Konfiguration im Config Storage Service von KomMonitor, von dem die Startseite beim Start der Anwendung geladen wird. 
@@ -72,8 +73,7 @@
           <div class="row vertical-align">
             <div class="col-md-12 text-center">
               <div class="form-group">
-                <button type="button" class="btn btn-success"
-                  [disabled]="configSettingInvalid" (click)="editAppConfig()">App-Konfiguration speichern</button>
+                <button type="button" class="btn btn-success" (click)="editAppConfig()">App-Konfiguration speichern</button>
               </div>
             </div>
           </div>

@@ -1,10 +1,18 @@
-import { Component, AfterViewInit, Inject } from '@angular/core';
+import { Component, AfterViewInit, Inject, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { ConfigStorageService, LandingpageConfig } from '../../../../../services/config-storage-service/config-storage.service';
 import { firstValueFrom } from 'rxjs';
+import CodeMirror from 'codemirror';
 
-declare var CodeMirror: any;
+// CodeMirror module is not loaded properly (why?!), reload necessary files 
+import 'codemirror/mode/xml/xml.js';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/css/css.js';
+import 'codemirror/mode/htmlmixed/htmlmixed.js';
+
+import 'codemirror/addon/display/autoRefresh.js';
+
 declare var $: any;
 
 interface CodeMirrorEditor {
@@ -26,59 +34,34 @@ interface LintingIssue {
   templateUrl: './admin-landingpage-config.component.html',
   styleUrls: ['./admin-landingpage-config.component.css']
 })
-export class AdminLandingpageConfigComponent {
+export class AdminLandingpageConfigComponent implements AfterViewInit { 
 
   loadingData = true;
   codeMirrorEditor!: CodeMirrorEditor;
   templateCodeMirrorEditor!: CodeMirrorEditor;
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
-  missingRequiredParameters: string[] = [];
-  missingRequiredParameters_string = '';
-  keywordsInConfig = [
-    "window.__env", "window.__env.appTitle", "window.__env.enableKeycloakSecurity", "window.__env.encryption",
-    "window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME",
-    "window.__env.VALID_START_DATE_PROPERTY_NAME", "window.__env.VALID_END_DATE_PROPERTY_NAME", "window.__env.indicatorDatePrefix",
-    "window.__env.apiUrl", "window.__env.targetUrlToProcessingEngine", "window.__env.targetUrlToReachabilityService_ORS",
-    "window.__env.targetUrlToImporterService", "window.__env.simplifyGeometriesParameterName", "window.__env.simplifyGeometriesOptions",
-    "window.__env.simplifyGeometries", "window.__env.numberOfDecimals", "window.__env.initialLatitude", "window.__env.initialLongitude",
-    "window.__env.initialZoomLevel", "window.__env.minZoomLevel", "window.__env.maxZoomLevel", "window.__env.baseLayers", "window.__env.initialIndicatorId",
-    "window.__env.initialSpatialUnitName", "window.__env.useTransparencyOnIndicator", "window.__env.useOutlierDetectionOnIndicator",
-    "window.__env.classifyZeroSeparately", "window.__env.classifyUsingWholeTimeseries", "window.__env.updateIntervalOptions",
-    "window.__env.indicatorCreationTypeOptions", "window.__env.indicatorUnitOptions", "window.__env.indicatorTypeOptions",
-    "window.__env.wmsDatasets", "window.__env.wfsDatasets", "window.__env.isAdvancedMode", "window.__env.showAdvancedModeSwitch",
-    "window.__env.customLogoURL", "window.__env.customLogo_onClickURL", "window.__env.customLogoWidth", "window.__env.customGreetingsContact_name",
-    "window.__env.customGreetingsContact_organisation", "window.__env.customGreetingsContact_mail"
-  ];
+ 
   appConfigTemplate: string = '';
   appConfigTmp: string = '';
   appConfigCurrent: string = '';
   appConfigNew: string = '';
-  configSettingInvalid = false;
   errorMessagePart: string = '';
-  lintingIssues: LintingIssue[] = [];
 
   configLoaded = false;
 
   constructor(
     private http: HttpClient,
-    private kommonitorDataExchangeService: DataExchangeService,
     private kommonitorConfigStorageService: ConfigStorageService,
-    @Inject('kommonitorScriptHelperService') private kommonitorScriptHelperService: any,
     @Inject('kommonitorDataExchangeService') private ajskommonitorDataExchangeService: any
-  ) {
-    if (!this.kommonitorScriptHelperService) {
-      console.error('kommonitorScriptHelperService is not available');
-    }
-  }
+  ) {}
+
 
   ngOnInit() {
-    this.init();
   }
 
   ngAfterViewInit() {
-    // Initialize any adminLTE box widgets
-    $('.box').boxWidget();
+    this.init();
   }
 
   async init() {
@@ -123,25 +106,18 @@ export class AdminLandingpageConfigComponent {
   }
 
   initCodeEditor() {
-    
+
     const editorElement = document.getElementById("appLandingpageEditor");
     if (!editorElement) {
       console.error('Could not find appLandingpageEditor element');
       return;
     }
 
-/* ,
-      gutters: ["CodeMirror-lint-markers"],
-      lint: {
-        "getAnnotations": this.validateCode.bind(this),
-        "async": true
-      } */
-
     // Initialize main editor
     this.codeMirrorEditor = CodeMirror.fromTextArea(editorElement, {
       lineNumbers: true,
       autoRefresh: true,
-      mode: "htmlmixed"
+      mode: 'htmlmixed'
     });
     this.codeMirrorEditor.setSize(null, 450);
     this.codeMirrorEditor.on('change', (cMirror: any) => {
@@ -195,38 +171,11 @@ export class AdminLandingpageConfigComponent {
       this.newCodeMirrorEditor.setSize(null, 450);
       this.newCodeMirrorEditor.setValue(this.appConfigNew);
     }
+    
   }
-
-  validateCode(cm: any, updateLinting: (issues: LintingIssue[]) => void, options: any) {
-    try {
-      this.lintingIssues = CodeMirror.lint.javascript(cm, options);
-      updateLinting(this.lintingIssues);
-    } catch (error) {
-      console.error("Error while linting app config script code. Error is: \n" + error);
-    }
-    this.onChangeAppConfig();
-  }
-  
-/* 
-  isConfigSettingInvalid(configString: string): boolean {
-    let isInvalid = true;
-    isInvalid = !this.keywordsInConfig.every(keyword => configString.includes(keyword));
-    this.missingRequiredParameters = this.keywordsInConfig.filter(keyword => !configString.includes(keyword));
-    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
-    if (this.lintingIssues && this.lintingIssues.length > 0) {
-      const errors = this.lintingIssues.filter(issue => issue.severity === 'error');
-      if (errors && errors.length > 0) {
-        isInvalid = true;
-      }
-    }
-    return isInvalid;
-  } */
 
   onChangeAppConfig() {
     const configString = this.appConfigTmp;
-    // hier
-    //this.configSettingInvalid = this.isConfigSettingInvalid(configString);
-    this.configSettingInvalid = false;
     setTimeout(() => {
       this.appConfigNew = configString;
       if (this.newCodeMirrorEditor) {

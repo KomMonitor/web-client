@@ -23,7 +23,7 @@
         </ul>
         <div class="tab-content" id="infoModalTabContent">
           <div class="tab-pane active" id="infoModalTab1Content" role="tabpanel"
-            aria-labelledby="infoModalTab1" [innerHTML]="landingpageContent">
+            aria-labelledby="infoModalTab1" [innerHTML]="landingpageContent | safeHtml">
            
 <!-- 
 <p>KomMonitor ist ein GIS-gestütztes, raum-zeitliches Monitoring-Portal.

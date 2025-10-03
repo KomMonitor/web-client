@@ -62,6 +62,7 @@ export class InfoModal implements OnInit {
     async initCustomLandingpage() {
 
       this.landingpageContent = await firstValueFrom(this.configStorageService.getLandingpageConfig());
+      console.log(this.landingpageContent)
     }
 
     onHideGreetingChange(event: any) {
