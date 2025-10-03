@@ -21,6 +21,7 @@ angular
               let thisService = this;
               this.appTitle = __env.appTitle;
               this.loginInfoText = __env.loginInfoText;
+              this.customLandingPage = __env.customLandingPage;
 
               this.customLogoURL = __env.customLogoURL;
               this.customLogo_onClickURL = __env.customLogo_onClickURL;

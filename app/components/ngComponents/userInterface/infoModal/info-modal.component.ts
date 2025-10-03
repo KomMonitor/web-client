@@ -32,7 +32,7 @@ export class InfoModal implements OnInit {
 
     hideGreeting: boolean = true;
 
-    landingpageContent;
+    landingpageContent: string | undefined;
 
     @Input() open!: any;
 
@@ -56,13 +56,13 @@ export class InfoModal implements OnInit {
 				this.tab3Content = window.__env.extendedInfoModalHTMLMessage;				
 			}
 
-      this.initCustomLandingpage();
+      if(window.__env.customLandinPage===true)
+        this.initCustomLandingpage();
     }
 
     async initCustomLandingpage() {
 
       this.landingpageContent = await firstValueFrom(this.configStorageService.getLandingpageConfig());
-      console.log(this.landingpageContent)
     }
 
     onHideGreetingChange(event: any) {

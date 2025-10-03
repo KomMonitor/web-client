@@ -7,6 +7,8 @@ try {
 
   window.__env.loginInfoText = "";
 
+  window.__env.customLandinPage = false;
+
   // a unique prefix for the respective KomMonitor instance
   // it is used to distuingish between various KomMonitor instances in order to write/read data to/from browser cache
   window.__env.localStoragePrefix = "kommonitor-develop";

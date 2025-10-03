@@ -94,6 +94,7 @@ export interface DataExchange {
   adminPassword;
   adminIsLoggedIn;
   loginInfoText:any;
+  customLandingPage: boolean;
   wmsDatasets:any;
   spatialFilterIsApplied:any;
   rangeFilterIsApplied:any;
