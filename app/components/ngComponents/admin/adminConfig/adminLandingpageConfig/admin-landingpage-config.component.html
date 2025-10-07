@@ -23,29 +23,7 @@
           <hr>
           <br/>
 
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Vorlage (Struktur und Beispiel-Inhalt)</label>
-                <br/>
-                <br/>
-                <div id="landingpageTemplateCodeMirror" style="height: 450px;"></div>
-              </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
-                <br/>
-                <br/>
-                <div id="currentLandingpageCodeMirror" style="height: 450px;"></div>
-              </div>
-            </div>
-          </div>
-
-          <hr>
-          <br/>
-
-          <div class="row vertical-align">						
+          <div class="row vertical-align box-top">						
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Editierfenster der Startseiten-Einstellungen</label>
@@ -62,10 +40,26 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
-                <label>Vorschaufenster (neue Wertbelegung)</label>
+                <label>Vorschaufenster</label>
                 <br/>
                 <br/>
-                <div id="newLandingpageCodeMirror" style="height: 450px;"></div>
+                <div id="newLandingpagePreview">
+                  <ul class="nav nav-tabs" id="infoModalTabs" role="tablist">
+                    <li class="nav-item active">
+                      <a class="nav-link active" id="infoModalCustomTab" data-toggle="tab" href="#infoModalCustomTabContent"
+                        role="tab" aria-controls="infoModalCustomTabContent" aria-selected="true">{{customTabTitle}}</a>
+                    </li> 
+                    <li class="nav-item">
+                      <a class="nav-link" role="tab"  aria-selected="true">{{tab1Title}}</a>
+                    </li>
+                  </ul>
+                  <div class="tab-content" id="infoModalTabContent">
+                    <div class="tab-pane active" id="infoModalCustomTabContent" role="tabpanel"
+                      aria-labelledby="infoModalCustomTab">
+                      <div [innerHTML]="appConfigNew | safeHtml"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>	

@@ -42,11 +42,13 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
  
-  appConfigTemplate: string = '';
   appConfigTmp: string = '';
   appConfigCurrent: string = '';
   appConfigNew: string = '';
   errorMessagePart: string = '';
+  
+  customTabTitle = window.__env.customLandinPageTitle;
+  tab1Title = window.__env.standardInfoModalTabTitle
 
   configLoaded = false;
 
@@ -66,34 +68,21 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
 
   async init() {
 
-    // get current config or set blank
-    await this.kommonitorConfigStorageService.getLandingpageConfig().subscribe({
-      next: response => {
-          this.appConfigTmp = response;
+    try {
+      await this.kommonitorConfigStorageService.getLandingpageConfig().subscribe({
+        next: response => {
           this.appConfigCurrent = response;
           this.appConfigNew = response;
           
-          this.configLoaded = true;
-      },
-      error: error => {
-        console.error('Default landingpageConfig not set, reverting to template');
-      }
-    });
-
-    try {
-      if (!this.configLoaded) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      const response = await firstValueFrom(this.http.get('./config/landingPage_backup.html', { responseType: 'text' }));
-      if (typeof response === 'string') {
-        this.appConfigTemplate = response;
-     
-        this.initCodeEditor();
-        this.onChangeAppConfig();
-      }
+          this.initCodeEditor();
+          this.onChangeAppConfig();
+        },
+        error: error => {
+          console.error('Default landingpageConfig not set, reverting to template');
+        }
+      });
     } catch (error) {
-      console.error('Error initializing app config:', error);
+      console.error('Error initializing landing page config:', error);
       if (error instanceof HttpErrorResponse) {
         this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error.error);
       } else {
@@ -122,55 +111,9 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
     this.codeMirrorEditor.setSize(null, 450);
     this.codeMirrorEditor.on('change', (cMirror: any) => {
       this.appConfigTmp = this.codeMirrorEditor.getValue();
-      // del if html lint active
       this.onChangeAppConfig();
     });
     this.codeMirrorEditor.setValue(this.appConfigCurrent);
-
-    // Initialize template editor
-    const templateElement = document.getElementById("landingpageTemplateCodeMirror");
-    if (templateElement) {
-      this.templateCodeMirrorEditor = CodeMirror(templateElement, {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: "htmlmixed",
-        readOnly: true,
-        theme: "panda-syntax",
-        lineWrapping: true
-      });
-      this.templateCodeMirrorEditor.setSize(null, 450);
-      this.templateCodeMirrorEditor.setValue(this.appConfigTemplate);
-    }
- 
-    // Initialize current editor
-    const currentElement = document.getElementById("currentLandingpageCodeMirror");
-    if (currentElement) {
-      this.currentCodeMirrorEditor = CodeMirror(currentElement, {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: "htmlmixed",
-        readOnly: true,
-        theme: "panda-syntax",
-        lineWrapping: true
-      });
-      this.currentCodeMirrorEditor.setSize(null, 450);
-      this.currentCodeMirrorEditor.setValue(this.appConfigCurrent);
-    }
-
-    // Initialize new editor
-    const newElement = document.getElementById("newLandingpageCodeMirror");
-    if (newElement) {
-      this.newCodeMirrorEditor = CodeMirror(newElement, {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: "htmlmixed",
-        readOnly: true,
-        theme: "panda-syntax",
-        lineWrapping: true
-      });
-      this.newCodeMirrorEditor.setSize(null, 450);
-      this.newCodeMirrorEditor.setValue(this.appConfigNew);
-    }
     
   }
 

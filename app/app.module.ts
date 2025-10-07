@@ -112,6 +112,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
 
 import { MathjaxModule } from "mathjax-angular";
 import { AdminLandingpageConfigComponent } from './components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
+import { SafeHtmlPipe } from "./pipes/safe-html.pipe";
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -127,11 +128,11 @@ export function HttpLoaderFactory(http: HttpClient) {
   imports: [
     BrowserModule,
     UpgradeModule,
-    RouterModule.forRoot(routes , { useHash: true }),
-    NgbDatepickerModule, 
+    RouterModule.forRoot(routes, { useHash: true }),
+    NgbDatepickerModule,
     NgbAccordionModule,
     FormsModule,
-    ReactiveFormsModule,  
+    ReactiveFormsModule,
     HttpClientModule,
     JsonPipe,
     NouisliderModule,
@@ -144,15 +145,16 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     TranslateModule.forRoot({
-      defaultLanguage: 'de',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
+        defaultLanguage: 'de',
+        loader: {
+            provide: TranslateLoader,
+            useFactory: HttpLoaderFactory,
+            deps: [HttpClient]
+        }
     }),
-    MathjaxModule.forRoot()
-  ],
+    MathjaxModule.forRoot(),
+    SafeHtmlPipe
+],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     ajskommonitorCacheHelperServiceProvider,
