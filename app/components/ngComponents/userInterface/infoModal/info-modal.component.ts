@@ -19,6 +19,7 @@ import { ConfigStorageService } from 'services/config-storage-service/config-sto
 export class InfoModal implements OnInit {
     activeModal = inject(NgbActiveModal);
 
+    customTabTitle: string = '';
     tab1Title: string = '';
     tab3Title: string = '';
     tab3Content: string = '';
@@ -33,6 +34,7 @@ export class InfoModal implements OnInit {
     hideGreeting: boolean = true;
 
     landingpageContent: string | undefined;
+    customLandingPage: boolean = false;
 
     @Input() open!: any;
 
@@ -62,6 +64,8 @@ export class InfoModal implements OnInit {
 
     async initCustomLandingpage() {
 
+      this.customLandingPage = true;
+      this.customTabTitle = window.__env.customLandinPageTitle;
       this.landingpageContent = await firstValueFrom(this.configStorageService.getLandingpageConfig());
     }
 

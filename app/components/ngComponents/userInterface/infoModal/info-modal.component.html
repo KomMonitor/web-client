@@ -8,7 +8,11 @@
     <div class="modal-body" style="text-align: justify">
   
         <ul class="nav nav-tabs" id="infoModalTabs" role="tablist">
-          <li class="nav-item active">
+          <li class="nav-item active" *ngIf="customLandingPage">
+            <a class="nav-link active" id="infoModalCustomTab" data-toggle="tab" href="#infoModalCustomTabContent"
+              role="tab" aria-controls="infoModalCustomTabContent" aria-selected="true">{{customTabTitle}}</a>
+          </li>
+          <li class="nav-item" [ngClass]="{'active': !customLandingPage}">
             <a class="nav-link active" id="infoModalTab1" data-toggle="tab" href="#infoModalTab1Content"
               role="tab" aria-controls="infoModalTab1Content" aria-selected="true">{{tab1Title}}</a>
           </li>
@@ -22,10 +26,12 @@
           </li>
         </ul>
         <div class="tab-content" id="infoModalTabContent">
-          <div class="tab-pane active" id="infoModalTab1Content" role="tabpanel"
+          <div class="tab-pane active" id="infoModalCustomTabContent" role="tabpanel"
+            aria-labelledby="infoModalCustomTab">
+            <div [innerHTML]="landingpageContent | safeHtml"></div>
+          </div>
+          <div class="tab-pane" [ngClass]="{'active':!customLandingPage}" id="infoModalTab1Content" role="tabpanel"
             aria-labelledby="infoModalTab1">
-            <div *ngIf="landingpageContent; else defaultContent" [innerHTML]="landingpageContent | safeHtml"></div>
-            <ng-template #defaultContent>
 
               <p>KomMonitor ist ein GIS-gestütztes, raum-zeitliches Monitoring-Portal.
                 <br/>
@@ -91,7 +97,6 @@
               <div style="text-align:center">
                 <img src="logos/eu_esf-nrw_mags_fh_4c-logo.png" style="width:100%">
               </div>
-            </ng-template>
           </div>
           <div class="tab-pane" id="infoModalTab2Content" role="tabpanel"
             aria-labelledby="infoModalTab2">
