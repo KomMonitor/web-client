@@ -7,6 +7,8 @@ import { FavService } from 'services/fav-service/fav.service';
 import { MapService } from 'services/map-service/map.service';
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
+import { GeoresourcesDataset, GeoresourcesTopicsHierarchy } from '../../../models/georesources.models';
+
 
 @Component({
   selector: 'app-poi',
@@ -657,7 +659,9 @@ export class PoiComponent implements OnInit {
     }
   };
   
-  handlePoiOnMap(poi){
+  handlePoiOnMap(poi:GeoresourcesDataset){
+
+    this.checkGeoresourcesRecursive(poi);
 
     if(poi.isSelected){
       //display on Map
@@ -675,6 +679,51 @@ export class PoiComponent implements OnInit {
     }
 
   };
+
+  checkGeoresourcesRecursive(georesource:GeoresourcesDataset) {
+/* 
+    let test:any = document.getElementById('showAllForTopic_f50f6057-4f8c-4b8b-96b5-83e94eab211e');
+    test!.indeterminate = true; */
+
+    this.searchGeoresourcesRecursive(georesource,this.preppedTopicGeoresourceHierarchy);
+  }
+
+  searchGeoresourcesRecursive(georesource:GeoresourcesDataset, tree:GeoresourcesTopicsHierarchy[]):boolean {
+
+    let match = false;
+
+    tree.forEach(topic => {
+      let poiMatch = topic.poiData.filter(e => e.georesourceId==georesource.georesourceId);
+      let aoiMatch = topic.aoiData.filter(e => e.georesourceId==georesource.georesourceId);
+      let loiMatch = topic.loiData.filter(e => e.georesourceId==georesource.georesourceId);
+
+      if(poiMatch.length || aoiMatch.length || loiMatch.length) {
+        this.markCheckboxById(topic.topicId, georesource.isSelected);
+
+        match = true;
+      } else {
+        if(topic.subTopics.length) {
+          match = this.searchGeoresourcesRecursive(georesource,topic.subTopics);
+
+          if(match) {
+            this.markCheckboxById(topic.topicId, georesource.isSelected);
+          }
+        }
+      }
+    });
+
+    return match;
+  }
+
+  markCheckboxById(id:string, type:boolean) {
+    let elem:any = document.getElementById(`showAllForTopic_${id}`);
+
+    if(elem.checked===false) 
+      elem.indeterminate = type;
+
+    if(type===false)
+      elem.checked = false;
+  }
 
   addPoiLayerToMap(poiGeoresource, useCluster) {
     this.loadingData = true;

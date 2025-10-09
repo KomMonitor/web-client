@@ -194,7 +194,7 @@
                           &nbsp;&nbsp; <input type="checkbox" [(ngModel)]="subsubsubTopic.isSelected"
                             value="subsubsubTopic.isSelected"
                             id="showAllForTopic_{{subsubsubTopic.topicId}}"
-                            (change)="handleShowAllOnTopic(subsubsubTopic)">
+                            (change)="handleShowAllOnTopic(subsubsubTopic)" class="test">
                         </div>
                         <div>
                           <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star': georesourceTopicFavSelected(subsubsubTopic.topicId), 'glyphicon-star-empty':!georesourceTopicFavSelected(subsubsubTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subsubsubTopic.topicId)"></i>
