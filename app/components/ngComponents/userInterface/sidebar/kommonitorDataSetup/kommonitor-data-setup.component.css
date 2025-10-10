@@ -4,20 +4,35 @@
   color: #fff !important;
 }
 
-.style-hierarchy-selected-indicator {
-  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary) 12px);
+.style-fav-normal-indicator-0 {
+  background: var(--kommonitor-primary);
 }
 
-.style-hierarchy-selected-indicator-80 {
-  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-80) 12px);
+.style-fav-normal-indicator-2 {
+  background: var(--kommonitor-primary-60);
 }
 
-.style-hierarchy-selected-indicator-60 {
-  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-60) 12px);
+.style-fav-normal-indicator-3 {
+  background: var(--kommonitor-primary-40);
 }
 
-.style-hierarchy-selected-indicator-40 {
-  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-40) 12px);
+.style-fav-normal-indicator-1 {
+  background: var(--kommonitor-primary-80);
+}
+
+.style-hierarchy-selected-indicator, .style-fav-selected-indicator-0 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary) 12px) !important;
+}
+.style-hierarchy-selected-indicator-80, .style-fav-selected-indicator-1 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-80) 12px) !important;
+}
+
+.style-hierarchy-selected-indicator-60, .style-fav-selected-indicator-2 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-60) 12px) !important;
+}
+
+.style-hierarchy-selected-indicator-40, .style-fav-selected-indicator-3 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-40) 12px) !important;
 }
 
 .list-group-item p {

@@ -289,7 +289,7 @@
 
                             <ng-template #FavsRecursive let-list="list">
                               <div *ngFor="let topic of list | indicatorFavFilter:indicatorFavItems"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
-                                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}">
+                                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" [ngClass]="checkHierarchyIndicatorSelected(topic) ? 'style-fav-selected-indicator-' + topic.level : 'style-fav-normal-indicator-' + topic.level">
                                   <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
                                     class="indicatorFavCollapseTrigger" style="color: white;">
                                   <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'glyphicon-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
