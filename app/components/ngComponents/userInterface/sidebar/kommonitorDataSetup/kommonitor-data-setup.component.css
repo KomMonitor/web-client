@@ -3,3 +3,23 @@
   background-color: #f7931e !important;
   color: #fff !important;
 }
+
+.style-hierarchy-selected-indicator {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary) 12px);
+}
+
+.style-hierarchy-selected-indicator-80 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-80) 12px);
+}
+
+.style-hierarchy-selected-indicator-60 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-60) 12px);
+}
+
+.style-hierarchy-selected-indicator-40 {
+  background: linear-gradient(to right, color-mix(in hsl, #228B22, white 30%) 12px, var(--kommonitor-primary-40) 12px);
+}
+
+.list-group-item p {
+  margin: .5em 0;
+}

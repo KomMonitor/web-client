@@ -80,6 +80,11 @@
                                       <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
                                       [Einheitsbezeichnung]</p>
                                 </div>  
+    
+                                <div class="list-group-item list-group-item-default style-hierarchy-selected-indicator">
+                                  <p style="cursor:pointer; color: white;">
+                                      &nbsp;&nbsp;<b>Thema mit selektiertem Indikator</b></p>
+                                </div>  
                               </div>
     
                               <br/>
@@ -87,7 +92,7 @@
                               <label> Themenorientierter Datenkatalog </label>
   
                               <div *ngFor="let mainTopic of preppedIndicatorTopics">
-                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme" id="{{mainTopic.topicId}}">
+                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme" [ngClass]="{'style-hierarchy-selected-indicator': checkHierarchyIndicatorSelected(mainTopic)}" id="{{mainTopic.topicId}}">
                                   <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
                                   <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(mainTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(mainTopic.topicId)}" (click)="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
                                 </div>
@@ -95,14 +100,14 @@
                                 <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
                                   <div *ngFor="let subTopic of mainTopic.subTopics">
   
-                                    <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80">
+                                    <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80" [ngClass]="{'style-hierarchy-selected-indicator-80': checkHierarchyIndicatorSelected(subTopic)}">
                                       <p class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
                                       <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subTopic.topicId)}" (click)="onIndicatorTopicFavClick(subTopic.topicId)"></i>
                                     </div>	
                                     <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
                                       <div *ngFor="let subsubTopic of subTopic.subTopics">
                                         
-                                        <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-60">
+                                        <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-60" [ngClass]="{'style-hierarchy-selected-indicator-60': checkHierarchyIndicatorSelected(subsubTopic)}">
                                           <p class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
                                           <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubTopic.topicId)"></i>
                                         </div>
@@ -110,7 +115,7 @@
                                         <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
                                           <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
       
-                                            <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-40">
+                                            <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-40" [ngClass]="{'style-hierarchy-selected-indicator-40': checkHierarchyIndicatorSelected(subsubsubTopic)}">
                                               <p class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
                                               <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubsubTopic.topicId)"></i>
                                             </div>
@@ -123,7 +128,7 @@
                                                       <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
                                                     </div>
                                                     <div>
-                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                                     </div>
                                                   </div> 
                                                   <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -131,7 +136,7 @@
                                                       <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
                                                     </div>
                                                     <div>
-                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                                     </div>
                                                   </div>
                                                 </div>
@@ -147,7 +152,7 @@
                                                   <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
                                                 </div>
                                                 <div>
-                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                                 </div>
                                               </div> 
                                               <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -155,7 +160,7 @@
                                                   <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
                                                 </div>
                                                 <div>
-                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                                 </div>
                                               </div>
                                             </div>
@@ -171,7 +176,7 @@
                                               <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
                                             </div>
                                             <div>
-                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                             </div>
                                           </div> 
                                           <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -179,7 +184,7 @@
                                               <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
                                             </div>
                                             <div>
-                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                             </div>
                                           </div>
                                         </div>
@@ -197,7 +202,7 @@
                                           <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
                                         </div>
                                         <div>
-                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                         </div>
                                       </div> 
                                       <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -205,7 +210,7 @@
                                           <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
                                         </div>
                                         <div>
-                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(indicatorMetadata.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(indicatorMetadata.topicId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                         </div>
                                       </div>
                                     </div>

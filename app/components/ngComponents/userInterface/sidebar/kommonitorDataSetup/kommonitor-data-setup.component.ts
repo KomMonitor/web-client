@@ -1,13 +1,15 @@
+import { IndicatorsDataset } from './../../../models/indicators.models';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { error } from 'jquery';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService, IndicatorTopic } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FavService } from 'services/fav-service/fav.service';
+import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -54,7 +56,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
     'Auswahl erfolgreich gespeichert'];
 
-  preppedIndicatorTopics: IndicatorTopic[] = [];
+  preppedIndicatorTopics: IndicatorsTopicsHierarchy[] = [];
 
   dateSlider;
   config: any  = {
@@ -278,13 +280,13 @@ export class KommonitorDataSetupComponent implements OnInit {
     return tree;
   }
 
-  prepareIndicatorTopicsRecursive(tree:IndicatorTopic[]) {
+  prepareIndicatorTopicsRecursive(tree:IndicatorsTopicsHierarchy[]) {
 
-    let retTree:IndicatorTopic[] = tree.sort( (a:IndicatorTopic, b:IndicatorTopic) => {
+    let retTree:IndicatorsTopicsHierarchy[] = tree.sort( (a:IndicatorsTopicsHierarchy, b:IndicatorsTopicsHierarchy) => {
       return (a.topicName>b.topicName) ? 1 : 0;
     }).filter(e => e.indicatorCount>0);
 
-    retTree.forEach( (elem:IndicatorTopic) => {
+    retTree.forEach( (elem:IndicatorsTopicsHierarchy) => {
 
       if(!this.topicsCollapsed.includes(elem.topicId))
         this.topicsCollapsed.push(elem.topicId);
@@ -1143,6 +1145,33 @@ export class KommonitorDataSetupComponent implements OnInit {
       }
     });
   }
+
+  checkHierarchyIndicatorSelected(topic:IndicatorsTopicsHierarchy):boolean {
+
+    return this.searchSelectedIndicatorRecursive(topic);
+  }
+
+  searchSelectedIndicatorRecursive(topic:IndicatorsTopicsHierarchy):boolean {
+  
+      let match = false;
+  
+      let indicatorMatch = topic.indicatorData.filter(e => e.indicatorId==this.exchangeData.selectedIndicator.indicatorId);
+
+      if(indicatorMatch.length) {
+        match = true;
+      } else {
+        if(topic.subTopics.length) {
+          topic.subTopics.forEach(subTopic => {
+            let subMatch = this.searchSelectedIndicatorRecursive(subTopic);
+
+            if(subMatch===true)
+              match = subMatch;
+          });
+        }
+      }
+  
+      return match;
+    }
 
   checkBaseIndicatorFavItems(id, selected) {
     this.dataExchangeService.pipedData.headlineIndicatorHierarchy.forEach(entry => {

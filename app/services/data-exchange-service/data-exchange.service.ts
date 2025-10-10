@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import { IndicatorsDataset, IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 import jsPDF from 'jspdf';
 
 export interface DataExchange {
@@ -6,7 +7,7 @@ export interface DataExchange {
   customGreetingsContact_name: string;
   customGreetingsContact_organisation: string;
   customGreetingsTextInfoMessage: string;
-  selectedIndicator: Indicator;
+  selectedIndicator: IndicatorsDataset;
   availableSpatialUnits: SpatialUnit[];
   selectedDate: any;
   selectedSpatialUnit: SpatialUnit;
@@ -47,8 +48,8 @@ export interface DataExchange {
   allFeaturesRegionalSpatiallyUnassignable: any;
   classifyUsingWholeTimeseries: any;
   useNoDataToggle: any;
-  topicIndicatorHierarchy: IndicatorTopic[];
-  selectedIndicatorBackup: Indicator;
+  topicIndicatorHierarchy: IndicatorsTopicsHierarchy[];
+  selectedIndicatorBackup: IndicatorsDataset;
   displayableIndicators: any;
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
@@ -108,17 +109,6 @@ export interface KeycloakUser {
   email: string;
 }
 
-export interface IndicatorTopic {
-  indicatorCount: number;
-  indicatorData: any;
-  subTopics: IndicatorTopic[];
-  topicDescription: string;
-  topicId: string;
-  topicName: string;
-  topicResource: string;
-  topicType: string;
-}
-
 export interface SpatialUnit {
   spatialUnitLevel: string;
   spatialUnitId: any;
@@ -126,34 +116,6 @@ export interface SpatialUnit {
   outlineColor: any;
   outlineWidth: any;
   outlineDashArrayString: any;
-}
-
-export interface Indicator {
-  indicatorName: string;
-  geoJSON: any;
-  referenceDateNote: any;
-  metadata: {
-    updateInterval: any;
-    description: string;
-    databasis: any;
-    datasource: any;
-    contact: any;
-    note: any;
-  }
-  unit: any;
-  indicatorType: any;
-  interpretation: any;
-  abbreviation: string;
-  referencedIndicators: any;
-  referencedGeoresources: any;
-  isHeadlineIndicator: boolean;
-  defaultClassificationMapping: any;
-  applicableSpatialUnits: any;
-  indicatorId: any;
-  ogcServices: any;
-  applicableDates: any;
-  creationType: any;
-  processDescription:any;
 }
 
 @Injectable({

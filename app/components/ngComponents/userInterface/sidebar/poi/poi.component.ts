@@ -681,9 +681,6 @@ export class PoiComponent implements OnInit {
   };
 
   checkGeoresourcesRecursive(georesource:GeoresourcesDataset) {
-/* 
-    let test:any = document.getElementById('showAllForTopic_f50f6057-4f8c-4b8b-96b5-83e94eab211e');
-    test!.indeterminate = true; */
 
     this.searchGeoresourcesRecursive(georesource,this.preppedTopicGeoresourceHierarchy);
   }

@@ -10,6 +10,7 @@
 	--kommonitor-primary-40: rgb(from var(--kommonitor-primary) r g b / 0.4);
 	--kommonitor-primary-60: rgb(from var(--kommonitor-primary) r g b / 0.6);
 	--kommonitor-primary-80: rgb(from var(--kommonitor-primary) r g b / 0.8);
+  --kommonitor-orange: rgb(247, 147, 30);
 
 	--custom-font-family: "Source Sans Pro",  sans-serif;
 	
