@@ -15,4 +15,20 @@
     grid-template-columns: auto auto;
     padding-top: 1em;
   }
+
+  .style-fav-normal-item-0 {
+    background: var(--kommonitor-primary);
+  }
+
+  .style-fav-normal-item-2 {
+    background: var(--kommonitor-primary-60);
+  }
+
+  .style-fav-normal-item-3 {
+    background: var(--kommonitor-primary-40);
+  }
+
+  .style-fav-normal-item-1 {
+    background: var(--kommonitor-primary-80);
+  }
 }

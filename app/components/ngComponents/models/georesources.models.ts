@@ -19,7 +19,8 @@ export interface GeoresourcesTopicsHierarchy {
   wfsCount: number;
   wfsData: any[];
   wmsCount: number;
-  wmsData: any[]
+  wmsData: any[];
+  isSelected: boolean;
 }
 
 export interface GeoresourcesDataset {
@@ -28,11 +29,11 @@ export interface GeoresourcesDataset {
   datasetName: string;
   geoJSON: any;
   georesourceId: string;
-  isAOI: false;
-  isLOI: false;
-  isPOI: true;
-  isPublic: true;
-  isSelected: true;
+  isAOI: boolean;
+  isLOI: boolean;
+  isPOI: boolean;
+  isPublic: boolean;
+  isSelected: boolean;
   loiColor: null;
   loiDashArrayString: null;
   loiWidth: 3;

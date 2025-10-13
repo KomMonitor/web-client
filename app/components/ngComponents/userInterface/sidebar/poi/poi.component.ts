@@ -349,8 +349,51 @@ export class PoiComponent implements OnInit {
       }
     };
   };
-  
-  handleShowAllOnTopic(topic) {
+
+  //georesourceTopicFavItems und preppedTopicGeoresourceHierarchy syncen, damit handleShowAllOnTopic() in hierarchy und favorites gleichermaßen checkboxes setzt
+
+  searchGeoresourcesTopicsRecursive(dataset: GeoresourcesTopicsHierarchy, tree:GeoresourcesTopicsHierarchy[], type:string):boolean {
+
+    let match = false;
+
+    tree.forEach(topic => {
+
+      if(topic.topicId==dataset.topicId) {
+        this.markTopicsCheckboxById(topic.topicId, dataset.isSelected, type);
+        topic.isSelected = dataset.isSelected;
+
+        match = true;
+      } else {
+        if(topic.subTopics.length) {
+          match = this.searchGeoresourcesTopicsRecursive(dataset,topic.subTopics, type);
+        }
+      }
+    });
+
+    return match;
+  }
+
+  markTopicsCheckboxById(id, type, datasetType) {
+    
+    let elem!:any;
+    if(datasetType=='favs')
+      elem = document.getElementById(`showAllForTopic_${id}`);
+    else
+      elem = document.getElementById(`showAllForFavTopic_${id}`);
+
+    // showAllForFavTopic_ may not exists if only subTopics in Favs iso entire tree
+    if(elem)
+      elem.checked = type;
+  }
+
+  handleShowAllOnTopic(topic:GeoresourcesTopicsHierarchy, type:string) {
+
+    // check sibling checkbox in favs/data-catalogue dataset
+    if(type=='list')
+      this.searchGeoresourcesTopicsRecursive(topic, this.georesourceFavTopicsTree, type);
+    else
+      this.searchGeoresourcesTopicsRecursive(topic, this.preppedTopicGeoresourceHierarchy, type);
+
     for (let poi of topic.poiData) {
       poi.isSelected = topic.isSelected;
     }
@@ -598,7 +641,6 @@ export class PoiComponent implements OnInit {
 
   onChangeSelectedFavDate(georesourceDataset,event){
 
-    console.log(georesourceDataset.availablePeriodsOfValidity[event.srcElement.value]);
     georesourceDataset.selectedDate = georesourceDataset.availablePeriodsOfValidity[event.srcElement.value];
 
     // only if it s already selected, we must modify the shown dataset 
@@ -713,13 +755,22 @@ export class PoiComponent implements OnInit {
   }
 
   markCheckboxById(id:string, type:boolean) {
+
     let elem:any = document.getElementById(`showAllForTopic_${id}`);
+    let elemFav:any = document.getElementById(`showAllForFavTopic_${id}`);
 
-    if(elem.checked===false) 
+    if(elem.checked===false)
       elem.indeterminate = type;
+    
+    if(elemFav && elemFav.checked===false)
+      elemFav.indeterminate = type;
 
-    if(type===false)
+    if(type===false) {
       elem.checked = false;
+
+      if(elemFav)
+        elemFav.checked = false;
+    }
   }
 
   addPoiLayerToMap(poiGeoresource, useCluster) {
