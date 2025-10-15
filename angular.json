@@ -29,7 +29,8 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/nouislider/dist/nouislider.css",
               "node_modules/ag-grid-community/styles/ag-grid.css",
-              "node_modules/ag-grid-community/styles/ag-theme-alpine.css"
+              "node_modules/ag-grid-community/styles/ag-theme-alpine.css",
+              "node_modules/leaflet-geosearch/assets/css/leaflet.css"
             ],
             "scripts": []
           },
@@ -96,7 +97,8 @@
             "styles": [
               "app/app.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/nouislider/dist/nouislider.css"
+              "node_modules/nouislider/dist/nouislider.css",
+              "node_modules/leaflet-geosearch/assets/css/leaflet.css"
             ],
             "scripts": []
           }

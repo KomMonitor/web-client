@@ -2,6 +2,8 @@ import { colorbrewer } from './../../components/ngComponents/userInterface/kommo
 import { Inject, Injectable } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as classyBrew from '../../../customizedExternalLibs/classyBrew.js';
+import L from 'leaflet';
+import 'leaflet.pattern';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +39,7 @@ export class VisualStyleHelperServiceNew {
   measureOfValueBrewArray:any;
   dynamicIncreaseBrew:any;
   dynamicDecreaseBrew:any;
-  noDataFillPattern:any;
+  //noDataFillPattern:any;
 
   greaterThanValues:any = [];
   lesserThanValues:any = [];
@@ -93,11 +95,11 @@ export class VisualStyleHelperServiceNew {
   outlierPropertyValue_low_extreme = "low-extreme";
   outlierPropertyValue_no = "no";
 
-  //outlierFillPattern_low = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(45)" });
-  outlierFillPattern_low = [];
+  outlierFillPattern_low = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(45)" });
+  //outlierFillPattern_low = [];
 
-  //outlierFillPattern_high = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(-45)" });
-  outlierFillPattern_high = [];
+  outlierFillPattern_high = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(-45)" });
+  //outlierFillPattern_high = [];
 
   /* shape = new L.PatternCircle({
     x: 5,
@@ -106,7 +108,7 @@ export class VisualStyleHelperServiceNew {
     fill: true,
     color: this.dataExchangeService.pipedData.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
   }); */
-  //noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
+  noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
   //noDataFillPattern = [];
   //noDataFillPattern.addShape(shape);
 

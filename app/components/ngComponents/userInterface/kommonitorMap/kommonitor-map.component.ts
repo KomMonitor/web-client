@@ -11,6 +11,7 @@ import { GenericMapHelperService } from 'services/generic-map-helper-service/gen
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
+import { GeoSearchControl, OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 //import 'leaflet-groupedlayercontrol';
 
 import '../../../../../customizedExternalLibs/leaflet-groupedLayerControl/leaflet.groupedLayerControl';
@@ -362,6 +363,44 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.sortableLayers = ["Web Map Services (WMS)"];
     }   
 
+    this.initSearch();
+  }
+
+  initSearch() {
+    
+    const provider = new OpenStreetMapProvider({
+      params: {
+        'accept-language': 'de', // render results in Dutch
+        countrycodes: 'de', // limit search results to the Netherlands
+        addressdetails: 1, // include additional address detail parts  
+        viewbox: "" + (Number(window.__env.initialLongitude) - 0.001) + "," + (Number(window.__env.initialLatitude) - 0.001) + "," + (Number(window.__env.initialLongitude) + 0.001) + "," + (Number(window.__env.initialLatitude) + 0.001)             
+      },
+      searchUrl: window.__env.targetUrlToGeocoderService + '/search',
+      reverseUrl: window.__env.targetUrlToGeocoderService + '/reverse'
+    });
+
+    const searchControl = SearchControl({
+      position: "topleft",
+      provider: provider,
+      style: 'button',
+      autoComplete: true,
+      autoCompleteDelay: 250,
+      showMarker: true,                                   // optional: true|false  - default true
+      showPopup: false,                                   // optional: true|false  - default false
+      marker: {                                           // optional: L.Marker    - default L.Icon.Default
+        icon: new L.Icon.Default(),
+        draggable: false,
+      },
+      popupFormat: ({ query, result }) => result.label,   // optional: function    - default returns result label
+      maxMarkers: 1,                                      // optional: number      - default 1
+      retainZoomLevel: false,                             // optional: true|false  - default false
+      animateZoom: true,                                  // optional: true|false  - default true
+      autoClose: false,                                   // optional: true|false  - default false
+      searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
+      keepResult: false                                   // optional: true|false  - default false
+    });
+
+    this.map.addControl(searchControl);
   }
 
   private initMap(): void {
@@ -545,7 +584,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     );
 
-    let geosearchControl = GeoSearch.GeoSearchControl({
+    // ts-igone
+    const geosearchControl = new GeoSearchControl({
       position: "topleft",
       provider: provider,
       style: 'button',
@@ -564,9 +604,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       autoClose: false,                                   // optional: true|false  - default false
       searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
       keepResult: false                                   // optional: true|false  - default false
-    });
-
-    this.map.addControl(geosearchControl); */
+    }); */
+    
+    /* this.map.addControl(geosearchControl);  */
 
 
     /////////////////////////////////////////////////////
@@ -595,6 +635,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // todo
     /* let measureControl = new L.Control.Measure(measureOptions);
     measureControl.addTo(this.map); */
+  }
+
+  async test() {
+    
+    const provider = new OpenStreetMapProvider();
+
+    const form:any = document.getElementById('testForm');
+
+    console.log(`Changed:  ${form.value}`);
+    const results = await provider.search({ query: form.value });
+    console.log(results); // » [{}, {}, {}, ...]
   }
 
   onGlobalFilterChange() {
