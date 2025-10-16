@@ -11,8 +11,8 @@ import { GenericMapHelperService } from 'services/generic-map-helper-service/gen
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
-import { GeoSearchControl, OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
-//import 'leaflet-groupedlayercontrol';
+import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
+import 'leaflet-measure';
 
 import '../../../../../customizedExternalLibs/leaflet-groupedLayerControl/leaflet.groupedLayerControl';
 
@@ -364,6 +364,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }   
 
     this.initSearch();
+    this.initMeasurement();
   }
 
   initSearch() {
@@ -401,6 +402,42 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
 
     this.map.addControl(searchControl);
+  }
+
+  initMeasurement() {
+    let measureOptions = {
+      position: 'topleft',
+      primaryLengthUnit: 'meters',
+      secondaryLengthUnit: 'kilometers',
+      primaryAreaUnit: 'sqmeters',
+      activeColor: "#d15c54",
+      completedColor: "#d15c54",
+      decPoint: ',',
+      thousandsSep: '.'
+    };
+
+    let measureControl = new L.Control.Measure(measureOptions);
+    measureControl.addTo(this.map);
+
+    // fix map-jumping with every click
+    L.Control.Measure.include({
+      // Prevent auto-panning when the capture marker is placed
+      _setCaptureMarkerIcon: function () {
+        // Turn off autoPan
+        this._captureMarker.options.autoPanOnFocus = false;
+        // Call the original icon setup
+        this._captureMarker.setIcon(
+          L.divIcon({
+            iconSize: this._map.getSize().multiplyBy(2),
+          })
+        );
+      },
+
+      // override _startMeasure if necessary
+      // _startMeasure: function () {
+      //   // Your custom override
+      // },
+    });
   }
 
   private initMap(): void {
@@ -562,90 +599,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.noDataFillPattern = this.visualStyleHelperService.noDataFillPattern;
     this.noDataFillPattern.addTo(this.map);
-
-    // this.loadingData = false;
-
-    // todo leaflet-geosearch not working
-    /////////////////////////////////////////////////////
-    ///// LEAFLET GEOSEARCH SETUP
-    /////////////////////////////////////////////////////
-    // remaining is the same as in the docs, accept for the instead of declarations
-
-  /*   let provider = new OpenStreetMapProvider(    
-      {
-        params: {
-          'accept-language': 'de', // render results in Dutch
-          countrycodes: 'de', // limit search results to the Netherlands
-          addressdetails: 1, // include additional address detail parts  
-          viewbox: "" + (Number(window.__env.initialLongitude) - 0.001) + "," + (Number(window.__env.initialLatitude) - 0.001) + "," + (Number(window.__env.initialLongitude) + 0.001) + "," + (Number(window.__env.initialLatitude) + 0.001)             
-        },
-        searchUrl: window.__env.targetUrlToGeocoderService + '/search',
-        reverseUrl: window.__env.targetUrlToGeocoderService + '/reverse'
-      }
-    );
-
-    // ts-igone
-    const geosearchControl = new GeoSearchControl({
-      position: "topleft",
-      provider: provider,
-      style: 'button',
-      autoComplete: true,
-      autoCompleteDelay: 250,
-      showMarker: true,                                   // optional: true|false  - default true
-      showPopup: false,                                   // optional: true|false  - default false
-      marker: {                                           // optional: L.Marker    - default L.Icon.Default
-        icon: new L.Icon.Default(),
-        draggable: false,
-      },
-      popupFormat: ({ query, result }) => result.label,   // optional: function    - default returns result label
-      maxMarkers: 1,                                      // optional: number      - default 1
-      retainZoomLevel: false,                             // optional: true|false  - default false
-      animateZoom: true,                                  // optional: true|false  - default true
-      autoClose: false,                                   // optional: true|false  - default false
-      searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
-      keepResult: false                                   // optional: true|false  - default false
-    }); */
-    
-    /* this.map.addControl(geosearchControl);  */
-
-
-    /////////////////////////////////////////////////////
-    ///// LEAFLET SEARCH SETUP
-    /////////////////////////////////////////////////////
-    // will be updated once example indicator layer is loaded
-   /*  this.searchControl = new this.MultipleResultsLeafletSearch({
-    });
-    this.searchControl.addTo(this.map); */
-
-
-    /////////////////////////////////////////////////////
-    ///// LEAFLET MEASURE SETUP
-    /////////////////////////////////////////////////////
-    let measureOptions = {
-      position: 'topleft',
-      primaryLengthUnit: 'meters',
-      secondaryLengthUnit: 'kilometers',
-      primaryAreaUnit: 'sqmeters',
-      activeColor: "#d15c54",
-      completedColor: "#d15c54",
-      decPoint: ',',
-      thousandsSep: '.'
-    };
-
-    // todo
-    /* let measureControl = new L.Control.Measure(measureOptions);
-    measureControl.addTo(this.map); */
-  }
-
-  async test() {
-    
-    const provider = new OpenStreetMapProvider();
-
-    const form:any = document.getElementById('testForm');
-
-    console.log(`Changed:  ${form.value}`);
-    const results = await provider.search({ query: form.value });
-    console.log(results); // » [{}, {}, {}, ...]
   }
 
   onGlobalFilterChange() {
@@ -656,111 +609,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   openLayerControl() {
     $('.leaflet-control-layers').toggle();
   }
-
- /*  MultipleResultsLeafletSearch = L.Control.Search.extend({
-
-    _makeUniqueKey: function (featureName, featureId) {
-      return featureName + " (Name) - " + featureId + " (ID)";
-    },
-
-    _searchInLayer: function (layer, retRecords, propName) {
-      let self = this, loc;
-      let key_withUniqueID;
-
-      if (layer instanceof L.Control.Search.Marker) return;
-
-      if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
-        if (self._getPath(layer.options, propName)) {
-          loc = layer.getLatLng();
-          loc.layer = layer;
-          retRecords[self._getPath(layer.options, propName)] = loc;
-        }
-        else if (self._getPath(layer.feature.properties, propName)) {
-          loc = layer.getLatLng();
-          loc.layer = layer;
-          key_withUniqueID = this._makeUniqueKey(self._getPath(layer.feature.properties, propName), layer.feature.properties.ID);
-          retRecords[key_withUniqueID] = loc;
-        }
-        else {
-          //throw new Error("propertyName '"+propName+"' not found in marker");
-          console.warn("propertyName '" + propName + "' not found in marker");
-        }
-      }
-      else if (layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon) {
-        if (self._getPath(layer.options, propName)) {
-          loc = layer.getBounds().getCenter();
-          loc.layer = layer;
-          retRecords[self._getPath(layer.options, propName)] = loc;
-        }
-        else if (self._getPath(layer.feature.properties, propName)) {
-          loc = layer.getBounds().getCenter();
-          loc.layer = layer;
-          key_withUniqueID = this._makeUniqueKey(self._getPath(layer.feature.properties, propName), layer.feature.properties.ID);
-          retRecords[key_withUniqueID] = loc;
-        }
-        else {
-          //throw new Error("propertyName '"+propName+"' not found in shape");
-          console.warn("propertyName '" + propName + "' not found in shape");
-        }
-      }
-      else if (layer.hasOwnProperty('feature'))//GeoJSON
-      {
-        if (layer.feature.properties.hasOwnProperty(propName)) {
-
-          key_withUniqueID = this._makeUniqueKey(self._getPath(layer.feature.properties, propName), layer.feature.properties.ID);
-          if (layer.getLatLng && typeof layer.getLatLng === 'function') {
-            loc = layer.getLatLng();
-            loc.layer = layer;
-            retRecords[key_withUniqueID] = loc;
-          } else if (layer.getBounds && typeof layer.getBounds === 'function') {
-            loc = layer.getBounds().getCenter();
-            loc.layer = layer;
-            retRecords[key_withUniqueID] = loc;
-          } else {
-            console.warn("Unknown type of Layer");
-          }
-        }
-        else {
-          //throw new Error("propertyName '"+propName+"' not found in feature");
-          console.warn("propertyName '" + propName + "' not found in feature");
-        }
-      }
-      else if (layer instanceof L.LayerGroup) {
-        layer.eachLayer(function (layer) {
-          self._searchInLayer(layer, retRecords, propName);
-        });
-      }
-    },
-    _defaultMoveToLocation: function (latlng, title, map) {
-      if (this.options.zoom)
-        this._map.setView(latlng, this.options.zoom);
-      else
-        this._map.panTo(latlng);
-
-      // add collapse after click on item
-      this.collapse();
-    },
-    _handleAutoresize: function () {
-      let maxWidth;
-
-      if (!this._map) {
-        this._map = this.map;
-      }
-
-      if (this._input.style.maxWidth !== this._map._container.offsetWidth) {
-        maxWidth = this._map._container.clientWidth;
-
-        // other side margin + padding + width border + width search-button + width search-cancel
-        maxWidth -= 10 + 20 + 1 + 30 + 22;
-
-        this._input.style.maxWidth = maxWidth.toString() + 'px';
-      }
-
-      if (this.options.autoResize && (this._container.offsetWidth + 20 < this._map._container.offsetWidth)) {
-        this._input.size = this._input.value.length < this._inputMinSize ? this._inputMinSize : this._input.value.length;
-      }
-    }
-  }); */
 
   onCloseOutlierAlert() {
     // $("#outlierInfo").hide();
