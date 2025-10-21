@@ -2295,9 +2295,15 @@ angular.module('kommonitorMap').component(
         $scope.recenterMap = function () {
           $scope.map.invalidateSize(true);
 
-          fitBounds();
+          // fitBounds();
+          //reinit initial start view
+          $scope.reinitStartView();
 
         };
+
+        $scope.reinitStartView = function(){
+          $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
+        }
 
         $scope.$on("recenterMapContent", function (event) {
           $scope.recenterMap();
