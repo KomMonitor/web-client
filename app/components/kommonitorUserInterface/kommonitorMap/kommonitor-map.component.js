@@ -757,7 +757,8 @@ angular.module('kommonitorMap').component(
             if (featureLayers.length === 0) {
               $scope.searchControl = new MultipleResultsLeafletSearch({
               });
-              $scope.searchControl.addTo($scope.map);
+              // hide for DiKomAll UX Demo
+              // $scope.searchControl.addTo($scope.map);
             }
             else {
               layerGroup = L.featureGroup(featureLayers);
@@ -839,7 +840,8 @@ angular.module('kommonitorMap').component(
                 }
               });
 
-              $scope.searchControl.addTo($scope.map);
+              // hide for DiKomAll UX Demo
+              // $scope.searchControl.addTo($scope.map);
             }
           }, 200);
         };
