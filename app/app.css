@@ -1265,13 +1265,13 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 }
 
 #exportMapButton {
-	left: 170px;
+	left: 120px;
 	top: 10px;
 	z-index: 1003;
 }
 
 #openLayerControlButton {
-	left: 220px;
+	left: 170px;
 	top: 10px;
 	z-index: 1003;
 }
@@ -1331,7 +1331,7 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
   /* float: none; */
 	position: absolute;
 	left: 60px;
-	top: 100px;
+	top: 50px;
 	z-index: 1003;
 }
 
@@ -1349,7 +1349,7 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	/* float: none; */
 	position: absolute;
 	left: 60px;
-	top: 150px;
+	top: 100px;
 	z-index: 1003;
 }
 
