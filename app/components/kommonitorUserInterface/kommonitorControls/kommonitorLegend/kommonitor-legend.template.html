@@ -468,44 +468,84 @@
 
 					</uib-tab>
 
-					<uib-tab index="2" heading="WMS-Dienste" ng-show="hasActiveWMSLayers()">
+					<!-- <uib-tab index="2" heading="WMS-Dienste" ng-show="hasActiveWMSLayers()"> -->
+					<uib-tab index="2" heading="Lärm">
 
 						<div class="just-padding">
 							<table class="table table-condensed " style="margin-bottom:0px;">
 								<thead>
 								  <tr>
 									<th>Datensatz</th>
-									<th>Layer Transparenz</th>
 									<th>Legende</th>
 								  </tr>
 								</thead>
 
 								<tbody>
 
-									<tr ng-repeat="dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets_keywordFiltered | filter:{isSelected:'true'}">										
+									<tr >										
 										<td>
-											<label ng-bind-html="dataset.title">
+											<label >L&auml;rmkartierung
 											</label>
-										</td>
-										<td>
-											<div class="form-group" align="center">
-
-												<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="$ctrl.kommonitorMapServiceInstance.adjustOpacityForWmsLayer(dataset, 1 - dataset.transparency);" type="range"  min="0" max="1" step="0.01">
-
-												<br/>
-
-												<label>{{dataset.transparency}}</label>
-											</div>
 										</td>
 										
 										<td class="text-center">
-											<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+											<img src="./logos/laerm_legend.png">
 										</td>
 									</tr>
 
 								</tbody>
 							</table>
 						</div>	
+					</uib-tab>
+
+					<uib-tab index="3" heading="Georessourcen" >
+
+						<div class="just-padding">
+							<table class="table table-condensed " style="margin-bottom:0px;">
+								<thead>
+								  <tr>
+									
+									<th>Legende</th>
+									<th>Datensatz</th>
+								  </tr>
+								</thead>
+
+								<tbody>
+
+									<tr ng-repeat="dataset in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources ">										
+										
+										
+										<td class="text-center">
+											<div align="center">
+												<div ng-if="dataset.isPOI"
+												class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
+												<span
+													ng-if="!dataset.poiMarkerStyle || dataset.poiMarkerStyle == 'symbol'"
+													style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
+													class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
+													aria-hidden="true"></span>
+												<span 
+													ng-else
+													style="font-size:0.9em; color:{{::dataset.poiSymbolColor}};">
+													{{ dataset.poiMarkerText }}
+												</span>
+												</div>
+												<div ng-if="dataset.isAOI">
+												<i
+												style="width:18px; height:18px; float:none; background:{{::dataset.aoiColor}}; display:inherit;">
+												</i>
+												</div>
+											</div>
+										</td>
+										<td>
+											<label ng-bind-html="dataset.datasetName">
+											</label>
+										</td>
+									</tr>
+
+								</tbody>
+							</table>
+						</div>
 					</uib-tab>
 
 				
