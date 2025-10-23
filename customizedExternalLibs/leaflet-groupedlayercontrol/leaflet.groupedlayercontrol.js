@@ -127,6 +127,15 @@ L.Control.GroupedLayers = L.Control.extend({
     this._separator = L.DomUtil.create('div', className + '-separator', form);
     this._overlaysList = L.DomUtil.create('div', className + '-overlays', form);
 
+    var baseLayerLabel = document.createElement('div');
+        baseLayerLabel.className = 'leaflet-control-layers-group-label';
+        var baseLayerName = document.createElement('span');
+        baseLayerName.className = 'leaflet-control-layers-group-name';
+        baseLayerName.innerHTML = "Hintergrundkarten";
+        baseLayerLabel.appendChild(baseLayerName);
+
+    container.appendChild(baseLayerLabel);
+
     container.appendChild(form);
   },
 
