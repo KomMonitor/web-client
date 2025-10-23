@@ -23,12 +23,7 @@
     <app-language-switcher></app-language-switcher>
     <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
     <a style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
-    
-    <div id="reportingButton" *ngIf="visibilityHelperService.elementVisibility.reportingButton" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" >
-      <p (click)="openReportingModal()" data-toggle="modal" class="kommonitor-theme" title="Report erstellen&nbsp;&nbsp;">
-        <i class="fas fa-file-alt"></i>
-      </p>
-    </div>			
+    		
     <div id="switchAdvancedMode" *ngIf="visibilityHelperService.showAdvancedModeSwitch" 
     style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
       <strong>Erweiterte Ansicht</strong> &nbsp;
@@ -112,6 +107,11 @@
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
         (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
         <i style="font-size:2.5vh;" class="fas fa-route"></i>
+      </button>
+
+      <button *ngIf="visibilityHelperService.elementVisibility.reportingButton" type="button" style="display: block; position: relative; margin-top: 5px;"
+        (click)="openReportingModal()" class="btn btn-custom btn-circle" data-toggle="modal" title="Report erstellen">
+        <i style="font-size:2.5vh;" class="fas fa-file-alt"></i>
       </button>
     </div>
 
