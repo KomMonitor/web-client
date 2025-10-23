@@ -16,7 +16,7 @@ angular
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorMapServiceInstance = kommonitorMapService;
-								$scope.useCluster = true;
+								$scope.useCluster = false;
 								$scope.useSpatialFilterForGeoressources = false;
 								$scope.loadingData = false;
 								$scope.date;
