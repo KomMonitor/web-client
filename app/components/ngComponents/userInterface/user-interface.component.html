@@ -48,47 +48,69 @@
   <div id="mapWrapper">
     <div id="sideBarButtons">
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
+        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
           <i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonPoiClass" data-toggle="tooltip" title="Infrastrukturdaten">
+        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
           <i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonDataImportClass"  data-toggle="tooltip" title="Datenimport">
+        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
           <i style="font-size:2.5vh;" class="fas fa-file-import"></i>
       </button> 
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
+        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse')}" data-toggle="tooltip" title="Darstellungsfilter">
           <i style="font-size:2.5vh;" class="fas fa-filter"></i>
       </button>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarBalanceCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
-          <i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
-      </button>
+      <div>
+        <button type="button" style="display: block; position: relative; margin-top: 5px;" 
+          (click)="onDiagramSubMenuClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="statistische Diagramme">
+            <i style="font-size:2.5vh;" class="fas fa-chart-simple"></i>
+        </button>
+        
+        <div id="diagramSubMenu">
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDiagramsCollapse" 
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
-          <i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
-      </button>
+          <div class="subMenuButtonWrapper">
+            <button type="button" style="display: block; position: relative;" id="sidebarBalanceCollapse"
+              (click)="onDiagramSubMenuButtonClick($event)" [ngClass]="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
+                <i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
+            </button>
+            <p>Erfasst und bewertet den Datenbestand &uuml;ber einen definierbaren Zeitraum hinweg. Ermöglicht es, zeitliche Veränderungen transparent zu machen und Entwicklungen gezielt zu analysieren.</p>
+          </div>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarRadarDiagramCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
-          <img src="icons/radarMap.svg">
-      </button>
+          <div class="subMenuButtonWrapper">
+            <button type="button" style="display: block; position: relative;" id="sidebarDiagramsCollapse" 
+              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="statistische Diagramme">
+                <i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
+            </button>
+            <p>&Uuml;bersicht der statistischen Kennzahlen der verschiedenen Teilindikatoren.</p>
+          </div>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarRegressionDiagramCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
-          <img src="icons/scatterPlot.svg">
-      </button>
+          <div class="subMenuButtonWrapper">
+            <button type="button" style="display: block; position: relative" id="sidebarRadarDiagramCollapse"
+              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Indikatorenradar">
+                <img src="icons/radarMap.svg">
+            </button>
+            <p>Visualisiert mehrere Variablen gleichzeitig und zeigt Stärken sowie Schwächen auf einen Blick. Es eignet sich ideal zum Vergleichen komplexer Profile oder Leistungsindikatoren.</p>
+          </div>
+
+          <div class="subMenuButtonWrapper">
+            <button type="button" style="display: block; position: relative" id="sidebarRegressionDiagramCollapse"
+              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Regressionsdiagramm">
+                <img src="icons/scatterPlot.svg">
+            </button>
+            <p>Zeigt den Zusammenhang zwischen zwei Variablen und veranschaulicht Trends oder Abhängigkeiten in Daten. Es dient dazu, Prognosen zu treffen und Muster in Datensätzen zu erkennen.</p>
+          </div>
+        </div>
+      </div>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
-        (click)="onSidebarButtonClick($event)" [ngClass]="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
         <i style="font-size:2.5vh;" class="fas fa-route"></i>
       </button>
     </div>

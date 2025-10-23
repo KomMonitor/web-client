@@ -41,16 +41,9 @@ export class UserInterfaceComponent implements OnInit {
 
   sidebarLegendClass = "";
 
-  buttonIndicatorConfigClass = "btn btn-custom btn-circle";
-  buttonDiagramsClass = "btn btn-custom btn-circle";
-  buttonRadarDiagramClass = "btn btn-custom btn-circle";
-  buttonProcessingClass = "btn btn-custom btn-circle";
-  buttonRegressionDiagramClass = "btn btn-custom btn-circle";
+  // check put "invert" class, in case diagram buttons must be stiled differently
   buttonFilterClass = "btn btn-custom btn-circle";
   buttonBalanceClass = "btn btn-custom btn-circle";
-  buttonReachabilityClass = "btn btn-custom btn-circle";
-  buttonPoiClass = "btn btn-custom btn-circle";
-  buttonDataImportClass = "btn btn-custom btn-circle";
 
   sidebarElement = "";
 
@@ -301,4 +294,12 @@ export class UserInterfaceComponent implements OnInit {
 			this.broadcastService.broadcast("toggleExpertControl");
     }
 
+    onDiagramSubMenuClick() {
+      $('#diagramSubMenu').toggle();
+    }
+
+    onDiagramSubMenuButtonClick($event) {
+      this.onSidebarButtonClick($event);
+      this.onDiagramSubMenuClick();
+    }
 }

@@ -1248,15 +1248,6 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
   position: absolute;
 }
 
-#sideBarButtons{
-    margin-top: 200px;
-  width: 90px;
-  /* height: 80vh; */
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-}
-
 /* MAP UTIL BUTTONS */
 #recenterMapButton {
 	left: 70px;
@@ -2435,10 +2426,10 @@ transition: opacity 0.3s;
   width: 5vh;
   height: 5vh;
   text-align: center;
-  padding: 6px 0;
+  padding: 6px 0 !important;
   font-size: 12px;
   line-height: 1.42;
-  border-radius: 2.5vh;
+  border-radius: 2.5vh !important;
 	left: 10px;
 	z-index: 1003;
 }
@@ -2485,9 +2476,10 @@ transition: opacity 0.3s;
   text-decoration: none;
   font-size: 14px;
   color: white;
-  border-radius: 0 3vh 2.5vh 0;
+  border-radius: 0 3vh 2.5vh 0 !important;
 	background-color: rgb(236,240,245);
 	z-index: 1003;
+  border: 0 !important;
 }
 
 .btn-docked img {
@@ -2522,6 +2514,16 @@ transition: opacity 0.3s;
 	position: absolute;
 	z-index: 1003;
 }
+
+/* .btn-custom.invert {
+  background-color: white !important;
+	color: black !important;
+	border: 2px solid var(--kommonitor-primary) !important;
+}
+
+.btn-custom.invert img {
+	filter: invert(0) !important;
+} */
 
 .btn-custom:hover {
 	background-color: white;
