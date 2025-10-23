@@ -21,6 +21,8 @@ export class UserInterfaceComponent implements OnInit {
   userRoleInformation = {};
   userGroupInformation:any[] = [];
 
+  expertToolbarVisible = false;
+
   showUserLogin = false;
   authenticated = false;
   password;
@@ -293,5 +295,10 @@ export class UserInterfaceComponent implements OnInit {
 		onToggleInfoControlButtonClick(){
 			this.broadcastService.broadcast("toggleInfoControl");
 		}
+
+    onExpertButtonClick() {
+      this.expertToolbarVisible = !this.expertToolbarVisible;
+			this.broadcastService.broadcast("toggleExpertControl");
+    }
 
 }

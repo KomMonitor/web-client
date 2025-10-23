@@ -109,8 +109,13 @@
           <i style="font-size:1.5em;margin-left:-5px;" class="fas fa-download"></i>
       </button>
 
-      <button type="button" id="openLayerControlButton" data-toggle="button"
-        (click)="onOpenLayerControlButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Layer Control anzeigen">
+      <button type="button" id="expertButton" data-toggle="button" 
+        (click)="onExpertButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Experten-Werkzeuge anzeigen" >
+        <i style="font-size:1.5em;margin-left:-5px;" class="fa fa-screwdriver-wrench"></i>
+      </button>
+
+      <button type="button" id="openLayerControlButton" data-toggle="button" [ngClass]="{'visible':expertToolbarVisible}"
+        (click)="onOpenLayerControlButtonClick()" class="btn btn-leaflet-custom expertButton" data-toggle="tooltip" title="Layer Control anzeigen">
           <i style="font-size:1.5em;margin-left:-5px;" class="fas fa-layer-group"></i>
       </button>
     </div>		

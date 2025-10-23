@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, Renderer2 } from '@angular/core';
 import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -13,6 +13,7 @@ import domtoimage from 'dom-to-image-more';
 import { saveAs } from 'file-saver';
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import 'leaflet-measure';
+import 'leaflet-search';
 
 import '../../../../../customizedExternalLibs/leaflet-groupedLayerControl/leaflet.groupedLayerControl';
 
@@ -25,6 +26,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   
   private map;
   searchControl:any;
+  geosearchControl:any;
 
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
   numberOfDecimals = window.__env.numberOfDecimals;
@@ -176,7 +178,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private broadcastService: BroadcastService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private filterHelperService: FilterHelperService,
-    private genericMapHelperService: GenericMapHelperService
+    private genericMapHelperService: GenericMapHelperService,
+    private renderer: Renderer2
   ) { 
     this.exchangeData = this.dataExchangeService.pipedData;
     this.exchangeData.useOutlierDetectionOnIndicator = this.useOutlierDetectionOnIndicator;
@@ -349,6 +352,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'unhighlightFeatureOnMap': {
           this.unhighlightFeatureOnMap(values);
         } break;
+        case 'toggleExpertControl': {
+          this.toggleExpertControl();
+        } break;
       }
     });
   }
@@ -380,7 +386,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       reverseUrl: window.__env.targetUrlToGeocoderService + '/reverse'
     });
 
-    const searchControl = SearchControl({
+    this.geosearchControl = SearchControl({
       position: "topleft",
       provider: provider,
       style: 'button',
@@ -401,7 +407,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       keepResult: false                                   // optional: true|false  - default false
     });
 
-    this.map.addControl(searchControl);
+    this.map.addControl(this.geosearchControl);
+
+    this.searchControl = new this.MultipleResultsLeafletSearch({});
+    this.searchControl.addTo(this.map);
+    
+    $('.geosearch').toggle();
+        
+        $('.leaflet-control-search').toggle();
   }
 
   initMeasurement() {
@@ -418,6 +431,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     let measureControl = new L.Control.Measure(measureOptions);
     measureControl.addTo(this.map);
+    
+    $('.leaflet-control-measure').toggle();
 
     // fix map-jumping with every click
     L.Control.Measure.include({
@@ -610,6 +625,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     $('.leaflet-control-layers').toggle();
   }
 
+  toggleExpertControl() {
+
+      $('.leaflet-control-search').toggle();
+      $('.geosearch').toggle();
+      $('.leaflet-control-measure').toggle();
+  }
+
   onCloseOutlierAlert() {
     // $("#outlierInfo").hide();
     this.showOutlierInfoAlert = false;
@@ -718,7 +740,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  isKomMonitorSpecificProperty(propertyKey){
+  isKomMonitorSpecificProperty(propertyKey) {
     let isKomMonitorSpecificProperty = false;
 
     if(propertyKey == "outlier"){
@@ -740,9 +762,135 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     return isKomMonitorSpecificProperty;
   }
 
+  MultipleResultsLeafletSearch = L.Control.Search.extend({
 
-   updateSearchControl() {
-/*
+    _makeUniqueKey: function (featureName, featureId) {
+      return featureName + " (Name) - " + featureId + " (ID)";
+    },
+
+    _searchInLayer: function (layer, retRecords, propName) {
+      var self = this, loc;
+      var key_withUniqueID;
+
+      if (layer instanceof L.Control.Search.Marker) return;
+
+      if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+        if (self._getPath(layer.options, propName)) {
+          loc = layer.getLatLng();
+          loc.layer = layer;
+          retRecords[self._getPath(layer.options, propName)] = loc;
+        }
+        else if (self._getPath(layer.feature.properties, propName)) {
+          loc = layer.getLatLng();
+          loc.layer = layer;
+          key_withUniqueID = this._makeUniqueKey(self._getPath(layer.feature.properties, propName), layer.feature.properties.ID);
+          retRecords[key_withUniqueID] = loc;
+        }
+        else {
+          //throw new Error("propertyName '"+propName+"' not found in marker");
+          console.warn("propertyName '" + propName + "' not found in marker");
+        }
+      }
+      else if (layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon) {
+        if (self._getPath(layer.options, propName)) {
+          loc = layer.getBounds().getCenter();
+          loc.layer = layer;
+          retRecords[self._getPath(layer.options, propName)] = loc;
+        }
+        else if (self._getPath(layer.feature.properties, propName)) {
+          loc = layer.getBounds().getCenter();
+          loc.layer = layer;
+          key_withUniqueID = this._makeUniqueKey(self._getPath(layer.feature.properties, propName), layer.feature.properties.ID);
+          retRecords[key_withUniqueID] = loc;
+        }
+        else {
+          //throw new Error("propertyName '"+propName+"' not found in shape");
+          console.warn("propertyName '" + propName + "' not found in shape");
+        }
+      }
+      else if (layer.hasOwnProperty('feature'))//GeoJSON
+      {
+        if (layer.feature.properties.hasOwnProperty(propName)) {
+
+          key_withUniqueID = this._makeUniqueKey(self._getPath(layer.feature.properties, propName), layer.feature.properties.ID);
+          if (layer.getLatLng && typeof layer.getLatLng === 'function') {
+            loc = layer.getLatLng();
+            loc.layer = layer;
+            retRecords[key_withUniqueID] = loc;
+          } else if (layer.getBounds && typeof layer.getBounds === 'function') {
+            loc = layer.getBounds().getCenter();
+            loc.layer = layer;
+            retRecords[key_withUniqueID] = loc;
+          } else {
+            console.warn("Unknown type of Layer");
+          }
+        }
+        else {
+          //throw new Error("propertyName '"+propName+"' not found in feature");
+          console.warn("propertyName '" + propName + "' not found in feature");
+        }
+      }
+      else if (layer instanceof L.LayerGroup) {
+        layer.eachLayer(function (layer) {
+          self._searchInLayer(layer, retRecords, propName);
+        });
+      }
+    },
+    _defaultMoveToLocation: function (latlng, title, map) {
+      if (this.options.zoom)
+        this._map.setView(latlng, this.options.zoom);
+      else
+        this._map.panTo(latlng);
+
+      // add collapse after click on item
+      this.collapse();
+    },
+    _handleAutoresize: function () {
+      var maxWidth;
+
+      if (!this._map) {
+        this._map = this.map;
+      }
+
+      if (this._input.style.maxWidth !== this._map._container.offsetWidth) {
+        maxWidth = this._map._container.clientWidth;
+
+        // other side margin + padding + width border + width search-button + width search-cancel
+        maxWidth -= 10 + 20 + 1 + 30 + 22;
+
+        this._input.style.maxWidth = maxWidth.toString() + 'px';
+      }
+
+      if (this.options.autoResize && (this._container.offsetWidth + 20 < this._map._container.offsetWidth)) {
+        this._input.size = this._input.value.length < this._inputMinSize ? this._inputMinSize : this._input.value.length;
+      }
+    }
+  });
+
+  updateSearchControl() {
+
+    const isKomMonitorSpecificProperty = function(propertyKey) {
+      let isKomMonitorSpecificProperty = false;
+
+      if(propertyKey == "outlier"){
+        isKomMonitorSpecificProperty = true;
+      }
+      else if(propertyKey == window.__env.VALID_START_DATE_PROPERTY_NAME){
+        isKomMonitorSpecificProperty = true;
+      }
+      else if(propertyKey == window.__env.VALID_END_DATE_PROPERTY_NAME){
+        isKomMonitorSpecificProperty = true;
+      }
+      else if(propertyKey == "bbox"){
+        isKomMonitorSpecificProperty = true;
+      }
+      else if(propertyKey.includes(window.__env.indicatorDatePrefix)){
+        isKomMonitorSpecificProperty = true;
+      }
+
+      return isKomMonitorSpecificProperty;
+    }
+
     setTimeout(() => {
       if (this.searchControl) {
         try {
@@ -776,6 +924,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.searchControl = new this.MultipleResultsLeafletSearch({
         });
         this.searchControl.addTo(this.map);
+        
+        $('.leaflet-control-search').toggle();
       }
       else {
         layerGroup = L.featureGroup(featureLayers);
@@ -793,7 +943,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           autoResize: true,
           autoCollapse: false,
           autoType: true,
-          formatData: function (json) {	//adds coordinates to name.
+          formatData: function(json) {	//adds coordinates to name.
             let propName = this.options.propertyName,
               propLoc = this.options.propertyLoc,
               i, jsonret = {};
@@ -829,7 +979,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
               let recordProperties = record.layer.feature.properties;
 
               for (let propertyKey in recordProperties) {
-                if(recordProperties[propertyKey] && !this.isKomMonitorSpecificProperty(propertyKey)){
+                if(recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)){
                   recordString += recordProperties[propertyKey];
                 }
               }
@@ -840,7 +990,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
             return frecords;
           },
-          buildTip: function (text, val) {
+          buildTip: (text, val) => {
             let emString = "";
 
             if (val.layer.metadataObject) {
@@ -858,9 +1008,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         });
 
         this.searchControl.addTo(this.map);
+        
+        $('.leaflet-control-search').toggle();
       }
     }, 200);
-    */
+   
   }; 
 
  

@@ -1276,9 +1276,15 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	z-index: 1003;
 }
 
-#openLayerControlButton {
+#expertButton {
 	left: 220px;
 	top: 10px;
+	z-index: 1003;
+}
+
+#openLayerControlButton {
+	left: 220px;
+	top: 60px;
 	z-index: 1003;
 }
 
@@ -1305,6 +1311,10 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	overflow-x: hidden;
 	overflow-y: auto;
 	max-height: 40vh;
+}
+
+.leaflet-control-search, .geosearch, .leaflet-control-measure {
+  margin: 0 !important;
 }
 
 .leaflet-control-layers-expanded input {
@@ -1336,16 +1346,16 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 60px;
-	top: 100px;
+	left: 220px;
+	top: 160px;
 	z-index: 1003;
 }
 
 .leaflet-left .leaflet-control-search {
   /* float: none; */
 	position: absolute;
-	left: 60px;
-	top: 50px;
+	left: 220px;
+	top: 110px;
 	z-index: 1003;
 }
 
@@ -1354,8 +1364,8 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	/* display: inline-block; */
 	/* float: none; */
 	position: absolute;
-	left: 60px;
-	top: 150px;
+	left: 220px;
+	top: 210px;
 	z-index: 1003;
 }
 
@@ -2594,7 +2604,7 @@ transition: opacity 0.3s;
 	height: 39px;
   color: black;
 	position: absolute;
-	border: 2px solid rgba(0,0,0,0.2);
+	border: 2px solid rgba(0,0,0,0.2) !important;
 	background-clip: padding-box;
 	z-index: 1003;
 }
@@ -2606,6 +2616,14 @@ transition: opacity 0.3s;
 	background-clip: padding-box;
 	position: absolute;
 	z-index: 1003;
+}
+
+.btn-leaflet-custom.expertButton {
+  display: none;
+}
+
+.btn-leaflet-custom.expertButton.visible {
+  display: block !important;
 }
 
 /* CUSTOM RANGE SLIDER  */
