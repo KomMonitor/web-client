@@ -498,33 +498,33 @@ angular
 								});
 
 								$scope.refreshSelectedGeoresources = function(){
-									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
-										if (georesource.isSelected){
+									// for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
+									// 	if (georesource.isSelected){
 
-											if(georesource.isPOI){
-												georesource.isSelected = false;
-												$scope.handlePoiOnMap(georesource);
-												georesource.isSelected = true;
-												$scope.handlePoiOnMap(georesource);
-											}
-											else if(georesource.isLOI){
-												georesource.isSelected = false;
-												$scope.handleLoiOnMap(georesource);
-												georesource.isSelected = true;
-												$scope.handleLoiOnMap(georesource);
-											}
-											else if(georesource.isAOI){
-												georesource.isSelected = false;
-												$scope.handleAoiOnMap(georesource);
-												georesource.isSelected = true;
-												$scope.handleAoiOnMap(georesource);
-											}											
+									// 		if(georesource.isPOI){
+									// 			georesource.isSelected = false;
+									// 			$scope.handlePoiOnMap(georesource);
+									// 			georesource.isSelected = true;
+									// 			$scope.handlePoiOnMap(georesource);
+									// 		}
+									// 		else if(georesource.isLOI){
+									// 			georesource.isSelected = false;
+									// 			$scope.handleLoiOnMap(georesource);
+									// 			georesource.isSelected = true;
+									// 			$scope.handleLoiOnMap(georesource);
+									// 		}
+									// 		else if(georesource.isAOI){
+									// 			georesource.isSelected = false;
+									// 			$scope.handleAoiOnMap(georesource);
+									// 			georesource.isSelected = true;
+									// 			$scope.handleAoiOnMap(georesource);
+									// 		}											
 
-										}
-									}
+									// 	}
+									// }
 
-									$scope.loadingData = false;
-									$rootScope.$broadcast("hideLoadingIconOnMap");
+									// $scope.loadingData = false;
+									// $rootScope.$broadcast("hideLoadingIconOnMap");
 								};
 
 								$scope.onChangeSelectedDate = function(georesourceDataset){
@@ -562,7 +562,8 @@ angular
 										return resource.selectedDate.startDate;
 									}
 									else{
-										return kommonitorDataExchangeService.selectedDate;
+										return resource.availablePeriodsOfValidity[resource.availablePeriodsOfValidity.length - 1].startDate; 
+										// kommonitorDataExchangeService.selectedDate;
 									}
 								};
 
@@ -636,56 +637,56 @@ angular
 								};
 
 								$scope.refreshGeoressourceLayers = async function(){
-									for (var el of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
-										if (el.isSelected){
-											if(el.isPOI) {
-												$scope.removePoiLayerFromMap(el);
-												await $scope.addPoiLayerToMap(el, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
-											}
-											else if (el.isLOI) {
-												$scope.removeLoiLayerFromMap(el);
-												await $scope.addLoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
-											}
-											else if (el.isAOI) {
-												$scope.removeAoiLayerFromMap(el);
-												await $scope.addAoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
-											}
-										}
-									}
+									// for (var el of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+									// 	if (el.isSelected){
+									// 		if(el.isPOI) {
+									// 			$scope.removePoiLayerFromMap(el);
+									// 			await $scope.addPoiLayerToMap(el, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+									// 		}
+									// 		else if (el.isLOI) {
+									// 			$scope.removeLoiLayerFromMap(el);
+									// 			await $scope.addLoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+									// 		}
+									// 		else if (el.isAOI) {
+									// 			$scope.removeAoiLayerFromMap(el);
+									// 			await $scope.addAoiLayerToMap(el, $scope.useSpatialFilterForGeoressources);
+									// 		}
+									// 	}
+									// }
 
-									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
-										if (wfs.geometryType == 'POI' && wfs.isSelected){
-											//remove POI layer from map
-											kommonitorMapService.removeWfsLayerFromMap(wfs);
+									// for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+									// 	if (wfs.geometryType == 'POI' && wfs.isSelected){
+									// 		//remove POI layer from map
+									// 		kommonitorMapService.removeWfsLayerFromMap(wfs);
 
-											// remove layer and add layer again
-											var opacity = 1 - wfs.transparency;
-											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
-										}
-									}
+									// 		// remove layer and add layer again
+									// 		var opacity = 1 - wfs.transparency;
+									// 		await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+									// 	}
+									// }
 								};
 
 								$scope.refreshPoiLayers = async function(){
-									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
-										if (poi.isSelected){
-											//remove POI layer from map
-											$scope.removePoiLayerFromMap(poi);
+									// for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
+									// 	if (poi.isSelected){
+									// 		//remove POI layer from map
+									// 		$scope.removePoiLayerFromMap(poi);
 
-											// remove layer and add layer again
-											await $scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
-										}
-									}
+									// 		// remove layer and add layer again
+									// 		await $scope.addPoiLayerToMap(poi, $scope.useCluster, $scope.useSpatialFilterForGeoressources);
+									// 	}
+									// }
 
-									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
-										if (wfs.geometryType == 'POI' && wfs.isSelected){
-											//remove POI layer from map
-											kommonitorMapService.removeWfsLayerFromMap(wfs);
+									// for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+									// 	if (wfs.geometryType == 'POI' && wfs.isSelected){
+									// 		//remove POI layer from map
+									// 		kommonitorMapService.removeWfsLayerFromMap(wfs);
 
-											// remove layer and add layer again
-											var opacity = 1 - wfs.transparency;
-											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
-										}
-									}
+									// 		// remove layer and add layer again
+									// 		var opacity = 1 - wfs.transparency;
+									// 		await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+									// 	}
+									// }
 								};
 
 								$scope.getExportLinkForFilteredGeoresource = function(georesource){
