@@ -1693,7 +1693,7 @@ angular.module('kommonitorMap').component(
         });
 
         $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
-          var wmsLayer = L.tileLayer.betterWms(dataset.url, {
+          var wmsLayer = L.tileLayer.wms(dataset.url, {
             layers: dataset.layerName,
             transparent: true,
             format: 'image/png',
