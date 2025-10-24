@@ -681,15 +681,19 @@ angular.module('kommonitorMap').component(
           //   )
           // );
 
-          if(! node.className){
+          if(! node.className || node.className instanceof SVGAnimatedString){
             return true;
           }
 
-           return (
-            node.tagName !== 'BUTTON' && 
-            node.tagName !== 'A' && ( node.className && node.className.length > 0 && !node.className.includes('leaflet-left')              
-            )
+          return (
+            node.className && node.className.length > 0 && !node.className.includes('leaflet-left') && !node.className.includes('leaflet-right')                          
           );
+
+          //  return (
+          //   node.tagName !== 'BUTTON' && 
+          //   node.tagName !== 'A' && ( node.className && node.className.length > 0 && !node.className.includes('leaflet-control')              
+          //   )
+          // );
         }
 
         $scope.$on("exportMap", function (event) {
