@@ -429,7 +429,7 @@ angular.module('kommonitorMap').component(
           kommonitorDataExchangeService.baseLayerDefinitionsMap.set("leere Karte", L.tileLayer(''));
           kommonitorDataExchangeService.baseLayerDefinitionsArray = [{
             "layerConfig": {
-              name: "leere Karte", 
+              name: "keine Karte", 
               url: "",
               layerType: "TILE_LAYER", 
               layerName_WMS: "", 
