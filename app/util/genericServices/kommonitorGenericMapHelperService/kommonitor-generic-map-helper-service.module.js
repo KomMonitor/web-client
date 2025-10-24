@@ -617,6 +617,15 @@ angular
           }
           popupContent += '</table></div>';
 
+          // special case DiKomAll: if ice cream shop Emma the Mu is prepared, then add its logo for UX test
+              if(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == "Emma the Mu"){
+                popupContent += '<div>';
+
+                popupContent += '<img src="./logos/emma_the_mu.png" width="275px;" height="275px;">';
+
+                popupContent += '</div>';
+              }
+
         if (poiMarker.feature.properties.name) {
           poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
         }

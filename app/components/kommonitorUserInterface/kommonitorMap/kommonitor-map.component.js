@@ -1276,7 +1276,16 @@ angular.module('kommonitorMap').component(
               for (var p in feature.properties) {
                   popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
               }
-              popupContent += '</table></div>';
+              popupContent += '</table></div>';            
+
+              // special case DiKomAll: if ice cream shop Emma the Mu is prepared, then add its logo for UX test
+              if(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == "Emma the Mu"){
+                popupContent += '<div>';
+
+                popupContent += '<img src="./logos/emma_the_mu.png">';
+
+                popupContent += '</div>';
+              }
 
               layer.bindPopup(popupContent);
 
