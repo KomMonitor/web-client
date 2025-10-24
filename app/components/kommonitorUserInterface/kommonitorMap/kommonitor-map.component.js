@@ -264,12 +264,12 @@ angular.module('kommonitorMap').component(
         $scope.baseMaps = new Array();
         const spatialUnitLayerGroupName = "Raumebenen";
         const georesourceLayerGroupName = "Georessourcen";
-        const poiLayerGroupName = "Points of Interest";
-        const loiLayerGroupName = "Lines of Interest";
-        const aoiLayerGroupName = "Areas of Interest";
+        const poiLayerGroupName = "wichtige Punkte";
+        const loiLayerGroupName = "wichtige Linien";
+        const aoiLayerGroupName = "wichtige Flächen";
         const indicatorLayerGroupName = "Indikatoren";
         const reachabilityLayerGroupName = "Erreichbarkeiten";
-        const wmsLayerGroupName = "Web Map Services (WMS)";
+        const wmsLayerGroupName = "Rasterkarten";
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
         const spatialUnitOutlineLayerGroupName = "Raumebenen Umringe";
