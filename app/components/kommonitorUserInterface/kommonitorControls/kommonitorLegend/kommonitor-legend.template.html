@@ -512,6 +512,20 @@
 
 								<tbody>
 
+									<!-- hard coded entry for spatial unit boundaries -->
+									<tr>
+										<td class="text-center">
+											<i class="fas fa-minus"
+												style="color: black; width:18px; height:18px; float:right; margin-right: 30%; display:inherit;">
+											</i>
+										</td>
+										<td>
+											<label >
+												Grenzen statistischer Bezirke der Stadt Herne
+											</label>
+										</td>
+										
+									</tr>
 									<tr ng-repeat="dataset in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources ">										
 										
 										
@@ -532,12 +546,12 @@
 												</div>
 												<div ng-if="dataset.isAOI">
 												<i
-												style="width:18px; height:18px; float:none; background:{{::dataset.aoiColor}}; display:inherit;">
+												style="width:18px; height:18px; float:right; margin-right: 30%; background:{{::dataset.aoiColor}}; display:inherit;">
 												</i>
 												</div>
 												<div ng-if="dataset.isLOI">
 												<i class="fas fa-minus"
-												style="width:18px; height:18px; float:none; display:inherit;">
+												style="width:18px; height:18px; float:right; margin-right: 30%; display:inherit;">
 												</i>
 												</div>
 											</div>
