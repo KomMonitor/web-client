@@ -673,11 +673,21 @@ angular.module('kommonitorMap').component(
 
 
         function filterForScreenshot (node) {
-          return (
+          // return (
+          //   node.tagName !== 'BUTTON' && 
+          //   node.tagName !== 'A' && ( node.className &&
+          //     (node.className instanceof SVGAnimatedString || 
+          //     !node.className.includes('leaflet-control'))
+          //   )
+          // );
+
+          if(! node.className){
+            return true;
+          }
+
+           return (
             node.tagName !== 'BUTTON' && 
-            node.tagName !== 'A' && ( 
-              node.className instanceof SVGAnimatedString || 
-              !node.className.includes('leaflet-control')
+            node.tagName !== 'A' && ( node.className && node.className.length > 0 && !node.className.includes('leaflet-left')              
             )
           );
         }
