@@ -1,3 +1,21 @@
+:host { 
+
+  .list-group .list-group-item-grid-layout div:first-child {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .indicator-element.list-group-item-grid-layout.favs {
+    display: grid;
+    grid-template-columns: auto 1fr min-content;
+  }
+
+  .indicator-element.list-group-item-grid-layout.favs div:first-child {
+    display: block !important;
+    margin: .5em 0;
+  }
+}
+
 
 .style-headline-indicator {
   background-color: #f7931e !important;

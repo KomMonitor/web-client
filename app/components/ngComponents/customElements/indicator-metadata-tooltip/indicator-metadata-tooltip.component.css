@@ -1,0 +1,24 @@
+:host {
+
+  .indicator-tooltip-iconWrapper {
+    height: 100%;
+    margin: 0 0.5em;
+
+    i {
+      margin-top: auto;
+      margin-bottom: auto;
+      font-size: 1.2em;
+    }
+  }
+
+  .indicator-tooltip-contentWrapper {
+    display: none;
+    position: fixed;
+    background-color: #fff;
+    z-index: 9999;
+    border: 1px solid rgba(0,0,0,0.2);
+    padding: .5em;
+    width: 400px;
+    color: black;
+  }
+}
