@@ -69,6 +69,7 @@
 
           <ag-grid-angular
             #agGrid
+            id="adminIndicatorsOverviewTable"
             style="height: 70vh;"
             class="ag-theme-alpine"
             [columnDefs]="columnDefs"
@@ -81,7 +82,12 @@
             [suppressRowClickSelection]="true"
             [enableCellTextSelection]="true"
             [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true">
+            [suppressColumnVirtualisation]="true"
+            (firstDataRendered)="onFirstDataRendered($event)"
+            (columnResized)="onColumnResized($event)"
+            (rowDataChanged)="onRowDataChanged()"
+            (modelUpdated)="onModelUpdated()"
+            (viewportChanged)="onViewportChanged()">
           </ag-grid-angular>
 
         </div>

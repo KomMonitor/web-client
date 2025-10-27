@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 
 declare const $: any;
 declare const __env: any;
@@ -57,7 +58,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private broadcastService: BroadcastService,
     public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
-    private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService
+    private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
+    private kommonitorImporterHelperService: KommonitorImporterHelperService
   ) {
     this.keyDownHandler = this.handleKeyDown.bind(this);
   }
@@ -68,6 +70,13 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     
     // Add keyboard event listener for Escape key
     document.addEventListener('keydown', this.keyDownHandler);
+    
+    // Initialize Bootstrap AdminLTE box widgets
+    setTimeout(() => {
+      if (typeof $ !== 'undefined' && $.fn && $.fn.boxWidget) {
+        $('.box').boxWidget();
+      }
+    }, 300);
   }
 
   ngOnDestroy(): void {
@@ -96,12 +105,29 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   public openModal(): void {
     // This method will be called from the parent component
     this.initialize();
+    
+    // Initialize Bootstrap AdminLTE box widgets after modal is opened
+    setTimeout(() => {
+      if (typeof $ !== 'undefined' && $.fn && $.fn.boxWidget) {
+        $('.box').boxWidget();
+      }
+    }, 200);
   }
 
-  private initialize(): void {
+  private async initialize(): Promise<void> {
     if (this.isFirstStart) {
       this.addNewRowToBatchList();
       this.isFirstStart = false;
+    }
+
+    // Ensure importer helper service data is loaded
+    if (!this.kommonitorImporterHelperService.availableConverters?.length || 
+        !this.kommonitorImporterHelperService.availableDatasourceTypes?.length) {
+      try {
+        await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
+      } catch (error) {
+        console.error('Error loading importer resources:', error);
+      }
     }
 
     // Set initial selected value if available
@@ -109,6 +135,16 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
         this.kommonitorDataExchangeService.availableIndicators.length > 0) {
       this.selected.value = this.kommonitorDataExchangeService.availableIndicators[0];
     }
+
+    // Initialize Bootstrap AdminLTE box widgets
+    setTimeout(() => {
+      if (typeof $ !== 'undefined' && $.fn && $.fn.boxWidget) {
+        $('.box').boxWidget();
+        console.log('Box widgets initialized');
+      } else {
+        console.log('jQuery or boxWidget not available');
+      }
+    }, 100);
   }
 
   public addNewRowToBatchList(): void {
@@ -201,7 +237,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       // Set indicator by ID
       const indicatorId = item.name;
       const indicatorObj = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
-      row.name = indicatorObj;
+      row.name = indicatorObj || null;
 
       row.mappingTableName = item.mappingTableName;
       row.mappingObj = item.mappingObj;
@@ -378,22 +414,18 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     return mapping[paramName] || null;
   }
 
-  private getConverterObjectByName(name: string): any {
+  public getConverterObjectByName(name: string): any {
     // Implementation to get converter object by name
-    // Access through AngularJS service for now
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    if (angularJsService && angularJsService.availableConverters) {
-      return angularJsService.availableConverters.find((c: any) => c.name === name);
+    if (this.kommonitorImporterHelperService.availableConverters) {
+      return this.kommonitorImporterHelperService.availableConverters.find((c: any) => c.name === name);
     }
     return null;
   }
 
   private getDatasourceTypeObjectByType(type: string): any {
     // Implementation to get datasource type object by type
-    // Access through AngularJS service for now
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    if (angularJsService && angularJsService.availableDatasourceTypes) {
-      return angularJsService.availableDatasourceTypes.find((d: any) => d.type === type);
+    if (this.kommonitorImporterHelperService.availableDatasourceTypes) {
+      return this.kommonitorImporterHelperService.availableDatasourceTypes.find((d: any) => d.type === type);
     }
     return null;
   }
@@ -440,13 +472,21 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   // Helper methods to get available options
   public getAvailableConverters(): any[] {
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    return angularJsService?.availableConverters || [];
+    if (!this.kommonitorImporterHelperService.availableConverters) {
+      return [];
+    }
+    // Filter converters for indicators (exclude georesource converters)
+    return this.kommonitorImporterHelperService.availableConverters.filter((converter: any) => {
+      // Remove converters that are not for indicators
+      if (converter.name.includes('Geokodierung') || converter.name.includes('Koordinate')) {
+        return false;
+      }
+      return true;
+    });
   }
 
   public getAvailableDatasourceTypes(): any[] {
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    return angularJsService?.availableDatasourceTypes || [];
+    return this.kommonitorImporterHelperService.availableDatasourceTypes || [];
   }
 
   // Default value function properties
@@ -454,9 +494,74 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   public colDefaultFunctionNewValue: any = undefined;
   public colDefaultFunctionAllRowsChb: boolean = false;
 
+  public toggleAccordion(event: Event): void {
+    // Fallback method if Bootstrap AdminLTE JavaScript is not working
+    const button = event.target as HTMLElement;
+    const box = button.closest('.box');
+    const boxBody = box?.querySelector('.box-body') as HTMLElement;
+    const icon = button.querySelector('i');
+    
+    if (box && boxBody && icon) {
+      const isCollapsed = box.classList.contains('collapsed-box');
+      
+      if (isCollapsed) {
+        box.classList.remove('collapsed-box');
+        icon.classList.remove('fa-plus');
+        icon.classList.add('fa-minus');
+        boxBody.style.display = 'block';
+      } else {
+        box.classList.add('collapsed-box');
+        icon.classList.remove('fa-minus');
+        icon.classList.add('fa-plus');
+        boxBody.style.display = 'none';
+      }
+    }
+  }
+
   public onClickSaveColDefaultValue(): void {
-    // Implementation for saving default column value
-    console.log('Saving default column value:', this.colDefaultFunctionSelectedColumn, this.colDefaultFunctionNewValue);
+    if (!this.colDefaultFunctionSelectedColumn || this.colDefaultFunctionNewValue === undefined) {
+      return;
+    }
+
+    // Apply the default value to all rows
+    this.batchList.forEach(row => {
+      if (!row.isSelected) return;
+
+      // Only update empty values unless colDefaultFunctionAllRowsChb is true
+      if (!this.colDefaultFunctionAllRowsChb) {
+        const currentValue = this.getNestedValue(row, this.colDefaultFunctionSelectedColumn);
+        if (currentValue !== null && currentValue !== undefined && currentValue !== '') {
+          return; // Skip if value already exists
+        }
+      }
+
+      // Set the new value
+      this.setNestedValue(row, this.colDefaultFunctionSelectedColumn, this.colDefaultFunctionNewValue);
+    });
+
+    // Reset the form
+    this.colDefaultFunctionSelectedColumn = null;
+    this.colDefaultFunctionNewValue = undefined;
+  }
+
+  private getNestedValue(obj: any, path: string | null): any {
+    if (!path) return undefined;
+    return path.split('.').reduce((current, key) => {
+      return current && current[key] !== undefined ? current[key] : undefined;
+    }, obj);
+  }
+
+  private setNestedValue(obj: any, path: string | null, value: any): void {
+    if (!path) return;
+    const keys = path.split('.');
+    const lastKey = keys.pop()!;
+    const target = keys.reduce((current, key) => {
+      if (!current[key]) {
+        current[key] = {};
+      }
+      return current[key];
+    }, obj);
+    target[lastKey] = value;
   }
 
   public saveBatchListToFile(): void {

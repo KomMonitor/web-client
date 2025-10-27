@@ -7,15 +7,23 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 9999;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 99999999; /* ensure above any popovers/dialog content */
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: all;
+  color: #2C3E50;
 }
 
 .loading-overlay-admin-panel.ng-hide {
   display: none !important;
+}
+
+/* Make sure the spinner is visible over the overlay */
+.loading-overlay-admin-panel .glyphicon {
+  font-size: 28px;
+  color: #2C3E50;
 }
 
 /* Multi-step form styles */
@@ -23,42 +31,69 @@
   margin-bottom: 0px;
 }
 
+/*progressbar*/
 #progressbar {
-  margin-bottom: 30px;
-  overflow: hidden;
-  color: lightgrey;
-  padding-left: 0;
+    margin-bottom: 10px;
+    overflow: hidden;
+    /*CSS counters to number the steps*/
+    counter-reset: step;
+    /* z-index: 10000; */
 }
 
 #progressbar li {
-  list-style-type: none;
-  font-size: 15px;
-  width: 25%;
-  float: left;
-  position: relative;
-  font-weight: 400;
+    list-style-type: none;
+    color: black;
+    text-transform: uppercase;
+    font-size: 9px;
+    /* width: 33.33%; */
+    float: left;
+    position: relative;
+    letter-spacing: 1px;
+    /* transform-style: preserve-3d; */
+    /* z-index: 1; */
+    cursor: pointer;
 }
 
 #progressbar li:before {
-  width: 50px;
-  height: 50px;
-  line-height: 45px;
-  display: block;
-  font-size: 20px;
-  color: #ffffff;
-  background: lightgray;
-  border-radius: 50%;
-  margin: 0 auto 10px auto;
-  padding: 2px;
+    content: counter(step);
+    counter-increment: step;
+    width: 24px;
+    height: 24px;
+    line-height: 26px;
+    display: block;
+    font-size: 12px;
+    color: #333;
+    background: #cccc;
+    border-radius: 25px;
+    margin: 0 auto 10px auto;
+    transform: translateZ(-1px);
+    /* z-index: +1; */
 }
 
-#progressbar li.active:before,
-#progressbar li.active:after {
-  background: #27AE60;
+/*progressbar connectors*/
+#progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: #cccc;
+    position: absolute;
+    left: -50%;
+    top: 9px;
+    /*put it behind the numbers */
+    z-index: -1; 
+    /* transform: translateZ(-2px); */
 }
 
-#progressbar li.clickable {
-  cursor: pointer;
+#progressbar li:first-child:after {
+    /*connector not needed before the first step*/
+    content: none;
+}
+
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+#progressbar li.active:before, #progressbar li.active:after {
+    background: var(--kommonitor-primary);
+    color: white;
 }
 
 /* Form fieldset styles */
@@ -163,17 +198,65 @@ input:checked + .switchslider:before {
   min-width: 200px;
 }
 
-.customColorPicker .dropdown-menu li a {
+.customColorPicker .dropdown-menu li span {
   padding: 5px 10px;
+  display: block;
+  cursor: pointer;
 }
 
-.customColorPicker .dropdown-menu li a i {
+.customColorPicker .dropdown-menu li span i {
   display: inline-block;
   width: 20px;
   height: 20px;
   margin-right: 10px;
   border: 1px solid #ccc;
   vertical-align: middle;
+}
+
+/* Ensure dropdown items are properly styled */
+.customColorPicker .dropdown-menu li {
+  cursor: pointer;
+}
+
+.customColorPicker .dropdown-menu li:hover {
+  background-color: #f5f5f5;
+}
+
+/* Style for the marker style dropdown items */
+.dropdown-menu li span {
+  display: block;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.dropdown-menu li span:hover {
+  background-color: #f5f5f5;
+}
+
+/* Ensure dropdown is visible when show class is applied */
+.dropdown-menu.show {
+  display: block !important;
+}
+
+/* Additional styling for custom dropdown */
+.customColorPicker .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
 }
 
 /* Table styles for attribute mappings */
@@ -262,7 +345,7 @@ textarea.form-control {
 
 /* Button styling */
 .btn {
-  border-radius: 4px;
+ 
   font-weight: 500;
 }
 
@@ -306,17 +389,6 @@ textarea.form-control {
   .col-xs-12 {
     margin-bottom: 15px;
   }
-  
-  #progressbar li {
-    font-size: 12px;
-  }
-  
-  #progressbar li:before {
-    width: 40px;
-    height: 40px;
-    line-height: 35px;
-    font-size: 16px;
-  }
 }
 
 /* Modal size adjustments */
@@ -331,10 +403,6 @@ textarea.form-control {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
 }
 
-.form-control.ng-valid.ng-touched {
-  border-color: #3c763d;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
-}
 
 /* Navigation buttons */
 .navigation-buttons {
@@ -349,6 +417,30 @@ textarea.form-control {
 /* Step content transitions */
 .step-content {
   transition: opacity 0.3s ease-in-out;
+}
+
+/* Progress bar step content styling */
+fieldset {
+  display: block;
+  margin: 0;
+  padding: 1rem 3.5rem;
+  border: 0;
+  outline: 0;
+  min-height: 400px;
+}
+
+/* Progress bar step navigation */
+#progressbar li {
+  transition: all 0.3s ease;
+}
+
+#progressbar li:hover {
+  color: var(--kommonitor-primary);
+}
+
+#progressbar li:hover:before {
+  background: var(--kommonitor-primary);
+  color: white;
 }
 
 /* Icon picker styling (if used) */
@@ -412,4 +504,194 @@ textarea.form-control {
 
 .importer-section .form-group {
   margin-bottom: 10px;
+}
+
+/* Icon picker styling */
+#poiSymbolPicker {
+  min-width: 120px;
+  text-align: left;
+}
+
+#poiSymbolPicker .glyphicon {
+  margin-right: 5px;
+}
+
+/* Ensure glyphicons are visible */
+.glyphicon {
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glyphicon-home:before {
+  content: "\e021";
+}
+
+.glyphicon-star:before {
+  content: "\e050";
+}
+
+.glyphicon-heart:before {
+  content: "\e005";
+}
+
+.glyphicon-user:before {
+  content: "\e008";
+}
+
+.glyphicon-cog:before {
+  content: "\e019";
+}
+
+/* Ensure the icon picker button is properly styled */
+#poiSymbolPicker {
+  position: relative;
+  min-width: 150px;
+  text-align: left;
+  padding: 8px 12px;
+}
+
+#poiSymbolPicker:hover {
+  background-color: #31b0d5;
+  border-color: #269abc;
+}
+
+/* Ensure Bootstrap Icon Picker dropdown is visible */
+.iconpicker-popover {
+  z-index: 9999999 !important;
+  position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.iconpicker-popover.popover {
+  z-index: 9999999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.iconpicker-popover .popover-content {
+  z-index: 9999999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure the popover is not clipped by parent containers */
+.iconpicker-popover,
+.iconpicker-popover.popover,
+.iconpicker-popover .popover-content {
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+}
+
+/* Ensure the modal doesn't clip the popover */
+.modal-body {
+  overflow: visible !important;
+}
+
+/* Ensure modal has proper positioning context */
+.modal {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure modal-body doesn't clip content */
+.modal-body {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Ensure the form fieldset has proper positioning */
+fieldset {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure the button's parent container has proper positioning */
+.form-group {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Ensure the button container has proper positioning */
+.col-md-3, .col-sm-6, .col-xs-12 {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Manual icon picker styling */
+.manual-icon-picker {
+  position: absolute !important;
+  z-index: 9999999 !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+  max-width: 400px !important;
+  min-width: 300px !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure the icon picker appears above other elements */
+.manual-icon-picker.popover {
+  z-index: 9999999 !important;
+}
+
+/* Ensure the icon picker content is visible */
+.manual-icon-picker .popover-content {
+  background: white !important;
+  border: none !important;
+  padding: 10px !important;
+}
+
+/* Ensure the form doesn't clip the popover */
+.multiStepForm {
+  overflow: visible !important;
+}
+
+/* Ensure the fieldset doesn't clip the popover */
+fieldset {
+  overflow: visible !important;
+}
+
+/* Ensure the icon picker popover appears above Bootstrap modal */
+.modal {
+  z-index: 1050 !important;
+}
+
+.iconpicker-popover {
+  z-index: 9999999 !important;
+}
+
+/* Additional fixes for icon picker visibility */
+.iconpicker-popover .table-icons {
+  display: table !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons tbody {
+  display: table-row-group !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons tr {
+  display: table-row !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons td {
+  display: table-cell !important;
+  visibility: visible !important;
+}
+
+.iconpicker-popover .table-icons .btn {
+  display: inline-block !important;
+  visibility: visible !important;
 } 

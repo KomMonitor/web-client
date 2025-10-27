@@ -97,15 +97,15 @@
               <label for="targetUserRoleSelect"><b>Eigentümerschaft übertragen an</b></label>
               <div class="input-group">
                 <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter" [ngModelOptions]="{standalone: true}">
+                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" (ngModelChange)="onOwnerOrgFilterChange()" name="ownerOrgFilter" [ngModelOptions]="{standalone: true}">
               </div>
               <select *ngIf="kommonitorDataExchangeService.checkAdminPermission()" id="targetUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" [ngModelOptions]="{standalone: true}" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
                 <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                <option *ngFor="let org of getFilteredOrganizations()" [value]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of filteredOrganizations" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
               <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganizationNonAdmin" [ngModelOptions]="{standalone: true}" class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
                 <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
-                <option *ngFor="let org of getFilteredOrganizations()" [value]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of filteredOrganizations" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
             </div>
             <div class="col-md-3">
