@@ -12,6 +12,11 @@
 	--kommonitor-primary-80: rgb(from var(--kommonitor-primary) r g b / 0.8);
   --kommonitor-orange: rgb(247, 147, 30);
 
+  --kommonitor-hierarchy-level-0: #84afd5;
+  --kommonitor-hierarchy-level-1: #adcae3;
+  --kommonitor-hierarchy-level-2: #d6e4f1;
+  --kommonitor-hierarchy-level-3: #eaf1f8;
+
 	--custom-font-family: "Source Sans Pro",  sans-serif;
 	
 	--body_gradient_left:#7200D0;
@@ -520,9 +525,7 @@ pre.CodeMirror-line {
 } */
 
 .list-group.list-group-root .list-group-item.list-group-item-level-0 {
-	background: var(--kommonitor-primary);
-	color: white;
-    padding-right: 3px;
+  padding-right: 3px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-1::before {
@@ -533,7 +536,6 @@ pre.CodeMirror-line {
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-1 {
-	color: white;
   padding-right: 3px;
   margin-left: 15px;
 }
@@ -546,7 +548,6 @@ pre.CodeMirror-line {
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-2 {
-	color: black;
   margin-left: 0px;
   padding-right: 3px;
   margin-left: 15px;
@@ -566,10 +567,9 @@ pre.CodeMirror-line {
 
 .list-group.list-group-root .list-group-item.list-group-item-level-3 {
 	background: var(--kommonitor-primary-40);
-	color: black;
-    margin-left: 0px;
-    padding-right: 3px;
-    margin-left: 15px;
+  margin-left: 0px;
+  padding-right: 3px;
+  margin-left: 15px;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-level-3 a,

@@ -71,18 +71,18 @@
                             
                                 <label>Erl&auml;uterungen zur Symbolik </label>
                                 <div class="list-group-item list-group-item-default style-simple-indicator">
-                                  <p style="cursor:pointer; color: black;"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+                                  <p style="cursor:pointer"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
                                       [Einheitsbezeichnung]</p>
                                 </div>
     
                                 <div class="list-group-item list-group-item-default style-headline-indicator">
-                                  <p style="cursor:pointer; color: white;">
+                                  <p style="cursor:pointer">
                                       <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
                                       [Einheitsbezeichnung]</p>
                                 </div>  
     
-                                <div class="list-group-item list-group-item-default style-hierarchy-selected-indicator">
-                                  <p style="cursor:pointer; color: white;">
+                                <div class="list-group-item list-group-item-default style-hierarchy-selected-indicator-0">
+                                  <p style="cursor:pointer">
                                       &nbsp;&nbsp;<b>Thema mit selektiertem Indikator</b></p>
                                 </div>  
                               </div>
@@ -92,31 +92,31 @@
                               <label> Themenorientierter Datenkatalog </label>
   
                               <div *ngFor="let mainTopic of preppedIndicatorTopics">
-                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme" [ngClass]="{'style-hierarchy-selected-indicator': checkHierarchyIndicatorSelected(mainTopic)}" id="{{mainTopic.topicId}}">
-                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
+                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" [ngClass]="{'style-hierarchy-selected-indicator-0': checkHierarchyIndicatorSelected(mainTopic)}" id="{{mainTopic.topicId}}">
+                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
                                   <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(mainTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(mainTopic.topicId)}" (click)="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
                                 </div>
                                                                      
                                 <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
                                   <div *ngFor="let subTopic of mainTopic.subTopics">
   
-                                    <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80" [ngClass]="{'style-hierarchy-selected-indicator-80': checkHierarchyIndicatorSelected(subTopic)}">
-                                      <p class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
+                                    <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-1" [ngClass]="{'style-hierarchy-selected-indicator-1': checkHierarchyIndicatorSelected(subTopic)}">
+                                      <p class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
                                       <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subTopic.topicId)}" (click)="onIndicatorTopicFavClick(subTopic.topicId)"></i>
                                     </div>	
                                     <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
                                       <div *ngFor="let subsubTopic of subTopic.subTopics">
                                         
-                                        <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-60" [ngClass]="{'style-hierarchy-selected-indicator-60': checkHierarchyIndicatorSelected(subsubTopic)}">
-                                          <p class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
+                                        <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-2" [ngClass]="{'style-hierarchy-selected-indicator-2': checkHierarchyIndicatorSelected(subsubTopic)}">
+                                          <p class="collapseTrigger" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
                                           <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubTopic.topicId)"></i>
                                         </div>
       
                                         <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
                                           <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
       
-                                            <div  class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-40" [ngClass]="{'style-hierarchy-selected-indicator-40': checkHierarchyIndicatorSelected(subsubsubTopic)}">
-                                              <p class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
+                                            <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-3" [ngClass]="{'style-hierarchy-selected-indicator-3': checkHierarchyIndicatorSelected(subsubsubTopic)}">
+                                              <p class="collapseTrigger" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
                                               <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubsubTopic.topicId)"></i>
                                             </div>
         
@@ -252,8 +252,8 @@
 														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
 
 														<div *ngFor="let headlineIndicatorHierarchyItem of exchangeData.headlineIndicatorHierarchy">
-															<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-theme">
-																<p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" (click)="onHeadlineTopicClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-chevron-down':!headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}"></i>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
+															<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0">
+																<p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" (click)="onHeadlineTopicClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-chevron-down':!headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}"></i>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
 														    <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-star-empty':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
                               </div>
 
@@ -305,7 +305,7 @@
                               <div *ngFor="let topic of list | indicatorFavFilter:indicatorFavItems"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
                                 <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" [ngClass]="checkHierarchyIndicatorSelected(topic) ? 'style-fav-selected-indicator-' + topic.level : 'style-fav-normal-indicator-' + topic.level">
                                   <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
-                                    class="indicatorFavCollapseTrigger" style="color: white;">
+                                    class="indicatorFavCollapseTrigger">
                                   <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'glyphicon-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
                                   <p *ngIf="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
                                   <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(topic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(topic.topicId)}" (click)="onIndicatorTopicFavClick(topic.topicId,true)"></i>
