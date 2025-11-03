@@ -102,24 +102,53 @@ export class PoiComponent implements OnInit {
 
   init() {
     this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
-      this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicGeoresourceHierarchy,0,undefined);
+    this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicGeoresourceHierarchy,0,undefined);
 
-      if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
-        this.showFavSelection = true;
+    if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
+      this.showFavSelection = true;
 
-      var userInfo = this.favService.getUserInfo();
+    var userInfo = this.favService.getUserInfo();
+  
+    if(userInfo.georesourceFavourites) {
+      this.poiFavItems = userInfo.georesourceFavourites;
+      this.FavTabPoiFavItems = userInfo.georesourceFavourites;
+    }
+
+    if(userInfo.georesourceTopicFavourites) {
+      this.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
+      this.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
+    }
+
+    this.addClickListenerToEachCollapseTrigger();
+  }
+
+  checkHierarchyPoiSelected(topic: GeoresourcesTopicsHierarchy) {
     
-      if(userInfo.georesourceFavourites) {
-        this.poiFavItems = userInfo.georesourceFavourites;
-        this.FavTabPoiFavItems = userInfo.georesourceFavourites;
-      }
+    return this.searchSelectedIndicatorRecursive(topic);
+  }
 
-      if(userInfo.georesourceTopicFavourites) {
-        this.georesourceTopicFavItems = userInfo.georesourceTopicFavourites;
-        this.FavTabGeoresourceTopicFavItems = userInfo.georesourceTopicFavourites;
-      }
+  searchSelectedIndicatorRecursive(topic:GeoresourcesTopicsHierarchy):boolean {
+  
+    let match = false;
 
-      this.addClickListenerToEachCollapseTrigger();
+    let poiMatch = topic.poiData.filter(e => e.isSelected===true);
+    let aoiMatch = topic.aoiData.filter(e => e.isSelected===true);
+    let loiMatch = topic.loiData.filter(e => e.isSelected===true);
+
+    if(poiMatch.length || aoiMatch.length || loiMatch.length) {
+      match = true;
+    } else {
+      if(topic.subTopics.length) {
+        topic.subTopics.forEach(subTopic => {
+          let subMatch = this.searchSelectedIndicatorRecursive(subTopic);
+
+          if(subMatch===true)
+            match = subMatch;
+        });
+      }
+    }
+
+    return match;
   }
 
   prepTopicsTree(tree, level, parent) {
@@ -759,11 +788,11 @@ export class PoiComponent implements OnInit {
     let elem:any = document.getElementById(`showAllForTopic_${id}`);
     let elemFav:any = document.getElementById(`showAllForFavTopic_${id}`);
 
-    if(elem.checked===false)
+    /* if(elem.checked===false)
       elem.indeterminate = type;
     
     if(elemFav && elemFav.checked===false)
-      elemFav.indeterminate = type;
+      elemFav.indeterminate = type; */
 
     if(type===false) {
       elem.checked = false;
