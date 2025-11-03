@@ -57,21 +57,21 @@
 			<br />
 
       <ul class="nav nav-tabs" id="poiTabs" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link" id="poiTab1" data-toggle="tab" href="#poiTab1Content"
+        <li class="nav-item active">
+          <a class="nav-link active" id="poiTab1" data-toggle="tab" href="#poiTab1Content"
             role="tab" aria-controls="poiTab1Content" aria-selected="true">Datenkatalog</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="poiTab2" data-toggle="tab" href="#poiTab2Content" role="tab"
             aria-controls="poiTab2Content" aria-selected="false">Alphabetische Listen</a>
         </li>
-        <li class="nav-item active" *ngIf="showFavSelection">
-          <a class="nav-link active" id="poiTab3" data-toggle="tab" href="#poiTab3Content" role="tab"
+        <li class="nav-item" *ngIf="showFavSelection">
+          <a class="nav-link" id="poiTab3" data-toggle="tab" href="#poiTab3Content" role="tab"
             aria-controls="poiTab3Content" aria-selected="false">Favoriten</a>
         </li>
       </ul>
       <div class="tab-content">
-        <div class="tab-pane" id="poiTab1Content" role="tabpanel"
+        <div class="tab-pane active" id="poiTab1Content" role="tabpanel"
           aria-labelledby="poiTab1">
 
           <div class="just-padding">
@@ -133,10 +133,9 @@
 						<div id="georesourceHierarchySelection" class="list-group list-group-root well">
 
 							<div *ngFor="let mainTopic of preppedTopicGeoresourceHierarchy">
-								<div class="list-group-item list-group-item-default list-group-item-grid-layout"
-									style="background: #2171b5; color: white;">
+								<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0">
                   <div>
-                    <p id="{{mainTopic.topicId}}" title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" (click)="onTopicClick(mainTopic.topicId)">
+                    <p id="{{mainTopic.topicId}}" title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)">
                     <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}
                     ({{mainTopic.totalCount}})</p>
                     <input type="checkbox" [(ngModel)]="mainTopic.isSelected"
@@ -151,9 +150,9 @@
 								<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}" uib-collapse="isCollapsed_mainTopic">
 								<div *ngFor="let subTopic of mainTopic.subTopics">
 
-									<div class="list-group-item list-group-item-default list-group-item-grid-layout kommonitor-80">
+									<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-1">
                     <div>
-                      <p id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)">
+                      <p id="{{subTopic.topicId}}" class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)">
                         <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}
                         ({{subTopic.totalCount}})</p>
                       <input type="checkbox" [(ngModel)]="subTopic.isSelected"
@@ -168,7 +167,7 @@
 									<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
 									<div *ngFor="let subsubTopic of subTopic.subTopics">
 
-										<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout kommonitor-60">
+										<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout hierarchy-topic-level-2">
                       <div>
                         <p id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}" (click)="onTopicClick(subsubTopic.topicId)">
                           <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}
@@ -186,7 +185,7 @@
 										<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
 											<div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
 
-											<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout kommonitor-40">
+											<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout hierarchy-topic-level-3">
                         <div>
                           <p id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}" (click)="onTopicClick(subsubsubTopic.topicId)">
                             <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}
@@ -1441,12 +1440,10 @@
 							</div>
 							<!-- end main Topics -->
 
-							<div class="list-group-item list-group-item-default list-group-item-grid-layout"
-								style="background: #2171b5; color: white;" *ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
+							<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" *ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 								<div>
                   <p id="noHierarchyGeoresourceDatasets"
-                    title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
-                    style="color: white;" 
+                    title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger" 
                     (click)="toggleNoTopicHierarchy()">
                       <i	class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isCollapsed_noTopic, 'glyphicon-chevron-down':!isCollapsed_noTopic}"></i>ohne Themenbezug
                     ({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
@@ -2255,7 +2252,7 @@
 					</div>
         </div>
         
-        <div class="tab-pane active" id="poiTab3Content" role="tabpanel" aria-labelledby="poiTab3" *ngIf="showFavSelection">
+        <div class="tab-pane" id="poiTab3Content" role="tabpanel" aria-labelledby="poiTab3" *ngIf="showFavSelection">
           <div class="just-padding">
 
             <div class="list-group list-group-root well" style="text-align: left">

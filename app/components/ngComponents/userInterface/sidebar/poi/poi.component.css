@@ -1,5 +1,9 @@
 :host {
 
+  .list-group-item div:first-child p {
+    margin: .5em 0 !important;
+  }
+
   .list-group-grid-item {
     display: grid;
     grid-template-columns: auto auto;
@@ -30,5 +34,25 @@
 
   .style-fav-normal-item-1 {
     background: var(--kommonitor-primary-80);
+  }
+
+  .hierarchy-topic-level-0 {
+    background-color: var(--kommonitor-hierarchy-level-0);
+    color: #000 !important;
+  }
+
+  .hierarchy-topic-level-1 {
+    background-color: var(--kommonitor-hierarchy-level-1);
+    color: #000 !important;
+  }
+
+  .hierarchy-topic-level-2 {
+    background-color: var(--kommonitor-hierarchy-level-2);
+    color: #000 !important;
+  }
+
+  .hierarchy-topic-level-3 {
+    background-color: var(--kommonitor-hierarchy-level-3);
+    color: #000 !important;
   }
 }

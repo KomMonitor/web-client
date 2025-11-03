@@ -472,8 +472,8 @@ pre.CodeMirror-line {
   color: var(--extend_bg) !important;
 }
 
-#georesourceHierarchySelection.list-group.list-group-root .list-group-item .glyphicon.glyphicon-custom {
-  top: 4px !important;
+.glyphicon.glyphicon-custom {
+  top: 8px !important;
 }
 
 .list-group .list-group-item-grid-layout {
