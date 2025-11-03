@@ -15,7 +15,7 @@ import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import 'leaflet-measure';
 import 'leaflet-search';
 
-import '../../../../../customizedExternalLibs/leaflet-groupedLayerControl/leaflet.groupedLayerControl';
+import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 
 @Component({
   selector: 'app-kommonitor-map',
