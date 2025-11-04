@@ -62,49 +62,66 @@ export class UserInterfaceComponent implements OnInit {
 
   ngOnInit(): void {
 
-      // load all app configs
-      this.configStorageService.getConfigs();
+    // load all app configs
+    this.configStorageService.getConfigs();
 
-      /* todo
-      // initialize application
-			console.log("Initialize Application");
-			if ($scope.authenticated) {
-				console.log("Authetication successfull");
-			}			
+    /* todo
+    // initialize application
+    console.log("Initialize Application");
+    if ($scope.authenticated) {
+      console.log("Authetication successfull");
+    }			
 
-			await  */
+    await  */
 
-      // todo
-			//kommonitorShareHelperService.init();
+    // todo
+    //kommonitorShareHelperService.init();
 
-      this.globalFilterHelperService.init();
-      this.favService.init();
+    this.globalFilterHelperService.init();
+    this.favService.init();
 
-			if(this.globalFilterHelperService.applicationFilter) {
-				this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
-			} else {
-				this.dataExchangeService.fetchAllMetadata();
-			}
+    if(this.globalFilterHelperService.applicationFilter) {
+      this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
+    } else {
+      this.dataExchangeService.fetchAllMetadata();
+    }
 
-      this.checkAuthentication();
-      
-			setTimeout(() => {
-				this.prepUserInformation();
-			}, 1000);
+    this.checkAuthentication();
+    
+    setTimeout(() => {
+      this.prepUserInformation();
+    }, 1000);
 
-      // open infoModal ico
-      if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
-        //this.openInfoModal();
-  
-      //this.openReportingModal();
+    // open infoModal ico
+    if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
+      //this.openInfoModal();
 
-      if (this.exchangeData.spatialFilterIsApplied || this.exchangeData.rangeFilterIsApplied || this.exchangeData.isMeasureOfValueChecked) {
-				this.buttonFilterClass = "btn btn-custom btn-circle filterActive";
-			}
+    //this.openReportingModal();
 
-      if (this.exchangeData.isBalanceChecked) {
-				this.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
-			}
+    if (this.exchangeData.spatialFilterIsApplied || this.exchangeData.rangeFilterIsApplied || this.exchangeData.isMeasureOfValueChecked) {
+      this.buttonFilterClass = "btn btn-custom btn-circle filterActive";
+    }
+
+    if (this.exchangeData.isBalanceChecked) {
+      this.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
+    }
+
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'sidebarClosed' : {
+          this.sidebarElement = "";
+        } break;
+      }
+    });
+  }
+
+  isDiagramSidebarOpened() {
+    let diagramElements = ['sidebarDiagramsCollapse','sidebarRadarDiagramCollapse','sidebarRegressionDiagramCollapse','sidebarBalanceCollapse'];
+
+    return diagramElements.includes(this.sidebarElement);
   }
 
   /* 

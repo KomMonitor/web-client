@@ -8,6 +8,7 @@
   transition: opacity 0.3s;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-top: 1em;
 
   #sidebarContentWrapper {
     
@@ -20,6 +21,16 @@
 
     &.expWidth {
       width: 42vw !important;
+    }
+
+    .close {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 12px;
+      text-decoration: underline;
+      margin: .3em;
+      cursor: pointer;
     }
   }
 

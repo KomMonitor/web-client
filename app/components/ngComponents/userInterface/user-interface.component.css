@@ -59,6 +59,11 @@
           margin-top: auto;
           margin-bottom: auto;
         }
+
+        b {
+          font-weight: 600;
+          text-decoration: underline;
+        }
       }
     }
   }

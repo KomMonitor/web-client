@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -15,8 +16,17 @@ export class SidebarComponent implements OnInit{
     'sidebarRegressionDiagramCollapse'
   ];
 
+  constructor(
+    private broadcastService: BroadcastService 
+  ) {}
+
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarPoiCollapse';
+    this.element = 'sidebarDiagramsCollapse';
+  }
+
+  closeSidebar() {
+    this.element = undefined;
+    this.broadcastService.broadcast('sidebarClosed');
   }
 }
