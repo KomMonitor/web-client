@@ -68,3 +68,31 @@
     }
   }
 }
+
+::ng-deep .leaflet-control-geosearch a.leaflet-bar-part::after {
+  height: 15px !important;
+  width: 15px !important;
+  border: 2px solid #000;
+  top: 8px !important;
+  left: 8px !important;
+}
+
+::ng-deep .leaflet-control-geosearch a.leaflet-bar-part::before {
+  top: 22px !important;
+  left: 19px !important;
+  width: 10px !important;
+  border-top: 2px solid #000;
+}
+
+::ng-deep .leaflet-control-search {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  input {
+    order: 1;
+  }
+
+  ul {
+    left: 4em !important;
+  }
+}

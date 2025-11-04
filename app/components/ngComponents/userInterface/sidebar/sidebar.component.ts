@@ -22,7 +22,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarDiagramsCollapse';
+    //this.element = 'sidebarDiagramsCollapse';
   }
 
   closeSidebar() {
