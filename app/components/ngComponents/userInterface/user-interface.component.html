@@ -43,32 +43,32 @@
   <div id="mapWrapper">
     <div id="sideBarButtons">
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
           <i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
           <i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
           <i style="font-size:2.5vh;" class="fas fa-file-import"></i>
       </button> 
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse')}" data-toggle="tooltip" title="Darstellungsfilter">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse')}" data-toggle="tooltip" title="Darstellungsfilter">
           <i style="font-size:2.5vh;" class="fas fa-filter"></i>
       </button>
 
       <div>
         <button type="button" style="display: block; position: relative; margin-top: 5px;" 
-          (click)="onDiagramSubMenuClick()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened()}" data-toggle="tooltip" title="statistische Diagramme">
+          (mouseover)="onDiagramSubMenuOver()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened()}" data-toggle="tooltip" title="statistische Diagramme">
             <i style="font-size:2.5vh;" class="fas fa-chart-simple"></i>
         </button>
         
-        <div id="diagramSubMenu">
+        <div id="diagramSubMenu" [ngClass]="{'hidden':!diagramSubMenuOpen}">
 
           <div class="subMenuButtonWrapper">
             <button type="button" style="display: block; position: relative;" id="sidebarBalanceCollapse"
@@ -117,12 +117,12 @@
       </div>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
         <i style="font-size:2.5vh;" class="fas fa-route"></i>
       </button>
 
       <button *ngIf="visibilityHelperService.elementVisibility.reportingButton" type="button" style="display: block; position: relative; margin-top: 5px;"
-        (click)="openReportingModal()" class="btn btn-custom btn-circle" data-toggle="modal" title="Report erstellen">
+        (click)="openReportingModal()" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" data-toggle="modal" title="Report erstellen">
         <i style="font-size:2.5vh;" class="fas fa-file-alt"></i>
       </button>
     </div>
@@ -158,7 +158,7 @@
       <div id="dateSlider"></div>
     </div>
 
-    <app-kommonitor-map></app-kommonitor-map>
+    <app-kommonitor-map (click)="closeDiagramSubmenu()"></app-kommonitor-map>
     
   </div>
 </div>

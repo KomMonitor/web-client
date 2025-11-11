@@ -22,6 +22,7 @@ export class UserInterfaceComponent implements OnInit {
   userGroupInformation:any[] = [];
 
   expertToolbarVisible = false;
+  diagramSubMenuOpen: boolean = false;
 
   showUserLogin = false;
   authenticated = false;
@@ -244,6 +245,8 @@ export class UserInterfaceComponent implements OnInit {
     }
 
     onSidebarButtonClick(event) {
+      
+      this.closeDiagramSubmenu();
 
       let ident; 
       if(event.target.id!="")
@@ -311,12 +314,20 @@ export class UserInterfaceComponent implements OnInit {
 			this.broadcastService.broadcast("toggleExpertControl");
     }
 
-    onDiagramSubMenuClick() {
-      $('#diagramSubMenu').toggle();
+    onDiagramSubMenuOver() {
+      if(!this.diagramSubMenuOpen)
+        this.openDiagramSubmenu();  
+    }
+
+    openDiagramSubmenu() {
+      this.diagramSubMenuOpen = true;
+    }
+  
+    closeDiagramSubmenu() {
+      this.diagramSubMenuOpen = false;
     }
 
     onDiagramSubMenuButtonClick($event) {
       this.onSidebarButtonClick($event);
-      this.onDiagramSubMenuClick();
     }
 }
