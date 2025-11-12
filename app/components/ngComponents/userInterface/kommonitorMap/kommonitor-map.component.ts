@@ -432,6 +432,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let measureControl = new L.Control.Measure(measureOptions);
     measureControl.addTo(this.map);
     
+    // blendet den button erstmalig aus
     $('.leaflet-control-measure').toggle();
 
     // fix map-jumping with every click

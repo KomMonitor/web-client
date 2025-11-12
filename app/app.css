@@ -1273,6 +1273,12 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	z-index: 1003;
 }
 
+#testButton {
+	left: 220px;
+	top: 100px;
+	z-index: 1003;
+}
+
 #openLayerControlButton {
 	left: 220px;
 	top: 60px;

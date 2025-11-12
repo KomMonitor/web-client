@@ -245,7 +245,6 @@ export class UserInterfaceComponent implements OnInit {
     }
 
     onSidebarButtonClick(event) {
-      
       this.closeDiagramSubmenu();
 
       let ident; 
