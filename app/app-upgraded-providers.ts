@@ -2,7 +2,6 @@ import { Injector, Injectable } from '@angular/core';
 import {kommonitorDataExchangeService} from 'util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module';
 import {kommonitorKeycloackHelperService} from 'util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module';
 import {kommonitorReachabilityCoverageReportsHelper} from 'util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module'
-import {kommonitorSpatialDataProcessorHelper} from 'util/genericServices/kommonitorSpatialDataProcessorHelperService/kommonitor-spatial-data-processor-helper-service.module'
 
 //data exchange
   export function kommonitorDataExchangeServiceFactory (injector:any){
@@ -26,17 +25,7 @@ export const ajskommonitorKeycloackHelperServiceProvider: any = {
     useFactory:kommonitorKeycloackHelperServiceFactory,
   };
 
-//single feature map helper
-export function kommonitorSingleFeatureMapServiceFactory (injector:any){
-    return injector.get('kommonitorSingleFeatureMapService')
-}
-
-export const ajskommonitorSingleFeatureMapServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorSingleFeatureMapService',
-    useFactory:kommonitorSingleFeatureMapServiceFactory,
-  };
-
+/* 
 // reachability scenario helper service - todo
 export function kommonitorReachabilityScenarioHelperServiceFactory (injector:any){
   return injector.get('kommonitorReachabilityScenarioHelperService')
@@ -69,25 +58,12 @@ export const ajskommonitorReachabilityCoverageReportsHelperServiceProvider: any 
   provide: 'kommonitorReachabilityCoverageReportsHelperService',
   useFactory:kommonitorReachabilityCoverageReportsHelperServiceFactory,
 };
-
-// kommonitorSpatialDataProcessorHelperService - todo
-export function kommonitorSpatialDataProcessorHelperServiceFactory (injector:any){
-  return injector.get('kommonitorSpatialDataProcessorHelperService')
-}
-
-export const ajskommonitorSpatialDataProcessorHelperServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorSpatialDataProcessorHelperService',
-  useFactory:kommonitorSpatialDataProcessorHelperServiceFactory,
-};
-
+ */
 
   export const serviceProviders: any[] = [
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorKeycloackHelperServiceProvider,
-    ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorReachabilityScenarioHelperServiceProvider,
+   /*  ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
-    ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
-    ajskommonitorSpatialDataProcessorHelperServiceProvider
+    ajskommonitorReachabilityCoverageReportsHelperServiceProvider, */
   ];

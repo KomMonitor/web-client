@@ -17,9 +17,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
   ajskommonitorDataExchangeServiceeProvider,
   ajskommonitorKeycloackHelperServiceProvider,
-  ajskommonitorSingleFeatureMapServiceProvider,
-  ajskommonitorReachabilityScenarioHelperServiceProvider,
-  ajskommonitorReachabilityMapHelperServiceProvider
+/*   ajskommonitorReachabilityScenarioHelperServiceProvider,
+  ajskommonitorReachabilityMapHelperServiceProvider */
 } from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -141,9 +140,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     ajskommonitorKeycloackHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
-    ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorReachabilityScenarioHelperServiceProvider,
-    ajskommonitorReachabilityMapHelperServiceProvider,
+/*     ajskommonitorReachabilityScenarioHelperServiceProvider,
+    ajskommonitorReachabilityMapHelperServiceProvider, */
     NgbModule,
     {
       provide: HTTP_INTERCEPTORS,
