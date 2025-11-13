@@ -1,5 +1,4 @@
 import { HttpClient } from '@angular/common/http';
-import { ajskommonitorFavServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 
 @Injectable({

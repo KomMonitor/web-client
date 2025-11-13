@@ -1,19 +1,11 @@
 import { Injector, Injectable } from '@angular/core';
-import {kommonitorElementVisibilityHelperService } from "util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module";
 import {kommonitorCacheHelperService } from 'util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module';
 import {kommonitorBatchUpdateHelperService} from 'util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module';
 import {kommonitorDataExchangeService} from 'util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module';
-import {kommonitorDataGridHelperService} from 'util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module';
-import {kommonitorDiagramHelperService} from 'util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module';
-import {kommonitorFilterHelperService} from 'util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module';
 import {kommonitorImporterHelperService} from 'util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module';
 import {kommonitorKeycloackHelperService} from 'util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module'
-import {kommonitorMultistepFormHelperService} from 'util/genericServices/kommonitorMultiStepFormHelperService/kommonitor-multi-step-form-helper-service.module'
 import {kommonitorScriptHelperService} from'util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module';
 import {kommonitorShareHelperService} from 'util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module'
-import {kommonitorSingleFeatureMapHelperService} from 'util/genericServices/kommonitorSingleFeatureMapHelperService/kommonitor-single-feature-map-helper-service.module'
-import {kommonitorVisualStyleHelperService} from 'util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module'
-import {kommonitorReachabilityHelperService} from 'util/genericServices/kommonitorReachabilityHelperService/kommonitor-reachability-helper-service.module'
 import {kommonitorReachabilityCoverageReportsHelper} from 'util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module'
 import {kommonitorSpatialDataProcessorHelper} from 'util/genericServices/kommonitorSpatialDataProcessorHelperService/kommonitor-spatial-data-processor-helper-service.module'
 import {kommonitorLeafletScreenshotCacheHelper} from 'util/genericServices/kommonitorLeafletScreenshotCacheHelperService/kommonitor-leaflet-screenshot-cache-helper-service.module'
@@ -48,37 +40,6 @@ export const ajskommonitorDataExchangeServiceeProvider: any = {
     provide: 'kommonitorDataExchangeService',
     useFactory:kommonitorDataExchangeServiceFactory,
   };
-//data grid helper
-  export function kommonitorDataGridHelperServiceFactory (injector:any){
-    return injector.get('kommonitorDataGridHelperService')
-}
-
-export const ajskommonitorDataGridHelperServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorDataGridHelperService',
-    useFactory:kommonitorDataGridHelperServiceFactory,
-  };
-//diagram helper
-  export function kommonitorDiagramHelperServiceFactory (injector:any){
-    return injector.get('kommonitorDiagramHelperService')
-}
-
-export const ajskommonitorDiagramHelperServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorDiagramHelperService',
-    useFactory:kommonitorDiagramHelperServiceFactory,
-  };
-
-  //filter helper
-  export function kommonitorFilterHelperServiceFactory (injector:any){
-    return injector.get('kommonitorFilterHelperService')
-}
-
-export const ajskommonitorFilterHelperServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorFilterHelperService',
-    useFactory:kommonitorFilterHelperServiceFactory,
-  };
 
 //importer helper
 export function kommonitorImporterHelperServiceFactory (injector:any){
@@ -100,17 +61,6 @@ export const ajskommonitorKeycloackHelperServiceProvider: any = {
     deps: ['$injector'],
     provide: 'kommonitorKeycloackHelperService',
     useFactory:kommonitorKeycloackHelperServiceFactory,
-  };
-
- //multistep form
- export function kommonitorMultiStepFormHelperServiceFactory (injector:any){
-    return injector.get('kommonitorMultiStepFormHelperService')
-}
-
-export const ajskommonitorMultiStepFormHelperServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorMultiStepFormHelperService',
-    useFactory:kommonitorMultiStepFormHelperServiceFactory,
   };
 
 //script helpet
@@ -145,31 +95,6 @@ export const ajskommonitorSingleFeatureMapServiceProvider: any = {
     provide: 'kommonitorSingleFeatureMapService',
     useFactory:kommonitorSingleFeatureMapServiceFactory,
   };
-
-
-
-//visually style helper
-export function kommonitorVisualStyleHelperServiceFactory (injector:any){
-    return injector.get('kommonitorVisualStyleHelperService')
-}
-
-export const ajskommonitorVisualStyleHelperServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorVisualStyleHelperService',
-    useFactory:kommonitorVisualStyleHelperServiceFactory,
-  };
-
-  
-//element visibility helper
-export function kommonitorElementVisibilityHelperServiceFactory (injector:any){
-  return injector.get('kommonitorElementVisibilityHelperService')
-}
-
-export const ajskommonitorElementVisibilityHelperServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorElementVisibilityHelperService',
-  useFactory:kommonitorElementVisibilityHelperServiceFactory,
-};
   
 // map service
 export function kommonitorMapServiceFactory (injector:any){
@@ -191,17 +116,6 @@ export const ajskommonitorGenericMapHelperServiceProvider: any = {
   deps: ['$injector'],
   provide: 'kommonitorGenericMapHelperService',
   useFactory:kommonitorGenericMapHelperServiceFactory,
-};
-
-// reachability helper service
-export function kommonitorReachabilityHelperServiceFactory (injector:any){
-  return injector.get('kommonitorReachabilityHelperService')
-}
-
-export const ajskommonitorReachabilityHelperServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorReachabilityHelperService',
-  useFactory:kommonitorReachabilityHelperServiceFactory,
 };
 
 // reachability scenario helper service
@@ -226,18 +140,6 @@ export const ajskommonitorReachabilityMapHelperServiceProvider: any = {
   useFactory:kommonitorReachabilityMapHelperServiceFactory,
 };
 
-// single feature map helper service
-export function kommonitorSingleFeatureMapHelperServiceFactory (injector:any){
-  return injector.get('kommonitorSingleFeatureMapHelperService')
-}
-
-export const ajskommonitorSingleFeatureMapHelperServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorSingleFeatureMapHelperService',
-  useFactory:kommonitorSingleFeatureMapHelperServiceFactory,
-};
-
-
 // reachabilityCoverageReportsHelper
 export function kommonitorReachabilityCoverageReportsHelperServiceFactory (injector:any){
   return injector.get('kommonitorReachabilityCoverageReportsHelperService')
@@ -260,28 +162,6 @@ export const ajskommonitorSpatialDataProcessorHelperServiceProvider: any = {
   useFactory:kommonitorSpatialDataProcessorHelperServiceFactory,
 };
 
-// kommonitorGlobalFilterHelperService
-export function kommonitorGlobalFilterHelperServiceFactory (injector:any){
-  return injector.get('kommonitorGlobalFilterHelperService')
-}
-
-export const ajskommonitorGlobalFilterHelperServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorGlobalFilterHelperService',
-  useFactory:kommonitorGlobalFilterHelperServiceFactory,
-};
-
-// kommonitorFavService
-export function kommonitorFavServiceFactory (injector:any){
-  return injector.get('kommonitorFavService')
-}
-
-export const ajskommonitorFavServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorFavService',
-  useFactory:kommonitorFavServiceFactory,
-};
-
 // kommonitorLeafletScreenshotCacheHelperService
 export function kommonitorLeafletScreenshotCacheHelperServiceFactory (injector:any){
   return injector.get('kommonitorLeafletScreenshotCacheHelperService')
@@ -298,25 +178,15 @@ export const ajskommonitorLeafletScreenshotCacheHelperServiceProvider: any = {
     ajskommonitorCacheHelperServiceProvider,
    ajskommonitorBatchUpdateHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
-    ajskommonitorDataGridHelperServiceProvider,
-    ajskommonitorDiagramHelperServiceProvider,
-    ajskommonitorFilterHelperServiceProvider,
     ajskommonitorKeycloackHelperServiceProvider,
-    ajskommonitorMultiStepFormHelperServiceProvider,
     ajskommonitorScriptHelperServiceProvider,
     ajskommonitorShareHelperServiceProvider,
     ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorVisualStyleHelperServiceProvider,
-    ajskommonitorElementVisibilityHelperServiceProvider,
     ajskommonitorMapServiceProvider,
     ajskommonitorGenericMapHelperServiceProvider,
-    ajskommonitorReachabilityHelperServiceProvider,
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
-    ajskommonitorSingleFeatureMapHelperServiceProvider,
     ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
     ajskommonitorSpatialDataProcessorHelperServiceProvider,
-    ajskommonitorGlobalFilterHelperServiceProvider,
-    ajskommonitorFavServiceProvider,
     ajskommonitorLeafletScreenshotCacheHelperServiceProvider
   ];

@@ -1,5 +1,4 @@
 import { ActivatedRoute } from '@angular/router';
-import { ajskommonitorGlobalFilterHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 
 @Injectable({

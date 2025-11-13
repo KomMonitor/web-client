@@ -10,8 +10,6 @@ import 'leaflet.pattern';
 })
 export class VisualStyleHelperServiceNew {
 
-  pipedData:any;
-
   colorbrewer = colorbrewer;
 
   INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
@@ -164,11 +162,8 @@ export class VisualStyleHelperServiceNew {
   numClasses;
 
   public constructor(
-    @Inject('kommonitorVisualStyleHelperService') private ajskommonitorVisualStyleHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     private dataExchangeService: DataExchangeService
-  ) {
-    this.pipedData = this.ajskommonitorVisualStyleHelperServiceProvider;
-  }
+  ) {}
 /* 
   setOpacity(opacity) {
     this.ajskommonitorVisualStyleHelperServiceProvider.setOpacity(opacity);
