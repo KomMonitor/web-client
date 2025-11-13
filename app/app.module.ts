@@ -15,19 +15,12 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
-  ajskommonitorCacheHelperServiceProvider,
-  ajskommonitorBatchUpdateHelperServiceProvider,
   ajskommonitorDataExchangeServiceeProvider,
-  ajskommonitorImporterHelperServiceProvider,
   ajskommonitorKeycloackHelperServiceProvider,
   ajskommonitorSingleFeatureMapServiceProvider,
-  ajskommonitorShareHelperServiceProvider,
-  ajskommonitorMapServiceProvider,
   ajskommonitorGenericMapHelperServiceProvider,
   ajskommonitorReachabilityScenarioHelperServiceProvider,
-  ajskommonitorReachabilityMapHelperServiceProvider,
-  ajskommonitorScriptHelperServiceProvider,
-  ajskommonitorLeafletScreenshotCacheHelperServiceProvider
+  ajskommonitorReachabilityMapHelperServiceProvider
 } from 'app-upgraded-providers';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -147,19 +140,12 @@ export function HttpLoaderFactory(http: HttpClient) {
 ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
-    ajskommonitorCacheHelperServiceProvider,
-    ajskommonitorBatchUpdateHelperServiceProvider,
     ajskommonitorKeycloackHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorImporterHelperServiceProvider,
-    ajskommonitorShareHelperServiceProvider,
-    ajskommonitorMapServiceProvider, 
     ajskommonitorGenericMapHelperServiceProvider, 
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
-    ajskommonitorScriptHelperServiceProvider,
-    ajskommonitorLeafletScreenshotCacheHelperServiceProvider,
     NgbModule,
     {
       provide: HTTP_INTERCEPTORS,

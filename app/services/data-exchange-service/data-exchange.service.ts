@@ -116,6 +116,7 @@ export interface SpatialUnit {
   outlineColor: any;
   outlineWidth: any;
   outlineDashArrayString: any;
+  permissions: any;
 }
 
 @Injectable({

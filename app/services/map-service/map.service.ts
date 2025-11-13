@@ -7,11 +7,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 export class MapService {
 
   public constructor(
-      @Inject('kommonitorMapService') private ajskommonitorMapServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
       private broadcastService: BroadcastService
-  ) {
-    //this.pipedData = this.ajskommonitorDataExchangeServiceeProvider;
-  }
+  ) { }
 
   removePoiGeoresource(reference) {
     this.broadcastService.broadcast('removePoiGeoresource', [reference]);
@@ -40,31 +37,37 @@ export class MapService {
   }
 
   adjustOpacityForWmsLayer(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.adjustOpacityForWmsLayer(dataset, opacity);
+    //this.ajskommonitorMapServiceProvider.adjustOpacityForWmsLayer(dataset, opacity);
+    this.broadcastService.broadcast("adjustOpacityForWmsLayer",[dataset, opacity]);
   }
 
   adjustOpacityForAoiLayer(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.adjustOpacityForAoiLayer(dataset, opacity);
+    //this.ajskommonitorMapServiceProvider.adjustOpacityForAoiLayer(dataset, opacity);
+    this.broadcastService.broadcast("adjustOpacityForAoiLayer",[dataset, opacity]);
   }
 
   adjustOpacityForPoiLayer(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.adjustOpacityForPoiLayer(dataset, opacity);
+    //this.ajskommonitorMapServiceProvider.adjustOpacityForPoiLayer(dataset, opacity);
+    this.broadcastService.broadcast("adjustOpacityForPoiLayer",[dataset, opacity]);
   }
 
   adjustOpacityForLoiLayer(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.adjustOpacityForLoiLayer(dataset, opacity);
+    //this.ajskommonitorMapServiceProvider.adjustOpacityForLoiLayer(dataset, opacity);
+    this.broadcastService.broadcast("adjustOpacityForLoiLayer",[dataset, opacity]);
   }
 
   adjustOpacityForWfsLayer(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.adjustOpacityForWfsLayer(dataset, opacity);
+    //this.ajskommonitorMapServiceProvider.adjustOpacityForWfsLayer(dataset, opacity);
+    this.broadcastService.broadcast("adjustOpacityForWfsLayer",[dataset, opacity]);
   }
 
   adjustColorForWfsLayer(dataset, opacity) {
-    this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
+    //this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
+    this.broadcastService.broadcast("adjustColorForWfsLayer",[dataset, opacity]);
   }
 
   restyleCurrentLayer() {
-    this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
+    //this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
     this.broadcastService.broadcast("restyleCurrentLayer",[false]);
   }
 
@@ -90,10 +93,12 @@ export class MapService {
   }
 
   replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    this.ajskommonitorMapServiceProvider.replaceReachabilityScenarioOnMainMap(reachabilityScenario);
+    //this.ajskommonitorMapServiceProvider.replaceReachabilityScenarioOnMainMap(reachabilityScenario);
+    this.broadcastService.broadcast("replaceReachabilityScenarioOnMainMap", [reachabilityScenario]);
   }
 
   removeReachabilityScenarioFromMainMap() {
-    this.ajskommonitorMapServiceProvider.removeReachabilityScenarioFromMainMap();
+    //this.ajskommonitorMapServiceProvider.removeReachabilityScenarioFromMainMap();
+    this.broadcastService.broadcast("removeReachabilityScenarioFromMainMap");
   }
 }
