@@ -18,7 +18,6 @@ import {
   ajskommonitorDataExchangeServiceeProvider,
   ajskommonitorKeycloackHelperServiceProvider,
   ajskommonitorSingleFeatureMapServiceProvider,
-  ajskommonitorGenericMapHelperServiceProvider,
   ajskommonitorReachabilityScenarioHelperServiceProvider,
   ajskommonitorReachabilityMapHelperServiceProvider
 } from 'app-upgraded-providers';
@@ -143,7 +142,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     ajskommonitorKeycloackHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorGenericMapHelperServiceProvider, 
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
     NgbModule,

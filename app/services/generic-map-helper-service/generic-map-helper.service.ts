@@ -1,4 +1,3 @@
-import { ajskommonitorGenericMapHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -11,7 +10,6 @@ import 'leaflet-draw';
 })
 export class GenericMapHelperService {
 
-  pipedData: any;
   exchangeData:DataExchange;
 
   resourceType_point = "POINT";
@@ -47,11 +45,9 @@ export class GenericMapHelperService {
   }
 
   public constructor(
-    @Inject('kommonitorGenericMapHelperService') private ajskommonitorGenericMapHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService
   ) {
-    this.pipedData = this.ajskommonitorGenericMapHelperServiceProvider;
     this.exchangeData = this.dataExchangeService.pipedData;
   }
 
@@ -120,18 +116,98 @@ export class GenericMapHelperService {
     }
 
     if(poiMarkerStyle == "text" && poiMarkerText) {
-      newMarker = this.ajskommonitorGenericMapHelperServiceProvider.bindPOITextStyleTooltip(newMarker, poiMarkerText, poiSymbolColor);
+      newMarker = this.bindPOITextStyleTooltip(newMarker, poiMarkerText, poiSymbolColor);
     }
     
     return newMarker;
   }
+
+  bindPOITextStyleTooltip(marker, poiText, poiSymbolColor) {
+    marker.options.icon.options.icon = "";
+    let fontSize = "13px;"
+    let offset = [0, -25];
+
+    if (this.dataExchangeService.pipedData.selectedPOISize.label == "sehr klein") {
+      offset = [0, -12];
+      if(poiText.length == 1) { fontSize = "9px"; }
+      else if(poiText.length == 2) { fontSize = "6px"; }
+      else if(poiText.length == 3) { fontSize = "4px"; }
+    }
+    else if (this.dataExchangeService.pipedData.selectedPOISize.label == "klein") {
+      offset = [0, -20];
+      if(poiText.length == 1) { fontSize = "11px"; }
+      else if(poiText.length == 2) { fontSize = "8px"; }
+      else if(poiText.length == 3) { fontSize = "5px"; }
+    }
+    else if (this.dataExchangeService.pipedData.selectedPOISize.label == "mittel") {
+      offset = [0, -25];
+      if(poiText.length == 1) { fontSize = "13px"; }
+      else if(poiText.length == 2) { fontSize = "11px"; }
+      else if(poiText.length == 3) { fontSize = "9px"; }
+    }
+    else if (this.dataExchangeService.pipedData.selectedPOISize.label == "groß") {
+      offset = [0, -32];
+      if(poiText.length == 1) { fontSize = "20px"; }
+      else if(poiText.length == 2) { fontSize = "15px"; }
+      else if(poiText.length == 3) { fontSize = "10px"; }
+    }
   
-  addPoiMarker(markers, newMarker) {
-    return this.ajskommonitorGenericMapHelperServiceProvider.addPoiMarker(markers, newMarker);
+    marker.bindTooltip(
+      "<div style='color:" + poiSymbolColor 
+      +"; font-size: " + fontSize + "'>" 
+      + poiText + "</div>", {
+      permanent: true,
+      direction: 'center',
+      className: "poi-text-tooltip",
+      offset: offset
+    });
+
+    return marker;
+  }
+  
+  addPoiMarker(markers, poiMarker) {
+            
+    // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+    var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+      for (var p in poiMarker.feature.properties) {
+          popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
+      }
+      popupContent += '</table></div>';
+
+    if (poiMarker.feature.properties.name) {
+      poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
+    }
+    else if (poiMarker.feature.properties.NAME) {
+      poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
+    }
+    else if (poiMarker.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+      poiMarker.bindPopup(poiMarker.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
+    }
+    else {
+      // poiMarker.bindPopup(propertiesString);
+      poiMarker.bindPopup(popupContent);
+    }
+    markers.addLayer(poiMarker);
+
+    return markers;
   }
 
-  createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset) {
-    return ajskommonitorGenericMapHelperServiceProvider.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+  createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset){
+    for (var layerPropName in wfsLayer._layers){
+      var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
+      var latlng = wfsLayer._layers[layerPropName]._latlng;
+
+      geoJSONFeature.geometry = {
+        type: "Point",
+        coordinates: [latlng.lng, latlng.lat]
+      };
+
+      var customMarker = this.createCustomMarker(geoJSONFeature, dataset.poiMarkerStyle, dataset.poiMarkerText, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+      poiMarkerLayer = this.addPoiMarker(poiMarkerLayer, customMarker);
+    }
+
+    return poiMarkerLayer;
   }
 
   clearMap(map){
@@ -375,11 +451,18 @@ export class GenericMapHelperService {
     return geojsonLayer;
   }
 
-  zoomToLayer(map, dataLayer) {
-    this.ajskommonitorGenericMapHelperServiceProvider.zoomToLayer(map, dataLayer);
+  zoomToLayer(map, layer) {
+    if (map && layer && layer.getBounds()) {
+      // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
+      setTimeout(function () {
+        map.fitBounds(layer.getBounds());
+      }, 750);
+    }
   }
 
   changeEditableFeature(feature, featureLayer) {
-    this.ajskommonitorGenericMapHelperServiceProvider.changeEditableFeature(feature, featureLayer);
+    let singlePointLayer = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
+    featureLayer.clearLayers();
+    featureLayer.addLayer(singlePointLayer);
   }
 }

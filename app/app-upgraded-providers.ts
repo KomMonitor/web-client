@@ -37,17 +37,6 @@ export const ajskommonitorSingleFeatureMapServiceProvider: any = {
     useFactory:kommonitorSingleFeatureMapServiceFactory,
   };
 
-// generic map helper service
-export function kommonitorGenericMapHelperServiceFactory (injector:any){
-  return injector.get('kommonitorGenericMapHelperService')
-}
-
-export const ajskommonitorGenericMapHelperServiceProvider: any = {
-  deps: ['$injector'],
-  provide: 'kommonitorGenericMapHelperService',
-  useFactory:kommonitorGenericMapHelperServiceFactory,
-};
-
 // reachability scenario helper service - todo
 export function kommonitorReachabilityScenarioHelperServiceFactory (injector:any){
   return injector.get('kommonitorReachabilityScenarioHelperService')
@@ -97,7 +86,6 @@ export const ajskommonitorSpatialDataProcessorHelperServiceProvider: any = {
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorKeycloackHelperServiceProvider,
     ajskommonitorSingleFeatureMapServiceProvider,
-    ajskommonitorGenericMapHelperServiceProvider,
     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,
     ajskommonitorReachabilityCoverageReportsHelperServiceProvider,
