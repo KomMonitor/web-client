@@ -1,5 +1,4 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ajskommonitorConfigStorageServiceProvider } from '../../app-upgraded-providers';
 import { Inject, Injectable, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -13,16 +12,11 @@ export interface LandingpageConfig {
 })
 export class ConfigStorageService  {
 
-  pipedData!:any;
-
   controlsConfig:any;
   
   public constructor(
-      @Inject('kommonitorConfigStorageService') private ajskommonitorConfigStorageServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
       private httpClient: HttpClient
-  ) {
-    this.pipedData = this.ajskommonitorConfigStorageServiceProvider;
-  }
+  ) {}
 
   getConfigs() {
     this.getControlsConfig();

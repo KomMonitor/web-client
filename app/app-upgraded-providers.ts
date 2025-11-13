@@ -2,7 +2,6 @@ import { Injector, Injectable } from '@angular/core';
 import {kommonitorElementVisibilityHelperService } from "util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module";
 import {kommonitorCacheHelperService } from 'util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module';
 import {kommonitorBatchUpdateHelperService} from 'util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module';
-import {kommonitorConfigStorageService} from 'util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module';
 import {kommonitorDataExchangeService} from 'util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module';
 import {kommonitorDataGridHelperService} from 'util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module';
 import {kommonitorDiagramHelperService} from 'util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module';
@@ -39,15 +38,6 @@ export const ajskommonitorBatchUpdateHelperServiceProvider: any = {
     useFactory:kommonitorBatchUpdateHelperServiceFactory ,
   };
 
-  export function kommonitorConfigStorageServiceFactory (injector:any){
-    return injector.get('kommonitorConfigStorageService')
-}
-
-export const ajskommonitorConfigStorageServiceProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorConfigStorageService',
-    useFactory:kommonitorConfigStorageServiceFactory,
-  };
 //data exchange
   export function kommonitorDataExchangeServiceFactory (injector:any){
     return injector.get('kommonitorDataExchangeService')
@@ -307,7 +297,6 @@ export const ajskommonitorLeafletScreenshotCacheHelperServiceProvider: any = {
   export const serviceProviders: any[] = [
     ajskommonitorCacheHelperServiceProvider,
    ajskommonitorBatchUpdateHelperServiceProvider,
-    ajskommonitorConfigStorageServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorDataGridHelperServiceProvider,
     ajskommonitorDiagramHelperServiceProvider,

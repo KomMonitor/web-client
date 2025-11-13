@@ -17,7 +17,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
   ajskommonitorCacheHelperServiceProvider,
   ajskommonitorBatchUpdateHelperServiceProvider,
-  ajskommonitorConfigStorageServiceProvider,
   ajskommonitorDataExchangeServiceeProvider,
   ajskommonitorDataGridHelperServiceProvider,
   ajskommonitorDiagramHelperServiceProvider,
@@ -160,7 +159,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     ajskommonitorCacheHelperServiceProvider,
     ajskommonitorBatchUpdateHelperServiceProvider,
-    ajskommonitorConfigStorageServiceProvider,
     ajskommonitorKeycloackHelperServiceProvider,
     ajskommonitorMultiStepFormHelperServiceProvider,
     ajskommonitorDataExchangeServiceeProvider,
