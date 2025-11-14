@@ -183,7 +183,7 @@ export class DataExchangeService {
   showGeoresourceExportButtons: any;
   displayableGeoresources_keywordFiltered: any;
   wmsLegendImage: any;
-  displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any;
+  displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any = {};
   rangeFilterData: any;
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName:any;
@@ -550,6 +550,8 @@ export class DataExchangeService {
   }
 
   async fetchAllMetadata(filter = undefined){
+
+    await this.cacheHelperService.init();
     console.log("fetching all metadata from management component");
     
     // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
@@ -587,18 +589,7 @@ export class DataExchangeService {
       metadataPromises.push(promise);
     }
 
-    //TODO revise metadata fecthing for protected endpoints        
-   /*  var scriptsPromise = await this.fetchIndicatorScriptsMetadata(this.currentKeycloakLoginRoles);
-    var topicsPromise = await this.fetchTopicsMetadata(this.currentKeycloakLoginRoles);
-    var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles);
-    var georesourcesPromise = await this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter);
-    var indicatorsPromise = await this.fetchIndicatorsMetadata(this.currentKeycloakLoginRoles, filter);
-    metadataPromises.push(scriptsPromise);
-    metadataPromises.push(topicsPromise);
-    metadataPromises.push(spatialUnitsPromise);
-    metadataPromises.push(georesourcesPromise);
-    metadataPromises.push(indicatorsPromise); */
-
+    // revise metadata fecthing for protected endpoints 
     forkJoin({
       scriptsPromise: this.fetchIndicatorScriptsMetadata(this.currentKeycloakLoginRoles),
       topicsPromise: this.fetchTopicsMetadata(this.currentKeycloakLoginRoles),

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
 
 @Injectable({
@@ -63,14 +64,16 @@ export class CacheHelperServiceService implements OnInit{
 
   };
 
-  async fetchLastDatabaseModificationObject() {
+  async fetchLastDatabaseModificationObject():Promise<any> {
 
-    await this.http.get(this.baseUrlToKomMonitorDataAPI + "/public/database/last-modification").subscribe({
-      next: response => {
-        this.lastDatabaseModificationInfo = response;
-      }
-    })
-  };
+    try {
+      this.lastDatabaseModificationInfo = await firstValueFrom(
+        this.http.get(this.baseUrlToKomMonitorDataAPI + "/public/database/last-modification")
+      );
+    } catch {
+      console.error('Unable to load las mod date')
+    }
+  }
 
   async fetchResource_fromCacheOrServer(localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray, filter:any = undefined) {
     // check if the last modification date within local storage is the same as on the server
@@ -78,8 +81,7 @@ export class CacheHelperServiceService implements OnInit{
     // if YES, then try to use data from cache
 
     // else set new last modification date, fetch data from server and set that also within localStorage
-
-    await this.fetchLastDatabaseModificationObject();
+    //await this.fetchLastDatabaseModificationObject();
 
     let timestampKey = localStorageKey + "_timestamp";
     let metadataKey = localStorageKey + "_metadata";
@@ -108,6 +110,7 @@ export class CacheHelperServiceService implements OnInit{
     if (lastModTimestamp_fromCache_string && !filter) {
       let lastModTimestamp_fromCache = JSON.parse(lastModTimestamp_fromCache_string);
 
+console.log("HEIRHEIRHEIRHEIHR")
       if (lastModTimestamp_fromCache) {
 
         let lastModTimestamp_fromServer = this.lastDatabaseModificationInfo[lastModificationResourceName];

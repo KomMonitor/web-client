@@ -88,7 +88,6 @@ export class ConfigStorageService  {
     this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig).subscribe({
       next: response => {
         this.controlsConfig = response;
-        console.log(this.controlsConfig);
       },
       error: error => {
         console.error(error);

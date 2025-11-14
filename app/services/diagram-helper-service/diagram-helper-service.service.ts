@@ -1735,9 +1735,10 @@ export class DiagramHelperServiceService {
       }          
 
       // hide data points
-      timeseriesOptions.series[0].itemStyle.normal.opacity = 0;
-      timeseriesOptions.series[0].lineStyle.normal.width = 3;
-      timeseriesOptions.series[0].lineStyle.normal.type = "solid";  
+      console.log(timeseriesOptions.series[0]);
+      timeseriesOptions.series[0].itemStyle.opacity = 0;
+      timeseriesOptions.series[0].lineStyle.width = 3;
+      timeseriesOptions.series[0].lineStyle.type = "solid";  
       
       var trendData:any = [];
 
