@@ -93,6 +93,7 @@ import { MathjaxModule } from "mathjax-angular";
 import { AdminLandingpageConfigComponent } from './components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
 import { SafeHtmlPipe } from "./pipes/safe-html.pipe";
 import { IndicatorMetadataTooltipComponent } from './components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import { KeycloakHelperComponent } from './services/keycloak-helper-service/keycloak-helper/keycloak-helper.component';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -202,7 +203,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     GeoresourceDeleteModalComponent,
     UserLoginComponent,
     AdminLandingpageConfigComponent,
-    IndicatorMetadataTooltipComponent
+    IndicatorMetadataTooltipComponent,
+    KeycloakHelperComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
