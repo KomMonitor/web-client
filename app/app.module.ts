@@ -15,7 +15,6 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { 
-  ajskommonitorDataExchangeServiceeProvider,
   ajskommonitorKeycloackHelperServiceProvider,
 /*   ajskommonitorReachabilityScenarioHelperServiceProvider,
   ajskommonitorReachabilityMapHelperServiceProvider */
@@ -139,7 +138,6 @@ export function HttpLoaderFactory(http: HttpClient) {
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     ajskommonitorKeycloackHelperServiceProvider,
-    ajskommonitorDataExchangeServiceeProvider,
 /*     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider, */
     NgbModule,

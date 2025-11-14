@@ -110,7 +110,6 @@ export class CacheHelperServiceService implements OnInit{
     if (lastModTimestamp_fromCache_string && !filter) {
       let lastModTimestamp_fromCache = JSON.parse(lastModTimestamp_fromCache_string);
 
-console.log("HEIRHEIRHEIRHEIHR")
       if (lastModTimestamp_fromCache) {
 
         let lastModTimestamp_fromServer = this.lastDatabaseModificationInfo[lastModificationResourceName];

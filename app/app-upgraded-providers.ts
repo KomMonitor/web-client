@@ -1,18 +1,6 @@
 import { Injector, Injectable } from '@angular/core';
-import {kommonitorDataExchangeService} from 'util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module';
 import {kommonitorKeycloackHelperService} from 'util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module';
 import {kommonitorReachabilityCoverageReportsHelper} from 'util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module'
-
-//data exchange
-  export function kommonitorDataExchangeServiceFactory (injector:any){
-    return injector.get('kommonitorDataExchangeService')
-}
-
-export const ajskommonitorDataExchangeServiceeProvider: any = {
-    deps: ['$injector'],
-    provide: 'kommonitorDataExchangeService',
-    useFactory:kommonitorDataExchangeServiceFactory,
-  };
 
 //keycloack helper
   export function kommonitorKeycloackHelperServiceFactory (injector:any){
@@ -61,7 +49,6 @@ export const ajskommonitorReachabilityCoverageReportsHelperServiceProvider: any 
  */
 
   export const serviceProviders: any[] = [
-    ajskommonitorDataExchangeServiceeProvider,
     ajskommonitorKeycloackHelperServiceProvider,
    /*  ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider,

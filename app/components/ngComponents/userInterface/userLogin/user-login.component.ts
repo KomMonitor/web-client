@@ -33,8 +33,7 @@ export class UserLoginComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private dataExchangeService: DataExchangeService,
-    @Inject('kommonitorDataExchangeService') private kommonitorDataExchangeService: any
+    private dataExchangeService: DataExchangeService
   ) { }
 
   ngOnInit(): void {
@@ -43,13 +42,13 @@ export class UserLoginComponent implements OnInit {
   }
 
   checkAuthentication(): void {
-    this.kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
-    this.enableKeycloakSecurity = this.kommonitorDataExchangeService.enableKeycloakSecurity;
+    this.dataExchangeService.currentKeycloakLoginRoles = [];
+    this.enableKeycloakSecurity = this.dataExchangeService.enableKeycloakSecurity;
 
     if (this.authService.Auth?.keycloak?.authenticated) {
       this.authenticated = this.authService.Auth.keycloak.authenticated;
-      this.currentKeycloakUser = this.kommonitorDataExchangeService.currentKeycloakUser;
-      this.keycloakTokenExpirationInfo = this.kommonitorDataExchangeService.keycloakTokenExpirationInfo;
+      this.currentKeycloakUser = this.dataExchangeService.currentKeycloakUser;
+      this.keycloakTokenExpirationInfo = this.dataExchangeService.keycloakTokenExpirationInfo;
 
       if (this.authService.Auth.keycloak.tokenParsed
         && this.authService.Auth.keycloak.tokenParsed.realm_access
@@ -61,8 +60,8 @@ export class UserLoginComponent implements OnInit {
   }
 
   prepUserInformation(): void {
-    if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
-      this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
+    if (this.dataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
+      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
         let key = roles.split('.')[0];
         let role = roles.split('.')[1];
 
@@ -74,8 +73,8 @@ export class UserLoginComponent implements OnInit {
       });
     }
 
-    if (this.kommonitorDataExchangeService.currentKeycloakLoginGroups?.length > 0) {
-      this.kommonitorDataExchangeService.currentKeycloakLoginGroups.forEach((group: string, index: number) => {
+    if (this.dataExchangeService.currentKeycloakLoginGroups?.length > 0) {
+      this.dataExchangeService.currentKeycloakLoginGroups.forEach((group: string, index: number) => {
         let parts = group.split('/');
         this.userGroupInformation[index] = [];
 
@@ -89,7 +88,7 @@ export class UserLoginComponent implements OnInit {
   }
 
   tryLoginUser(): void {
-    if (this.kommonitorDataExchangeService.enableKeycloakSecurity) {
+    if (this.dataExchangeService.enableKeycloakSecurity) {
       this.authService.Auth.keycloak.login();
     } else {
       this.tryLoginUser_withoutKeycloak();
@@ -100,21 +99,21 @@ export class UserLoginComponent implements OnInit {
     // TODO FIXME make generic user login once user/role concept is implemented
     // currently only simple ADMIN user login is possible
     console.log("Check user login");
-    if (this.kommonitorDataExchangeService.adminUserName === this.kommonitorDataExchangeService.currentKeycloakUser &&
-      this.kommonitorDataExchangeService.adminPassword === this.password) {
+    if (this.dataExchangeService.adminUserName === this.dataExchangeService.currentKeycloakUser &&
+      this.dataExchangeService.adminPassword === this.password) {
       // success login --> currently switch to ADMIN page directly
       console.log("User Login success - redirect to Admin Page");
-      this.kommonitorDataExchangeService.adminIsLoggedIn = true;
+      this.dataExchangeService.adminIsLoggedIn = true;
       location.href = '/administration';
     }
   }
 
   tryLogoutUser(): void {
-    this.kommonitorDataExchangeService.tryLogoutUser();
+    this.dataExchangeService.tryLogoutUser();
   }
 
   extendKeycloakSession(): void {
-    this.kommonitorDataExchangeService.extendKeycloakSession();
+    this.dataExchangeService.extendKeycloakSession();
   }
 
   onMouseLeave(): void {
