@@ -223,7 +223,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     // create PDF from currently selected/displayed indicator!
     var indicatorMetadata = this.exchangeData.selectedIndicator;
     var pdfName = indicatorMetadata.indicatorName + ".pdf";
-    let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, true);	
+    let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
     jspdf.save();
   }
   
