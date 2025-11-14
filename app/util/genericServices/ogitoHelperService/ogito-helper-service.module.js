@@ -106,6 +106,7 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
+            geoJSON = self.filterForSpecificLayer(geoJSON);
             let customColor = `#00AABB`;
 					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[2];
             let datasetName = "OGITO - Sketch - Punkte LAP";
@@ -124,6 +125,15 @@ angular
         });
         }
 
+        this.filterForSpecificLayer = function(geoJSON){
+          let filteredFeatures = geoJSON.features.filter(function(feature){
+            return feature.properties.layername == "PartWiss";
+          });
+
+          geoJSON.features = filteredFeatures;
+          return geoJSON;
+        }
+
         this.loadSketchData_lois = async function(){
           return await $http({
           url: this.targetURLToOgito_WFS + "&request=GetFeature&typeName=sketch_ls&outputFormat=application/json&srsName=EPSG:4326",
@@ -133,6 +143,7 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
+            geoJSON = self.filterForSpecificLayer(geoJSON);
             let customColor = `#00AABB`;
 					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[4];
             let datasetName = "OGITO - Sketch - Linien LAP";
@@ -160,6 +171,7 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
+            geoJSON = self.filterForSpecificLayer(geoJSON);
             let customColor = `#00AABB`;
 					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[4];
             let datasetName = "OGITO - Sketch - Polygone LAP";
@@ -187,6 +199,7 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
+            geoJSON = self.filterForSpecificLayer(geoJSON);
             let customColor = `#00AABB`;
 					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[5];
             let datasetName = "OGITO - Maßnahmen";
