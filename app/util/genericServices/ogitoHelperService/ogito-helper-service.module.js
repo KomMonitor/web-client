@@ -97,7 +97,20 @@ angular
 
         this.init();
 
-        this.loadSketchData_pois = async function(){
+        this.loadSketchData_quiet = async function(){
+          this.loadSketchData_pois('quiet');
+          this.loadSketchData_lois('quiet');
+          this.loadSketchData_aois('quiet');
+        } ; 
+
+         this.loadSketchData_noise = async function(){
+          this.loadSketchData_pois('noise');
+          this.loadSketchData_lois('noise');
+          this.loadSketchData_aois('noise');
+        } ; 
+
+
+        this.loadSketchData_pois = async function(type){
           return await $http({
           url: this.targetURLToOgito_WFS + "&request=GetFeature&typeName=sketch_pt&outputFormat=application/json&srsName=EPSG:4326",
           method: "GET",
@@ -106,12 +119,28 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
-            geoJSON = self.filterForSpecificLayer(geoJSON);
-            let customColor = `#00AABB`;
-					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[2];
-            let datasetName = "OGITO - Sketch - Punkte LAP";
-            let customIcon = "pushpin"; 
+            geoJSON = self.filterForSpecificLayer(geoJSON, type);
+            if(geoJSON.features.length == 0){
+              return;
+            }
+            customColor = 'rgb(205,59,40)';; // noise
+            if(type == 'quiet'){
+              customColor = 'rgb(53,161,209)'; // quiet
+            } 
+					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0]; // red
+            if(type == 'quiet'){
+              customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[5]; // blue
+            }
+            let customIcon = "bullhorn"; // noise
+            if(type == 'quiet'){
+              customIcon = "volume-down"; // quiet
+            } 
+            let datasetName = "Gruppenbeteiligung - laute Orte"; // noise
+            if(type == 'quiet'){
+              datasetName = "Gruppenbeteiligung - ruhige Orte";
+            }
             
+                        
             let tmpGeoresource_fromKobo = kommonitorFileHelperService.makeGeoresourceMetadata_fromKobotoolboxDataset(datasetName, customColor, customMarkerColor, customIcon, "GeoJSON", geoJSON);
             
             $rootScope.$broadcast("GeoJSONFromFileFinished", tmpGeoresource_fromKobo);
@@ -125,16 +154,29 @@ angular
         });
         }
 
-        this.filterForSpecificLayer = function(geoJSON){
+        let noiseColorNames = ['red', 'yellow', 'pink'];
+        let quietColorNames = ['green', 'blue', ];
+
+        // type can be 'quiet' or 'noise' 
+        this.filterForSpecificLayer = function(geoJSON, type){
           let filteredFeatures = geoJSON.features.filter(function(feature){
-            return feature.properties.layername == "PartWiss";
+            let passed = false;
+            if(feature.properties.layername == "PartWiss"){
+              if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
+                passed = true;
+              }
+              else if(type == 'noise' && noiseColorNames.includes(feature.properties.style)){
+                passed = true;
+              }
+            }
+            return passed 
           });
 
           geoJSON.features = filteredFeatures;
           return geoJSON;
         }
 
-        this.loadSketchData_lois = async function(){
+        this.loadSketchData_lois = async function(type){
           return await $http({
           url: this.targetURLToOgito_WFS + "&request=GetFeature&typeName=sketch_ls&outputFormat=application/json&srsName=EPSG:4326",
           method: "GET",
@@ -143,11 +185,27 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
-            geoJSON = self.filterForSpecificLayer(geoJSON);
-            let customColor = `#00AABB`;
-					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[4];
-            let datasetName = "OGITO - Sketch - Linien LAP";
-            let customIcon = "pushpin"; 
+            geoJSON = self.filterForSpecificLayer(geoJSON, type);  
+            if(geoJSON.features.length == 0){
+              return;
+            }          
+
+            customColor = 'rgb(205,59,40)';; // noise
+            if(type == 'quiet'){
+              customColor = 'rgb(53,161,209)'; // quiet
+            } 
+					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0]; // red
+            if(type == 'quiet'){
+              customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[5]; // blue
+            }
+            let customIcon = "bullhorn"; // noise
+            if(type == 'quiet'){
+              customIcon = "volume-down"; // quiet
+            } 
+            let datasetName = "Gruppenbeteiligung - laute Strecken"; // noise
+            if(type == 'quiet'){
+              datasetName = "Gruppenbeteiligung - ruhige Strecken";
+            }
             
             let tmpGeoresource_fromKobo = kommonitorFileHelperService.makeGeoresourceMetadata_fromKobotoolboxDataset(datasetName, customColor, customMarkerColor, customIcon, "GeoJSON", geoJSON);
             
@@ -162,7 +220,7 @@ angular
         });
         }
 
-        this.loadSketchData_aois = async function(){
+        this.loadSketchData_aois = async function(type){
           return await $http({
           url: this.targetURLToOgito_WFS + "&request=GetFeature&typeName=sketch_poly&outputFormat=application/json&srsName=EPSG:4326",
           method: "GET",
@@ -171,11 +229,26 @@ angular
             // when the response is available
   
             let geoJSON = response.data;
-            geoJSON = self.filterForSpecificLayer(geoJSON);
-            let customColor = `#00AABB`;
-					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[4];
-            let datasetName = "OGITO - Sketch - Polygone LAP";
-            let customIcon = "pushpin"; 
+            geoJSON = self.filterForSpecificLayer(geoJSON, type);
+            if(geoJSON.features.length == 0){
+              return;
+            }
+            customColor = 'rgb(205,59,40)';; // noise
+            if(type == 'quiet'){
+              customColor = 'rgb(53,161,209)'; // quiet
+            } 
+					  let customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0]; // red
+            if(type == 'quiet'){
+              customMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[5]; // blue
+            }
+            let customIcon = "bullhorn"; // noise
+            if(type == 'quiet'){
+              customIcon = "volume-down"; // quiet
+            } 
+            let datasetName = "Gruppenbeteiligung - laute Bereiche"; // noise
+            if(type == 'quiet'){
+              datasetName = "Gruppenbeteiligung - ruhige Bereiche";
+            }
             
             let tmpGeoresource_fromKobo = kommonitorFileHelperService.makeGeoresourceMetadata_fromKobotoolboxDataset(datasetName, customColor, customMarkerColor, customIcon, "GeoJSON", geoJSON);
             

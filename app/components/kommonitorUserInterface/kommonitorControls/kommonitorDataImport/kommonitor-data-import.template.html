@@ -381,7 +381,7 @@
 					</a> -->
 
 					<div>
-						<h4>Demonstrator Kobotoolbox-Beteiligungsdaten</h4>
+						<h4>Demonstrator Kobotoolbox-Fragebogen-Beteiligungsdaten</h4>
 					</div>
 
 					<button data-toggle="modal" data-target="#kobotoolbox-modal" class="btn btn-info btn-sm" type="button">
@@ -404,10 +404,18 @@
 
 				<div>
 					<div>
-						<h4>Demonstrator OGITO-Beteiligungsdaten</h4>
+						<h4>Demonstrator OGITO-Gruppen-Beteiligungsdaten</h4>
 					</div>
 
-					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_pois()">
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_quiet()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;ruhige Orte laden
+					</button>
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_noise()">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;laute Orte laden
+					</button>
+
+					<!-- <button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_pois()">
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;Punktsketches laden
 					</button>
 
@@ -417,7 +425,7 @@
 
 					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_aois()">
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;Fl&auml;chensketches laden
-					</button>
+					</button> -->
 
 					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadMeasures()">
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;Ma&szlig;nahmen laden
