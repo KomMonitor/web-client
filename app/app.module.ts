@@ -14,11 +14,10 @@ import { Router, RouterModule, Routes } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { 
-  ajskommonitorKeycloackHelperServiceProvider,
-/*   ajskommonitorReachabilityScenarioHelperServiceProvider,
-  ajskommonitorReachabilityMapHelperServiceProvider */
-} from 'app-upgraded-providers';
+/* import { 
+  ajskommonitorReachabilityScenarioHelperServiceProvider,
+  ajskommonitorReachabilityMapHelperServiceProvider
+} from 'app-upgraded-providers'; */
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -93,7 +92,7 @@ import { MathjaxModule } from "mathjax-angular";
 import { AdminLandingpageConfigComponent } from './components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
 import { SafeHtmlPipe } from "./pipes/safe-html.pipe";
 import { IndicatorMetadataTooltipComponent } from './components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
-import { KeycloakHelperComponent } from './services/keycloak-helper-service/keycloak-helper/keycloak-helper.component';
+import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -138,7 +137,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 ],
   providers:[
     {provide: LocationStrategy, useClass: HashLocationStrategy},
-    ajskommonitorKeycloackHelperServiceProvider,
 /*     ajskommonitorReachabilityScenarioHelperServiceProvider,
     ajskommonitorReachabilityMapHelperServiceProvider, */
     NgbModule,
@@ -203,8 +201,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     GeoresourceDeleteModalComponent,
     UserLoginComponent,
     AdminLandingpageConfigComponent,
-    IndicatorMetadataTooltipComponent,
-    KeycloakHelperComponent
+    IndicatorMetadataTooltipComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -218,7 +215,8 @@ export class AppModule implements DoBootstrap {
   constructor(
     private upgrade: UpgradeModule,
     private authService: AuthService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private keycloakHelperService: KeycloakHelperService
   ) {
   }
   
@@ -860,8 +858,14 @@ export class AppModule implements DoBootstrap {
       }).then( (authenticated) => {
         console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
         auth.keycloak = keycloakAdapter;
+
+        // hier
+        // beides ehemals innerhalb der actory('Auth',  () => { funktion
+        this.authService.init(auth);
+        this.keycloakHelperService.init();
+
+
         angular.module('kommonitorClient').factory('Auth',  () => {
-          this.authService.init(auth);
           return auth;
         });
         try {

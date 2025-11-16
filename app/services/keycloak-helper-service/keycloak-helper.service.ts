@@ -28,6 +28,7 @@ export class KeycloakHelperService implements OnInit {
   }
 
   async init() {
+    console.log("KEYCLOAK INIT");
     try {
       if (window.__env.keycloakConfig) {
         this.configureKeycloakParameters(window.__env.keycloakConfig);
