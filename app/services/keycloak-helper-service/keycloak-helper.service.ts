@@ -16,7 +16,7 @@ export class KeycloakHelperService implements OnInit {
 
   roleSuffixes = ["viewer", "editor", "publisher", "creator"];
 
-  adminRoleSuffixes = window.__env.keycloakKomMonitorGroupsEditRoleNames.concat(window.__env.keycloakKomMonitorThemesEditRoleNames).concat(window.__env.keycloakKomMonitorGeodataEditRoleNames);
+  adminRoleSuffixes;
 
   constructor(
     private httpClient: HttpClient,
@@ -24,10 +24,13 @@ export class KeycloakHelperService implements OnInit {
   ) {}
 
   ngOnInit(): void {
-      this.init();
+      //this.init();
   }
 
   async init() {
+
+    this.adminRoleSuffixes  = window.__env.keycloakKomMonitorGroupsEditRoleNames.concat(window.__env.keycloakKomMonitorThemesEditRoleNames).concat(window.__env.keycloakKomMonitorGeodataEditRoleNames);
+
     console.log("KEYCLOAK INIT");
     try {
       if (window.__env.keycloakConfig) {

@@ -9,6 +9,7 @@ import { ElementVisibilityHelperService } from 'services/element-visibility-help
 import { AuthService } from 'services/auth-service/auth.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -56,7 +57,8 @@ export class UserInterfaceComponent implements OnInit {
     protected visibilityHelperService: ElementVisibilityHelperService,
     private authService: AuthService,
     private favService: FavService,
-    private globalFilterHelperService: GlobalFilterHelperService
+    private globalFilterHelperService: GlobalFilterHelperService,
+    private visualStyleHelperService: VisualStyleHelperServiceNew
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }

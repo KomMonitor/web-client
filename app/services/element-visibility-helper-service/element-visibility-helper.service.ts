@@ -13,8 +13,8 @@ export class ElementVisibilityHelperService implements OnInit {
 
   elementVisibility:any = {};
 
-  isAdvancedMode = window.__env.isAdvancedMode;
-  showAdvancedModeSwitch = window.__env.showAdvancedModeSwitch;
+  isAdvancedMode;
+  showAdvancedModeSwitch;
 
   advancedModeGroupName = "fakeAdvancedModeGroup"; 
   advancedModeRoleName = "fakeAdvancedModeRole";
@@ -34,6 +34,9 @@ export class ElementVisibilityHelperService implements OnInit {
   }
 
   initElementVisibility() {
+
+    this.isAdvancedMode = window.__env.isAdvancedMode;
+    this.showAdvancedModeSwitch = window.__env.showAdvancedModeSwitch;
 
     this.dataExchangeService.pipedData.showDiagramExportButtons = true;
     this.dataExchangeService.pipedData.showGeoresourceExportButtons = true;

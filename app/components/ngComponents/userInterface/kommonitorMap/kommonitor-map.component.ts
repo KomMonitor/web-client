@@ -28,34 +28,44 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   searchControl:any;
   geosearchControl:any;
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
-  defaultBorderColorForFilteredValues = window.__env.defaultBorderColorForFilteredValues;
-  defaultBorderColor = window.__env.defaultBorderColor;
-  defaultFillOpacity = window.__env.defaultFillOpacity;
-  defaultFillOpacityForFilteredFeatures = window.__env.defaultFillOpacityForFilteredFeatures;
-  defaultFillOpacityForHighlightedFeatures = window.__env.defaultFillOpacityForHighlightedFeatures;
-  defaultFillOpacityForZeroFeatures = window.__env.defaultFillOpacityForZeroFeatures;
-  defaultColorBrewerPaletteForBalanceIncreasingValues = window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues;
-  defaultColorBrewerPaletteForBalanceDecreasingValues = window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues;
-  defaultColorBrewerPaletteForGtMovValues = window.__env.defaultColorBrewerPaletteForGtMovValues;
-  defaultColorBrewerPaletteForLtMovValues = window.__env.defaultColorBrewerPaletteForLtMovValues;
-  defaultColorForHoveredFeatures = window.__env.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env.defaultColorForClickedFeatures;
-  defaultBorderColorForNoDataValues = window.__env.defaultBorderColorForNoDataValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultFillOpacityForNoDataValues = window.__env.defaultFillOpacityForNoDataValues;
+  INDICATOR_DATE_PREFIX;
+  numberOfDecimals;
+  defaultColorForFilteredValues;
+  defaultBorderColorForFilteredValues;
+  defaultBorderColor;
+  defaultFillOpacity = window.__env?.defaultFillOpacity;
+  defaultFillOpacityForFilteredFeatures = window.__env?.defaultFillOpacityForFilteredFeatures;
+  defaultFillOpacityForHighlightedFeatures = window.__env?.defaultFillOpacityForHighlightedFeatures;
+  defaultFillOpacityForZeroFeatures = window.__env?.defaultFillOpacityForZeroFeatures;
+  defaultColorBrewerPaletteForBalanceIncreasingValues = window.__env?.defaultColorBrewerPaletteForBalanceIncreasingValues;
+  defaultColorBrewerPaletteForBalanceDecreasingValues = window.__env?.defaultColorBrewerPaletteForBalanceDecreasingValues;
+  defaultColorBrewerPaletteForGtMovValues = window.__env?.defaultColorBrewerPaletteForGtMovValues;
+  defaultColorBrewerPaletteForLtMovValues = window.__env?.defaultColorBrewerPaletteForLtMovValues;
+  defaultColorForHoveredFeatures = window.__env?.defaultColorForHoveredFeatures;
+  defaultColorForClickedFeatures = window.__env?.defaultColorForClickedFeatures;
+  defaultBorderColorForNoDataValues = window.__env?.defaultBorderColorForNoDataValues;
+  defaultColorForNoDataValues = window.__env?.defaultColorForNoDataValues;
+  defaultFillOpacityForNoDataValues = window.__env?.defaultFillOpacityForNoDataValues;
   datasetContainsNegativeValues;
 
 
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low;
-  useOutlierDetectionOnIndicator = window.__env.useOutlierDetectionOnIndicator;
+  defaultColorForOutliers_high = window.__env?.defaultColorForOutliers_high;
+  defaultBorderColorForOutliers_high = window.__env?.defaultBorderColorForOutliers_high;
+  defaultFillOpacityForOutliers_high = window.__env?.defaultFillOpacityForOutliers_high;
+  defaultColorForOutliers_low = window.__env?.defaultColorForOutliers_low;
+  defaultBorderColorForOutliers_low = window.__env?.defaultBorderColorForOutliers_low;
+  defaultFillOpacityForOutliers_low = window.__env?.defaultFillOpacityForOutliers_low;
+  useOutlierDetectionOnIndicator = window.__env?.useOutlierDetectionOnIndicator;
+
+  latCenter = window.__env?.initialLatitude;
+  lonCenter = window.__env?.initialLongitude;
+  zoomLevel = window.__env?.initialZoomLevel;
+  useTransparencyOnIndicator = window.__env?.useTransparencyOnIndicator;
+  defaultColorForZeroValues = window.__env?.defaultColorForZeroValues;
+
+  svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
+  svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
+
 
   outlierPropertyName = "outlier";
   outlierPropertyValue_high_soft = "high-soft";
@@ -102,7 +112,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   currentIndicatorContainsZeroValues = false;
   currentIndicatorContainsNoDataValues = false;
   indicatorTypeOfCurrentLayer:any[] = [];
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
+  
 
   customIndicatorPropertyName;
   customIndicatorName;
@@ -115,10 +125,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   isochronesLayer:any = undefined;
   isochroneMarkerLayer = undefined;
   
-
-  svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
-  svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
-
   showOutlierInfoAlert = false;
 
   drawnPointFeatures = undefined;
@@ -128,13 +134,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   featuresWithoutValues = [];
 
   
-  useTransparencyOnIndicator = window.__env.useTransparencyOnIndicator;
 
   inputLayerCounter = 0;
 
-  latCenter = window.__env.initialLatitude;
-  lonCenter = window.__env.initialLongitude;
-  zoomLevel = window.__env.initialZoomLevel;
 
   loadingData = true;
 
