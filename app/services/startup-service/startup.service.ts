@@ -49,7 +49,7 @@ export class StartupService {
         checkLoginIframe: false,
         silentCheckSsoFallback: false
       }).then( (authenticated) => {
-        console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!', auth);
+        console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
         auth.keycloak = keycloakAdapter;
 
         // hier

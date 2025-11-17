@@ -15,6 +15,10 @@ import { FormsModule } from '@angular/forms';
 import { KommonitorClassificationComponent } from 'components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { MathjaxModule } from 'mathjax-angular';
+import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
+import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
+import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -27,7 +31,11 @@ export function initializeApp(startupService: StartupService) {
     KommonitorMapComponent,
     KommonitorLegendComponent,
     KommonitorClassificationComponent,
-    ClassificationMethodSelectComponent
+    ClassificationMethodSelectComponent,
+    SidebarComponent,
+    KommonitorDataSetupComponent,
+    IndicatorMetadataTooltipComponent,
+    IndicatorFavFilter
   ],
   imports: [
     CommonModule,
@@ -36,7 +44,7 @@ export function initializeApp(startupService: StartupService) {
     FormsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
-    MathjaxModule.forRoot(),
+    MathjaxModule.forRoot()
   ],
   providers: [
     StartupService,
