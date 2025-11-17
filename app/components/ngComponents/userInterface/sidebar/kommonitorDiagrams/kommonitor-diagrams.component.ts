@@ -5,7 +5,6 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { fromEvent, Observable, Subscription } from "rxjs";
-import { TableExport } from 'TableExport';
 
 
 @Component({
