@@ -2454,8 +2454,6 @@ angular.module('kommonitorMap').component(
                   increaseBreaks.unshift($scope.dynamicIncreaseBrew.breaks[0]);
                 }
 
-                console.log(indicatorMetadataAndGeoJSON);
-
                 let decreaseBrew = kommonitorVisualStyleHelperService.setupManualBrew(
                   decreaseBreaks.length-1, 
                   defaultColorBrewerPaletteForBalanceDecreasingValues, 

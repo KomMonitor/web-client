@@ -1,7 +1,7 @@
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MainComponent } from 'mainComponent/main/main.component';
-import { CommonModule } from '@angular/common'; 
+import { CommonModule, NgClass } from '@angular/common'; 
 import { routes } from 'app.routes';
 import { RouterModule } from '@angular/router';
 
@@ -11,7 +11,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { StartupService } from 'services/startup-service/startup.service';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { KommonitorClassificationComponent } from 'components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { MathjaxModule } from 'mathjax-angular';
@@ -19,6 +19,19 @@ import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/
 import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
+import { IndicatorRadarComponent } from 'components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
+import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
+import { RegressionDiagramComponent } from 'components/ngComponents/userInterface/sidebar/regressionDiagram/regression-diagram.component';
+import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
+import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
+import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
+import { KommonitorDiagramsComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
+import { KommonitorBalanceComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
+import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
+import { KommonitorFilterComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
+import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
+import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -35,7 +48,20 @@ export function initializeApp(startupService: StartupService) {
     SidebarComponent,
     KommonitorDataSetupComponent,
     IndicatorMetadataTooltipComponent,
-    IndicatorFavFilter
+    IndicatorFavFilter,
+    IndicatorRadarComponent,
+    IndicatorNameFilter,
+    RegressionDiagramComponent,
+    SelectedIndicatorFilter,
+    BaseIndicatorOfComputedIndicatorFilter,
+    BaseIndicatorOfHeadlineIndicatorFilter,
+    KommonitorDiagramsComponent,
+    KommonitorBalanceComponent,
+    PoiComponent,
+    KommonitorFilterComponent,
+    DualListBoxComponent,
+    GeoFavFilter,
+    GeoFavItemFilter
   ],
   imports: [
     CommonModule,
@@ -44,7 +70,8 @@ export function initializeApp(startupService: StartupService) {
     FormsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
-    MathjaxModule.forRoot()
+    MathjaxModule.forRoot(),
+    ReactiveFormsModule
   ],
   providers: [
     StartupService,

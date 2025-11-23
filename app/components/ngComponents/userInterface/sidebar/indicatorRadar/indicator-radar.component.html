@@ -31,10 +31,21 @@
 
 				<div id="radarInputForm">
 
-					<uib-tabset active="activeTab">
-						<uib-tab index="0" heading="Alphabetische Liste">
-
-							<div class="just-padding">
+          <ul class="nav nav-tabs" id="indicatorRadarTabs" role="tablist">
+            <li class="nav-item active">
+              <a class="nav-link active" id="indicatorRadarTab1" data-toggle="tab" href="#indicatorRadarTab1Content"
+               aria-controls="indicatorRadarTab1Content" role="tab">Alphabetische Liste</a>
+            </li>
+            <li class="nav-item" *ngIf="exchangeData.selectedIndicator.creationType != 'COMPUTATION'">
+              <a class="nav-link" id="indicatorRadarTab2" data-toggle="tab" href="#indicatorRadarTab2Content"
+               aria-controls="indicatorRadarTab2Content" role="tab">Auswahl aktueller Indikator</a>
+            </li>
+          </ul>
+          
+          
+          <div class="tab-content">
+            <div class="tab-pane active" id="indicatorRadarTab1Content" role="tabpanel" aria-labelledby="indicatorRadarTab1">
+              <div class="just-padding">
 
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
@@ -52,7 +63,7 @@
 											Zeitschnitt
 										</th>
 									</thead>
-									<tbody> <!--   | filter:indicatorNameFilter -->
+									<tbody>
 										<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" [(ngModel)]="input.isSelected" (change)="filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  </label>											
@@ -70,11 +81,11 @@
 								
 							</table>
 							</div>
+            </div>
 
-						</uib-tab>
-						<uib-tab index="1" heading="Auswahl aktueller Indikator" [hidden]="exchangeData.selectedIndicator.creationType != 'COMPUTATION'">
-							
-							<div class="just-padding">
+            
+            <div class="tab-pane" id="indicatorRadarTab2Content" role="tabpanel" aria-labelledby="indicatorRadarTab2">
+              <div class="just-padding">
 								<table class="table table-condensed " style="margin-bottom:0px;">
 									<thead>
 										<th>
@@ -122,11 +133,11 @@
 								
 								</table>
 							</div>
-							
-						</uib-tab>
-						<uib-tab index="2" heading="Auswahl aktueller Leitindikator" [hidden]="!exchangeData.selectedIndicator.isHeadlineIndicator">
+            </div>
 
-							<div class="just-padding">  
+            
+            <div class="tab-pane" id="indicatorRadarTab3Content" role="tabpanel" aria-labelledby="indicatorRadarTab3">
+              <div class="just-padding">  
 								<table class="table table-condensed " style="margin-bottom:0px;">
 									<thead>
 										<th>
@@ -174,9 +185,8 @@
 								
 								</table>
 							</div>
-							
-						</uib-tab>
-					</uib-tabset>
+            </div>
+          </div>
 
 				</div>
 

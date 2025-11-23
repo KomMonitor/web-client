@@ -9,7 +9,6 @@ import { FormGroup, FormsModule } from '@angular/forms';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { HttpClient } from '@angular/common/http';
-import { DualListBoxComponent } from "../../../customElements/dual-list-box/dual-list-box.component";
 import * as L from 'leaflet';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
@@ -22,10 +21,8 @@ import { sharedReportingData } from '../reporting-modal.component';
 
 @Component({
   selector: 'app-indicator-add',
-  standalone: true,
   templateUrl: './indicator-add.component.html',
-  styleUrls: ['./indicator-add.component.css'],
-  imports: [CommonModule, FormsModule, DualListBoxComponent, ReactiveFormsModule, BaseMapFilter, ReachabilityScenarioConfigurationComponent]
+  styleUrls: ['./indicator-add.component.css']
 })
 export class IndicatorAddComponent implements OnInit {
 

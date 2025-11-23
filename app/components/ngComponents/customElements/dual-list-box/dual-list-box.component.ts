@@ -13,10 +13,8 @@ export interface item {
 
 @Component({
   selector: 'app-dual-list-box',
-  standalone: true,
   templateUrl: './dual-list-box.component.html',
-  styleUrls: ['./dual-list-box.component.css'],
-  imports: [CommonModule]
+  styleUrls: ['./dual-list-box.component.css']
 })
 export class DualListBoxComponent implements OnInit, OnChanges {
 

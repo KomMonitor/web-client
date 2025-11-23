@@ -28,11 +28,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   searchControl:any;
   geosearchControl:any;
 
-  INDICATOR_DATE_PREFIX;
-  numberOfDecimals;
-  defaultColorForFilteredValues;
-  defaultBorderColorForFilteredValues;
-  defaultBorderColor;
+  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
+  numberOfDecimals = window.__env.numberOfDecimals;
+  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
+  defaultBorderColorForFilteredValues = window.__env.defaultBorderColorForFilteredValues;
+  defaultBorderColor = window.__env.defaultBorderColor;
   defaultFillOpacity = window.__env?.defaultFillOpacity;
   defaultFillOpacityForFilteredFeatures = window.__env?.defaultFillOpacityForFilteredFeatures;
   defaultFillOpacityForHighlightedFeatures = window.__env?.defaultFillOpacityForHighlightedFeatures;
@@ -47,7 +47,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   defaultColorForNoDataValues = window.__env?.defaultColorForNoDataValues;
   defaultFillOpacityForNoDataValues = window.__env?.defaultFillOpacityForNoDataValues;
   datasetContainsNegativeValues;
-
 
   defaultColorForOutliers_high = window.__env?.defaultColorForOutliers_high;
   defaultBorderColorForOutliers_high = window.__env?.defaultBorderColorForOutliers_high;
@@ -2888,6 +2887,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
               return this.filteredStyle;
             }
+            
             return this.visualStyleHelperService.styleDefault(feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
           },
           onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l) }

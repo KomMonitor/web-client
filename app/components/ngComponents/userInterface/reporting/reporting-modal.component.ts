@@ -20,10 +20,8 @@ export interface reportingData {
 
 @Component({
   selector: 'app-reporting-modal',
-  standalone: true,
   templateUrl: './reporting-modal.component.html',
-  styleUrls: ['./reporting-modal.component.css'],
-  imports: [CommonModule, WorkflowSelectComponent, TemplateSelectComponent, IndicatorAddComponent, IndicatorAddComponent, ReportingOverviewComponent]
+  styleUrls: ['./reporting-modal.component.css']
 })
 export class ReportingModalComponent {
 

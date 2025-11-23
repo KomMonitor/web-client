@@ -163,7 +163,8 @@ export class VisualStyleHelperServiceNew {
 
   public constructor(
     private dataExchangeService: DataExchangeService
-  ) {}
+  ) {
+  }
 /* 
   setOpacity(opacity) {
     this.ajskommonitorVisualStyleHelperServiceProvider.setOpacity(opacity);
@@ -364,7 +365,6 @@ export class VisualStyleHelperServiceNew {
    * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
    */
   setupMeasureOfValueBrew (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue, manualBreaks, regionalDefaultMOVBreaks, numClasses) {
-
     /*
     * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
 

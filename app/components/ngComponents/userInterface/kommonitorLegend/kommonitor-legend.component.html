@@ -270,7 +270,7 @@
                         <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
                         <div class="col-md-6 " *ngIf="visualStyleService.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i + 1])}}</div>
                         <div class="col-md-6 " *ngIf="! visualStyleService.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}}</div>
-                        <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
+                        <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div> <!-- hier -->
                       </div>
                     </div>
                   </div>

@@ -4,7 +4,6 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { FavService } from 'services/fav-service/fav.service';
@@ -243,7 +242,7 @@ export class UserInterfaceComponent implements OnInit {
     }
 
     openReportingModal() {
-        const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
+        /* const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true}); */
     }
 
     onSidebarButtonClick(event) {
