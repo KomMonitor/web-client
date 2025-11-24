@@ -117,6 +117,7 @@ import { IndicatorMetadataTooltipComponent } from './components/ngComponents/cus
 import { TopicOrderSelectionComponent } from './components/ngComponents/admin/adminTopicsManagement/topicOrderSelection/topic-order-selection.component';
 import { TopicListComponent } from './components/ngComponents/admin/adminTopicsManagement/topicList/topicList.component';
 import { AddTopicComponent } from './components/ngComponents/admin/adminTopicsManagement/add-topic/add-topic.component';
+import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsManagement/sortByOrder.pipe';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -223,6 +224,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     TopicDeleteModalComponent,
     TopicOrderSelectionComponent,
     TopicListComponent,
+    SortByOrderPipe,
     AddTopicComponent,
     AdminAppConfigComponent,
     AdminControlsConfigComponent,

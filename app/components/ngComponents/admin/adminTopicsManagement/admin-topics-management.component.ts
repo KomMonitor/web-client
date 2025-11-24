@@ -9,12 +9,18 @@ export interface Topic {
   topicName: string;
   topicResource: string;
   topicType: string;
+  displayOrder?: number;
   subTopics: Topic[];
 }
 
 export type TopicResourceType = "indicator" | "georesource";
+export type TopicOrderMode = "custom" | "alphabetical";
 
 import { Injectable } from "@angular/core";
+import {
+  AdminTopicsManagementService,
+  TopicOrderResponseEntry,
+} from "./admin-topics-management.service";
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {
@@ -31,11 +37,14 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   showTopicIds = false;
   loadingData = false;
 
+  orderModes: TopicOrderResponseEntry[] | undefined;
+
   private subscription: Subscription | undefined;
 
   constructor(
     private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     protected errorHandlingService: AdminTopicsManagementErrorHandlingService,
+    private topicSrvc: AdminTopicsManagementService,
     private broadcastService: BroadcastService
   ) {}
 
@@ -59,6 +68,16 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
         }
       }
     );
+
+    this.topicSrvc.getOrderModes().subscribe({
+      next: (modes) => {
+        this.orderModes = modes;
+      },
+      error: (error) => {
+        // TODO: Handle error appropriately
+        console.error("Failed to fetch topic order modes:", error);
+      },
+    });
   }
 
   ngOnDestroy(): void {

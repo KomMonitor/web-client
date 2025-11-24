@@ -37,9 +37,15 @@
           </button>
         </div>
       </div>
-      <!-- <topic-order-selection></topic-order-selection> -->
       <div class="box-body">
         <div class="just-padding">
+          <div *ngIf="orderModes">
+            <div>Sortierung der Indikatoren:</div>
+            <topic-order-selection
+              [orderModes]="orderModes"
+              [topicResourceType]="'indicator'"
+            ></topic-order-selection>
+          </div>
           <app-topic-list
             [topics]="filteredIndicatorTopics"
             [showTopicIds]="showTopicIds"
@@ -63,6 +69,13 @@
       </div>
       <div class="box-body">
         <div class="just-padding">
+          <div *ngIf="orderModes">
+            <div>Sortierung der Georessourcen:</div>
+            <topic-order-selection
+              [orderModes]="orderModes"
+              [topicResourceType]="'georesource'"
+            ></topic-order-selection>
+          </div>
           <app-topic-list
             [topics]="filteredGeoRessourceTopics"
             [showTopicIds]="showTopicIds"

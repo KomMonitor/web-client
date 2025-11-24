@@ -1,10 +1,18 @@
-import { Inject, Injectable } from "@angular/core";
-import { Topic, TopicResourceType } from "./admin-topics-management.component";
+import { Injectable } from "@angular/core";
+import {
+  Topic,
+  TopicOrderMode,
+  TopicResourceType,
+} from "./admin-topics-management.component";
 import { HttpClient } from "@angular/common/http";
-import { tap, timeout } from "rxjs";
+import { map, tap, timeout } from "rxjs";
 import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
 import { KommonitorIndicatorDataExchangeService } from "../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
 
+export interface TopicOrderResponseEntry {
+  topicResource: TopicResourceType;
+  orderMode: TopicOrderMode;
+}
 @Injectable({
   providedIn: "root",
 })
@@ -89,15 +97,54 @@ export class AdminTopicsManagementService {
     );
   }
 
-  updateTopicOrder(topics: Topic[], parentTopic: Topic) {
-    const putBody: Topic = this.prepareTopic({
-      ...parentTopic,
-      subTopics: topics,
-    });
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}`;
-    return this.http.put(url, putBody).pipe(
+  updateSubTopicOrder(parentTopic: Topic, topics: Topic[]) {
+    const patchBody = topics.map((t, index) => ({
+      topicId: t.topicId,
+      displayOrder: index,
+    }));
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}/display-order`;
+    return this.http.patch(url, patchBody).pipe(
       tap(() => this.reloadTopics()),
       timeout(5000)
+    );
+  }
+
+  updateMainTopicOrder(
+    topicResourceType: TopicResourceType,
+    mainTopics: Topic[]
+  ) {
+    const postBody = mainTopics.map((t, index) => ({
+      topicId: t.topicId,
+      displayOrder: index,
+    }));
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topicResourceType}s/display-order`;
+    return this.http.post(url, postBody).pipe(
+      tap(() => this.reloadTopics()),
+      timeout(5000)
+    );
+  }
+
+  setOrderMode(
+    topicResourceType: TopicResourceType,
+    orderMode: TopicOrderMode
+  ) {
+    const postBody = {
+      orderMode: orderMode,
+    };
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topicResourceType}s/display-order/mode`;
+    return this.http.post(url, postBody).pipe(timeout(5000));
+  }
+
+  getOrderModes() {
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/public/topics/display-order/mode`;
+    return this.http.get<TopicOrderResponseEntry[]>(url).pipe(timeout(5000));
+  }
+
+  getOrderMode(topicResourceType: TopicResourceType) {
+    return this.getOrderModes().pipe(
+      map((res) =>
+        res.find((e) => e.topicResource === topicResourceType)?.orderMode
+      )
     );
   }
 

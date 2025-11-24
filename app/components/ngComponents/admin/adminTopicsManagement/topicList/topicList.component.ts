@@ -1,8 +1,5 @@
 import { Component, Input } from "@angular/core";
-import {
-  Topic,
-  TopicResourceType,
-} from "../admin-topics-management.component";
+import { Topic, TopicResourceType } from "../admin-topics-management.component";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { TopicDeleteModalComponent } from "../topicDeleteModal/topic-delete-modal.component";
@@ -38,16 +35,28 @@ export class TopicListComponent {
   dropIndicatorTopics(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.topics, event.previousIndex, event.currentIndex);
     if (this.parentTopic) {
-      this.srvc.updateTopicOrder(this.topics, this.parentTopic).subscribe({
+      this.srvc.updateSubTopicOrder(this.parentTopic, this.topics).subscribe({
         next: () => {
-          debugger;
+          console.log(`Updated topic order successfully.`);
         },
         error: () => {
-          debugger;
+          console.log(`Failed to update topic order.`);
+          // revert local change
+          moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
+        },
+      });
+    } else {
+      this.srvc.updateMainTopicOrder(this.topicResourceType, this.topics).subscribe({
+        next: () => {
+          console.log(`Updated main topic order successfully.`);
+        },
+        error: () => {
+          console.log(`Failed to update main topic order.`);
+          // revert local change
+          moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
         },
       });
     }
-    // TODO: save it
   }
 
   onClickDeleteTopic(topic: Topic) {

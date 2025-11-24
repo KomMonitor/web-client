@@ -1,17 +1,25 @@
 <div>
-  <label>Sortierung</label>
+  <div class="radio">
+    <label>
+      <input
+        type="radio"
+        value="alphabetical"
+        [(ngModel)]="selectedOption"
+        (ngModelChange)="setOption($event)"
+      />
+      alphabetical
+    </label>
+  </div>
 
-  <br />
-
-  <label class="radio-inline"
-    ><input type="radio" name="sort" value="alphabetical" />alphabetisch</label
-  >
-
-  <label class="radio-inline"
-    ><input
-      type="radio"
-      name="sort"
-      value="userdefined"
-    />benutzerdefiniert</label
-  >
+  <div class="radio">
+    <label>
+      <input
+        type="radio"
+        value="custom"
+        [(ngModel)]="selectedOption"
+        (ngModelChange)="setOption($event)"
+      />
+      benutzerdefiniert
+    </label>
+  </div>
 </div>
