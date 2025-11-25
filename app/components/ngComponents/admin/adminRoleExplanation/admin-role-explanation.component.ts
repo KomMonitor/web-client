@@ -8,7 +8,7 @@ interface AccordionItem {
 }
 
 @Component({
-  selector: 'app-admin-role-explanation-new',
+  selector: 'admin-role-explanation-new',
   templateUrl: './admin-role-explanation.template.html',
   styleUrls: ['./admin-role-explanation.component.css']
 })

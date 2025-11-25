@@ -527,6 +527,10 @@ export class DataExchangeService {
     private broadcastService: BroadcastService
   ) {}
 
+  hideErrorAlert(){
+    $(".mapApplicationErrorAlert").hide();
+  }
+
   isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata:any) {
 
     if(!this.selectedIndicator){
@@ -2719,4 +2723,89 @@ export class DataExchangeService {
       }
     }
   }
+
+  
+  checkCreatePermission(){    
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+      
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    checkEditorPermission(){
+      if(this.checkAdminPermission()) {
+        return true;
+      }
+        
+
+      for(const role of this.currentKeycloakLoginRoles){
+        let roleNameParts = role.split(".");
+        const permissionLevel = roleNameParts[roleNameParts.length - 1];
+        if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    getRoleTitles(){
+
+      return this.currentKeycloakLoginRoles.map(role => role.split('.')[role.split('.').length-1]);
+    }
+
+    checkGroupsEditPermission() {
+
+      if(this.checkAdminPermission())
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      window.__env.keycloakKomMonitorGroupsEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
+    checkThemesEditPermission() {
+
+      if(this.checkAdminPermission())
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      window.__env.keycloakKomMonitorThemesEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
+
+    checkResourcesEditPermission() {
+      
+      if(this.checkAdminPermission())
+        return true;
+
+      let splitRoles = this.getRoleTitles();
+      let ret = false;
+
+      window.__env.keycloakKomMonitorGeodataEditRoleNames.forEach(targetRole => {
+        if(splitRoles.includes(targetRole))
+          ret = true;
+      });
+
+      return ret;
+    }
 }

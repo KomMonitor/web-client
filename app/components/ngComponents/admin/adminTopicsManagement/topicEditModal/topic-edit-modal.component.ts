@@ -1,13 +1,16 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'topic-edit-modal-new',
   templateUrl: './topic-edit-modal.component.html',
-  styleUrls: ['./topic-edit-modal.component.css']
+  styleUrls: ['./topic-edit-modal.component.css'],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class TopicEditModalComponent implements OnInit {
   @Input() currentTopic: any; // Data passed from parent via NgbModal

@@ -33,9 +33,19 @@ import { DualListBoxComponent } from 'components/ngComponents/customElements/dua
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
+import { AdminComponent } from 'components/ngComponents/admin/admin.component';
+import { AdminDashboardManagementComponent } from 'components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AdminRoleExplanationComponent } from 'components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
+}
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 @NgModule({
@@ -63,7 +73,10 @@ export function initializeApp(startupService: StartupService) {
     DualListBoxComponent,
     GeoFavFilter,
     GeoFavItemFilter,
-    UserLoginComponent
+    UserLoginComponent,
+    AdminComponent,
+    AdminDashboardManagementComponent,
+    AdminRoleExplanationComponent
   ],
   imports: [
     CommonModule,
@@ -73,7 +86,15 @@ export function initializeApp(startupService: StartupService) {
     RouterModule.forRoot(routes),
     HttpClientModule,
     MathjaxModule.forRoot(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslateModule.forRoot({
+      defaultLanguage: 'de',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    }),
   ],
   providers: [
     StartupService,

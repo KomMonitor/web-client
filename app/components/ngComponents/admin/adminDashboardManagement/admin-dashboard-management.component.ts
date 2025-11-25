@@ -4,7 +4,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-declare const echarts: any;
+import * as echarts from 'echarts';
 declare const $: any;
 
 @Component({
@@ -39,11 +39,11 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
   private initializationTimeout: any;
 
   constructor(
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     private broadcastService: BroadcastService,
     private ngZone: NgZone,
     @Inject(DOCUMENT) private document: Document,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    protected kommonitorDataExchangeService: DataExchangeService
   ) {
     console.log('AdminDashboardManagementComponent constructor initialized');
   }
@@ -53,7 +53,7 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
     this.loadingData = true;
     
     // initialize any adminLTE box widgets
-    ($('.box') as any).boxWidget();
+    /* ($('.box') as any).boxWidget(); */
     
     this.initCharts();
     this.setupEventListeners();
