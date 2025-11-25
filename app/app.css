@@ -1349,9 +1349,9 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 
 .leaflet-left .leaflet-control-search {
   /* float: none; */
-	position: absolute;
-	left: 220px;
-	top: 110px;
+	position: absolute !important;
+	left: 220px !important;
+	top: 110px !important;
 	z-index: 1003;
 }
 
@@ -1390,20 +1390,20 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 }
 
 .leaflet-touch .leaflet-bar a {
-    width: 35px;
-    height: 35px;
+    width: 35px !important;
+    height: 35px !important;
 }
 
 .leaflet-control-search .search-button {
-    width: 35px;
-    height: 35px;
+    width: 35px !important;
+    height: 35px !important;
 		top: 5px;
 		left: 20px;
     /* background: url(icons/filter-icon.png) no-repeat 4px 4px #fff; */
-		background-image: url(icons/filter-icon.png);
-		background-repeat: no-repeat;
-		background-size: 60% 60%;
-  	background-position: center;
+		background-image: url(icons/filter-icon.png) !important;
+		background-repeat: no-repeat !important;
+		background-size: 60% 60% !important;
+  	background-position: center !important;
 }
 
 .leaflet-touch .leaflet-control-measure .leaflet-control-measure-toggle {

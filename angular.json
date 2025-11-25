@@ -34,11 +34,14 @@
               "node_modules/ag-grid-community/styles/ag-theme-alpine.css",
               "node_modules/leaflet-geosearch/assets/css/leaflet.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "node_modules/leaflet/dist/leaflet.css"
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet-measure/dist/leaflet-measure.css",
+              "node_modules/leaflet-search/dist/leaflet-search.min.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "node_modules/admin-lte/dist/js/adminlte.min.js"
             ]
           },
           "configurations": {

@@ -9,6 +9,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'user-interface-new',
@@ -57,7 +58,8 @@ export class UserInterfaceComponent implements OnInit {
     private authService: AuthService,
     private favService: FavService,
     private globalFilterHelperService: GlobalFilterHelperService,
-    private visualStyleHelperService: VisualStyleHelperServiceNew
+    private visualStyleHelperService: VisualStyleHelperServiceNew,
+    private router: Router
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -233,11 +235,10 @@ export class UserInterfaceComponent implements OnInit {
 		};
 
 		openAdminUI() {
-			document.location = '/administration';
+			this.router.navigate(['/administration']);
 		};
 
     openInfoModal() {
-
       const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
     }
 

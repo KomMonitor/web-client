@@ -32,6 +32,7 @@ import { KommonitorFilterComponent } from 'components/ngComponents/userInterface
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
+import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -61,7 +62,8 @@ export function initializeApp(startupService: StartupService) {
     KommonitorFilterComponent,
     DualListBoxComponent,
     GeoFavFilter,
-    GeoFavItemFilter
+    GeoFavItemFilter,
+    UserLoginComponent
   ],
   imports: [
     CommonModule,
