@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
 
 import { UserInterfaceComponent } from 'components/ngComponents/userInterface/user-interface.component';
 import { KommonitorMapComponent } from 'components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { StartupService } from 'services/startup-service/startup.service';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -39,6 +39,26 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AdminRoleExplanationComponent } from 'components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
 import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { AdminSpatialUnitsManagementComponent } from 'components/ngComponents/admin/adminSpatialUnitsManagement/admin-spatial-units-management.component';
+import { AgGridAngular } from 'ag-grid-angular';
+import { SpatialUnitAddModalComponent } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.component';
+import { SpatialUnitDeleteModalComponent } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component';
+import { KmColorPickerComponent } from 'components/ngComponents/customElements/color-picker/km-color-picker.component';
+import { KmLinePatternPickerComponent } from 'components/ngComponents/customElements/line-pattern-picker/km-line-pattern-picker.component';
+import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
+import { SpatialUnitEditFeaturesModalComponent } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
+import { SpatialUnitEditMetadataModalComponent } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
+import { SpatialUnitEditUserRolesModalComponent } from 'components/ngComponents/admin/adminSpatialUnitsManagement/spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
+import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
+import { AdminIndicatorsManagementComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/admin-indicators-management.component';
+import { IndicatorDeleteModalComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.component';
+import { IndicatorEditMetadataModalComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
+import { OrderByPipe } from 'pipes/order-by.pipe';
+import { IndicatorAddModalComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.component';
+import { IndicatorBatchUpdateModalComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { IndicatorEditFeaturesModalComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from 'components/ngComponents/admin/adminIndicatorsManagement/indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
+import { FilterPipe } from 'pipes/filter.pipe';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -78,7 +98,22 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminComponent,
     AdminDashboardManagementComponent,
     AdminRoleExplanationComponent,
-    AdminTopicsManagementComponent
+    AdminTopicsManagementComponent,
+    AdminSpatialUnitsManagementComponent,
+    SpatialUnitAddModalComponent,
+    SpatialUnitDeleteModalComponent,
+    SpatialUnitEditFeaturesModalComponent,
+    SpatialUnitEditMetadataModalComponent,
+    SpatialUnitEditUserRolesModalComponent,
+    AdminIndicatorsManagementComponent,
+    IndicatorAddModalComponent,
+    IndicatorDeleteModalComponent,
+    IndicatorEditMetadataModalComponent,
+    IndicatorBatchUpdateModalComponent,
+    IndicatorEditFeaturesModalComponent,
+    IndicatorEditIndicatorSpatialUnitRolesModalComponent,
+    OrderByPipe,
+    FilterPipe
   ],
   imports: [
     CommonModule,
@@ -97,6 +132,10 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient]
       }
     }),
+    AgGridAngular,
+    KmColorPickerComponent,
+    KmLinePatternPickerComponent,
+    KmDatePickerComponent
   ],
   providers: [
     StartupService,
@@ -104,6 +143,11 @@ export function HttpLoaderFactory(http: HttpClient) {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
       deps: [StartupService],
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
       multi: true
     }
   ],

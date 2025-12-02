@@ -83,7 +83,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Initialize any adminLTE box widgets
-    (window as any).$('.box').boxWidget();
+    //(window as any).$('.box').boxWidget();
     
     // Make component available globally for debugging
     (window as any).adminIndicatorsComponent = this;

@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class KommonitorIndicatorDataExchangeService {
   public indicators$ = this.indicatorsSubject.asObservable();
 
   constructor(
-    @Inject('kommonitorDataExchangeService') private angularJsDataExchangeService: any
+    private angularJsDataExchangeService: DataExchangeService
   ) {}
 
   /**
@@ -111,13 +112,14 @@ export class KommonitorIndicatorDataExchangeService {
    * Fetches indicators metadata - delegates to AngularJS service
    */
   async fetchIndicatorsMetadata(keycloakRolesArray: string[]): Promise<any> {
-    return this.angularJsDataExchangeService.fetchIndicatorsMetadata(keycloakRolesArray);
+    return this.angularJsDataExchangeService.fetchIndicatorsMetadata(keycloakRolesArray, undefined);
   }
 
   /**
    * Adds a single indicator metadata - delegates to AngularJS service
    */
   addSingleIndicatorMetadata(indicatorMetadata: any): void {
+    
     this.angularJsDataExchangeService.addSingleIndicatorMetadata(indicatorMetadata);
     // Emit the updated data for any reactive components
     this.indicatorsSubject.next(this.availableIndicators);

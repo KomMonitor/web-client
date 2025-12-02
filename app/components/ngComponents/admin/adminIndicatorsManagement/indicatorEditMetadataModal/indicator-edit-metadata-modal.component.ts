@@ -298,7 +298,9 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   refreshReferenceValuesManagementTable(): void {
     this.regionalReferenceValuesManagementTableOptions = this.kommonitorDataGridHelperService.buildReferenceValuesManagementGrid(
-      this.regionalReferenceValuesManagementTableOptions
+      this.regionalReferenceValuesManagementTableOptions,
+      this.currentIndicatorDataset.applicableDates,
+      this.currentIndicatorDataset.regionalReferenceValues
     );
   }
 

@@ -688,6 +688,8 @@ export class DataExchangeService {
     this.setProcessScripts(await this.cacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
   }
 
+
+  
   setProcessScripts(scriptsArray){
     this.availableProcessScripts = scriptsArray;
     this.availableProcessScripts_map = new Map();
@@ -748,6 +750,114 @@ export class DataExchangeService {
     for (const spatialUnitMetadata of spatialUnitsArray) {
       this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
     }
+  }
+
+  addSingleIndicatorMetadata(indicatorMetadata){
+    let tmpArray = this.modifyIndicators([indicatorMetadata]);
+    Array.prototype.push.apply(tmpArray, this.availableIndicators);
+    this.availableIndicators =  tmpArray;
+    this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+  }
+
+  replaceSingleIndicatorMetadata(indicatorMetadata){
+    for (let index = 0; index < this.availableIndicators.length; index++) {
+      let indicator = this.availableIndicators[index];
+      if(indicator.indicatorId == indicatorMetadata.indicatorId){
+        this.availableIndicators[index] = this.modifySingleIndicator(indicatorMetadata);
+        break;
+      }
+    }
+    this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+  }
+
+  checkDeletePermission(){
+    if(this.checkAdminPermission()) {
+      return true;
+    }
+      
+    for(const role of this.currentKeycloakLoginRoles){
+      let roleNameParts = role.split(".");
+      const permissionLevel = roleNameParts[roleNameParts.length - 1];
+      if(permissionLevel === "client-resources-creator" || permissionLevel === "unit-resources-creator"){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getAllowedRolesString(allowedPermissionIds){
+    var permissions:any[] = [];
+    for(const organizationalUnit of this.accessControl){
+      for(const permission of organizationalUnit.permissions){
+        if(allowedPermissionIds.includes(permission.permissionId)){
+          permissions.push(organizationalUnit.name + "-" + permission.permissionLevel)
+        }
+      }
+    }
+    return permissions.join(", ");
+  }
+
+  getTopicHierarchyDisplayString(topicReferenceId){
+    var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
+    
+    var topicsString = "";
+    for (let index = 0; index < topicHierarchyArray.length; index++) {
+      if (index === 0) {
+        // mainTopic --> first tier
+        topicsString += topicHierarchyArray[index].topicName;
+      }
+      else {
+        var numberOfWhitespaces = 2 * index;
+        var whitespaceString = "";
+        for (let k = 0; k < numberOfWhitespaces; k++) {
+          whitespaceString += "&nbsp;";
+        }
+        topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+      }
+
+      if (index < topicHierarchyArray.length) {
+        topicsString += "<br/>";
+      }
+
+    }
+
+    return topicsString;
+  }
+
+  getRoleTitle(organizationalUnitId){
+    var roles = this.accessControl.filter(e => e.organizationalUnitId==organizationalUnitId);
+    if(roles && roles.length > 0) {
+      return roles[0].name;
+    }
+    return "";
+  }
+
+  getIndicatorMetadataById(indicatorId){
+    return this.availableIndicators_map.get(indicatorId);
+  }
+
+  getGeoresourceMetadataById(georesourceId){
+    return this.availableGeoresources_map.get(georesourceId);
+  }
+
+  getSpatialUnitMetadataById(spatialUnitId){
+    return this.availableSpatialUnits_map.get(spatialUnitId);
+  }
+
+  deleteSingleIndicatorMetadata(indicatorId){
+    for (let index = 0; index < this.availableIndicators.length; index++) {
+      const indicator = this.availableIndicators[index];
+      if(indicator.indicatorId == indicatorId){
+        this.availableIndicators.splice(index, 1);
+        break;
+      }              
+    }
+    this.availableIndicators_map.delete(indicatorId);
+  }
+
+  modifySingleIndicator(indicator) {
+    var temp = this.modifyIndicators([indicator]);
+    return temp[0];
   }
 
   modifyIndicators(indicators) {
