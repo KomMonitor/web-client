@@ -1,6 +1,6 @@
 <div id="adminTopicsContent">
   <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
       <span class="glyphicon glyphicon-refresh icon-spin"></span>
     </div>
   </div>

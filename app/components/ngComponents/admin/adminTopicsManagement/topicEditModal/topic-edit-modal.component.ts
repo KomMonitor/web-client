@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Component({
   selector: 'topic-edit-modal-new',
@@ -23,7 +24,7 @@ export class TopicEditModalComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    @Inject('kommonitorDataExchangeService') private kommonitorDataExchangeService: any,
+    private kommonitorDataExchangeService: DataExchangeService,
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {

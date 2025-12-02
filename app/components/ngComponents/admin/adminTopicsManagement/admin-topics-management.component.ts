@@ -7,6 +7,7 @@ import { timeout } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TopicEditModalComponent } from './topicEditModal/topic-edit-modal.component';
 import { TopicDeleteModalComponent } from './topicDeleteModal/topic-delete-modal.component';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 
 @Component({
   selector: 'admin-topics-management-new',
@@ -30,8 +31,8 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   collapsedTopics: { [key: string]: boolean } = {};
 
   constructor(
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorCacheHelperService') private kommonitorCacheHelperService: any,
+    public kommonitorDataExchangeService: DataExchangeService,
+    private kommonitorCacheHelperService: CacheHelperServiceService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
     private modalService: NgbModal
@@ -75,7 +76,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   ngOnInit() {
     console.log('AdminTopicsManagementComponent ngOnInit');
     // Initialize any adminLTE box widgets
-    ($('.box') as any).boxWidget();
+    //($('.box') as any).boxWidget();
 
     this.addClickListenerToEachCollapseTrigger();
 
@@ -476,6 +477,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
     console.log('Loading topics...');
     this.topics = this.kommonitorDataExchangeService.availableTopics;
     console.log('Topics loaded:', this.topics);
+    this.loadingData = false;
   }
 
   onTopicUpdated(updatedTopic: any) {

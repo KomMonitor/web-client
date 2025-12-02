@@ -38,6 +38,7 @@ import { AdminDashboardManagementComponent } from 'components/ngComponents/admin
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AdminRoleExplanationComponent } from 'components/ngComponents/admin/adminRoleExplanation/admin-role-explanation.component';
+import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -76,7 +77,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     UserLoginComponent,
     AdminComponent,
     AdminDashboardManagementComponent,
-    AdminRoleExplanationComponent
+    AdminRoleExplanationComponent,
+    AdminTopicsManagementComponent
   ],
   imports: [
     CommonModule,
