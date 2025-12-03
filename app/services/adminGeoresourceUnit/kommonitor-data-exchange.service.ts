@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class KommonitorGeoresourceDataExchangeService {
   public georesources$ = this.georesourcesSubject.asObservable();
 
   constructor(
-    @Inject('kommonitorDataExchangeService') private angularJsDataExchangeService: any
+    private angularJsDataExchangeService: DataExchangeService
   ) {}
 
   /**
@@ -51,7 +52,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Fetch georesources metadata - delegates to AngularJS service
    */
-  async fetchGeoresourcesMetadata(keycloakRolesArray: string[], filter?: any): Promise<any[]> {
+  async fetchGeoresourcesMetadata(keycloakRolesArray: string[], filter?: any): Promise<void> {
     return this.angularJsDataExchangeService.fetchGeoresourcesMetadata(keycloakRolesArray, filter);
   }
 
@@ -114,7 +115,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Get LOI dash SVG from string value - delegates to AngularJS service
    */
-  getLoiDashSvgFromStringValue(dashArrayString: string): string {
+  getLoiDashSvgFromStringValue(dashArrayString: string): any {
     return this.angularJsDataExchangeService.getLoiDashSvgFromStringValue(dashArrayString);
   }
 } 

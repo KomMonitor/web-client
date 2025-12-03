@@ -43,7 +43,7 @@
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="small-box bg-primary">
           <div class="inner">
-            <h3>{{ kommonitorDataExchangeService.availableSpatialUnits.length }}</h3>
+            <h3>{{ (kommonitorDataExchangeService.availableSpatialUnits ? kommonitorDataExchangeService.availableSpatialUnits.length : '')}}</h3>
             <p>{{ 'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate }}</p>
           </div>
           <div class="icon">
@@ -56,7 +56,7 @@
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="small-box bg-orange">
           <div class="inner">
-            <h3>{{ kommonitorDataExchangeService.availableGeoresources.length }}</h3>
+            <h3>{{ (kommonitorDataExchangeService.availableGeoresources ? kommonitorDataExchangeService.availableGeoresources.length : '') }}</h3>
             <p>{{ 'ADMIN_DASHBOARD.GEORESOURCES' | translate }}</p>
           </div>
           <div class="icon">
@@ -68,7 +68,7 @@
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="small-box bg-green">
           <div class="inner">
-            <h3>{{ kommonitorDataExchangeService.availableIndicators.length }}</h3>
+            <h3>{{ (kommonitorDataExchangeService.availableIndicators ? kommonitorDataExchangeService.availableIndicators.length : '') }}</h3>
             <p>{{ 'ADMIN_DASHBOARD.INDICATORS' | translate }}</p>
           </div>
           <div class="icon">
@@ -80,7 +80,7 @@
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="small-box bg-purple">
           <div class="inner">
-            <h3>{{ kommonitorDataExchangeService.availableProcessScripts.length }}</h3>
+            <h3>{{ (kommonitorDataExchangeService.availableProcessScripts ? kommonitorDataExchangeService.availableProcessScripts.length : '') }}</h3>
             <p>{{ 'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate }}</p>
           </div>
           <div class="icon">

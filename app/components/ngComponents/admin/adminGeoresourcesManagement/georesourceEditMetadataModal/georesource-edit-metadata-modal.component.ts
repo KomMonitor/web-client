@@ -3,6 +3,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
 @Component({
   selector: 'georesource-edit-metadata-modal-new',
@@ -80,9 +83,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
+    public kommonitorDataExchangeService: DataExchangeService,
+    public kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
+    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {
@@ -140,7 +143,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       if (data.msg === 'onEditGeoresourceMetadata') {
         this.currentGeoresourceDataset = data.georesourceDataset;
         this.resetGeoresourceEditMetadataForm();
-        this.kommonitorMultiStepFormHelperService.registerClickHandler();
+        this.kommonitorMultiStepFormHelperService.registerClickHandler(undefined);
       }
     });
     this.subscriptions.push(editSub);
