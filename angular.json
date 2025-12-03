@@ -36,7 +36,9 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "node_modules/leaflet/dist/leaflet.css",
               "node_modules/leaflet-measure/dist/leaflet-measure.css",
-              "node_modules/leaflet-search/dist/leaflet-search.min.css"
+              "node_modules/leaflet-search/dist/leaflet-search.min.css",
+              "node_modules/codemirror/lib/codemirror.css",
+              "node_modules/codemirror/theme/dracula.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",

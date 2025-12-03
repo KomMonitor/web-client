@@ -8,13 +8,14 @@ import { DataExchangeService } from "services/data-exchange-service/data-exchang
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { VersionInfoComponent } from 'components/ngComponents/userInterface/versionInfo/version-info.component';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { PipesModule } from 'pipes.module';
 
 @Component({
 	selector: 'ngbd-modal-content',
 	standalone: true,
 	templateUrl: 'info-modal.component.html',
   styleUrls: ['info-modal.component.css'],
-  imports: [CommonModule, SafeHtmlPipe, VersionInfoComponent]
+  imports: [CommonModule, VersionInfoComponent, PipesModule]
 })
 export class InfoModal implements OnInit {
     activeModal = inject(NgbActiveModal);

@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { ConfigStorageService, LandingpageConfig } from '../../../../../services/config-storage-service/config-storage.service';
 import { firstValueFrom } from 'rxjs';
-import CodeMirror from 'codemirror';
+import * as CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files 
 import 'codemirror/mode/xml/xml.js';
@@ -55,7 +55,7 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   constructor(
     private http: HttpClient,
     private kommonitorConfigStorageService: ConfigStorageService,
-    @Inject('kommonitorDataExchangeService') private ajskommonitorDataExchangeService: any
+    private ajskommonitorDataExchangeService: DataExchangeService
   ) {}
 
 

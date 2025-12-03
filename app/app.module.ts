@@ -67,6 +67,9 @@ import { GeoresourceEditMetadataModalComponent } from 'components/ngComponents/a
 import { GeoresourceEditUserRolesModalComponent } from 'components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceEditFeaturesModalComponent } from 'components/ngComponents/admin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
+import { AdminAppConfigComponent } from 'components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
+import { PipesModule } from 'pipes.module';
+import { AdminLandingpageConfigComponent } from 'components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -128,6 +131,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     GeoresourceEditUserRolesModalComponent,
     GeoresourceEditFeaturesModalComponent,
     SingleFeatureEditComponent,
+    AdminAppConfigComponent,
+    AdminLandingpageConfigComponent,
     OrderByPipe,
     FilterPipe
   ],
@@ -151,7 +156,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     AgGridAngular,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
-    KmDatePickerComponent
+    KmDatePickerComponent,
+    PipesModule
   ],
   providers: [
     StartupService,

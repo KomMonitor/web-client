@@ -1,12 +1,20 @@
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, Inject } from '@angular/core';
-import { downgradeComponent } from '@angular/upgrade/static';
-import * as angular from 'angular';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { firstValueFrom } from 'rxjs';
+import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 
-declare var CodeMirror: any;
+import * as CodeMirror from 'codemirror';
+
+// CodeMirror module is not loaded properly (why?!), reload necessary files 
+import 'codemirror/mode/xml/xml.js';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/css/css.js';
+import 'codemirror/mode/htmlmixed/htmlmixed.js';
+
+import 'codemirror/addon/display/autoRefresh.js';
+
 declare var $: any;
 
 interface CodeMirrorEditor {
@@ -65,8 +73,8 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private kommonitorDataExchangeService: DataExchangeService,
     private kommonitorConfigStorageService: ConfigStorageService,
-    @Inject('kommonitorScriptHelperService') private kommonitorScriptHelperService: any,
-    @Inject('kommonitorDataExchangeService') private ajskommonitorDataExchangeService: any
+    private kommonitorScriptHelperService: ScriptHelperService,
+    private ajskommonitorDataExchangeService: DataExchangeService
   ) {
     if (!this.kommonitorScriptHelperService) {
       console.error('kommonitorScriptHelperService is not available');
@@ -79,7 +87,7 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // Initialize any adminLTE box widgets
-    $('.box').boxWidget();
+    //$('.box').boxWidget();
   }
 
   async init() {
@@ -267,8 +275,8 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
   }
 }
 
-// Downgrade the component
+/* // Downgrade the component
 angular.module('adminAppConfig')
   .directive('adminAppConfigNew',
     downgradeComponent({ component: AdminAppConfigComponent }) as angular.IDirectiveFactory
-  ); 
+  );  */
