@@ -253,7 +253,7 @@ export class ScriptHelperService {
       $(htmlDomElementId).removeClass("prettyprinted");
 
       // todo ?!
-      PR.prettyPrint();
+      //PR.prettyPrint();
       
     }, 250);
 

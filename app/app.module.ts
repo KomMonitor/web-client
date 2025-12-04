@@ -75,6 +75,7 @@ import { TopicOrderSelectionComponent } from './components/ngComponents/admin/ad
 import { TopicListComponent } from './components/ngComponents/admin/adminTopicsManagement/topicList/topicList.component';
 import { AddTopicComponent } from './components/ngComponents/admin/adminTopicsManagement/add-topic/add-topic.component';
 import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsManagement/sortByOrder.pipe';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -168,7 +169,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
-    PipesModule
+    PipesModule,
+    DragDropModule
   ],
   providers: [
     StartupService,
