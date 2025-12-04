@@ -252,16 +252,16 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
         // remove current all all remaining elements from array
         // (which are lower hierarchy spatial units)
-        console.log(spatialUnitName,spatialUnitMetadata.spatialUnitLevel, index)
-        // "+1" is new, as the actual index would also remove the first (and only) item
-        this.higherSpatialUnits.splice(index+1);
+        this.higherSpatialUnits.splice(index);
         break;
       }
     }
 
     // this.higherSpatialUnits.splice(targetIndex);
     this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
-    this.spatialLevel = new FormControl(this.selectedSpatialUnitForFilter!.spatialUnitId);
+   
+    if(this.higherSpatialUnits.lenght)
+      this.spatialLevel = new FormControl(this.selectedSpatialUnitForFilter!.spatialUnitId);
 
     this.loadingData = false;
   }
