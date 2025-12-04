@@ -1,11 +1,9 @@
-import { jsPDFConstructor } from './../../../../../dependencies/jspdf-autotable/index.d';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { fromJson, toJson } from 'angular';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -21,7 +19,7 @@ import { reportingData, sharedReportingData } from '../reporting-modal.component
   standalone: true,
   templateUrl: './reporting-overview.component.html',
   styleUrls: ['./reporting-overview.component.css'],
-  imports: [CommonModule, SafeHtmlPipe]
+  imports: [CommonModule]
 })
 export class ReportingOverviewComponent implements OnInit {
 
