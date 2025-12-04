@@ -11,7 +11,7 @@ import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
 
-import 'codemirror/addon/display/autoRefresh.js';
+// import 'codemirror/addon/display/autoRefresh.js';
 
 declare var $: any;
 

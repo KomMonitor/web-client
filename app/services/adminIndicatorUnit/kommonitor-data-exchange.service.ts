@@ -116,6 +116,13 @@ export class KommonitorIndicatorDataExchangeService {
   }
 
   /**
+   * Fetches topics metadata - delegates to AngularJS service
+   */
+  async fetchTopicsMetadata(keycloakRolesArray: string[]) {
+    return this.angularJsDataExchangeService.fetchTopicsMetadata(keycloakRolesArray);
+  }
+
+  /**
    * Adds a single indicator metadata - delegates to AngularJS service
    */
   addSingleIndicatorMetadata(indicatorMetadata: any): void {

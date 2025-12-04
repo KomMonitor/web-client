@@ -71,6 +71,11 @@ import { AdminAppConfigComponent } from 'components/ngComponents/admin/adminConf
 import { PipesModule } from 'pipes.module';
 import { AdminLandingpageConfigComponent } from 'components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
 import { AdminControlsConfigComponent } from 'components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
+import { TopicOrderSelectionComponent } from './components/ngComponents/admin/adminTopicsManagement/topicOrderSelection/topic-order-selection.component';
+import { TopicListComponent } from './components/ngComponents/admin/adminTopicsManagement/topicList/topicList.component';
+import { AddTopicComponent } from './components/ngComponents/admin/adminTopicsManagement/add-topic/add-topic.component';
+import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsManagement/sortByOrder.pipe';
+
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -105,6 +110,10 @@ export function HttpLoaderFactory(http: HttpClient) {
     KommonitorFilterComponent,
     DualListBoxComponent,
     GeoFavFilter,
+    TopicOrderSelectionComponent,
+    TopicListComponent,
+    SortByOrderPipe,
+    AddTopicComponent,
     GeoFavItemFilter,
     UserLoginComponent,
     AdminComponent,

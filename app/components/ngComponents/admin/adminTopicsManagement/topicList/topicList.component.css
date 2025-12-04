@@ -1,0 +1,65 @@
+:host {
+  .list-group {
+    margin-bottom: 0px;
+    .list-group-item {
+      margin-bottom: 2px;
+    }
+    .list-group-item.level-1 {
+      background: #2171b5;
+      color: white;
+    }
+
+    .list-group-item.level-2 {
+      background: #6baed6;
+      color: white;
+    }
+
+    .list-group-item.level-3 {
+      background: #bdd7e7;
+      color: black;
+    }
+
+    .list-group-item.level-4 {
+      background: #eff3ff;
+      color: black;
+    }
+  }
+  .sub-topics {
+    margin-left: 20px;
+  }
+
+  .cdk-drag-placeholder {
+    opacity: 0.5;
+  }
+
+  .cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 0px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-preview.list-group-item.level-1 {
+  background: #2171b5;
+  color: white;
+}
+
+.cdk-drag-preview.list-group-item.level-2 {
+  background: #6baed6;
+  color: white;
+}
+
+.cdk-drag-preview.list-group-item.level-3 {
+  background: #bdd7e7;
+  color: black;
+}
+
+.cdk-drag-preview.list-group-item.level-4 {
+  background: #eff3ff;
+  color: black;
+}

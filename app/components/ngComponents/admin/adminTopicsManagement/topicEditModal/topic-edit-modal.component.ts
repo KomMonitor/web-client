@@ -1,119 +1,85 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { Component, OnInit, Input } from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { AdminTopicsManagementService } from "../admin-topics-management.service";
+import { Topic } from "../admin-topics-management.component";
 
 @Component({
-  selector: 'topic-edit-modal-new',
-  templateUrl: './topic-edit-modal.component.html',
-  styleUrls: ['./topic-edit-modal.component.css'],
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule]
+  selector: "topic-edit-modal-new",
+  templateUrl: "./topic-edit-modal.component.html",
+  styleUrls: ["./topic-edit-modal.component.css"],
 })
 export class TopicEditModalComponent implements OnInit {
-  @Input() currentTopic: any; // Data passed from parent via NgbModal
+  @Input() topic!: Topic;
 
   topicForm: FormGroup;
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
+  errorMessage = "";
+  successMessage = "";
 
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private kommonitorDataExchangeService: DataExchangeService,
-    private http: HttpClient,
-    private broadcastService: BroadcastService
+    private srvc: AdminTopicsManagementService
   ) {
-    console.log('TopicEditModalComponent constructor initialized');
     this.topicForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required]
+      name: ["", Validators.required],
+      description: ["", Validators.required],
     });
   }
 
   ngOnInit() {
-    console.log('TopicEditModalComponent ngOnInit');
-    console.log('Current topic:', this.currentTopic);
-    
-    // Initialize form with the topic data passed via @Input
-    if (this.currentTopic) {
-      console.log('Patching form with topic data:', this.currentTopic);
+    if (this.topic) {
       this.topicForm.patchValue({
-        name: this.currentTopic.topicName,
-        description: this.currentTopic.topicDescription
+        name: this.topic.topicName,
+        description: this.topic.topicDescription,
       });
     } else {
-      console.warn('No topic data provided to modal');
+      console.warn("No topic data provided to modal");
     }
   }
 
-  async onSubmit() {
-    console.log('Form submitted:', this.topicForm.value);
+  onSubmit() {
     if (this.topicForm.valid) {
       this.isSubmitting = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-
-      const topicId = this.currentTopic?.topicId;
-      const putBody = {
-        topicName: this.topicForm.value.name,
-        topicDescription: this.topicForm.value.description,
-        topicType: this.currentTopic?.topicType,
-        topicResource: this.currentTopic?.topicResource,
-        subTopics: this.currentTopic?.subTopics
-      };
-      console.log('Sending topic data:', putBody);
-
-      try {
-        const response = await this.http.put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topicId}`,
-          putBody
-        ).toPromise();
-        
-        console.log('Topic update response:', response);
-        
-        // Fetch updated topics metadata
-        await this.kommonitorDataExchangeService.fetchTopicsMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-        );
-        
-        this.successMessage = 'success';
-        
-        setTimeout(() => {
-          this.activeModal.close({
-            action: 'updated',
-            topic: response
-          });
-          
-          // Broadcast refresh to other components that might need it
-          this.broadcastService.broadcast('refreshTopicsOverview');
-        }, 1500);
-        
-      } catch (error: any) {
-        console.error('Error updating topic:', error);
-        this.errorMessage = error.error || error.message || 'Failed to update topic';
-      } finally {
-        this.isSubmitting = false;
-      }
+      this.errorMessage = "";
+      this.successMessage = "";
+      this.srvc
+        .editTopic(
+          this.topic,
+          this.topicForm.value.name,
+          this.topicForm.value.description
+        )
+        .subscribe({
+          next: () => {
+            this.isSubmitting = false;
+            this.successMessage = "success";
+            setTimeout(() => {
+              this.activeModal.close();
+            }, 1500);
+          },
+          error: (error) => {
+            debugger;
+            this.isSubmitting = false;
+            this.errorMessage =
+              error.error || error.message || "Failed to update topic";
+          },
+        });
     } else {
-      console.warn('Form is invalid:', this.topicForm.errors);
+      console.warn("Form is invalid:", this.topicForm.errors);
     }
   }
 
   hideSuccessAlert() {
-    this.successMessage = '';
+    this.successMessage = "";
   }
 
   hideErrorAlert() {
-    this.errorMessage = '';
+    this.errorMessage = "";
   }
 
   cancel() {
-    console.log('Modal cancelled');
-    this.activeModal.dismiss('cancel');
+    console.log("Modal cancelled");
+    this.activeModal.dismiss("cancel");
   }
-} 
+}

@@ -11,6 +11,7 @@ export interface IndicatorsTopicsHierarchy {
   topicName: string;
   topicResource: string;
   topicType: string;
+  displayOrder: number;
 }
 
 export interface IndicatorsDataset {
