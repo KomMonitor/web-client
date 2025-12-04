@@ -70,6 +70,7 @@ import { SingleFeatureEditComponent } from 'components/ngComponents/common/singl
 import { AdminAppConfigComponent } from 'components/ngComponents/admin/adminConfig/adminAppConfig/admin-app-config.component';
 import { PipesModule } from 'pipes.module';
 import { AdminLandingpageConfigComponent } from 'components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
+import { AdminControlsConfigComponent } from 'components/ngComponents/admin/adminConfig/adminControlsConfig/admin-controls-config.component';
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -133,6 +134,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SingleFeatureEditComponent,
     AdminAppConfigComponent,
     AdminLandingpageConfigComponent,
+    AdminControlsConfigComponent,
     OrderByPipe,
     FilterPipe
   ],
