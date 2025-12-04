@@ -76,6 +76,7 @@ import { TopicListComponent } from './components/ngComponents/admin/adminTopicsM
 import { AddTopicComponent } from './components/ngComponents/admin/adminTopicsManagement/add-topic/add-topic.component';
 import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsManagement/sortByOrder.pipe';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { TopicEditModalComponent } from 'components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -121,6 +122,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminDashboardManagementComponent,
     AdminRoleExplanationComponent,
     AdminTopicsManagementComponent,
+    TopicEditModalComponent,
     AdminSpatialUnitsManagementComponent,
     SpatialUnitAddModalComponent,
     SpatialUnitDeleteModalComponent,
