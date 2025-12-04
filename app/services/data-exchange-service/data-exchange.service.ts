@@ -135,10 +135,42 @@ export class DataExchangeService {
   // todo delete pipedData etc
   pipedData = this;
 
-  customGreetingsContact_mail!: string;
-  customGreetingsContact_name!: string;
-  customGreetingsContact_organisation!: string;
-  customGreetingsTextInfoMessage!: string;
+  appTitle = window.__env.appTitle;
+  loginInfoText = window.__env.loginInfoText;
+  customLandingPage = window.__env.customLandingPage;
+
+  customLogoURL = window.__env.customLogoURL;
+  customLogo_onClickURL = window.__env.customLogo_onClickURL;
+  customLogoWidth = window.__env.customLogoWidth; 
+  customGreetingsContact_name = window.__env.customGreetingsContact_name;
+  customGreetingsContact_organisation = window.__env.customGreetingsContact_organisation;
+  customGreetingsContact_mail = window.__env.customGreetingsContact_mail;
+  customGreetingsTextInfoMessage = window.__env.customGreetingsTextInfoMessage; // maybe undefined or empty string
+
+  showDiagramExportButtons = true;
+  showGeoresourceExportButtons = true;
+  showBarChartLabel = window.__env.showBarChartLabel;
+  showBarChartAverageLine = window.__env.showBarChartAverageLine;
+
+  customReportFontSize = window.__env.customReportFontSize;
+
+  enableMeanDataDisplayInLegend = window.__env.enableMeanDataDisplayInLegend;
+  configMeanDataDisplay = window.__env.configMeanDataDisplay;
+  
+
+  defaultNumberOfDecimals = window.__env.numberOfDecimals;
+  DATE_PREFIX = window.__env.indicatorDatePrefix;
+  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
+  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
+  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
+
+  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
+  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
+  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
+  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
+  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
+  defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low; 
+
   selectedIndicator!: IndicatorsDataset;
   availableSpatialUnits!: SpatialUnit[];
   selectedDate: any;
@@ -150,11 +182,9 @@ export class DataExchangeService {
   measureOfValue: any;
   isMeasureOfValueChecked: any;
   allFeaturesRegionalMean: any;
-  enableMeanDataDisplayInLegend: any;
   labelMean_regional: any;
   labelMean: any;
   allFeaturesMean: any;
-  configMeanDataDisplay: any;
   labelAllFeatures: any;
   labelFilteredFeatures: any;
   labelSelectedFeatures: any;
@@ -180,7 +210,6 @@ export class DataExchangeService {
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
   displayableIndicators_keywordFiltered: any;
-  showGeoresourceExportButtons: any;
   displayableGeoresources_keywordFiltered: any;
   wmsLegendImage: any;
   displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any = {};
@@ -188,14 +217,7 @@ export class DataExchangeService {
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName:any;
   simplifyGeometries:any;
-  showBarChartLabel:any;
-  showBarChartAverageLine:any; 
-  appTitle!: string;
-  customLogo_onClickURL: any;
-  customLogoURL: any;
-  customLogoWidth: any;
   keycloakTokenExpirationInfo: any;
-  showDiagramExportButtons:any;
   FEATURE_NAME_PROPERTY_NAME:any;
   availableGeoresources:any;
   availableIndicators:any;
@@ -205,8 +227,6 @@ export class DataExchangeService {
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
-  loginInfoText:any;
-  customLandingPage!: boolean;
   spatialFilterIsApplied:any;
   rangeFilterIsApplied:any;
   baseLayerDefinitionsArray!: any[];
@@ -215,8 +235,6 @@ export class DataExchangeService {
 
   isRealmAdmin:boolean = false;
   currentKeycloakLoginGroupNames:any;
-
-  defaultNumberOfDecimals = window.__env.numberOfDecimals;
 
   // todo topics hirarchy interface ?!
 	availableTopics:any[] = [];
@@ -590,8 +608,6 @@ export class DataExchangeService {
   enableBilanceTrend = window.__env.enableBilanceTrend;
 
   availableRoles:any[] = [];
-
-  DATE_PREFIX = window.__env.indicatorDatePrefix;
 
   public constructor(
     private authService: AuthService,

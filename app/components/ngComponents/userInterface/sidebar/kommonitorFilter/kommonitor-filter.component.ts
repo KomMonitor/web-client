@@ -221,51 +221,50 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   }
 
 
-    setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date){
+  setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date){
+    
+    this.loadingData = true;
+    
+    let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
+      return spatialUnitEntry.spatialUnitId;									
+    });
+    
+    this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
+    
+    // only show those spatial units that are actually visible according to keycloak role
+    // and associated to the current indicator as well
+    for (let index = 0; index < this.higherSpatialUnits.length; index++) {
+      const spatialUnitMetadata = this.higherSpatialUnits[index];
       
-      this.loadingData = true;
-      
-      let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
-        return spatialUnitEntry.spatialUnitId;									
-      });
-      
-      this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
-      
-      setTimeout(()=>{
-        this.spatialLevel = new FormControl(this.higherSpatialUnits[this.higherSpatialUnits.length-1].spatialUnitId);
-      },500);
-      
-      // only show those spatial units that are actually visible according to keycloak role
-      // and associated to the current indicator as well
-      for (let index = 0; index < this.higherSpatialUnits.length; index++) {
-        const spatialUnitMetadata = this.higherSpatialUnits[index];
+      // remove if it is not applicable for current indicator OR
+      // remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
+      if(this.considerAllowedSpatialUnitsOfCurrentIndicator && ! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){	
         
-        // remove if it is not applicable for current indicator OR
-        // remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
-        if(this.considerAllowedSpatialUnitsOfCurrentIndicator && ! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){	
-          
-          // only remove the current element
-          // which represents a spatial unit that is 
-          // not supported by the current indicator 
-          this.higherSpatialUnits.splice(index, 1);
-        }
-
-        // since we query through a hierarchically sorted array of ALL spatial units
-        // we have to stop when we identify the currently displayed spatial unit
-        // in that case we have to remove that from the list of upper  
-        if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
-          // remove current all all remaining elements from array
-          // (which are lower hierarchy spatial units)
-          this.higherSpatialUnits.splice(index);
-          break;
-        }
+        // only remove the current element
+        // which represents a spatial unit that is 
+        // not supported by the current indicator 
+        this.higherSpatialUnits.splice(index, 1);
       }
 
-      // this.higherSpatialUnits.splice(targetIndex);
-      this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
+      // since we query through a hierarchically sorted array of ALL spatial units
+      // we have to stop when we identify the currently displayed spatial unit
+      // in that case we have to remove that from the list of upper  
+      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
+        // remove current all all remaining elements from array
+        // (which are lower hierarchy spatial units)
+        console.log(spatialUnitName,spatialUnitMetadata.spatialUnitLevel, index)
+        // "+1" is new, as the actual index would also remove the first (and only) item
+        this.higherSpatialUnits.splice(index+1);
+        break;
+      }
+    }
 
-      this.loadingData = false;
-    };
+    // this.higherSpatialUnits.splice(targetIndex);
+    this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
+    this.spatialLevel = new FormControl(this.selectedSpatialUnitForFilter!.spatialUnitId);
+
+    this.loadingData = false;
+  }
 
     onOnChangeSelectedIndicator() {
       this.reappliedFilter = false;

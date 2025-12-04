@@ -8,7 +8,7 @@
   <div style="padding-left: 10px; padding-top: 4px;">
 
      <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
-     <div ng-if="exchangeData.customLogoURL && exchangeData.customLogoWidth">
+     <div *ngIf="exchangeData.customLogoURL && exchangeData.customLogoWidth">
       <a target="_blank" rel="noopener noreferrer" href="{{exchangeData.customLogo_onClickURL}}">
         <img src="{{exchangeData.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': exchangeData.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
       </a>
@@ -16,7 +16,7 @@
      </div> 			  
 
     <app-user-login></app-user-login>
-    <p ng-if="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
+    <p *ngIf="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
     <p (click)="openInfoModal()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
     
     <!-- <app-language-switcher></app-language-switcher> -->
