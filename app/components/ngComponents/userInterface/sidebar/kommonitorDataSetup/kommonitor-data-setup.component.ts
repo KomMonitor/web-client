@@ -1,7 +1,5 @@
-import { IndicatorsDataset } from './../../../models/indicators.models';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { error } from 'jquery';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
@@ -10,6 +8,8 @@ import * as noUiSlider from 'nouislider';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FavService } from 'services/fav-service/fav.service';
 import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
+import { AdminTopicsManagementService } from '../../../admin/adminTopicsManagement/admin-topics-management.service';
+import { TopicOrderMode } from '../../../admin/adminTopicsManagement/admin-topics-management.component';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -57,6 +57,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     'Auswahl erfolgreich gespeichert'];
 
   preppedIndicatorTopics: IndicatorsTopicsHierarchy[] = [];
+  topicSorting: TopicOrderMode | undefined;
 
   dateSlider;
   config: any  = {
@@ -97,11 +98,14 @@ export class KommonitorDataSetupComponent implements OnInit {
     private elementVisibilityHelperService: ElementVisibilityHelperService,
     private mapService: MapService,
     private http: HttpClient,
-    private favService: FavService
+    private favService: FavService,
+    private adminTopicsManagementService: AdminTopicsManagementService
   ) {}
 
   ngOnInit(): void {
     this.exchangeData = this.dataExchangeService.pipedData;
+
+    this.adminTopicsManagementService.getOrderMode("indicator").subscribe((res) => this.topicSorting = res);
 
     this.setupSlider();
 
@@ -281,10 +285,16 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   prepareIndicatorTopicsRecursive(tree:IndicatorsTopicsHierarchy[]) {
+    // filter out topics with no indicators
+    let retTree = tree.filter(e => e.indicatorCount>0);
 
-    let retTree:IndicatorsTopicsHierarchy[] = tree.sort( (a:IndicatorsTopicsHierarchy, b:IndicatorsTopicsHierarchy) => {
-      return (a.topicName>b.topicName) ? 1 : 0;
-    }).filter(e => e.indicatorCount>0);
+    // sort according to current sorting mode
+    if (this.topicSorting === "custom") {
+      retTree = retTree.sort((a, b) => a.displayOrder - b.displayOrder);
+    }
+    if (this.topicSorting === "alphabetical") {
+      retTree = retTree.sort((a, b) => (a.topicName > b.topicName ? 1 : -1));
+    }
 
     retTree.forEach( (elem:IndicatorsTopicsHierarchy) => {
 

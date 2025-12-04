@@ -2,7 +2,7 @@
   <button type="button" class="close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
-  <h4 class="modal-title">Metadaten des Themeneintrags <i><b>{{currentTopic?.topicName}}</b></i> editieren</h4>
+  <h4 class="modal-title">Metadaten des Themeneintrags <i><b>{{topic.topicName}}</b></i> editieren</h4>
 </div>
 
 <div class="modal-body">
@@ -66,7 +66,7 @@
 <div *ngIf="successMessage" class="alert alert-success alert-dismissable" style="position: absolute; bottom: 0px; width: 100%;">
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-check"></i>Themeneintrag aktualisiert</h4>
-  Die Metadaten des Eintrags mit Namen {{currentTopic?.topicName}} wurden in KomMonitor aktualisiert.
+  Die Metadaten des Eintrags mit Namen {{topic.topicName}} wurden in KomMonitor aktualisiert.
 </div>
 
 <div *ngIf="errorMessage" class="alert alert-danger alert-dismissable" style="position: absolute; bottom: 0px; width: 100%;">

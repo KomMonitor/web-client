@@ -114,6 +114,10 @@ import { MathjaxModule } from "mathjax-angular";
 import { AdminLandingpageConfigComponent } from './components/ngComponents/admin/adminConfig/adminLandingpageConfig/admin-landingpage-config.component';
 import { SafeHtmlPipe } from "./pipes/safe-html.pipe";
 import { IndicatorMetadataTooltipComponent } from './components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import { TopicOrderSelectionComponent } from './components/ngComponents/admin/adminTopicsManagement/topicOrderSelection/topic-order-selection.component';
+import { TopicListComponent } from './components/ngComponents/admin/adminTopicsManagement/topicList/topicList.component';
+import { AddTopicComponent } from './components/ngComponents/admin/adminTopicsManagement/add-topic/add-topic.component';
+import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsManagement/sortByOrder.pipe';
 
 // currently the AngularJS routing is still used as part of kommonitorClient module
 const routes: Routes = [];
@@ -218,6 +222,10 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminTopicsManagementComponent,
     TopicEditModalComponent,
     TopicDeleteModalComponent,
+    TopicOrderSelectionComponent,
+    TopicListComponent,
+    SortByOrderPipe,
+    AddTopicComponent,
     AdminAppConfigComponent,
     AdminControlsConfigComponent,
     AdminRoleExplanationComponent,
@@ -355,7 +363,7 @@ export class AppModule implements DoBootstrap {
 
     angular.module('kommonitorAdmin')
       .directive('adminTopicsManagementNew', downgradeComponent({ 
-        component: AdminTopicsManagementComponent 
+        component: AdminTopicsManagementComponent
       }) as angular.IDirectiveFactory);
 
     angular.module('kommonitorAdmin')
