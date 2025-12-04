@@ -37,11 +37,8 @@ export class KommonitorBalanceComponent implements OnInit {
 
       switch (msg) {
         case 'updateBalanceSlider' : {
-
-          setTimeout(() => {
-
+            // hier war mal ein 1000 timeout
             this.setupRangeSliderForBalance(values);
-          },1000);
         } break;
       }
     });

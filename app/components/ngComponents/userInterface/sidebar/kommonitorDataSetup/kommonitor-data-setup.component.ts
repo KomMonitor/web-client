@@ -110,11 +110,10 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.setupSlider();
 
     // todo like "initialMetadataLoadingCompleted"
-    window.setTimeout( () => {
-
+    /* window.setTimeout( () => {
       this.onInitialMetadataLoadingComplete();
 
-    },2000);
+    },2000); */
 
     this.broadcastService.currentBroadcastMsg.subscribe(res => {
       let msg = res.msg;
@@ -141,6 +140,9 @@ export class KommonitorDataSetupComponent implements OnInit {
           // why called again?! button click calls onSaveFavSelection(true), which saves and broadcasts onSaveFavSelection(false) again ... // todo, check
         } break;
         case 'LIKEinitialMetadataLoadingCompleted': {
+          this.onInitialMetadataLoadingComplete();
+        } break;
+        case 'initialMetadataLoadingCompleted': {
           this.onInitialMetadataLoadingComplete();
         } break;
       }

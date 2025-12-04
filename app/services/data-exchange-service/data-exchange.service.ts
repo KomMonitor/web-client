@@ -1005,15 +1005,13 @@ export class DataExchangeService {
 
   onMetadataLoadingCompleted(){
 
-    setTimeout(() => {
-      this.broadcastService.broadcast("initialMetadataLoadingCompleted");
+    this.broadcastService.broadcast("initialMetadataLoadingCompleted");
 
-      setTimeout(() => {
-        $("option").each(function (index, element) {
-          var text = $(element).text();
-          $(element).attr("title", text);
-        });
-      }, 1000);
+    setTimeout(() => {
+      $("option").each(function (index, element) {
+        var text = $(element).text();
+        $(element).attr("title", text);
+      });
     }, 1000);
   }
 
