@@ -54,7 +54,7 @@ export class ConfigStorageService  {
     return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig, formdata, {headers: headers});
   }
 
-  postFilterConfig(jsonString){         
+  postFilterConfig(jsonString):Observable<any> {     
 
     console.log("Trying to POST to config storage service to upload new filter config.");
     var formdata = new FormData();

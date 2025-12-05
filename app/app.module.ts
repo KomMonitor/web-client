@@ -77,6 +77,7 @@ import { AddTopicComponent } from './components/ngComponents/admin/adminTopicsMa
 import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsManagement/sortByOrder.pipe';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TopicEditModalComponent } from 'components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
+import { AdminFilterConfigComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/admin-filter-config.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -147,6 +148,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminAppConfigComponent,
     AdminLandingpageConfigComponent,
     AdminControlsConfigComponent,
+    AdminFilterConfigComponent,
     OrderByPipe,
     FilterPipe
   ],
