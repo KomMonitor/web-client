@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
 
@@ -52,49 +53,23 @@ export class GenericMapHelperService {
   }
 
   createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject) {
-    //return this.ajskommonitorGenericMapHelperServiceProvider.createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
- 
-    var customMarker;
-    // todo VectorMarkers
-  /*  var customMarker = L.VectorMarkers.icon({
-      viewBox: '0 0 32 52',
-      iconSize: [30 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor],
-      iconAnchor: [ 15 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor ],
-      shadowSize: [0, 0], // ausgeschaltete Schatten
-      // um Schatten einzuschalten: //shadowSize:   [36 * this.exchangeData.selectedPOISize.scaleFactor, 16 * this.exchangeData.selectedPOISize.scaleFactor ],
-      // um Schatten einzuschalten: //shadowAnchor: [35 * this.exchangeData.selectedPOISize.scaleFactor, 10 * this.exchangeData.selectedPOISize.scaleFactor],
-      icon: poiSymbolBootstrap3Name,
-      prefix: 'glyphicon',
-      markerColor: poiMarkerColor,
-      iconColor: poiSymbolColor,
-      extraClasses: this.exchangeData.selectedPOISize.iconClassName
-    });
- 
-    // special treatment for geocoded results
-    if(metadataObject.isGeocodedDataset){
-      if (poiFeature.properties["geocoder_geocoderank"] == 2){
-        customMarker = L.VectorMarkers.icon({
-          markerColor: "green",
-          viewBox: '0 0 32 52',
-          iconSize: [30 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor],
-          iconAnchor: [ 15 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor ],
-          shadowSize: [0, 0], // ausgeschaltete Schatten
-          // um Schatten einzuschalten: //shadowSize:   [36 * this.exchangeData.selectedPOISize.scaleFactor, 16 * this.exchangeData.selectedPOISize.scaleFactor ],
-          // um Schatten einzuschalten: //shadowAnchor: [35 * this.exchangeData.selectedPOISize.scaleFactor, 10 * this.exchangeData.selectedPOISize.scaleFactor],
-          icon: poiSymbolBootstrap3Name,
-          prefix: 'glyphicon',
-          iconColor: poiSymbolColor,
-          extraClasses: this.exchangeData.selectedPOISize.iconClassName
-        });
-      }          
-    } */
+    
+    if (poiFeature.properties["geocoder_geocoderank"] == 2)
+      poiMarkerColor = 'green';
+
+    var customMarker = L.AwesomeMarkers.icon({
+        icon: poiSymbolBootstrap3Name,
+        prefix: 'glyphicon',
+        markerColor: poiMarkerColor,
+        iconColor: poiSymbolColor,
+        extraClasses: this.exchangeData.selectedPOISize.iconClassName
+      });
 
     var newMarker;
 
     if(poiFeature.geometry.type === "Point"){              
       // LAT LON order
-      //newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
-      newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])]);
+      newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
 
       //populate the original geoJSOn feature to the marker layer!
       newMarker.feature = poiFeature;
@@ -104,8 +79,7 @@ export class GenericMapHelperService {
 
       // simply take the first point as feature reference POI
       // LAT LON order
-      //newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
-      newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])]);
+      newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
 
       //populate the original geoJSOn feature to the marker layer!
       newMarker.feature = poiFeature;

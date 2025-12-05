@@ -138,6 +138,7 @@
     "leaflet-search": "^4.0.0",
     "leaflet-simple-map-screenshoter": "^0.5.0",
     "leaflet-wfst": "^2.0.1-beta.27",
+    "leaflet.awesome-markers": "^2.0.5",
     "leaflet.markercluster": "^1.5.3",
     "leaflet.pattern": "^0.1.0",
     "Leaflet.vector-markers": "^0.0.6",
