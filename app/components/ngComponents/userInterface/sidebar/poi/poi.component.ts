@@ -693,7 +693,8 @@ export class PoiComponent implements OnInit {
     }
   }
 
-  onChangeSelectedDate(georesourceDataset){
+  onChangeSelectedDate(georesourceDataset:GeoresourcesDataset){
+
     // only if it s already selected, we must modify the shown dataset 
     if(georesourceDataset.isSelected){
       // depending on type we must call different methods
