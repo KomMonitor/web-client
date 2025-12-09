@@ -125,31 +125,30 @@ export class CacheHelperServiceService implements OnInit{
       }
     }
 
+    try {
+      if(filter) {
+        return await firstValueFrom(this.http.post(this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter',filter));
+      } else {
+        // when code reaches this place we must overwrite/set timestamp and actual metadata
 
-    if(filter) {
+        // persist last modification timestamp object as String in local storage
+        localStorage.setItem(timestampKey, JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName]));
 
-      return await this.http.post(this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter',filter).subscribe({
-        next: response => {
-          return response;
-        }
-      })
-    } else {
-      // when code reaches this place we must overwrite/set timestamp and actual metadata
+        return await this.http.get(this.baseUrlToKomMonitorDataAPI + resourceEndpoint).subscribe({
+          next: response => {
+            localStorage.setItem(metadataKey, JSON.stringify(response));
 
-      // persist last modification timestamp object as String in local storage
-      localStorage.setItem(timestampKey, JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName]));
-
-      return await this.http.get(this.baseUrlToKomMonitorDataAPI + resourceEndpoint).subscribe({
-        next: response => {
-          localStorage.setItem(metadataKey, JSON.stringify(response));
-
-          return response;
-        },
-        error: error => {
-          console.log("Unable to read OrgainzationalUnit data");
-          return [];
-        }
-      });
+            return response;
+          },
+          error: error => {
+            console.log("Unable to read OrgainzationalUnit data");
+            return [];
+          }
+        });
+      }
+    } catch (error) {
+      console.error("HTTP Fehler:", error);
+      throw error;
     }
   };
 

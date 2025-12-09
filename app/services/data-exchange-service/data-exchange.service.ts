@@ -696,6 +696,7 @@ export class DataExchangeService {
         metadataPromises.push(response.georesourcesPromise);
         metadataPromises.push(response.indicatorsPromise);
 
+        console.log("hier");
         this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
         this.buildHeadlineIndicatorHierarchy();
@@ -825,6 +826,7 @@ export class DataExchangeService {
   }
 
   setIndicators(indicatorsArray){
+    
     this.availableIndicators = this.modifyIndicators(indicatorsArray);
     this.availableIndicators_map = new Map();
     
@@ -991,7 +993,7 @@ export class DataExchangeService {
     var decimalDefault = 2;
     if(window.__env.numberOfDecimals !== undefined)
       decimalDefault = window.__env.numberOfDecimals;
-
+      
     indicators.forEach(elem => {
       if(elem.precision===null) {
         elem.precision = decimalDefault;
