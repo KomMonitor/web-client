@@ -8,8 +8,8 @@ import { SingleFeatureMapHelperService } from 'services/single-feature-map-helpe
 export class MultiStepHelperServiceService {
 
   constructor(
-    private singleFeatureMapHelperService: SingleFeatureMapHelperService,
-    private reachabilityMapHelperService: ReachabilityMapHelperService
+  /*   private singleFeatureMapHelperService: SingleFeatureMapHelperService,
+    private reachabilityMapHelperService: ReachabilityMapHelperService */
   ) { }
 
   /*
@@ -100,11 +100,11 @@ export class MultiStepHelperServiceService {
         }
 
         // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
-        this.singleFeatureMapHelperService.invalidateMap();
+      /*   this.singleFeatureMapHelperService.invalidateMap();
         this.singleFeatureMapHelperService.zoomToDataLayer();
 
         this.reachabilityMapHelperService.invalidateMaps();
-        this.reachabilityMapHelperService.zoomToIsochroneLayers();
+        this.reachabilityMapHelperService.zoomToIsochroneLayers(); */
 
         item.stopImmediatePropagation();
       });
@@ -137,11 +137,11 @@ export class MultiStepHelperServiceService {
         this.current_fs.hide();
 
         // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
-        this.singleFeatureMapHelperService.invalidateMap();
+       /*  this.singleFeatureMapHelperService.invalidateMap();
         this.singleFeatureMapHelperService.zoomToDataLayer();
 
         this.reachabilityMapHelperService.invalidateMaps();
-        this.reachabilityMapHelperService.zoomToIsochroneLayers();
+        this.reachabilityMapHelperService.zoomToIsochroneLayers(); */
       });
 
     }, 500);
@@ -169,11 +169,11 @@ export class MultiStepHelperServiceService {
         this.current_fs.hide(); 
 
         // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
-        this.singleFeatureMapHelperService.invalidateMap();
-        this.singleFeatureMapHelperService.zoomToDataLayer();
+      /*   this.singleFeatureMapHelperService.invalidateMap(); */
+      /*   this.singleFeatureMapHelperService.zoomToDataLayer(); */
 
-        this.reachabilityMapHelperService.invalidateMaps();
-        this.reachabilityMapHelperService.zoomToIsochroneLayers();
+      /*   this.reachabilityMapHelperService.invalidateMaps(); */
+      /*   this.reachabilityMapHelperService.zoomToIsochroneLayers(); */
       });
 
     }, 500);

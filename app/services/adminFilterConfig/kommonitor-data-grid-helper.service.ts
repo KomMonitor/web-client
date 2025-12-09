@@ -3,6 +3,8 @@ import { ColDef } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as agGrid from 'ag-grid-community';
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AdminFilterEditModalComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.component';
 
 declare const $: any;
 declare const MathJax: any;
@@ -15,16 +17,17 @@ export class KommonitorFilterDataGridHelperService {
 
 
   constructor(
-    private angularJsDataExchangeService: DataExchangeService
+    private angularJsDataExchangeService: DataExchangeService,
+    private modalService: NgbModal
   ) {}
 
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
    */
-  buildDataGrid_indicators(globalFilterArray: GlobalFilterEntry[]): { columnDefs: ColDef[], rowData: any[] } {
-    const columnDefs = this.buildDataGridColumnConfig_indicators(globalFilterArray);
-    const rowData = this.buildDataGridRowData_indicators(globalFilterArray);
-    
+  buildDataGrid_filters(globalFilterArray: GlobalFilterEntry[]): { columnDefs: ColDef[], rowData: any[] } {
+    const columnDefs = this.buildDataGridColumnConfig_filters(globalFilterArray);
+    const rowData = this.buildDataGridRowData_filters(globalFilterArray);
+
     return { columnDefs, rowData };
   }
 
@@ -33,7 +36,7 @@ export class KommonitorFilterDataGridHelperService {
   /**
    * Builds column configuration for indicators
    */
-  buildDataGridColumnConfig_indicators(globalFilterArray: GlobalFilterEntry[]): any[] {
+  buildDataGridColumnConfig_filters(globalFilterArray: GlobalFilterEntry[]): any[] {
     const columnDefs = [
       { 
         headerName: 'Editierfunktionen', 
@@ -42,7 +45,7 @@ export class KommonitorFilterDataGridHelperService {
         checkboxSelection: false, 
         filter: false, 
         sortable: false, 
-        cellRenderer: (params: any) => this.displayEditButtons_indicators(params)
+        cellRenderer: (params: any) => this.displayEditButtons_filters(params)
       },
       { headerName: 'Name', field: "name", pinned: 'left', minWidth: 300 },
       { headerName: 'Indikatoren', field: "indicators", minWidth: 200 }
@@ -54,88 +57,45 @@ export class KommonitorFilterDataGridHelperService {
   /**
    * Builds row data for indicators
    */
-  buildDataGridRowData_indicators(globalFilterArray: GlobalFilterEntry[]): any[] {
+  buildDataGridRowData_filters(globalFilterArray: GlobalFilterEntry[]): any[] {
     return globalFilterArray;
   }
 
   /**
    * Display edit buttons component for indicators
    */
-  displayEditButtons_indicators = (params: any) => {
-    // Safety check for data
-    if (!params) {
+  displayEditButtons_filters = (params: any) => {
+     // Safety check for data
+    if (!params)
       return '<div class="btn-group btn-group-sm">No data</div>';
-    }
+
+    const container = document.createElement("div");
+
+    const editButton = document.createElement('button');
+    editButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+    editButton.className = 'btn btn-warning btn-sm';
+    editButton.title = 'Filter editieren';
+
+    editButton.addEventListener('click', () => {
+      const modalRef = this.modalService.open(AdminFilterEditModalComponent, {windowClass: 'modal-holder', centered: true});
+      modalRef.componentInstance.filterName = params.data.name;
+    });
+
     
-    const editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.georesourceId;
-    const deleteButtonId = 'btn_georesource_deleteGeoresource_' + params.data.georesourceId;
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+    deleteButton.className = 'btn btn-danger btn-sm';
+    deleteButton.title = 'Filter entfernen';
 
-    let html = '<div class="btn-group btn-group-sm">';
-    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
+    deleteButton.addEventListener('click', () => {
+      //myClickHandler(params.data);
+    });
 
-    html += '<button id="' + deleteButtonId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen"><i class="fas fa-trash"></i></button>';
-    html += '</div>';
+    container.appendChild(editButton);
+    container.appendChild(deleteButton);
 
-    return html;
+    return container;
   };
-
-  /**
-   * Registers click handlers for indicator buttons
-   */
-  registerClickHandler_indicators(indicatorMetadataArray: any[]): void {
-    // First unbind previous click events
-    $(".indicatorEditMetadataBtn").off();
-    $(".indicatorEditMetadataBtn").on("click", (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-      
-      let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
-    });
-
-    // First unbind previous click events
-    $(".indicatorEditFeaturesBtn").off();
-    $(".indicatorEditFeaturesBtn").on("click", (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-      
-      let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
-    });
-
-    $(".indicatorEditRoleBasedAccessBtn").off();
-    $(".indicatorEditRoleBasedAccessBtn").on("click", (event: any) => {
-      // Ensure that only the target button gets clicked
-      // Manually open modal
-      event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
-      if (modalId) {
-        $(modalId).modal('show');
-      }
-      
-      let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
-
-      // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
-    });
-  }
 
   /**
    * Header height getter utility function
@@ -408,4 +368,392 @@ export class KommonitorFilterDataGridHelperService {
     
     return dataArray;
   }
+
+  /**
+   * Build role management grid row data
+   */
+  private buildRoleManagementGridRowData(accessControlMetadata: any[], permissionIds: string[]): any[] {
+    // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
+    const data = JSON.parse(JSON.stringify(accessControlMetadata));
+    for (const elem of data) {
+      if (elem.name === 'public') {
+        elem.name = 'Öffentlicher Zugriff';
+      }
+      // Flatten permissions
+      elem.viewer = false;
+      elem.editor = false;
+      elem.creator = false;
+      if (elem.permissions && Array.isArray(elem.permissions)) {
+        for (const permission of elem.permissions) {
+          const isChecked = !!(permissionIds && permissionIds.includes(permission.permissionId));
+          // keep permissions[] state in sync (as in AngularJS)
+          permission.isChecked = isChecked;
+
+          if (permission.permissionLevel === 'viewer') {
+            elem.viewer = isChecked;
+          }
+          if (permission.permissionLevel === 'editor') {
+            elem.editor = isChecked;
+          }
+          if (permission.permissionLevel === 'creator') {
+            elem.creator = isChecked;
+          }
+        }
+      }
+    }
+    // Keep the original sorting logic
+    const array: any[] = [];
+    array.push(data[0]);
+    array.push(data[1]);
+    data.splice(0, 2);
+    data.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
+    return array.concat(data);
+  }
+
+  private buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): any[] {
+    const columnDefs = [
+      { 
+        headerName: 'Organisationseinheit', 
+        field: 'name', 
+        minWidth: 200,
+        cellClass: 'user-roles-normal'
+      },
+      { 
+        headerName: 'Lesen', 
+        field: 'viewer', 
+        filter: false, 
+        sortable: false, 
+        width: 100, 
+        cellRenderer: 'CheckboxRenderer_viewer',
+        editable: true
+      },
+      { 
+        headerName: 'Editieren', 
+        field: 'editor', 
+        filter: false, 
+        sortable: false, 
+        width: 100, 
+        cellRenderer: 'CheckboxRenderer_editor',
+        editable: true
+      }
+    ];
+    if (!reducedRoleManagement) {
+      columnDefs.push({ 
+        headerName: 'Löschen', 
+        field: 'creator', 
+        filter: false, 
+        sortable: false, 
+        width: 100, 
+        cellRenderer: 'CheckboxRenderer_creator',
+        editable: true
+      });
+    }
+    return columnDefs;
+  }
+
+  private buildRoleManagementGridOptions(accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
+    const columnDefs = this.buildRoleManagementGridColumnConfig(reducedRoleManagement);
+    const rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+    const gridOptions = {
+      components: {
+        CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
+        CheckboxRenderer_editor: this.CheckboxRenderer_editor,
+        CheckboxRenderer_creator: this.CheckboxRenderer_creator
+      },
+      defaultColDef: {
+        editable: false,
+        sortable: true,
+        flex: 1,
+        minWidth: 100,
+        filter: true,
+        floatingFilter: false,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: { 
+          'font-size': '12px', 
+          'white-space': 'normal !important', 
+          'line-height': '20px !important', 
+          'word-break': 'break-word !important', 
+          'padding-top': '17px', 
+          'padding-bottom': '17px' 
+        },
+        headerComponentParams: {
+          template:
+            '<div class="ag-cell-label-container" role="presentation">' +
+            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+            '  </div>' +
+            '</div>',
+        },
+      },
+      columnDefs: columnDefs,
+      rowData: rowData,
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+     /*  onFirstDataRendered: () => {
+        this.headerHeightSetter();
+      },
+      onColumnResized: () => {
+        this.headerHeightSetter();
+      }, */
+      /* onGridReady: (params: agGrid.GridReadyEvent) => {
+        this.gridApi_spatialUnits = params.api;
+      } */
+    };
+    return gridOptions;
+  }
+
+  /**
+   * Checkbox renderer for viewer permissions
+   */
+  private CheckboxRenderer_viewer = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+      
+      let isChecked = false;
+      let exists = false;
+      let className;
+      if (params && params.data) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){
+            exists = true;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }  
+      }
+      
+      if(exists){
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
+
+        // Disable viewer if dataset owner or if editor/creator selection implies viewer
+        if (this.params.data.datasetOwner === true || this.params.data._viewerDisabledBecauseOfEditor === true || this.params.data._viewerDisabledBecauseOfCreator === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      let checked = e.target.checked;
+
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel == "viewer"){            
+          permission.isChecked = checked;
+          break;
+        }
+      }  
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if(this.eGui && this.boundCheckedHandler){
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }        
+    }
+  };
+
+  /**
+   * Checkbox renderer for editor permissions
+   */
+  private CheckboxRenderer_editor = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className;
+      if (params && params.data) {
+        for (const permission of params.data.permissions) {
+          if (permission.permissionLevel == "editor"){
+            exists = true;
+            isChecked = permission.isChecked;
+            className = permission.permissionId;
+            break;
+          }
+        }  
+      }
+
+      if(exists){
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        
+        // Disable editor if dataset owner or if creator selection implies editor
+        if (this.params.data.datasetOwner === true || this.params.data._editorDisabledBecauseOfCreator === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      let checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel == "viewer"){    
+          if (checked){
+            permission.isChecked = true;
+          } else {
+            permission.isChecked = false;
+          }
+        }
+        else if (permission.permissionLevel == "editor"){            
+          permission.isChecked = checked;
+        }
+      }  
+      // If editor is checked, enforce viewer checked+disabled
+      if (checked) {
+        this.params.data._viewerDisabledBecauseOfEditor = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "viewer"){
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._viewerDisabledBecauseOfEditor = false;
+      }
+      // Ask grid to refresh this row to update disabled state of viewer column
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if(this.eGui && this.boundCheckedHandler){
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }  
+    }
+  };
+
+  /**
+   * Checkbox renderer for creator permissions
+   */
+  private CheckboxRenderer_creator = class {
+    private params: any;
+    private eGui: HTMLElement | null = null;
+    private boundCheckedHandler: any;
+
+    init(params: any) {
+      this.params = params;
+
+      let isChecked = false;
+      let exists = false;
+      let className;
+      for (const permission of params.data.permissions) {
+        if (permission.permissionLevel == "creator"){
+          exists = true;
+          isChecked = permission.isChecked;
+          className = permission.permissionId;
+          break;
+        }
+      }  
+
+      if(exists){
+        const input = document.createElement('input') as HTMLInputElement;
+        this.eGui = input;
+        input.className = className;
+        input.type = 'checkbox';
+        input.checked = isChecked;
+        
+        // Disable creator if dataset owner is true
+        if (this.params.data.datasetOwner === true) {
+          input.disabled = true;
+        } else {
+          input.disabled = false;
+        }
+
+        this.boundCheckedHandler = this.checkedHandler.bind(this);
+        input.addEventListener('click', this.boundCheckedHandler);
+      } else {
+        // If permission does not exist for this row, render empty content to avoid displaying boolean values like "false"
+        this.eGui = document.createElement('span');
+      }
+    }
+
+    checkedHandler(e: any) {
+      let checked = e.target.checked;
+      for (const permission of this.params.data.permissions) {
+        if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
+          permission.isChecked = checked;
+        }
+      }  
+      // If creator is checked, enforce editor and viewer checked+disabled
+      if (checked) {
+        this.params.data._editorDisabledBecauseOfCreator = true;
+        this.params.data._viewerDisabledBecauseOfCreator = true;
+        for (const permission of this.params.data.permissions) {
+          if (permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
+            permission.isChecked = true;
+          }
+        }
+      } else {
+        this.params.data._editorDisabledBecauseOfCreator = false;
+        this.params.data._viewerDisabledBecauseOfCreator = false;
+      }
+      // Ask grid to refresh this row to update disabled state of editor/viewer columns
+      if (this.params.api && this.params.node) {
+        this.params.api.refreshCells({ force: true, rowNodes: [this.params.node] });
+      }
+    }
+
+    getGui() { return this.eGui; }
+
+    destroy() {
+      if(this.eGui && this.boundCheckedHandler){
+        this.eGui.removeEventListener('click', this.boundCheckedHandler);
+      }  
+    }
+  };
 } 

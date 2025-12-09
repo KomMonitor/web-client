@@ -17,6 +17,8 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 import { KommonitorFilterDataGridHelperService } from 'services/adminFilterConfig/kommonitor-data-grid-helper.service';
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
+import { AdminFilterEditModalComponent } from './adminFilterEditModal/admin-filter-edit-modal.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-admin-filter-config',
@@ -62,7 +64,8 @@ export class AdminFilterConfigComponent implements OnInit {
     private kommonitorConfigStorageService: ConfigStorageService,
     private kommonitorDataGridHelperService: KommonitorFilterDataGridHelperService,
     private httpClient: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private modalService: NgbModal
   ) {}
   
   async ngOnInit() {
@@ -121,8 +124,8 @@ export class AdminFilterConfigComponent implements OnInit {
       this.setupGridOptions(this.origConfig);
       
       // Use the data grid helper service to build column definitions and row data
-      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(this.origConfig);
-      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(this.origConfig);
+      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(this.origConfig);
+      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_filters(this.origConfig);
       
       // Force change detection
       setTimeout(() => {
@@ -131,7 +134,7 @@ export class AdminFilterConfigComponent implements OnInit {
           this.agGrid.api.setColumnDefs(this.columnDefs);
           this.agGrid.api.refreshCells();
         }
-      }, 100);
+      }, 200);
     } else {
       // Data not ready yet, keep loading
       this.loadingData = true;
@@ -174,7 +177,7 @@ export class AdminFilterConfigComponent implements OnInit {
         },
       },
       components: {
-        displayEditButtons_indicators: this.kommonitorDataGridHelperService.displayEditButtons_indicators
+        displayEditButtons_indicators: this.kommonitorDataGridHelperService.displayEditButtons_filters
       },
       enableCellTextSelection: true,
       ensureDomOrder: true,
@@ -227,20 +230,18 @@ export class AdminFilterConfigComponent implements OnInit {
     // Column resized
   }
 
-  onModelUpdated(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+  onModelUpdated(globalFilterArray: GlobalFilterEntry[]): void {
   }
 
-  onViewportChanged(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
-    setTimeout(() => {
+  onViewportChanged(globalFilterArray: GlobalFilterEntry[]): void {
+    /* setTimeout(() => {
       // MathJax rendering if available
       if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
         (window as any).MathJax.typesetPromise().then(() => {
           // MathJax rendering completed
         });
       }
-    }, 250);
+    }, 250); */
   }
 
   onSelectionChanged(event: SelectionChangedEvent): void {
@@ -302,23 +303,25 @@ export class AdminFilterConfigComponent implements OnInit {
 
   prepGlobalFilterData() {
 
-    this.mergedFilterConfig.forEach((filter, filterIndex) => {
-      this.mergedFilterConfig[filterIndex].filterId = filterIndex;
+    if(this.mergedFilterConfig) {
+      this.mergedFilterConfig.forEach((filter, filterIndex) => {
+        this.mergedFilterConfig[filterIndex].filterId = filterIndex;
 
-      filter.indicators.forEach((indicatorElement, indicatorIndex) => {
-        this.mergedFilterConfig[filterIndex].indicators[indicatorIndex] = this.kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
-      });
-      filter.georesources.forEach((georesourceElement, georesourceIndex) => {
-        this.mergedFilterConfig[filterIndex].georesources[georesourceIndex] = this.kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
-      });
+        filter.indicators.forEach((indicatorElement, indicatorIndex) => {
+          this.mergedFilterConfig[filterIndex].indicators[indicatorIndex] = this.kommonitorDataExchangeService.availableIndicators.filter(e => e.indicatorId==indicatorElement).map(e => e.indicatorName)[0];
+        });
+        filter.georesources.forEach((georesourceElement, georesourceIndex) => {
+          this.mergedFilterConfig[filterIndex].georesources[georesourceIndex] = this.kommonitorDataExchangeService.availableGeoresources.filter(e => e.georesourceId==georesourceElement).map(e => e.datasetName)[0];
+        });
 
-      filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
-        this.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] = this.searchTopicRecursive(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), indicatorTopicElement);
+        filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
+          this.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] = this.searchTopicRecursive(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), indicatorTopicElement);
+        });
+        filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
+          this.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] = this.searchTopicRecursive(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), georesourceTopicElement);
+        });
       });
-      filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
-        this.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] = this.searchTopicRecursive(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), georesourceTopicElement);
-      });
-    });
+    }
   }
 
   searchTopicRecursive(topicsTree, itemId) {
