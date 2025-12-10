@@ -134,20 +134,14 @@ export class CacheHelperServiceService implements OnInit{
         // persist last modification timestamp object as String in local storage
         localStorage.setItem(timestampKey, JSON.stringify(this.lastDatabaseModificationInfo[lastModificationResourceName]));
 
-        return await this.http.get(this.baseUrlToKomMonitorDataAPI + resourceEndpoint).subscribe({
-          next: response => {
-            localStorage.setItem(metadataKey, JSON.stringify(response));
+        return await firstValueFrom(this.http.get(this.baseUrlToKomMonitorDataAPI + resourceEndpoint)).then(response => {
+          localStorage.setItem(metadataKey, JSON.stringify(response));
 
-            return response;
-          },
-          error: error => {
-            console.log("Unable to read OrgainzationalUnit data");
-            return [];
-          }
+          return response;
         });
       }
     } catch (error) {
-      console.error("HTTP Fehler:", error);
+      console.error("Unable to read OrgainzationalUnit data", error);
       throw error;
     }
   };
