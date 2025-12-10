@@ -9,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 
 export interface DataExchange {
   customGreetingsContact_mail: string;
@@ -105,7 +106,6 @@ export interface DataExchange {
   loginInfoText:any;
   customLandingPage: boolean;
   wmsDatasets:any;
-  spatialFilterIsApplied:any;
   rangeFilterIsApplied:any;
   baseLayerDefinitionsArray: any[];
 }
@@ -180,7 +180,7 @@ export class DataExchangeService {
   indicatorAndMetadataAsBalance: any;
   indicatorDatePrefix!: string;
   measureOfValue: any;
-  isMeasureOfValueChecked: any;
+  isMeasureOfValueChecked: boolean = false;
   allFeaturesRegionalMean: any;
   labelMean_regional: any;
   labelMean: any;
@@ -227,7 +227,6 @@ export class DataExchangeService {
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
-  spatialFilterIsApplied:any;
   rangeFilterIsApplied:any;
   baseLayerDefinitionsArray!: any[];
   
@@ -612,7 +611,8 @@ export class DataExchangeService {
   public constructor(
     private authService: AuthService,
     private cacheHelperService: CacheHelperServiceService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private globalFilterService: GlobalFilterHelperService
   ) {}
 
   hideErrorAlert(){
@@ -696,7 +696,6 @@ export class DataExchangeService {
         metadataPromises.push(response.georesourcesPromise);
         metadataPromises.push(response.indicatorsPromise);
 
-        console.log("hier");
         this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
         this.buildHeadlineIndicatorHierarchy();

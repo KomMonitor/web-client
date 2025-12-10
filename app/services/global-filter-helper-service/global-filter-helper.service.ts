@@ -1,4 +1,4 @@
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Inject, Injectable } from '@angular/core';
 
 @Injectable({
@@ -15,9 +15,11 @@ export class GlobalFilterHelperService {
   applicationFilterId:any = "";
   applicationFilter:any;
   filterParamSet = false;
+  filterApplied: boolean = false;
 
   constructor(
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   applyQueryParams(){
@@ -46,18 +48,24 @@ export class GlobalFilterHelperService {
     // No need to parse sharing params if sharing is not true
     if (window.location.href.includes(this.paramName_app)) {
       this.filterParamSet = true;
+      this.filterApplied = true;
       // set config and data options from params
       this.applyQueryParams();
-    } else
+    } else {
       this.filterParamSet = false;
+      this.filterApplied = false;
+    }
   };
 
   applyFilterSelection(filterConfig) {
 
-    if(filterConfig.length) 
+    if(filterConfig.length) {
       this.applicationFilter = this.merge(filterConfig);
-    else
+      this.filterApplied = true;
+    } else {
       this.applicationFilter = undefined;
+      this.filterApplied = false;
+    }
   }
 
   merge(filterConfig) {
@@ -91,5 +99,20 @@ export class GlobalFilterHelperService {
 
   isFilterParamSet () {
     return this.filterParamSet;
+  }
+
+  globalFilterApplied():boolean {
+
+    return this.filterParamSet || this.filterApplied;
+  }
+
+  reset() {
+    if(this.filterParamSet) {
+      this.router.navigate(['/']);
+      this.filterParamSet = false;
+    }
+    
+    this.applicationFilter = undefined;
+    this.filterApplied = false;
   }
 }

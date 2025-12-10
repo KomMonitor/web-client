@@ -53,6 +53,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   inputLowerFilterValue;
   inputHigherFilterValue;
 
+  defaultRangeSliderSetup:any;
+
   //measureOfValue stuff
   movMinValue;
   movMaxValue;
@@ -152,6 +154,9 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
           } break;
           case 'updateIndicatorValueRangeFilter' : {
             this.updateIndicatorValueRangeFilter(val);
+          } break;
+          case 'removeRangeFilter': {
+            this.removeRangeFilter();
           } break;
         }
       });
@@ -266,557 +271,567 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     this.loadingData = false;
   }
 
-    onOnChangeSelectedIndicator() {
-      this.reappliedFilter = false;
+  onOnChangeSelectedIndicator() {
+    this.reappliedFilter = false;
+  }
+/* 
+
+  this.$on("indicatortMapDisplayFinished", function(){
+    // trigger the continous display of current filter									
+    if(! this.reappliedFilter){
+      this.reappliedFilter = true;
+      if (this.showSelectionByFeatureSpatialFilter){
+        this.onSelectionByFeatureSpatialFilterSelectBtnPressed();
+      }
+      if (this.showManualSelectionSpatialFilter){
+        this.onManualSelectionBySelectedMapFeaturesBtnPressed();
+      }										
+    }	
+  });
+*/
+  replaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
+
+    this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
+
+    if(! this.previouslySelectedIndicator){
+      this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
     }
-						/* 
-
-							this.$on("indicatortMapDisplayFinished", function(){
-								// trigger the continous display of current filter									
-								if(! this.reappliedFilter){
-									this.reappliedFilter = true;
-									if (this.showSelectionByFeatureSpatialFilter){
-										this.onSelectionByFeatureSpatialFilterSelectBtnPressed();
-									}
-									if (this.showManualSelectionSpatialFilter){
-										this.onManualSelectionBySelectedMapFeaturesBtnPressed();
-									}										
-								}	
-							});
-  */
-							replaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
-
-								this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
-
-								if(! this.previouslySelectedIndicator){
-									this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
-								}
-								if(! this.previouslySelectedSpatialUnit){
-									this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
-								}
-
-								// if(this.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
-								if(this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
-									// reset filter component
-									if (this.showSelectionByFeatureSpatialFilter)
-										this.updateSelectableAreas("byFeature");
-										this.filterHelperService.clearFilteredFeatures();
-										this.filterHelperService.clearSelectedFeatures();
-									if (this.showManualSelectionSpatialFilter)
-										this.updateSelectableAreas("manual");
-										this.filterHelperService.clearFilteredFeatures();
-										this.filterHelperService.clearSelectedFeatures();
-								}
-
-								this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
-								this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
-								
-							}
-
-							updateIndicatorValueRangeFilter([date, indicatorMetadataAndGeoJSON]) {
-
-									this.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
-
-							}
-
-							setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON){
-                // hier
-								date = this.INDICATOR_DATE_PREFIX + date;
-
-								if(this.rangeSliderForFilter){
-									this.exchangeData.rangeFilterData = undefined;
-									this.rangeSliderForFilter.destroy();
-
-									var domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
-
-                  if(domNode && domNode.lastChild) {
-                    while (domNode.hasChildNodes()) {
-                      domNode.removeChild(domNode.lastChild);
-                    }
-                  }
-								}
-
-								this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
-
-								var values:any[] = [];
-
-								this.indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature:any) => {
-									// if (feature.properties[date] > movMaxValue)
-									// 	movMaxValue = feature.properties[date];
-									//
-									// else if (feature.properties[date] < movMinValue)
-									// 	movMinValue = feature.properties[date];
-
-									if(! this.dataExchangeService.indicatorValueIsNoData(feature.properties[date])){
-											values.push(feature.properties[date]);
-									}
-								});
-
-								if(values.length === 0){
-									console.warn("Filter range slider cannot be created, as there is no valid indicator value on the selected dataset for the selected date.");
-									return ;
-								}
-
-								//sort ascending order
-								values.sort(function(a, b){return a-b});
-
-								// initialize and fill in loop
-								this.valueRangeMinValue = values[0];
-								this.valueRangeMaxValue = values[values.length - 1];
-
-								this.valueRangeMinValue = this.dataExchangeService.getIndicatorValue_asNumber(this.valueRangeMinValue);
-								this.valueRangeMaxValue = this.dataExchangeService.getIndicatorValue_asNumber(this.valueRangeMaxValue);
-
-								this.currentLowerFilterValue = this.valueRangeMinValue;
-								this.currentHigherFilterValue = this.valueRangeMaxValue;
-
-								this.inputLowerFilterValue = this.valueRangeMinValue;
-								this.inputHigherFilterValue = this.valueRangeMaxValue;
-
-                this.slider.noUiSlider.updateOptions({
-                  range: {
-                      'min': this.valueRangeMinValue,
-                      'max': this.valueRangeMaxValue
-                  },
-                  start: [this.valueRangeMinValue, this.valueRangeMaxValue],
-                  step: 0.01,
-                  tooltips: true,
-                  pips: {
-                    mode: 'range',
-                    density: 25
-                  }
-                });
-              
-                this.slider.noUiSlider.on('set', () => {
-                  this.onChangeRangeFilter(this.getFormatedSliderReturn());
-                });
+    if(! this.previouslySelectedSpatialUnit){
+      this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
+    }
+
+    // if(this.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+    if(this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+      // reset filter component
+      if (this.showSelectionByFeatureSpatialFilter)
+        this.updateSelectableAreas("byFeature");
+        this.filterHelperService.clearFilteredFeatures();
+        this.filterHelperService.clearSelectedFeatures();
+      if (this.showManualSelectionSpatialFilter)
+        this.updateSelectableAreas("manual");
+        this.filterHelperService.clearFilteredFeatures();
+        this.filterHelperService.clearSelectedFeatures();
+    }
+
+    this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
+    this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
+    
+  }
+
+  updateIndicatorValueRangeFilter([date, indicatorMetadataAndGeoJSON]) {
+
+    this.defaultRangeSliderSetup = { date: date, geoJson: indicatorMetadataAndGeoJSON};
+
+    this.dataExchangeService.rangeFilterIsApplied = false;
+    this.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
+  }
+
+  setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON){
+    // hier
+    date = this.INDICATOR_DATE_PREFIX + date;
+
+    if(this.rangeSliderForFilter){
+      this.exchangeData.rangeFilterData = undefined;
+      this.rangeSliderForFilter.destroy();
+
+      var domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
+
+      if(domNode && domNode.lastChild) {
+        while (domNode.hasChildNodes()) {
+          domNode.removeChild(domNode.lastChild);
+        }
+      }
+    }
+
+    this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
+
+    var values:any[] = [];
+
+    this.indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature:any) => {
+      // if (feature.properties[date] > movMaxValue)
+      // 	movMaxValue = feature.properties[date];
+      //
+      // else if (feature.properties[date] < movMinValue)
+      // 	movMinValue = feature.properties[date];
+
+      if(! this.dataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+          values.push(feature.properties[date]);
+      }
+    });
+
+    if(values.length === 0){
+      console.warn("Filter range slider cannot be created, as there is no valid indicator value on the selected dataset for the selected date.");
+      return ;
+    }
+
+    //sort ascending order
+    values.sort(function(a, b){return a-b});
+
+    // initialize and fill in loop
+    this.valueRangeMinValue = values[0];
+    this.valueRangeMaxValue = values[values.length - 1];
+
+    this.valueRangeMinValue = this.dataExchangeService.getIndicatorValue_asNumber(this.valueRangeMinValue);
+    this.valueRangeMaxValue = this.dataExchangeService.getIndicatorValue_asNumber(this.valueRangeMaxValue);
+
+    this.currentLowerFilterValue = this.valueRangeMinValue;
+    this.currentHigherFilterValue = this.valueRangeMaxValue;
+
+    this.inputLowerFilterValue = this.valueRangeMinValue;
+    this.inputHigherFilterValue = this.valueRangeMaxValue;
+
+    this.slider.noUiSlider.updateOptions({
+      range: {
+          'min': this.valueRangeMinValue,
+          'max': this.valueRangeMaxValue
+      },
+      start: [this.valueRangeMinValue, this.valueRangeMaxValue],
+      step: 0.01,
+      tooltips: true,
+      pips: {
+        mode: 'range',
+        density: 25
+      }
+    });
+  
+    this.slider.noUiSlider.on('set', () => {
+      this.onChangeRangeFilter(this.getFormatedSliderReturn());
+    });
 
-							};
+  };
 
-              getFormatedSliderReturn() {
-
-                let data = this.slider.noUiSlider.get(true);
-                
-                return {
-                  from: data[0],
-                  to: data[1]
-                };
-              }
-
-							onChangeLowerFilterValue(value){
-
-								this.inputLowerFilterValue = value;
-
-                this.updateFilterRangeSlideronInputChange();
-
-								if((this.inputLowerFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.valueRangeMaxValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){	
-									this.currentLowerFilterValue = this.inputLowerFilterValue;
-									this.lowerFilterInputNotValid = false;
-									this.rangeSliderForFilter.update({
-											from: this.currentLowerFilterValue,
-											to: this.currentHigherFilterValue
-									});
-
-									this.applyRangeFilter();
-								}
-								else{
-									this.lowerFilterInputNotValid = true;
-								}
-							};
-
-              updateFilterRangeSlideronInputChange() {
-
-                this.slider.noUiSlider.updateOptions({
-                  start: [this.inputLowerFilterValue, this.inputHigherFilterValue]
-                });
-              }
-
-							onChangeHigherFilterValue(value){
-
-								this.inputHigherFilterValue = value;
-
-                this.updateFilterRangeSlideronInputChange();
-
-								if((this.inputHigherFilterValue <= this.valueRangeMaxValue) && (this.inputHigherFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){
-									this.currentHigherFilterValue = this.inputHigherFilterValue;
-									this.higherFilterInputNotValid = false;
-									this.rangeSliderForFilter.update({
-											from: this.currentLowerFilterValue,
-											to: this.currentHigherFilterValue
-									});
-
-									this.applyRangeFilter();
-								}
-								else{
-									this.higherFilterInputNotValid = true;
-								}
-							};
-
-							onChangeRangeFilter (data) {
-								// Called every time handle position is changed
-								this.exchangeData.rangeFilterData = data;
-
-								this.lowerFilterInputNotValid = false;
-								this.higherFilterInputNotValid = false;
-
-								this.currentLowerFilterValue = data.from;
-								this.inputLowerFilterValue = data.from;
+  getFormatedSliderReturn() {
 
-                (<HTMLInputElement>document.getElementById('inputLowerValue')).value = this.inputLowerFilterValue;
-
-								this.currentHigherFilterValue = data.to;
-								this.inputHigherFilterValue = data.to;
-
-								(<HTMLInputElement>document.getElementById('inputHigherValue')).value = this.inputHigherFilterValue;
+    let data = this.slider.noUiSlider.get(true);
+    
+    return {
+      from: data[0],
+      to: data[1]
+    };
+  }
 
-								this.applyRangeFilter();
-							};
-
-							applyRangeFilter(){
-
-								var dateProperty = this.INDICATOR_DATE_PREFIX + this.exchangeData.selectedDate;
-
-								this.filterHelperService.applyRangeFilter(this.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, this.currentLowerFilterValue, this.currentHigherFilterValue);
+  onChangeLowerFilterValue(value){
 
-								//this.$digest();
-							}
+    this.inputLowerFilterValue = value;
 
-							onChangeUseMeasureOfValue(){
-
-                let middle = this.valueRangeMinValue + ((this.valueRangeMaxValue-this.valueRangeMinValue)/2);
-
-                this.measureSlider.noUiSlider.updateOptions({
-                  range: {
-                      'min': this.valueRangeMinValue,
-                      'max': this.valueRangeMaxValue
-                  },
-                  start: [middle],
-                  connect: [true, false],
-                  step: 0.01,
-                  tooltips: true,
-                  pips: {
-                    mode: 'range',
-                    density: 25
-                  }
-                });
-              
-                this.measureSlider.noUiSlider.on('set', () => {
-                  let data = this.measureSlider.noUiSlider.get(true);
-
-                  this.exchangeData.measureOfValue = data;
-                  this.onMeasureOfValueChangeByText();
-                });
-
-								if(this.exchangeData.isBalanceChecked){
-
-                  // todo
-								/* 	$rootScope.$broadcast("DisableBalance");
-									$rootScope.$broadcast("updateIndicatorValueRangeFilter", this.exchangeData.selectedDate, this.exchangeData.selectedIndicator); */
-									//replace displayed indicator on map
-									this.filterHelperService.filterAndReplaceDataset();
-									// kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, true);
-								}
-								else{
-									this.mapService.restyleCurrentLayer();
-								}
-
-							};
-
-              // todo
-						/* 	this.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
-
-									this.updateMeasureOfValueBar(date, indicatorMetadataAndGeoJSON);
-
-							}); */
-
-							updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]){
-
-								//append date prefix to access correct property!
-								date = this.INDICATOR_DATE_PREFIX + date;
-								var geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
-
-								// var measureOfValueInput = document.getElementById("measureOfValueInput");
-
-								var values:any[] = [];
-
-								geoJSON.features.forEach((feature:any) => {
-									// if (feature.properties[date] > movMaxValue)
-									// 	movMaxValue = feature.properties[date];
-									//
-									// else if (feature.properties[date] < movMinValue)
-									// 	movMinValue = feature.properties[date];
-
-									if(! this.dataExchangeService.indicatorValueIsNoData(feature.properties[date])){
-											values.push(feature.properties[date]);
-									}
-								});
-
-								//sort ascending order
-								values.sort(function(a, b){return a-b});
-
-								this.movMinValue = +Number(values[0]).toFixed(this.numberOfDecimals);
-								this.movMaxValue = +Number(values[values.length - 1]).toFixed(this.numberOfDecimals);
-
-								this.movMiddleValue = +((this.movMaxValue + this.movMinValue) / 2).toFixed(this.numberOfDecimals);
-								// this.movStep = +((this.movMaxValue - this.movMinValue)/35).toFixed(numberOfDecimals);
-								this.movStep = 0.01;
-
-								// measureOfValueInput.setAttribute("min", this.movMinValue);
-								// measureOfValueInput.setAttribute("max", this.movMaxValue);
-								// measureOfValueInput.setAttribute("movStep", this.movStep);
-								// measureOfValueInput.setAttribute("value", this.movMiddleValue);
-
-								this.exchangeData.measureOfValue = this.movMiddleValue;
-
-								var measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
-								measureOfValueTextInput.setAttribute("min", this.movMinValue);
-								measureOfValueTextInput.setAttribute("max", this.movMaxValue);
-								measureOfValueTextInput.setAttribute("value", this.movMiddleValue);
-								measureOfValueTextInput.setAttribute("step", this.movStep);
-
-								if(this.movRangeSlider){
-									this.movRangeSlider.destroy();
-
-									var domNode = <HTMLInputElement>document.getElementById("measureOfValueInput");
-
-                  if(domNode && domNode.lastChild) {
-                    while (domNode.hasChildNodes()) {
-                      domNode.removeChild(domNode.lastChild);
-                    }
-                  }
-								}
-                
-                let middle = this.movMinValue + ((this.movMaxValue-this.movMinValue)/2);
-
-                this.measureSlider.noUiSlider.updateOptions({
-                  range: {
-                      'min': this.movMinValue,
-                      'max': this.movMaxValue
-                  },
-                  start: [middle],
-                  connect: [true, false],
-                  step: 0.01,
-                  tooltips: true,
-                  pips: {
-                    mode: 'range',
-                    density: 25
-                  }
-                });
-
-								this.inputNotValid = false;
-
-							};
-
-							onMeasureOfValueChange(data){
-
-								this.exchangeData.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
-
-								// this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
-
-								if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
-									this.inputNotValid = false;
-									// todo 
-                  // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
-									this.mapService.restyleCurrentLayer();
-								}
-								else{
-									this.inputNotValid = true;
-								}
-
-							};
-
-							onMeasureOfValueChangeByText(){
-
-								this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(this.numberOfDecimals);
-
-								// this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
-
-								if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
-									this.inputNotValid = false;
-                  
-									// todo 
-								/* 	this.movRangeSlider.update({
-							        from: this.exchangeData.measureOfValue
-							    }); */
-                  // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
-									this.mapService.restyleCurrentLayer();
-								}
-								else{
-									this.inputNotValid = true;
-								}
-
-							};
-
-							updateSelectableAreas(selectionType) {
-
-								this.loadingData = true;
-								//send request to datamanagement API
-								let selectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
-								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
-								let upperSpatialUnitId = undefined;
-								
-								// spatial filter not applicable since no upper spatial unit is available or selected
-								if(! this.selectedSpatialUnitForFilter){
-									this.loadingData = false;
-									return;
-								}
-
-								if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
-									upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
-								}
-								let selectedIndicatorId = this.exchangeData.selectedIndicator.indicatorId;
-
-								// example: 2020-12-31
-								let selectedDateComponents = this.exchangeData.selectedDate.split("-");
-
-								//build request
-								let datePath = "";
-								if(selectedDateComponents && selectedDateComponents.length && selectedDateComponents.length == 3){
-									datePath = selectedDateComponents[0] + "/" + selectedDateComponents[1] + "/" + selectedDateComponents[2];
-								}
-								else{
-									// fallback option, if no valid date could be used
-									datePath = "allFeatures";
-								}
-								let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-									"/spatial-units/" + selectedSpatialUnitId + "/" + datePath;
-								
-								if (selectionType === "byFeature" && upperSpatialUnitId)
-									url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-									"/spatial-units/" + upperSpatialUnitId + "/" + datePath;
-
-								//send request
-                this.http.get(url).subscribe({
-                  next: response => {
-                    let areaNames:any[] = [];
-                    response['features'].forEach( (obj, id) => {
-                      areaNames.push({name: obj.properties[window.__env.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[window.__env.FEATURE_ID_PROPERTY_NAME]});
-                    });
-
-                    if (selectionType === "manual") {
-                      this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
-                      let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
-                      this.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
-                    }
-
-                    if (selectionType === "byFeature") {
-                      this.higherSpatialUnitFilterFeatureGeoJSON = response;
-                      this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-                      let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
-                      this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
-                    }
-
-                    this.loadingData = false;
-                    this.reloadList = !this.reloadList;
-                  }, 
-                  error: error => {
-
-                  }
-                })
-               
-							};
-
-							onChangeShowManualSelection(checked) {
-
-								this.showManualSelectionSpatialFilter = checked;
-
-								// return if toggle was deactivated
-								if(!this.showManualSelectionSpatialFilter)
-									this.onManualSelectionSpatialFilterResetBtnPressed();						
-								else {
-									this.showSelectionByFeatureSpatialFilter = false;
-									this.onManualSelectionSpatialFilterResetBtnPressed();								
-								}
-							};
-
-							onChangeShowSelectionByFeature(checked) {
-
-								this.showSelectionByFeatureSpatialFilter = checked;
-
-								// return if toggle was deactivated
-								if(!this.showSelectionByFeatureSpatialFilter)
-									this.onSelectionByFeatureSpatialFilterResetBtnPressed();
-								else {
-									this.showManualSelectionSpatialFilter = false;
-									this.onSelectionByFeatureSpatialFilterResetBtnPressed();								
-								}
-							};
-
-							onChangeSelectedSpatialUnitForFilter(){
-
-								this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(e => e.spatialUnitId==this.spatialLevel.value)[0];
-
-								if (this.showSelectionByFeatureSpatialFilter) 
-									this.updateSelectableAreas("byFeature");
-
-								if(this.showManualSelectionSpatialFilter){
-									this.updateSelectableAreas("manual");
-								}
-							};
-
-							onSelectionByFeatureSpatialFilterSelectBtnPressed(){
-								if(this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems && this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length > 0){
-                  
-									// objects like {category: category, name:name}									
-									//this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems
-									let targetFeatureNames = this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
-                  console.log(this.higherSpatialUnitFilterFeatureGeoJSON,targetFeatureNames)
-									this.filterHelperService.applySpatialFilter_higherSpatialUnitFeatures(this.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
-								}
-							};
-
-							onSelectionByFeatureSpatialFilterResetBtnPressed(){
-								this.updateSelectableAreas("byFeature");
-
-								this.filterHelperService.clearFilteredFeatures();
-								this.filterHelperService.filterAndReplaceDataset();
-								if(this.exchangeData.useNoDataToggle) {
-									// todo $rootScope.$broadcast('applyNoDataDisplay')	
-                }
-							};
-
-							onManualSelectionSpatialFilterSelectBtnPressed(){
-								if(this.manualSelectionSpatialFilterDuallistOptions.selectedItems && this.manualSelectionSpatialFilterDuallistOptions.selectedItems.length > 0){
-									// objects like {category: category, name:name}									
-									//this.manualSelectionSpatialFilterDuallistOptions.selectedItems
-									let targetFeatureNames = this.manualSelectionSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
-
-									this.filterHelperService.applySpatialFilter_currentSpatialUnitFeatures(targetFeatureNames);
-								}
-							};
-
-							onManualSelectionSpatialFilterResetBtnPressed(){
-								this.updateSelectableAreas("manual");
-
-								this.filterHelperService.clearFilteredFeatures();
-								this.filterHelperService.filterAndReplaceDataset();
-								if(this.exchangeData.useNoDataToggle) {
-									// todo $rootScope.$broadcast('applyNoDataDisplay')	
-                }
-							};
-
-							onManualSelectionBySelectedMapFeaturesBtnPressed(){
-								// manage duallist items display
-								this.manageManualDualList_fromMapSelection();
-								
-								// apply spatial filter from selected map features
-								this.onManualSelectionSpatialFilterSelectBtnPressed();
-							};
-
-							manageManualDualList_fromMapSelection(){
-								this.manualSelectionSpatialFilterDuallistOptions.items = this.manualSelectionSpatialFilterDuallistOptions.items.concat(this.manualSelectionSpatialFilterDuallistOptions.selectedItems);
-								this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
-
-								this.manualSelectionSpatialFilterDuallistOptions.selectedItems = this.manualSelectionSpatialFilterDuallistOptions.items.filter((item:any) => this.filterHelperService.featureIsCurrentlySelected(item.id));								
-								this.manualSelectionSpatialFilterDuallistOptions.items = this.manualSelectionSpatialFilterDuallistOptions.items.filter((item:any) => ! this.filterHelperService.featureIsCurrentlySelected(item.id));								
-							};
-
-							// $rootScope.$on("changeSpatialUnit", function() {
-							// 	if (this.showSelectionByFeatureSpatialFilter)
-							// 		this.updateSelectableAreas("byFeature");
-							// 	if (this.showManualSelectionSpatialFilter)
-							// 		this.updateSelectableAreas("manual");
-							// });
-
-							//TODO on indicator change
+    this.updateFilterRangeSlideronInputChange();
+
+    if((this.inputLowerFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.valueRangeMaxValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){	
+      this.currentLowerFilterValue = this.inputLowerFilterValue;
+      this.lowerFilterInputNotValid = false;
+      this.rangeSliderForFilter.update({
+          from: this.currentLowerFilterValue,
+          to: this.currentHigherFilterValue
+      });
+
+      this.applyRangeFilter();
+    }
+    else{
+      this.lowerFilterInputNotValid = true;
+    }
+  };
+
+  updateFilterRangeSlideronInputChange() {
+
+    this.slider.noUiSlider.updateOptions({
+      start: [this.inputLowerFilterValue, this.inputHigherFilterValue]
+    });
+  }
+
+  onChangeHigherFilterValue(value){
+
+    this.inputHigherFilterValue = value;
+
+    this.updateFilterRangeSlideronInputChange();
+
+    if((this.inputHigherFilterValue <= this.valueRangeMaxValue) && (this.inputHigherFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){
+      this.currentHigherFilterValue = this.inputHigherFilterValue;
+      this.higherFilterInputNotValid = false;
+      this.rangeSliderForFilter.update({
+          from: this.currentLowerFilterValue,
+          to: this.currentHigherFilterValue
+      });
+
+      this.applyRangeFilter();
+    }
+    else{
+      this.higherFilterInputNotValid = true;
+    }
+  };
+
+  onChangeRangeFilter (data) {
+    // Called every time handle position is changed
+    this.exchangeData.rangeFilterData = data;
+
+    this.lowerFilterInputNotValid = false;
+    this.higherFilterInputNotValid = false;
+
+    this.currentLowerFilterValue = data.from;
+    this.inputLowerFilterValue = data.from;
+
+    (<HTMLInputElement>document.getElementById('inputLowerValue')).value = this.inputLowerFilterValue;
+
+    this.currentHigherFilterValue = data.to;
+    this.inputHigherFilterValue = data.to;
+
+    (<HTMLInputElement>document.getElementById('inputHigherValue')).value = this.inputHigherFilterValue;
+
+    this.applyRangeFilter();
+  };
+
+  applyRangeFilter(){
+
+    this.dataExchangeService.rangeFilterIsApplied = false;
+    if(this.inputHigherFilterValue < this.valueRangeMaxValue || this.inputLowerFilterValue > this.valueRangeMinValue) {
+      this.dataExchangeService.rangeFilterIsApplied = true;
+    }
+
+    var dateProperty = this.INDICATOR_DATE_PREFIX + this.exchangeData.selectedDate;
+
+    this.filterHelperService.applyRangeFilter(this.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, this.currentLowerFilterValue, this.currentHigherFilterValue);
+  }
+
+  onChangeUseMeasureOfValue(){
+
+    let middle = this.valueRangeMinValue + ((this.valueRangeMaxValue-this.valueRangeMinValue)/2);
+
+    this.measureSlider.noUiSlider.updateOptions({
+      range: {
+          'min': this.valueRangeMinValue,
+          'max': this.valueRangeMaxValue
+      },
+      start: [middle],
+      connect: [true, false],
+      step: 0.01,
+      tooltips: true,
+      pips: {
+        mode: 'range',
+        density: 25
+      }
+    });
+  
+    this.measureSlider.noUiSlider.on('set', () => {
+      let data = this.measureSlider.noUiSlider.get(true);
+
+      this.exchangeData.measureOfValue = data;
+      this.onMeasureOfValueChangeByText();
+    });
+
+    if(this.exchangeData.isBalanceChecked){
+
+      // todo
+    /* 	$rootScope.$broadcast("DisableBalance");
+      $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.exchangeData.selectedDate, this.exchangeData.selectedIndicator); */
+      //replace displayed indicator on map
+      this.filterHelperService.filterAndReplaceDataset();
+      // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, true);
+    }
+    else{
+      this.mapService.restyleCurrentLayer();
+    }
+
+  };
+
+  // todo
+/* 	this.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
+
+      this.updateMeasureOfValueBar(date, indicatorMetadataAndGeoJSON);
+
+  }); */
+
+  updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]){
+
+    //append date prefix to access correct property!
+    date = this.INDICATOR_DATE_PREFIX + date;
+    var geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
+
+    // var measureOfValueInput = document.getElementById("measureOfValueInput");
+
+    var values:any[] = [];
+
+    geoJSON.features.forEach((feature:any) => {
+      // if (feature.properties[date] > movMaxValue)
+      // 	movMaxValue = feature.properties[date];
+      //
+      // else if (feature.properties[date] < movMinValue)
+      // 	movMinValue = feature.properties[date];
+
+      if(! this.dataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+          values.push(feature.properties[date]);
+      }
+    });
+
+    //sort ascending order
+    values.sort(function(a, b){return a-b});
+
+    this.movMinValue = +Number(values[0]).toFixed(this.numberOfDecimals);
+    this.movMaxValue = +Number(values[values.length - 1]).toFixed(this.numberOfDecimals);
+
+    this.movMiddleValue = +((this.movMaxValue + this.movMinValue) / 2).toFixed(this.numberOfDecimals);
+    // this.movStep = +((this.movMaxValue - this.movMinValue)/35).toFixed(numberOfDecimals);
+    this.movStep = 0.01;
+
+    // measureOfValueInput.setAttribute("min", this.movMinValue);
+    // measureOfValueInput.setAttribute("max", this.movMaxValue);
+    // measureOfValueInput.setAttribute("movStep", this.movStep);
+    // measureOfValueInput.setAttribute("value", this.movMiddleValue);
+
+    this.exchangeData.measureOfValue = this.movMiddleValue;
+
+    var measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
+    measureOfValueTextInput.setAttribute("min", this.movMinValue);
+    measureOfValueTextInput.setAttribute("max", this.movMaxValue);
+    measureOfValueTextInput.setAttribute("value", this.movMiddleValue);
+    measureOfValueTextInput.setAttribute("step", this.movStep);
+
+    if(this.movRangeSlider){
+      this.movRangeSlider.destroy();
+
+      var domNode = <HTMLInputElement>document.getElementById("measureOfValueInput");
+
+      if(domNode && domNode.lastChild) {
+        while (domNode.hasChildNodes()) {
+          domNode.removeChild(domNode.lastChild);
+        }
+      }
+    }
+    
+    let middle = this.movMinValue + ((this.movMaxValue-this.movMinValue)/2);
+
+    this.measureSlider.noUiSlider.updateOptions({
+      range: {
+          'min': this.movMinValue,
+          'max': this.movMaxValue
+      },
+      start: [middle],
+      connect: [true, false],
+      step: 0.01,
+      tooltips: true,
+      pips: {
+        mode: 'range',
+        density: 25
+      }
+    });
+
+    this.inputNotValid = false;
+
+  };
+
+  onMeasureOfValueChange(data){
+
+    this.exchangeData.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
+
+    // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
+
+    if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
+      this.inputNotValid = false;
+      // todo 
+      // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
+      this.mapService.restyleCurrentLayer();
+    }
+    else{
+      this.inputNotValid = true;
+    }
+
+  };
+
+  onMeasureOfValueChangeByText(){
+
+    this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(this.numberOfDecimals);
+
+    // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
+
+    if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
+      this.inputNotValid = false;
+      
+      // todo 
+    /* 	this.movRangeSlider.update({
+          from: this.exchangeData.measureOfValue
+      }); */
+      // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
+      this.mapService.restyleCurrentLayer();
+    }
+    else{
+      this.inputNotValid = true;
+    }
+
+  };
+
+  updateSelectableAreas(selectionType) {
+
+    this.loadingData = true;
+    //send request to datamanagement API
+    let selectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
+    let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
+    let upperSpatialUnitId = undefined;
+    
+    // spatial filter not applicable since no upper spatial unit is available or selected
+    if(! this.selectedSpatialUnitForFilter){
+      this.loadingData = false;
+      return;
+    }
+
+    if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
+      upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
+    }
+    let selectedIndicatorId = this.exchangeData.selectedIndicator.indicatorId;
+
+    // example: 2020-12-31
+    let selectedDateComponents = this.exchangeData.selectedDate.split("-");
+
+    //build request
+    let datePath = "";
+    if(selectedDateComponents && selectedDateComponents.length && selectedDateComponents.length == 3){
+      datePath = selectedDateComponents[0] + "/" + selectedDateComponents[1] + "/" + selectedDateComponents[2];
+    }
+    else{
+      // fallback option, if no valid date could be used
+      datePath = "allFeatures";
+    }
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      "/spatial-units/" + selectedSpatialUnitId + "/" + datePath;
+    
+    if (selectionType === "byFeature" && upperSpatialUnitId)
+      url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      "/spatial-units/" + upperSpatialUnitId + "/" + datePath;
+
+    //send request
+    this.http.get(url).subscribe({
+      next: response => {
+        let areaNames:any[] = [];
+        response['features'].forEach( (obj, id) => {
+          areaNames.push({name: obj.properties[window.__env.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[window.__env.FEATURE_ID_PROPERTY_NAME]});
+        });
+
+        if (selectionType === "manual") {
+          this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
+          let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
+          this.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
+        }
+
+        if (selectionType === "byFeature") {
+          this.higherSpatialUnitFilterFeatureGeoJSON = response;
+          this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
+          let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
+          this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
+        }
+
+        this.loadingData = false;
+        this.reloadList = !this.reloadList;
+      }, 
+      error: error => {
+
+      }
+    })
+    
+  };
+
+  onChangeShowManualSelection(checked) {
+
+    this.showManualSelectionSpatialFilter = checked;
+
+    // return if toggle was deactivated
+    if(!this.showManualSelectionSpatialFilter)
+      this.onManualSelectionSpatialFilterResetBtnPressed();						
+    else {
+      this.showSelectionByFeatureSpatialFilter = false;
+      this.onManualSelectionSpatialFilterResetBtnPressed();								
+    }
+  };
+
+  onChangeShowSelectionByFeature(checked) {
+
+    this.showSelectionByFeatureSpatialFilter = checked;
+
+    // return if toggle was deactivated
+    if(!this.showSelectionByFeatureSpatialFilter)
+      this.onSelectionByFeatureSpatialFilterResetBtnPressed();
+    else {
+      this.showManualSelectionSpatialFilter = false;
+      this.onSelectionByFeatureSpatialFilterResetBtnPressed();								
+    }
+  };
+
+  onChangeSelectedSpatialUnitForFilter(){
+
+    this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(e => e.spatialUnitId==this.spatialLevel.value)[0];
+
+    if (this.showSelectionByFeatureSpatialFilter) 
+      this.updateSelectableAreas("byFeature");
+
+    if(this.showManualSelectionSpatialFilter){
+      this.updateSelectableAreas("manual");
+    }
+  };
+
+  onSelectionByFeatureSpatialFilterSelectBtnPressed(){
+    if(this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems && this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length > 0){
+      
+      // objects like {category: category, name:name}									
+      //this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems
+      let targetFeatureNames = this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
+      console.log(this.higherSpatialUnitFilterFeatureGeoJSON,targetFeatureNames)
+      this.filterHelperService.applySpatialFilter_higherSpatialUnitFeatures(this.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
+    }
+  };
+
+  onSelectionByFeatureSpatialFilterResetBtnPressed(){
+    this.updateSelectableAreas("byFeature");
+
+    this.filterHelperService.clearFilteredFeatures();
+    this.filterHelperService.filterAndReplaceDataset();
+    if(this.exchangeData.useNoDataToggle) {
+      // todo $rootScope.$broadcast('applyNoDataDisplay')	
+    }
+  };
+
+  onManualSelectionSpatialFilterSelectBtnPressed(){
+    if(this.manualSelectionSpatialFilterDuallistOptions.selectedItems && this.manualSelectionSpatialFilterDuallistOptions.selectedItems.length > 0){
+      // objects like {category: category, name:name}									
+      //this.manualSelectionSpatialFilterDuallistOptions.selectedItems
+      let targetFeatureNames = this.manualSelectionSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
+
+      this.filterHelperService.applySpatialFilter_currentSpatialUnitFeatures(targetFeatureNames);
+    }
+  };
+
+  onManualSelectionSpatialFilterResetBtnPressed(){
+    this.updateSelectableAreas("manual");
+
+    this.filterHelperService.clearFilteredFeatures();
+    this.filterHelperService.filterAndReplaceDataset();
+    if(this.exchangeData.useNoDataToggle) {
+      // todo $rootScope.$broadcast('applyNoDataDisplay')	
+    }
+  };
+
+  onManualSelectionBySelectedMapFeaturesBtnPressed(){
+    // manage duallist items display
+    this.manageManualDualList_fromMapSelection();
+    
+    // apply spatial filter from selected map features
+    this.onManualSelectionSpatialFilterSelectBtnPressed();
+  };
+
+  manageManualDualList_fromMapSelection(){
+    this.manualSelectionSpatialFilterDuallistOptions.items = this.manualSelectionSpatialFilterDuallistOptions.items.concat(this.manualSelectionSpatialFilterDuallistOptions.selectedItems);
+    this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
+
+    this.manualSelectionSpatialFilterDuallistOptions.selectedItems = this.manualSelectionSpatialFilterDuallistOptions.items.filter((item:any) => this.filterHelperService.featureIsCurrentlySelected(item.id));								
+    this.manualSelectionSpatialFilterDuallistOptions.items = this.manualSelectionSpatialFilterDuallistOptions.items.filter((item:any) => ! this.filterHelperService.featureIsCurrentlySelected(item.id));								
+  };
+
+  removeRangeFilter() {
+    this.setupRangeSliderForFilter(this.defaultRangeSliderSetup.date,this.defaultRangeSliderSetup.geoJson);
+
+  }
+
+  // $rootScope.$on("changeSpatialUnit", function() {
+  // 	if (this.showSelectionByFeatureSpatialFilter)
+  // 		this.updateSelectableAreas("byFeature");
+  // 	if (this.showManualSelectionSpatialFilter)
+  // 		this.updateSelectableAreas("manual");
+  // });
+
+  //TODO on indicator change
 }

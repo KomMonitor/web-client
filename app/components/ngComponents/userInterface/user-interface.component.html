@@ -57,13 +57,13 @@
       </button> 
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
-        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse')}" data-toggle="tooltip" title="Darstellungsfilter">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse'), 'filterActive':filterModusActive()}" data-toggle="tooltip" title="Darstellungsfilter">
           <i style="font-size:2.5vh;" class="fas fa-filter"></i>
       </button>
 
       <div>
         <button type="button" style="display: block; position: relative; margin-top: 5px;" 
-          (mouseover)="onDiagramSubMenuOver()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened()}" data-toggle="tooltip" title="statistische Diagramme">
+          (mouseover)="onDiagramSubMenuOver()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened(), 'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="statistische Diagramme">
             <i style="font-size:2.5vh;" class="fas fa-chart-simple"></i>
         </button>
         
@@ -71,7 +71,7 @@
 
           <div class="subMenuButtonWrapper">
             <button type="button" style="display: block; position: relative;" id="sidebarBalanceCollapse"
-              (click)="onDiagramSubMenuButtonClick($event)" [ngClass]="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
+              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="zeitliche Bilanzierung">
                 <i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
             </button>
             <div>
@@ -152,6 +152,40 @@
           <i style="font-size:1.5em;margin-left:-5px;" class="fas fa-layer-group"></i>
       </button>
     </div>		
+
+
+    <div id="statusButtonContainer">
+      <div id="filterStatusButtonContainer"
+        *ngIf="globalFilterHelperService.globalFilterApplied() || dataExchangeService.isMeasureOfValueChecked || dataExchangeService.rangeFilterIsApplied">
+        <div *ngIf="globalFilterHelperService.globalFilterApplied()" 
+              id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
+          <i class="fas fa-filter"></i>
+          <span (click)="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
+          <i class="fas fa-close" (click)="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
+        </div>
+        <div *ngIf="dataExchangeService.isMeasureOfValueChecked" 
+              id="filterNoticeButton" class="btn btn-warning btn-xs" title="Schwellenwertklassifizierung aktiviert">
+          <i class="fas fa-filter"></i>
+          <span (click)="openFilterSidebar()" style="margin: 3px;">Schwellenwert aktiviert </span>
+          <i class="fas fa-close" (click)="onMOVCloseButtonClick()" title="Filter entfernen"></i>
+        </div>
+        <div *ngIf="dataExchangeService.rangeFilterIsApplied" 
+              id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
+          <i class="fas fa-filter"></i>
+          <span (click)="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
+          <i class="fas fa-close" (click)="onRangeFilterCloseButtonClick()" title="Filter entfernen"></i>
+        </div>
+      </div>
+      <div id="balanceStatusButton">
+        <span *ngIf="dataExchangeService.isBalanceChecked" 
+              id="balanceNoticeButton" class="btn btn-warning btn-xs" title="Bilanzierung aktiviert">
+          <i class ="fas fa-chart-line"></i>
+          <span (click)="openBalanceSidebar()" style="margin: 3px;">Bilanzierung aktiviert </span>
+          <i class="fas fa-close" (click)="onBalanceCloseButtonClick()" title="Bilanzierung entfernen"></i>
+        </span>
+      </div>
+    </div>
+
     
     <div id="dateSliderWrapper">
       <div id="dateSlider"></div>

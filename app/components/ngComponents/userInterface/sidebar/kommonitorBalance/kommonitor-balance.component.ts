@@ -40,6 +40,9 @@ export class KommonitorBalanceComponent implements OnInit {
             // hier war mal ein 1000 timeout
             this.setupRangeSliderForBalance(values);
         } break;
+        case 'disableBalance' : {
+          this.disableBalance();
+        } break;
       }
     });
   }
@@ -118,19 +121,15 @@ export class KommonitorBalanceComponent implements OnInit {
     showCompleteTimeseries: true,
     trendComputationType: "linear"
   };
- /*
-						this.$on("DisableBalance", function (event) {
-							this.exchangeData.isBalanceChecked = false;
-							if(this.rangeSliderForBalance){
-								this.rangeSliderForBalance.update({
-										block: true
-								});
-							}
+ 
+  disableBalance() {
+    this.exchangeData.isBalanceChecked = false;
+    if(this.balanceSlider){
+      this.createNewBalanceInstance();
+    }
+  }
 
-							// reanebalbe DateSlider on map
-							$rootScope.$broadcast("EnableDateSlider");
-						});
-
+/*
 						this.$on("replaceBalancedIndicator", function (event) {
 							if(this.exchangeData.isBalanceChecked){
 								this.onChangeUseBalance();

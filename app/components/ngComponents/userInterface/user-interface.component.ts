@@ -29,23 +29,6 @@ export class UserInterfaceComponent implements OnInit {
   authenticated = false;
   password;
   showAdminLogin = false;
-  
-  sidebarIndicatorConfigClass = "disappear";
-  sidebarDiagramsClass = "disappear";
-  sidebarRadarDiagramClass = "disappear";
-  sidebarProcessingClass = "disappear";
-  sidebarRegressionDiagramClass = "disappear";
-  sidebarFilterClass = "disappear";
-  sidebarBalanceClass = "disappear";
-  sidebarReachabilityClass = "disappear";
-  sidebarPoiClass = "disappear";
-  sidebarDataImportClass = "disappear";
-
-  sidebarLegendClass = "";
-
-  // check put "invert" class, in case diagram buttons must be stiled differently
-  buttonFilterClass = "btn btn-custom btn-circle";
-  buttonBalanceClass = "btn btn-custom btn-circle";
 
   sidebarElement = "";
 
@@ -57,7 +40,7 @@ export class UserInterfaceComponent implements OnInit {
     protected visibilityHelperService: ElementVisibilityHelperService,
     private authService: AuthService,
     private favService: FavService,
-    private globalFilterHelperService: GlobalFilterHelperService,
+    protected globalFilterHelperService: GlobalFilterHelperService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private router: Router
   ) {
@@ -101,14 +84,6 @@ export class UserInterfaceComponent implements OnInit {
       //this.openInfoModal();
 
     //this.openReportingModal();
-
-    if (this.exchangeData.spatialFilterIsApplied || this.exchangeData.rangeFilterIsApplied || this.exchangeData.isMeasureOfValueChecked) {
-      this.buttonFilterClass = "btn btn-custom btn-circle filterActive";
-    }
-
-    if (this.exchangeData.isBalanceChecked) {
-      this.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
-    }
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -330,5 +305,34 @@ export class UserInterfaceComponent implements OnInit {
 
     onDiagramSubMenuButtonClick($event) {
       this.onSidebarButtonClick($event);
+    }
+
+    openFilterSidebar() {
+      this.sidebarElement = 'sidebarFilterCollapse';
+    }
+
+    openBalanceSidebar() {
+      this.sidebarElement = 'sidebarBalanceCollapse';
+    }
+
+    onSpatialFilterCloseButtonClick() {
+      this.globalFilterHelperService.reset();
+    }
+    
+    onMOVCloseButtonClick() {
+      this.dataExchangeService.isMeasureOfValueChecked = false;
+    }
+          
+    onRangeFilterCloseButtonClick() {
+      this.broadcastService.broadcast('removeRangeFilter');
+    }
+    
+    onBalanceCloseButtonClick() {
+      this.broadcastService.broadcast('disableBalance');
+    }
+
+    filterModusActive():boolean {
+
+      return this.globalFilterHelperService.globalFilterApplied() || this.dataExchangeService.isMeasureOfValueChecked || this.dataExchangeService.rangeFilterIsApplied;
     }
 }
