@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Classification } from 'components/ngComponents/models/classification.models';
 
 @Component({
   selector: 'app-classification-method-select',
@@ -11,11 +12,12 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   @Input() hiddenMethodIds:any[] = [];
   @Output() onMethodSelect = new EventEmitter<any>();
 
-  selectedMethod;
-  showMethodSelection = false;
+  selectedMethod:Classification | undefined;
+  showMethodSelection:boolean = false;
+  preloadImgs:any[] = [];
 
-  preppedMethods:any[] = [];
-  methods = [
+  preppedMethods:Classification[] = [];
+  methods:Classification[] = [
     {
       name: 'Regionaler Standard', 
       id: 'regional_default', 
@@ -55,6 +57,19 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   prepVals() {
     this.selectedMethod = this.methods.filter(e => e.id==this.defaultMethodId)[0];
     this.preppedMethods = this.methods.filter(e => !this.hiddenMethodIds.includes(e.id));
+
+    this.preppedMethods.forEach(async element => {
+      await this.preloadImage(element.imgPath);
+      this.preloadImgs[element.name] = element.imgPath;
+    });
+  }
+
+  preloadImage(url: string): Promise<void> {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve();
+    });
   }
 
   methodSelected(method) {

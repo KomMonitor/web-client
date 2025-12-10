@@ -171,7 +171,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       on-change was triggerd as well by selecting a global filter. here in some occations the metadata-loading took longer, resulting in an error following this $broadcast("changeSpatialUnit")
       on-click needed some workaround to cover the actual change of selection iso just the initial click or the change by the global filter
     */
-    console.log(this.dataExchangeService.pipedData.selectedSpatialUnit);
 
     if(!this.actualSelectedSpatialUnitId && this.globalFilterActivated) {
       // initial click, no change yet. Define currently selected spatial unit
