@@ -66,6 +66,7 @@ L.Control.GroupedLayers = L.Control.extend({
   },
 
   removeLayer: function (layer) {
+    console.log("hier",layer)
     var id = L.Util.stamp(layer);
     var _layer = this._getLayer(id);
     if (_layer) {
