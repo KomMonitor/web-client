@@ -274,18 +274,19 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupDefaultBrew (geoJSON, propertyName, numClasses, colorCode, classifyMethod, forceProvidedIndicator=false, indicator=false) {
+    
     this.resetFeaturesPerColorObjects();
 
     var values = new Array();
 
-    if(this.dataExchangeService.pipedData.classifyUsingWholeTimeseries){
+    if(this.dataExchangeService.pipedData.classifyUsingWholeTimeseries) {
       values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values, forceProvidedIndicator, indicator);
     }
     else{
       values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
     }
 
-    this.defaultBrew = this.setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);         
+    this.defaultBrew = this.setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
     return this.defaultBrew;
   }
 
@@ -318,12 +319,11 @@ export class VisualStyleHelperServiceNew {
     } else {
       indicatorTimeSeriesDatesArray = this.dataExchangeService.pipedData.selectedIndicator.applicableDates;
     }
-    
 
-      for (const date of indicatorTimeSeriesDatesArray) {
-        var propertyName = window.__env.indicatorDatePrefix + date;
-        values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
-      }          
+    for (const date of indicatorTimeSeriesDatesArray) {
+      var propertyName = window.__env.indicatorDatePrefix + date;
+      values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
+    }          
 
     return values;
   }
@@ -532,7 +532,6 @@ export class VisualStyleHelperServiceNew {
         colorBrewerInstance.breaks[index] = this.dataExchangeService.getIndicatorValue_asNumber(colorBrewerInstance.breaks[index]);            
       }
     }
-
     return colorBrewerInstance;
   }
 

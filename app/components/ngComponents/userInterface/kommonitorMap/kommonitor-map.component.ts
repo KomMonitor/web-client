@@ -321,7 +321,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
         } break;
         case 'restyleCurrentLayer' : {
-          this.restyleCurrentLayer(values);
+          setTimeout(() => this.restyleCurrentLayer(values),3000);
         } break;
         case 'preserveHighlightedFeatures' : {
           this.preserveHighlightedFeatures();
@@ -2376,6 +2376,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             style = this.visualStyleHelperService.styleDefault(layer.feature, this.manualBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
           }
           else {
+            // von hier, defaultBrew
             style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
           }
         }
@@ -3163,6 +3164,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             this.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
           }
           else {
+
             this.defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
               this.currentGeoJSONOfCurrentLayer, 
               this.indicatorPropertyName, 

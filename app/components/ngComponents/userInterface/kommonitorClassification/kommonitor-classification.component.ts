@@ -157,6 +157,7 @@ export class KommonitorClassificationComponent implements OnInit {
     this.methodName = method.name;
     this.showMethodSelection = false;
     this.visualStyleHelperService.classifyMethod = method.id;
+    console.log(method)
     this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleHelperService.classifyMethod]);
   }
   
