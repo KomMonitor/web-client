@@ -71,7 +71,6 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
     },
 
     removeLayer: function(layer) {
-      console.log("bla hier")
         var id = L.Util.stamp(layer);
         delete this._layers[id];
         this._map.removeLayer(layer);
