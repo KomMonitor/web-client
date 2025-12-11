@@ -40,7 +40,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         case 'updateDiagrams': {
           setTimeout(() => {
             this.updateDiagrams(values);
-          },500);
+          },1000);
         } break;
         case 'updateDiagramsForHoveredFeature': {
           this.updateDiagramsForHoveredFeature(values);
