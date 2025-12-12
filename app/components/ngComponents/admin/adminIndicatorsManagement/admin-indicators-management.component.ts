@@ -428,11 +428,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   onClickAddIndicator(): void {
     try {
       const modalRef = this.modalService.open(IndicatorAddModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
+        backdrop: true,
         keyboard: false,
         container: 'body',
-        animation: false
+        animation: false,
+        modalDialogClass: 'modal-large',
+        windowClass: 'modal-large'
       });
 
       modalRef.result.then((result) => {

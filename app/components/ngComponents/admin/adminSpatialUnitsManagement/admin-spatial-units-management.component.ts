@@ -197,8 +197,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       keyboard: false,
       container: 'body',
       animation: false,
-      modalDialogClass: 'spatial-unit-add-modal',
-      windowClass: 'spatial-unit-add-modal-window'
+      modalDialogClass: 'modal-large',
+      windowClass: 'modal-large-window'
     });
     
     modalRef.result.then((result) => {

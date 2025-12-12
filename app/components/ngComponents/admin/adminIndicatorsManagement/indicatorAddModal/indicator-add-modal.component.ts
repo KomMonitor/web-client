@@ -2,6 +2,12 @@ import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core'
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 
 @Component({
   selector: 'indicator-add-modal-new',
@@ -21,6 +27,8 @@ export class IndicatorAddModalComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   loadingData = false;
+
+  isIndicatorAddTopicsCollapse:boolean = true;
 
   // Basic form data
   datasetName = '';
@@ -67,7 +75,11 @@ export class IndicatorAddModalComponent implements OnInit {
   // Step 3: Topic Hierarchy
   selectedTopic: any = null;
   selectedSubTopic: any = null;
+  selectedSubSubTopic: any = null;
+  selectedSubSubSubTopic: any = null;
   availableSubTopics: any[] = [];
+  availableSubSubTopics: any[] = [];
+  availableSubSubSubTopics: any[] = [];
   additionalTopic: any = null;
   additionalSubTopic: any = null;
   additionalSubTopics: any[] = [];
@@ -178,13 +190,13 @@ export class IndicatorAddModalComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorDataGridHelperService') private kommonitorDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') private kommonitorMultiStepFormHelperService: any,
+    public kommonitorDataExchangeService: DataExchangeService,
+    public kommonitorImporterHelperService: KommonitorImporterHelperService,
+    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
-    @Inject('kommonitorConfigStorageService') private kommonitorConfigStorageService: any
+    private kommonitorConfigStorageService: ConfigStorageService
   ) {
     console.log('IndicatorAddModalComponent constructor initialized - Modal is being created');
   }
@@ -1117,16 +1129,51 @@ export class IndicatorAddModalComponent implements OnInit {
       this.indicatorTopic_subsubsubTopic = null;
     } else {
       this.availableSubTopics = [];
+      this.availableSubSubTopics = [];
+      this.availableSubSubSubTopics = [];
       this.selectedSubTopic = null;
+      this.selectedSubSubTopic = null;
+      this.selectedSubSubSubTopic = null;
     }
   }
 
   onSubTopicChange() {
     if (this.selectedSubTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubSubTopics = this.selectedSubTopic.subTopics || [];
+      this.selectedSubSubTopic = null;
+
       // Update sub topic reference
       this.indicatorTopic_subTopic = this.selectedSubTopic;
       this.indicatorTopic_subsubTopic = null;
       this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubSubTopics = [];
+      this.availableSubSubSubTopics = [];
+      this.selectedSubSubTopic = null;
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubSubTopicChange() {
+    if (this.selectedSubSubTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubSubSubTopics = this.selectedSubSubTopic.subTopics || [];
+      this.selectedSubSubSubTopic = null;
+
+      // Update sub topic reference
+      this.indicatorTopic_subsubTopic = this.selectedSubSubTopic;
+      this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubSubSubTopics = [];
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubSubSubTopicChange() {
+    if (this.selectedSubSubSubTopic) {
+      // Update sub topic reference
+      this.indicatorTopic_subsubsubTopic = this.selectedSubSubSubTopic;
     }
   }
 
