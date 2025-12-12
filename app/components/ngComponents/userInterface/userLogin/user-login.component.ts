@@ -1,3 +1,4 @@
+import { BroadcastService } from './../../../../services/broadcast-service/broadcast.service';
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -21,6 +22,9 @@ export class UserLoginComponent implements OnInit {
   keycloakTokenExpirationInfo: string = '';
   password: string = '';
 
+  isUserLoginRolesCollapse = true;
+  isUserLoginGroupesCollapse = true;
+
   get loginInfoText(): string {
     return this.dataExchangeService.pipedData.loginInfoText;
   }
@@ -33,12 +37,24 @@ export class UserLoginComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private broadcastService: BroadcastService
   ) { }
 
   ngOnInit(): void {
-    this.checkAuthentication();
-    this.prepUserInformation();
+      
+    this.broadcastService.currentBroadcastMsg.subscribe(res => {
+      let msg = res.msg;
+      let values:any = res.values;
+
+      switch (msg) {
+        case 'initialMetadataLoadingCompleted' : {
+          this.checkAuthentication();
+          this.prepUserInformation();
+        } break;
+      }
+    });
+    
   }
 
   checkAuthentication(): void {
