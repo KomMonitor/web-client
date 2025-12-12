@@ -654,7 +654,6 @@ export class DataExchangeService {
       .then((profile) => {
         // set user profile
         this.currentKeycloakUser = profile;
-        console.log(this.currentKeycloakUser)
         console.log("User logged in with email: " + profile.email);
 
         if(this.authService.Auth.keycloak.tokenParsed && this.authService.Auth.keycloak.tokenParsed.realm_access && this.authService.Auth.keycloak.tokenParsed.realm_access.roles){

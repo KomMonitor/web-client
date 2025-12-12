@@ -18,9 +18,9 @@ export class KommonitorIndicatorDataExchangeService {
    * Get available indicators - delegates to AngularJS service
    */
   get availableIndicators(): any[] {
-    console.log('KommonitorIndicatorDataExchangeService.availableIndicators called');
+  /*   console.log('KommonitorIndicatorDataExchangeService.availableIndicators called');
     console.log('angularJsDataExchangeService:', this.angularJsDataExchangeService);
-    console.log('angularJsDataExchangeService.availableIndicators:', this.angularJsDataExchangeService?.availableIndicators);
+    console.log('angularJsDataExchangeService.availableIndicators:', this.angularJsDataExchangeService?.availableIndicators); */
     return this.angularJsDataExchangeService?.availableIndicators || [];
   }
 
