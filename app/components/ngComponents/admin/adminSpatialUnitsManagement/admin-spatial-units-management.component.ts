@@ -216,8 +216,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       keyboard: false,
       container: 'body',
       animation: false,
-      modalDialogClass: 'spatial-unit-add-modal',
-      windowClass: 'spatial-unit-add-modal-window'
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -237,8 +237,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       keyboard: false,
       container: 'body',
       animation: false,
-      modalDialogClass: 'spatial-unit-add-modal',
-      windowClass: 'spatial-unit-add-modal-window'
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -258,8 +258,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       keyboard: false,
       container: 'body',
       animation: false,
-      modalDialogClass: 'spatial-unit-add-modal',
-      windowClass: 'spatial-unit-add-modal-window'
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
     });
     
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
@@ -279,8 +279,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       keyboard: false,
       container: 'body',
       animation: false,
-      modalDialogClass: 'spatial-unit-add-modal',
-      windowClass: 'spatial-unit-add-modal-window'
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
     });
     
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
