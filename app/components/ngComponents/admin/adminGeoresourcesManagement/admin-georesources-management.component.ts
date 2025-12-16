@@ -13,6 +13,8 @@ import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadata
 import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
+import { WmsDataset } from 'components/ngComponents/models/georesources.models';
+import * as uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -24,6 +26,7 @@ declare const $: any;
 })
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  @ViewChild('wmsGrid', { static: false }) wmsGrid!: AgGridAngular;
   @ViewChild('poiGrid', { static: false }) poiGrid!: AgGridAngular;
   @ViewChild('loiGrid', { static: false }) loiGrid!: AgGridAngular;
   @ViewChild('aoiGrid', { static: false }) aoiGrid!: AgGridAngular;
@@ -32,11 +35,14 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   public tableViewSwitcher: boolean = false;
 
   // Grid options for each table
+  public wmsGridOptions: any = {};
   public poiGridOptions: any = {};
   public loiGridOptions: any = {};
   public aoiGridOptions: any = {};
 
   private subscriptions: Subscription[] = [];
+
+  isIndicatorWmsOverviewCollapse:boolean = false;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -52,6 +58,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.initialize();
     
     // Initialize grid options with the service
+    this.wmsGridOptions = this.kommonitorDataGridHelperService.getWmsGridOptions();
     this.poiGridOptions = this.kommonitorDataGridHelperService.getPoiGridOptions();
     this.loiGridOptions = this.kommonitorDataGridHelperService.getLoiGridOptions();
     this.aoiGridOptions = this.kommonitorDataGridHelperService.getAoiGridOptions();
@@ -60,6 +67,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   ngAfterViewInit(): void {
     // Initialize grids after view is ready
     this.kommonitorDataGridHelperService.initializeGrids(
+      this.wmsGrid,
       this.poiGrid,
       this.loiGrid,
       this.aoiGrid
@@ -180,8 +188,10 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.loadingData = true;
     
     const georesources = this.initGeoresources();
+    const wmsGeoresources:WmsDataset[] = this.initWmsGeoresources();
     
     this.kommonitorDataGridHelperService.buildDataGrid_georesources(georesources);
+    this.kommonitorDataGridHelperService.buildDataGrid_WmsGeoresources(wmsGeoresources);
 
     setTimeout(() => {
       this.loadingData = false;
@@ -189,6 +199,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   }
 
   private initGeoresources(): any[] {
+
     if (this.tableViewSwitcher) {
       return this.kommonitorDataExchangeService.availableGeoresources.filter(
         (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
@@ -196,6 +207,28 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     } else {
       return this.kommonitorDataExchangeService.availableGeoresources;
     }
+  }
+
+  private initWmsGeoresources() {
+
+    return [
+      {
+        id: uuidv4(),
+        title: "Bodennutzung - Bebauungsplanumringe",
+        description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
+        url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+        topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
+        layerName: "bplan"
+      },
+      {
+        id: uuidv4(),
+        title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+        description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+        url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
+        topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
+        layerName: "0"
+      }
+    ];
   }
 
   public refreshGeoresourceOverviewTable(crudType?: string, targetGeoresourceId?: string): void {

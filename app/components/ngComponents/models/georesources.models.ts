@@ -52,6 +52,15 @@ export interface GeoresourcesDataset {
   wmsUrl: string;
 }
 
+export interface WmsDataset {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  topicReference: string;
+  layerName: string;
+}
+
 export interface GeoresourcesMetadata {
   contact: string;
   databasis: any;

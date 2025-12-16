@@ -13,6 +13,7 @@ import {
   RowSelectedEvent,
   CellClickedEvent
 } from 'ag-grid-community';
+import { WmsDataset } from 'components/ngComponents/models/georesources.models';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,7 @@ import {
 export class KommonitorGeoresourceDataGridHelperService {
 
   // Grid references
+  private wmsGrid: AgGridAngular | null = null;
   private poiGrid: AgGridAngular | null = null;
   private loiGrid: AgGridAngular | null = null;
   private aoiGrid: AgGridAngular | null = null;
@@ -35,6 +37,34 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Simple function-based cell renderer for edit buttons (like original)
    */
+  private displayEditButtons_WMSgeoresources = (params: any) => {
+    if (!params.data || !params.data.id) {
+      return '<div class="btn-group btn-group-sm">No data</div>';
+    }
+
+    const editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.georesourceId;
+    const editUserRolesButtonId = 'btn_georesource_editUserRoles_' + params.data.georesourceId;
+    const deleteButtonId = 'btn_georesource_deleteGeoresource_' + params.data.georesourceId;
+
+    // Check user permissions (handle both array and potential undefined)
+    const userPermissions = params.data.userPermissions || [];
+    const hasEditorPermission = Array.isArray(userPermissions) ? 
+      (userPermissions.includes("editor") || userPermissions.includes("creator")) : false;
+    const hasCreatorPermission = Array.isArray(userPermissions) ? 
+      userPermissions.includes("creator") : false;
+
+    let html = '<div class="btn-group btn-group-sm">';
+    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren" ' + 
+            (hasEditorPermission ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
+    html += '<button id="' + editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' + 
+            (hasCreatorPermission ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>';
+    html += '<button id="' + deleteButtonId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen" ' + 
+            (hasCreatorPermission ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+    html += '</div>';
+
+    return html;
+  }
+
   private displayEditButtons_georesources = (params: any) => {
     if (!params.data || !params.data.georesourceId) {
       return '<div class="btn-group btn-group-sm">No data</div>';
@@ -69,7 +99,8 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Initialize the grid references
    */
-  initializeGrids(poiGrid: AgGridAngular, loiGrid: AgGridAngular, aoiGrid: AgGridAngular): void {
+  initializeGrids(wmsGrid: AgGridAngular, poiGrid: AgGridAngular, loiGrid: AgGridAngular, aoiGrid: AgGridAngular): void {
+    this.wmsGrid = wmsGrid;
     this.poiGrid = poiGrid;
     this.loiGrid = loiGrid;
     this.aoiGrid = aoiGrid;
@@ -89,6 +120,12 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Update column definitions with the current component reference
    */
   private updateColumnDefinitions(): void {
+
+    if (this.wmsGrid && this.wmsGrid.api) {
+      const wmsColumnDefs = this.getWmsColumnDefinitions();
+      this.wmsGrid.api.setColumnDefs(wmsColumnDefs);
+    }
+
     if (this.poiGrid && this.poiGrid.api) {
       const poiColumnDefs = this.getPoiColumnDefinitions();
       this.poiGrid.api.setColumnDefs(poiColumnDefs);
@@ -122,6 +159,46 @@ export class KommonitorGeoresourceDataGridHelperService {
     this.buildPoiGrid(georesourcesArray);
     this.buildLoiGrid(georesourcesArray);
     this.buildAoiGrid(georesourcesArray);
+  }
+
+  /**
+   * Build data grid for wms
+   */
+  buildDataGrid_WmsGeoresources(georesourcesArray: WmsDataset[]): void {
+    if (!georesourcesArray || georesourcesArray.length === 0) {
+      console.warn('No georesources data provided to buildDataGrid_WmsGeoresources');
+      return;
+    }
+
+    if (!this.wmsGrid) {
+      console.warn('Grid references not initialized');
+      return;
+    }
+
+    this.buildWmsGrid(georesourcesArray);
+  }
+
+  /**
+   * Build POI grid
+   */
+  private buildWmsGrid(georesourcesArray: WmsDataset[]): void {
+    if (!this.wmsGrid) {
+      return;
+    }
+    
+    const columnDefs = this.getWmsColumnDefinitions();
+    
+    try {
+      this.wmsGrid.api?.setRowData(georesourcesArray);
+      this.wmsGrid.api?.setColumnDefs(columnDefs);
+      
+      // Register click handlers after a short delay
+      setTimeout(() => {
+        this.registerClickHandler_georesources(georesourcesArray);
+      }, 200);
+    } catch (error) {
+      console.error('Error updating POI grid:', error);
+    }
   }
 
   /**
@@ -283,6 +360,147 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (this.componentRef) {
       this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
     }
+  }
+
+  /**
+   * Get WMS column definitions
+  */
+  private getWmsColumnDefinitions(): ColDef[] {
+    return [
+      { 
+        headerName: 'Editierfunktionen', 
+        maxWidth: 200, 
+        minWidth: 180,
+        checkboxSelection: false, 
+        headerCheckboxSelection: false, 
+        headerCheckboxSelectionFilteredOnly: true, 
+        filter: false, 
+        sortable: false, 
+        cellRenderer: 'displayEditButtons_WMSgeoresources',
+        flex: 1
+      },
+      { 
+        headerName: 'Id', 
+        field: "id", 
+        maxWidth: 125,
+        flex: 1 },
+      { 
+        headerName: 'Name', 
+        field: "title", 
+        minWidth: 300,
+        flex: 1 },
+      { 
+        headerName: 'Legende', 
+        minWidth: 400,
+        filter: false,
+        sortable: false,
+        cellRenderer: (params: any) => {
+          return `<img src="${params.data.url}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=${params.data.layerName}">`;
+        },
+        flex: 1
+      },
+      { 
+        headerName: 'Beschreibung', 
+        cellRenderer: (params: any) => {
+          return params.data.description || '';
+        },
+        flex: 1
+      },
+      { 
+        headerName: 'Themenhierarchie', 
+        cellRenderer: (params: any) => {
+          return params.data.topicReference;
+        },
+        flex: 1
+      }
+     /*  { 
+        headerName: 'Legende', 
+        field: "poiSymbolBootstrap3Name", 
+        maxWidth: 125,
+        cellRenderer: (params: any) => {
+          const symbolName = params.data.poiSymbolBootstrap3Name || 'home';
+          return `${symbolName}<br/><br/><span class='glyphicon glyphicon-${symbolName}'></span>`;
+        }
+      },
+      { 
+        headerName: 'Markerfarbe', 
+        field: "poiMarkerColor", 
+        maxWidth: 125,
+        filter: false,
+        sortable: false,
+        cellRenderer: (params: any) => {
+          const color = params.data.poiMarkerColor || '#000000';
+          return `<div>${color}</div><br/><div style='width: 20px; height: 20px; background-color: ${color};'></div>`;
+        }
+      },
+      { 
+        headerName: 'Beschreibung', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return params.data.metadata?.description || '';
+        }
+      },
+      {
+        headerName: 'Gültigkeitszeitraum', 
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          for (const periodOfValidity of params.data.availablePeriodsOfValidity || []) {
+            html += '<li style="margin-right: 15px;">';
+            if(periodOfValidity.endDate){
+              html += "<p>" + periodOfValidity.startDate + " &dash; " + periodOfValidity.endDate + "</p>";
+            } else {
+              html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
+            }                
+            html += '</li>';
+          }
+          html += '</ul>';
+          return html;
+        }
+      },
+      { 
+        headerName: 'Themenhierarchie', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
+        }
+      },
+      { 
+        headerName: 'Datenquelle', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return params.data.metadata?.datasource || '';
+        }
+      },
+      { 
+        headerName: 'Datenhalter und Kontakt', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return params.data.metadata?.contact || '';
+        }
+      },
+      { 
+        headerName: 'Rollen', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
+        }
+      },
+      { 
+        headerName: 'Öffentlich sichtbar', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return params.data.isPublic ? 'ja' : 'nein';
+        }
+      },
+      { 
+        headerName: 'Eigentümer', 
+        minWidth: 400, 
+        cellRenderer: (params: any) => {
+          return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
+        }
+      } */
+    ];
   }
 
   /**
@@ -683,6 +901,43 @@ export class KommonitorGeoresourceDataGridHelperService {
         fileName: `georesources_${gridType}_${this.getCurrentTimestampString()}.csv`
       });
     }
+  }
+
+  /**
+   * Get grid options for WMS grid (for ag-grid-angular)
+   */
+  getWmsGridOptions(): any {
+    return {
+      components: {
+        displayEditButtons_WMSgeoresources: this.displayEditButtons_WMSgeoresources
+      },
+      defaultColDef: {
+        editable: false,
+        sortable: true,
+        filter: true,
+        floatingFilter: true,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true
+      },
+      suppressRowClickSelection: true,
+      rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      onModelUpdated: () => {
+        setTimeout(() => {
+          this.registerClickHandler_georesources([]);
+        }, 100);
+      },
+      onRowDataChanged: () => {
+        setTimeout(() => {
+          this.registerClickHandler_georesources([]);
+        }, 100);
+      }
+    };
   }
 
   /**
