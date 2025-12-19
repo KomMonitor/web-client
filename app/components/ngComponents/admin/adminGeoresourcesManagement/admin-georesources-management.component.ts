@@ -13,8 +13,8 @@ import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadata
 import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
-import { WmsDataset } from 'components/ngComponents/models/georesources.models';
-import * as uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
+import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -49,8 +49,11 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
+    private coreDataExchangeService: DataExchangeService,
     private kommonitorCacheHelperService: KommonitorGeoresourceCacheHelperService,
-    private kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService
+    private kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
+    private ogcDatagridHelperService: OgcDataGridHelperService,
+    private ogcDataGridHelperService: OgcDataGridHelperService
   ) {}
 
   ngOnInit(): void {
@@ -58,7 +61,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.initialize();
     
     // Initialize grid options with the service
-    this.wmsGridOptions = this.kommonitorDataGridHelperService.getWmsGridOptions();
+    this.wmsGridOptions = this.ogcDataGridHelperService.getWmsGridOptions();
     this.poiGridOptions = this.kommonitorDataGridHelperService.getPoiGridOptions();
     this.loiGridOptions = this.kommonitorDataGridHelperService.getLoiGridOptions();
     this.aoiGridOptions = this.kommonitorDataGridHelperService.getAoiGridOptions();
@@ -67,14 +70,18 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   ngAfterViewInit(): void {
     // Initialize grids after view is ready
     this.kommonitorDataGridHelperService.initializeGrids(
-      this.wmsGrid,
       this.poiGrid,
       this.loiGrid,
       this.aoiGrid
     );
 
+    this.ogcDataGridHelperService.initializeGrids(
+      this.wmsGrid
+    );
+
     // Set component reference for callbacks
     this.kommonitorDataGridHelperService.setComponentRef(this);
+    this.ogcDataGridHelperService.setComponentRef(this);
 
     // Load data if not already loaded
     if (this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
@@ -188,14 +195,25 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.loadingData = true;
     
     const georesources = this.initGeoresources();
-    const wmsGeoresources:WmsDataset[] = this.initWmsGeoresources();
+    const wmsDatasets = this.initOgcDatasets();
     
     this.kommonitorDataGridHelperService.buildDataGrid_georesources(georesources);
-    this.kommonitorDataGridHelperService.buildDataGrid_WmsGeoresources(wmsGeoresources);
+    this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
 
     setTimeout(() => {
       this.loadingData = false;
     }, 100);
+  }
+
+  private initOgcDatasets(): any[] {
+
+    if (this.tableViewSwitcher) {
+      return this.coreDataExchangeService.availableWmsDatasets.filter(
+        (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
+      );
+    } else {
+      return this.coreDataExchangeService.availableWmsDatasets;
+    }
   }
 
   private initGeoresources(): any[] {
@@ -207,28 +225,6 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     } else {
       return this.kommonitorDataExchangeService.availableGeoresources;
     }
-  }
-
-  private initWmsGeoresources() {
-
-    return [
-      {
-        id: uuidv4(),
-        title: "Bodennutzung - Bebauungsplanumringe",
-        description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
-        url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-        topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
-        layerName: "bplan"
-      },
-      {
-        id: uuidv4(),
-        title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-        description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-        url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
-        topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
-        layerName: "0"
-      }
-    ];
   }
 
   public refreshGeoresourceOverviewTable(crudType?: string, targetGeoresourceId?: string): void {

@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
+import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
+import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 
 @Injectable({
   providedIn: 'root'
@@ -145,6 +147,41 @@ export class CacheHelperServiceService implements OnInit{
       throw error;
     }
   };
+
+  async fetchServices_TEMP(keycloakRolesArray): Promise<WmsDataset[]> {
+    
+    try {
+        //return await firstValueFrom(this.http.post(this.baseUrlToKomMonitorDataAPI + resourceEndpoint + '/filter',filter));
+
+        return [
+          {
+            id: uuidv4(),
+            title: "HIER !Bodennutzung - Bebauungsplanumringe",
+            description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
+            url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+            topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
+            layerName: "bplan",
+            userPermissions: ['creator'],
+            resourceType: WmsResourceType.GEORESOURCE,
+            isSelected: false
+          },
+          {
+            id: uuidv4(),
+            title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+            description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+            url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
+            topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
+            layerName: "0",
+            userPermissions: ['creator'],
+            resourceType: WmsResourceType.INDICATOR,
+            isSelected: false
+          }
+        ];
+    } catch (error) {
+      console.error("Unable to read OrgainzationalUnit data", error);
+      throw error;
+    }
+  }
 
   async fetchAccessControlMetadata(keycloakRolesArray) {
     return await this.fetchResource_fromCacheOrServer(this.localStorageKey_accessControl, this.accessControlEndpoint, "access-control", keycloakRolesArray);

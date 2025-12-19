@@ -10,6 +10,8 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 export interface DataExchange {
   customGreetingsContact_mail: string;
@@ -173,6 +175,7 @@ export class DataExchangeService {
 
   selectedIndicator!: IndicatorsDataset;
   availableSpatialUnits!: SpatialUnit[];
+  availableWmsDatasets: WmsDataset[] = [];
   selectedDate: any;
   selectedSpatialUnit!: SpatialUnit;
   disableIndicatorDatePicker!: boolean;
@@ -219,7 +222,7 @@ export class DataExchangeService {
   simplifyGeometries:any;
   keycloakTokenExpirationInfo: any;
   FEATURE_NAME_PROPERTY_NAME:any;
-  availableGeoresources:any;
+  availableGeoresources!:GeoresourcesDataset[];
   availableIndicators:any;
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any = false;
@@ -259,9 +262,9 @@ export class DataExchangeService {
   baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
   simplifyGeometriesOptions = window.__env.simplifyGeometriesOptions;
 
-  wmsDatasets = window.__env.wmsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
+  wmsDatasets!:WmsDataset[];
   wfsDatasets = window.__env.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
-  wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+  wmsDatasets_keywordFiltered!:WmsDataset[];
   wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
   allFeaturesPropertyUnit;
@@ -613,7 +616,10 @@ export class DataExchangeService {
     private cacheHelperService: CacheHelperServiceService,
     private broadcastService: BroadcastService,
     private globalFilterService: GlobalFilterHelperService
-  ) {}
+  ) {
+    this.wmsDatasets = this.getAvailableWmsDatasets();
+    this.wmsDatasets_keywordFiltered = this.getAvailableWmsDatasets();
+  }
 
   hideErrorAlert(){
     $(".mapApplicationErrorAlert").hide();
@@ -645,9 +651,6 @@ export class DataExchangeService {
 
     await this.cacheHelperService.init();
     console.log("fetching all metadata from management component");
-    
-    // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-    var metadataPromises:any = [];
 
     if (this.authService.Auth.keycloak.authenticated){
       await this.authService.Auth.keycloak.loadUserProfile()
@@ -678,7 +681,6 @@ export class DataExchangeService {
         console.log('Failed to load user profile');
       });
       var promise = await this.fetchAccessControlMetadata(this.currentKeycloakLoginRoles);
-      metadataPromises.push(promise);
     }
 
     // revise metadata fecthing for protected endpoints 
@@ -687,14 +689,10 @@ export class DataExchangeService {
       topicsPromise: this.fetchTopicsMetadata(this.currentKeycloakLoginRoles),
       spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles),
       georesourcesPromise: this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter),
-      indicatorsPromise: this.fetchIndicatorsMetadata(this.currentKeycloakLoginRoles, filter)
+      indicatorsPromise: this.fetchIndicatorsMetadata(this.currentKeycloakLoginRoles, filter),
+      servicePromises: this.fetchServices(this.currentKeycloakLoginRoles)
     }).subscribe({
       next: (response:any) => {
-        metadataPromises.push(response.scriptsPromise);
-        metadataPromises.push(response.topicsPromise);
-        metadataPromises.push(response.spatialUnitsPromise);
-        metadataPromises.push(response.georesourcesPromise);
-        metadataPromises.push(response.indicatorsPromise);
 
         this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
@@ -704,6 +702,8 @@ export class DataExchangeService {
         this.buildComputationIndicatorHierarchy();
 
         this.buildTopicGeoresourceHierarchy(filter);
+
+       /*  this.mergeServices(); */
 
         console.log("Metadata fetched. Call initialize event.");
         this.onMetadataLoadingCompleted();
@@ -756,6 +756,59 @@ export class DataExchangeService {
 
   }
 
+ /*  mergeServices() {
+    console.log(this.availableWmsDatasets)
+
+    let geoServices:WmsDataset[] = this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.GEORESOURCE);
+    if(geoServices.length) {
+
+      geoServices.forEach((elem:WmsDataset) => {
+
+        this.availableGeoresources.push({
+          aoiColor: undefined,
+          georesourceName: undefined,
+          availablePeriodsOfValidity: undefined,
+          datasetName: elem.title,
+          geoJSON: undefined,
+          georesourceId: elem.id,
+          isAOI: false,
+          isLOI: false,
+          isPOI: false,
+          isWMS: true,
+          isPublic: false,
+          isSelected: false,
+          loiColor: undefined,
+          loiDashArrayString: undefined,
+          loiWidth: undefined,
+          metadata: {
+            contact: '',
+            databasis: '',
+            datasource: '',
+            description: '',
+            lastUpdate: '',
+            literature: '',
+            note: '',
+            sridEPSG: '',
+            updateInterval: ''
+          },
+          ownerId: undefined,
+          permissions: elem.userPermissions,
+          poiMarkerColor: undefined,
+          poiMarkerStyle: undefined,
+          poiMarkerText: undefined,
+          poiSymbolBootstrap3Name: undefined,
+          poiSymbolColor: undefined,
+          selectedDate: undefined,
+          topicReference: elem.topicReference,
+          userPermissions: undefined,
+          wfsUrl: undefined,
+          wmsUrl: elem.url,
+        })
+      });
+    }
+    console.log(this.availableGeoresources);
+  } */
+
   async fetchTopicsMetadata(keycloakRolesArray){
     this.setTopics(await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
   }
@@ -774,6 +827,14 @@ export class DataExchangeService {
 
   async fetchIndicatorScriptsMetadata(keycloakRolesArray){
     this.setProcessScripts(await this.cacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
+  }
+
+  async fetchServices(keycloakRolesArray) {
+    this.setServices(await this.cacheHelperService.fetchServices_TEMP(keycloakRolesArray));
+  }
+
+  setServices(servicesArray:WmsDataset[]) {
+    this.availableWmsDatasets = servicesArray;
   }
 
   addSingleGeoresourceMetadata(georesourceMetadata){
@@ -834,7 +895,12 @@ export class DataExchangeService {
     }
   }
 
+  getAvailableWmsDatasets():WmsDataset[] {
+    return this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.GEORESOURCE);
+  }
+
   setGeoresources(georesourcesArray){
+
     this.availableGeoresources = georesourcesArray;
 
     this.availableGeoresources_map = new Map();
@@ -845,7 +911,8 @@ export class DataExchangeService {
     this.displayableGeoresources = this.availableGeoresources.filter(item => this.isDisplayableGeoresource(item));
     this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
 
-    this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+    //this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+    this.wmsDatasets_keywordFiltered = this.getAvailableWmsDatasets();
     this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
     this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
@@ -1125,6 +1192,7 @@ export class DataExchangeService {
     }
 
     // PROCESS WMS and WFS
+    // hier
     for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
       if (topicsMap.has(wmsMetadata.topicReference)){
         if(!filter || (filter && filter.georesourceTopics.includes(wmsMetadata.topicReference))) {
@@ -2437,8 +2505,10 @@ export class DataExchangeService {
     });
   }
 
-  onChangeGeoresourceKeywordFilter(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){          
-    this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+  onChangeGeoresourceKeywordFilter(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){    
+
+    //this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+    this.wmsDatasets_keywordFiltered = this.getAvailableWmsDatasets();
     this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
     this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
@@ -2487,7 +2557,7 @@ export class DataExchangeService {
 
   getGeoresourceDatasets(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
     var availableGeoresources:any = this.getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI); 
-    var wmsDatasets = this.getAvailableWmsDatasets(topic, georesourceNameFilter, showWMS);
+    var wmsDatasets = this.getAvailableTopicWmsDatasets(topic, georesourceNameFilter, showWMS);
     var wfsDatasets = this.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
     
     var datasets = availableGeoresources.concat(wmsDatasets).concat(wfsDatasets);
@@ -2516,14 +2586,14 @@ export class DataExchangeService {
     return wfsDatasets;
   }
 
-  getAvailableWmsDatasets(topic, georesourceNameFilter, showWMS){
+  getAvailableTopicWmsDatasets(topic, georesourceNameFilter, showWMS){
     if(!showWMS){
       return [];
     }
 
     var wmsDatasets:any[] = [];
 
-    var filteredWmsDatasets = this.wmsDatasets;
+    var filteredWmsDatasets = this.getAvailableWmsDatasets();
     
     if(georesourceNameFilter && georesourceNameFilter != ""){
       filteredWmsDatasets = this.filterArrayObjectsByValue(filteredWmsDatasets, georesourceNameFilter);									

@@ -15,14 +15,14 @@ export class KommonitorGeoresourceDataExchangeService {
   ) {}
 
   /**
-   * Get available georesources - delegates to AngularJS service
+   * Get available georesources - 
    */
   get availableGeoresources(): any[] {
     return this.angularJsDataExchangeService.availableGeoresources || [];
   }
 
   /**
-   * Get current Keycloak login roles - delegates to AngularJS service
+   * Get current Keycloak login roles - 
    */
   get currentKeycloakLoginRoles(): string[] {
     return this.angularJsDataExchangeService.currentKeycloakLoginRoles || [];

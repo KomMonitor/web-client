@@ -25,40 +25,32 @@ export interface GeoresourcesTopicsHierarchy {
 
 export interface GeoresourcesDataset {
   aoiColor: string | null | undefined;
-  availablePeriodsOfValidity: GeoresourcesDateFormat[];
-  datasetName: string;
-  geoJSON: any;
-  georesourceId: string;
+  availablePeriodsOfValidity: GeoresourcesDateFormat[] | null | undefined;
+  datasetName: string | null | undefined;
+  georesourceName: string | null | undefined;
+  geoJSON: any | null | undefined;
+  georesourceId: string | null | undefined;
   isAOI: boolean;
   isLOI: boolean;
   isPOI: boolean;
   isPublic: boolean;
   isSelected: boolean;
-  loiColor: null;
-  loiDashArrayString: null;
-  loiWidth: 3;
+  loiColor: null | undefined;
+  loiDashArrayString: null | undefined;
+  loiWidth: 3 | null | undefined;
   metadata: GeoresourcesMetadata;
-  ownerId: string;
+  ownerId: string | null | undefined;
   permissions: string[];
-  poiMarkerColor: string;
-  poiMarkerStyle: string;
-  poiMarkerText: string;
-  poiSymbolBootstrap3Name: string;
-  poiSymbolColor: string;
-  selectedDate: GeoresourcesDateFormat;
+  poiMarkerColor: string | null | undefined;
+  poiMarkerStyle: string | null | undefined;
+  poiMarkerText: string | null | undefined;
+  poiSymbolBootstrap3Name: string | null | undefined;
+  poiSymbolColor: string | null | undefined;
+  selectedDate: GeoresourcesDateFormat | null | undefined;
   topicReference: string;
-  userPermissions: null;
-  wfsUrl: string;
-  wmsUrl: string;
-}
-
-export interface WmsDataset {
-  id: string;
-  title: string;
-  description: string;
-  url: string;
-  topicReference: string;
-  layerName: string;
+  userPermissions: null | undefined;
+  wfsUrl: string | null | undefined;
+  wmsUrl: string | null | undefined;
 }
 
 export interface GeoresourcesMetadata {
