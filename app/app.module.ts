@@ -78,6 +78,7 @@ import { SortByOrderPipe } from './components/ngComponents/admin/adminTopicsMana
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TopicEditModalComponent } from 'components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
 import { AdminFilterConfigComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/admin-filter-config.component';
+import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -174,7 +175,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
     PipesModule,
-    DragDropModule
+    DragDropModule,
+    WmsAdminTableComponent
   ],
   providers: [
     StartupService,

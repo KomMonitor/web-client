@@ -15,6 +15,7 @@ import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRol
 import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
 import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { WmsResourceType } from 'components/ngComponents/models/services.models';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -26,7 +27,6 @@ declare const $: any;
 })
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  @ViewChild('wmsGrid', { static: false }) wmsGrid!: AgGridAngular;
   @ViewChild('poiGrid', { static: false }) poiGrid!: AgGridAngular;
   @ViewChild('loiGrid', { static: false }) loiGrid!: AgGridAngular;
   @ViewChild('aoiGrid', { static: false }) aoiGrid!: AgGridAngular;
@@ -35,14 +35,13 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   public tableViewSwitcher: boolean = false;
 
   // Grid options for each table
-  public wmsGridOptions: any = {};
   public poiGridOptions: any = {};
   public loiGridOptions: any = {};
   public aoiGridOptions: any = {};
 
   private subscriptions: Subscription[] = [];
 
-  isIndicatorWmsOverviewCollapse:boolean = false;
+  resourceType:WmsResourceType = WmsResourceType.GEORESOURCE;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -61,7 +60,6 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.initialize();
     
     // Initialize grid options with the service
-    this.wmsGridOptions = this.ogcDataGridHelperService.getWmsGridOptions();
     this.poiGridOptions = this.kommonitorDataGridHelperService.getPoiGridOptions();
     this.loiGridOptions = this.kommonitorDataGridHelperService.getLoiGridOptions();
     this.aoiGridOptions = this.kommonitorDataGridHelperService.getAoiGridOptions();
@@ -75,13 +73,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
       this.aoiGrid
     );
 
-    this.ogcDataGridHelperService.initializeGrids(
-      this.wmsGrid
-    );
-
     // Set component reference for callbacks
     this.kommonitorDataGridHelperService.setComponentRef(this);
-    this.ogcDataGridHelperService.setComponentRef(this);
 
     // Load data if not already loaded
     if (this.kommonitorDataExchangeService.availableGeoresources.length === 0) {
@@ -195,25 +188,12 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     this.loadingData = true;
     
     const georesources = this.initGeoresources();
-    const wmsDatasets = this.initOgcDatasets();
     
     this.kommonitorDataGridHelperService.buildDataGrid_georesources(georesources);
-    this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
 
     setTimeout(() => {
       this.loadingData = false;
     }, 100);
-  }
-
-  private initOgcDatasets(): any[] {
-
-    if (this.tableViewSwitcher) {
-      return this.coreDataExchangeService.availableWmsDatasets.filter(
-        (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
-      );
-    } else {
-      return this.coreDataExchangeService.availableWmsDatasets;
-    }
   }
 
   private initGeoresources(): any[] {

@@ -14,6 +14,7 @@ import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModa
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { WmsResourceType } from 'components/ngComponents/models/services.models';
 
 declare const $: any;
 declare const __env: any;
@@ -37,6 +38,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   public rowData: any[] = [];
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
+
+  resourceType: WmsResourceType = WmsResourceType.INDICATOR;
 
   // Drag & Drop properties
   public collapsedTopics: Set<string> = new Set();

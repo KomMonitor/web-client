@@ -13,7 +13,6 @@ import {
   RowSelectedEvent,
   CellClickedEvent
 } from 'ag-grid-community';
-import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +20,6 @@ import { GeoresourcesDataset } from 'components/ngComponents/models/georesources
 export class KommonitorGeoresourceDataGridHelperService {
 
   // Grid references
-  private wmsGrid: AgGridAngular | null = null;
   private poiGrid: AgGridAngular | null = null;
   private loiGrid: AgGridAngular | null = null;
   private aoiGrid: AgGridAngular | null = null;
@@ -88,11 +86,6 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Update column definitions with the current component reference
    */
   private updateColumnDefinitions(): void {
-
-    if (this.wmsGrid && this.wmsGrid.api) {
-      const wmsColumnDefs = this.getWmsColumnDefinitions();
-      this.wmsGrid.api.setColumnDefs(wmsColumnDefs);
-    }
 
     if (this.poiGrid && this.poiGrid.api) {
       const poiColumnDefs = this.getPoiColumnDefinitions();
@@ -287,60 +280,6 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (this.componentRef) {
       this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
     }
-  }
-
-  /**
-   * Get WMS column definitions
-  */
-  private getWmsColumnDefinitions(): ColDef[] {
-    return [
-      { 
-        headerName: 'Editierfunktionen', 
-        maxWidth: 200, 
-        minWidth: 180,
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: 'displayEditButtons_WMSgeoresources',
-        flex: 1
-      },
-      { 
-        headerName: 'Id', 
-        field: "id", 
-        maxWidth: 125,
-        flex: 1 },
-      { 
-        headerName: 'Name', 
-        field: "title", 
-        minWidth: 300,
-        flex: 1 },
-      { 
-        headerName: 'Legende', 
-        minWidth: 400,
-        filter: false,
-        sortable: false,
-        cellRenderer: (params: any) => {
-          return `<img src="${params.data.url}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=${params.data.layerName}">`;
-        },
-        flex: 1
-      },
-      { 
-        headerName: 'Beschreibung', 
-        cellRenderer: (params: any) => {
-          return params.data.description || '';
-        },
-        flex: 1
-      },
-      { 
-        headerName: 'Themenhierarchie', 
-        cellRenderer: (params: any) => {
-          return params.data.topicReference;
-        },
-        flex: 1
-      }
-    ];
   }
 
   /**

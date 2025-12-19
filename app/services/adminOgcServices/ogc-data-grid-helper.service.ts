@@ -58,7 +58,6 @@ export class OgcDataGridHelperService {
     }
   }
 
-
   buildDataGrid_wms(georesourcesArray: any[]): void {
     if (!georesourcesArray || georesourcesArray.length === 0) {
       console.warn('No georesources data provided to buildDataGrid_wms');
@@ -83,7 +82,6 @@ export class OgcDataGridHelperService {
     
     const columnDefs = this.getWmsColumnDefinitions();
     
-    console.log(georesourcesArray)
     try {
       this.wmsGrid.api?.setRowData(georesourcesArray);
       this.wmsGrid.api?.setColumnDefs(columnDefs);
