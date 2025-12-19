@@ -3,6 +3,9 @@
     <h3 class="box-title">WMS</h3>
 
     <div class="box-tools pull-right">
+      <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" (click)="openAddModal()">
+        <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
+      </button>
       <button type="button" (click)="indicatorWmsOverviewCollapse.toggle()" class="btn btn-box-tool" data-widget="collapse">
         <i class="fa" [ngClass]="{'fa-plus':isIndicatorWmsOverviewCollapse, 'fa-minus':!isIndicatorWmsOverviewCollapse}"></i>
       </button>

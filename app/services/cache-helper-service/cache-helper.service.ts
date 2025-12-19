@@ -159,22 +159,30 @@ export class CacheHelperServiceService implements OnInit{
             title: "HIER !Bodennutzung - Bebauungsplanumringe",
             description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
             url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-            topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
+            topicReference: "eafc599a-5894-485e-adf4-2722556a48bc",
             layerName: "bplan",
             userPermissions: ['creator'],
             resourceType: WmsResourceType.GEORESOURCE,
-            isSelected: false
+            isSelected: false,
+            databasis: '',
+            datasource: '',
+            contact: '',
+            note: ''
           },
           {
             id: uuidv4(),
             title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
             description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
             url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
-            topicReference: "a2470adc-d50b-4b50-98bd-3f85f09d2f44",
+            topicReference: "eafc599a-5894-485e-adf4-2722556a48bc",
             layerName: "0",
             userPermissions: ['creator'],
             resourceType: WmsResourceType.INDICATOR,
-            isSelected: false
+            isSelected: false,
+            databasis: '',
+            datasource: '',
+            contact: '',
+            note: ''
           }
         ];
     } catch (error) {

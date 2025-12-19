@@ -14,6 +14,7 @@ import {
 } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 @Injectable({
   providedIn: 'root'
@@ -197,112 +198,123 @@ export class OgcDataGridHelperService {
   }
 
   /**
-     * Handle edit metadata button click
-     */
-    private handleEditMetadataClick = (event: any): void => {
-      event.stopPropagation();
-      
-      const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-      const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-      
-      if (this.componentRef) {
-        this.componentRef.onClickEditMetadata(georesourceMetadata);
-      }
+   * Handle edit metadata button click
+   */
+  private handleEditMetadataClick = (event: any): void => {
+    event.stopPropagation();
+    
+    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
+    
+    if (this.componentRef) {
+      this.componentRef.onClickEditMetadata(georesourceMetadata);
     }
-  
-    /**
-     * Handle edit features button click
-     */
-    private handleEditFeaturesClick = (event: any): void => {
-      event.stopPropagation();
-      
-      const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-      const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-      
-      if (this.componentRef) {
-        this.componentRef.onClickEditFeatures(georesourceMetadata);
-      }
+  }
+
+  /**
+   * Handle edit features button click
+   */
+  private handleEditFeaturesClick = (event: any): void => {
+    event.stopPropagation();
+    
+    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
+    
+    if (this.componentRef) {
+      this.componentRef.onClickEditFeatures(georesourceMetadata);
     }
-  
-    /**
-     * Handle edit user roles button click
-     */
-    private handleEditUserRolesClick = (event: any): void => {
-      event.stopPropagation();
-      
-      const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-      const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-      
-      if (this.componentRef) {
-        this.componentRef.onClickEditUserRoles(georesourceMetadata);
-      }
+  }
+
+  /**
+   * Handle edit user roles button click
+   */
+  private handleEditUserRolesClick = (event: any): void => {
+    event.stopPropagation();
+    
+    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
+    
+    if (this.componentRef) {
+      this.componentRef.onClickEditUserRoles(georesourceMetadata);
     }
-  
-    /**
-     * Handle delete button click
-     */
-    private handleDeleteClick = (event: any): void => {
-      event.stopPropagation();
-      
-      const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-      const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-      
-      if (this.componentRef) {
-        this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
-      }
+  }
+
+  /**
+   * Handle delete button click
+   */
+  private handleDeleteClick = (event: any): void => {
+    event.stopPropagation();
+    
+    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
+    
+    if (this.componentRef) {
+      this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
     }
-  
-    /**
-     * Get WMS column definitions
-    */
-    private getWmsColumnDefinitions(): ColDef[] {
-      return [
-        { 
-          headerName: 'Editierfunktionen', 
-          maxWidth: 200, 
-          minWidth: 180,
-          checkboxSelection: false, 
-          headerCheckboxSelection: false, 
-          headerCheckboxSelectionFilteredOnly: true, 
-          filter: false, 
-          sortable: false, 
-          cellRenderer: 'displayEditButtons_WMSgeoresources',
-          flex: 1
+  }
+
+  /**
+   * Get WMS column definitions
+  */
+  private getWmsColumnDefinitions(): ColDef[] {
+    return [
+      { 
+        headerName: 'Editierfunktionen', 
+        maxWidth: 200, 
+        minWidth: 180,
+        checkboxSelection: false, 
+        headerCheckboxSelection: false, 
+        headerCheckboxSelectionFilteredOnly: true, 
+        filter: false, 
+        sortable: false, 
+        cellRenderer: 'displayEditButtons_WMSgeoresources',
+        flex: 1
+      },
+      { 
+        headerName: 'Id', 
+        field: "id", 
+        maxWidth: 125,
+        flex: 1 },
+      { 
+        headerName: 'Name', 
+        field: "title", 
+        minWidth: 300,
+        flex: 1 },
+      { 
+        headerName: 'Legende', 
+        minWidth: 400,
+        filter: false,
+        sortable: false,
+        cellRenderer: (params: any) => {
+          return `<img src="${params.data.url}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=${params.data.layerName}">`;
         },
-        { 
-          headerName: 'Id', 
-          field: "id", 
-          maxWidth: 125,
-          flex: 1 },
-        { 
-          headerName: 'Name', 
-          field: "title", 
-          minWidth: 300,
-          flex: 1 },
-        { 
-          headerName: 'Legende', 
-          minWidth: 400,
-          filter: false,
-          sortable: false,
-          cellRenderer: (params: any) => {
-            return `<img src="${params.data.url}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=${params.data.layerName}">`;
-          },
-          flex: 1
+        flex: 1
+      },
+      { 
+        headerName: 'Beschreibung', 
+        cellRenderer: (params: any) => {
+          return params.data.description || '';
         },
-        { 
-          headerName: 'Beschreibung', 
-          cellRenderer: (params: any) => {
-            return params.data.description || '';
-          },
-          flex: 1
-        },
-        { 
-          headerName: 'Themenhierarchie', 
-          cellRenderer: (params: any) => {
-            return params.data.topicReference;
-          },
-          flex: 1
-        }
-      ];
+        flex: 1
+      },
+      { 
+        headerName: 'Themenhierarchie', 
+        cellRenderer: this.translateTopicsReferences,
+        flex: 1
+      }
+    ];
+  }
+
+  private translateTopicsReferences = (params: any) => {
+    if (!params.data || !params.data.topicReference) {
+      return '<div class="btn-group btn-group-sm">No data</div>';
     }
+    
+    const topic:Topic = this.dataExchangeService.availableTopics.find((e:Topic) => e.topicId==params.data.topicReference);
+
+    if(!topic)
+      return 'Topic not found';
+
+    return topic.topicName;
+  }
 }

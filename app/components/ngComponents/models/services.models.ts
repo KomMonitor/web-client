@@ -8,6 +8,10 @@ export interface WmsDataset {
   userPermissions: string[];
   resourceType: WmsResourceType;
   isSelected: boolean;
+  databasis: string;
+  datasource: string;
+  contact: string;
+  note: string;
 }
 
 export enum WmsResourceType {

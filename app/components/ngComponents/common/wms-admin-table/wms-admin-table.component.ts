@@ -1,20 +1,17 @@
-import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
-import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
 import { Subscription } from 'rxjs';
 import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-data-grid-helper-factory.service';
-import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
 
 @Component({
   selector: 'app-wms-admin-table',
   templateUrl: './wms-admin-table.component.html',
-  styleUrls: ['./wms-admin-table.component.css'],
-  standalone: true,
-  imports: [CommonModule, NgbCollapse, AgGridAngular]
+  styleUrls: ['./wms-admin-table.component.css']
 })
 export class WmsAdminTableComponent implements OnInit, AfterViewInit {
 
@@ -33,7 +30,8 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   constructor(
     private ogcDataGridHelperServiceFactory: OgcDataGridHelperServiceFactory,
     private dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private modalService: NgbModal
   ) {
     this.ogcDataGridHelperService = this.ogcDataGridHelperServiceFactory.create();
   }
@@ -83,5 +81,28 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     );
     
     this.ogcDataGridHelperService.setComponentRef(this);
+  }
+
+  checkCreatePermission(): boolean {
+    return this.dataExchangeService.checkCreatePermission();
+  }
+
+  checkEditorPermission(): boolean {
+    return this.dataExchangeService.checkEditorPermission();
+  }
+
+  checkDeletePermission(): boolean {
+    return this.dataExchangeService.checkDeletePermission();
+  }
+
+  openAddModal() {
+    const modalRef = this.modalService.open(WmsAddModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
+    });
   }
 }
