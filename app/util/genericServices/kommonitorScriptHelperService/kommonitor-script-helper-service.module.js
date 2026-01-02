@@ -1,113 +1,19 @@
-angular.module('kommonitorScriptHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorScriptHelper', ['kommonitorDataExchange', 'kommonitorToastHelper']);
 
 angular
   .module('kommonitorScriptHelper', [])
   .service(
-    'kommonitorScriptHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+    'kommonitorScriptHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env', 'kommonitorToastHelperService',
     function ($rootScope, $timeout,
-      kommonitorDataExchangeService, $http, __env) {
+      kommonitorDataExchangeService, $http, __env, kommonitorToastHelperService) {
 
       var self = this;
 
+      this.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID = "foundNewJobId_";
+
       this.targetUrlToManagementService = __env.apiUrl + __env.basePath + "/";
 
-      this.availableScriptDataTypes = [
-        {
-					"displayName": "Textuell (String)",
-					"apiName": "string"
-				},
-				{
-					"displayName": "Wahrheitswert (Boolean)",
-					"apiName": "boolean"
-        },
-        {
-					"displayName": "Ganzzahl (Integer)",
-					"apiName": "integer"
-				},
-				{
-					"displayName": "Gleitkommazahl (Double)",
-					"apiName": "double"
-				}
-      ];
-
-      this.availableScriptTypeOptions = [
-				{
-					"displayName": "Generische Definition",
-					"apiName": "generic"
-				},
-				{
-					"displayName": "Indikatoren - Summe aller Indikatoren",
-					"apiName": "indicator_sum"
-        },
-				{
-					"displayName": "Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator",
-					"apiName": "indicator_subtract"
-        },
-        {
-					"displayName": "Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-					"apiName": "indicator_percentage"
-        },
-        {
-					"displayName": "Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-					"apiName": "indicator_share"
-        },
-        {
-					"displayName": "Indikatoren - Division (Quotient zweier Indikatoren)",
-					"apiName": "indicator_division"
-        },
-        {
-					"displayName": "Indikatoren - Trend (mittels linearer Regression)",
-					"apiName": "indicator_trend"
-        },
-        {
-					"displayName": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
-					"apiName": "indicator_continuity"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung absolut",
-					"apiName": "indicator_change_absolute"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
-					"apiName": "indicator_change_absolute_refDate"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt",
-					"apiName": "indicator_change_relative_refDate"
-        },
-        {
-					"displayName": "Indikatoren - Veränderung prozentual",
-					"apiName": "indicator_change_relative"
-        },
-        {
-					"displayName": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
-					"apiName": "indicator_promille"
-        },        
-        {
-					"displayName": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
-					"apiName": "indicator_headlineIndicator"
-        },
-        {
-					"displayName": "Indikatoren - Produkt aller Indikatoren",
-					"apiName": "indicator_multiplication"
-        },
-        {
-					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
-					"apiName": "georesource_pointsInPolygon"
-				},
-        {
-					"displayName": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
-					"apiName": "georesource_statistics"
-				},
-        {
-					"displayName": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
-					"apiName": "georesource_subsetShare"
-				},
-        {
-					"displayName": "Georessourcen - Summierte Linienlänge je Polygon",
-					"apiName": "lineSegmentInPolygon"
-				}             
-			];
+      this.availableScriptTypeOptions = [];
 
       this.temporalOptions = [
 				{
@@ -123,6 +29,38 @@ angular
 					"displayName": "Tag(e)"
 				}
 			];
+
+      this.predefinedInputNames = [
+        "computation_id",
+        "computation_ids",
+        "reference_id",
+        "reference_date",
+        "georesource_id",
+        "georesource_id_line",
+        "comp_filter",
+        "compProp",
+        "target_spatial_units",
+        "execution_interval",
+        "target_time",
+        "target_indicator_id"
+      ];
+
+      this.targetTimeOptions = [
+        {
+          "apiName": "MISSING",
+          "displayName": "Fehlende Zeitpunkte berechnen"
+        },
+        {
+          "apiName": "ALL",
+          "displayName": "Alle Zeitpunkte berechnen"
+        },
+        {
+          "apiName": "DATES",
+          "displayName": "Zeitpunkte einzeln auswählen"
+        }
+      ];
+
+      this.processParameters = {};
 
       this.requiredIndicators_tmp = [];
       this.requiredGeoresources_tmp = [];
@@ -150,6 +88,38 @@ angular
         this.targetIndicatorOldProcessDescription = undefined;
       };
 
+      this.getScriptTypes = async function(){
+
+          return await $http({
+            url: __env.targetUrlToProcessesApi + "processes/",
+            method: "GET"
+          }).then(function successCallback(response) {
+              return response.data.processes;
+    
+            }, function errorCallback(response) {
+              console.error("Error getting script types.");
+              throw response;
+          });
+      }
+
+      this.getProcessDescription = async function(processId) {
+
+        var self = this;
+        await $http({
+          url: __env.targetUrlToProcessesApi + "processes/" + processId,
+          method: "GET",
+          data: {
+            'f': 'json'
+          }
+        }).then(function successCallback(response) {            
+            self.scriptData = response.data;
+            $rootScope.$broadcast("processDescriptionFetched");
+          }, function errorCallback(response) {
+            console.error("Error getting process description.");
+            throw response;
+        });
+      }
+
       this.addBaseIndicator = function(indicatorMetadata){
         if(!indicatorMetadata){
           return;
@@ -173,70 +143,6 @@ angular
           }
         }	
       };
-      
-      this.addBaseGeoresource = function(georesourceMetadata){
-				// for (const baseGeoresource of this.requiredGeoresources_tmp) {
-				// 	if (baseGeoresource.georesourceId === georesourceMetadata.georesourceId){
-				// 		// already inserted as base georesource, hence add not allowed
-				// 		return;
-				// 	}
-				// }
-				this.requiredGeoresources_tmp.push(georesourceMetadata);
-      };
-      
-      this.removeBaseGeoresource = function(georesourceMetadata){
-				for (let index = 0; index < this.requiredGeoresources_tmp.length; index++) {
-				
-          if (this.requiredGeoresources_tmp[index].georesourceId === georesourceMetadata.georesourceId){
-            // remove object
-            this.requiredGeoresources_tmp.splice(index, 1);
-            break;
-          }
-        }	
-      };
-      
-      this.addScriptParameter = function(parameterName, parameterDescription, parameterDataType, parameterDefaultValue, parameterNumericMinValue, parameterNumericMaxValue){
-        for (const scriptParameter of this.requiredScriptParameters_tmp) {
-					if (scriptParameter.name === parameterName){
-						// already inserted as script parameter, hence add not allowed
-						return;
-					}
-        }
-        
-        var scriptParameter = {
-          "name": parameterName,
-          "description": parameterDescription,
-          "dataType": parameterDataType.apiName,
-          "defaultValue": parameterDefaultValue,
-          "minParameterValueForNumericInputs": parameterNumericMinValue || 0,
-          "maxParameterValueForNumericInputs": parameterNumericMaxValue || 1
-
-        };
-				this.requiredScriptParameters_tmp.push(scriptParameter);
-      };
-
-      this.removeScriptParameter = function(scriptParameter){
-				for (let index = 0; index < this.requiredScriptParameters_tmp.length; index++) {
-				
-          if (this.requiredScriptParameters_tmp[index].name === scriptParameter.name){
-            // remove object
-            this.requiredScriptParameters_tmp.splice(index, 1);
-            break;
-          }
-        }	
-      };
-
-      this.removeScriptParameter_byName = function(scriptParameterName){
-				for (let index = 0; index < this.requiredScriptParameters_tmp.length; index++) {
-				
-          if (this.requiredScriptParameters_tmp[index].name === scriptParameterName){
-            // remove object
-            this.requiredScriptParameters_tmp.splice(index, 1);
-            break;
-          }
-        }	
-      };
-
       this.prettifyScriptCodePreview = function(htmlDomElementId){
 
         $timeout(function(){
@@ -265,8 +171,10 @@ angular
             },
             "refrencesToOtherIndicators": [], // filled directly after
               "permissions": targetIndicatorMetadata.permissions,
+              "regionalReferenceValues": targetIndicatorMetadata.regionalReferenceValues,
               "datasetName": targetIndicatorMetadata.indicatorName,
               "abbreviation": targetIndicatorMetadata.abbreviation || null,
+              "precision": targetIndicatorMetadata.precision,
               "characteristicValue": targetIndicatorMetadata.characteristicValue || null,
               "tags": targetIndicatorMetadata.tags, 
               "creationType": targetIndicatorMetadata.creationType,
@@ -278,7 +186,10 @@ angular
               "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
               "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
               "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
-              "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping
+              "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping,
+              "referenceDateNote": targetIndicatorMetadata.referenceDateNote || "",
+				      "displayOrder": targetIndicatorMetadata.displayOrder,
+				  
           };
 
           // REFERENCES
@@ -329,61 +240,77 @@ angular
         });
       };
 
-      this.postNewScript = async function(scriptName, description, targetIndicatorMetadata){
-        console.log("Trying to POST to management service to register new script.");
+      this.postNewScript = async function(scheduleId){ 
 
-        /*	POST BODY
-				{
-						"scriptCodeBase64": "scriptCodeBase64",
-						"requiredIndicatorIds": [
-							"requiredIndicatorIds",
-							"requiredIndicatorIds"
-						],
-						"variableProcessParameters": [
-							{
-							"minParameterValueForNumericInputs": 6.027456183070403,
-							"maxParameterValueForNumericInputs": 0.8008281904610115,
-							"defaultValue": "defaultValue",
-							"dataType": "string",
-							"name": "name",
-							"description": "description"
-							},
-							{
-							"minParameterValueForNumericInputs": 6.027456183070403,
-							"maxParameterValueForNumericInputs": 0.8008281904610115,
-							"defaultValue": "defaultValue",
-							"dataType": "string",
-							"name": "name",
-							"description": "description"
-							}
-						],
-						"associatedIndicatorId": "associatedIndicatorId",
-						"name": "name",
-						"description": "description",
-						"requiredGeoresourceIds": [
-							"requiredGeoresourceIds",
-							"requiredGeoresourceIds"
-						]
-						}
-			*/
+        // if(this.processParameters.computation_id) {
+        //   this.processParameters.computation_ids = [this.processParameters.computation_id];
+        //   this.processParameters.computation_id = undefined;
+        // }
+
+        function wrapObjectsInValue(obj) {
+           // process inputs are often delivered as key value pairs.
+          // for all non-special inputs (all except those from this.predefinedInputNames) we want to
+          // reduce input value object to key value pairs
+          // enumeration have to be treated specifically
+
+          const result = {};
+          for (const [key, value] of Object.entries(obj)) {
+            // selected enumeration entry
+            // we only need apiName value here
+            if(value && value.apiName){
+              result[key] = value.apiName;
+            }
+            // entry has own value property
+            else if (
+              value !== null &&
+              typeof value === 'object' &&
+              !Array.isArray(value)
+            ) {
+              result[key] = { value };
+            // all other cases
+            } else {
+              result[key] = value;
+            }
+          }
+          return result;
+        }
+
+        this.processParameters = wrapObjectsInValue(this.processParameters);
+
 
         var postBody = {
-          "name": scriptName,
-          "description": description,
-          "associatedIndicatorId": targetIndicatorMetadata.indicatorId,
-          "requiredIndicatorIds": this.requiredIndicators_tmp.map(indicatorMetadata => indicatorMetadata.indicatorId),
-          "requiredGeoresourceIds": this.requiredGeoresources_tmp.map(georesourceMetadata => georesourceMetadata.georesourceId),
-          "variableProcessParameters": this.requiredScriptParameters_tmp,
-          "scriptCodeBase64": window.btoa(this.scriptCode_readableString)
-        };             
+          inputs: this.processParameters,
+        }
+
+
+        //postBody = angular.toJson( this.processParameters ); // remove hash keys
+
+        // postBody = {
+        //   "inputs": {
+        //     "target_indicator_id": "8146f4ad-8db2-45de-aa4d-a9ce59c68f83",            
+        //     "target_spatial_units": [
+        //         "4154115f-3fa8-4fb9-9d7a-593ed0885e6c"
+        //     ],
+        //     "target_time": {
+        //         "value": {
+        //             "mode": "DATES",
+        //             "includeDates": ["2019-12-31", "2020-12-31"]    
+        //         }
+        //     },
+        //     "execution_interval":  {
+        //         "value": {
+        //             "cron": "*/1 * * * *"
+        //         }
+        //     },
+        //     "computation_id_numerator": "905b3c1b-0b1c-49d0-99e5-b327b7b085c2",
+        //     "computation_id_denominator": "baad078b-8e91-4999-aa94-0fee5a50cec6",
+        //   }
+        // }
 
         return await $http({
-          url: this.targetUrlToManagementService + "process-scripts",
+          url: __env.targetUrlToProcessesApi + "processes/" + scheduleId + "/schedule",
           method: "POST",
-          data: postBody,
-          headers: {
-            'Content-Type': "application/json"
-          }
+          data: postBody
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -399,8 +326,93 @@ angular
         });
       };
 
-      this.updateScript = async function(scriptName, description, scriptId){
-        console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
+      this.deleteScript = async function(scheduleId){
+
+          return await $http({
+            url: __env.targetUrlToProcessesApi + "schedules/" + scheduleId,
+            method: "DELETE"
+          }).then(function successCallback(response) {
+              
+    
+            }, function errorCallback(response) {
+              console.error("Error deleting script schedule.");
+              throw response;
+          });
+      }
+
+      this.triggerJobForSchedule = async function(scheduleId){
+        return await $http({
+          url: __env.targetUrlToProcessesApi + "schedules/" + scheduleId + "/execution",
+          method: "POST"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to processes api service.");
+            throw response;
+        });
+      }
+
+      this.initJobWatchingForSchedule = function(scheduleId, scriptMetadata_old){        
+
+        let propertyName_newJobIdForSchedule = self.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + scheduleId;
+        self[propertyName_newJobIdForSchedule] = false; 
+
+        // basic idea: have a deep copy of current scriptMetadata
+        // then periodically fetch new process script metadata
+        // check if there is a new jobId
+        // if not then wait and repeat
+        setTimeout(async function(){
+          self[propertyName_newJobIdForSchedule] = await self.checkForNewJobID(scheduleId, scriptMetadata_old);
+
+          if(self[propertyName_newJobIdForSchedule]){
+            $("#" + "btnExecuteScript_" + scheduleId).removeAttr("disabled");
+            $("#" + "btnExecuteScript_" + scheduleId  + "_span").css({'display': 'none'});    
+            $("#" + "btnExecuteScript_" + scheduleId  + "_span").innerHTML = "Berechnung starten";        
+          }
+          else{
+            $("#" + "btnExecuteScript_" + scheduleId).attr("disabled", "disabled");
+            $("#" + "btnExecuteScript_" + scheduleId + "_span").css({'display': 'inline-block'});
+          }
+          
+                    
+          if (self[propertyName_newJobIdForSchedule]){
+            $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);
+            kommonitorToastHelperService.displayInfoToast_lowerLeft("Manuelle Indikatorenberechnung", "Neuer Berechnungs-Job liegt vor. Für Details Job-Tabelle öffnen.");
+            return;
+          }
+          else{
+            //continue jobWatching
+            self.initJobWatchingForSchedule(scheduleId, scriptMetadata_old);
+            
+          }
+        }, 1000);
+      };
+
+      this.checkForNewJobID = async function(scheduleId, scriptMetadata_old){
+
+        return await kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(scheduleId).then(function successCallback(scriptMetadata) {
+
+              // check if there is a new jobId
+              if(scriptMetadata.jobIDs.length > scriptMetadata_old.jobIDs.length)
+              {
+                
+                return true;      
+              }              
+	
+						}, function errorCallback(response) {
+              kommonitorToastHelperService.displayErrorToast_lowerLeft("Fehler beim Abruf der Skript-Metadaten", $scope.fileLayerError);
+							$scope.loadingData = false;
+					});
+      }
+
+      this.updateScript = async function(scriptName, description, scheduleId){
 
         var putBody = {
           "name": scriptName,
@@ -412,7 +424,7 @@ angular
         };       
 
         return await $http({
-          url: this.targetUrlToManagementService + "process-scripts/" + scriptId,
+          url: this.targetUrlToManagementService + "process-scripts/" + scheduleId,
           method: "PUT",
           data: putBody,
           headers: {

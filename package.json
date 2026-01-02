@@ -73,6 +73,7 @@
     "d3-geo": "^3.1.1",
     "docx": "^7.8.2",
     "dom-to-image-more": "^2.6.0",
+    "dompurify": "^3.2.6",
     "echarts": "^5.5.1",
     "echarts-stat": "^1.2.0",
     "fastclick": "^1.0.6",

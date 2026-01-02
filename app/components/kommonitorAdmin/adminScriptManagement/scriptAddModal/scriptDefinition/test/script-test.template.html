@@ -1,0 +1,176 @@
+<h4>{{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.longTitle}}</h4>
+
+<p>{{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.description}}</p>
+<p>
+	<span ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.calculation_info">
+		<b><i><u>Berechnung:</u></i></b> {{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.calculation_info}}
+	</span>
+	<span ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.optional_info">
+		<b><i><u>Optional:</u></i></b> {{$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.optional_info}}
+	</span>
+</p>
+<p ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula" 
+	id="scriptFormulaExplanation" 
+	ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" 
+	ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
+	<b><i><u>Formel:</u></i></b>
+	<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.formula"></span>
+	<span ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.legend">
+		<br/>
+		mit 
+		<span mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.legend"></span>
+	</span>
+</p>
+
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<div ng-repeat="box in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.inputBoxes" class="input-box">
+			<!-- <div style="text-align: left;"> -->
+			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+				<div class="box-header">
+					<h3 class="box-title">{{ box.title }}</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+						</button>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body">
+					<p>{{ box.description }}</p>
+
+					<ng-include ng-show="box.id == 'computation_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationIndicatorSelection.html'"></ng-include>
+					<ng-include ng-show="box.id == 'georesource_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationGeoresourceSelection.html'"></ng-include>
+					<ng-include ng-show="box.id == 'georesource_id_line'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationLineGeoresourceSelection.html'"></ng-include>
+					<ng-include ng-show="box.id == 'reference_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/referenceIndicatorSelection.html'"></ng-include>
+
+					<ng-include ng-show="box.id == 'computation_ids'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/baseIndicatorMultiSelection.html'"></ng-include>
+					
+					<ng-include ng-if="box.id == 'comp_filter'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationFilter.html'"></ng-include>
+					<ng-include ng-show="box.id == 'compProp'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/numericPropSelection.html'"></ng-include>
+					<ng-include ng-show="box.id == 'reference_date'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/referenceDateSelection.html'"></ng-include>
+
+					<div class="row vertical-align" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.predefinedInputNames.includes(box.id)">
+					
+						<div ng-repeat="inputKey in box.contents" class="col-md-3 col-sm-3 col-xs-12">
+							<div class="form-group">
+								<label>{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].title }}</label>
+								<p>{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].description }}</p>
+								
+								<!-- String oder Integer Input -->
+								<input 
+										class="form-control"
+										type="{{ $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.type === 'integer' ? 'number' : 'text' }}" 
+										ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey]" 
+										ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.minimum" 
+										ng-min="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.minimum" 
+										ng-max="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.maximum" 
+										ng-if="!$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum" 
+										ng-change="onChangeInputData()"
+									/>
+								
+								<!-- Dropdown für Enums -->
+								<select 
+										class="form-control"
+										ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey]" 
+										ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters[inputKey] = $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum[0];" 
+										ng-options="option as option.displayName for option in $ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum" 
+										ng-if="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.inputs[inputKey].schema.enum"
+										ng-change="onChangeInputData()">
+								</select>
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+	 
+
+
+<!--<ng-include src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/scriptCodePreviewWindow.html'"></ng-include>-->
+
+<div class="row vertical-align" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes('generic')">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-info collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title">&Uuml;berschreiben relevanter Ziel-Indikator Metadaten (Optional)</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<p>KomMonitor erlaubt es, die Berechnungs-Methodik des Ziel-Indikators zu &uuml;berschreiben. 
+					Das Vorschaufenster zeigt den (editierbaren) Textbaustein. Um diesen Text als "Methodik" des Ziel-Indikators zu setzen,
+					aktivieren Sie bitte den entsprechenden Schalter und registrieren das Skript. 
+				</p>
+
+				<div class="row vertical-align">
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Editierfenster des Methodik-Textbausteins (HTML)</label>
+							<br/>
+							<br/>
+							<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ></textarea>
+						</div>
+						<div class="help-block" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes('indicator_')">
+							<p>Hinweis: KomMonitor nutzt <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/">MathJax und Tex-Syntax</a>, um Formeln darzustellen.
+								Gem&auml;&szlig; <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/#demo">MathJax Demo Seite</a> wird der Formel-Code von 
+								 <code>$$ ... $$</code> (Anzeige in neuer Zeile) oder <code>$ ... $</code> (Inline-Anzeige) Trennzeichen umschlossen.
+							</p>
+						</div>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Vorschaufenster</label>
+							<br/>
+							<br/>
+							<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
+						</div>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="row vertical-align">
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Mit diesem Textbaustein das "Methodik"-Metadatum des Ziel-Indikators &uuml;berschreiben?</label>
+
+							<br/>	
+							<label class="switch">
+								<input type="checkbox" value="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML_overwriteTargetIndicatorMethod" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML_overwriteTargetIndicatorMethod">
+								<span class="switchslider round"></span>
+							</label>
+						</div>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-12">
+						<div class="form-group">
+							<label>Derzeitiger Eintrag zum Vergleich</label>
+							<br/>
+							<br/>
+							<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
+						</div>
+					</div>
+				</div>		
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+
+</div>
+
+<script>
+	$('.box').boxWidget();
+</script>

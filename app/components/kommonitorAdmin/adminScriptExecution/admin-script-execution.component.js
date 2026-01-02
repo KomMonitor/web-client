@@ -9,74 +9,56 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.loadingData = true;
 
-		$scope.availableDefaultComputationJobDatasets;
-		$scope.availableCustomizedComputationJobDatasets;
-		$scope.defaultComputationJobHealth;
-		$scope.customizedComputationJobHealth;
 		$scope.selectAllEntriesInput = false;
 
-		$scope.fetchDefaultIndicatorJobs = function(){
-            return $http({
-              url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation",
+		$scope.jobDescriptions = [];
+
+		$scope.fetchJobDescriptions = async function(){
+            return await $http({
+              url: __env.targetUrlToProcessesApi + "jobs?limit=50",
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
 
-                $scope.availableDefaultComputationJobDatasets = response.data;
+                $scope.jobDescriptions = response.data.jobs;
 
+				// also start to fetch job details for all queried jobs
+				// in the background
+				// $scope.fetchJobDetails($scope.jobDescriptions);
               });
 		  };
+
+		$scope.fetchJobDetails = async function(jobDescriptions){
+			// let jobDescriptions_withJobSummary = [];
+			for (const jobDescription of jobDescriptions) {
+				if(!jobDescription.jobSummary){
+					await $http({
+					url: __env.targetUrlToProcessesApi + "jobs/" + jobDescription.jobID + "/results",
+					method: "GET"
+					}).then(function successCallback(response) {
+						// this callback will be called asynchronously
+						// when the response is available
+
+						// this is only the jobSummayr as response
+						// let clone = jQuery.extend(true, {}, jobDescription);
+						jobDescription.jobSummary = response.data.jobSummary;
+
+						// jobDescriptions_withJobSummary.push(clone);
+				});
+				}
+				
+			}
+
+			return jobDescriptions;
+		}  
 		 
-		  $scope.fetchCustomizedIndicatorJobs = function(){
-            return $http({
-              url: __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation",
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                $scope.availableCustomizedComputationJobDatasets = response.data;
-
-              });
-          };
-
-		  $scope.fetchDefaultIndicatorJobHealth = function(){
-			return $http({
-				url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation/health",
-				method: "GET"
-			  }).then(function successCallback(response) {
-				  // this callback will be called asynchronously
-				  // when the response is available
-  
-				  $scope.defaultComputationJobHealth = response.data;
-  
-				});
-		  };
-
-		  $scope.fetchCustomizedIndicatorJobHealth = function(){
-			return $http({
-				url: __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation/health",
-				method: "GET"
-			  }).then(function successCallback(response) {
-				  // this callback will be called asynchronously
-				  // when the response is available
-  
-				  $scope.customizedComputationJobHealth = response.data;
-  
-				});
-		  };
-
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 
 			$timeout(async function () {
 
-				await $scope.fetchDefaultIndicatorJobHealth();
-				await $scope.fetchCustomizedIndicatorJobHealth();
-
-				await $scope.fetchDefaultIndicatorJobs();
-				await $scope.fetchCustomizedIndicatorJobs();
+				await $scope.fetchJobDescriptions();
 
 				$scope.initializeOrRefreshOverviewTable();
 			}, 250);
@@ -92,11 +74,28 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.initializeOrRefreshOverviewTable = function () {
 			$scope.loadingData = true;
 
-			kommonitorDataGridHelperService.buildDataGrid_defaultJobs($scope.availableDefaultComputationJobDatasets);
-			kommonitorDataGridHelperService.buildDataGrid_customizedJobs($scope.availableCustomizedComputationJobDatasets);
+			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.jobDescriptions);
 
 			$scope.loadingData = false;
 		};
+
+		$scope.onJobStatusClicked = async function (status){
+			$scope.selectedStatus = status;
+
+			$scope.filteredJobDescriptions = [];
+
+			for (let job of $scope.jobDescriptions) {
+				if (job.status == status) {
+					$scope.filteredJobDescriptions.push(job);
+				}
+			}
+
+			// for each filtered job entry, we must fetch jkob details, as only then we get detailed 
+			// jobSummary for the respective data grid
+
+			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
+			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);
+		}
 
 		$scope.$on("refreshJobOverviewTable", function (event) {
 			$scope.loadingData = true;
@@ -106,32 +105,54 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.refreshJobOverviewTable = async function () {
 
 			// refetch all metadata from spatial units to update table
-			await $scope.fetchDefaultIndicatorJobs();
-			await $scope.fetchCustomizedIndicatorJobs();
-			await $scope.fetchCustomizedIndicatorJobHealth();
-			await $scope.fetchDefaultIndicatorJobHealth();
+			await $scope.fetchJobDescriptions();
 
-			$scope.initializeOrRefreshOverviewTable();
+			$timeout(async function () {
 
-			$scope.loadingData = false;
+				$scope.initializeOrRefreshOverviewTable();
 
-		};
+				$scope.loadingData = false;
+			});
+			
 
-		$scope.onClickDeleteDatasets = function () {
-			$scope.loadingData = true;
-
-			let markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedDefaultJobsMetadata();
-
-			// submit selected spatial units to modal controller
-			$rootScope.$broadcast("onDeleteJobs", markedEntriesForDeletion);
-
-			$scope.loadingData = false;
 		};
 
 		$scope.syntaxHighlightJSON = function(json){
 			return kommonitorDataExchangeService.syntaxHighlightJSON(json);
 		};
 
+		$scope.getNumberForStatus = function(status){
+			let i = 0;
+			for (const job of $scope.jobDescriptions) {
+				if (job.status == status){
+					i++;
+				}
+			}
+			return i;
+		}
+
+		$scope.statusDescriptions = {
+			accepted: {
+				title: "wartende Jobs",
+				backgroundClass: "bg-orange",
+			},
+			// delayed: { // not supported by pyGeoAPI as of July 2025
+			// 	title: "verzögerte Jobs",
+			// 	backgroundClass: "bg-gray",
+			// },
+			running: {
+				title: "laufende Jobs",
+				backgroundClass: "bg-aqua",
+			},
+			failed: {
+				title: "gescheiterte Jobs",
+				backgroundClass: "bg-red",
+			},
+			successful: {
+				title: "abgeschlossene Jobs",
+				backgroundClass: "bg-green",
+			}
+		}
 	}
 	]
 });

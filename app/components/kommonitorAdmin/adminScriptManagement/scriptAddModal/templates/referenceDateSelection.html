@@ -1,0 +1,16 @@
+<div class="row vertical-align">
+  <div class="col-md-3 col-sm-3 col-xs-12">
+    <div class="form-group">
+      <label>fester Referenz-Zeitpunkt </label>
+      <br />
+      <select ng-model="$parent.refDateSelection.referenceDate" size="5"
+        ng-options="referenceDate as referenceDate for referenceDate in $parent.compIndicatorSelection.applicableDates"
+        ng-change="$parent.onChangeReferenceDate()"
+        class="form-control">
+        <option disabled selected value> -- Zeitbezug w&auml;hlen --
+        </option>
+      </select>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>

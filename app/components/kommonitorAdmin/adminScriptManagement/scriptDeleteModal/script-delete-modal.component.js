@@ -57,7 +57,7 @@ angular.module('scriptDeleteModal').component('scriptDeleteModal', {
 							$("#scriptsDeleteSuccessAlert").show();
 
 							// refresh script overview table
-							$rootScope.$broadcast("refreshScriptOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.scriptId));
+							$rootScope.$broadcast("refreshScriptOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(dataset.inputs.target_indicator_id)));
 
 							// refresh all admin dashboard diagrams due to modified metadata
 							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
@@ -82,8 +82,8 @@ angular.module('scriptDeleteModal').component('scriptDeleteModal', {
 
 			$scope.getDeleteDatasetPromise = function(dataset){
 				return $http({
-					url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/process-scripts/" + dataset.scriptId,
-					method: "DELETE"
+					url: __env.targetUrlToProcessesApi + "schedules/" + dataset.scheduleID,
+            		method: "DELETE"
 				}).then(function successCallback(response) {
 							$scope.successfullyDeletedDatasets.push(dataset);
 
@@ -91,7 +91,7 @@ angular.module('scriptDeleteModal').component('scriptDeleteModal', {
 							var index = -1;
 
 							for(var i=0; i< kommonitorDataExchangeService.availableProcessScripts.length; i++){
-								if(kommonitorDataExchangeService.availableProcessScripts[i].scriptId === dataset.scriptId){
+								if(kommonitorDataExchangeService.availableProcessScripts[i].scheduleID === dataset.scheduleID){
 									index = i;
 									break;
 								}

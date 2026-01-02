@@ -3480,6 +3480,23 @@ input:checked + .switchslider:before {
 	vertical-align: middle;
 }
 
+.cronInputModeOptions div input[type="radio"]:checked{
+	background-color: #4CAF50;
+}
+
+.intervalDetailsContent {
+	display: flex;
+	justify-content: space-between;
+}
+
+.mode-option label {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: baseline;
+	gap: 15px;
+}
+
 .classificationBoxToogleSlidersWrapper {
 	display: table;
 }
