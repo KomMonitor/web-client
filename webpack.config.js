@@ -100,6 +100,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'pptxgenjs/dist', to: 'pptxgenjs/' },
             { from: nodeModulePathConstant + 'd3/dist/d3.min.js', to: 'd3/d3.min.js' },
             { from: nodeModulePathConstant + 'pako/dist/pako.min.js', to: 'pako/pako.min.js' },
+            { from: './customizedExternalLibs/uuidv4_v8.3.2.min.js', to: 'uuid/' },
       ]})
     ]
 };

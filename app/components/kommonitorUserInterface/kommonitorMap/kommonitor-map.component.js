@@ -1135,11 +1135,6 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("changeNumClasses", function (event, num) {
           kommonitorVisualStyleHelperService.numClasses = num;  
-          
-          $timeout(function(){
-            kommonitorVisualStyleHelperService.numClasses = num;  
-            $rootScope.$apply();
-          }, 350);
 
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });

@@ -25,6 +25,16 @@ angular
 							$scope.selectedMethod = $scope.getMethod(ctrl.defaultMethodId);
 						}
 
+						ctrl.onClickClassificationMethodSelect = function(){
+							if(! kommonitorVisualStyleHelperService.classificationImpossible){
+								$scope.showMethodSelection = !$scope.showMethodSelection
+								// $timeout(function(){
+								// 	$scope.$apply();
+								// })
+								
+							}
+						}
+
 						ctrl.methodSelected = function(method) {
 							$scope.showMethodSelection = false;
 							$scope.selectedMethod = method;
