@@ -101,6 +101,33 @@ export class WmsAddModalComponent {
 
   addWms() {
 
+    let data = {
+      metadata : {
+        title: this.metadataForm.controls.title.value,
+        description: this.metadataForm.controls.description.value,
+        databasis: this.metadataForm.controls.databasis.value,
+        datasource: this.metadataForm.controls.datasource.value,
+        contact: this.metadataForm.controls.contact.value,
+        note: this.metadataForm.controls.note.value 
+      },
+      connection: {
+        url: this.connectForm.controls.url.value,
+        layer: this.connectForm.controls.layer.value
+      },
+      topic: {
+        mainTopics: this.georesourceTopic_mainTopic,
+        subTopic: this.georesourceTopic_subTopic,
+        subsubTopic: this.georesourceTopic_subsubTopic,
+        subsubsubTopic: this.georesourceTopic_subsubsubTopic
+      },
+      accessControl: {
+        owner: this.ownerOrganization,
+        isPublic: this.isPublic,
+        permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
+      }
+    };
+
+    console.log(data);
   }
 
   checkDatasetName() {
@@ -166,7 +193,19 @@ export class WmsAddModalComponent {
   }
 
   resetWmsAddForm() {
+    this.metadataForm.reset();
+    this.connectForm.reset();
 
+    this.georesourceTopic_mainTopic = null;
+    this.georesourceTopic_subTopic = null;
+    this.georesourceTopic_subsubTopic = null;
+    this.georesourceTopic_subsubsubTopic = null;
+
+    this.wmsTestStatus = undefined;
+
+    this.ownerOrganization = '';
+    this.ownerOrgFilter = '';
+    this.isPublic = false;
   }
   
   hideSuccessAlert(): void {

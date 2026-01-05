@@ -240,7 +240,7 @@
           <hr>
           <br>
 
-          <div id="georesourceRoleForm">
+          <div id="georesourceRoleForm" *ngIf="ownerOrganization!=''">
             <label>Datensatz-Freigaben</label>
             
             <div class="row vertical-align">
@@ -301,8 +301,7 @@
   <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
 
   <button type="button" class="btn btn-success" 
-    [disabled]="metadataForm.invalid || connectForm.invalid || (dataExchangeService.enableKeycloakSecurity && !ownerOrganization)"
-    (click)="addWms()">
+    [disabled]="metadataForm.invalid || connectForm.invalid || (dataExchangeService.enableKeycloakSecurity && !ownerOrganization)" (click)="addWms()">
     WMS registrieren
   </button>
   <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">Zurücksetzen</button>
