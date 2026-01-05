@@ -1,8 +1,13 @@
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { OgcService } from 'services/ogcServices/ogc.service';
 
 @Component({
   selector: 'app-wms-add-modal',
@@ -19,14 +24,21 @@ export class WmsAddModalComponent {
   successMessage = '';
   loadingData = false;
 
+  wmsTestStatus:boolean | undefined = undefined;
+
   metadataForm = new FormGroup({
-    title: new FormControl<string>(''),
-    description: new FormControl<string>(''),
+    title: new FormControl<string>('', Validators.required),
+    description: new FormControl<string>('', Validators.required),
     databasis: new FormControl<string>(''),
-    datasource: new FormControl<string>(''),
-    contact: new FormControl<string>(''),
+    datasource: new FormControl<string>('', Validators.required),
+    contact: new FormControl<string>('', Validators.required),
     note: new FormControl<string>('')
   });
+
+  connectForm = new FormGroup({
+    url: new FormControl<string>('', Validators.required),
+    layer: new FormControl<string>('', Validators.required)
+  })
 
   datasetNameInvalid: boolean = false;
   
@@ -38,10 +50,17 @@ export class WmsAddModalComponent {
 
   availableTopics!: any;
 
+  // Role management
+  roleManagementTableOptions: any = null;
+  roleManagementColumnDefs: ColDef[] = [];
+  roleManagementRowData: any[] = [];
+  roleManagementDefaultColDef: ColDef = {};
+  roleManagementGridOptions: GridOptions = {};
+  roleManagementGridApi: GridApi | null = null;
+  roleManagementColumnApi: ColumnApi | null = null;
   ownerOrganization = '';
   ownerOrgFilter = '';
   isPublic = false;
-
   resourcesCreatorRights: any[] = [];
 
   successMessagePart = '';
@@ -49,7 +68,9 @@ export class WmsAddModalComponent {
 
   constructor(
     public activeModal: NgbActiveModal,
-    protected dataExchangeService: DataExchangeService
+    protected dataExchangeService: DataExchangeService,
+    private ogcService: OgcService,
+    protected dataGridHelperService: OgcDataGridHelperService
   ) {
     this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource=='georesource');
   }
@@ -88,21 +109,61 @@ export class WmsAddModalComponent {
 
   onChangeOwner(orgUnitId: string): void {
     this.ownerOrganization = orgUnitId;
-   // this.refreshRoles();
+    this.refreshRoles(orgUnitId);
   }
 
   onChangeIsPublic(isPublic: boolean): void {
     this.isPublic = isPublic;
   }
   
-/*   private refreshRoles(): void {
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
-      this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
+  private refreshRoles(orgUnitId:string): void {
+    let permissionIds_ownerUnit: string[] = [];
+    
+    if (orgUnitId) {
+      const accessControl = this.dataExchangeService.getAccessControlById(orgUnitId);
+      permissionIds_ownerUnit = accessControl?.permissions
+        ?.filter(permission => permission.permissionLevel === "viewer" || permission.permissionLevel === "editor")
+        .map(permission => permission.permissionId) || [];
+    }
+
+    // Set datasetOwner flags
+    this.dataExchangeService.accessControl?.forEach(item => {
+      item.datasetOwner = item.organizationalUnitId === orgUnitId;
+    });
+
+    // Build the role management grid options
+    this.roleManagementTableOptions = this.dataGridHelperService.buildRoleManagementGrid(
+      'spatialUnitAddRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.dataExchangeService.accessControl || [],
+      permissionIds_ownerUnit,
+      true
     );
-  } */
+
+    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
+    if (this.roleManagementTableOptions) {
+      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
+      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
+      
+      // Build grid configuration (this will use the components from roleManagementTableOptions)
+      this.buildRoleManagementGridConfig();
+      
+      // If grid is already initialized, update the data and grid options
+      if (this.roleManagementGridApi) {
+        // Update data
+        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
+        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
+        
+        // Refresh the grid to ensure it updates
+        setTimeout(() => {
+          if (this.roleManagementGridApi) {
+            this.roleManagementGridApi.refreshCells();
+            this.roleManagementGridApi.redrawRows();
+          }
+        }, 100);
+      }
+    }
+  }
 
   resetWmsAddForm() {
 
@@ -114,5 +175,93 @@ export class WmsAddModalComponent {
 
   hideErrorAlert(): void {
     this.errorMessage = '';
+  }
+
+  testConnection() {
+
+    let url = this.connectForm.controls.url.value;
+    let layer = this.connectForm.controls.layer.value;
+
+    if(url && layer) {
+
+      this.ogcService.testConnection(url).subscribe({
+        next: response => {
+          this.wmsTestStatus = response.success; 
+        },
+        error: error => {
+          console.log
+        }
+      })
+    }
+  }
+
+  onRoleManagementGridReady(params: any) {
+    this.roleManagementGridApi = params.api;
+    this.roleManagementColumnApi = params.columnApi;
+    
+    // Update the service with the grid API so it can be used for getSelectedRoleIds
+    this.dataGridHelperService.setGridApi(params.api);
+  }
+
+  // Additional grid event handlers to match parent component
+  onRoleManagementFirstDataRendered(event: any): void {
+    this.roleManagementHeaderHeightSetter();
+  }
+
+  onRoleManagementColumnResized(event: any): void {
+    this.roleManagementHeaderHeightSetter();
+  }
+
+  onRoleManagementModelUpdated(): void {
+    // Grid model updated
+  }
+
+  onRoleManagementViewportChanged(): void {
+    // Viewport changed
+  }
+
+  private roleManagementHeaderHeightSetter(): void {
+    if (this.roleManagementGridApi) {
+      const headerHeight = this.roleManagementHeaderHeightGetter();
+      this.roleManagementGridApi.setHeaderHeight(headerHeight);
+    }
+  }
+
+  private roleManagementHeaderHeightGetter(): number {
+    const headerElement = document.querySelector('#roleManagementGrid .ag-header');
+    if (headerElement) {
+      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
+      let maxHeight = 0;
+      headerTextElements.forEach(element => {
+        const height = element.scrollHeight;
+        if (height > maxHeight) {
+          maxHeight = height;
+        }
+      });
+      return Math.max(maxHeight + 20, 40); // Add padding and minimum height
+    }
+    return 40;
+  }
+
+  private buildRoleManagementGridConfig() {
+    // Use service methods for base grid configuration
+    this.roleManagementDefaultColDef = this.dataGridHelperService.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.dataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementTableOptions?.components
+    );
+    
+    // Apply component-specific overrides
+    this.roleManagementGridOptions = {
+      ...baseGridOptions,
+      onGridReady: (params) => {
+        this.onRoleManagementGridReady(params);
+      },
+      onFirstDataRendered: (event) => {
+        this.onRoleManagementFirstDataRendered(event);
+      },
+      onColumnResized: (event) => {
+        this.onRoleManagementColumnResized(event);
+      }
+    };
   }
 }

@@ -21,9 +21,10 @@
         <!-- progressbar -->
         <div>
           <ul id="progressbar">
-            <li style="width: 33.3%;" [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)">Metadaten</li>
-            <li style="width: 33.3%;" [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)">Themenhierarchie</li>
-            <li style="width: 33.3%;" [class.active]="currentStep >= 3" [class.clickable]="true" (click)="goToStep(3)">Zugriffsschutz und Eigentümerschaft</li>
+            <li style="width: 25%;" [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)">Metadaten</li>
+            <li style="width: 25%;" [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)">Anfrageparameter</li>
+            <li style="width: 25%;" [class.active]="currentStep >= 3" [class.clickable]="true" (click)="goToStep(3)">Themenhierarchie</li>
+            <li style="width: 25%;" [class.active]="currentStep >= 4" [class.clickable]="true" (click)="goToStep(4)">Zugriffsschutz und Eigentümerschaft</li>
           </ul>
         </div>
 
@@ -97,6 +98,41 @@
         </fieldset>
 
         <fieldset *ngIf="currentStep === 2">
+          <h2 class="fs-title">Anfrageparameter</h2>
+          <h3 class="fs-subtitle">Angabe der Abruf-Informationen</h3>
+          <p><b><i>* = Pflichtfeld</i></b></p>
+
+          <form [formGroup]="connectForm">
+            <div class="row vertical-align">
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>URL der Resource*</label>
+                  <input type="text" class="form-control" formControlName="url" name="datasetURL" placeholder="http://..." required>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Layer*</label>
+                  <input class="form-control" formControlName="layer" name="datasetLayer" placeholder="Layer" required>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row vertical-align">
+              <button class="btn btn-primary" value="Verbindung testen" (click)="testConnection()" [disabled]="connectForm.invalid">Verbindung testen</button>
+            </div>
+            <div class="row vertical-align">
+                <div *ngIf="wmsTestStatus===true" class="wmsTest_success">Test der WMS-Verbindungsdaten erfolgreich!</div>
+                <div *ngIf="wmsTestStatus===false" class="wmsTest_error">Test der WMS-Verbindungsdaten NICHT erfolgreich! WMS Daten nicht korrekt oder nicht nutzbar</div>
+            </div>      
+
+            <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+            <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
+          </form>
+        </fieldset>
+
+        <fieldset *ngIf="currentStep === 3">
           <h2 class="fs-title">Themenhierarchie</h2>
           <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
           <p><b><i>* = Pflichtfeld</i></b></p>
@@ -176,7 +212,7 @@
           <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
         </fieldset>
 
-        <fieldset *ngIf="currentStep === 3 && dataExchangeService.enableKeycloakSecurity">
+        <fieldset *ngIf="currentStep === 4 && dataExchangeService.enableKeycloakSecurity">
           <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
           <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
           <div class="row">
@@ -185,20 +221,15 @@
               <div class="alert alert-info">
                 Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten
               </div>
-              <label for="addGeoresourceUserRoleSelect">Eigentümer-Organisationseinheit*</label>
+              <label for="addWmsUserRoleSelect">Eigentümer-Organisationseinheit*</label>
               <div class="input-group">
                 <span class="input-group-addon"><i class="fas fa-filter"></i></span>
                 <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
               </div>
               <select *ngIf="dataExchangeService.checkAdminPermission()" 
-                id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
-                class="form-control" (ngModelChange)="onChangeOwner($event)" required>
+                id="addWmsUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
+                class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
                 <option *ngFor="let org of dataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
-              </select>
-              <select *ngIf="!dataExchangeService.checkAdminPermission()" 
-                id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
-                class="form-control" (ngModelChange)="onChangeOwner($event)" required>
-                <option *ngFor="let org of resourcesCreatorRights" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
               <p></p>
             </div>
@@ -224,7 +255,27 @@
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-xs-12">
-                <div id="georesourceAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
+                <ag-grid-angular
+                  #roleManagementGrid
+                  class="ag-theme-alpine"
+                  style="height: 45vh; width: 100%;"
+                  [columnDefs]="roleManagementColumnDefs"
+                  [rowData]="roleManagementRowData"
+                  [defaultColDef]="roleManagementDefaultColDef"
+                  [gridOptions]="roleManagementGridOptions"
+                  [components]="dataGridHelperService.getRoleManagementComponents()"
+                  [suppressRowClickSelection]="true"
+                  [rowSelection]="'multiple'"
+                  [enableCellTextSelection]="true"
+                  [ensureDomOrder]="true"
+                  [pagination]="false"
+                  [suppressColumnVirtualisation]="true"
+                  (gridReady)="onRoleManagementGridReady($event)"
+                  (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+                  (columnResized)="onRoleManagementColumnResized($event)"
+                  (modelUpdated)="onRoleManagementModelUpdated()"
+                  (viewportChanged)="onRoleManagementViewportChanged()">
+                </ag-grid-angular>
               </div>
               <div class="col-md-3">
                 <div class="alert alert-info">
@@ -247,23 +298,13 @@
 </div>
 
 <div class="modal-footer">
-  <!-- <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
-  <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceAddMetadata()"
-    title="Importieren der Metadaten aus einer Datei">
-    <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
-  </button>
-  <input style="display:none;" class="pull-left" type="file" #metadataImportFile class="form-control"
-    id="georesourceMetadataImportFile" accept=".json" (change)="onMetadataFileSelected($event)">
-  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMetadata()" 
-    title="Exportieren der Metadaten in eine Datei">
-    <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
-  </button> -->
+  <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
 
- <!--  <button type="button" class="btn btn-success" 
-    [disabled]="!metadata.title || !metadata.description || !metadata.datasource || !metadata.contact || datasetNameInvalid || (dataExchangeService.enableKeycloakSecurity && !ownerOrganization)"
+  <button type="button" class="btn btn-success" 
+    [disabled]="metadataForm.invalid || connectForm.invalid || (dataExchangeService.enableKeycloakSecurity && !ownerOrganization)"
     (click)="addWms()">
     WMS registrieren
-  </button> -->
+  </button>
   <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">Zurücksetzen</button>
 </div>
 

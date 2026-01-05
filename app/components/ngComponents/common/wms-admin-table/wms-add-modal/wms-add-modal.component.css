@@ -1,0 +1,12 @@
+:host {
+
+  .wmsTest_success {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .wmsTest_error {
+    color: red;
+    font-weight: bold;
+  }
+}

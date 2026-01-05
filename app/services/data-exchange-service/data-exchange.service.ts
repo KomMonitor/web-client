@@ -12,6 +12,7 @@ import { CacheHelperServiceService } from 'services/cache-helper-service/cache-h
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 
 export interface DataExchange {
   customGreetingsContact_mail: string;
@@ -1603,6 +1604,13 @@ export class DataExchangeService {
     this.setCurrentKomMonitorLoginRoleNames();
     this.setCurrentKomMonitorLoginOrganizationalUnits();            
   };
+
+  /**
+   * Get access control metadata by organizational unit ID
+   */
+  getAccessControlById(id: string): AccessControlMetadata | null {
+    return this.accessControl.find(unit => unit.organizationalUnitId === id) || null;
+  }
 
   setCurrentKomMonitorLoginOrganizationalUnits() {  
     
