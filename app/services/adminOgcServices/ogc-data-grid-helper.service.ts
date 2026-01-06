@@ -91,10 +91,6 @@ export class OgcDataGridHelperService {
       this.wmsGrid.api?.setRowData(georesourcesArray);
       this.wmsGrid.api?.setColumnDefs(columnDefs);
       
-      // Register click handlers after a short delay
-      setTimeout(() => {
-        this.registerClickHandler_georesources(georesourcesArray);
-      }, 200);
     } catch (error) {
       console.error('Error updating POI grid:', error);
     }
@@ -123,64 +119,17 @@ export class OgcDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
-      suppressColumnVirtualisation: true,
-      onModelUpdated: () => {
-        setTimeout(() => {
-          this.registerClickHandler_georesources([]);
-        }, 100);
-      },
-      onRowDataChanged: () => {
-        setTimeout(() => {
-          this.registerClickHandler_georesources([]);
-        }, 100);
-      }
+      suppressColumnVirtualisation: true
     };
-  }
-
-  /**
-   * Register click handlers for georesource buttons
-   */
-  private registerClickHandler_georesources(georesourceMetadataArray: any[]): void {
-    // Edit Metadata Button
-    const editMetadataButtons = document.querySelectorAll('.georesourceEditMetadataBtn');
-    editMetadataButtons.forEach((button: any) => {
-      button.removeEventListener('click', this.handleEditMetadataClick);
-      button.addEventListener('click', this.handleEditMetadataClick);
-    });
-
-    // Edit Features Button
-    const editFeaturesButtons = document.querySelectorAll('.georesourceEditFeaturesBtn');
-    editFeaturesButtons.forEach((button: any) => {
-      button.removeEventListener('click', this.handleEditFeaturesClick);
-      button.addEventListener('click', this.handleEditFeaturesClick);
-    });
-
-    // Edit User Roles Button
-    const editUserRolesButtons = document.querySelectorAll('.georesourceEditUserRolesBtn');
-    editUserRolesButtons.forEach((button: any) => {
-      button.removeEventListener('click', this.handleEditUserRolesClick);
-      button.addEventListener('click', this.handleEditUserRolesClick);
-    });
-
-    // Delete Button
-    const deleteButtons = document.querySelectorAll('.georesourceDeleteBtn');
-    deleteButtons.forEach((button: any) => {
-      button.removeEventListener('click', this.handleDeleteClick);
-      button.addEventListener('click', this.handleDeleteClick);
-    });
   }
 
   /**
    * Simple function-based cell renderer for edit buttons (like original)
    */
   private displayEditButtons_WMSgeoresources = (params: any) => {
-    if (!params.data || !params.data.id) {
+     if (!params.data || !params.data.id) {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
-
-    const editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.id;
-    const editUserRolesButtonId = 'btn_georesource_editUserRoles_' + params.data.id;
-    const deleteButtonId = 'btn_georesource_deleteGeoresource_' + params.data.id;
 
     // Check user permissions (handle both array and potential undefined)
     const userPermissions = params.data.userPermissions || [];
@@ -189,72 +138,100 @@ export class OgcDataGridHelperService {
     const hasCreatorPermission = Array.isArray(userPermissions) ? 
       userPermissions.includes("creator") : false;
 
-    let html = '<div class="btn-group btn-group-sm">';
-    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren" ' + 
-            (hasEditorPermission ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
-    html += '<button id="' + editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' + 
-            (hasCreatorPermission ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>';
-    html += '<button id="' + deleteButtonId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen" ' + 
-            (hasCreatorPermission ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
-    html += '</div>';
+    const buttonWrapper = document.createElement('div');
 
-    return html;
+    buttonWrapper.appendChild(this.buildEditButton(params, hasEditorPermission));
+    buttonWrapper.appendChild(this.buildEditUserRolesButton(params, hasCreatorPermission));
+    buttonWrapper.appendChild(this.buildDeleteButton(params, hasCreatorPermission));
+
+    return buttonWrapper;
   }
 
-  /**
-   * Handle edit metadata button click
-   */
-  private handleEditMetadataClick = (event: any): void => {
-    event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
-    if (this.componentRef) {
-      this.componentRef.onClickEditMetadata(georesourceMetadata);
+  buildEditButton(params:any, hasEditorPermission:boolean){
+    const button = document.createElement('button');
+    button.title = 'Zugriffsschutz und Eigentümerschaft editieren';
+    button.className = 'btn btn-warning btn-sm';
+
+    if (!hasEditorPermission) {
+      button.disabled = true;
     }
+
+    // Icon <i class="fas fa-pencil-alt"></i>
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-pencil-alt';
+
+    button.appendChild(icon);
+
+    // Click-Event
+    button.addEventListener('click', (event) => {
+      event.stopPropagation(); // verhindert Row-Click
+
+      if (!hasEditorPermission) {
+        return;
+      }
+
+      this.componentRef.onClickEditMetadata(params.data);
+    });
+
+    return button;
   }
 
-  /**
-   * Handle edit features button click
-   */
-  private handleEditFeaturesClick = (event: any): void => {
-    event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
-    if (this.componentRef) {
-      this.componentRef.onClickEditFeatures(georesourceMetadata);
+  buildEditUserRolesButton(params:any, hasCreatorPermission:boolean){
+    const button = document.createElement('button');
+    button.title = 'Metadaten editieren';
+    button.className = 'btn btn-warning btn-sm';
+
+    if (!hasCreatorPermission) {
+      button.disabled = true;
     }
+
+    // Icon <i class="fas fa-pencil-alt"></i>
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-user-lock';
+
+    button.appendChild(icon);
+
+    // Click-Event
+    button.addEventListener('click', (event) => {
+      event.stopPropagation(); // verhindert Row-Click
+
+      if (!hasCreatorPermission) {
+        return;
+      }
+
+      this.componentRef.onClickEditMetadata(params.data);
+    });
+
+    return button;
   }
 
-  /**
-   * Handle edit user roles button click
-   */
-  private handleEditUserRolesClick = (event: any): void => {
-    event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
-    if (this.componentRef) {
-      this.componentRef.onClickEditUserRoles(georesourceMetadata);
-    }
-  }
+  buildDeleteButton(params:any, hasCreatorPermission:boolean){
+    const button = document.createElement('button');
+    button.title = 'WMS entfernen';
+    button.className = 'btn btn-warning btn-sm';
 
-  /**
-   * Handle delete button click
-   */
-  private handleDeleteClick = (event: any): void => {
-    event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
-    if (this.componentRef) {
-      this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
+    if (!hasCreatorPermission) {
+      button.disabled = true;
     }
+
+    // Icon <i class="fas fa-pencil-alt"></i>
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-trash';
+
+    button.appendChild(icon);
+
+    // Click-Event
+    button.addEventListener('click', (event) => {
+      event.stopPropagation(); // verhindert Row-Click
+
+      if (!hasCreatorPermission) {
+        return;
+      }
+
+      this.componentRef.onClickEditMetadata(params.data);
+    });
+
+    return button;
   }
 
   /**

@@ -46,7 +46,7 @@ export class OgcService {
 
   public buildGetCapabilitiesUrl(baseUrl: string): string {
     const hasQuery = baseUrl.includes('?');
-    return `${baseUrl}${(hasQuery ? '&' : '?')}'service=WMS&request=GetCapabilities`;
+    return `${baseUrl}${(hasQuery ? '&' : '?')}service=WMS&request=GetCapabilities`;
   }
 
   public buildLegendUrl(baseUrl: string, layer:string):string {

@@ -836,6 +836,10 @@ export class DataExchangeService {
 
   setServices(servicesArray:WmsDataset[]) {
     this.availableWmsDatasets = servicesArray;
+
+    for (const georesourceMetadata of servicesArray) {
+      this.availableGeoresources_map.set(georesourceMetadata.id, georesourceMetadata);
+    }
   }
 
   addSingleGeoresourceMetadata(georesourceMetadata){
@@ -904,7 +908,7 @@ export class DataExchangeService {
 
     this.availableGeoresources = georesourcesArray;
 
-    this.availableGeoresources_map = new Map();
+    //this.availableGeoresources_map = new Map();
     for (const georesourceMetadata of georesourcesArray) {
       this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
     }
@@ -921,8 +925,13 @@ export class DataExchangeService {
       loiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isLOI),
       aoiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isAOI),
       wmsData: this.wmsDatasets_keywordFiltered,
-      wfsData: this.wfsDatasets_keywordFiltered
+      wfsData: this.wfsDatasets_keywordFiltered      
     };
+    // ggf 
+    /*  wmsData: this.wmsDatasets_keywordFiltered,
+      wfsData: this.wfsDat asets_keywordFiltered
+                                    
+      ggf in setServices auslagern, da beide requests parallel laufen und services evtl noch nicht verfügbar sind */
 
     var enabledGeoresources = window.__env.enabledGeoresourcesInfrastructure.concat(window.__env.enabledGeoresourcesGeoservices);
 

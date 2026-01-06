@@ -80,6 +80,7 @@ import { TopicEditModalComponent } from 'components/ngComponents/admin/adminTopi
 import { AdminFilterConfigComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/admin-filter-config.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
 import { WmsAddModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-add-modal/wms-add-modal.component';
+import { WmsEditModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-modal/wms-edit-modal.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -154,7 +155,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     OrderByPipe,
     FilterPipe,
     WmsAdminTableComponent,
-    WmsAddModalComponent
+    WmsAddModalComponent,
+    WmsEditModalComponent
   ],
   imports: [
     CommonModule,

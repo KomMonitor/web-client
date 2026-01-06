@@ -7,6 +7,8 @@ import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-d
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
+import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component';
+import { setDefaultAutoSelectFamily } from 'net';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -51,6 +53,70 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     });
 
     this.subscriptions.push(broadcastSub);
+  }
+
+  onClickEditMetadata(wmsMetadata: any): void {
+    const modalRef = this.modalService.open(WmsEditModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
+    });
+    
+    modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
+    modalRef.componentInstance.reInit();
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
+  }
+
+  onClickEditUserRoles(wmsMetadata: any): void {
+    const modalRef = this.modalService.open(WmsAddModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
+    });
+    
+    modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      } 
+    }).catch(() => {
+      // Modal dismissed
+    });
+  }
+
+  onClickDeleteSpatialUnits(wmsMetadata: any[]): void {
+    const modalRef = this.modalService.open(WmsAddModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
+    });
+    
+    modalRef.componentInstance.datasetsToDelete = wmsMetadata;
+    
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
   }
 
   initializeOrRefreshOverviewTable() {
