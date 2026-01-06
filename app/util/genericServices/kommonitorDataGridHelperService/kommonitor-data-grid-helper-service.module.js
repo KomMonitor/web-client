@@ -3043,7 +3043,7 @@ angular
                                 html += '<div class="box box-danger collapsed-box" style="width:200px;"><div class="box-header"><span class="box-title" style="font-size:12px">';
                                 //html += error.type;
                                 html += getErrorTypeShortDescription(error);
-                                html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
+                                html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool jobError" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
                                 html += getErrorTypeLongDescription(error);
                                 //html += "</br></br>"
                                 //html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
@@ -3131,12 +3131,29 @@ angular
                   },
                   onColumnResized: function () {
                     headerHeightSetter(self.dataGridOptions_processJobs);
-                  }
+                  },
+                  onViewportChanged: function () {   
+                    self.registerClickHandler_jobOverviewErrorBoxes();    
+                  },
         
                 };
         
                 return gridOptions;        
             };
+
+            this.registerClickHandler_jobOverviewErrorBoxes = function () {
+              // jobExecutionTable_processJobs 
+              $(".jobError").off();
+              $(".jobError").on("click", function (event) {
+                event.stopPropagation(); // Verhindert das Standardverhalten, aber propagiert das Event nicht weiter
+              const button = event.currentTarget;
+              const box = button.closest('.box');
+              $(box).boxWidget('toggle'); // Manuelles Triggern von AdminLTE's CardWidget
+              }); 
+
+            }
+
+
       
             this.buildDataGrid_processJobs = function (jobsArray) {
               
