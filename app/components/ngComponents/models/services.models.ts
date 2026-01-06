@@ -6,6 +6,9 @@ export interface WmsDataset {
   topicReference: string;
   layerName: string;
   userPermissions: string[];
+  permissions: string[];
+  isPublic: boolean;
+  ownerId: string;
   resourceType: WmsResourceType;
   isSelected: boolean;
   databasis: string;

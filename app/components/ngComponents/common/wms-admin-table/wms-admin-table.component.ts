@@ -9,6 +9,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
 import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component';
 import { setDefaultAutoSelectFamily } from 'net';
+import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -78,7 +79,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   onClickEditUserRoles(wmsMetadata: any): void {
-    const modalRef = this.modalService.open(WmsAddModalComponent, {
+    const modalRef = this.modalService.open(WmsEditUserRolesModalComponent, {
       backdrop: true,
       keyboard: false,
       container: 'body',
@@ -88,6 +89,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     });
     
     modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
+    modalRef.componentInstance.reInit();
     
     modalRef.result.then((result) => {
       if (result) {

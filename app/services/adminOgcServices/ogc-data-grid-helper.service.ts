@@ -185,7 +185,6 @@ export class OgcDataGridHelperService {
       button.disabled = true;
     }
 
-    // Icon <i class="fas fa-pencil-alt"></i>
     const icon = document.createElement('i');
     icon.className = 'fas fa-user-lock';
 
@@ -199,7 +198,7 @@ export class OgcDataGridHelperService {
         return;
       }
 
-      this.componentRef.onClickEditMetadata(params.data);
+      this.componentRef.onClickEditUserRoles(params.data);
     });
 
     return button;

@@ -52,19 +52,6 @@ export class WmsEditModalComponent {
 
   availableTopics!: any;
 
-  // Role management
-  roleManagementTableOptions: any = null;
-  roleManagementColumnDefs: ColDef[] = [];
-  roleManagementRowData: any[] = [];
-  roleManagementDefaultColDef: ColDef = {};
-  roleManagementGridOptions: GridOptions = {};
-  roleManagementGridApi: GridApi | null = null;
-  roleManagementColumnApi: ColumnApi | null = null;
-  ownerOrganization = '';
-  ownerOrgFilter = '';
-  isPublic = false;
-  resourcesCreatorRights: any[] = [];
-
   successMessagePart = '';
   errorMessagePart = '';
 
@@ -91,6 +78,24 @@ export class WmsEditModalComponent {
       url: new FormControl<string>(this.currentGeoresourceDataset.url, Validators.required),
       layer: new FormControl<string>(this.currentGeoresourceDataset.layerName, Validators.required)
     });
+
+    // Set topic hierarchy
+    const topicHierarchy = this.dataExchangeService.getTopicHierarchyForTopicId(
+      this.currentGeoresourceDataset.topicReference
+    );
+
+    if (topicHierarchy && topicHierarchy[0]) {
+      this.georesourceTopic_mainTopic = topicHierarchy[0];
+    }
+    if (topicHierarchy && topicHierarchy[1]) {
+      this.georesourceTopic_subTopic = topicHierarchy[1];
+    }
+    if (topicHierarchy && topicHierarchy[2]) {
+      this.georesourceTopic_subsubTopic = topicHierarchy[2];
+    }
+    if (topicHierarchy && topicHierarchy[3]) {
+      this.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+    }
   }
 
   // Multi-step form navigation
@@ -137,11 +142,6 @@ export class WmsEditModalComponent {
         subTopic: this.georesourceTopic_subTopic,
         subsubTopic: this.georesourceTopic_subsubTopic,
         subsubsubTopic: this.georesourceTopic_subsubsubTopic
-      },
-      accessControl: {
-        owner: this.ownerOrganization,
-        isPublic: this.isPublic,
-        permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
       }
     };
 
@@ -150,64 +150,6 @@ export class WmsEditModalComponent {
 
   checkDatasetName() {
 
-  }
-
-  onChangeOwner(orgUnitId: string): void {
-    this.ownerOrganization = orgUnitId;
-    this.refreshRoles(orgUnitId);
-  }
-
-  onChangeIsPublic(isPublic: boolean): void {
-    this.isPublic = isPublic;
-  }
-  
-  private refreshRoles(orgUnitId:string): void {
-    let permissionIds_ownerUnit: string[] = [];
-    
-    if (orgUnitId) {
-      const accessControl = this.dataExchangeService.getAccessControlById(orgUnitId);
-      permissionIds_ownerUnit = accessControl?.permissions
-        ?.filter(permission => permission.permissionLevel === "viewer" || permission.permissionLevel === "editor")
-        .map(permission => permission.permissionId) || [];
-    }
-
-    // Set datasetOwner flags
-    this.dataExchangeService.accessControl?.forEach(item => {
-      item.datasetOwner = item.organizationalUnitId === orgUnitId;
-    });
-
-    // Build the role management grid options
-    this.roleManagementTableOptions = this.dataGridHelperService.buildRoleManagementGrid(
-      'spatialUnitAddRoleManagementTable',
-      this.roleManagementTableOptions,
-      this.dataExchangeService.accessControl || [],
-      permissionIds_ownerUnit,
-      true
-    );
-
-    // Extract column definitions and row data for ag-grid-angular and rebuild grid config
-    if (this.roleManagementTableOptions) {
-      this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
-      this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-      
-      // Build grid configuration (this will use the components from roleManagementTableOptions)
-      this.buildRoleManagementGridConfig();
-      
-      // If grid is already initialized, update the data and grid options
-      if (this.roleManagementGridApi) {
-        // Update data
-        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
-        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
-        
-        // Refresh the grid to ensure it updates
-        setTimeout(() => {
-          if (this.roleManagementGridApi) {
-            this.roleManagementGridApi.refreshCells();
-            this.roleManagementGridApi.redrawRows();
-          }
-        }, 100);
-      }
-    }
   }
 
   resetWmsAddForm() {
@@ -220,10 +162,6 @@ export class WmsEditModalComponent {
     this.georesourceTopic_subsubsubTopic = null;
 
     this.wmsTestStatus = undefined;
-
-    this.ownerOrganization = '';
-    this.ownerOrgFilter = '';
-    this.isPublic = false;
   }
   
   hideSuccessAlert(): void {
@@ -250,75 +188,5 @@ export class WmsEditModalComponent {
         }
       })
     }
-  }
-
-  onRoleManagementGridReady(params: any) {
-    this.roleManagementGridApi = params.api;
-    this.roleManagementColumnApi = params.columnApi;
-    
-    // Update the service with the grid API so it can be used for getSelectedRoleIds
-    this.dataGridHelperService.setGridApi(params.api);
-  }
-
-  // Additional grid event handlers to match parent component
-  onRoleManagementFirstDataRendered(event: any): void {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementColumnResized(event: any): void {
-    this.roleManagementHeaderHeightSetter();
-  }
-
-  onRoleManagementModelUpdated(): void {
-    // Grid model updated
-  }
-
-  onRoleManagementViewportChanged(): void {
-    // Viewport changed
-  }
-
-  private roleManagementHeaderHeightSetter(): void {
-    if (this.roleManagementGridApi) {
-      const headerHeight = this.roleManagementHeaderHeightGetter();
-      this.roleManagementGridApi.setHeaderHeight(headerHeight);
-    }
-  }
-
-  private roleManagementHeaderHeightGetter(): number {
-    const headerElement = document.querySelector('#roleManagementGrid .ag-header');
-    if (headerElement) {
-      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
-      let maxHeight = 0;
-      headerTextElements.forEach(element => {
-        const height = element.scrollHeight;
-        if (height > maxHeight) {
-          maxHeight = height;
-        }
-      });
-      return Math.max(maxHeight + 20, 40); // Add padding and minimum height
-    }
-    return 40;
-  }
-
-  private buildRoleManagementGridConfig() {
-    // Use service methods for base grid configuration
-    this.roleManagementDefaultColDef = this.dataGridHelperService.buildRoleManagementDefaultColDef();
-    const baseGridOptions = this.dataGridHelperService.buildRoleManagementGridOptionsPublic(
-      this.roleManagementTableOptions?.components
-    );
-    
-    // Apply component-specific overrides
-    this.roleManagementGridOptions = {
-      ...baseGridOptions,
-      onGridReady: (params) => {
-        this.onRoleManagementGridReady(params);
-      },
-      onFirstDataRendered: (event) => {
-        this.onRoleManagementFirstDataRendered(event);
-      },
-      onColumnResized: (event) => {
-        this.onRoleManagementColumnResized(event);
-      }
-    };
   }
 }
