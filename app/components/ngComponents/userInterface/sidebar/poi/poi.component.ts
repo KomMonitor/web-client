@@ -8,6 +8,7 @@ import { MapService } from 'services/map-service/map.service';
 import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 import { GeoresourcesDataset, GeoresourcesTopicsHierarchy } from '../../../models/georesources.models';
+import { OgcService } from 'services/ogcServices/ogc.service';
 
 
 @Component({
@@ -70,7 +71,8 @@ export class PoiComponent implements OnInit {
     private broadcastService: BroadcastService,
     private http: HttpClient,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
-    private favService: FavService
+    private favService: FavService,
+    protected ogcService: OgcService
   ) {
     this.exchangeData = dataExchangeService.pipedData;
     this.selectedPoiSize = this.exchangeData.selectedPOISize.id;

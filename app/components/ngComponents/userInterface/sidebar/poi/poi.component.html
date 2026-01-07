@@ -408,8 +408,7 @@
 																			(click)="dataset.showLegend = true;">laden</button>
 																	</div>
 																	<div *ngIf="dataset.showLegend">
-																		<img
-																			src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																		<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
 																	</div>
 																</td>
 																<td>
@@ -495,7 +494,7 @@
 																</td>
 																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 																	<div style="text-align: center">
-																		<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0"
+																		<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																			title="WFS GetCapabilities URL"
 																			rel='noopener noreferrer' target='_blank'><i
 																				class="fas fa-cloud-download-alt"></i></a>
@@ -722,8 +721,7 @@
 																		(click)="dataset.showLegend = true;">laden</button>
 																</div>
 																<div *ngIf="dataset.showLegend">
-																	<img
-																		src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																	<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
 																</div>
 															</td>
 															<td>
@@ -807,7 +805,7 @@
 															</td>
 															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 																<div style="text-align: center">
-																	<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0"
+																	<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																		title="WFS GetCapabilities URL"
 																		rel='noopener noreferrer' target='_blank'><i
 																			class="fas fa-cloud-download-alt"></i></a>
@@ -1027,8 +1025,7 @@
 																	(click)="dataset.showLegend = true;">laden</button>
 															</div>
 															<div *ngIf="dataset.showLegend">
-																<img
-																	src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
 															</div>
 														</td>
 														<td>
@@ -1113,7 +1110,7 @@
 														</td>
 														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 															<div style="text-align: center">
-																<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0"
+																<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																	title="WFS GetCapabilities URL"
 																	rel='noopener noreferrer' target='_blank'><i
 																		class="fas fa-cloud-download-alt"></i></a>
@@ -1335,8 +1332,7 @@
 																(click)="dataset.showLegend = true;">laden</button>
 														</div>
 														<div *ngIf="dataset.showLegend">
-															<img
-																src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+															<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
 														</div>
 													</td>
 													<td>
@@ -1419,7 +1415,7 @@
 													</td>
 													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 														<div style="text-align: center">
-															<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0"
+															<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																title="WFS GetCapabilities URL"
 																rel='noopener noreferrer' target='_blank'><i
 																	class="fas fa-cloud-download-alt"></i></a>
@@ -1659,8 +1655,7 @@
 															(click)="dataset.showLegend = true;">laden</button>
 													</div>
 													<div *ngIf="dataset.showLegend">
-														<img
-															src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+														<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
 													</div>
 												</td>
 												<td>
@@ -1744,7 +1739,7 @@
 												</td>
 												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 													<div style="text-align: center">
-														<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0"
+														<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 															title="WFS GetCapabilities URL" rel='noopener noreferrer'
 															target='_blank'><i
 																class="fas fa-cloud-download-alt"></i></a>
@@ -2093,7 +2088,7 @@
 												</td>
 												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 													<div style="text-align: center">
-														<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
+														<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 															title="WMS GetCapabilities URL" rel='noopener noreferrer'
 															target='_blank'><i
 																class="fas fa-cloud-download-alt"></i></a>
@@ -2105,8 +2100,7 @@
 															(click)="dataset.showLegend = true;">laden</button>
 													</div>
 													<div *ngIf="dataset.showLegend">
-														<img
-															src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+														<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
 													</div>
 												</td>
 											</tr>
@@ -2183,7 +2177,7 @@
 												</td>
 												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
 													<div style="text-align: center">
-														<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0"
+														<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 															title="WFS GetCapabilities URL" rel='noopener noreferrer'
 															target='_blank'><i
 																class="fas fa-cloud-download-alt"></i></a>
