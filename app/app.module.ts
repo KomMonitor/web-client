@@ -82,6 +82,7 @@ import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin
 import { WmsAddModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-add-modal/wms-add-modal.component';
 import { WmsEditModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-modal/wms-edit-modal.component';
 import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
+import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -158,7 +159,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     WmsAdminTableComponent,
     WmsAddModalComponent,
     WmsEditModalComponent,
-    WmsEditUserRolesModalComponent
+    WmsEditUserRolesModalComponent,
+    WmsDeleteModalComponent
   ],
   imports: [
     CommonModule,

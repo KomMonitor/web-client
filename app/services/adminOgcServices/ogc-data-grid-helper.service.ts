@@ -227,7 +227,7 @@ export class OgcDataGridHelperService {
         return;
       }
 
-      this.componentRef.onClickEditMetadata(params.data);
+      this.componentRef.onClickDelete(params.data);
     });
 
     return button;

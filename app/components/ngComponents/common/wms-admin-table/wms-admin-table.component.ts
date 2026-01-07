@@ -10,6 +10,7 @@ import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
 import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component';
 import { setDefaultAutoSelectFamily } from 'net';
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
+import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -100,8 +101,8 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onClickDeleteSpatialUnits(wmsMetadata: any[]): void {
-    const modalRef = this.modalService.open(WmsAddModalComponent, {
+  onClickDelete(wmsMetadata: any[]): void {
+    const modalRef = this.modalService.open(WmsDeleteModalComponent, {
       backdrop: true,
       keyboard: false,
       container: 'body',
@@ -110,7 +111,8 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
       windowClass: 'modal-medium'
     });
     
-    modalRef.componentInstance.datasetsToDelete = wmsMetadata;
+    modalRef.componentInstance.datasetToDelete = wmsMetadata;
+    modalRef.componentInstance.reInit();
     
     modalRef.result.then((result) => {
       if (result) {
