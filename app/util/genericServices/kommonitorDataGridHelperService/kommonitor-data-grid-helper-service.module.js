@@ -2956,7 +2956,7 @@ angular
             // Processes API JOBS OVERVIEW TABLE (NEW July 2025)
 
             this.buildDataGridColumnConfig_processJobs = function(){
-              getErrorTypeShortDescription = function(error){
+              let getErrorTypeShortDescription = function(error){
                 switch(error.type) {
                   case "missingTimestamp": return "Zeitstempel fehlt";
                   case "missingDataset": return "Datensatz fehlt";
@@ -2967,7 +2967,7 @@ angular
                   default: return "Fehlerbeschreibung";
                 }
               };
-              getErrorTypeLongDescription = function(error){
+              let getErrorTypeLongDescription = function(error){
                 let datasetName = kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(error.affectedDatasetId);
                 let resourceType = (error.affectedResourceType.toLowerCase() == "indicator")? "Indikator" : "Georessource";
                 switch(error.type) {
@@ -3119,6 +3119,7 @@ angular
                     },
                   },
                   columnDefs: columnDefs,
+                  rowHeight: 10,
                   rowData: rowData,
                   suppressRowClickSelection: true,
                   enableCellTextSelection: false,
@@ -3130,7 +3131,7 @@ angular
                     headerHeightSetter(self.dataGridOptions_processJobs);
                   },
                   onColumnResized: function () {
-                    headerHeightSetter(self.dataGridOptions_processJobs);
+                    headerHeightSetter(self.dataGridOptions_processJobs);                    
                   },
                   onViewportChanged: function () {   
                     self.registerClickHandler_jobOverviewErrorBoxes();    
@@ -3158,7 +3159,6 @@ angular
             this.buildDataGrid_processJobs = function (jobsArray) {
               
               if (this.dataGridOptions_processJobs && this.dataGridOptions_processJobs.api && document.querySelector('#jobExecutionTable_processJobs').childElementCount > 0) {
-      
                 this.saveGridStore(this.dataGridOptions_processJobs);
                 let newRowData = this.buildDataGridRowData_processJobs(jobsArray);
                 this.dataGridOptions_processJobs.api.setRowData(newRowData);

@@ -3622,3 +3622,10 @@ kommonitor-user-interface .irs {
   font-family: var(--custom-font-family);
   content: var(--custom-font-file);
 }
+
+/* on firefox the height of the processes job stable must be set manually; otherwise the grid rows are missing */
+#jobExecutionTable_processJobs .ag-root-wrapper-body.ag-layout-normal {
+  flex: 1 1 auto;
+  height: 65vh !important;
+  min-height: 65vh !important;
+}
