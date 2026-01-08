@@ -1816,16 +1816,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       opacity: opacity
     });
 
-    // todo betterWms
-   /*  let wmsLayer = L.tileLayer.betterWms(dataset.url, {
-      layers: dataset.layerName,
-      transparent: true,
-      format: 'image/png',
-      minZoom: window.__env.minZoomLevel,
-      maxZoom: window.__env.maxZoomLevel,
-      opacity: opacity
-    }); */
-
     this.layerControl.addOverlay(wmsLayer, dataset.title, this.wmsLayerGroupName);
     wmsLayer.addTo(this.map);
     this.updateSearchControl();

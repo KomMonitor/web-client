@@ -83,7 +83,7 @@
         <div class="box-body boxedLegend" #legendCollapse="ngbCollapse" [(ngbCollapse)]="isLegendCollapsed">
   
           <ul class="nav nav-tabs" id="legendTabs" role="tablist">
-            <li class="nav-item active">
+            <li class="nav-item" [ngClass]="{'active': !hasActiveWMSLayers()}">
               <a class="nav-link active" id="legendTab1" data-toggle="tab" href="#legendTab1Content"
                 role="tab" aria-controls="legendTab1Content" aria-selected="true">Indikator</a>
             </li>
@@ -91,13 +91,13 @@
               <a class="nav-link" id="legendTab2" data-toggle="tab" href="#legendTab2Content" role="tab"
                 aria-controls="legendTab2Content" aria-selected="false">Indikator-Metadaten</a>
             </li>
-            <li class="nav-item" *ngIf="hasActiveWMSLayers()">
+            <li class="nav-item" [ngClass]="{'active': hasActiveWMSLayers()}" *ngIf="hasActiveWMSLayers()">
               <a class="nav-link" id="legendTab3" data-toggle="tab" href="#legendTab3Content" role="tab"
                 aria-controls="legendTab3Content" aria-selected="false">WMS-Dienste</a>
             </li>
           </ul>
           <div class="tab-content" id="legendTabContent">
-            <div class="tab-pane active" id="legendTab1Content" role="tabpanel"
+            <div class="tab-pane" [ngClass]="{'active': !hasActiveWMSLayers()}" id="legendTab1Content" role="tabpanel"
               aria-labelledby="legendTab1">
                 
               <div class="just-padding">
@@ -465,7 +465,7 @@
               </div>
 
             </div>
-            <div class="tab-pane" id="legendTab3Content" role="tabpanel" aria-labelledby="legendTab3" *ngIf="hasActiveWMSLayers()">
+            <div class="tab-pane" [ngClass]="{'active': hasActiveWMSLayers()}" id="legendTab3Content" role="tabpanel" aria-labelledby="legendTab3" *ngIf="hasActiveWMSLayers()">
 
               
               <div class="just-padding">

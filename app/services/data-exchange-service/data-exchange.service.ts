@@ -617,10 +617,7 @@ export class DataExchangeService {
     private cacheHelperService: CacheHelperServiceService,
     private broadcastService: BroadcastService,
     private globalFilterService: GlobalFilterHelperService
-  ) {
-    this.wmsDatasets = this.getAvailableGeoWmsDatasets();
-    this.wmsDatasets_keywordFiltered = this.getAvailableGeoWmsDatasets();
-  }
+  ) {}
 
   hideErrorAlert(){
     $(".mapApplicationErrorAlert").hide();
@@ -836,6 +833,9 @@ export class DataExchangeService {
 
   setServices(servicesArray:WmsDataset[]) {
     this.availableWmsDatasets = servicesArray;
+
+    this.wmsDatasets = servicesArray;
+    this.wmsDatasets_keywordFiltered = servicesArray;
   }
 
   addSingleGeoresourceMetadata(georesourceMetadata){
@@ -3182,5 +3182,23 @@ export class DataExchangeService {
       });
 
       return ret;
+    }
+
+    setWmsLayerActive(dataset:WmsDataset) {
+ 
+      this.wmsDatasets = this.wmsDatasets.map(e =>
+        e.id === dataset.id
+          ? { ...e, isSelected: true }
+          : e
+      );
+    }
+    
+    setWmsLayerInactive(dataset:WmsDataset) {
+      
+      this.wmsDatasets = this.wmsDatasets.map(e =>
+        e.id === dataset.id
+          ? { ...e, isSelected: false }
+          : e
+      );
     }
 }

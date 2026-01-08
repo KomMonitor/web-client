@@ -1292,11 +1292,12 @@ export class KommonitorDataSetupComponent implements OnInit {
       //display on Map
       var opacity = 1 - dataset.transparency;
       this.mapService.addWmsLayerToMap(dataset, opacity);
-
+      this.dataExchangeService.setWmsLayerActive(dataset);
     }
     else{
       //remove WMS layer from map
       this.mapService.removeWmsLayerFromMap(dataset);
+      this.dataExchangeService.setWmsLayerInactive(dataset);
     }
   };
 }
