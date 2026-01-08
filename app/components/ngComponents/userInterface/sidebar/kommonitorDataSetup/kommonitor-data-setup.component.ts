@@ -10,6 +10,8 @@ import { FavService } from 'services/fav-service/fav.service';
 import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 import { AdminTopicsManagementService } from '../../../admin/adminTopicsManagement/admin-topics-management.service';
 import { TopicOrderMode } from '../../../admin/adminTopicsManagement/admin-topics-management.component';
+import { OgcService } from 'services/ogcServices/ogc.service';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -99,7 +101,8 @@ export class KommonitorDataSetupComponent implements OnInit {
     private mapService: MapService,
     private http: HttpClient,
     private favService: FavService,
-    private adminTopicsManagementService: AdminTopicsManagementService
+    private adminTopicsManagementService: AdminTopicsManagementService,
+    protected ogcService: OgcService
   ) {}
 
   ngOnInit(): void {
@@ -160,6 +163,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     console.log("Load an initial example indicator");
 
     this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
+    console.log(this.preppedIndicatorTopics);
 
     this.prepareHeadlineIndicatorTopics();
 
@@ -1279,4 +1283,20 @@ export class KommonitorDataSetupComponent implements OnInit {
       },1000);
     }
   }
+
+  handleWmsOnMap(dataset:WmsDataset){
+    this.exchangeData.wmsLegendImage = undefined;
+    console.log("Toggle Indicator WMS: " + dataset.title);
+
+    if(dataset.isSelected){
+      //display on Map
+      var opacity = 1 - dataset.transparency;
+      this.mapService.addWmsLayerToMap(dataset, opacity);
+
+    }
+    else{
+      //remove WMS layer from map
+      this.mapService.removeWmsLayerFromMap(dataset);
+    }
+  };
 }

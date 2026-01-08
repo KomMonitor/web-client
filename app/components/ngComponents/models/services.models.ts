@@ -15,6 +15,8 @@ export interface WmsDataset {
   datasource: string;
   contact: string;
   note: string;
+  showLegend: boolean;
+  transparency: any;
 }
 
 export enum WmsResourceType {

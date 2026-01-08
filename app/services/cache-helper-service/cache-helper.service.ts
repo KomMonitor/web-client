@@ -159,7 +159,7 @@ export class CacheHelperServiceService implements OnInit{
             title: "HIER !Bodennutzung - Bebauungsplanumringe",
             description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
             url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-            topicReference: "9651df76-a94c-4f38-abb6-d6ee0e44f592",
+            topicReference: "9651df76-a94c-4f38-abb6-d6ee0e44f592", /*  <-- geo berlin, solziale infra. */
             layerName: "bplan",
             ownerId: 'e2826bb6-2dd7-4f6e-be03-b15d9569fb99',
             userPermissions:['creator'],
@@ -170,14 +170,16 @@ export class CacheHelperServiceService implements OnInit{
             databasis: '',
             datasource: '',
             contact: '',
-            note: ''
+            note: '',
+            showLegend: false,
+            transparency: 0
           },
           {
             id: uuidv4(),
             title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
             description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
             url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
-            topicReference: "9651df76-a94c-4f38-abb6-d6ee0e44f592",
+            topicReference: "7a0d1308-4c68-480c-8faa-34f2560e356e", /* indi berlin, bildung */
             layerName: "0",
             ownerId: 'e2826bb6-2dd7-4f6e-be03-b15d9569fb99',
             userPermissions:['creator'],
@@ -188,7 +190,9 @@ export class CacheHelperServiceService implements OnInit{
             databasis: '',
             datasource: '',
             contact: '',
-            note: ''
+            note: '',
+            showLegend: false,
+            transparency: 0
           }
         ];
     } catch (error) {

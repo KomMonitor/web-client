@@ -618,8 +618,8 @@ export class DataExchangeService {
     private broadcastService: BroadcastService,
     private globalFilterService: GlobalFilterHelperService
   ) {
-    this.wmsDatasets = this.getAvailableWmsDatasets();
-    this.wmsDatasets_keywordFiltered = this.getAvailableWmsDatasets();
+    this.wmsDatasets = this.getAvailableGeoWmsDatasets();
+    this.wmsDatasets_keywordFiltered = this.getAvailableGeoWmsDatasets();
   }
 
   hideErrorAlert(){
@@ -836,10 +836,6 @@ export class DataExchangeService {
 
   setServices(servicesArray:WmsDataset[]) {
     this.availableWmsDatasets = servicesArray;
-
-    for (const georesourceMetadata of servicesArray) {
-      this.availableGeoresources_map.set(georesourceMetadata.id, georesourceMetadata);
-    }
   }
 
   addSingleGeoresourceMetadata(georesourceMetadata){
@@ -900,12 +896,17 @@ export class DataExchangeService {
     }
   }
 
-  getAvailableWmsDatasets():WmsDataset[] {
+  getAvailableGeoWmsDatasets():WmsDataset[] {
     return this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.GEORESOURCE);
+  }
+
+  getAvailableIndiWmsDatasets():WmsDataset[] {
+    return this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.INDICATOR);
   }
 
   setGeoresources(georesourcesArray){
 
+    // wms are not part of availableGeoresources anymore, maybe add again. But no use-case for the time beeing
     this.availableGeoresources = georesourcesArray;
 
     //this.availableGeoresources_map = new Map();
@@ -917,7 +918,7 @@ export class DataExchangeService {
     this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
 
     //this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
-    this.wmsDatasets_keywordFiltered = this.getAvailableWmsDatasets();
+    this.wmsDatasets_keywordFiltered = this.getAvailableGeoWmsDatasets();
     this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
     this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
@@ -1399,6 +1400,7 @@ export class DataExchangeService {
 
   }
 
+  // hier 
   buildTopicIndicatorHierarchy(){
 
     var indicatorTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "indicator");
@@ -1414,7 +1416,9 @@ export class DataExchangeService {
       }
     }
 
-    this.topicIndicatorHierarchy = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+    let tempTopicsData = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+    this.topicIndicatorHierarchy = this.addWmsDataToTopicHierarchyRecursive(tempTopicsData);
+    this.addWmsCountRecursive(this.topicIndicatorHierarchy);
   }
 
   buildTopicsMap_indicators(indicatorTopics){
@@ -1441,6 +1445,55 @@ export class DataExchangeService {
     
     return topicsMap;
   }
+
+  addWmsDataToTopicHierarchyRecursive(tempTopicsData:IndicatorsTopicsHierarchy[]):IndicatorsTopicsHierarchy[] {
+
+    tempTopicsData.forEach((topicData:IndicatorsTopicsHierarchy) => {
+      
+      let wmsDatasets = this.getAvailableIndiWmsDatasets().filter(e => e.topicReference==topicData.topicId);
+
+      if(wmsDatasets.length) {
+        topicData.wmsData = wmsDatasets;
+        topicData.wmsCount = topicData.wmsData.length;
+      } else {
+        topicData.wmsData = [];
+        topicData.wmsCount = 0;
+      }
+
+      if(topicData.subTopics.length) 
+        topicData.subTopics = this.addWmsDataToTopicHierarchyRecursive(topicData.subTopics);
+    });
+
+    return tempTopicsData;
+  }
+
+  addWmsCountRecursive(topicData:IndicatorsTopicsHierarchy[]):number {
+
+    let num = 0;
+
+    topicData.forEach((topic:IndicatorsTopicsHierarchy)=> {
+
+      num += topic.wmsCount;
+
+      if(topic.subTopics.length) {
+
+        num += this.addWmsCountRecursive(topic.subTopics);
+        topic.wmsCount += num; 
+      }
+    });
+
+    return num;
+  }
+
+ /*  getWmsCountTopicsDownwards_Recursive(topicData:IndicatorsTopicsHierarchy[]):number {
+    
+    topicData.forEach((topic:IndicatorsTopicsHierarchy) => {
+      if(topic.subTopics.length)
+        topic.wmsCount = this.getWmsCountTopicsDownwards_Recursive(topic.subTopics);
+    });
+
+    return num;
+  } */
 
   addIndicatorDataToTopicHierarchy(topicsArray, topicsMap){
     for (var topic of topicsArray) {
@@ -2525,7 +2578,7 @@ export class DataExchangeService {
   onChangeGeoresourceKeywordFilter(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){    
 
     //this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
-    this.wmsDatasets_keywordFiltered = this.getAvailableWmsDatasets();
+    this.wmsDatasets_keywordFiltered = this.getAvailableGeoWmsDatasets();
     this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
     this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
@@ -2610,7 +2663,7 @@ export class DataExchangeService {
 
     var wmsDatasets:any[] = [];
 
-    var filteredWmsDatasets = this.getAvailableWmsDatasets();
+    var filteredWmsDatasets = this.getAvailableGeoWmsDatasets();
     
     if(georesourceNameFilter && georesourceNameFilter != ""){
       filteredWmsDatasets = this.filterArrayObjectsByValue(filteredWmsDatasets, georesourceNameFilter);									

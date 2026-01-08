@@ -1,3 +1,4 @@
+import { WmsDataset } from "./services.models";
 
 
 export interface IndicatorsTopicsHierarchy {
@@ -12,6 +13,8 @@ export interface IndicatorsTopicsHierarchy {
   topicResource: string;
   topicType: string;
   displayOrder: number;
+  wmsData: WmsDataset[];
+  wmsCount: number;
 }
 
 export interface IndicatorsDataset {

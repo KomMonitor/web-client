@@ -93,7 +93,7 @@
   
                               <div *ngFor="let mainTopic of preppedIndicatorTopics">
                                 <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" [ngClass]="{'style-hierarchy-selected-indicator-0': checkHierarchyIndicatorSelected(mainTopic)}" id="{{mainTopic.topicId}}">
-                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
+                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount + mainTopic.wmsCount}})</p> 
                                   <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(mainTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(mainTopic.topicId)}" (click)="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
                                 </div>
                                                                      
@@ -101,14 +101,14 @@
                                   <div *ngFor="let subTopic of mainTopic.subTopics">
   
                                     <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-1" [ngClass]="{'style-hierarchy-selected-indicator-1': checkHierarchyIndicatorSelected(subTopic)}">
-                                      <p class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
+                                      <p class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount + subTopic.wmsCount}})</p> 
                                       <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subTopic.topicId)}" (click)="onIndicatorTopicFavClick(subTopic.topicId)"></i>
                                     </div>	
                                     <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
                                       <div *ngFor="let subsubTopic of subTopic.subTopics">
                                         
                                         <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-2" [ngClass]="{'style-hierarchy-selected-indicator-2': checkHierarchyIndicatorSelected(subsubTopic)}">
-                                          <p class="collapseTrigger" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
+                                          <p class="collapseTrigger" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount + subsubTopic.wmsCount}})</p> 
                                           <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubTopic.topicId)"></i>
                                         </div>
       
@@ -116,11 +116,12 @@
                                           <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
       
                                             <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-3" [ngClass]="{'style-hierarchy-selected-indicator-3': checkHierarchyIndicatorSelected(subsubsubTopic)}">
-                                              <p class="collapseTrigger" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
+                                              <p class="collapseTrigger" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount + subsubsubTopic.wmsCount}})</p>
                                               <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubsubTopic.topicId)"></i>
                                             </div>
         
                                               <div class="list-group collapse indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubsubTopic.topicId)}">
+                                                <!-- indicatorData -->
                                                 <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
                                                   *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData" class="list-group-item list-group-item-default">
                                                   <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -142,11 +143,21 @@
                                                     </div>
                                                   </div>
                                                 </div>
+                                                <!-- WmsData -->
+                                                <div id="indicatorHierarchyElement-{{wmsData.id}}" *ngFor="let wmsData of subsubsubTopic.wmsData" class="list-group-item list-group-item-default">
+                                                  <div class="list-group-item-grid-layout">
+                                                    <div>
+                                                      <p style="cursor:pointer;" title="<b>{{wmsData.title}}</b>"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{wmsData.title}}</b></p>			
+                                                    </div>
+                                                    <div>
+                                                      <!-- <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicasdtorFavSelected(wmsData.id), 'glyphicon-star-empty':!indicatorFavsdSelected(indicatorMetadata.indicatorId)}" (click)="onIndicasdtorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i> -->
+                                                    </div>
+                                                  </div>
+                                                </div>
                                               </div>
-        
-        
                                           </div>
                                           <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
+                                            <!-- indicatorData -->
                                             <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
                                               *ngFor="let indicatorMetadata of subsubTopic.indicatorData" class="list-group-item list-group-item-default">
                                               <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -168,11 +179,23 @@
                                                 </div>
                                               </div>
                                             </div>
+                                            <!-- WmsData -->
+                                            <div id="indicatorHierarchyElement-{{wmsData.id}}" *ngFor="let wmsData of subsubTopic.wmsData" class="list-group-item list-group-item-default">
+                                              <div class="list-group-item-grid-layout">
+                                                <div>
+                                                  <p style="cursor:pointer;" title="<b>{{wmsData.title}}</b>"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{wmsData.title}}</b></p>			
+                                                </div>
+                                                <div>
+                                                  <!-- <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicasdtorFavSelected(wmsData.id), 'glyphicon-star-empty':!indicatorFavsdSelected(indicatorMetadata.indicatorId)}" (click)="onIndicasdtorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i> -->
+                                                </div>
+                                              </div>
+                                            </div>
                                           </div>
                                         </div>
       
                                       </div>
                                       <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
+                                        <!-- indicatorData -->
                                         <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
                                           *ngFor="let indicatorMetadata of subTopic.indicatorData" class="list-group-item list-group-item-default">
                                           <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -194,6 +217,55 @@
                                             </div>
                                           </div>
                                         </div>
+                                        <!-- WmsData -->
+                                        <div id="indicatorHierarchyElement-wms" class="list-group-item list-group-item-default" *ngIf="subTopic.wmsData.length">
+                                          <table class="table table-condensed " style="margin-bottom:0px;">
+                                            <thead>
+                                              <tr>
+                                                <th>Typ</th>
+                                                <th>Datensatz</th>
+                                                <th>Beschreibung</th>
+                                                <th>Legende</th>
+                                                <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                                                <th></th>
+                                              </tr>
+                                            </thead>
+
+                                            <tbody>
+                                              <tr *ngFor="let wmsData of subTopic.wmsData">
+                                                <td>
+                                                  <b><i>WMS</i></b>
+                                                </td>
+                                                <td>
+                                                  <label class='checkbox-inline'><input type="checkbox"
+                                                      value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                                      (change)="handleWmsOnMap(wmsData)">
+
+                                                    <b>{{wmsData.title}}</b>
+                                                  </label>
+                                                </td>
+                                                <td [innerHTML]="wmsData.description"></td>
+                                                <td class="text-center">
+                                                  <div *ngIf="!wmsData.showLegend">
+                                                    <button class="btn btn-sm btn-primary"
+                                                      (click)="wmsData.showLegend = true;">laden</button>
+                                                  </div>
+                                                  <div *ngIf="wmsData.showLegend">
+                                                    <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                                  </div>
+                                                </td>
+                                                <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                                                  <div style="text-align: center">
+                                                    <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                                      title="WMS GetCapabilities URL"
+                                                      rel='noopener noreferrer' target='_blank'><i
+                                                        class="fas fa-cloud-download-alt"></i></a>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </div>
                                       </div>
                                     </div>										
     
@@ -201,6 +273,7 @@
                                   </div>
   
                                   <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
+                                    <!-- indicatorData -->
                                     <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
                                       *ngFor="let indicatorMetadata of mainTopic.indicatorData" class="list-group-item list-group-item-default">
                                       <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
@@ -221,6 +294,58 @@
                                           <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                         </div>
                                       </div>
+                                    </div>
+                                    <!-- WmsData -->
+                                    <div id="indicatorHierarchyElement-wms" class="list-group-item list-group-item-default" *ngIf="mainTopic.wmsData.length">
+                                      <table class="table table-condensed " style="margin-bottom:0px;">
+                                        <thead>
+                                          <tr>
+                                            <th>Typ</th>
+                                            <th>Datensatz</th>
+                                            <th>Beschreibung</th>
+                                            <th>Legende</th>
+                                            <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                                            <th></th>
+                                          </tr>
+                                        </thead>
+
+                                        <tbody>
+                                          <tr *ngFor="let wmsData of mainTopic.wmsData">
+                                            <td>
+                                              <b><i>WMS</i></b>
+                                            </td>
+                                            <td>
+                                              <label class='checkbox-inline'><input type="checkbox"
+                                                  value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                                  (change)="handleWmsOnMap(wmsData)">
+
+                                                <b>{{wmsData.title}}</b>
+                                              </label>
+                                            </td>
+                                            <td>
+                                              <p>{{wmsData.description}}</p>
+                                            </td>
+
+                                            <td class="text-center">
+                                              <div *ngIf="wmsData.showLegend">
+                                                <button class="btn btn-sm btn-primary"
+                                                  (click)="wmsData.showLegend = true;">laden</button>
+                                              </div>
+                                              <div *ngIf="wmsData.showLegend">
+                                                <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                              </div>
+                                            </td>
+                                            <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                                              <div style="text-align: center">
+                                                <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                                  title="WMS GetCapabilities URL"
+                                                  rel='noopener noreferrer' target='_blank'><i
+                                                    class="fas fa-cloud-download-alt"></i></a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
                                     </div>
                                   </div>
                                 </div>
