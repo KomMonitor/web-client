@@ -1400,7 +1400,6 @@ export class DataExchangeService {
 
   }
 
-  // hier 
   buildTopicIndicatorHierarchy(){
 
     var indicatorTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "indicator");
@@ -2557,7 +2556,7 @@ export class DataExchangeService {
   onChangeIndicatorKeywordFilter(indicatorNameFilter){
     this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
 
-    if(indicatorNameFilter && indicatorNameFilter != ""){
+    if(indicatorNameFilter && indicatorNameFilter != "") {
       this.displayableIndicators_keywordFiltered = this.filterArrayObjectsByValue(this.displayableIndicators_keywordFiltered, indicatorNameFilter);									
     }
 

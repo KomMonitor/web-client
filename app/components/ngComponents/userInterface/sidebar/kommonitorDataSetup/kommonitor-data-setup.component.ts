@@ -59,6 +59,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     'Auswahl erfolgreich gespeichert'];
 
   preppedIndicatorTopics: IndicatorsTopicsHierarchy[] = [];
+  preppedKeywordList: any[] = [];
   topicSorting: TopicOrderMode | undefined;
 
   dateSlider;
@@ -112,12 +113,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.setupSlider();
 
-    // todo like "initialMetadataLoadingCompleted"
-    /* window.setTimeout( () => {
-      this.onInitialMetadataLoadingComplete();
-
-    },2000); */
-
     this.broadcastService.currentBroadcastMsg.subscribe(res => {
       let msg = res.msg;
       let values:any = res.values;
@@ -163,7 +158,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     console.log("Load an initial example indicator");
 
     this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
-    console.log(this.preppedIndicatorTopics);
+    this.preppedKeywordList = this.prepareKeywordFilteredList();
 
     this.prepareHeadlineIndicatorTopics();
 
@@ -242,8 +237,6 @@ export class KommonitorDataSetupComponent implements OnInit {
     //reinit visibility of elements due to fact that now some HTML elements are actually available
     this.elementVisibilityHelperService.initElementVisibility();
 
-    
-
     var userInfo = this.favService.getUserInfo();
     if(userInfo.indicatorFavourites) {
       this.indicatorFavItems = userInfo.indicatorFavourites;
@@ -267,6 +260,31 @@ export class KommonitorDataSetupComponent implements OnInit {
     };
     this.addClickListenerToEachCollapseTrigger();
   }
+
+
+  prepareKeywordFilteredList() {
+
+    let indicators = this.exchangeData.displayableIndicators_keywordFiltered.map(item => ({
+      ...item,
+      listType: 'indicator'
+    }));
+    let wms = this.dataExchangeService.getAvailableIndiWmsDatasets().map(item => ({
+      ...item,
+      listType: 'wms'
+    }));
+
+    const mergedAndSorted = [...indicators, ...wms].sort((a, b) => {
+      const aKey = (a.indicatorName ?? a.title)?.toLowerCase() ?? '';
+      const bKey = (b.indicatorName ?? b.title)?.toLowerCase() ?? '';
+
+      return aKey.localeCompare(bKey);
+    });
+
+    console.log(mergedAndSorted)
+
+    return mergedAndSorted;
+  }
+
 
   prepareHeadlineIndicatorTopics() {
     this.exchangeData.headlineIndicatorHierarchy.forEach( (elem:any) => {
@@ -911,9 +929,17 @@ export class KommonitorDataSetupComponent implements OnInit {
     },500);
   };
 
-  onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata){
-    this.exchangeData.selectedIndicator = indicatorMetadata;
-    this.onChangeSelectedIndicator(false);
+  onChangeSelectedIndicator_fromAlphabeticalList(dataset){
+    
+    if(dataset.listType=='indicator') {
+      this.exchangeData.selectedIndicator = dataset;
+      this.onChangeSelectedIndicator(false);
+    } else {
+    
+      // manually set "isSelected", to keep the model consistent, although not really necessary here
+      dataset.isSelected = !dataset.isSelected;
+      this.handleWmsOnMap(dataset);
+    }
   };
 
   onChangeSelectedIndicator(recenterMap){
@@ -1172,8 +1198,9 @@ export class KommonitorDataSetupComponent implements OnInit {
       let match = false;
   
       let indicatorMatch = topic.indicatorData.filter(e => e.indicatorId==this.exchangeData.selectedIndicator.indicatorId);
+      let wmsMatch = topic.wmsData.filter(e => e.isSelected===true);
 
-      if(indicatorMatch.length) {
+      if(indicatorMatch.length || wmsMatch.length) {
         match = true;
       } else {
         if(topic.subTopics.length) {
