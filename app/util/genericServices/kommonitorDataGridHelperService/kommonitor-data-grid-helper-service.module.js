@@ -2413,7 +2413,7 @@ angular
 
         columnDefs = columnDefs.concat([
           
-          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 300, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 250, checkboxSelection: true, headerCheckboxSelection: true, 
               headerCheckboxSelectionFilteredOnly: true, cellRenderer: function (params) {
 
                 let propertyNameForNewJobIdCheck = kommonitorScriptHelperService.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + params.data.scheduleID;
@@ -2461,7 +2461,7 @@ angular
         }
 
         columnDefs = columnDefs.concat([          
-          { headerName: 'Berechnungsart', minWidth: 200, cellRenderer: function (params) {
+          { headerName: 'Berechnungsart', cellRenderer: function (params) {
 
             for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
                 if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
@@ -2483,7 +2483,7 @@ angular
               }
             } 
           },
-          { headerName: 'Letzte Job-Ausführung', minWidth: 300, cellRenderer: function (params) {
+          { headerName: 'Letzte Job-Ausführung', cellRenderer: function (params) {
               let latestJobIndex = 0;
               if (params.data.jobIDs && params.data.jobIDs[0] && params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
                 latestJobIndex = 1;
@@ -2617,7 +2617,7 @@ angular
               }
             }  
           },
-          { headerName: 'notwendige Basis-Indikatoren', minWidth: 250, cellRenderer: function (params) {
+          { headerName: 'notwendige Basis-Indikatoren', cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2741,7 +2741,7 @@ angular
               
             }  
           },
-          { headerName: 'notwendige Basis-Georessourcen', minWidth: 250, cellRenderer: function (params) {
+          { headerName: 'notwendige Basis-Georessourcen', cellRenderer: function (params) {
 
             if(showScriptIds){
               if(params.data && params.data.inputs.georesource_id ){
@@ -2813,6 +2813,88 @@ angular
                 return "keine";
               }
             } 
+          },
+          { headerName: 'Zielzeitpunkte', cellRenderer: function (params) {
+              let html = "";
+              if (params.data.inputs.target_time.value.mode == "ALL") {
+                html += "Alle Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "MISSING") {
+                html += "Nur fehlende Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "DATES") {
+                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
+              }
+              
+              if (params.data.inputs.target_time.value.excludeDates.length) {
+                html += "<br>Nicht berechnen:<br>";
+                html += params.data.inputs.target_time.value.excludeDates;
+              }
+              
+              if(params.data.inputs.target_time.value.includeDates.length) {
+                html += "<br>";
+                if (params.data.inputs.target_time.value.mode == "DATES") {
+                  html += "Berechnen:<br>";
+                }
+                else {
+                  html += "Zusätzlich berechnen:<br>";
+                }
+                html += params.data.inputs.target_time.value.includeDates;
+              }
+            
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              let html = "";
+              if (params.data.inputs.target_time.value.mode == "ALL") {
+                html += "Alle Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "MISSING") {
+                html += "Nur fehlende Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "DATES") {
+                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
+              }
+              
+              if (params.data.inputs.target_time.value.excludeDates.length) {
+                html += "<br>Nicht berechnen:<br>";
+                html += params.data.inputs.target_time.value.excludeDates;
+              }
+              
+              if(params.data.inputs.target_time.value.includeDates.length) {
+                html += "<br>";
+                if (params.data.inputs.target_time.value.mode == "DATES") {
+                  html += "Berechnen:<br>";
+                }
+                else {
+                  html += "Zusätzlich berechnen:<br>";
+                }
+                html += params.data.inputs.target_time.value.includeDates;
+              }
+            
+              return html;
+            }
+          },
+          { headerName: 'Ausführungsintervall', cellRenderer: function (params) {
+              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+              
+              html += "<br><br>Nächste Ausführung:<br>";
+              later.date.localTime();
+              var cronSched = later.parse.cron(params.data.scheduleCron);
+              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+              
+              html += "<br><br>Nächste Ausführung:<br>";
+              later.date.localTime();
+              var cronSched = later.parse.cron(params.data.scheduleCron);
+              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
+              return html;
+            }
           }
                     
         ]);
@@ -2964,7 +3046,7 @@ angular
                   case "missingSpatialUnitFeature": return "Raumeinheitsfeature fehlt";
                   case "dataManagementApiError": return "Fehler beim Aufrufen der API";
                   case "processingError": return "Fehler bei der Prozessierung";
-                  default: return "Fehlerbeschreibung";
+                  default: return error.type;
                 }
               };
               let getErrorTypeLongDescription = function(error){
@@ -2996,10 +3078,69 @@ angular
               };
 
               const columnDefs = [
-                { headerName: 'Job-Id', field: "jobID", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
-                headerCheckboxSelectionFilteredOnly: true},
-                { headerName: 'Job-Status', field: "status", maxWidth: 125 },
-                { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
+                { headerName: 'Job', pinned: 'left', maxWidth: 200, checkboxSelection: false, headerCheckboxSelection: false, minWidth: 300, headerCheckboxSelectionFilteredOnly: true, cellRenderer: function (params) {
+                  for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                      if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                        if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                          let html = scriptType.title + "<br><br>";
+                          html += "<small>" + "Job-ID: " + params.data.jobID + "</small>";
+                          return html;
+                        }
+                      }              
+                    }
+                  
+                  },
+                  filter: 'agTextColumnFilter', 
+                  filterValueGetter: (params) => {
+                    for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                      if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                        if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                          let html = scriptType.title + "<br><br>";
+                          html += "<small>" + "Job-ID: " + params.data.jobID + "</small>";
+                          return html;
+                        }
+                      }              
+                    }
+                  } 
+                },
+                //{ headerName: 'Job-Id', field: "jobID", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
+                //headerCheckboxSelectionFilteredOnly: true},
+                { headerName: 'Ausführung', maxWidth: 165, cellRenderer: function (params){
+                    let html = "<i class='fa-regular fa-calendar'></i> " + (new Date(params.data.job_end_datetime)).toLocaleString("de-DE");
+
+                    let jobStatus;
+                    switch(params.data.status){
+                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
+                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
+                      case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
+                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                      default: "Status unbekannt";
+                    }
+
+                    html += "<br>";
+                    html += jobStatus;
+                    return html;
+                  },
+                  filter: 'agTextColumnFilter', 
+                  filterValueGetter: (params) => {
+                    let html = "<i class='fa-regular fa-calendar'></i> " + (new Date(params.data.job_end_datetime)).toLocaleString("de-DE");
+
+                    let jobStatus;
+                    switch(params.data.status){
+                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
+                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
+                      case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
+                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                      default: "Status unbekannt";
+                    }
+
+                    html += "<br>";
+                    html += jobStatus;
+                    return html;
+                  }
+                },
+                //{ headerName: 'Job-Status', field: "status", maxWidth: 125 },
+                //{ headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
                 /*{ headerName: 'Job-Zusammenfassungen pro Raumeinheit', minWidth: 500, cellRenderer: function (params) {
                   console.log(params);
                   return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobSummary);
@@ -3030,14 +3171,39 @@ angular
                           //console.log('job-data:');
                           //console.log(params.data);
                           if(params.data && params.data.jobSummary && params.data.jobSummary.length > 0){
-                            let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheit</th><th width="250px">Modifizierte Ressource</th><th>Anzahl integrierter Indikator-Features</th><th>Integrierte Zielzeitpunkte</th><th>Fehler</th></tr></thead><tbody>';
+                            let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheit</th><th>Anzahl integrierter Indikator-Features</th><th>Integrierte Zielzeitpunkte</th><th>Fehler</th></tr></thead><tbody>';
             
                             for (const job of params.data.jobSummary) {
                               html += "<tr>";
-                              html += "<td>" + job.spatialUnitId + "</td>";
-                              html += "<td>" + job.modifiedResource + "</td>";
+                              //html += "<td>" + job.spatialUnitId + "</td>";
+                              html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(job.spatialUnitId).spatialUnitLevel + "</td>";
+                              //html += "<td>" + job.modifiedResource + "</td>";
+                              if (!job.numberOfIntegratedIndicatorFeatures) {
+                                html += "<td>keine</td>";
+                              }
+                              else {
                               html += "<td>" + job.numberOfIntegratedIndicatorFeatures + "</td>";
-                              html += "<td>" + job.integratedTargetDates + "</td>";
+                              }
+                              //html += "<td>" + job.integratedTargetDates + "</td>";
+                              
+                              if (!job.integratedTargetDates || !job.integratedTargetDates.length) {
+                                html += "<td>keine</td>";
+                              }
+                              else {
+                                job.integratedTargetDates.sort();
+                                html += '<td><ul style="columns: 5; 	-webkit-columns: 5;	-moz-columns: 5; word-break: break-word !important;">';
+                                for (const timestamp of job.integratedTargetDates) {
+                                  html += '<li style="margin-right: 15px;">';
+                                  html += timestamp;
+                                  html += '</li>';
+                                }
+                                html += '</ul></td>';
+                              }
+                              
+                              if (!job.errorsOccurred || !job.errorsOccurred.length) {
+                                html += "<td>keine</td>";
+                              }
+                              else {
                               html += "<td>";
                               for (const error of job.errorsOccurred) {
                                 html += '<div class="box box-danger collapsed-box" style="width:200px;"><div class="box-header"><span class="box-title" style="font-size:12px">';
@@ -3050,6 +3216,7 @@ angular
                                 html += '</div></div>'
                               }
                               html += "</td>";
+                              }
                               html += "</tr>";
                             }
                             
