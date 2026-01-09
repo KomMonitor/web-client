@@ -1,9 +1,10 @@
 <div
   cdkDropList
   class="list-group list-group-root"
+  [cdkDropListDisabled]="order !== 'custom'"
   (cdkDropListDropped)="dropIndicatorTopics($event)"
 >
-  <div *ngFor="let topic of topics | sortByOrder">
+  <div *ngFor="let topic of topics | sortByOrder: order">
     <div
       class="list-group-item list-group-item-default level-{{ level }}"
       cdkDrag
@@ -60,6 +61,7 @@
           [level]="level + 1"
           [levelLimit]="levelLimit"
           [topicResourceType]="topicResourceType"
+          [order]="order"
         ></app-topic-list>
         <admin-add-topic
           [topicType]="'sub'"

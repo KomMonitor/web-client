@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { Topic, TopicResourceType } from "../admin-topics-management.component";
+import { Topic, TopicResourceType, TopicOrderMode } from '../admin-topics-management.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { TopicDeleteModalComponent } from "../topicDeleteModal/topic-delete-modal.component";
@@ -22,6 +22,8 @@ export class TopicListComponent {
   @Input({ required: true }) topics!: Topic[];
   @Input({ required: true }) levelLimit!: number;
   @Input({ required: true }) topicResourceType!: TopicResourceType;
+  @Input({ required: true }) order!: TopicOrderMode;
+
   @Input() parentTopic: Topic | undefined;
   @Input() showTopicIds = false;
   @Input() level = 1;
