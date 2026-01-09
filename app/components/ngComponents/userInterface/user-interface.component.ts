@@ -9,6 +9,7 @@ import { ElementVisibilityHelperService } from 'services/element-visibility-help
 import { AuthService } from 'services/auth-service/auth.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { DownloadModalComponent } from './exporting/download-modal/download-modal.component';
 
 @Component({
   selector: 'user-interface-new',
@@ -241,6 +242,10 @@ export class UserInterfaceComponent implements OnInit {
 
     openReportingModal() {
         const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
+    }
+
+    openDownloadModal() {
+      this.modalService.open(DownloadModalComponent, {windowClass: 'modal-holder', centered: true});
     }
 
     onSidebarButtonClick(event) {

@@ -1,0 +1,58 @@
+<div>Zeitpunkt(e)</div>
+
+<ul
+  ngbNav
+  #nav="ngbNav"
+  [(activeId)]="active"
+  class="nav nav-tabs"
+  [animation]="false"
+>
+  <li [ngbNavItem]="1" [ngClass]="{ active: active === 1 }">
+    <a class="nav-link" ngbNavLink>Einzeln</a>
+    <ng-template ngbNavContent>
+      <p>einzelnen Zeitpunkt auswählen</p>
+      <pre>{{ exportItem.dataset.availableTimestamps | json }}</pre>
+    </ng-template>
+  </li>
+  <li [ngbNavItem]="2" [ngClass]="{ active: active === 2 }">
+    <a class="nav-link" ngbNavLink>Zeitraum</a>
+    <ng-template ngbNavContent>
+      <div class="row">
+        <div class="col-md-6">
+          <div>Vonhorst</div>
+          <select
+            (change)="updateRangeStart($event)"
+            [value]="start"
+            style="width: 100%"
+          >
+            <option value="">Bitte wählen...</option>
+            <option
+              *ngFor="let level of exportItem.dataset.availableTimestamps"
+              [value]="level"
+            >
+              {{ level }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <div>Bis</div>
+          <select
+            (change)="updateRangeEnd($event)"
+            [value]="end"
+            style="width: 100%"
+          >
+            <option value="">Bitte wählen...</option>
+            <option
+              *ngFor="let level of exportItem.dataset.availableTimestamps"
+              [value]="level"
+            >
+              {{ level }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </ng-template>
+  </li>
+</ul>
+
+<div [ngbNavOutlet]="nav" class="mt-2"></div>

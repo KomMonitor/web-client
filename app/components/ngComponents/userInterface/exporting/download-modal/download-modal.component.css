@@ -1,0 +1,13 @@
+::ng-deep .modal-holder .modal-dialog {
+  max-width: max-content;
+  width: max-content;
+  transform: none !important;
+}
+
+:host {
+  .modal-content {
+    width: 60vw;
+    height: 90vh;
+    overflow: hidden;
+  }
+}

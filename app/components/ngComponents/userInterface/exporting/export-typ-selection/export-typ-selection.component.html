@@ -1,0 +1,45 @@
+<div>
+  <p>
+    Exportieren Sie mehrere Datensätze gebündelt in einem einzigen GeoPackage.
+  </p>
+  <div *ngFor="let opt of options">
+    <div class="radio">
+      <label>
+        <input
+          type="radio"
+          name="exportType"
+          [value]="opt.val"
+          [checked]="srvc.selectionType() === opt.val"
+          (change)="setSelectionType(opt.val)"
+        />
+        <span>{{ opt.label }}</span>
+      </label>
+    </div>
+  </div>
+
+  <div *ngIf="srvc.selectionType() === 'multiIndicator'">
+    <hr />
+    <div class="alert alert-info" role="alert">
+      Gemeinsame Raumebene für <strong>alle</strong> Indikatoren.
+    </div>
+    <div>
+      <label>Gemeinsame Raumebene</label>
+    </div>
+    <select
+      (change)="updateSelectedSpatialUnit($event)"
+      [value]="srvc.selectedSpatialUnit()"
+      style="width: 100%;"
+    >
+      <option value="">Bitte wählen...</option>
+      <option *ngFor="let level of srvc.spatialUnits()" [value]="level">
+        {{ level }}
+      </option>
+    </select>
+  </div>
+
+  <div *ngIf="srvc.selectionType() === 'multiSpatialUnit'">
+    <div class="alert alert-info" role="alert">
+      Bitte wählen Sie die Raumebenen <strong>rechts in der Liste</strong>.
+    </div>
+  </div>
+</div>

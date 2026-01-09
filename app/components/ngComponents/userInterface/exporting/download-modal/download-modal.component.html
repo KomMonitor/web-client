@@ -1,0 +1,57 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <button
+      type="button"
+      class="close"
+      data-dismiss="modal"
+      (click)="activeModal.close('Close click')"
+    >
+      &times;
+    </button>
+    <h4 class="modal-title"><b>Downloadbereich</b></h4>
+  </div>
+  <div class="modal-body">
+    <p class="hint">
+      Konfigurieren und starten Sie den Export Ihrer ausgewählten Datensätze.
+    </p>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="box box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">Kombinierter Export</h3>
+          </div>
+          <div class="box-body">
+            <app-export-typ-selection />
+          </div>
+        </div>
+
+        <div class="box box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">Export starten</h3>
+          </div>
+          <div class="box-body">
+            <button
+              type="button"
+              class="btn btn-primary btn-lg btn-block"
+              (click)="startDownload()"
+            >
+              <i class="fas fa-download"></i>
+              <span> Download starten</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="box box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">Ausgewählte Datensätze (...)</h3>
+          </div>
+          <div class="box-body">
+            <app-export-dataset-list></app-export-dataset-list>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,106 @@
+<div>
+  <p *ngIf="srvc.exportItems().length === 0; else datasetList">
+    Es wurden keine Datensätze für den Download ausgewählt.
+  </p>
+
+  <ng-template #datasetList>
+    <div
+      *ngFor="let item of srvc.exportItems(); let i = index"
+      [id]="item.dataset.id"
+      class="panel panel-default"
+    >
+      <div class="panel-body">
+        <div style="display: flex">
+          <div>
+            <span
+              *ngIf="item.dataset.type === 'indicator'"
+              class="label label-primary"
+              >INDIKATOR</span
+            >
+            <span
+              *ngIf="item.dataset.type === 'georesource'"
+              class="label label-success"
+              >GEORESOURCE</span
+            >
+            <h4>
+              {{ item.dataset.name }}
+              <!-- <span
+                *ngIf="!isItemRelevant(item) && combinedExportType() !== 'none'"
+                >(Ignoriert)</span
+              > -->
+            </h4>
+          </div>
+          <div style="flex: 1"></div>
+          <button
+            type="button"
+            class="btn btn-danger"
+            style="align-self: center; border-radius: 50%"
+            (click)="srvc.removeDataset(item.dataset.id)"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6" *ngIf="item.dataset.type === 'indicator'">
+            <div>Raumebene(n)</div>
+
+            <div *ngIf="srvc.selectionType() === 'none'">
+              <select
+                (change)="updateSelectedSpatialUnit($event)"
+                [value]="srvc.selectedSpatialUnit()"
+                style="width: 100%"
+              >
+                <option value="">Bitte wählen...</option>
+                <option
+                  *ngFor="let level of srvc.spatialUnits()"
+                  [value]="level"
+                >
+                  {{ level }}
+                </option>
+              </select>
+            </div>
+
+            <div *ngIf="srvc.selectionType() === 'multiIndicator'">
+              <div class="alert alert-info" role="alert">
+                Bitte Ebene links wählen
+              </div>
+            </div>
+
+            <div *ngIf="srvc.selectionType() === 'multiSpatialUnit'">
+              <div
+                *ngFor="let lvl of getIndicatorLevels(item)"
+                class="checkbox"
+              >
+                <label>
+                  <input
+                    type="checkbox"
+                    [checked]="item.selectedMultiLevels.includes(lvl)"
+                    (change)="srvc.toggleItemLevel(item.dataset.id, lvl)"
+                  />
+                  <span>{{ lvl }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <app-export-item-time-selection [exportItem]="item" />
+          </div>
+        </div>
+
+        <div>
+          <div>Downloadformate</div>
+          <div class="btn-group" data-toggle="buttons">
+            <label
+              class="btn btn-default"
+              *ngFor="let fmt of AVAILABLE_FORMATS"
+            >
+              <input type="checkbox" /> {{ fmt }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>
