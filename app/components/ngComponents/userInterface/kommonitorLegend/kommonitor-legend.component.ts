@@ -9,6 +9,8 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificationModal/spatial-unit-notification-modal.component';
 import shpwrite from '@mapbox/shp-write';
 import Papa from 'papaparse';
+import { OgcService } from 'services/ogcServices/ogc.service';
+import { MapService } from 'services/map-service/map.service';
 
 
 @Component({
@@ -54,7 +56,9 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     protected visualStyleService: VisualStyleHelperServiceNew,
     protected filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    protected ogcService: OgcService,
+    private mapService: MapService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
     this.env = window.__env;
@@ -474,6 +478,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   hasActiveWMSLayers(){
-    return this.dataExchangeService.pipedData.wmsDatasets.filter(item => item.isSelected).length > 0;
+    return this.dataExchangeService.wmsDatasets.filter(item => item.isSelected).length > 0;
+  }
+
+  adjustOpacityForWmsLayer(dataset, transparency) {
+    this.mapService.adjustOpacityForWmsLayer(dataset, transparency);
   }
 }
