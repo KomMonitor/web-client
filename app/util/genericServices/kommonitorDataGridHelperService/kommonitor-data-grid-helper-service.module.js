@@ -2513,7 +2513,7 @@ angular
                 let innerHTMLContent = "" + jobDateTime 
                   + "<br>"
                   + jobStatus 
-                  + "<button class='btn-sm jobTableButtonForSchedule' id='jobTableButtonForSchedule_" + params.data.scheduleID + "' style='cursor: pointer' data-toggle='modal' data-target='#modal-job-table'><i class='fas fa-table'></i></button>"
+                  + "<button class='btn-sm jobTableButtonForSchedule' id='jobTableButtonForSchedule_" + params.data.scheduleID + "' style='cursor: pointer' data-toggle='modal' data-target='#modal-job-table' title='zur Berechnungs-Job-Übersicht'><i class='fas fa-table'></i></button>"
                   
 
                 document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = innerHTMLContent;
