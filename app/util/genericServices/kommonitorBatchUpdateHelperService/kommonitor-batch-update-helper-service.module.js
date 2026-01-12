@@ -218,11 +218,11 @@ angular
 								 // send post request and wait for it to complete
 								 var updateIndicatorResponse_dryRun = undefined;
 								 try {
-									 updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, true);
+									 updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, null, true);
 		 
 									 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)) {
 										 // all good, really execute the request to update data against data management API
-										 var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, false);
+										 var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, null, false);
 										 
 										 batchList[i].tempResourceId = resourceId;
 										 $rootScope.$broadcast("refreshIndicatorOverviewTable");
