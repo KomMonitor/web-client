@@ -19,7 +19,6 @@ export type TopicOrderMode = "custom" | "alphabetical";
 import { Injectable } from "@angular/core";
 import {
   AdminTopicsManagementService,
-  TopicOrderResponseEntry,
 } from "./admin-topics-management.service";
 
 @Injectable({ providedIn: null })
@@ -37,7 +36,8 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   showTopicIds = false;
   loadingData = false;
 
-  orderModes: TopicOrderResponseEntry[] | undefined;
+  indicatorOrder: TopicOrderMode | undefined;
+  geoRessourceOrder: TopicOrderMode | undefined;
 
   private subscription: Subscription | undefined;
 
@@ -60,6 +60,25 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
     );
   }
 
+  setIndicatorSorting(order: TopicOrderMode) {
+    this.indicatorOrder = order;
+    this.setSorting("indicator", order);
+  }
+
+  setGeoRessourceSorting(order: TopicOrderMode) {
+    this.geoRessourceOrder = order;
+    this.setSorting("georesource", order);
+  }
+
+  private setSorting(topic: TopicResourceType, order: TopicOrderMode) {
+    this.topicSrvc.setOrderMode(topic, order).subscribe({
+      next: () => {},
+      error: (error) => {
+        console.error("Failed to set topic order mode:", error);
+      },
+    });
+  }
+
   ngOnInit(): void {
     this.subscription = this.broadcastService.currentBroadcastMsg.subscribe(
       (broadcastMsg) => {
@@ -71,7 +90,12 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
 
     this.topicSrvc.getOrderModes().subscribe({
       next: (modes) => {
-        this.orderModes = modes;
+        this.indicatorOrder = modes.find(
+          (mode) => mode.topicResource === "indicator"
+        )?.orderMode;
+        this.geoRessourceOrder = modes.find(
+          (mode) => mode.topicResource === "georesource"
+        )?.orderMode;
       },
       error: (error) => {
         // TODO: Handle error appropriately
