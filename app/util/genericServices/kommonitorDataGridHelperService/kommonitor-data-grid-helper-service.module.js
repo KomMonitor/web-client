@@ -3085,12 +3085,17 @@ angular
                   for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
                       if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
                         if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
-                          let html = scriptType.title + "<br><br>";
+                          let html = "";
+                          if (params.data.targetIndicatorId) {
+                            html += "<label>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.targetIndicatorId) + "</label><br><br>";
+                          }
+                          html += "<i>" + scriptType.title + "</i><br><br>";
                           html += "<small>" + "Job-ID: " + params.data.jobID + "</small>";
                           return html;
                         }
                       }              
-                    }
+                    } 
+                  
                   
                   },
                   filter: 'agTextColumnFilter', 
@@ -3098,7 +3103,11 @@ angular
                     for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
                       if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
                         if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
-                          let html = scriptType.title + "<br><br>";
+                          let html = "";
+                          if (params.data.targetIndicatorId) {
+                            html += "<label>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.targetIndicatorId) + "</label><br><br>";
+                          }
+                          html += "<i>" + scriptType.title + "</i><br><br>";
                           html += "<small>" + "Job-ID: " + params.data.jobID + "</small>";
                           return html;
                         }
@@ -3249,7 +3258,16 @@ angular
             this.buildDataGridRowData_processJobs = function(dataArray){
               
               dataArray.sort((a, b) => b.job_start_datetime - a.job_start_datetime);
-      
+
+              for (const job of dataArray) {
+                // enrich job data with processID from schedule
+                let processScript = kommonitorScriptHelperService.jobDescriptionAndScheduleMap.get(job.jobID);
+                if (processScript && processScript.inputs && processScript.inputs.target_indicator_id) {
+                  let targetIndicatorId = processScript.inputs.target_indicator_id;
+                  job.targetIndicatorId = targetIndicatorId;
+                }
+              }
+
               return dataArray;
             };
       

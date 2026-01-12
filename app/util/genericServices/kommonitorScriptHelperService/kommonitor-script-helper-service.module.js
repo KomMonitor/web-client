@@ -529,9 +529,28 @@ angular
           backgroundClass: "bg-green",
         },
         schedule: {
-          title: "Jobs des selektierten Indikators",
+          title: "Jobs zur Berechnung von <Indikator>",
           backgroundClass: "bg-blue",
         }
       }
+
+      this.initJobDescriptionMap = function(jobDescriptions){
+			this.jobDescriptionAndScheduleMap = new Map();
+			// init map to quickly access job descriptions by their ID and find related schedule
+			for (const job of jobDescriptions) {
+				self.jobDescriptionAndScheduleMap.set(job.jobID, "");
+			}
+
+			for (const processScript of kommonitorDataExchangeService.availableProcessScripts) {
+					// iterate over jobIDs of schedule and map jobID to schedule ID
+					if(processScript.jobIDs && processScript.jobIDs.length>0){
+						for (const jobID of processScript.jobIDs) {
+							if(self.jobDescriptionAndScheduleMap.has(jobID)){
+								self.jobDescriptionAndScheduleMap.set(jobID, processScript);
+							}
+						}
+					}
+			}
+		  }
 
     }]);

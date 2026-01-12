@@ -25,6 +25,9 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
                 $scope.jobDescriptions = response.data.jobs;
 
+				// init a map to quickly access job descriptions by their ID and find related schedule
+				kommonitorScriptHelperService.initJobDescriptionMap($scope.jobDescriptions);
+
 				// also start to fetch job details for all queried jobs
 				// in the background
 				// $scope.fetchJobDetails($scope.jobDescriptions);
@@ -108,12 +111,20 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			$timeout(function () {
 				$scope.loadingData = true;
 			});			
+
+			let schedule = kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId);
+
 			kommonitorScriptHelperService.selectedStatus = "schedule";
+			// append targetIndicator name to title
+            if (schedule && schedule.inputs && schedule.inputs.target_indicator_id) {
+              let targetIndicatorId = schedule.inputs.target_indicator_id;
+              kommonitorScriptHelperService.statusDescriptions[kommonitorScriptHelperService.selectedStatus].title = "Jobs - <b>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(targetIndicatorId) + "</b>";
+            }
+			
 
 			$scope.filteredJobDescriptions = [];
 
-			// schedule knows array of jobs
-			let schedule = kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId);
+			// schedule knows array of jobs			
 			let jobIDs_forSchedule = schedule.jobIDs;
 
 			for (let job of $scope.jobDescriptions) {
@@ -136,6 +147,10 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.refreshJobOverviewTable = async function () {
 
+			// as new jobIds might have been created, we also need to refetch the process script schedules
+			// to get the mapping between jobIds and schedules updated
+			await kommonitorDataExchangeService.fetchProcessScriptSchedules();
+
 			// refetch all metadata from spatial units to update table
 			await $scope.fetchJobDescriptions();
 
@@ -144,8 +159,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 				$scope.initializeOrRefreshOverviewTable();
 
 				$scope.loadingData = false;
-			});
-			
+			});			
 
 		};
 
