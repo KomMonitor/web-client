@@ -504,4 +504,34 @@ angular
         }
       };
 
+      // processing JOBS related data for modal display
+      this.selectedStatus = "";
+
+      this.statusDescriptions = {
+        accepted: {
+          title: "wartende Jobs",
+          backgroundClass: "bg-orange",
+        },
+        // delayed: { // not supported by pyGeoAPI as of July 2025
+        // 	title: "verzögerte Jobs",
+        // 	backgroundClass: "bg-gray",
+        // },
+        running: {
+          title: "laufende Jobs",
+          backgroundClass: "bg-aqua",
+        },
+        failed: {
+          title: "gescheiterte Jobs",
+          backgroundClass: "bg-red",
+        },
+        successful: {
+          title: "abgeschlossene Jobs",
+          backgroundClass: "bg-green",
+        },
+        schedule: {
+          title: "Jobs des selektierten Indikators",
+          backgroundClass: "bg-blue",
+        }
+      }
+
     }]);

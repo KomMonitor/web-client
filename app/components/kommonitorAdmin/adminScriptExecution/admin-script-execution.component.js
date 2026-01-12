@@ -1,7 +1,9 @@
 angular.module('adminScriptExecution').component('adminScriptExecution', {
 	templateUrl: "components/kommonitorAdmin/adminScriptExecution/admin-script-execution.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$timeout', '$http', 
-		function JobExecutionController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $timeout, $http) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorScriptHelperService',
+		'$scope', '$rootScope', '__env', '$timeout', '$http', 
+		function JobExecutionController(kommonitorDataExchangeService, kommonitorDataGridHelperService, kommonitorScriptHelperService, 
+			$scope, $rootScope, __env, $timeout, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -80,7 +82,11 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		};
 
 		$scope.onJobStatusClicked = async function (status){
-			$scope.selectedStatus = status;
+			$timeout(function () {
+				$scope.loadingData = true;
+			});
+
+			kommonitorScriptHelperService.selectedStatus = status;
 
 			$scope.filteredJobDescriptions = [];
 
@@ -96,6 +102,32 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
 			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);
 		}
+
+		$scope.$on("onShowJobsForSchedule", async function (event, scheduleId) {	
+
+			$timeout(function () {
+				$scope.loadingData = true;
+			});			
+			kommonitorScriptHelperService.selectedStatus = "schedule";
+
+			$scope.filteredJobDescriptions = [];
+
+			// schedule knows array of jobs
+			let schedule = kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId);
+			let jobIDs_forSchedule = schedule.jobIDs;
+
+			for (let job of $scope.jobDescriptions) {
+				if (jobIDs_forSchedule.includes(job.jobID)) {
+					$scope.filteredJobDescriptions.push(job);
+				}
+			}
+
+			// for each filtered job entry, we must fetch jkob details, as only then we get detailed 
+			// jobSummary for the respective data grid
+
+			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
+			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);			
+		});
 
 		$scope.$on("refreshJobOverviewTable", function (event) {
 			$scope.loadingData = true;
@@ -131,28 +163,6 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			return i;
 		}
 
-		$scope.statusDescriptions = {
-			accepted: {
-				title: "wartende Jobs",
-				backgroundClass: "bg-orange",
-			},
-			// delayed: { // not supported by pyGeoAPI as of July 2025
-			// 	title: "verzögerte Jobs",
-			// 	backgroundClass: "bg-gray",
-			// },
-			running: {
-				title: "laufende Jobs",
-				backgroundClass: "bg-aqua",
-			},
-			failed: {
-				title: "gescheiterte Jobs",
-				backgroundClass: "bg-red",
-			},
-			successful: {
-				title: "abgeschlossene Jobs",
-				backgroundClass: "bg-green",
-			}
-		}
 	}
 	]
 });

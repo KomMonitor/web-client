@@ -2513,7 +2513,7 @@ angular
                 let innerHTMLContent = "" + jobDateTime 
                   + "<br>"
                   + jobStatus 
-                  + "<button class='btn-sm' onclick='onJobTableClicked(`" + params.data.scheduleID + "`)'><i class='fas fa-table'></i></button>"
+                  + "<button class='btn-sm jobTableButtonForSchedule' id='jobTableButtonForSchedule_" + params.data.scheduleID + "' style='cursor: pointer' data-toggle='modal' data-target='#modal-job-table'><i class='fas fa-table'></i></button>"
                   
 
                 document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = innerHTMLContent;
@@ -2909,6 +2909,7 @@ angular
 
       this.registerClickHandler_scripts = function (scriptArray) {
 
+        // execute script on demand button click
         $(".executeScriptBtn").off();
         $(".executeScriptBtn").on("click", async function (event) {
           // ensure that only the target button gets clicked
@@ -2936,20 +2937,22 @@ angular
         });
 
         // TODO handle JobDetails table button click
-        // $(".georesourceEditFeaturesBtn").off();
-        // $(".georesourceEditFeaturesBtn").on("click", function (event) {
-        //   // ensure that only the target button gets clicked
-        //   // manually open modal
-        //   event.stopPropagation();
-        //   let modalId = document.getElementById(this.id).getAttribute("data-target");
-        //   $(modalId).modal('show');
+        $(".jobTableButtonForSchedule").off();
+        $(".jobTableButtonForSchedule").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+
+          kommonitorScriptHelperService.selectedStatus = "schedule";
           
-        //   let georesourceId = this.id.split("_")[3];
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          // has pattern jobTableButtonForSchedule_<scheduleId>
+          let scheduleId = this.id.split("_")[1];
 
-        //   let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
-
-        //   $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
-        // });
+          $rootScope.$broadcast("onShowJobsForSchedule", scheduleId);
+        });
 
       };
 
