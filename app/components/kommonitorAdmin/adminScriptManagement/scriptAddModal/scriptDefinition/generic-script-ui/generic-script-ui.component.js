@@ -1,7 +1,7 @@
-angular.module('scriptTest').component('scriptTest', {
-	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/test/script-test.template.html",
+angular.module('genericScriptUi').component('genericScriptUi', {
+	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/generic-script-ui/generic-script-ui.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorCacheHelperService',
-		function ScriptTestController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout, kommonitorCacheHelperService) {
+		function GenericScriptUiController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout, kommonitorCacheHelperService) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
