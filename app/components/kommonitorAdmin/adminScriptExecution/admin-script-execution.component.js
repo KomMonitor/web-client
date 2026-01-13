@@ -151,6 +151,8 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			// to get the mapping between jobIds and schedules updated
 			await kommonitorDataExchangeService.fetchProcessScriptSchedules();
 
+			$rootScope.$broadcast("refreshScriptOverviewTable");
+
 			// refetch all metadata from spatial units to update table
 			await $scope.fetchJobDescriptions();
 

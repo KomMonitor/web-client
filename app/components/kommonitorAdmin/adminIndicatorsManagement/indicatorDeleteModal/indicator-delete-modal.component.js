@@ -152,8 +152,11 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 			kommonitorDataExchangeService.availableProcessScripts.forEach(function(script){
 				var requiredIndicatorIds = [];
+				if (script.inputs.computation_ids_with_polarity){
+					requiredIndicatorIds = requiredIndicatorIds.concat(script.inputs.computation_ids_with_polarity.map(item => item.ID));
+				}
 				if (script.inputs.computation_ids){
-					requiredIndicatorIds.concat(script.inputs.computation_ids);
+					requiredIndicatorIds = requiredIndicatorIds.concat(script.inputs.computation_ids);
 				}
 				if(script.inputs.computation_id){
 					requiredIndicatorIds.push(script.inputs.computation_id);

@@ -33,6 +33,7 @@ angular
       this.predefinedInputNames = [
         "computation_id",
         "computation_ids",
+        "computation_ids_with_polarity",
         "reference_id",
         "reference_date",
         "georesource_id",

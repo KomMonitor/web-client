@@ -38,6 +38,19 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 				referenceDate: null
 			};
 
+			$scope.polarityOptions = [
+				{
+					"apiName": "NORMAL",
+					"displayName": "normal (Ergebnis der Normalisierungsformel) - höherer Eingangswert führt zu einem höheren normierten Wert",
+					"displayNameLegend": "normal",
+				},
+				{
+					"apiName": "INVERT",
+					"displayName": "invertiert (1 - (Ergebnis der Normalisierungsformel)) - höherer Eingangswert führt zu einem niedrigeren normierten Wert",
+					"displayNameLegend": "invertiert",
+				}
+			]
+
 			$scope.dropdownTranslations =  kommonitorDataExchangeService.multiselectDropdownTranslations;
 			$scope.dropdownSettings = kommonitorDataExchangeService.multiselectDropdownSettings;
 			$scope.dropdownEvents =  {
@@ -98,10 +111,31 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){
 
 				$scope.baseIndicators.push(tmpIndicatorSelection);
-				if(!kommonitorScriptHelperService.processParameters.computation_ids) {
-					kommonitorScriptHelperService.processParameters.computation_ids = [];
+
+				// for most cases a simple array of indicator IDs is sufficient via parameter computation_ids
+				// only for headline indicators with polarity we need to store more info
+				if(tmpIndicatorSelection && tmpIndicatorSelection.polarity){
+					if(!kommonitorScriptHelperService.processParameters.computation_ids_with_polarity) {
+						kommonitorScriptHelperService.processParameters.computation_ids_with_polarity = [];
+					}
+					kommonitorScriptHelperService.processParameters.computation_ids_with_polarity.push({
+						// data model based on processes API headline script definition
+						value: {
+							ID: tmpIndicatorSelection.indicatorId,
+							POLARITY: tmpIndicatorSelection.polarity.apiName
+						}						
+					});
 				}
-				kommonitorScriptHelperService.processParameters.computation_ids.push(tmpIndicatorSelection.indicatorId);
+				// regular case: just indicator IDs
+				// we want to manage this list for any case as other parts of KomMonitor expect this parameter to present list of indicators
+				else{
+					if(!kommonitorScriptHelperService.processParameters.computation_ids) {
+						kommonitorScriptHelperService.processParameters.computation_ids = [];
+					}
+					kommonitorScriptHelperService.processParameters.computation_ids.push(tmpIndicatorSelection.indicatorId);
+				}
+				
+
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
@@ -121,7 +155,13 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 					}
 				}
 				$scope.baseIndicators.splice(i, 1);
-				kommonitorScriptHelperService.processParameters.computation_ids.splice(i, 1);
+
+				if(kommonitorScriptHelperService.processParameters.computation_ids_with_polarity){
+					kommonitorScriptHelperService.processParameters.computation_ids_with_polarity.splice(i, 1);
+				}
+				if(kommonitorScriptHelperService.processParameters.computation_ids){
+					kommonitorScriptHelperService.processParameters.computation_ids.splice(i, 1);
+				}
 
 				$scope.resetComputationFormulaAndLegend();
 				
@@ -324,8 +364,8 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 
 			$scope.createDynamicFormula = function(formula) {
 				if(formula.includes('sum_baseIndicators')) {
-					baseIndicators_formula = "";
-					baseIndicators_legend = "";
+					let baseIndicators_formula = "";
+					let baseIndicators_legend = "";
 					for (let index = 0; index < $scope.baseIndicators.length; index++) {
 						const indicatorMetadata = $scope.baseIndicators[index];
 						var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
@@ -342,8 +382,8 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 				}
 
 				if(formula.includes('prod_baseIndicators')) {
-					baseIndicators_formula = "";
-					baseIndicators_legend = "";
+					let baseIndicators_formula = "";
+					let baseIndicators_legend = "";
 					for (let index = 0; index < $scope.baseIndicators.length; index++) {
 						const indicatorMetadata = $scope.baseIndicators[index];
 						var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
@@ -405,11 +445,26 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 				}
 
 				var formulaHTML = "";
-				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes("indicator")){
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> " + formula;
+				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula){
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel</b><br/> " + formula;
 				}
 				
 				var dynamicLegendStr = kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.dynamicLegend;
+
+				if(dynamicLegendStr.includes('list_baseIndicators_withPolarity')) {
+					let baseIndicators_with_polarity_legend = "";
+					for (let index = 0; index < $scope.baseIndicators.length; index++) {
+						const baseIndicator = $scope.baseIndicators[index];
+						var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
+
+						baseIndicators_with_polarity_legend+="$" + letterValue + "$: <b>" + baseIndicator.indicatorName + "</b> <i>[" + baseIndicator.unit +  "]</i> ; <b>Polarit&auml;t</b>: " + baseIndicator.polarity.displayNameLegend;
+						if(index < $scope.baseIndicators.length - 1){
+							baseIndicators_with_polarity_legend+="<br/>"; 
+						}
+					}
+					$scope.legendValues.list_baseIndicators_withPolarity = baseIndicators_with_polarity_legend;
+				}				
+
 				$scope.legendValues =  Object.assign($scope.legendValues, kommonitorScriptHelperService.processParameters);
 
 				// replace objects with displayName
@@ -426,14 +481,19 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 				if(dynamicLegendStr.includes('georesource_filter_legend')) {
 					dynamicLegendStr = replaceGeoresourceFilterPlaceholder(dynamicLegendStr);
 				}
+
+				if(dynamicLegendStr.includes('georesource_filter_legend')) {
+					dynamicLegendStr = replaceGeoresourceFilterPlaceholder(dynamicLegendStr);
+				}
 				
 				var legendText = parseStringTemplate(dynamicLegendStr, $scope.legendValues)
 
-				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.apiName.includes("indicator")){
+				if(kommonitorScriptHelperService.scriptData.additionalParameters.parameters.kommonitorUiParams.formula){
 					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b>Legende zur Formel</b><br/>" + legendText;
 				}
 				else {
-					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b></b><br/>" + legendText;
+					// kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + "<b></b><br/>" + legendText;
+					kommonitorScriptHelperService.scriptFormulaHTML = legendText;
 				}
 			
 			};

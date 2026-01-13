@@ -2636,8 +2636,18 @@ angular
                     </table> 
               */
              if(showScriptIds){
-                if(params.data && (params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
+                if(params.data && (params.data.inputs.computation_ids_with_polarity || params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+
+                if(params.data.inputs.computation_ids_with_polarity && params.data.inputs.computation_ids_with_polarity.length > 0){
+                  for (const baseIndicatorWithPolarity of params.data.inputs.computation_ids_with_polarity) {
+                    let baseIndicatorId = baseIndicatorWithPolarity.value.ID; 
+                    html += "<tr>";
+                    html += "<td>" + baseIndicatorId + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
+                }
 
                 if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
                   for (const baseIndicatorId of params.data.inputs.computation_ids) {
@@ -2675,8 +2685,17 @@ angular
              }
              else{
               //without IDs
-              if(params.data && (params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
+              if(params.data && (params.data.inputs.computation_ids_with_polarity || params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
                 let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                if(params.data.inputs.computation_ids_with_polarity && params.data.inputs.computation_ids_with_polarity.length > 0){
+                  for (const baseIndicatorWithPolarity of params.data.inputs.computation_ids_with_polarity) {
+                    let baseIndicatorId = baseIndicatorWithPolarity.value.ID; 
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
+                }
 
                 if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
                   for (const baseIndicatorId of params.data.inputs.computation_ids) {
@@ -2715,8 +2734,13 @@ angular
             filterValueGetter: (params) => {
 
               let string = "";
+              if(params.data && params.data.inputs.computation_ids_with_polarity && params.data.inputs.computation_ids_with_polarity.length > 0){
+
+                for (const baseIndicatorId of params.data.inputs.computation_ids_with_polarity.map(item => item.value.ID)) {
+                  string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
+                }                              
+              }
               if(params.data && params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
-                string = JSON.stringify(params.data.inputs.computation_ids);
 
                 for (const baseIndicatorId of params.data.inputs.computation_ids) {
                   string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
