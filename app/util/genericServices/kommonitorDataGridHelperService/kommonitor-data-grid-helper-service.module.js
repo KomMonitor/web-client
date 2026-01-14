@@ -2407,7 +2407,7 @@ angular
 
       // SCRIPT OVERVIEW TABLE
 
-      this.buildDataGridColumnConfig_scripts = function(showScriptIds){
+      this.buildDataGridColumnConfig_scripts = function(showScriptIds, showProcessDescription){
 
         let columnDefs = [];
 
@@ -2461,7 +2461,7 @@ angular
         }
 
         columnDefs = columnDefs.concat([          
-          { headerName: 'Berechnungsart', cellRenderer: function (params) {
+          { headerName: 'Berechnungsart', maxWidth: 175, cellRenderer: function (params) {
 
             for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
                 if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
@@ -2483,7 +2483,25 @@ angular
               }
             } 
           },
-          { headerName: 'Letzte Job-Ausführung', cellRenderer: function (params) {
+        ]);
+
+        if(showProcessDescription){
+          columnDefs = columnDefs.concat(
+            [
+              { headerName: 'Methodik', minWidth: 300, cellRenderer: function (params) {
+
+                  return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                
+                },
+                filter: 'agTextColumnFilter', 
+                filterValueGetter: (params) => {
+                  return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                } 
+              },
+            ]);
+        }
+        columnDefs = columnDefs.concat([
+          { headerName: 'Letzte Job-Ausführung', maxWidth: 175, cellRenderer: function (params) {
               let latestJobIndex = 0;
               if (params.data.jobIDs && params.data.jobIDs[0] && params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
                 latestJobIndex = 1;
@@ -2541,9 +2559,90 @@ angular
 
               return "<div id='latestJobSummary"+params.data.scheduleID+"'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>";
             }
+          },          
+          { headerName: 'Ausführungsintervall', maxWidth: 175, cellRenderer: function (params) {
+              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+              
+              html += "<br><br>Nächste Ausführung:<br>";
+              later.date.localTime();
+              var cronSched = later.parse.cron(params.data.scheduleCron);
+              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+              
+              html += "<br><br>Nächste Ausführung:<br>";
+              later.date.localTime();
+              var cronSched = later.parse.cron(params.data.scheduleCron);
+              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
+              return html;
+            }
           },
-          
-          { headerName: 'Ziel Raumebenen', minWidth: 200, cellRenderer: function (params) {
+          { headerName: 'Zielzeitpunkte', maxWidth: 150, cellRenderer: function (params) {
+              let html = "";
+              if (params.data.inputs.target_time.value.mode == "ALL") {
+                html += "Alle Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "MISSING") {
+                html += "Nur fehlende Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "DATES") {
+                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
+              }
+              
+              if (params.data.inputs.target_time.value.excludeDates.length) {
+                html += "<br>Nicht berechnen:<br>";
+                html += params.data.inputs.target_time.value.excludeDates;
+              }
+              
+              if(params.data.inputs.target_time.value.includeDates.length) {
+                html += "<br>";
+                if (params.data.inputs.target_time.value.mode == "DATES") {
+                  html += "Berechnen:<br>";
+                }
+                else {
+                  html += "Zusätzlich berechnen:<br>";
+                }
+                html += params.data.inputs.target_time.value.includeDates;
+              }
+            
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              let html = "";
+              if (params.data.inputs.target_time.value.mode == "ALL") {
+                html += "Alle Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "MISSING") {
+                html += "Nur fehlende Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "DATES") {
+                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
+              }
+              
+              if (params.data.inputs.target_time.value.excludeDates.length) {
+                html += "<br>Nicht berechnen:<br>";
+                html += params.data.inputs.target_time.value.excludeDates;
+              }
+              
+              if(params.data.inputs.target_time.value.includeDates.length) {
+                html += "<br>";
+                if (params.data.inputs.target_time.value.mode == "DATES") {
+                  html += "Berechnen:<br>";
+                }
+                else {
+                  html += "Zusätzlich berechnen:<br>";
+                }
+                html += params.data.inputs.target_time.value.includeDates;
+              }
+            
+              return html;
+            }
+          },
+          { headerName: 'Ziel Raumebenen', maxWidth: 150, cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2617,7 +2716,7 @@ angular
               }
             }  
           },
-          { headerName: 'notwendige Basis-Indikatoren', cellRenderer: function (params) {
+          { headerName: 'notwendige Basis-Indikatoren',  cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2765,7 +2864,7 @@ angular
               
             }  
           },
-          { headerName: 'notwendige Basis-Georessourcen', cellRenderer: function (params) {
+          { headerName: 'notwendige Basis-Georessourcen',  cellRenderer: function (params) {
 
             if(showScriptIds){
               if(params.data && params.data.inputs.georesource_id ){
@@ -2837,104 +2936,23 @@ angular
                 return "keine";
               }
             } 
-          },
-          { headerName: 'Zielzeitpunkte', cellRenderer: function (params) {
-              let html = "";
-              if (params.data.inputs.target_time.value.mode == "ALL") {
-                html += "Alle Zeitpunkte berechnen<br>";
-              }
-              else if (params.data.inputs.target_time.value.mode == "MISSING") {
-                html += "Nur fehlende Zeitpunkte berechnen<br>";
-              }
-              else if (params.data.inputs.target_time.value.mode == "DATES") {
-                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
-              }
-              
-              if (params.data.inputs.target_time.value.excludeDates.length) {
-                html += "<br>Nicht berechnen:<br>";
-                html += params.data.inputs.target_time.value.excludeDates;
-              }
-              
-              if(params.data.inputs.target_time.value.includeDates.length) {
-                html += "<br>";
-                if (params.data.inputs.target_time.value.mode == "DATES") {
-                  html += "Berechnen:<br>";
-                }
-                else {
-                  html += "Zusätzlich berechnen:<br>";
-                }
-                html += params.data.inputs.target_time.value.includeDates;
-              }
-            
-              return html;
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              let html = "";
-              if (params.data.inputs.target_time.value.mode == "ALL") {
-                html += "Alle Zeitpunkte berechnen<br>";
-              }
-              else if (params.data.inputs.target_time.value.mode == "MISSING") {
-                html += "Nur fehlende Zeitpunkte berechnen<br>";
-              }
-              else if (params.data.inputs.target_time.value.mode == "DATES") {
-                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
-              }
-              
-              if (params.data.inputs.target_time.value.excludeDates.length) {
-                html += "<br>Nicht berechnen:<br>";
-                html += params.data.inputs.target_time.value.excludeDates;
-              }
-              
-              if(params.data.inputs.target_time.value.includeDates.length) {
-                html += "<br>";
-                if (params.data.inputs.target_time.value.mode == "DATES") {
-                  html += "Berechnen:<br>";
-                }
-                else {
-                  html += "Zusätzlich berechnen:<br>";
-                }
-                html += params.data.inputs.target_time.value.includeDates;
-              }
-            
-              return html;
-            }
-          },
-          { headerName: 'Ausführungsintervall', cellRenderer: function (params) {
-              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
-              
-              html += "<br><br>Nächste Ausführung:<br>";
-              later.date.localTime();
-              var cronSched = later.parse.cron(params.data.scheduleCron);
-              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
-              return html;
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
-              
-              html += "<br><br>Nächste Ausführung:<br>";
-              later.date.localTime();
-              var cronSched = later.parse.cron(params.data.scheduleCron);
-              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
-              return html;
-            }
           }
+          
                     
         ]);
 
         return columnDefs;
       };
 
-      this.buildDataGridRowData_scripts = function(dataArray, showScriptIds){
+      this.buildDataGridRowData_scripts = function(dataArray, showScriptIds, showProcessDescription){
         
         return dataArray;
       };
 
-      this.buildDataGridOptions_scripts = function(scriptsArray, showScriptIds){
-          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds);
-          let rowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds);
-  
+      this.buildDataGridOptions_scripts = function(scriptsArray, showScriptIds, showProcessDescription){
+          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds, showProcessDescription);
+          let rowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds, showProcessDescription);
+
           let gridOptions = {
             defaultColDef: {
               editable: false,
@@ -2987,27 +3005,30 @@ angular
               self.registerClickHandler_scripts(scriptsArray);
             },      
             onViewportChanged: function () {
-              self.registerClickHandler_scripts(scriptsArray);                   
-            },
+              self.registerClickHandler_scripts(scriptsArray);  
+              
+              MathJax.typesetPromise().then(function (){
+              });
+            }
   
           };
   
           return gridOptions;        
       };
 
-      this.buildDataGrid_scripts = function (scriptsArray, showScriptIds) {
+      this.buildDataGrid_scripts = function (scriptsArray, showScriptIds, showProcessDescription) {
         
         if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api && document.querySelector('#scriptOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_scripts);
-          let newRowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds);
+          let newRowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds, showProcessDescription);
           this.dataGridOptions_scripts.api.setRowData(newRowData);
-          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds);
+          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds, showProcessDescription);
           this.dataGridOptions_scripts.api.setGridOption("columnDefs", columnDefs);
           this.restoreGridStore(this.dataGridOptions_scripts);
         }
         else {
-          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray, showScriptIds);
+          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray, showScriptIds, showProcessDescription);
           let gridDiv = document.querySelector('#scriptOverviewTable');
           new agGrid.Grid(gridDiv, this.dataGridOptions_scripts);
         }

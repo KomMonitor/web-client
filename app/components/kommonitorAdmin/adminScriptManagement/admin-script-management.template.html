@@ -27,12 +27,32 @@
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
-		<b>Zeige IDs</b>
-		&nbsp;
-		<label class="switch">
-			<input type="checkbox" ng-model="showScriptIds" ng-change="initializeOrRefreshOverviewTable(showScriptIds)"></input>
-			<span class="switchslider round"></span>
-		</label>
+
+			<div class="row">
+				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+					<b>Zeige IDs</b>
+					&nbsp;
+					<label class="switch">
+						<input type="checkbox" ng-model="showScriptIds"
+							ng-change="initializeOrRefreshOverviewTable()"></input>
+						<span class="switchslider round"></span>
+					</label>
+				</div>
+				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+					<b>Zeige Methodik</b>
+					&nbsp;
+					<label class="switch">
+						<input type="checkbox" ng-model="showProcessDescription"
+							ng-change="initializeOrRefreshOverviewTable()"></input>
+						<span class="switchslider round"></span>
+					</label>
+				</div>
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+					
+					
+				</div>
+			</div>
+		
 
 		<br />
 		<div class="box box-primary">
