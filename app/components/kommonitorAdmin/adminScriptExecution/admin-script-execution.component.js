@@ -87,7 +87,10 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.onJobStatusClicked = async function (status){
 			$timeout(function () {
 				$scope.loadingData = true;
-			});
+
+				// display loading spinner on job table
+				document.getElementById("loading-overlay-job-table").style.display = "block";
+			});		
 
 			kommonitorScriptHelperService.selectedStatus = status;
 
@@ -110,6 +113,9 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 			$timeout(function () {
 				$scope.loadingData = true;
+
+				// display loading spinner on job table
+				document.getElementById("loading-overlay-job-table").style.display = "block";
 			});			
 
 			let schedule = kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId);

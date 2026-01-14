@@ -3402,6 +3402,9 @@ angular
                 let gridDiv = document.querySelector('#jobExecutionTable_processJobs');
                 new agGrid.Grid(gridDiv, this.dataGridOptions_processJobs);
               }
+
+              // remove loading spinner icon from job table modal
+              document.getElementById("loading-overlay-job-table").style.display = "none";
             };
 
       function anyHigherPermissionIsChecked(permissions, permissionSuffix){
