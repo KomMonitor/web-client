@@ -153,6 +153,11 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.refreshJobOverviewTable = async function () {
 
+			// for better user feedback, we show the loading spinner for a short moment on refresh button click
+			$timeout(function () {
+				$scope.loadingData = true;
+			});
+
 			// as new jobIds might have been created, we also need to refetch the process script schedules
 			// to get the mapping between jobIds and schedules updated
 			await kommonitorDataExchangeService.fetchProcessScriptSchedules();
