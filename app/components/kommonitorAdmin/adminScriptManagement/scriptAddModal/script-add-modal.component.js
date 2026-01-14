@@ -300,8 +300,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.selectableSpatialUnits = [];
 
 			$scope.onTargetIndicatorChanged = function (){
-				kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
-				$scope.resetSelectableSpatialUnits();
+				if(kommonitorScriptHelperService.targetIndicator && kommonitorScriptHelperService.targetIndicator.indicatorId){
+					kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
+					$scope.resetSelectableSpatialUnits();
+				}				
 			}
 
 			$scope.updateCron = function() {

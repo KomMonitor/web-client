@@ -71,7 +71,7 @@ angular
 
       this.scriptFormulaHTML = undefined;
       this.scriptFormulaHTML_successToastDisplay = this.scriptFormulaHTML;
-      this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+      this.scriptFormulaHTML_overwriteTargetIndicatorMethod = true;
 
       this.scriptFormulaExplanation = undefined;
 
@@ -84,7 +84,7 @@ angular
         this.scriptCode_base64String = undefined;
         this.scriptCode_readableString = undefined;
         this.scriptFormulaHTML = undefined;
-        this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+        this.scriptFormulaHTML_overwriteTargetIndicatorMethod = true;
         this.scriptFormulaExplanation = undefined;
         this.targetIndicatorOldProcessDescription = undefined;
       };
@@ -171,7 +171,6 @@ angular
               "databasis": targetIndicatorMetadata.metadata.databasis || null
             },
             "refrencesToOtherIndicators": [], // filled directly after
-              "permissions": targetIndicatorMetadata.permissions,
               "regionalReferenceValues": targetIndicatorMetadata.regionalReferenceValues,
               "datasetName": targetIndicatorMetadata.indicatorName,
               "abbreviation": targetIndicatorMetadata.abbreviation || null,
@@ -186,7 +185,6 @@ angular
               "interpretation": targetIndicatorMetadata.interpretation || "",
               "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
               "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
-              "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
               "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping,
               "referenceDateNote": targetIndicatorMetadata.referenceDateNote || "",
 				      "displayOrder": targetIndicatorMetadata.displayOrder,
@@ -237,7 +235,8 @@ angular
             $rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", targetIndicatorMetadata.indicatorId);
 
           }, function errorCallback(error) {
-
+            console.error("Error while patching indicator metadata to replace process description.");
+            throw error;  
         });
       };
 
