@@ -102,8 +102,13 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			// for each filtered job entry, we must fetch jkob details, as only then we get detailed 
 			// jobSummary for the respective data grid
 
-			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
+			await $scope.fetchJobDetails($scope.filteredJobDescriptions).then(function successCallback(response) {
+				$scope.filteredJobDescriptions_withJobSummary = response;
 			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);
+			}, function errorCallback(error) {
+				kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions);
+			});
+			
 		}
 
 		$scope.$on("onShowJobsForSchedule", async function (event, scheduleId) {	
