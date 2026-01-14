@@ -3002,18 +3002,35 @@ angular
               headerHeightSetter(self.dataGridOptions_scripts);
             },
             onRowDataChanged: function () {
-            self.registerClickHandler_scripts(scriptsArray);
+              self.registerClickHandler_scripts(scriptsArray);
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                });
+              }, 500);
+            
             },
             onModelUpdated: function () {
               self.registerClickHandler_scripts(scriptsArray);
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                });
+              }, 500);
             },      
             onViewportChanged: function () {
               self.registerClickHandler_scripts(scriptsArray);  
               
-              MathJax.typesetPromise().then(function (){
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                });
+              }, 500);
+            },
+            onStateUpdated: function () {
+              self.registerClickHandler_scripts(scriptsArray);
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                }, 500); 
               });
             }
-  
           };
   
           return gridOptions;        
