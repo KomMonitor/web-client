@@ -11,5 +11,6 @@ angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardMana
 'adminFilterConfig', 'adminFilterAddModal', 'adminFilterEditModal',
 'roleAddModal', 'roleEditMetadataModal', 'roleEditGroupRightsModal', 'roleDeleteModal',
 'adminRoleExplanation',
+'kommonitorScriptHelper'
 // ,'spatialUnitDeleteModal',
 ]);

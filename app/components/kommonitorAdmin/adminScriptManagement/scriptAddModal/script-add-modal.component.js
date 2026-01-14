@@ -257,6 +257,11 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					if (kommonitorScriptHelperService.processParameters.computation_id){
 						allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(kommonitorScriptHelperService.processParameters.computation_id).applicableDates);
 					}
+					if (kommonitorScriptHelperService.processParameters.computation_ids_with_polarity){
+						for (let item of kommonitorScriptHelperService.processParameters.computation_ids_with_polarity) {
+							allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(item.value.ID).applicableDates);
+						}
+					}
 					if (kommonitorScriptHelperService.processParameters.computation_ids){
 						for (let id of kommonitorScriptHelperService.processParameters.computation_ids) {
 							allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(id).applicableDates);

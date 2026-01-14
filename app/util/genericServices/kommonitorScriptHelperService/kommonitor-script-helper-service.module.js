@@ -33,6 +33,7 @@ angular
       this.predefinedInputNames = [
         "computation_id",
         "computation_ids",
+        "computation_ids_with_polarity",
         "reference_id",
         "reference_date",
         "georesource_id",
@@ -503,5 +504,54 @@ angular
           });
         }
       };
+
+      // processing JOBS related data for modal display
+      this.selectedStatus = "";
+
+      this.statusDescriptions = {
+        accepted: {
+          title: "wartende Jobs",
+          backgroundClass: "bg-orange",
+        },
+        // delayed: { // not supported by pyGeoAPI as of July 2025
+        // 	title: "verzögerte Jobs",
+        // 	backgroundClass: "bg-gray",
+        // },
+        running: {
+          title: "laufende Jobs",
+          backgroundClass: "bg-aqua",
+        },
+        failed: {
+          title: "gescheiterte Jobs",
+          backgroundClass: "bg-red",
+        },
+        successful: {
+          title: "abgeschlossene Jobs",
+          backgroundClass: "bg-green",
+        },
+        schedule: {
+          title: "Jobs zur Berechnung von <Indikator>",
+          backgroundClass: "bg-blue",
+        }
+      }
+
+      this.initJobDescriptionMap = function(jobDescriptions){
+			this.jobDescriptionAndScheduleMap = new Map();
+			// init map to quickly access job descriptions by their ID and find related schedule
+			for (const job of jobDescriptions) {
+				self.jobDescriptionAndScheduleMap.set(job.jobID, "");
+			}
+
+			for (const processScript of kommonitorDataExchangeService.availableProcessScripts) {
+					// iterate over jobIDs of schedule and map jobID to schedule ID
+					if(processScript.jobIDs && processScript.jobIDs.length>0){
+						for (const jobID of processScript.jobIDs) {
+							if(self.jobDescriptionAndScheduleMap.has(jobID)){
+								self.jobDescriptionAndScheduleMap.set(jobID, processScript);
+							}
+						}
+					}
+			}
+		  }
 
     }]);

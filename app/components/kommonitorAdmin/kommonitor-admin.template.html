@@ -335,6 +335,24 @@
 
       <!-- Modal -->
       <batch-update-result-modal></batch-update-result-modal>
+
+      <!-- processing job table modal -->
+      <div class="modal fade" id="modal-job-table" role="dialog">
+					<div class="modal-dialog modal-xl">
+						<div class="modal-content">
+							<div class="modal-header" ng-class="$ctrl.kommonitorScriptHelperServiceInstance.statusDescriptions[$ctrl.kommonitorScriptHelperServiceInstance.selectedStatus].backgroundClass">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.statusDescriptions[$ctrl.kommonitorScriptHelperServiceInstance.selectedStatus].title"></h4>
+                
+								
+							</div>
+							<div class="modal-body">
+								<table id="jobExecutionTable_processJobs" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
+							</div>
+						</div>
+					</div>
+				</div>
     
 
       <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
