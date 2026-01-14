@@ -2545,7 +2545,7 @@ angular
                     let html = "";
                     const spatialUnitId = params.data.inputs.target_spatial_units[i];
                     html += "<div><b>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + ":</b></div>";
-                    if (response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
+                    if (response.data && response.data.jobSummary && response.data.jobSummary[i] && response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
                        html += response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures + " Features integriert</br>";
                     }
                     document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML += html;
