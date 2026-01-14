@@ -171,6 +171,10 @@ MULTI STEP FORM
 	overflow-y: auto;
 }
 
+.noHover{
+    pointer-events: none;
+}
+
 /*headings*/
 .fs-title {
     font-size: 18px;

@@ -2503,10 +2503,10 @@ angular
                 }
                 let jobStatus;
                 switch(response.data.status){
-                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
-                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
-                  case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
-                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
+                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
+                  case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
+                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
                   default: "Status unbekannt";
                 }
 
@@ -3149,10 +3149,10 @@ angular
 
                     let jobStatus;
                     switch(params.data.status){
-                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
-                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
-                      case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
-                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
+                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
+                      case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
+                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
                       default: "Status unbekannt";
                     }
 
@@ -3166,10 +3166,10 @@ angular
 
                     let jobStatus;
                     switch(params.data.status){
-                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
-                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
-                      case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
-                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
+                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
+                      case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
+                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
                       default: "Status unbekannt";
                     }
 
