@@ -2530,6 +2530,9 @@ angular
                     if (response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
                        html += response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures + " Features integriert</br>";
                     }
+                    else {
+                      html += "keine Features integriert</br>";
+                    }
                     document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML += html;
                   }
                 });
@@ -2903,7 +2906,7 @@ angular
           { headerName: 'Ausführungsintervall', cellRenderer: function (params) {
               let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
               
-              html += "<br><br>Nächste Ausführung:<br>";
+              html += "<br><br>Nächste geplante Ausführung:<br>";
               later.date.localTime();
               var cronSched = later.parse.cron(params.data.scheduleCron);
               html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
@@ -2913,7 +2916,7 @@ angular
             filterValueGetter: (params) => {
               let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
               
-              html += "<br><br>Nächste Ausführung:<br>";
+              html += "<br><br>Nächste geplante Ausführung:<br>";
               later.date.localTime();
               var cronSched = later.parse.cron(params.data.scheduleCron);
               html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
