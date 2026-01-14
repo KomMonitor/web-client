@@ -2521,10 +2521,10 @@ angular
                 }
                 let jobStatus;
                 switch(response.data.status){
-                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
-                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
-                  case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
-                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
+                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
+                  case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
+                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
                   default: "Status unbekannt";
                 }
 
@@ -2548,6 +2548,9 @@ angular
                     if (response.data && response.data.jobSummary && response.data.jobSummary[i] && response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
                        html += response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures + " Features integriert</br>";
                     }
+                    else {
+                      html += "keine Features integriert</br>";
+                    }
                     document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML += html;
                   }
                 });
@@ -2561,9 +2564,9 @@ angular
             }
           },          
           { headerName: 'Ausführungsintervall', maxWidth: 175, cellRenderer: function (params) {
-              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+               let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
               
-              html += "<br><br>Nächste Ausführung:<br>";
+              html += "<br><br>Nächste geplante Ausführung:<br>";
               later.date.localTime();
               var cronSched = later.parse.cron(params.data.scheduleCron);
               html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
@@ -2573,7 +2576,7 @@ angular
             filterValueGetter: (params) => {
               let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
               
-              html += "<br><br>Nächste Ausführung:<br>";
+              html += "<br><br>Nächste geplante Ausführung:<br>";
               later.date.localTime();
               var cronSched = later.parse.cron(params.data.scheduleCron);
               html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
@@ -3167,10 +3170,10 @@ angular
 
                     let jobStatus;
                     switch(params.data.status){
-                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
-                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
-                      case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
-                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
+                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
+                      case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
+                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
                       default: "Status unbekannt";
                     }
 
@@ -3184,10 +3187,10 @@ angular
 
                     let jobStatus;
                     switch(params.data.status){
-                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm'>abgeschlossen</div>"; break;
-                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm'>gescheitert</div>"; break;
-                      case "running": jobStatus = "<button disabled class='btn-info btn-sm'>laufend</div>"; break;
-                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm'>wartend</div>"; break;
+                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
+                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
+                      case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
+                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
                       default: "Status unbekannt";
                     }
 
