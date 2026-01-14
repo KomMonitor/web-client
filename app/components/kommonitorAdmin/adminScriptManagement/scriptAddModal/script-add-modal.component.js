@@ -174,10 +174,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				}
 			}
 
-			$scope.onScriptTypeChanged = function () {
+			$scope.onScriptTypeChanged = async function () {
+				$timeout(function () {
+					$scope.loadingData = true;
+				});
+
 				if ($scope.selectedScriptType) {
-					kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
+					await kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
 				}
+
+				$timeout(function () {
+					$scope.loadingData = false;
+				});
 			}
 
 			$scope.addScript = async function () {
