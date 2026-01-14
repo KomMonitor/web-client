@@ -88,17 +88,12 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 			$timeout(function () {
 				$scope.loadingData = true;
-
-				// display loading spinner on job table
-				document.getElementById("loading-overlay-job-table").style.display = "block";
 			});		
 
 			// make sure to show the newest data available
 			await $scope.refreshJobOverviewTable();
 
 			$timeout(function () {
-				$scope.loadingData = true;
-
 				// display loading spinner on job table
 				document.getElementById("loading-overlay-job-table").style.display = "block";
 			});		
@@ -129,17 +124,12 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 			$timeout(function () {
 				$scope.loadingData = true;
-
-				// display loading spinner on job table
-				document.getElementById("loading-overlay-job-table").style.display = "block";
 			});		
 			
 			// make sure to show the newest data available
 			await $scope.refreshJobOverviewTable();
 
 			$timeout(function () {
-				$scope.loadingData = true;
-
 				// display loading spinner on job table
 				document.getElementById("loading-overlay-job-table").style.display = "block";
 			});		
