@@ -2508,7 +2508,7 @@ angular
               }
 
               if (!params.data.jobIDs || !params.data.jobIDs[latestJobIndex]) {
-                return "<div id='latestJobSummary"+params.data.scheduleID+"'>Keine Jobs vorhanden</div>";
+                return "<div id='latestJobSummary"+params.data.scheduleID+"' class='jobSummary'>Keine Jobs vorhanden</div>";
               }
 
               $http({
@@ -2521,17 +2521,17 @@ angular
                 }
                 let jobStatus;
                 switch(response.data.status){
-                  case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
-                  case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
-                  case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
-                  case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
+                  case "successful": jobStatus = "<i class='text-success fa-solid fa-circle-check'></i> abgeschlossen<br>"; break;
+                  case "failed": jobStatus = "<i class='text-danger fa-solid fa-circle-xmark'></i> gescheitert<br>"; break;
+                  case "running": jobStatus = "<i class='text-info fa-solid fa-spinner'></i> laufend<br>"; break;
+                  case "accepted": jobStatus = "<i class='text-warning fa-solid fa-hourglass-start'></i> wartend<br>"; break;
                   default: "Status unbekannt";
                 }
 
-                let innerHTMLContent = "" + jobDateTime 
+                let innerHTMLContent = "<div>" + jobDateTime 
                   + "<br>"
                   + jobStatus 
-                  + "<button class='btn-sm jobTableButtonForSchedule' id='jobTableButtonForSchedule_" + params.data.scheduleID + "' style='cursor: pointer' data-toggle='modal' data-target='#modal-job-table' title='zur Berechnungs-Job-Übersicht'><i class='fas fa-table'></i></button>"
+                  + "</div><button class='btn-sm jobTableButtonForSchedule' id='jobTableButtonForSchedule_" + params.data.scheduleID + "' style='cursor: pointer' data-toggle='modal' data-target='#modal-job-table' title='zur Berechnungs-Job-Übersicht'><i class='fas fa-table'></i></button>"
                   
 
                 document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = innerHTMLContent;
@@ -2560,7 +2560,7 @@ angular
                 throw error;
               });
 
-              return "<div id='latestJobSummary"+params.data.scheduleID+"'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>";
+              return "<div id='latestJobSummary"+params.data.scheduleID+"' class='jobSummary'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>";
             }
           },          
           { headerName: 'Ausführungsintervall', maxWidth: 175, cellRenderer: function (params) {
@@ -3187,10 +3187,10 @@ angular
 
                     let jobStatus;
                     switch(params.data.status){
-                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
-                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
-                      case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
-                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
+                      case "successful": jobStatus = "<i class='text-success fa-solid fa-circle-check'></i> abgeschlossen<br>"; break;
+                      case "failed": jobStatus = "<i class='text-danger fa-solid fa-circle-xmark'></i> gescheitert<br>"; break;
+                      case "running": jobStatus = "<i class='text-info fa-solid fa-spinner'></i> laufend<br>"; break;
+                      case "accepted": jobStatus = "<i class='text-warning fa-solid fa-hourglass-start'></i> wartend<br>"; break;
                       default: "Status unbekannt";
                     }
 
@@ -3204,10 +3204,10 @@ angular
 
                     let jobStatus;
                     switch(params.data.status){
-                      case "successful": jobStatus = "<button disabled class='btn-success btn-sm noHover'>abgeschlossen</div>"; break;
-                      case "failed": jobStatus = "<button disabled class='btn-danger btn-sm noHover'>gescheitert</div>"; break;
-                      case "running": jobStatus = "<button disabled class='btn-info btn-sm noHover'>laufend</div>"; break;
-                      case "accepted": jobStatus = "<button disabled class='btn-warning btn-sm noHover'>wartend</div>"; break;
+                      case "successful": jobStatus = "<i class='text-success fa-solid fa-circle-check'></i> abgeschlossen<br>"; break;
+                      case "failed": jobStatus = "<i class='text-danger fa-solid fa-circle-xmark'></i> gescheitert<br>"; break;
+                      case "running": jobStatus = "<i class='text-info fa-solid fa-spinner'></i> laufend<br>"; break;
+                      case "accepted": jobStatus = "<i class='text-warning fa-solid fa-hourglass-start'></i> wartend<br>"; break;
                       default: "Status unbekannt";
                     }
 
