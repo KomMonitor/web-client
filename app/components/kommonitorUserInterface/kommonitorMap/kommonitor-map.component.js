@@ -273,6 +273,7 @@ angular.module('kommonitorMap').component(
         const wfsLayerGroupName = "Web Feature Services (WFS)";
         const fileLayerGroupName = "Dateilayer";
         const spatialUnitOutlineLayerGroupName = "Raumebenen Umringe";
+        const osmbuildingsLayerGroupName = "3D Gebäude";
 
         let sortableLayers = ["Web Map Services (WMS)"];
         if (__env.sortableLayers) {
@@ -467,8 +468,8 @@ angular.module('kommonitorMap').component(
           $scope.map = L.map('map', {
             center: [$scope.latCenter, $scope.lonCenter],
             zoom: $scope.zoomLevel,
-            zoomDelta: 0.5,
-            zoomSnap: 0.5,
+            zoomDelta: 1,
+            zoomSnap: 1,
             layers: [kommonitorDataExchangeService.baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
           });
 
@@ -506,6 +507,9 @@ angular.module('kommonitorMap').component(
           });          
 
           $scope.groupedOverlays = {
+            osmbuildingsLayerGroupName: {
+
+            },
             indicatorLayerGroupName: {
 
             },
@@ -537,6 +541,14 @@ angular.module('kommonitorMap').component(
 
           $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {collapsed: false, position: 'topleft', sortableLayers });
           $scope.map.addControl($scope.layerControl);
+
+          // OSM Buildings layer
+          // https://osmbuildings.org/documentation/leaflet/
+          // https://github.com/kekscom/osmbuildings
+          var layerName_osmbuildings = "3D Gebäude";
+          var osmb = new OSMBuildings($scope.map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
+          $scope.layerControl.addOverlay(osmb, layerName_osmbuildings, osmbuildingsLayerGroupName);
+          osmb.addTo($scope.map);
 
           // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
           $('.leaflet-control-layers').hide();
