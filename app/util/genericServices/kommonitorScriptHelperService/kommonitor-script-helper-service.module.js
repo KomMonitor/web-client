@@ -9,7 +9,8 @@ angular
 
       var self = this;
 
-      this.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID = "foundNewJobId_";
+      // map to store jobIds created on demand for specific schedule
+      this.onDemandJobPerScheduleIdMap = new Map();
 
       this.targetUrlToManagementService = __env.apiUrl + __env.basePath + "/";
 
@@ -33,6 +34,7 @@ angular
       this.predefinedInputNames = [
         "computation_id",
         "computation_ids",
+        "computation_ids_with_polarity",
         "reference_id",
         "reference_date",
         "georesource_id",
@@ -70,11 +72,13 @@ angular
 
       this.scriptFormulaHTML = undefined;
       this.scriptFormulaHTML_successToastDisplay = this.scriptFormulaHTML;
-      this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+      this.scriptFormulaHTML_overwriteTargetIndicatorMethod = true;
 
       this.scriptFormulaExplanation = undefined;
 
       this.targetIndicatorOldProcessDescription = undefined;
+
+      let errorCounter = 0;
 
       this.reset = function(){
         this.requiredIndicators_tmp = [];
@@ -83,9 +87,11 @@ angular
         this.scriptCode_base64String = undefined;
         this.scriptCode_readableString = undefined;
         this.scriptFormulaHTML = undefined;
-        this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+        this.scriptFormulaHTML_overwriteTargetIndicatorMethod = true;
         this.scriptFormulaExplanation = undefined;
         this.targetIndicatorOldProcessDescription = undefined;
+
+        errorCounter = 0
       };
 
       this.getScriptTypes = async function(){
@@ -170,7 +176,6 @@ angular
               "databasis": targetIndicatorMetadata.metadata.databasis || null
             },
             "refrencesToOtherIndicators": [], // filled directly after
-              "allowedRoles": targetIndicatorMetadata.allowedRoles,
               "regionalReferenceValues": targetIndicatorMetadata.regionalReferenceValues,
               "datasetName": targetIndicatorMetadata.indicatorName,
               "abbreviation": targetIndicatorMetadata.abbreviation || null,
@@ -185,7 +190,6 @@ angular
               "interpretation": targetIndicatorMetadata.interpretation || "",
               "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
               "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
-              "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
               "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping,
               "referenceDateNote": targetIndicatorMetadata.referenceDateNote || "",
 				      "displayOrder": targetIndicatorMetadata.displayOrder,
@@ -236,7 +240,8 @@ angular
             $rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", targetIndicatorMetadata.indicatorId);
 
           }, function errorCallback(error) {
-
+            console.error("Error while patching indicator metadata to replace process description.");
+            throw error;  
         });
       };
 
@@ -320,7 +325,6 @@ angular
           }, function errorCallback(response) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
-            //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
             throw response;
         });
@@ -353,25 +357,27 @@ angular
           }, function errorCallback(response) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
-            //$scope.error = response.statusText;
             console.error("Error while posting to processes api service.");
             throw response;
         });
       }
 
-      this.initJobWatchingForSchedule = function(scheduleId, scriptMetadata_old){        
-
-        let propertyName_newJobIdForSchedule = self.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + scheduleId;
-        self[propertyName_newJobIdForSchedule] = false; 
+      this.initJobWatchingForSchedule = function(scheduleId, scriptMetadata_old){      
+        
+        self.onDemandJobPerScheduleIdMap.set(scheduleId, false);
 
         // basic idea: have a deep copy of current scriptMetadata
         // then periodically fetch new process script metadata
         // check if there is a new jobId
         // if not then wait and repeat
         setTimeout(async function(){
-          self[propertyName_newJobIdForSchedule] = await self.checkForNewJobID(scheduleId, scriptMetadata_old);
+          let jobResponse = await self.checkForNewJob(scheduleId, scriptMetadata_old);
+          self.onDemandJobPerScheduleIdMap.set(scheduleId, jobResponse);
 
-          if(self[propertyName_newJobIdForSchedule]){
+          // if map has valid job as object
+          // then enable button again
+
+          if(jobResponse){
             $("#" + "btnExecuteScript_" + scheduleId).removeAttr("disabled");
             $("#" + "btnExecuteScript_" + scheduleId  + "_span").css({'display': 'none'});    
             $("#" + "btnExecuteScript_" + scheduleId  + "_span").innerHTML = "Berechnung starten";        
@@ -382,9 +388,16 @@ angular
           }
           
                     
-          if (self[propertyName_newJobIdForSchedule]){
+          if (jobResponse){
+            // check job status and inform user
+            // there is a new job            
             $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);
-            kommonitorToastHelperService.displayInfoToast_lowerLeft("Manuelle Indikatorenberechnung", "Neuer Berechnungs-Job liegt vor. Für Details Job-Tabelle öffnen.");
+            // $rootScope.$broadcast("refreshJobOverviewTable");
+            kommonitorToastHelperService.displayInfoToast_lowerLeft("Manuelle Indikatorenberechnung", "Neuer Berechnungs-Job gestartet. Auf Job Abschluss warten.");
+            
+            errorCounter = 0;
+            // also trigger watching for job completion
+            self.waitForJobCompletion(jobResponse.jobID, scheduleId);
             return;
           }
           else{
@@ -395,22 +408,78 @@ angular
         }, 1000);
       };
 
-      this.checkForNewJobID = async function(scheduleId, scriptMetadata_old){
+      this.checkForNewJob = async function(scheduleId, scriptMetadata_old){
 
         return await kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(scheduleId).then(function successCallback(scriptMetadata) {
 
               // check if there is a new jobId
               if(scriptMetadata.jobIDs.length > scriptMetadata_old.jobIDs.length)
               {
-                
-                return true;      
+
+                // noe get first jobId and fetch job description
+                let newJobID = scriptMetadata.jobIDs[0];
+
+                return self.fetchSingleJobDescription(newJobID);      
               }              
 	
 						}, function errorCallback(response) {
-              kommonitorToastHelperService.displayErrorToast_lowerLeft("Fehler beim Abruf der Skript-Metadaten", $scope.fileLayerError);
-							$scope.loadingData = false;
+              kommonitorToastHelperService.displayErrorToast_lowerLeft("Fehler beim Abruf der Skript-Metadaten", "Die Metadaten des Skripts konnten nicht abgerufen werden.");
 					});
       }
+
+      this.waitForJobCompletion = function(jobID, scheduleId){
+
+        setTimeout(async function(){  
+          try {
+            let jobDescription = await self.fetchSingleJobDescription(jobID);
+
+            if(jobDescription.status == "successful"){
+              // job finished
+              kommonitorToastHelperService.displaySuccessToast_lowerLeft("Indikatorenberechnung abgeschlossen", "Skripte und Jobs wurden neu geladen.");  
+              // $rootScope.$broadcast("refreshJobOverviewTable");
+              $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);
+              return;
+            }
+            else if(jobDescription.status == "failed"){
+              // job failed
+              kommonitorToastHelperService.displayErrorToast_lowerLeft("Fehler bei Indikatorenberechnung", "Die Berechnung des Indikators ist fehlgeschlagen. Bitte prüfen Sie die Job-Details.");
+              return;
+            } 
+            else{
+              // job still running
+              self.waitForJobCompletion(jobID, scheduleId);
+            }
+          } catch (error) {
+            errorCounter++;
+            if(errorCounter >= 5){
+              // after 5 failed tries, we stop checking for job completion  
+              kommonitorToastHelperService.displayErrorToast_lowerLeft("Fehler bei Indikatorenberechnung", "Die Berechnung des Indikators konnte nicht überwacht werden. Bitte prüfen Sie die Job-Details.");
+              return;
+            }
+
+            self.waitForJobCompletion(jobID, scheduleId);
+          }
+          
+        }, 3000);
+      }
+
+      this.fetchSingleJobDescription = async function (jobID) {
+
+        return await $http({
+            url: __env.targetUrlToProcessesApi + "jobs/" + jobID,
+            method: "GET"
+          }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            return response.data;
+          }).catch(function errorCallback(response) {
+            console.error("Error while fetching job description from processes api service.");
+            throw response;
+        });
+      };
+      
+
 
       this.updateScript = async function(scriptName, description, scheduleId){
 
@@ -439,7 +508,6 @@ angular
           }, function errorCallback(response) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
-            //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
             throw response;
         });        
@@ -503,5 +571,54 @@ angular
           });
         }
       };
+
+      // processing JOBS related data for modal display
+      this.selectedStatus = "";
+
+      this.statusDescriptions = {
+        accepted: {
+          title: "wartende Jobs",
+          backgroundClass: "bg-orange",
+        },
+        // delayed: { // not supported by pyGeoAPI as of July 2025
+        // 	title: "verzögerte Jobs",
+        // 	backgroundClass: "bg-gray",
+        // },
+        running: {
+          title: "laufende Jobs",
+          backgroundClass: "bg-aqua",
+        },
+        failed: {
+          title: "gescheiterte Jobs",
+          backgroundClass: "bg-red",
+        },
+        successful: {
+          title: "abgeschlossene Jobs",
+          backgroundClass: "bg-green",
+        },
+        schedule: {
+          title: "Jobs zur Berechnung von <Indikator>",
+          backgroundClass: "bg-blue",
+        }
+      }
+
+      this.initJobDescriptionMap = function(jobDescriptions){
+			this.jobDescriptionAndScheduleMap = new Map();
+			// init map to quickly access job descriptions by their ID and find related schedule
+			for (const job of jobDescriptions) {
+				self.jobDescriptionAndScheduleMap.set(job.jobID, "");
+			}
+
+			for (const processScript of kommonitorDataExchangeService.availableProcessScripts) {
+					// iterate over jobIDs of schedule and map jobID to schedule ID
+					if(processScript.jobIDs && processScript.jobIDs.length>0){
+						for (const jobID of processScript.jobIDs) {
+							if(self.jobDescriptionAndScheduleMap.has(jobID)){
+								self.jobDescriptionAndScheduleMap.set(jobID, processScript);
+							}
+						}
+					}
+			}
+		  }
 
     }]);

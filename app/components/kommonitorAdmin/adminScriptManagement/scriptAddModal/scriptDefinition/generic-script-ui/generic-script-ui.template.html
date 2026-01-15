@@ -43,6 +43,10 @@
 					<ng-include ng-show="box.id == 'georesource_id_line'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationLineGeoresourceSelection.html'"></ng-include>
 					<ng-include ng-show="box.id == 'reference_id'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/referenceIndicatorSelection.html'"></ng-include>
 
+					<!-- two cases for list of base indicators -->
+					<!-- special case for headline indicator with specific polarity -->
+					<ng-include ng-show="box.id == 'computation_ids_with_polarity'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/baseIndicatorMultiSelectionWithPolarity.html'"></ng-include>
+					<!-- regular case - just a list of indicator ids -->
 					<ng-include ng-show="box.id == 'computation_ids'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/baseIndicatorMultiSelection.html'"></ng-include>
 					
 					<ng-include ng-if="box.id == 'comp_filter'" src="'components/kommonitorAdmin/adminScriptManagement/scriptAddModal/templates/computationFilter.html'"></ng-include>

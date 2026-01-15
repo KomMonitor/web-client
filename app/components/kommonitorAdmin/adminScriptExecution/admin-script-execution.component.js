@@ -1,7 +1,9 @@
 angular.module('adminScriptExecution').component('adminScriptExecution', {
 	templateUrl: "components/kommonitorAdmin/adminScriptExecution/admin-script-execution.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$timeout', '$http', 
-		function JobExecutionController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $timeout, $http) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorScriptHelperService',
+		'$scope', '$rootScope', '__env', '$timeout', '$http', 
+		function JobExecutionController(kommonitorDataExchangeService, kommonitorDataGridHelperService, kommonitorScriptHelperService, 
+			$scope, $rootScope, __env, $timeout, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -22,6 +24,9 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
                 // when the response is available
 
                 $scope.jobDescriptions = response.data.jobs;
+
+				// init a map to quickly access job descriptions by their ID and find related schedule
+				kommonitorScriptHelperService.initJobDescriptionMap($scope.jobDescriptions);
 
 				// also start to fetch job details for all queried jobs
 				// in the background
@@ -79,8 +84,21 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			$scope.loadingData = false;
 		};
 
-		$scope.onJobStatusClicked = async function (status){
-			$scope.selectedStatus = status;
+		$scope.onJobStatusClicked = async function (status){			
+
+			$timeout(function () {
+				$scope.loadingData = true;
+			});		
+
+			// make sure to show the newest data available
+			await $scope.refreshJobOverviewTable();
+
+			$timeout(function () {
+				// display loading spinner on job table
+				document.getElementById("loading-overlay-job-table").style.display = "block";
+			});		
+
+			kommonitorScriptHelperService.selectedStatus = status;
 
 			$scope.filteredJobDescriptions = [];
 
@@ -93,9 +111,56 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			// for each filtered job entry, we must fetch jkob details, as only then we get detailed 
 			// jobSummary for the respective data grid
 
-			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
+			await $scope.fetchJobDetails($scope.filteredJobDescriptions).then(function successCallback(response) {
+				$scope.filteredJobDescriptions_withJobSummary = response;
 			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);
+			}, function errorCallback(error) {
+				kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions);
+			});
+			
 		}
+
+		$scope.$on("onShowJobsForSchedule", async function (event, scheduleId) {	
+
+			$timeout(function () {
+				$scope.loadingData = true;
+			});		
+			
+			// make sure to show the newest data available
+			await $scope.refreshJobOverviewTable();
+
+			$timeout(function () {
+				// display loading spinner on job table
+				document.getElementById("loading-overlay-job-table").style.display = "block";
+			});		
+
+			let schedule = kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId);
+
+			kommonitorScriptHelperService.selectedStatus = "schedule";
+			// append targetIndicator name to title
+            if (schedule && schedule.inputs && schedule.inputs.target_indicator_id) {
+              let targetIndicatorId = schedule.inputs.target_indicator_id;
+              kommonitorScriptHelperService.statusDescriptions[kommonitorScriptHelperService.selectedStatus].title = "Jobs - <b>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(targetIndicatorId) + "</b>";
+            }
+			
+
+			$scope.filteredJobDescriptions = [];
+
+			// schedule knows array of jobs			
+			let jobIDs_forSchedule = schedule.jobIDs;
+
+			for (let job of $scope.jobDescriptions) {
+				if (jobIDs_forSchedule.includes(job.jobID)) {
+					$scope.filteredJobDescriptions.push(job);
+				}
+			}
+
+			// for each filtered job entry, we must fetch jkob details, as only then we get detailed 
+			// jobSummary for the respective data grid
+
+			$scope.filteredJobDescriptions_withJobSummary = await $scope.fetchJobDetails($scope.filteredJobDescriptions);
+			kommonitorDataGridHelperService.buildDataGrid_processJobs($scope.filteredJobDescriptions_withJobSummary);			
+		});
 
 		$scope.$on("refreshJobOverviewTable", function (event) {
 			$scope.loadingData = true;
@@ -103,6 +168,17 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		});
 
 		$scope.refreshJobOverviewTable = async function () {
+
+			// for better user feedback, we show the loading spinner for a short moment on refresh button click
+			$timeout(function () {
+				$scope.loadingData = true;
+			});
+
+			// as new jobIds might have been created, we also need to refetch the process script schedules
+			// to get the mapping between jobIds and schedules updated
+			await kommonitorDataExchangeService.fetchProcessScriptSchedules();
+
+			$rootScope.$broadcast("refreshScriptOverviewTable");
 
 			// refetch all metadata from spatial units to update table
 			await $scope.fetchJobDescriptions();
@@ -112,8 +188,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 				$scope.initializeOrRefreshOverviewTable();
 
 				$scope.loadingData = false;
-			});
-			
+			});			
 
 		};
 
@@ -131,28 +206,6 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			return i;
 		}
 
-		$scope.statusDescriptions = {
-			accepted: {
-				title: "wartende Jobs",
-				backgroundClass: "bg-orange",
-			},
-			// delayed: { // not supported by pyGeoAPI as of July 2025
-			// 	title: "verzögerte Jobs",
-			// 	backgroundClass: "bg-gray",
-			// },
-			running: {
-				title: "laufende Jobs",
-				backgroundClass: "bg-aqua",
-			},
-			failed: {
-				title: "gescheiterte Jobs",
-				backgroundClass: "bg-red",
-			},
-			successful: {
-				title: "abgeschlossene Jobs",
-				backgroundClass: "bg-green",
-			}
-		}
 	}
 	]
 });

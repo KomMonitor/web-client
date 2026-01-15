@@ -121,11 +121,7 @@
 													zuvor definierten Ziel-Indikators.
 												</li>
 											</ol>
-											<br />
-											<p>Das KomMonitor Gesamtsystem umfasst einen sogegannten <b>Processing Scheduler</b>, der anhand der
-												Skript- und Indikatoren-Metadaten automatisch die Berechnung der Ziel-Indikatoren-Zeitschnitte antriggert.
-												Die Berechnung selbst erfolgt &uuml;ber die <b>Processing Engine</b> Komponente.
-											</p>
+										
 										</div>
 									</div>
 
@@ -349,7 +345,7 @@
 
 								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
 								<div ng-if="selectedScriptType.id">
-									<script-test></script-test>
+									<generic-script-ui></generic-script-ui>
 								</div>								
 
 								<input type="button" name="previous"

@@ -186,17 +186,21 @@ angular
 	
 								console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
-								let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);								
+								let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(resourceId);
 
 								let applicableSpatialUnitEntry;
 								for (const applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
-									if (applicableSpatialUnit.spatialUnitId == targetSpatialUnitId || applicableSpatialUnit.spatialUnitName == targetSpatialUnitId){
+									if (applicableSpatialUnit.spatialUnitId == row.selectedTargetSpatialUnit.spatialUnitId || applicableSpatialUnit.spatialUnitName == row.selectedTargetSpatialUnit.spatialUnitId){
 									applicableSpatialUnitEntry = applicableSpatialUnit;
 									break;
 									}
 								}
 
-								let allowedRoleIds = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.allowedRoles : indicatorMetadata.allowedRoles;
+								// data model since mandant upgrade
+								// if not yet avaible the settings for a new spatial unit will be taken from metadata object
+								let permissions = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.permissions : indicatorMetadata.permissions;
+								let isPublic = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.isPublic : indicatorMetadata.isPublic;  
+								let ownerId = applicableSpatialUnitEntry ? applicableSpatialUnitEntry.ownerId : indicatorMetadata.ownerId;
 	
 								var scopeProperties = {
 									"targetSpatialUnitMetadata": {
@@ -205,10 +209,11 @@ angular
 									"currentIndicatorDataset": {
 										"defaultClassificationMapping": row.name.defaultClassificationMapping
 									},
-									"allowedRoles": allowedRoleIds
+									"permissions": permissions,
+									"ownerId": ownerId,
+									"isPublic": isPublic
 								};
 								 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
-								 //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
 		 
 								 // send post request and wait for it to complete
 								 var updateIndicatorResponse_dryRun = undefined;
@@ -273,7 +278,7 @@ angular
 						console.error("An error occurred during the batch update: ", error);
 					} finally {
 						startBtn.removeAttribute("disabled");
-						startBtn.innerHTML = "Update starten";
+						startBtn.innerHTML = "Update ausf&uuml;hren";
 					}
 				};
 

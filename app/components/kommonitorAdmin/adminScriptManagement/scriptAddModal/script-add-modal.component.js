@@ -174,10 +174,18 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				}
 			}
 
-			$scope.onScriptTypeChanged = function () {
+			$scope.onScriptTypeChanged = async function () {
+				$timeout(function () {
+					$scope.loadingData = true;
+				});
+
 				if ($scope.selectedScriptType) {
-					kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
+					await kommonitorScriptHelperService.getProcessDescription($scope.selectedScriptType.id);
 				}
+
+				$timeout(function () {
+					$scope.loadingData = false;
+				});
 			}
 
 			$scope.addScript = async function () {
@@ -257,6 +265,11 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					if (kommonitorScriptHelperService.processParameters.computation_id){
 						allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(kommonitorScriptHelperService.processParameters.computation_id).applicableDates);
 					}
+					if (kommonitorScriptHelperService.processParameters.computation_ids_with_polarity){
+						for (let item of kommonitorScriptHelperService.processParameters.computation_ids_with_polarity) {
+							allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(item.value.ID).applicableDates);
+						}
+					}
 					if (kommonitorScriptHelperService.processParameters.computation_ids){
 						for (let id of kommonitorScriptHelperService.processParameters.computation_ids) {
 							allIndicatorDates.push(kommonitorDataExchangeService.getIndicatorMetadataById(id).applicableDates);
@@ -295,8 +308,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.selectableSpatialUnits = [];
 
 			$scope.onTargetIndicatorChanged = function (){
-				kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
-				$scope.resetSelectableSpatialUnits();
+				if(kommonitorScriptHelperService.targetIndicator && kommonitorScriptHelperService.targetIndicator.indicatorId){
+					kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
+					$scope.resetSelectableSpatialUnits();
+				}				
 			}
 
 			$scope.updateCron = function() {

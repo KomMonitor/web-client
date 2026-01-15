@@ -47,8 +47,9 @@
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
 										<label >Raumebene w&auml;hlen</label>
-										<select ng-model="overviewTableTargetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()"
-												class="form-control" required>
+										<select ng-model="overviewTableTargetSpatialUnitMetadata" 
+										ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterOverviewTargetSpatialUnits()"												
+										class="form-control" required>
 												<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
 											</select>
 
@@ -193,7 +194,7 @@
 
 											<div ng-show="datasourceType.type === 'FILE'">
 												<label>Datei*</label>
-												<input type="file" class="form-control" id="indicatorDataSourceInput_editFeatures" required></input>
+												<input type="file" class="form-control" onchange="angular.element(this).scope().datasourceInputChanged(this)" id="indicatorDataSourceInput_editFeatures" required></input>
 											</div>
 											<div ng-show="! (datasourceType.type === 'FILE')">
 												<div ng-repeat="parameter in datasourceType.parameters">
@@ -244,6 +245,105 @@
 								</div>							
 							</div>
 
+							<hr>
+							<br>
+							<div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+								<label class="switch">
+									<input type="checkbox" ng-model="aggregationsVis" ng-change="onChangeAggregationVis()">
+									<span class="switchslider round"></span>
+								</label>
+								<h4>Höhere Raumebenen aggregieren</h4>
+							</div>
+
+							<div class="row vertical-align" ng-hide="!aggregationsVis">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Aggregierungsfunktion*</label>
+										<select ng-model="aggregationFunction"
+											ng-options="aggregation as aggregation.displayName for aggregation in $ctrl.kommonitorImporterHelperServiceInstance.aggregationsTypes"
+											ng-change="onChangeAggregationFunction()"
+											class="form-control" required>
+											<option disabled selected value> -- Aggregation w&auml;hlen -- </option>
+										</select>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>ID Attributname der Raumeinheiten*</label>
+										<input type="text" class="form-control" ng-model="aggregatedSpatialUnitRefKeyProperty" required></input>
+										<!-- <div class="help-block">
+											<p>Name des Attributs, welches den eindeutigen Identifier der Zeitreihe enth&auml;lt. Dieser muss identisch sein mit den Raumeinheiten-IDs der selektierten Raumebene</p>
+										</div> -->
+										<div class="help-block with-errors"></div>
+										<div ng-show="idPropertyNotFound" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Ziel-Raumebene*</label>
+										<select ng-model="aggregatedTargetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+												class="form-control" ng-change="onChangeAggregatedSelectedSpatialUnit(targetSpatialUnitMetadata)" required>
+												<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
+										</select>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>							
+							</div>
+							<div class="row vertical-align" ng-hide="!aggregationsVis">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group" ng-if="editIdx === undefind">
+										<button class="btn btn-success btn-sm" 
+												ng-disabled="!aggregationFunction || !aggregatedSpatialUnitRefKeyProperty || !aggregatedTargetSpatialUnitMetadata" 
+												ng-click="onClickUpdateAggregationMapping()">Hinzuf&uuml;gen</button>
+										<div class="help-block with-errors"></div>
+									</div>
+									<div class="form-group" ng-if="editIdx >= 0">
+										<button class="btn btn-success btn-sm"
+											ng-disabled="!aggregationFunction || !aggregatedSpatialUnitRefKeyProperty || !aggregatedTargetSpatialUnitMetadata" 
+											ng-click="onConfirmEditAggregation()">Übernehmen</button>
+										<button class="btn btn-success btn-sm"
+											ng-click="onAbortEditAggregation()">Abbrechen</button>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+							</div>
+							<div class="row vertical-align" ng-hide="!aggregationsVis">
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<label>&Uuml;bersicht der Aggregationen</label>
+									<table class="table table-condensed">
+										<thead>
+											<tr>
+												<th>Editierfunktionen</th>
+												<th>Aggregierungsfunktion</th>
+												<th>ID Attributname der Raumeinheiten</th>
+												<th>Ziel-Raumebene</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="aggregationsMappingEntry in aggregationsMapping">
+												<td>
+													<div class="btn-group btn-group-sm">
+														<button class="btn btn-warning btn-sm" type="button"
+															ng-click="onClickEditAggregationsMappingEntry(aggregationsMappingEntry, $index)"
+															title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+														<button class="btn btn-danger btn-sm" type="button"
+															ng-click="onClickDeleteAggregationsMappingEntry($index)"
+															title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+													</div>
+												</td>
+												<td>{{aggregationsMappingEntry.aggregationFunction.displayName}}</td>
+												<td>{{aggregationsMappingEntry.aggregatedSpatialUnitRefKeyProperty}}</td>
+												<td>{{aggregationsMappingEntry.aggregatedTargetSpatialUnitMetadata.spatialUnitLevel}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<br>
+
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 								<hr>
 
@@ -251,17 +351,35 @@
 
 								<h4>Vergabe der Zugriffsrechte auf die Datensatz-Zeitreihe f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}}</h4>
 
-								<p>Zugriffsrechte (lesen, editieren, l&ouml;schen) m&uuml;ssen explizit vergeben werden. Administratoren (Rolle <i>kommonitor-creator</i>) haben immer vollen Zugriff.</p>
 								<p><strong>lesender Zugriff auf die Indikator-Zeitreihe wird nur den Organisationseinheiten gew&auml;hrt, die auch lesenden Zugriff auf Metadaten der assoziierten Raumebene besitzen.</strong></p>
 		
 
-								<div class="row">
-									<div class="col-md-3"></div>
+								<div class="row vertical-align">
+									<div class="col-md-3">
+										<label>&Ouml;ffentliche Lesefreigabe*</label>
+										<label class="switch">
+											<input type="checkbox" ng-model="isPublic" ng-change="onChangeIsPublic(isPublic)">
+											<span class="switchslider round"></span>
+										</label>
+										<div class="help-block">
+											<p>
+												&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+											</p>
+										</div>
+									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 											<div id="indicatorEditFeaturesRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
 										
 									</div>
-									<div class="col-md-3"></div>
+									<div class="col-md-3">
+										<div class="alert alert-info">
+											Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+										</div>
+										<br/>
+										<div class="alert alert-warning">
+											Lese- und Editierrechte wurden anhand der selektierten Raumeinheit und f&uuml;r die von Eigent&uuml;mer-Organisationseinheit vorab markiert. 
+										</div>
+									</div>
 								</div>								
 
 							<br/>
@@ -309,7 +427,11 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-disabled=" !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty" ng-click="editIndicatorFeatures()">Zeitreihen fortf&uuml;hren</button>
+					<button type="button" class="btn btn-success"
+							ng-disabled="!converter || !datasourceType || !datasourceInputSelected || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty || timeseriesMappingReference.length === 0"
+							ng-click="editIndicatorFeatures()">
+						Zeitreihen fortf&uuml;hren
+					</button>
 					<button type="button" class="btn btn-danger" ng-click="resetIndicatorEditFeaturesForm()">Zur&uuml;cksetzen</button>
 			</div>
 
@@ -319,6 +441,9 @@
 				<p>Fortf&uuml;hren der Zeitreihen des Indikators mit Namen {{successMessagePart}} war erfolgreich.
 					<div ng-show="importedFeatures && importedFeatures.length > 0">
 						{{importedFeatures.length}} Zeitreihen wurden dabei importiert.
+					</div>
+					<div ng-show="importedAggregations && importedAggregations.length > 0">
+						Für folgende höhere Raumebenen wurden Aggregationen hinzugefügt: {{importedAggregations.join(', ')}}.
 					</div>
 				</p>
       </div>

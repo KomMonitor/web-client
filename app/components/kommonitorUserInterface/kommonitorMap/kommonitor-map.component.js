@@ -63,6 +63,8 @@ angular.module('kommonitorMap').component(
         const outlierPropertyValue_low_extreme = "low-extreme";
         const outlierPropertyValue_no = "no";
 
+        $scope.addedOutlineLayer = [];
+
         $scope.containsOutliers_high = false;
         $scope.containsOutliers_low = false;
         $scope.outliers_high = undefined;
@@ -371,39 +373,44 @@ angular.module('kommonitorMap').component(
 
         let initSpatialUnitOutlineLayer = function(){
           for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
-            if(spatialUnit.isOutlineLayer){
+
+            if(spatialUnit.isOutlineLayer && !$scope.addedOutlineLayer.includes(spatialUnit.spatialUnitId)){
+
+              // "initSpatialUnitOutlineLayer" is called twice, check for existance of outlineLayer before adding.
+              // placed before http get to cover async response
+              $scope.addedOutlineLayer.push(spatialUnit.spatialUnitId);
 
               let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 									"/spatial-units/" + spatialUnit.spatialUnitId + "/allFeatures";
 
-								$http({
-									url: url,
-									method: "GET"
-								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
-									let geoJSON = response.data;
+              $http({
+                url: url,
+                method: "GET"
+              }).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
+                let geoJSON = response.data;
 
-									let layer = L.geoJSON(geoJSON, {
-                    style: function (feature) {
-                      return {
-                        color: spatialUnit.outlineColor,
-                        weight: spatialUnit.outlineWidth,
-                        opacity: 1,
-                        fillOpacity: 0,
-                        fill: false,
-                        dashArray: spatialUnit.outlineDashArrayString
-                      };
-                    },
-                    onEachFeature: onEachFeatureSpatialUnit
-                  });
-        
-                  // layer.StyledLayerControl = {
-                  // 	removable : true,
-                  // 	visible : true
-                  // };
-        
-                  $scope.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", spatialUnitOutlineLayerGroupName);
-                  $scope.updateSearchControl();
-								});
+                let layer = L.geoJSON(geoJSON, {
+                  style: function (feature) {
+                    return {
+                      color: spatialUnit.outlineColor,
+                      weight: spatialUnit.outlineWidth,
+                      opacity: 1,
+                      fillOpacity: 0,
+                      fill: false,
+                      dashArray: spatialUnit.outlineDashArrayString
+                    };
+                  },
+                  onEachFeature: onEachFeatureSpatialUnit
+                });
+      
+                // layer.StyledLayerControl = {
+                // 	removable : true,
+                // 	visible : true
+                // };
+      
+                $scope.layerControl.addOverlay(layer, spatialUnit.spatialUnitLevel + "_Umringe", spatialUnitOutlineLayerGroupName);
+                $scope.updateSearchControl();
+              });
             }
           }
         };

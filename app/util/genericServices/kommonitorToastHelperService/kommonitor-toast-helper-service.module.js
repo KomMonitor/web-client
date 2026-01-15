@@ -65,6 +65,10 @@ angular
         toastr.error(toastContent, toastTitle, {positionClass: "toast-top-left"});
       }
 
+      this.displaySuccessToast_lowerLeft = function(toastTitle, toastContent){
+        toastr.success(toastContent, toastTitle, {positionClass: "toast-bottom-left"});
+      }
+
       this.displayInfoToast_lowerLeft = function(toastTitle, toastContent){
         toastr.info(toastContent, toastTitle, {positionClass: "toast-bottom-left"});
       }

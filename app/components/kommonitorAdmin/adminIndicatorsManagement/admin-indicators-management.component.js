@@ -6,6 +6,8 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 
+        $scope.tableViewSwitcher = false;
+
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
@@ -73,13 +75,25 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		});
 
+        $scope.onTableViewSwitch = function() {
+            $scope.initializeOrRefreshOverviewTable();
+        }
+
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
 			
-			kommonitorDataGridHelperService.buildDataGrid_indicators(kommonitorDataExchangeService.availableIndicators);
+			kommonitorDataGridHelperService.buildDataGrid_indicators($scope.initIndicators());
 
 			$scope.loadingData = false;
 		};
+
+        $scope.initIndicators = function() {
+
+            if($scope.tableViewSwitcher)
+                return kommonitorDataExchangeService.availableIndicators.filter(e => !(e.userPermissions.length==1 && e.userPermissions.includes('viewer')));
+            else
+                return kommonitorDataExchangeService.availableIndicators;
+        }
 
 		$scope.$on("refreshIndicatorOverviewTable", function (event, crudType, targetIndicatorId) {
 			$scope.loadingData = true;
