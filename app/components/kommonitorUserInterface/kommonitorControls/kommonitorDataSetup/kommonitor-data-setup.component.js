@@ -822,8 +822,7 @@ angular
 										$scope.changeIndicatorWasClicked = false;
 
 										// DiKomAll: maybe no indicator shall be displayed initially
-										if (__env.hideIndicator == "true" ){
-											indicatorIndex = -1;
+										if (__env.hideIndicator == "true" ){											
 											$timeout(function(){
 												$scope.loadingData = false;
 												$rootScope.$broadcast("removeIndicatorFromMap");
