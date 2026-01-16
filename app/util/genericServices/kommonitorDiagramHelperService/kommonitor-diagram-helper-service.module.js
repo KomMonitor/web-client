@@ -648,7 +648,7 @@ angular
             }
           },
           xAxis: {
-            name: indicatorMetadataAndGeoJSON.indicatorName,
+            name: indicatorMetadataAndGeoJSON.indicatorName + ', '+ date,
             nameLocation: 'center',
             nameGap: 15,
             axisLabel: {
