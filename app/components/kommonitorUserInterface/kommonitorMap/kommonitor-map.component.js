@@ -545,10 +545,23 @@ angular.module('kommonitorMap').component(
           // OSM Buildings layer
           // https://osmbuildings.org/documentation/leaflet/
           // https://github.com/kekscom/osmbuildings
-          var layerName_osmbuildings = "3D Gebäude";
-          var osmb = new OSMBuildings($scope.map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
-          $scope.layerControl.addOverlay(osmb, layerName_osmbuildings, osmbuildingsLayerGroupName);
-          osmb.addTo($scope.map);
+          var layerName_osmbuildings_withShadows = "3D Gebäude mit Schattenwurf";
+          var osmb_withShadows = new OSMBuildings($scope.map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
+          osmb_withShadows.date(new Date(2026, 2, 15, 10, 0)); // YYYY, MM-1, DD, hh, mm
+          $scope.layerControl.addOverlay(osmb_withShadows, layerName_osmbuildings_withShadows, osmbuildingsLayerGroupName);
+          osmb_withShadows.addTo($scope.map);
+
+          // var layerName_osmbuildings = "3D Gebäude";
+          // var osmb = new OSMBuildings($scope.map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
+          // osmb.style({
+          //   color: '#aaaaaa',
+          //   roofColor: '#888888',
+          //   wallOpacity: 0.7,
+          //   roofOpacity: 0.8, 
+          //   shadows: false
+          // });
+          // $scope.layerControl.addOverlay(osmb, layerName_osmbuildings, osmbuildingsLayerGroupName);
+          // osmb.addTo($scope.map);
 
           // Hide Leaflet layer control button in favor of a custom button for opening the layer control group
           $('.leaflet-control-layers').hide();
