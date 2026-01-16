@@ -21,6 +21,11 @@ angular
       this.paramName_zoomLevel = "zoom";
       this.paramName_latitude = "lat";
       this.paramName_longitude = "lon";
+      this.paramName_viewMode = "viewMode";
+      this.paramName_mapStyle = "mapStyle";
+      this.paramName_symbolStyle = "symbolStyle";
+      this.paramName_speechOutput = "speechOutput";
+      this.paramName_landmarks = "landmarks";
 
       this.initParamsMap = function(){
         // set map content from params
@@ -42,20 +47,39 @@ angular
           __env.initialSpatialUnitName = $routeParams[this.paramName_spatialUnitName];
         }
         if ($routeParams[this.paramName_latitude]){
-          __env.initialLatitude = $routeParams[this.paramName_latitude];
+          __env.initialLatitude = Number($routeParams[this.paramName_latitude]);
         }
         if ($routeParams[this.paramName_longitude]){
-          __env.initialLongitude = $routeParams[this.paramName_longitude];
+          __env.initialLongitude = Number($routeParams[this.paramName_longitude]);
         }
         if ($routeParams[this.paramName_zoomLevel]){
-          __env.initialZoomLevel = $routeParams[this.paramName_zoomLevel];
+          __env.initialZoomLevel = Number($routeParams[this.paramName_zoomLevel]);
+        }
+
+        if ($routeParams[this.paramName_viewMode]){
+          __env.initialViewMode = $routeParams[this.paramName_viewMode];
+        }
+        if ($routeParams[this.paramName_mapStyle]){
+          __env.initialMapStyle = $routeParams[this.paramName_mapStyle];
+        }
+        if ($routeParams[this.paramName_symbolStyle]){
+          __env.initialSymbolStyle = $routeParams[this.paramName_symbolStyle];
+        }
+        if ($routeParams[this.paramName_speechOutput]){
+          __env.initialSpeechOutput = $routeParams[this.paramName_speechOutput];
+        }
+        if ($routeParams[this.paramName_landmarks]){
+          __env.initialLandmarks = $routeParams[this.paramName_landmarks];
         }
       };
 
       this.init = function(){
 
         // No need to parse sharing params if sharing is not true
-        if ($routeParams[this.paramName_sharing] && JSON.parse($routeParams[this.paramName_sharing])) {
+        // if ($routeParams[this.paramName_sharing] && JSON.parse($routeParams[this.paramName_sharing])) {
+
+
+        // DiKomAll: Always parse params to set initial view mode, map style, symbol style, speech output, landmarks, etc.
           // parse query params
           this.initParamsMap();
 
@@ -79,7 +103,7 @@ angular
           }
           // set config and data options from params
           this.applyQueryParams();
-        }
+        // }
       };
 
       this.generateCurrentShareLink = function(){

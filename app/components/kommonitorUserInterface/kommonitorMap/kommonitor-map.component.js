@@ -465,12 +465,46 @@ angular.module('kommonitorMap').component(
             }
           }
 
+          let baseLayer = kommonitorDataExchangeService.baseLayerDefinitionsMap.get(__env.baseLayers[0].name);
+
+          if (__env.initialMapStyle == "color") {
+            // find first color layer
+            for (const baseMapEntry of __env.baseLayers) {
+              if (baseMapEntry.name.toLowerCase().includes("farbe") || baseMapEntry.name.toLowerCase().includes("color")) {
+                baseLayer = kommonitorDataExchangeService.baseLayerDefinitionsMap.get(baseMapEntry.name);
+                break;
+              }
+            }
+          }
+          else if (__env.initialMapStyle == "grey") {
+            // find first grayscale layer
+            for (const baseMapEntry of __env.baseLayers) {
+              if (baseMapEntry.name.toLowerCase().includes("grau") || baseMapEntry.name.toLowerCase().includes("grey") || baseMapEntry.name.toLowerCase().includes("gray") || baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE") {
+                baseLayer = kommonitorDataExchangeService.baseLayerDefinitionsMap.get(baseMapEntry.name);
+                break;
+              }
+            }
+          }
+          else if (__env.initialMapStyle == "ortho") {
+            // find first grayscale layer
+            for (const baseMapEntry of __env.baseLayers) {
+              if (baseMapEntry.name.toLowerCase().includes("luft") || baseMapEntry.name.toLowerCase().includes("ortho") || baseMapEntry.name.toLowerCase().includes("satellit")) {
+                baseLayer = kommonitorDataExchangeService.baseLayerDefinitionsMap.get(baseMapEntry.name);
+                break;
+              }
+            }
+          }
+          else{
+            // take first layer as fallback
+            baseLayer = kommonitorDataExchangeService.baseLayerDefinitionsMap.get(__env.baseLayers[0].name);
+          }
+
           $scope.map = L.map('map', {
             center: [$scope.latCenter, $scope.lonCenter],
             zoom: $scope.zoomLevel,
             zoomDelta: 1,
             zoomSnap: 1,
-            layers: [kommonitorDataExchangeService.baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
+            layers: [baseLayer]
           });
 
           __env.currentLatitude = $scope.latCenter;
@@ -549,7 +583,11 @@ angular.module('kommonitorMap').component(
           var osmb_withShadows = new OSMBuildings($scope.map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');
           osmb_withShadows.date(new Date(2026, 2, 15, 10, 0)); // YYYY, MM-1, DD, hh, mm
           $scope.layerControl.addOverlay(osmb_withShadows, layerName_osmbuildings_withShadows, osmbuildingsLayerGroupName);
-          osmb_withShadows.addTo($scope.map);
+          
+          if(__env.initialViewMode == "twoandhalfdimensional" || __env.initialViewMode == "threedimensional"){
+            osmb_withShadows.addTo($scope.map);
+          }
+          
 
           // var layerName_osmbuildings = "3D Gebäude";
           // var osmb = new OSMBuildings($scope.map).load('https://{s}.data.osmbuildings.org/0.2/59fcc2e8/tile/{z}/{x}/{y}.json');

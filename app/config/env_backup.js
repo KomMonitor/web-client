@@ -164,6 +164,16 @@ try {
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
 
+  // DiKomAll map configuration assistant related parameters
+  // beeing called by the DiKomAll map configuration assistant to
+  // directly center map on certain place, configure map base map, mapStyle, symbolStyle, speechoutput, etc.
+  window.__env.initialViewMode = 'twoandhalfdimensional'; // possible values: 'twodimensional', 'twoandhalfdimensional', 'threedimensional'
+  window.__env.initialMapStyle = "color"; // possible values are "color", "grey", "ortho"
+  window.__env.initialSymbolStyle = "symbol"; // possible values are "symbol", "symbol_lables", "photos"
+  window.__env.initialSpeechOutput = false; // true | false
+  window.__env.initialLandmarks = ""; // list of landmark key names separated by comma, e.g. "landmark_1,landmark_2"
+
+
   // Controls, which layers will be sortable via drag&drop in Leaflet's layer control
   // Possible values ["Raumebenen", "Georessourcen", "Points of Interest", "Lines of Interest", "Areas of Interest", "Indikatoren", "Erreichbarkeiten", "Web Map Services (WMS)", "Web Feature Services (WFS)"]
   window.__env.sortableLayers = ["Web Map Services (WMS)"];
