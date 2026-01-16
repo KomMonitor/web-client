@@ -335,6 +335,8 @@ angular
 										}
 
 										if( indicatorIndex === undefined){
+											$scope.loadingData = false;
+											$scope.$broadcast("hideLoadingIconOnMap");
 											throw Error();
 										}
 
@@ -818,6 +820,18 @@ angular
 
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.changeIndicatorWasClicked = false;
+
+										// DiKomAll: maybe no indicator shall be displayed initially
+										if (__env.hideIndicator == "true" ){
+											indicatorIndex = -1;
+											$timeout(function(){
+												$scope.loadingData = false;
+												$rootScope.$broadcast("removeIndicatorFromMap");
+											}, 500);
+											
+											__env.hideIndicator = false;
+											return;
+										}
 
 										// $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 

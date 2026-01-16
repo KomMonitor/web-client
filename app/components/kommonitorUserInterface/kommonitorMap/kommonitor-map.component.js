@@ -2982,6 +2982,14 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        $scope.$on("removeIndicatorFromMap", function (event) {
+          if ($scope.currentIndicatorLayer) {
+            // $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
+            $scope.map.removeLayer($scope.currentIndicatorLayer);             
+            $scope.loadingData = false;
+          }
+        });
+
         $scope.containsNegativeValues = function (geoJSON) {
 
           var containsNegativeValues = false;

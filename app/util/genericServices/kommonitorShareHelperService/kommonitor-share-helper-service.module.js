@@ -26,6 +26,7 @@ angular
       this.paramName_symbolStyle = "symbolStyle";
       this.paramName_speechOutput = "speechOutput";
       this.paramName_landmarks = "landmarks";
+      this.paramName_hideIndicator = "hideIndicator";
 
       this.initParamsMap = function(){
         // set map content from params
@@ -70,6 +71,9 @@ angular
         }
         if ($routeParams[this.paramName_landmarks]){
           __env.initialLandmarks = $routeParams[this.paramName_landmarks];
+        }
+        if ($routeParams[this.paramName_hideIndicator]){
+          __env.hideIndicator = $routeParams[this.paramName_hideIndicator];
         }
       };
 
