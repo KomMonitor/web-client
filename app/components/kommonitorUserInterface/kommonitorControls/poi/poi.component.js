@@ -166,6 +166,15 @@ angular
 
                   if(kommonitorElementVisibilityHelperService.elementVisibility.favSelection===true)
                     $scope.showFavSelection = true;
+
+
+				  // DiKomAll: load some example layers
+				  for (const element of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
+					if(element.isPOI && (element.datasetName.toLowerCase().includes("kiz") || element.datasetName.toLowerCase().includes("eis"))){
+						element.isSelected = true;
+					  $scope.handlePoiOnMap(element);
+					}
+				  }
                 }); 
 
                 function prepTopicsTree(tree, level, parent) {
