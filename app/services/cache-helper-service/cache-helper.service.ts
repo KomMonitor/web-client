@@ -21,6 +21,7 @@ export class CacheHelperServiceService implements OnInit{
   localStorageKey_georesources = this.localStorageKey_prefix + "_lastModification_georesources";
   localStorageKey_indicators = this.localStorageKey_prefix + "_lastModification_indicators";
   localStorageKey_processScripts = this.localStorageKey_prefix + "_lastModification_processScripts";
+  localStorageKey_services = this.localStorageKey_prefix + "_lastModification_services";
 
   georesourcesPublicEndpoint = "/public/georesources";
   georesourcesProtectedEndpoint = "/georesources";
@@ -31,6 +32,8 @@ export class CacheHelperServiceService implements OnInit{
   scriptsPublicEndpoint = "/public/process-scripts";
   scriptsProtectedEndpoint = "/process-scripts";
   topicsPublicEndpoint = "/public/topics";
+  servicesPublicEndpoint = '/public/web-services';
+  servicesProtectedEndpoint = '/web-services';
   // only resource that has no public endpoint
   accessControlEndpoint = "/organizationalUnits";
 
@@ -38,6 +41,7 @@ export class CacheHelperServiceService implements OnInit{
   spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
   indicatorsEndpoint = this.indicatorsProtectedEndpoint;
   scriptsEndpoint = this.scriptsProtectedEndpoint;
+  servicesEndpoint = this.servicesProtectedEndpoint;
   spatialResourceGETUrlPath_forAuthentication = "/public";
 
   constructor(
@@ -55,12 +59,14 @@ export class CacheHelperServiceService implements OnInit{
       this.spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
       this.indicatorsEndpoint = this.indicatorsProtectedEndpoint;
       this.scriptsEndpoint = this.scriptsProtectedEndpoint;
+      this.servicesEndpoint = this.servicesProtectedEndpoint;
       this.spatialResourceGETUrlPath_forAuthentication = "";
     } else {
       this.georesourcesEndpoint = this.georesourcesPublicEndpoint;
       this.spatialUnitsEndpoint = this.spatialUnitsPublicEndpoint;
       this.indicatorsEndpoint = this.indicatorsPublicEndpoint;
       this.scriptsEndpoint = this.scriptsPublicEndpoint;
+      this.servicesEndpoint = this.servicesPublicEndpoint;
       this.spatialResourceGETUrlPath_forAuthentication = "/public";
     }
 
@@ -148,58 +154,16 @@ export class CacheHelperServiceService implements OnInit{
     }
   };
 
-  async fetchServices(keycloakRolesArray): Promise<any> {
+  async fetchServices(keycloakRolesArray, filter): Promise<any> {
     
-    try {
-      return await firstValueFrom(this.http.get(this.baseUrlToKomMonitorDataAPI + '/web-services'));
-
-/* 
-        return [
-          {
-            id: uuidv4(),
-            title: "HIER !Bodennutzung - Bebauungsplanumringe",
-            description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
-            url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-            topicReference: "9651df76-a94c-4f38-abb6-d6ee0e44f592", 
-            layerName: "bplan",
-            ownerId: 'e2826bb6-2dd7-4f6e-be03-b15d9569fb99',
-            userPermissions:['creator'],
-            permissions: ['1759a27c-3a0b-4691-b5fa-fc6a4d5d9097','7c26579c-a210-4f4a-bc94-b4b32b82bad4'],
-            isPublic: true,
-            resourceType: WmsResourceType.GEORESOURCE,
-            isSelected: false,
-            databasis: '',
-            datasource: '',
-            contact: '',
-            note: '',
-            showLegend: false,
-            transparency: 0
-          },
-          {
-            id: uuidv4(),
-            title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-            description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-            url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
-            topicReference: "7a0d1308-4c68-480c-8faa-34f2560e356e", 
-            layerName: "0",
-            ownerId: 'e2826bb6-2dd7-4f6e-be03-b15d9569fb99',
-            userPermissions:['creator'],
-            permissions: ['1759a27c-3a0b-4691-b5fa-fc6a4d5d9097','7c26579c-a210-4f4a-bc94-b4b32b82bad4'],
-            isPublic: true,
-            resourceType: WmsResourceType.INDICATOR,
-            isSelected: false,
-            databasis: '',
-            datasource: '',
-            contact: '',
-            note: '',
-            showLegend: false,
-            transparency: 0
-          }
-        ]; */
-    } catch (error) {
-      console.error("Unable to read Services data", error);
-      throw error;
-    }
+   /*  if (filter) {
+      const filterBody = {
+        topicIds: filter.indicatorTopics + geores,
+        ids: filter.indicators + geores
+      } 
+    } */
+      
+    return await this.fetchResource_fromCacheOrServer(this.localStorageKey_services, this.servicesEndpoint, "web-services", keycloakRolesArray);
   }
 
   async fetchAccessControlMetadata(keycloakRolesArray) {

@@ -688,7 +688,7 @@ export class DataExchangeService {
       spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles),
       georesourcesPromise: this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter),
       indicatorsPromise: this.fetchIndicatorsMetadata(this.currentKeycloakLoginRoles, filter),
-      servicePromises: this.fetchServices(this.currentKeycloakLoginRoles)
+      servicePromises: this.fetchServices(this.currentKeycloakLoginRoles, filter)
     }).subscribe({
       next: (response:any) => {
 
@@ -827,8 +827,8 @@ export class DataExchangeService {
     this.setProcessScripts(await this.cacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
   }
 
-  async fetchServices(keycloakRolesArray) {
-    this.setServices(await this.cacheHelperService.fetchServices(keycloakRolesArray));
+  async fetchServices(keycloakRolesArray, filter = undefined) {
+    this.setServices(await this.cacheHelperService.fetchServices(keycloakRolesArray, filter));
   }
 
   async reinitServices(): Promise<void> {

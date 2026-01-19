@@ -60,7 +60,6 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   initializeOrRefreshOverviewTable() {
 
     this.dataExchangeService.reinitServices().then(() => {
-
       const wmsDatasets = this.initOgcDatasets();
       this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
     });
