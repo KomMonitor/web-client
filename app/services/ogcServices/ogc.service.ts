@@ -70,17 +70,23 @@ export class OgcService {
 
   registerWms(data): Observable<any> {
 
-    var bearerToken = this.authService.Auth.keycloak.token;
-
     let header = {
-      'Content-Type': 'application/json',
-      'Authorization': "Bearer " + bearerToken // Note the appropriate header
+      'Content-Type': 'application/json'
     };
 
     return this.http.post(this.baseUrlToKomMonitorDataAPI + '/web-services', JSON.stringify(data), {headers: header});
   }
 
-  deleteWms(data:WmsDataset): Observable<any> {
+  updateWms(id, data): Observable<any> {
+
+    let header = {
+      'Content-Type': 'application/json'
+    };
+                    
+    return this.http.put(`${this.baseUrlToKomMonitorDataAPI}/web-services/${id}`, JSON.stringify(data), {headers: header});
+  }
+
+  deleteWms(data: WmsDataset): Observable<any> {
 
     return this.http.delete(`${this.baseUrlToKomMonitorDataAPI}/web-services/${data.id}`);
   }

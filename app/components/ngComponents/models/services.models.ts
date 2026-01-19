@@ -20,7 +20,7 @@ export interface WmsDataset {
 
 export interface ConnectionDetails {
   id: string;
-  url: string;
+  baseUrl: string;
   layerName: string;
   serviceType: ServiceType;
 }

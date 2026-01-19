@@ -15,6 +15,7 @@ import {
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { OgcService } from 'services/ogcServices/ogc.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,8 @@ export class OgcDataGridHelperService {
   private componentRef: any = null;
 
   constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private ogcService: OgcService
   ) { }
 
   /**
@@ -266,7 +268,7 @@ export class OgcDataGridHelperService {
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
-          return `<img src="${params.data.url}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=${params.data.layerName}">`;
+          return `<img src="${this.ogcService.buildLegendUrl(params.data.connectionDetails.baseUrl, params.data.connectionDetails.layerName)}">`;
         },
         flex: 1
       },

@@ -22,8 +22,8 @@ export class WmsEditModalComponent {
   currentStep: number = 1;
 
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
+  errorMessage = false;
+  successMessage = false;
   loadingData = false;
 
   wmsTestStatus:boolean | undefined = undefined;
@@ -75,7 +75,7 @@ export class WmsEditModalComponent {
     });
 
     this.connectForm = new FormGroup({
-      url: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.url, Validators.required),
+      url: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.baseUrl, Validators.required),
       layer: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.layerName, Validators.required)
     });
 
@@ -123,28 +123,45 @@ export class WmsEditModalComponent {
 
   editWms() {
 
+    let topicRef = this.georesourceTopic_mainTopic;
+    
+    if(this.georesourceTopic_subTopic)
+      topicRef = this.georesourceTopic_subTopic;
+
+    if(this.georesourceTopic_subsubTopic)
+      topicRef = this.georesourceTopic_subsubTopic;
+
+    if(this.georesourceTopic_subsubsubTopic)
+      topicRef = this.georesourceTopic_subsubsubTopic;
+
     let data = {
-      metadata : {
-        title: this.metadataForm.controls.title.value,
-        description: this.metadataForm.controls.description.value,
-        databasis: this.metadataForm.controls.databasis.value,
-        datasource: this.metadataForm.controls.datasource.value,
-        contact: this.metadataForm.controls.contact.value,
-        note: this.metadataForm.controls.note.value 
+      title: this.metadataForm.controls.title.value,
+      description: this.metadataForm.controls.description.value,
+      databasis: this.metadataForm.controls.databasis.value,
+      datasource: this.metadataForm.controls.datasource.value,
+      contact: this.metadataForm.controls.contact.value,
+      note: this.metadataForm.controls.note.value,
+      connectionDetails: {
+        id: '',
+        baseUrl: this.connectForm.controls.url.value,
+        layerName: this.connectForm.controls.layer.value,
+        serviceType: 'wms'
       },
-      connection: {
-        url: this.connectForm.controls.url.value,
-        layer: this.connectForm.controls.layer.value
-      },
-      topic: {
-        mainTopics: this.georesourceTopic_mainTopic,
-        subTopic: this.georesourceTopic_subTopic,
-        subsubTopic: this.georesourceTopic_subsubTopic,
-        subsubsubTopic: this.georesourceTopic_subsubsubTopic
-      }
+      topicReference: topicRef.topicId,
+      serviceResource: this.currentGeoresourceDataset.serviceResource
     };
 
-    console.log(data);
+    this.ogcService.updateWms(this.currentGeoresourceDataset.id, data).subscribe({
+      next: response => {
+        this.successMessagePart = this.currentGeoresourceDataset.title;
+        this.successMessage = true;
+        this.resetWmsAddForm();
+      }, 
+      error: error => {
+        this.errorMessagePart = error.message;
+        this.errorMessage = true;
+      }
+    });
   }
 
   checkDatasetName() {
@@ -164,11 +181,11 @@ export class WmsEditModalComponent {
   }
   
   hideSuccessAlert(): void {
-    this.successMessage = '';
+    this.successMessage = false;
   }
 
   hideErrorAlert(): void {
-    this.errorMessage = '';
+    this.errorMessage = false;
   }
 
   testConnection() {

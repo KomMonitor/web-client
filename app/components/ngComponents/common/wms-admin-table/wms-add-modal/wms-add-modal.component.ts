@@ -146,7 +146,7 @@ export class WmsAddModalComponent implements OnInit {
         this.errorMessagePart = error.message;
         this.errorMessage = true;
       }
-    })
+    });
   }
 
   checkDatasetName() {

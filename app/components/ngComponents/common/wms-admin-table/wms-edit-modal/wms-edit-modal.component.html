@@ -230,16 +230,16 @@
 <div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
   [hidden]="!successMessage" class="alert alert-success alert-dismissable">
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-  <p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die Übersichtstabelle eingetragen.</p>
+  <h4><i class="icon fa fa-check"></i>Georessource editiert</h4>
+  <p>Die Georessource mit Namen {{successMessagePart}} wurde in KomMonitor editiert.</p>
 </div>
 
 <!-- Error Alert -->
 <div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
   [hidden]="!errorMessage" class="alert alert-danger alert-dismissable">
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-  Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+  <h4><i class="icon fa fa-ban"></i>Editierung gescheitert</h4>
+  Bei der Editierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
   <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
   <br/>
