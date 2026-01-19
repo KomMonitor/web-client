@@ -220,7 +220,7 @@ angular
 								// if(valueSum != null){
 
                 var name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
-                if($scope.indicatorNames_shortVersion)
+                if($scope.indicatorNames_shortVersion && (indicatorsForRadar[i].indicatorMetadata.abbreviation!='' && indicatorsForRadar[i].indicatorMetadata.abbreviation!=null))
                   name = indicatorsForRadar[i].indicatorMetadata.abbreviation;
 
 								indicatorArrayForRadarChart.push({
