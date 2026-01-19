@@ -207,7 +207,7 @@ export class OgcDataGridHelperService {
   buildDeleteButton(params:any, hasCreatorPermission:boolean){
     const button = document.createElement('button');
     button.title = 'WMS entfernen';
-    button.className = 'btn btn-warning btn-sm';
+    button.className = 'btn btn-danger btn-sm';
 
     if (!hasCreatorPermission) {
       button.disabled = true;

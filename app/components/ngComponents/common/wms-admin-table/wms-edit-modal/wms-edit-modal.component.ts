@@ -75,8 +75,8 @@ export class WmsEditModalComponent {
     });
 
     this.connectForm = new FormGroup({
-      url: new FormControl<string>(this.currentGeoresourceDataset.url, Validators.required),
-      layer: new FormControl<string>(this.currentGeoresourceDataset.layerName, Validators.required)
+      url: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.url, Validators.required),
+      layer: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.layerName, Validators.required)
     });
 
     // Set topic hierarchy
@@ -117,9 +117,8 @@ export class WmsEditModalComponent {
     }
   }
 
-  // Modal control methods
-  cancel(): void {
-    this.activeModal.dismiss();
+  close(): void {
+    this.activeModal.close(true);
   }
 
   editWms() {

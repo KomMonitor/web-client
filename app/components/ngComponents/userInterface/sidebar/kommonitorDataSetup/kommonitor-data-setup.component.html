@@ -177,12 +177,12 @@
                                                               (click)="wmsData.showLegend = true;">laden</button>
                                                           </div>
                                                           <div *ngIf="wmsData.showLegend">
-                                                            <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                                            <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.url, wmsData.connectionDetails.layerName)">
                                                           </div>
                                                         </td>
                                                         <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
                                                           <div style="text-align: center">
-                                                            <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                                            <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.url)"
                                                               title="WMS GetCapabilities URL"
                                                               rel='noopener noreferrer' target='_blank'><i
                                                                 class="fas fa-cloud-download-alt"></i></a>
@@ -251,12 +251,12 @@
                                                           (click)="wmsData.showLegend = true;">laden</button>
                                                       </div>
                                                       <div *ngIf="wmsData.showLegend">
-                                                        <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                                        <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.url, wmsData.connectionDetails.layerName)">
                                                       </div>
                                                     </td>
                                                     <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
                                                       <div style="text-align: center">
-                                                        <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                                        <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.url)"
                                                           title="WMS GetCapabilities URL"
                                                           rel='noopener noreferrer' target='_blank'><i
                                                             class="fas fa-cloud-download-alt"></i></a>
@@ -327,12 +327,12 @@
                                                       (click)="wmsData.showLegend = true;">laden</button>
                                                   </div>
                                                   <div *ngIf="wmsData.showLegend">
-                                                    <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                                    <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.url, wmsData.connectionDetails.layerName)">
                                                   </div>
                                                 </td>
                                                 <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
                                                   <div style="text-align: center">
-                                                    <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                                    <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.url)"
                                                       title="WMS GetCapabilities URL"
                                                       rel='noopener noreferrer' target='_blank'><i
                                                         class="fas fa-cloud-download-alt"></i></a>
@@ -408,12 +408,12 @@
                                                   (click)="wmsData.showLegend = true;">laden</button>
                                               </div>
                                               <div *ngIf="wmsData.showLegend">
-                                                <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                                <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.url, wmsData.connectionDetails.layerName)">
                                               </div>
                                             </td>
                                             <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
                                               <div style="text-align: center">
-                                                <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                                <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.url)"
                                                   title="WMS GetCapabilities URL"
                                                   rel='noopener noreferrer' target='_blank'><i
                                                     class="fas fa-cloud-download-alt"></i></a>
@@ -561,12 +561,12 @@
                                                 (click)="wmsData.showLegend = true;">laden</button>
                                             </div>
                                             <div *ngIf="wmsData.showLegend">
-                                              <img [src]="ogcService.buildLegendUrl(wmsData.url, wmsData.layerName)">
+                                              <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.url, wmsData.connectionDetails.layerName)">
                                             </div>
                                           </td>
                                           <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
                                             <div style="text-align: center">
-                                              <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.url)"
+                                              <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.url)"
                                                 title="WMS GetCapabilities URL"
                                                 rel='noopener noreferrer' target='_blank'><i
                                                   class="fas fa-cloud-download-alt"></i></a>

@@ -1,27 +1,30 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
-import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
 import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
+import * as uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
 
 @Component({
   selector: 'app-wms-add-modal',
   templateUrl: './wms-add-modal.component.html',
   styleUrls: ['./wms-add-modal.component.css']
 })
-export class WmsAddModalComponent {
+export class WmsAddModalComponent implements OnInit {
+  
+  @Input() resourceType!: any;
 
   totalSteps:number = 4;
   currentStep: number = 1;
 
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
+  errorMessage = false;
+  successMessage = false;
   loadingData = false;
 
   wmsTestStatus:boolean | undefined = undefined;
@@ -75,6 +78,9 @@ export class WmsAddModalComponent {
     this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource=='georesource');
   }
 
+  ngOnInit(): void {
+  }
+
   // Multi-step form navigation
   goToStep(step: number): void {
     if (step >= 1 && step <= this.totalSteps) {
@@ -94,40 +100,54 @@ export class WmsAddModalComponent {
     }
   }
 
-  // Modal control methods
-  cancel(): void {
-    this.activeModal.dismiss();
+  close(): void {
+    this.activeModal.close(true);
   }
 
   addWms() {
 
+    let topicRef = this.georesourceTopic_mainTopic;
+    
+    if(this.georesourceTopic_subTopic)
+      topicRef = this.georesourceTopic_subTopic;
+
+    if(this.georesourceTopic_subsubTopic)
+      topicRef = this.georesourceTopic_subsubTopic;
+
+    if(this.georesourceTopic_subsubsubTopic)
+      topicRef = this.georesourceTopic_subsubsubTopic;
+
     let data = {
-      metadata : {
-        title: this.metadataForm.controls.title.value,
-        description: this.metadataForm.controls.description.value,
-        databasis: this.metadataForm.controls.databasis.value,
-        datasource: this.metadataForm.controls.datasource.value,
-        contact: this.metadataForm.controls.contact.value,
-        note: this.metadataForm.controls.note.value 
+      title: this.metadataForm.controls.title.value,
+      description: this.metadataForm.controls.description.value,
+      databasis: this.metadataForm.controls.databasis.value,
+      datasource: this.metadataForm.controls.datasource.value,
+      contact: this.metadataForm.controls.contact.value,
+      note: this.metadataForm.controls.note.value,
+      connectionDetails: {
+        id: '',
+        baseUrl: this.connectForm.controls.url.value,
+        layerName: this.connectForm.controls.layer.value,
+        serviceType: 'wms'
       },
-      connection: {
-        url: this.connectForm.controls.url.value,
-        layer: this.connectForm.controls.layer.value
-      },
-      topic: {
-        mainTopics: this.georesourceTopic_mainTopic,
-        subTopic: this.georesourceTopic_subTopic,
-        subsubTopic: this.georesourceTopic_subsubTopic,
-        subsubsubTopic: this.georesourceTopic_subsubsubTopic
-      },
-      accessControl: {
-        owner: this.ownerOrganization,
-        isPublic: this.isPublic,
-        permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
-      }
+      topicReference: topicRef.topicId,
+      ownerId: this.ownerOrganization,
+      serviceResource: this.resourceType,
+      isPublic: this.isPublic,
+      permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
     };
 
-    console.log(data);
+    this.ogcService.registerWms(data).subscribe({
+      next: response => {
+        this.successMessagePart = response.title;
+        this.successMessage = true;
+        this.resetWmsAddForm();
+      }, 
+      error: error => {
+        this.errorMessagePart = error.message;
+        this.errorMessage = true;
+      }
+    })
   }
 
   checkDatasetName() {
@@ -206,14 +226,18 @@ export class WmsAddModalComponent {
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
     this.isPublic = false;
+
+    this.currentStep = 1;
   }
   
   hideSuccessAlert(): void {
-    this.successMessage = '';
+    this.successMessage = false;
+    this.successMessagePart = '';
   }
 
   hideErrorAlert(): void {
-    this.errorMessage = '';
+    this.errorMessage = false;
+    this.errorMessagePart = '';
   }
 
   testConnection() {
@@ -228,7 +252,7 @@ export class WmsAddModalComponent {
           this.wmsTestStatus = response.success; 
         },
         error: error => {
-          console.log
+          console.log(error);
         }
       })
     }

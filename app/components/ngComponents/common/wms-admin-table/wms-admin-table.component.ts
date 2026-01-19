@@ -57,6 +57,72 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     this.subscriptions.push(broadcastSub);
   }
 
+  initializeOrRefreshOverviewTable() {
+
+    this.dataExchangeService.reinitServices().then(() => {
+
+      const wmsDatasets = this.initOgcDatasets();
+      this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
+    });
+  }
+
+  private initOgcDatasets(): WmsDataset[] {
+
+    let filteredReturn:WmsDataset[] = [];
+
+    if (this.tableViewSwitcher) {
+      filteredReturn = this.dataExchangeService.availableWmsDatasets.filter(
+        (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
+      );
+    } else {
+      filteredReturn = this.dataExchangeService.availableWmsDatasets;
+    }
+
+    return filteredReturn.filter(e => e.serviceResource==this.resourceType);
+  }
+  
+
+  ngAfterViewInit(): void {
+    this.ogcDataGridHelperService.initializeGrids(
+      this.wmsGrid
+    );
+    
+    this.ogcDataGridHelperService.setComponentRef(this);
+  }
+
+  checkCreatePermission(): boolean {
+    return this.dataExchangeService.checkCreatePermission();
+  }
+
+  checkEditorPermission(): boolean {
+    return this.dataExchangeService.checkEditorPermission();
+  }
+
+  checkDeletePermission(): boolean {
+    return this.dataExchangeService.checkDeletePermission();
+  }
+
+  openAddModal() {
+    const modalRef = this.modalService.open(WmsAddModalComponent, {
+      backdrop: true,
+      keyboard: false,
+      container: 'body',
+      animation: false,
+      modalDialogClass: 'modal-medium',
+      windowClass: 'modal-medium'
+    });
+
+    modalRef.componentInstance.resourceType = this.resourceType;
+
+    modalRef.result.then((result) => {
+      if (result) {
+        this.initializeOrRefreshOverviewTable();
+      }
+    }).catch(() => {
+      // Modal dismissed
+    });
+  }
+
   onClickEditMetadata(wmsMetadata: any): void {
     const modalRef = this.modalService.open(WmsEditModalComponent, {
       backdrop: true,
@@ -112,7 +178,6 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     });
     
     modalRef.componentInstance.datasetToDelete = wmsMetadata;
-    modalRef.componentInstance.reInit();
     
     modalRef.result.then((result) => {
       if (result) {
@@ -120,59 +185,6 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
       }
     }).catch(() => {
       // Modal dismissed
-    });
-  }
-
-  initializeOrRefreshOverviewTable() {
-
-    const wmsDatasets = this.initOgcDatasets();
-    this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
-  }
-
-  private initOgcDatasets(): WmsDataset[] {
-
-    let filteredReturn:WmsDataset[] = [];
-
-    if (this.tableViewSwitcher) {
-      filteredReturn = this.dataExchangeService.availableWmsDatasets.filter(
-        (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
-      );
-    } else {
-      filteredReturn = this.dataExchangeService.availableWmsDatasets;
-    }
-
-    return filteredReturn.filter(e => e.resourceType==this.resourceType);
-  }
-  
-
-  ngAfterViewInit(): void {
-    this.ogcDataGridHelperService.initializeGrids(
-      this.wmsGrid
-    );
-    
-    this.ogcDataGridHelperService.setComponentRef(this);
-  }
-
-  checkCreatePermission(): boolean {
-    return this.dataExchangeService.checkCreatePermission();
-  }
-
-  checkEditorPermission(): boolean {
-    return this.dataExchangeService.checkEditorPermission();
-  }
-
-  checkDeletePermission(): boolean {
-    return this.dataExchangeService.checkDeletePermission();
-  }
-
-  openAddModal() {
-    const modalRef = this.modalService.open(WmsAddModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
     });
   }
 }

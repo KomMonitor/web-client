@@ -828,7 +828,11 @@ export class DataExchangeService {
   }
 
   async fetchServices(keycloakRolesArray) {
-    this.setServices(await this.cacheHelperService.fetchServices_TEMP(keycloakRolesArray));
+    this.setServices(await this.cacheHelperService.fetchServices(keycloakRolesArray));
+  }
+
+  async reinitServices(): Promise<void> {
+    await this.fetchServices(this.currentKeycloakLoginRoles);
   }
 
   setServices(servicesArray:WmsDataset[]) {
@@ -897,11 +901,11 @@ export class DataExchangeService {
   }
 
   getAvailableGeoWmsDatasets():WmsDataset[] {
-    return this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.GEORESOURCE);
+    return this.availableWmsDatasets.filter(e => e.serviceResource == WmsResourceType.GEORESOURCE);
   }
 
   getAvailableIndiWmsDatasets():WmsDataset[] {
-    return this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.INDICATOR);
+    return this.availableWmsDatasets.filter(e => e.serviceResource == WmsResourceType.INDICATOR);
   }
 
   setGeoresources(georesourcesArray){

@@ -68,9 +68,8 @@ export class WmsEditUserRolesModalComponent {
     }
   }
 
-  // Modal control methods
-  cancel(): void {
-    this.activeModal.dismiss();
+  close(): void {
+    this.activeModal.close(true);
   }
 
   reInit() {

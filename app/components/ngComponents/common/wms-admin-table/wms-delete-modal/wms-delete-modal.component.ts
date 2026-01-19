@@ -11,13 +11,12 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 })
 export class WmsDeleteModalComponent {
  
-  datasetToDelete: WmsDataset | undefined = undefined;
+  datasetToDelete: WmsDataset | undefined;
 
   loadingData:boolean = false;
   showSuccessAlert = false;
   showErrorAlert = false;
 
-  successMessage!:string;
   errorMessage!:string;
 
   constructor(
@@ -26,10 +25,9 @@ export class WmsDeleteModalComponent {
     private ogcService: OgcService
   ) {}
 
-  // Modal control methods
-  cancel(): void {
-    this.activeModal.dismiss();
-  } 
+  close(): void {
+    this.activeModal.close(true);
+  }
   
   hideSuccessAlert(): void {
     this.showSuccessAlert = false;
@@ -40,6 +38,17 @@ export class WmsDeleteModalComponent {
   }
 
   deleteGeoresources() {
-    
+
+    if(this.datasetToDelete)
+      this.ogcService.deleteWms(this.datasetToDelete).subscribe({
+        next: response => {
+          this.showSuccessAlert = true;
+          this.datasetToDelete = undefined;
+        },
+        error: error => {
+          this.showErrorAlert = true;
+          this.errorMessage = error.message;
+        }
+      });
   }
 }

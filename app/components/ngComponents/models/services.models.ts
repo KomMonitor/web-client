@@ -2,14 +2,13 @@ export interface WmsDataset {
   id: string;
   title: string;
   description: string;
-  url: string;
   topicReference: string;
-  layerName: string;
+  connectionDetails: ConnectionDetails;
   userPermissions: string[];
   permissions: string[];
   isPublic: boolean;
   ownerId: string;
-  resourceType: WmsResourceType;
+  serviceResource: WmsResourceType;
   isSelected: boolean;
   databasis: string;
   datasource: string;
@@ -19,7 +18,18 @@ export interface WmsDataset {
   transparency: any;
 }
 
+export interface ConnectionDetails {
+  id: string;
+  url: string;
+  layerName: string;
+  serviceType: ServiceType;
+}
+
+export enum ServiceType {
+  WMS = 'wms'
+}
+
 export enum WmsResourceType {
   GEORESOURCE = 'georesource',
-  INDICATOR = 'incicator'
+  INDICATOR = 'indicator'
 }
