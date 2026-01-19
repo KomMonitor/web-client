@@ -74,11 +74,10 @@ export class WmsAddModalComponent implements OnInit {
     protected dataExchangeService: DataExchangeService,
     private ogcService: OgcService,
     protected dataGridHelperService: OgcDataGridHelperService
-  ) {
-    this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource=='georesource');
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource==this.resourceType);
   }
 
   // Multi-step form navigation
