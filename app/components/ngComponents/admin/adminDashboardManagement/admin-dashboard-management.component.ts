@@ -79,6 +79,44 @@ export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
     }
   }
 
+  getIndicatorScriptCount(): string {
+    return this.kommonitorDataExchangeService.availableProcessScripts
+      ? this.kommonitorDataExchangeService.availableProcessScripts.length.toString()
+      : "";
+  }
+
+  getOrganisationCount(): string {
+    return this.kommonitorDataExchangeService.accessControl
+      ? this.kommonitorDataExchangeService.accessControl.length.toString()
+      : "0";
+  }
+
+  getTopicCounts(): string {
+    return `${this.numberOfMainTopics}/${this.numberOfSubTopics}`;
+  }
+
+  getTopicsLabel(): string {
+    return `${this.translateService.instant("ADMIN_DASHBOARD.MAIN_TOPICS")}/${this.translateService.instant("ADMIN_DASHBOARD.SUB_TOPICS")}`;
+  }
+
+  getIndicatorCount(): string {
+    return this.kommonitorDataExchangeService.availableIndicators
+      ? this.kommonitorDataExchangeService.availableIndicators.length.toString()
+      : "";
+  }
+
+  getGeoresourceCount(): string {
+    return this.kommonitorDataExchangeService.availableGeoresources
+      ? this.kommonitorDataExchangeService.availableGeoresources.length.toString()
+      : "";
+  }
+
+  getSpatialUnitCount(): string {
+    return this.kommonitorDataExchangeService.availableSpatialUnits
+      ? this.kommonitorDataExchangeService.availableSpatialUnits.length.toString()
+      : "";
+  }
+
   private checkDataAvailabilityAndInitialize(): void {
     // Check if required data is available
     if (this.isDataAvailable()) {

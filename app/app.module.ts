@@ -14,7 +14,7 @@ import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { KommonitorClassificationComponent } from 'components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
-import { MathjaxModule } from 'mathjax-angular';
+// import { MathjaxModule } from 'mathjax-angular';
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
 import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
 import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
@@ -84,6 +84,7 @@ import { WmsEditModalComponent } from 'components/ngComponents/common/wms-admin-
 import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
 import { AdminSidebarComponent } from './components/ngComponents/admin/adminSidebar/adminSidebar.component';
+import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -171,7 +172,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     FormsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
-    MathjaxModule.forRoot(),
+    // MathjaxModule.forRoot(),
     ReactiveFormsModule,
     TranslateModule.forRoot({
       defaultLanguage: 'de',
@@ -187,7 +188,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmDatePickerComponent,
     PipesModule,
     DragDropModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    SmallBoxComponent,
   ],
   providers: [
     StartupService,

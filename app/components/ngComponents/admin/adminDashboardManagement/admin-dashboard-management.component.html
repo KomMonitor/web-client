@@ -6,88 +6,65 @@
   </div>
   <section class="content-header">
     <h1>
-      {{ 'ADMIN_DASHBOARD.OVERVIEW' | translate }}
-      <small>{{ 'ADMIN_DASHBOARD.OVERVIEW_DESCRIPTION' | translate }}</small>
+      {{ "ADMIN_DASHBOARD.OVERVIEW" | translate }}
+      <small>{{ "ADMIN_DASHBOARD.OVERVIEW_DESCRIPTION" | translate }}</small>
     </h1>
   </section>
   <section class="content container-fluid">
     <div class="row vertical-align">
       <div class="col-md-3 col-sm-6 col-xs-12"></div>
       <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="small-box bg-aqua">
-          <div class="inner">
-            <h3>{{ kommonitorDataExchangeService.accessControl.length }}</h3>
-            <p>{{ 'ADMIN_DASHBOARD.ORGANIZATIONS' | translate }}</p>
-          </div>
-          <div class="icon">
-            <i class="fas fa-users"></i>
-          </div>
-          <a class="small-box-footer"></a>
-        </div>
+        <small-box
+          [titleText]="getOrganisationCount()"
+          [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
+          boxColor="#00c0ef"
+          iconClass="fas fa-users"
+        ></small-box>
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="small-box bg-gray">
-          <div class="inner">
-            <h3>{{ numberOfMainTopics }}&nbsp; &nbsp; / &nbsp; &nbsp;{{ numberOfSubTopics }}</h3>
-            <p>{{ 'ADMIN_DASHBOARD.MAIN_TOPICS' | translate }} &nbsp; &nbsp; / &nbsp; &nbsp; {{ 'ADMIN_DASHBOARD.SUB_TOPICS' | translate }}</p>
-          </div>
-          <div class="icon">
-            <i class="fas fa-book"></i>
-          </div>
-          <a class="small-box-footer"></a>
-        </div>
+        <small-box
+          [titleText]="getTopicCounts()"
+          [descriptionText]="getTopicsLabel()"
+          boxColor="#d2d6de"
+          textColor="#000000"
+          iconClass="fas fa-book"
+        ></small-box>
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12"></div>
     </div>
     <div class="row vertical-align">
       <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="small-box bg-primary">
-          <div class="inner">
-            <h3>{{ (kommonitorDataExchangeService.availableSpatialUnits ? kommonitorDataExchangeService.availableSpatialUnits.length : '')}}</h3>
-            <p>{{ 'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate }}</p>
-          </div>
-          <div class="icon">
-            <i class="fas fa-layer-group"></i>
-          </div>
-          <a class="small-box-footer"></a>
-        </div>
-        
+        <small-box
+          [titleText]="getSpatialUnitCount()"
+          [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
+          boxColor="#337ab7"
+          iconClass="fas fa-layer-group"
+        ></small-box>
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="small-box bg-orange">
-          <div class="inner">
-            <h3>{{ (kommonitorDataExchangeService.availableGeoresources ? kommonitorDataExchangeService.availableGeoresources.length : '') }}</h3>
-            <p>{{ 'ADMIN_DASHBOARD.GEORESOURCES' | translate }}</p>
-          </div>
-          <div class="icon">
-            <i class="fas fa-map-marked-alt"></i>
-          </div>
-          <a class="small-box-footer"></a>
-        </div>
+        <small-box
+          [titleText]="getGeoresourceCount()"
+          [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
+          boxColor="#FF851B"
+          iconClass="fas fa-map-marked-alt"
+        >
+        </small-box>
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="small-box bg-green">
-          <div class="inner">
-            <h3>{{ (kommonitorDataExchangeService.availableIndicators ? kommonitorDataExchangeService.availableIndicators.length : '') }}</h3>
-            <p>{{ 'ADMIN_DASHBOARD.INDICATORS' | translate }}</p>
-          </div>
-          <div class="icon">
-            <i class="fas fa-sitemap"></i>
-          </div>
-          <a class="small-box-footer"></a>
-        </div>
+        <small-box
+          [titleText]="getIndicatorCount()"
+          [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
+          boxColor="#00a65a"
+          iconClass="fas fa-sitemap"
+        ></small-box>
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="small-box bg-purple">
-          <div class="inner">
-            <h3>{{ (kommonitorDataExchangeService.availableProcessScripts ? kommonitorDataExchangeService.availableProcessScripts.length : '') }}</h3>
-            <p>{{ 'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate }}</p>
-          </div>
-          <div class="icon">
-            <i class="fas fa-file-code"></i>
-          </div>
-          <a class="small-box-footer"></a>
-        </div>
+        <small-box
+          [titleText]="getIndicatorScriptCount()"
+          [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
+          boxColor="#605ca8"
+          iconClass="fas fa-file-code"
+        ></small-box>
       </div>
     </div>
     <div class="row vertical-align">
