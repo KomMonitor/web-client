@@ -238,3 +238,10 @@ ag-grid-angular {
   border-radius: 4px;
   overflow: hidden;
 } 
+
+.addButton_dropdownWrapper {
+
+  button {
+    display: block !important;
+  }
+}

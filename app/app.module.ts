@@ -10,7 +10,7 @@ import { KommonitorMapComponent } from 'components/ngComponents/userInterface/ko
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { StartupService } from 'services/startup-service/startup.service';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { KommonitorClassificationComponent } from 'components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
@@ -184,7 +184,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
     PipesModule,
-    DragDropModule
+    DragDropModule,
+    NgbDropdownModule
   ],
   providers: [
     StartupService,

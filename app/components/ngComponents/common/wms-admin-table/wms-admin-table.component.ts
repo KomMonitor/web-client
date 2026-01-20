@@ -11,6 +11,7 @@ import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component
 import { setDefaultAutoSelectFamily } from 'net';
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
+import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -35,7 +36,8 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     private ogcDataGridHelperServiceFactory: OgcDataGridHelperServiceFactory,
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private wmsSharedComponentsService: WmsSharedComponentsService
   ) {
     this.ogcDataGridHelperService = this.ogcDataGridHelperServiceFactory.create();
   }
@@ -55,6 +57,11 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     });
 
     this.subscriptions.push(broadcastSub);
+
+    // listen to addOpen calls from indicator/georesources overview components
+    this.wmsSharedComponentsService.onOpenAddModal().subscribe((resourceType:WmsResourceType) => {
+      this.openAddModal(resourceType);
+    })
   }
 
   initializeOrRefreshOverviewTable() {
@@ -101,25 +108,30 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     return this.dataExchangeService.checkDeletePermission();
   }
 
-  openAddModal() {
-    const modalRef = this.modalService.open(WmsAddModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
-    });
+  public openAddModal(resourceType: WmsResourceType) {
 
-    modalRef.componentInstance.resourceType = this.resourceType;
+    // check whether the requested modal type matches the actual component
+    // otherwise both add modals (geores. / indi.) will open, as both tables exist
+    if(resourceType==this.resourceType) {
+      const modalRef = this.modalService.open(WmsAddModalComponent, {
+        backdrop: true,
+        keyboard: false,
+        container: 'body',
+        animation: false,
+        modalDialogClass: 'modal-medium',
+        windowClass: 'modal-medium'
+      });
 
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+      modalRef.componentInstance.resourceType = resourceType;
+
+      modalRef.result.then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      }).catch(() => {
+        // Modal dismissed
+      });
+    }
   }
 
   onClickEditMetadata(wmsMetadata: any): void {

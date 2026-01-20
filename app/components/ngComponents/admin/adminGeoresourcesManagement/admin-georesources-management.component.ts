@@ -1,3 +1,4 @@
+import { WmsResourceType } from './../../models/services.models';
 import { Component, OnInit, OnDestroy, Inject, ViewChild, AfterViewInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -13,9 +14,7 @@ import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadata
 import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
 import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
 import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
-import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { WmsResourceType } from 'components/ngComponents/models/services.models';
+import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
@@ -41,6 +40,8 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
 
   private subscriptions: Subscription[] = [];
 
+  WmsResourceType = WmsResourceType;
+
   resourceType:WmsResourceType = WmsResourceType.GEORESOURCE;
 
   constructor(
@@ -48,11 +49,9 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
-    private coreDataExchangeService: DataExchangeService,
     private kommonitorCacheHelperService: KommonitorGeoresourceCacheHelperService,
     private kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
-    private ogcDatagridHelperService: OgcDataGridHelperService,
-    private ogcDataGridHelperService: OgcDataGridHelperService
+    protected wmsSharedComponentsService: WmsSharedComponentsService
   ) {}
 
   ngOnInit(): void {

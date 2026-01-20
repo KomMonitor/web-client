@@ -315,6 +315,23 @@
   <p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die Übersichtstabelle eingetragen.</p>
 </div>
 
+<!-- Test Success Alert -->
+<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  [hidden]="!testSuccessMessage" class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Verbindungstest</h4>
+  <p>Die Verbindung wurde erfoglreich getestet</p>
+</div>
+
+<!-- Test Error Alert -->
+<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  [hidden]="!testErrorMessage" class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Verbindungsaufbau gescheitert</h4>
+  Verbindungsaufbau gescheitert. Bitte &uuml;berpr&uuml;fen Sie die Verbindunsdaten.
+  <br />
+</div>
+
 <!-- Error Alert -->
 <div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
   [hidden]="!errorMessage" class="alert alert-danger alert-dismissable">

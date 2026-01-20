@@ -120,11 +120,7 @@
             </div>
             <div class="row vertical-align">
               <button class="btn btn-primary" value="Verbindung testen" (click)="testConnection()" [disabled]="connectForm.invalid">Verbindung testen</button>
-            </div>
-            <div class="row vertical-align">
-                <div *ngIf="wmsTestStatus===true" class="wmsTest_success">Test der WMS-Verbindungsdaten erfolgreich!</div>
-                <div *ngIf="wmsTestStatus===false" class="wmsTest_error">Test der WMS-Verbindungsdaten NICHT erfolgreich! WMS Daten nicht korrekt oder nicht nutzbar</div>
-            </div>      
+            </div>  
 
             <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
             <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
@@ -232,6 +228,23 @@
   <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-check"></i>Georessource editiert</h4>
   <p>Die Georessource mit Namen {{successMessagePart}} wurde in KomMonitor editiert.</p>
+</div>
+
+<!-- Test Success Alert -->
+<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  [hidden]="!testSuccessMessage" class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Verbindungstest</h4>
+  <p>Die Verbindung wurde erfoglreich getestet</p>
+</div>
+
+<!-- Test Error Alert -->
+<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  [hidden]="!testErrorMessage" class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Verbindungsaufbau gescheitert</h4>
+  Verbindungsaufbau gescheitert. Bitte &uuml;berpr&uuml;fen Sie die Verbindunsdaten.
+  <br />
 </div>
 
 <!-- Error Alert -->

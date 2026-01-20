@@ -1,3 +1,5 @@
+import { WmsResourceType } from './../../models/services.models';
+import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
 import { Component, Inject, OnInit, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DOCUMENT } from '@angular/common';
@@ -14,7 +16,6 @@ import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModa
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
-import { WmsResourceType } from 'components/ngComponents/models/services.models';
 
 declare const $: any;
 declare const __env: any;
@@ -73,6 +74,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   };
   private subscriptions: Subscription[] = [];
 
+  WmsResourceType = WmsResourceType;
+
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private zone: NgZone,
@@ -81,7 +84,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
-    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService
+    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
+    protected wmsSharedComponentsService: WmsSharedComponentsService
   ) {}
 
   ngOnInit(): void {

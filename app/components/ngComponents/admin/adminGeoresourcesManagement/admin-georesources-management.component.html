@@ -29,12 +29,19 @@
         <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
       </button>
       <!-- add georesource -->					  		
-      <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" 
+    <!--   <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" 
         (click)="onClickAddGeoresource()">
         <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
-      </button>
+      </button> -->
       <!-- edit metadata -->
+      <div ngbDropdown class="d-inline-block">
+        <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
 
+        <div ngbDropdownMenu class="addButton_dropdownWrapper">
+          <button ngbDropdownItem class="btn btn-success btn-sm" (click)="onClickAddGeoresource()">POI / LOI / AOI erstellen</button>
+          <button ngbDropdownItem class="btn btn-success btn-sm" (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.GEORESOURCE)">WMS erstellen</button>
+        </div>
+      </div>
       <!-- edit features -->
 
       <!-- delete datasets -->

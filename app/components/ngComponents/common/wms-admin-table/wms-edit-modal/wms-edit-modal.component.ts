@@ -25,6 +25,9 @@ export class WmsEditModalComponent {
   errorMessage = false;
   successMessage = false;
   loadingData = false;
+  
+  testErrorMessage = false;
+  testSuccessMessage = false;
 
   wmsTestStatus:boolean | undefined = undefined;
 
@@ -181,13 +184,18 @@ export class WmsEditModalComponent {
   
   hideSuccessAlert(): void {
     this.successMessage = false;
+    this.testSuccessMessage = false;
   }
 
   hideErrorAlert(): void {
     this.errorMessage = false;
+    this.testErrorMessage = false;
   }
 
   testConnection() {
+
+    this.testErrorMessage = false;
+    this.testSuccessMessage = false;
 
     let url = this.connectForm.controls.url.value;
     let layer = this.connectForm.controls.layer.value;
@@ -196,10 +204,14 @@ export class WmsEditModalComponent {
 
       this.ogcService.testConnection(url).subscribe({
         next: response => {
-          this.wmsTestStatus = response.success; 
+
+          if(response.success===true)
+            this.testSuccessMessage = true;
+          else
+            this.testErrorMessage = true;
         },
         error: error => {
-          console.log
+          this.testErrorMessage = true;
         }
       })
     }
