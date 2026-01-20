@@ -136,8 +136,9 @@ export class PoiComponent implements OnInit {
     let poiMatch = topic.poiData.filter(e => e.isSelected===true);
     let aoiMatch = topic.aoiData.filter(e => e.isSelected===true);
     let loiMatch = topic.loiData.filter(e => e.isSelected===true);
+    let wmsMatch = topic.wmsData.filter(e => e.isSelected===true);
 
-    if(poiMatch.length || aoiMatch.length || loiMatch.length) {
+    if(poiMatch.length || aoiMatch.length || loiMatch.length || wmsMatch.length) {
       match = true;
     } else {
       if(topic.subTopics.length) {

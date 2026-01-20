@@ -22,7 +22,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarIndicatorConfigCollapse';
+    //this.element = 'sidebarPoiCollapse';
   }
 
   closeSidebar() {

@@ -16,6 +16,7 @@ import 'leaflet-measure';
 import 'leaflet-search';
 
 import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -1805,10 +1806,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.hideLoadingIconOnMap();
   }
   
-  addWmsLayerToMap([dataset, opacity]) {
+  addWmsLayerToMap([dataset, opacity]: [WmsDataset, number]) {
 
-    let wmsLayer = L.tileLayer.wms(dataset.url, {
-      layers: dataset.layerName,
+    let wmsLayer = L.tileLayer.wms(dataset.connectionDetails.baseUrl, {
+      layers: dataset.connectionDetails.layerName,
       transparent: true,
       format: 'image/png',
       minZoom: window.__env.minZoomLevel,
