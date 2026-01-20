@@ -10,6 +10,7 @@ import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 import { GeoresourcesDataset, GeoresourcesTopicsHierarchy } from '../../../models/georesources.models';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { UserFavourites } from 'components/ngComponents/models/favorites.models';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
 
 
 @Component({
@@ -51,10 +52,12 @@ export class PoiComponent implements OnInit {
 
   georesourceTopicFavItems:any[] = [];
   poiFavItems:any[] = [];
+  wmsFavItems:any[] = [];
 
   // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
   FavTabGeoresourceTopicFavItems:any[] = []; 
   FavTabPoiFavItems:any[] = [];
+  FavTabWmsFavItems:any[] = [];
 
   favSelectionToastStatus = 0;
   showFavSelection = false;
@@ -114,7 +117,9 @@ export class PoiComponent implements OnInit {
   
     if(userInfo.georesourceFavourites) {
       this.poiFavItems = userInfo.georesourceFavourites;
+      this.wmsFavItems = userInfo.webServiceFavourites;
       this.FavTabPoiFavItems = userInfo.georesourceFavourites;
+      this.FavTabWmsFavItems = userInfo.webServiceFavourites;
     }
 
     if(userInfo.georesourceTopicFavourites) {
@@ -1220,11 +1225,27 @@ export class PoiComponent implements OnInit {
       return this.poiFavItems.includes(id);
   }
 
+  wmsFavSelected(id) {
+    if(Array.isArray(id))
+      return id.some(e => this.wmsFavItems.includes(e.id));
+    else
+      return this.wmsFavItems.includes(id);
+  }
+
   onPoiFavClick(id, favTab = false) {
     if(!this.poiFavItems.includes(id))
       this.poiFavItems.push(id);
     else
       this.poiFavItems = this.poiFavItems.filter(e => e!=id);
+
+    this.onHandleFavSelection(favTab);
+  }
+
+  onWmsFavClick(id, favTab = false) {
+    if(!this.wmsFavItems.includes(id))
+      this.wmsFavItems.push(id);
+    else
+      this.wmsFavItems = this.wmsFavItems.filter(e => e!=id);
 
     this.onHandleFavSelection(favTab);
   }
@@ -1351,7 +1372,7 @@ export class PoiComponent implements OnInit {
     });
   }
 
-  favTabShowTopic(topic) {
+  favTabShowTopic(topic:GeoresourcesTopicsHierarchy) {
 
     if(this.topicOrGeoresourceInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
       return true;
@@ -1412,7 +1433,8 @@ export class PoiComponent implements OnInit {
 
     if(topic.poiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) || 
         topic.aoiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) || 
-        topic.loiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) || 
+        topic.loiData.some(e => this.FavTabPoiFavItems.includes(e.georesourceId)) ||
+        topic.wmsData.some(e => this.FavTabWmsFavItems.includes(e.id)) ||  
         this.topicInFavTopBottom(topic))
       return true;
 
@@ -1427,22 +1449,20 @@ export class PoiComponent implements OnInit {
     return false;
   }
 
-  topicOrGeoresourceInFavRecursive(tree) {
+  topicOrGeoresourceInFavRecursive(tree:GeoresourcesTopicsHierarchy[]) {
 
     let ret = false;
     tree.forEach(elem => {
-
+// hier
       if(this.FavTabGeoresourceTopicFavItems.includes(elem.topicId) || 
         this.georesourceInFavItems(elem.poiData, this.FavTabPoiFavItems) || 
         this.georesourceInFavItems(elem.aoiData, this.FavTabPoiFavItems) || 
-        this.georesourceInFavItems(elem.loiData, this.FavTabPoiFavItems))
+        this.georesourceInFavItems(elem.loiData, this.FavTabPoiFavItems) || 
+        this.wmsInFavItems(elem.wmsData, this.FavTabWmsFavItems))
           ret = true;
 
       if(elem.subTopics && elem.subTopics.length>0 && ret===false)
         ret = this.topicOrGeoresourceInFavRecursive(elem.subTopics);
-/* 
-      if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
-        ret = topicOrGeoresourceInFavRecursive(elem.indicatorData); */
     });
 
     return ret;
@@ -1450,5 +1470,9 @@ export class PoiComponent implements OnInit {
 
   georesourceInFavItems(elems, favItems) {
     return elems.filter(e => favItems.includes(e.georesourceId)).length>0 ? true : false;
+  }
+
+  wmsInFavItems(elems:WmsDataset[], favItems) {
+    return elems.filter(e => favItems.includes(e.id)).length>0 ? true : false;
   }
 }
