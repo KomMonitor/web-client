@@ -27,8 +27,6 @@
             "styles": [
               "app/app.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/admin-lte/dist/css/AdminLTE.min.css",
-              "node_modules/admin-lte/dist/css/skins/skin-blue.min.css",
               "node_modules/nouislider/dist/nouislider.css",
               "node_modules/ag-grid-community/styles/ag-grid.css",
               "node_modules/ag-grid-community/styles/ag-theme-alpine.css",
@@ -45,8 +43,7 @@
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/admin-lte/dist/js/adminlte.min.js"
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
             ]
           },
           "configurations": {

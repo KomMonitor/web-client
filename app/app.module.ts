@@ -83,6 +83,7 @@ import { WmsAddModalComponent } from 'components/ngComponents/common/wms-admin-t
 import { WmsEditModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-modal/wms-edit-modal.component';
 import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
+import { AdminSidebarComponent } from './components/ngComponents/admin/adminSidebar/adminSidebar.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -128,6 +129,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminDashboardManagementComponent,
     AdminRoleExplanationComponent,
     AdminTopicsManagementComponent,
+    AdminSidebarComponent,
     TopicEditModalComponent,
     AdminSpatialUnitsManagementComponent,
     SpatialUnitAddModalComponent,
