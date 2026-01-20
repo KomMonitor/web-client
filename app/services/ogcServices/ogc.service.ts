@@ -90,4 +90,22 @@ export class OgcService {
 
     return this.http.delete(`${this.baseUrlToKomMonitorDataAPI}/web-services/${data.id}`);
   }
+
+  updatePermissions(id, data): Observable<any> {
+
+    let header = {
+      'Content-Type': 'application/json'
+    };
+                    
+    return this.http.put(`${this.baseUrlToKomMonitorDataAPI}/web-services/${id}/permissions`, JSON.stringify(data), {headers: header});
+  }
+
+  updateOwnership(id, data): Observable<any> {
+
+    let header = {
+      'Content-Type': 'application/json'
+    };
+                    
+    return this.http.put(`${this.baseUrlToKomMonitorDataAPI}/web-services/${id}/ownership`, JSON.stringify(data), {headers: header});
+  }
 }

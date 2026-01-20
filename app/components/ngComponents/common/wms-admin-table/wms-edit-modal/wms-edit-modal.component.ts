@@ -155,7 +155,6 @@ export class WmsEditModalComponent {
       next: response => {
         this.successMessagePart = this.currentGeoresourceDataset.title;
         this.successMessage = true;
-        this.resetWmsAddForm();
       }, 
       error: error => {
         this.errorMessagePart = error.message;

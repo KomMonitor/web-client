@@ -179,7 +179,6 @@ export class WmsAddModalComponent implements OnInit {
 
     // Build the role management grid options
     this.roleManagementTableOptions = this.dataGridHelperService.buildRoleManagementGrid(
-      'spatialUnitAddRoleManagementTable',
       this.roleManagementTableOptions,
       this.dataExchangeService.accessControl || [],
       permissionIds_ownerUnit,

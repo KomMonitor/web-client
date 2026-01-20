@@ -311,7 +311,7 @@ export class OgcDataGridHelperService {
   /**
    * Build role management grid for spatial units
    */
-  buildRoleManagementGrid(tableDOMId: string, currentTableOptionsObject: any, accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
+  buildRoleManagementGrid(currentTableOptionsObject: any, accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
     if (currentTableOptionsObject && this.gridApi_wms) {
       // Grid already exists, just update the data
       const newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);

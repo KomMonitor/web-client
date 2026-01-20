@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { forkJoin } from 'rxjs';
 import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -22,8 +23,8 @@ export class WmsEditUserRolesModalComponent {
   currentStep: number = 1;
 
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
+  errorMessage = false;
+  successMessage = false;
   loadingData = false;
   
   // Role management
@@ -79,7 +80,6 @@ export class WmsEditUserRolesModalComponent {
 
     // Build the role management grid options
     this.roleManagementTableOptions = this.dataGridHelperService.buildRoleManagementGrid(
-      'spatialUnitAddRoleManagementTable',
       this.roleManagementTableOptions,
       this.dataExchangeService.accessControl || [],
       this.currentGeoresourceDataset.permissions,
@@ -111,35 +111,31 @@ export class WmsEditUserRolesModalComponent {
     }
   }
 
-  addWms() {
+  editData() {
 
-  /*   let data = {
-      metadata : {
-        title: this.metadataForm.controls.title.value,
-        description: this.metadataForm.controls.description.value,
-        databasis: this.metadataForm.controls.databasis.value,
-        datasource: this.metadataForm.controls.datasource.value,
-        contact: this.metadataForm.controls.contact.value,
-        note: this.metadataForm.controls.note.value 
+    let ownershipData = {
+      ownerId: this.ownerOrganization
+    } 
+    
+    let permissionData = {
+      isPublic: this.isPublic,
+      permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
+    };
+
+    forkJoin({
+      ownership: this.ogcService.updateOwnership(this.currentGeoresourceDataset.id, ownershipData),
+      permissions: this.ogcService.updatePermissions(this.currentGeoresourceDataset.id, permissionData)
+    }).subscribe({
+      next: (response:any) => {
+
+        this.successMessagePart = this.currentGeoresourceDataset.title;
+        this.successMessage = true;
       },
-      connection: {
-        url: this.connectForm.controls.url.value,
-        layer: this.connectForm.controls.layer.value
-      },
-      topic: {
-        mainTopics: this.georesourceTopic_mainTopic,
-        subTopic: this.georesourceTopic_subTopic,
-        subsubTopic: this.georesourceTopic_subsubTopic,
-        subsubsubTopic: this.georesourceTopic_subsubsubTopic
-      },
-      accessControl: {
-        owner: this.ownerOrganization,
-        isPublic: this.isPublic,
-        permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
+      error: error => {
+        this.errorMessagePart = error.message;
+        this.errorMessage = true;
       }
-    }; */
-
-    //console.log(data);
+    });
   }
 
   onChangeOwner(orgUnitId: string): void {
@@ -168,7 +164,6 @@ export class WmsEditUserRolesModalComponent {
 
     // Build the role management grid options
     this.roleManagementTableOptions = this.dataGridHelperService.buildRoleManagementGrid(
-      'spatialUnitAddRoleManagementTable',
       this.roleManagementTableOptions,
       this.dataExchangeService.accessControl || [],
       permissionIds_ownerUnit,
@@ -200,7 +195,7 @@ export class WmsEditUserRolesModalComponent {
     }
   }
 
-  resetWmsAddForm() {
+  resetWmsEditForm() {
 
     this.ownerOrganization = '';
     this.ownerOrgFilter = '';
@@ -208,11 +203,11 @@ export class WmsEditUserRolesModalComponent {
   }
   
   hideSuccessAlert(): void {
-    this.successMessage = '';
+    this.successMessage = false;
   }
 
   hideErrorAlert(): void {
-    this.errorMessage = '';
+    this.errorMessage = false;
   }
 
   onRoleManagementGridReady(params: any) {
