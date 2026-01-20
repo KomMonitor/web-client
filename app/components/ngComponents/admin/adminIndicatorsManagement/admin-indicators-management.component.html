@@ -38,8 +38,8 @@
         <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
 
         <div ngbDropdownMenu class="addButton_dropdownWrapper">
-          <button ngbDropdownItem class="btn btn-success btn-sm" (click)="openAddIndicatorModal()">Indikator erstellen</button>
-          <button ngbDropdownItem class="btn btn-success btn-sm" (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)">WMS erstellen</button>
+          <p ngbDropdownItem (click)="openAddIndicatorModal()">Indikator erstellen</p>
+          <p ngbDropdownItem (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)">WMS erstellen</p>
         </div>
       </div>
       <!-- delete selected completely -->
@@ -56,8 +56,6 @@
     <!--------------------------
       | Your Page Content Here |
       -------------------------->
-
-    <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>
 
     <!-- POI -->
 
@@ -99,6 +97,8 @@
       <!-- /.box-body -->
     </div>
     <!-- /.box -->
+    
+    <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>
 
     <!-- /.box-header -->
     <div class="box box-primary collapsed-box">
