@@ -1,0 +1,21 @@
+<div class="box-wrapper">
+  <div class="box-header">
+    <div class="box-title">{{ title }}</div>
+    <div class="box-tools">
+      <button
+        type="button"
+        class="btn btn-box-tool"
+        (click)="collapsed = !collapsed"
+      >
+        <i
+          class="fa"
+          [class.fa-plus]="collapsed"
+          [class.fa-minus]="!collapsed"
+        ></i>
+      </button>
+    </div>
+  </div>
+  <div class="box-body" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
+    <ng-content></ng-content>
+  </div>
+</div>

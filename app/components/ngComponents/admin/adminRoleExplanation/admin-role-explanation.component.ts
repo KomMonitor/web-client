@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 interface AccordionItem {
   title: string;
@@ -8,21 +8,22 @@ interface AccordionItem {
 }
 
 @Component({
-  selector: 'admin-role-explanation-new',
-  templateUrl: './admin-role-explanation.template.html',
-  styleUrls: ['./admin-role-explanation.component.css']
+  selector: "admin-role-explanation-new",
+  templateUrl: "./admin-role-explanation.template.html",
+  styleUrls: ["./admin-role-explanation.component.css"],
 })
 export class AdminRoleExplanationComponent {
   loadingData = false;
 
   private decodeHtmlEntities(text: string): string {
-    const decoded = new DOMParser().parseFromString(text, 'text/html').body.textContent;
+    const decoded = new DOMParser().parseFromString(text, "text/html").body
+      .textContent;
     return decoded || text;
   }
 
-  leftColumnItems: AccordionItem[] = [
+  items: AccordionItem[] = [
     {
-      title: this.decodeHtmlEntities('Was ist ein Mandant?'),
+      title: this.decodeHtmlEntities("Was ist ein Mandant?"),
       content: `KomMonitor erlaubt das Anlegen unterschiedlicher Gruppen, um Verwaltungstrukturen
       abzubilden und Zugriffsrechte dediziert zu vergeben.
       <br>
@@ -38,195 +39,10 @@ export class AdminRoleExplanationComponent {
       werden,
       um jeweils eigene, voneinander getrennte Untergruppenhierarchien, Raumebenen und Datens&auml;tze
       zu verwalten.`,
-      expanded: false
-    },
-    {
-      title: this.decodeHtmlEntities('Was sind Untergruppen eines Mandanten?'),
-      content: `Innerhalb eines Mandanten k&ouml;nnen optional beliebig viele Untergruppen erzeugt werden,
-      W&auml;hrend eine Mandantengruppe alleine bereits ausreicht, um Datens&auml;tze
-      vollumf&auml;nglich in KomMonitor zu verwalten,
-      erlaubt das Erstellen weiterer Untergruppen-Hierarchien eine feingranulare Aufteilung von
-      Zust&auml;ndigkeiten und gezielteren Datensatzfreigaben innerhalb der Verwaltung.
-
-      <br><br>
-      Eine Untergruppe kann dabei auch von &uuml;bergeordneten Gruppen hinsichtlich Usern, Ressourcen
-      und Themen mitadministriert werden - je nach gesetzten Rechten.`,
-      expanded: false
-    },
-    {
-      title: this.decodeHtmlEntities('Was ist die Eigent&uuml;merschaft an Datens&auml;tzen?'),
-      content: `Bei der Erstellung neuer Raumeinheiten, Indikatoren und Georessourcen ist die Angabe
-      erforderlich, welche Gruppe Eigent&uuml;mer der Ressource ist.
-      <br>
-      <br>
-      Eine Ressource kann dabei nur genau einer Gruppe geh&ouml;ren. Nur Mitglieder der
-      Eigent&uuml;mer-Gruppe einer Ressource besitzen das Recht, die Datenfreigabe des Datensatzes zu
-      kontrollieren sowie eine Ressource zu l&ouml;schen.`,
-      expanded: false
-    },
-    {
-      title: this.decodeHtmlEntities('Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?'),
-      content: `Mitglieder der Eigent&uuml;mer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
-      Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, l&ouml;schen).
-
-      <br>
-      <br>
-      Schon beim Anlegen einer Ressource legen Mitglieder der Eigent&uuml;mer-Gruppe in Schritt
-      <code>Zugriffsschutz und Eigent&uuml;merschaft</code> fest, welchen
-      anderen Gruppen Lese- und Editierrechte einger&auml;umt werden.
-      In einer tabbellarischen Form werden dazu entsprechende H&auml;kchen bei den zutreffenden
-      Gruppenzeilen gesetzt.
-
-      <br>
-      <br>
-      Eine nachtr&auml;gliche &Auml;nderung ist jederzeit im jeweiligen Ressourcenverwaktungsmen&uuml;
-      mit der Schaltfl&auml;che <code>Zugriffsschutz und Eigent&uuml;merschaft</code> und in den
-      dortigen Untermen&uuml;s m&ouml;glich. Anpassungen sind erst g&uuml;ltig, wenn der
-      <code>Aktualisieren</code> Button bet&auml;tigt wird.`,
-      expanded: false
-    },
-    {
-      title: this.decodeHtmlEntities('Wie funktioniert die Datenfreigabe von Indikatoren f&uuml;r bestimmte Raumeinheiten?'),
-      content: `Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln.
-
-						Grunds&auml;tzlich unterscheidet KomMonitor bei Indikatoren zwischen der <i>Freigabe ihrer
-							Metadaten</i> und der <i>Freigabe konkreter Zeitreihen auf konkreten verkn&uuml;pften
-							Raumeinheiten</i>. So ist es bspw. konfigurierbar, den Indikator bezogen auf dessen
-						Metadaten sowie Zeitreihen ausgew&auml;hlter Raumeinheiten &ouml;ffentlich freizugeben,
-						w&auml;hrend Zeitreihen sehr kleinr&auml;umiger Raumeinheiten nur der internen Verwaltung zur
-						Verf&uuml;gung stehen sollen.
-
-						<br>
-						<br>
-						Weiterhin ist neben der Freigabe der Indikatoren auch eine passgenaue Freigabe der Raumeinheiten
-						zu setzen.
-
-						Im Folgenden werden einige Beispielszenarien unteschieden und durch Einstellhinweise
-						verdeutlicht:
-
-						<br>
-						<br>`,
       expanded: false,
-      nestedItems: [
-        {
-          title: this.decodeHtmlEntities('Szenario Indikator nicht &ouml;ffentlich'),
-          content: `<table class="table">
-									<tr>
-										<th>
-											Indikatoren-Metadaten
-										</th>
-										<th>
-											Indikatoren-Zeitreihe pro Raumebene
-										</th>
-										<th>
-											Raumeinheiten-Metadaten
-										</th>
-									</tr>
-									<tr>
-										<td>
-											Schalter <code>&Ouml;ffentliche Lesefreigabe</code> deaktivieren
-										</td>
-										<td>
-											<i>pro Raumeinheit:</i>
-											<br>
-											explizite Freigabe an relevante Gruppen (Lesen, Schreiben)
-
-											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
-										</td>
-										<td>
-											Lesezugriff auf Raumeinheiten-Metadaten selbst muss analog f&uuml;r alle
-											relevanten Gruppen freigegeben werden.
-										</td>
-									</tr>
-								</table>`,
-          expanded: false
-        },
-        {
-          title: this.decodeHtmlEntities('Szenario Indikator teilweise &ouml;ffentlich'),
-          content: `<table class="table">
-									<tr>
-										<th>
-											Indikatoren-Metadaten
-										</th>
-										<th>
-											Indikatoren-Zeitreihe pro Raumebene
-										</th>
-										<th>
-											Raumeinheiten-Metadaten
-										</th>
-									</tr>
-									<tr>
-										<td>
-											Schalter <code>&Ouml;ffentliche Lesefreigabe</code> aktivieren
-										</td>
-										<td>
-											<i>pro Raumeinheit:</i>
-											<br>
-											<li>f&uuml;r alle Raumeinheiten mit &ouml;ffentlichem Zugriff aktivieren der
-												<code>&Ouml;ffentliche Lesefreigabe</code> (weitere explizite Freigabe
-												an Gruppen nur bei Bedarf zwecks Editierrechten)
-											</li>
-											<li>f&uuml;r interne Raumeinheiten
-												<code>&Ouml;ffentliche Lesefreigabe</code> deaktivieren &dash;
-												stattdessen nur explizite Freigabe an relevante Gruppen (Lesen,
-												Schreiben)
-											</li>
-
-											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
-										</td>
-										<td>
-											<i><code>&ouml;ffentlicher Lesezugriff</code> f&uuml;r bestimmte
-												Raumeinheiten-Metadaten aktivieren</i>
-											<i>interner gesch&uuml;tzter Lesezugriff auf sonstige
-												Raumeinheiten-Metadaten muss analog
-												f&uuml;r alle
-												relevanten Gruppen explizit freigegeben werden.
-											</i>
-										</td>
-									</tr>
-								</table>`,
-          expanded: false
-        },
-        {
-          title: this.decodeHtmlEntities('Szenario Indikator komplett &ouml;ffentlich'),
-          content: `<table class="table">
-									<tr>
-										<th>
-											Indikatoren-Metadaten
-										</th>
-										<th>
-											Indikatoren-Zeitreihe pro Raumebene
-										</th>
-										<th>
-											Raumeinheiten-Metadaten
-										</th>
-									</tr>
-									<tr>
-										<td>
-											Schalter <code>&Ouml;ffentliche Lesefreigabe</code> aktivieren
-										</td>
-										<td>
-											f&uuml;r alle Raumeinheiten aktivieren der
-											<code>&Ouml;ffentliche Lesefreigabe</code> (weitere explizite Freigabe
-											an Gruppen nur bei Bedarf zwecks Editierrechten)
-
-											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
-										</td>
-										<td>
-											<code>&ouml;ffentlicher Lesezugriff</code> bei betreffenden
-											Raumeinheiten-Metadaten selbst aktivieren
-										</td>
-									</tr>
-								</table>`,
-          expanded: false
-        }
-      ]
-    }
-  ];
-
-  rightColumnItems: AccordionItem[] = [
+    },
     {
-      title: this.decodeHtmlEntities('Wie werden neue Mandanten angelegt?'),
+      title: this.decodeHtmlEntities("Wie werden neue Mandanten angelegt?"),
       content: `<i>
         <ol type="1">
           <li>
@@ -268,10 +84,23 @@ export class AdminRoleExplanationComponent {
       Ab diesem Zeitpunkt ist der neue Mandant handlungsf&auml;hig. Mandantenadministratoren haben
       die Rechte,
       innerhalb eines Mandanten weitere Untergruppen, User und Datens&auml;tze zu erzeugen.`,
-      expanded: false
+      expanded: false,
     },
     {
-      title: this.decodeHtmlEntities('Wie werden neue Untergruppen erstellt?'),
+      title: this.decodeHtmlEntities("Was sind Untergruppen eines Mandanten?"),
+      content: `Innerhalb eines Mandanten k&ouml;nnen optional beliebig viele Untergruppen erzeugt werden,
+      W&auml;hrend eine Mandantengruppe alleine bereits ausreicht, um Datens&auml;tze
+      vollumf&auml;nglich in KomMonitor zu verwalten,
+      erlaubt das Erstellen weiterer Untergruppen-Hierarchien eine feingranulare Aufteilung von
+      Zust&auml;ndigkeiten und gezielteren Datensatzfreigaben innerhalb der Verwaltung.
+
+      <br><br>
+      Eine Untergruppe kann dabei auch von &uuml;bergeordneten Gruppen hinsichtlich Usern, Ressourcen
+      und Themen mitadministriert werden - je nach gesetzten Rechten.`,
+      expanded: false,
+    },
+    {
+      title: this.decodeHtmlEntities("Wie werden neue Untergruppen erstellt?"),
       content: `<i>
         <ol type="1">
           <li>
@@ -318,10 +147,25 @@ export class AdminRoleExplanationComponent {
           </li>
         </ol>
       </i>`,
-      expanded: false
+      expanded: false,
     },
     {
-      title: this.decodeHtmlEntities('Kann die Eigent&uuml;merschaft ver&auml;ndert werden?'),
+      title: this.decodeHtmlEntities(
+        "Was ist die Eigent&uuml;merschaft an Datens&auml;tzen?"
+      ),
+      content: `Bei der Erstellung neuer Raumeinheiten, Indikatoren und Georessourcen ist die Angabe
+      erforderlich, welche Gruppe Eigent&uuml;mer der Ressource ist.
+      <br>
+      <br>
+      Eine Ressource kann dabei nur genau einer Gruppe geh&ouml;ren. Nur Mitglieder der
+      Eigent&uuml;mer-Gruppe einer Ressource besitzen das Recht, die Datenfreigabe des Datensatzes zu
+      kontrollieren sowie eine Ressource zu l&ouml;schen.`,
+      expanded: false,
+    },
+    {
+      title: this.decodeHtmlEntities(
+        "Kann die Eigent&uuml;merschaft ver&auml;ndert werden?"
+      ),
       content: `Ja, Superadministratoren mit der Rolle <code>kommonitor-creator</code> sowie Mitgliedern der
       Eigent&uuml;mer-Gruppe ist es m&ouml;glich, die Eigent&uuml;merstellung an eine andere
       existierende Gruppe zu &uuml;bertragen.
@@ -344,10 +188,35 @@ export class AdminRoleExplanationComponent {
           </li>
         </ol>
       </i>`,
-      expanded: false
+      expanded: false,
     },
     {
-      title: this.decodeHtmlEntities('Wie erfolgt die &ouml;ffentliche Freigabe von Datens&auml;tzen?'),
+      title: this.decodeHtmlEntities(
+        "Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?"
+      ),
+      content: `Mitglieder der Eigent&uuml;mer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
+      Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, l&ouml;schen).
+
+      <br>
+      <br>
+      Schon beim Anlegen einer Ressource legen Mitglieder der Eigent&uuml;mer-Gruppe in Schritt
+      <code>Zugriffsschutz und Eigent&uuml;merschaft</code> fest, welchen
+      anderen Gruppen Lese- und Editierrechte einger&auml;umt werden.
+      In einer tabbellarischen Form werden dazu entsprechende H&auml;kchen bei den zutreffenden
+      Gruppenzeilen gesetzt.
+
+      <br>
+      <br>
+      Eine nachtr&auml;gliche &Auml;nderung ist jederzeit im jeweiligen Ressourcenverwaktungsmen&uuml;
+      mit der Schaltfl&auml;che <code>Zugriffsschutz und Eigent&uuml;merschaft</code> und in den
+      dortigen Untermen&uuml;s m&ouml;glich. Anpassungen sind erst g&uuml;ltig, wenn der
+      <code>Aktualisieren</code> Button bet&auml;tigt wird.`,
+      expanded: false,
+    },
+    {
+      title: this.decodeHtmlEntities(
+        "Wie erfolgt die &ouml;ffentliche Freigabe von Datens&auml;tzen?"
+      ),
       content: `&Auml;hnlich wie bei der gruppenspezifischen Freigabe von Datens&auml;tzen ist es nur
       Mitgliedern der Eigent&uuml;mer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
       Georessource) gestattet, einen &ouml;ffentlichen Lesezugriff auf die Ressource einzurichten.
@@ -365,13 +234,152 @@ export class AdminRoleExplanationComponent {
       mit der Schaltfl&auml;che <code>Zugriffsschutz und Eigent&uuml;merschaft</code> und in den
       dortigen Untermen&uuml;s m&ouml;glich. Anpassungen sind erst g&uuml;ltig, wenn der
       <code>Aktualisieren</code> Button bet&auml;tigt wird.`,
-      expanded: false
-    }
+      expanded: false,
+    },
+    {
+      title: this.decodeHtmlEntities(
+        "Wie funktioniert die Datenfreigabe von Indikatoren f&uuml;r bestimmte Raumeinheiten?"
+      ),
+      content: `Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln.
+
+						Grunds&auml;tzlich unterscheidet KomMonitor bei Indikatoren zwischen der <i>Freigabe ihrer
+							Metadaten</i> und der <i>Freigabe konkreter Zeitreihen auf konkreten verkn&uuml;pften
+							Raumeinheiten</i>. So ist es bspw. konfigurierbar, den Indikator bezogen auf dessen
+						Metadaten sowie Zeitreihen ausgew&auml;hlter Raumeinheiten &ouml;ffentlich freizugeben,
+						w&auml;hrend Zeitreihen sehr kleinr&auml;umiger Raumeinheiten nur der internen Verwaltung zur
+						Verf&uuml;gung stehen sollen.
+
+						<br>
+						<br>
+						Weiterhin ist neben der Freigabe der Indikatoren auch eine passgenaue Freigabe der Raumeinheiten
+						zu setzen.
+
+						Im Folgenden werden einige Beispielszenarien unteschieden und durch Einstellhinweise
+						verdeutlicht:
+
+						<br>
+						<br>`,
+      expanded: false,
+      nestedItems: [
+        {
+          title: this.decodeHtmlEntities(
+            "Szenario Indikator nicht &ouml;ffentlich"
+          ),
+          content: `<table class="table">
+									<tr>
+										<th>
+											Indikatoren-Metadaten
+										</th>
+										<th>
+											Indikatoren-Zeitreihe pro Raumebene
+										</th>
+										<th>
+											Raumeinheiten-Metadaten
+										</th>
+									</tr>
+									<tr>
+										<td>
+											Schalter <code>&Ouml;ffentliche Lesefreigabe</code> deaktivieren
+										</td>
+										<td>
+											<i>pro Raumeinheit:</i>
+											<br>
+											explizite Freigabe an relevante Gruppen (Lesen, Schreiben)
+
+											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
+										</td>
+										<td>
+											Lesezugriff auf Raumeinheiten-Metadaten selbst muss analog f&uuml;r alle
+											relevanten Gruppen freigegeben werden.
+										</td>
+									</tr>
+								</table>`,
+          expanded: false,
+        },
+        {
+          title: this.decodeHtmlEntities(
+            "Szenario Indikator teilweise &ouml;ffentlich"
+          ),
+          content: `<table class="table">
+									<tr>
+										<th>
+											Indikatoren-Metadaten
+										</th>
+										<th>
+											Indikatoren-Zeitreihe pro Raumebene
+										</th>
+										<th>
+											Raumeinheiten-Metadaten
+										</th>
+									</tr>
+									<tr>
+										<td>
+											Schalter <code>&Ouml;ffentliche Lesefreigabe</code> aktivieren
+										</td>
+										<td>
+											<i>pro Raumeinheit:</i>
+											<br>
+											<li>f&uuml;r alle Raumeinheiten mit &ouml;ffentlichem Zugriff aktivieren der
+												<code>&Ouml;ffentliche Lesefreigabe</code> (weitere explizite Freigabe
+												an Gruppen nur bei Bedarf zwecks Editierrechten)
+											</li>
+											<li>f&uuml;r interne Raumeinheiten
+												<code>&Ouml;ffentliche Lesefreigabe</code> deaktivieren &dash;
+												stattdessen nur explizite Freigabe an relevante Gruppen (Lesen,
+												Schreiben)
+											</li>
+
+											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
+										</td>
+										<td>
+											<i><code>&ouml;ffentlicher Lesezugriff</code> f&uuml;r bestimmte
+												Raumeinheiten-Metadaten aktivieren</i>
+											<i>interner gesch&uuml;tzter Lesezugriff auf sonstige
+												Raumeinheiten-Metadaten muss analog
+												f&uuml;r alle
+												relevanten Gruppen explizit freigegeben werden.
+											</i>
+										</td>
+									</tr>
+								</table>`,
+          expanded: false,
+        },
+        {
+          title: this.decodeHtmlEntities(
+            "Szenario Indikator komplett &ouml;ffentlich"
+          ),
+          content: `<table class="table">
+									<tr>
+										<th>
+											Indikatoren-Metadaten
+										</th>
+										<th>
+											Indikatoren-Zeitreihe pro Raumebene
+										</th>
+										<th>
+											Raumeinheiten-Metadaten
+										</th>
+									</tr>
+									<tr>
+										<td>
+											Schalter <code>&Ouml;ffentliche Lesefreigabe</code> aktivieren
+										</td>
+										<td>
+											f&uuml;r alle Raumeinheiten aktivieren der
+											<code>&Ouml;ffentliche Lesefreigabe</code> (weitere explizite Freigabe
+											an Gruppen nur bei Bedarf zwecks Editierrechten)
+
+											<i>unterschiedliche Konfigurationen je nach Raumeinheit denkbar</i>
+										</td>
+										<td>
+											<code>&ouml;ffentlicher Lesezugriff</code> bei betreffenden
+											Raumeinheiten-Metadaten selbst aktivieren
+										</td>
+									</tr>
+								</table>`,
+          expanded: false,
+        },
+      ],
+    },
   ];
-
-  constructor() {}
-
-  toggleAccordion(item: AccordionItem): void {
-    item.expanded = !item.expanded;
-  }
-} 
+}
