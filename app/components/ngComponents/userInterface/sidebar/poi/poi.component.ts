@@ -9,6 +9,7 @@ import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
 import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 import { GeoresourcesDataset, GeoresourcesTopicsHierarchy } from '../../../models/georesources.models';
 import { OgcService } from 'services/ogcServices/ogc.service';
+import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 
 
 @Component({
@@ -109,7 +110,7 @@ export class PoiComponent implements OnInit {
     if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
       this.showFavSelection = true;
 
-    var userInfo = this.favService.getUserInfo();
+    var userInfo:UserFavourites = this.favService.getUserInfo();
   
     if(userInfo.georesourceFavourites) {
       this.poiFavItems = userInfo.georesourceFavourites;
