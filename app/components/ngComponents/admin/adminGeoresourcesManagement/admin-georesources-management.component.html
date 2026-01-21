@@ -45,151 +45,110 @@
   <!-- Main content -->
   <section class="content container-fluid">
 
-  
-    <!-- POI -->
-
-    <div class="box box-primary">
-      <div class="box-header">
-        <h3 class="box-title">Points of Interest</h3>
-
-        <div class="box-tools pull-right">
-          <button type="button" class="btn btn-box-tool" data-widget="collapse">
-            <i class="fa fa-minus"></i>
-          </button>
+    <div ngbAccordion>
+      <!-- POIs -->
+      <div ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>Points of Interest</button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ag-grid-angular 
+              #poiGrid
+              class="ag-theme-alpine" 
+              style="height: 70vh; width: 100%;"
+              [rowData]="[]"
+              [columnDefs]="[]"
+              [gridOptions]="poiGridOptions"
+              [defaultColDef]="{
+                editable: false,
+                sortable: true,
+                filter: true,
+                floatingFilter: true,
+                resizable: true,
+                wrapText: true,
+                autoHeight: true
+              }"
+              [suppressRowClickSelection]="true"
+              [rowSelection]="'multiple'"
+              [pagination]="true"
+              [paginationPageSize]="10"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true">
+            </ag-grid-angular>
+          </div>
         </div>
       </div>
-
-      <!-- /.box-header -->
-      <div class="box-body">
-
-        <div class="admin-table-wrapper">
-
-          <ag-grid-angular 
-            #poiGrid
-            class="ag-theme-alpine" 
-            style="height: 70vh; width: 100%;"
-            [rowData]="[]"
-            [columnDefs]="[]"
-            [gridOptions]="poiGridOptions"
-            [defaultColDef]="{
-              editable: false,
-              sortable: true,
-              filter: true,
-              floatingFilter: true,
-              resizable: true,
-              wrapText: true,
-              autoHeight: true
-            }"
-            [suppressRowClickSelection]="true"
-            [rowSelection]="'multiple'"
-            [pagination]="true"
-            [paginationPageSize]="10"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true">
-          </ag-grid-angular>	              
-
+      <!-- LOIs -->
+      <div ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>Lines of Interest</button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ag-grid-angular 
+              #loiGrid
+              class="ag-theme-alpine" 
+              style="height: 70vh; width: 100%;"
+              [rowData]="[]"
+              [columnDefs]="[]"
+              [gridOptions]="loiGridOptions"
+              [defaultColDef]="{
+                editable: false,
+                sortable: true,
+                filter: true,
+                floatingFilter: true,
+                resizable: true,
+                wrapText: true,
+                autoHeight: true
+              }"
+              [suppressRowClickSelection]="true"
+              [rowSelection]="'multiple'"
+              [pagination]="true"
+              [paginationPageSize]="10"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true">
+            </ag-grid-angular>	
+          </div>
         </div>
       </div>
-      <!-- /.box-body -->
+      <!-- AOIs -->
+      <div ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>Areas of Interest</button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ag-grid-angular 
+              #aoiGrid
+              class="ag-theme-alpine" 
+              style="height: 70vh; width: 100%;"
+              [rowData]="[]"
+              [columnDefs]="[]"
+              [gridOptions]="aoiGridOptions"
+              [defaultColDef]="{
+                editable: false,
+                sortable: true,
+                filter: true,
+                floatingFilter: true,
+                resizable: true,
+                wrapText: true,
+                autoHeight: true
+              }"
+              [suppressRowClickSelection]="true"
+              [rowSelection]="'multiple'"
+              [pagination]="true"
+              [paginationPageSize]="10"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true">
+            </ag-grid-angular>
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- /.box -->
-
-    <!-- LOI -->
-
-    <div class="box box-primary">
-      <div class="box-header">
-        <h3 class="box-title">Lines of Interest</h3>
-
-        <div class="box-tools pull-right">
-          <button type="button" class="btn btn-box-tool" data-widget="collapse">
-            <i class="fa fa-minus"></i>
-          </button>
-        </div>
-      </div>
-      <!-- /.box-header -->
-      <div class="box-body">
-
-        <div class="admin-table-wrapper">
-
-          <ag-grid-angular 
-            #loiGrid
-            class="ag-theme-alpine" 
-            style="height: 70vh; width: 100%;"
-            [rowData]="[]"
-            [columnDefs]="[]"
-            [gridOptions]="loiGridOptions"
-            [defaultColDef]="{
-              editable: false,
-              sortable: true,
-              filter: true,
-              floatingFilter: true,
-              resizable: true,
-              wrapText: true,
-              autoHeight: true
-            }"
-            [suppressRowClickSelection]="true"
-            [rowSelection]="'multiple'"
-            [pagination]="true"
-            [paginationPageSize]="10"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true">
-          </ag-grid-angular>	 										
-
-        </div>
-      </div>
-      <!-- /.box-body -->
-    </div>
-    <!-- /.box -->
-
-    <!-- AOI -->
-
-    <div class="box box-primary">
-      <div class="box-header">
-        <h3 class="box-title">Areas of Interest</h3>
-
-        <div class="box-tools pull-right">
-          <button type="button" class="btn btn-box-tool" data-widget="collapse">
-            <i class="fa fa-minus"></i>
-          </button>
-        </div>
-      </div>
-      <!-- /.box-header -->
-      <div class="box-body">
-
-        <div class="admin-table-wrapper">
-
-          <ag-grid-angular 
-            #aoiGrid
-            class="ag-theme-alpine" 
-            style="height: 70vh; width: 100%;"
-            [rowData]="[]"
-            [columnDefs]="[]"
-            [gridOptions]="aoiGridOptions"
-            [defaultColDef]="{
-              editable: false,
-              sortable: true,
-              filter: true,
-              floatingFilter: true,
-              resizable: true,
-              wrapText: true,
-              autoHeight: true
-            }"
-            [suppressRowClickSelection]="true"
-            [rowSelection]="'multiple'"
-            [pagination]="true"
-            [paginationPageSize]="10"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true">
-          </ag-grid-angular>	 
-
-        </div>
-      </div>
-      <!-- /.box-body -->
-    </div>
-    <!-- /.box -->
 
     <!-- WMS -->
     <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>

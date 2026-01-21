@@ -3830,11 +3830,13 @@ input:checked + .switchsliderOrange {
       margin: 0;
       font-size: inherit;
       padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
 
       button {
         border: none;
         background: none;
         font-size: 18px;
+        font-weight: 600;
         color: #444;
         padding: 0;
         width: 100%;
