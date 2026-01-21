@@ -86,6 +86,7 @@ import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admi
 import { AdminSidebarComponent } from './components/ngComponents/admin/adminSidebar/adminSidebar.component';
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
+import { ExpandableBoxComponent } from './components/ngComponents/common/expandable-box/expandable-box.component';
 
 import {
 	NgbAccordionButton,
@@ -208,6 +209,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     NgbAccordionToggle,
     NgbAccordionBody,
     NgbAccordionCollapse,
+    SmallBoxComponent,
+    ExpandableBoxComponent
   ],
   providers: [
     StartupService,
