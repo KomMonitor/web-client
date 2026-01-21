@@ -12,6 +12,7 @@ import { AdminTopicsManagementService } from '../../../admin/adminTopicsManageme
 import { TopicOrderMode } from '../../../admin/adminTopicsManagement/admin-topics-management.component';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -44,10 +45,12 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   indicatorTopicFavItems:any[] = []; 
   indicatorFavItems:any[] = [];
+  wmsFavItems:any[] = [];
 
   // own temp list as fav items should remain visible in fav-tab even if deleted, until save/reload
   FavTabIndicatorTopicFavItems:any[] = []; 
   FavTabIndicatorFavItems:any[] = [];
+  FavTabWmsFavItems:any[] = [];
 
   headlineIndicatorFavItems:any[] = [];
   baseIndicatorFavItems:any[] = [];
@@ -237,7 +240,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     //reinit visibility of elements due to fact that now some HTML elements are actually available
     this.elementVisibilityHelperService.initElementVisibility();
 
-    var userInfo = this.favService.getUserInfo();
+    var userInfo:UserFavourites = this.favService.getUserInfo();
     if(userInfo.indicatorFavourites) {
       this.indicatorFavItems = userInfo.indicatorFavourites;
       this.FavTabIndicatorFavItems = userInfo.indicatorFavourites;
@@ -1035,8 +1038,8 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.exchangeData.wfsUrlForSelectedIndicator = indicatorWfsUrl;
   }
 
-  public favTabShowTopic(topic) {
-    if(this.topicOrIndicatorInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
+  public favTabShowTopic(topic:IndicatorsTopicsHierarchy) {
+    if(this.matchInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
       return true;
 
     return false;
@@ -1098,19 +1101,28 @@ export class KommonitorDataSetupComponent implements OnInit {
     return parentNext;
   }
 
-  topicOrIndicatorInFavRecursive(tree) {
+  matchInFavRecursive(tree:IndicatorsTopicsHierarchy[]) {
 
     let ret = false;
     tree.forEach(elem => {
 
-      if(this.FavTabIndicatorTopicFavItems.includes(elem.topicId) || this.FavTabIndicatorFavItems.includes(elem.indicatorId))
+      if(this.FavTabIndicatorTopicFavItems.includes(elem.topicId))
         ret = true;
 
+      if(elem.indicatorData.length>0 && ret===false) {
+        ret = elem.indicatorData.some(indicator =>
+          this.FavTabIndicatorFavItems.includes(indicator.indicatorId)
+        );
+      }
+      
+      if(elem.wmsData.length>0 && ret===false) {
+        ret = elem.wmsData.some(wms =>
+          this.FavTabWmsFavItems.includes(wms.id)
+        );
+      }
+      
       if(elem.subTopics && elem.subTopics.length>0 && ret===false)
-        ret = this.topicOrIndicatorInFavRecursive(elem.subTopics);
-
-      if(elem.indicatorData && elem.indicatorData.length>0 && ret===false)
-        ret = this.topicOrIndicatorInFavRecursive(elem.indicatorData);
+        ret = this.matchInFavRecursive(elem.subTopics);
     });
 
     return ret;
@@ -1120,8 +1132,12 @@ export class KommonitorDataSetupComponent implements OnInit {
     return this.indicatorTopicFavItems.includes(topicId);
   }
 
-  indicatorFavSelected(topicId) {
-    return this.indicatorFavItems.includes(topicId);
+  indicatorFavSelected(indicatorId) {
+    return this.indicatorFavItems.includes(indicatorId);
+  }
+
+  wmsFavSelected(wmsId) {
+    return this.wmsFavItems.includes(wmsId);
   }
 
   headlineIndicatorFavSelected(topicId) {
@@ -1250,6 +1266,15 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.onHandleFavSelection(favTab);
   }
 
+  onWmsFavClick(id, favTab = false) {
+    if(!this.wmsFavItems.includes(id))
+      this.wmsFavItems.push(id);
+    else
+      this.wmsFavItems = this.wmsFavItems.filter(e => e!=id);
+
+    this.onHandleFavSelection(favTab);
+  }
+
   onHeadlineIndicatorFavClick(id) {
     if(!this.indicatorFavItems.includes(id)) {
       this.indicatorFavItems.push(id);
@@ -1276,13 +1301,15 @@ export class KommonitorDataSetupComponent implements OnInit {
     if(favTab===false) {
       this.FavTabIndicatorTopicFavItems = this.indicatorTopicFavItems;
       this.FavTabIndicatorFavItems = this.indicatorFavItems;
+      this.FavTabWmsFavItems = this.wmsFavItems;
     }
 
     this.handleToastStatus(1);
 
     this.favService.handleFavSelection({
       indicatorTopicFavourites: this.indicatorTopicFavItems,
-      indicatorFavourites: this.indicatorFavItems
+      indicatorFavourites: this.indicatorFavItems,
+      webServiceFavourites: this.wmsFavItems
     });
 
     this.addClickListenerToEachCollapseTrigger();

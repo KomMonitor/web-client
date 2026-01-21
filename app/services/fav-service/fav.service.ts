@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
+import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,14 @@ export class FavService {
     private http: HttpClient
   ) {}
 
-  bodyTemplate = {
-    "georesourceFavourites": [],
-    "indicatorFavourites": [],
-    "georesourceTopicFavourites": [],
-    "indicatorTopicFavourites": []
+  bodyTemplate: UserFavourites = {
+    georesourceFavourites: [],
+    indicatorFavourites: [],
+    georesourceTopicFavourites: [],
+    indicatorTopicFavourites: [],
+    webServiceFavourites: []
   };
-  favObject:any = this.bodyTemplate;
+  favObject:UserFavourites = this.bodyTemplate;
 
   prepBody(favorites, fullBody = false) {
     
@@ -49,7 +51,7 @@ export class FavService {
       let url = `${this.baseUrlToKomMonitorDataAPI}/userInfos/${this.userInfoId}`;
 
       this.http.put(url, body).subscribe({
-        next: response => {
+        next: (response:any) => {
           console.log("userInfo data patched");
           this.favObject = response;
         },

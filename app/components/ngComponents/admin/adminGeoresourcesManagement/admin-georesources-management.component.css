@@ -241,7 +241,11 @@ ag-grid-angular {
 
 .addButton_dropdownWrapper {
 
-  button {
+  p {
     display: block !important;
+    font-weight: bold;
+    font-size: 12px;
+    margin:.5em;
+    cursor: pointer;
   }
 }

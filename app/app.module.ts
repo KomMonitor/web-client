@@ -85,6 +85,7 @@ import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/w
 import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
 import { AdminSidebarComponent } from './components/ngComponents/admin/adminSidebar/adminSidebar.component';
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
+import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -163,7 +164,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     WmsAddModalComponent,
     WmsEditModalComponent,
     WmsEditUserRolesModalComponent,
-    WmsDeleteModalComponent
+    WmsDeleteModalComponent,
+    ActiveWmsFilter
   ],
   imports: [
     CommonModule,

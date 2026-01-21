@@ -188,6 +188,9 @@
                                                                 class="fas fa-cloud-download-alt"></i></a>
                                                           </div>
                                                         </td>
+                                                        <td>
+                                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':wmsFavSelected(wmsData.id), 'glyphicon-star-empty':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
+                                                        </td>
                                                       </tr>
                                                     </tbody>
                                                   </table>
@@ -261,6 +264,9 @@
                                                           rel='noopener noreferrer' target='_blank'><i
                                                             class="fas fa-cloud-download-alt"></i></a>
                                                       </div>
+                                                    </td>
+                                                    <td>
+                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':wmsFavSelected(wmsData.id), 'glyphicon-star-empty':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
                                                     </td>
                                                   </tr>
                                                 </tbody>
@@ -337,6 +343,9 @@
                                                       rel='noopener noreferrer' target='_blank'><i
                                                         class="fas fa-cloud-download-alt"></i></a>
                                                   </div>
+                                                </td>
+                                                <td>
+                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':wmsFavSelected(wmsData.id), 'glyphicon-star-empty':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
                                                 </td>
                                               </tr>
                                             </tbody>
@@ -418,6 +427,9 @@
                                                   rel='noopener noreferrer' target='_blank'><i
                                                     class="fas fa-cloud-download-alt"></i></a>
                                               </div>
+                                            </td>
+                                            <td>
+                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':wmsFavSelected(wmsData.id), 'glyphicon-star-empty':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
                                             </td>
                                           </tr>
                                         </tbody>
@@ -505,7 +517,7 @@
 													<div class="list-group list-group-root well" style="text-align: left">
 
                             <ng-template #FavsRecursive let-list="list">
-                              <div *ngFor="let topic of list | indicatorFavFilter:indicatorFavItems"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
+                              <div *ngFor="let topic of list | indicatorFavFilter"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
                                 <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" [ngClass]="checkHierarchyIndicatorSelected(topic) ? 'style-fav-selected-indicator-' + topic.level : 'style-fav-normal-indicator-' + topic.level">
                                   <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
                                     class="indicatorFavCollapseTrigger">
@@ -571,6 +583,9 @@
                                                 rel='noopener noreferrer' target='_blank'><i
                                                   class="fas fa-cloud-download-alt"></i></a>
                                             </div>
+                                          </td>
+                                          <td>
+                                            <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':wmsFavSelected(wmsData.id), 'glyphicon-star-empty':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
                                           </td>
                                         </tr>
                                       </tbody>

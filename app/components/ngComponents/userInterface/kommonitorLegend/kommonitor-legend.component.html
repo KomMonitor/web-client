@@ -472,31 +472,19 @@
                 <table class="table table-condensed " style="margin-bottom:0px;">
                   <thead>
                     <tr>
-                    <th>Datensatz</th>
-                    <th>Layer Transparenz</th>
-                    <th>Legende</th>
+                      <th>Datensatz</th>
+                      <th>Legende</th>
                     </tr>
                   </thead>
 
                   <tbody>
 
                     <!--  | filter:{isSelected:'true'} -->
-                    <tr *ngFor="let dataset of dataExchangeService.availableWmsDatasets">										
+                    <tr *ngFor="let dataset of dataExchangeService.availableWmsDatasets | activeWmsFilter">										
                       <td>
                         <label [innerHTML]="dataset.title">
                         </label>
                       </td>
-                      <td>
-                        <div class="form-group" align="center">
-
-                          <input class="input-sm" [(value)]="dataset.transparency" (change)="adjustOpacityForWmsLayer(dataset, 1 - dataset.transparency)" type="range"  min="0" max="1" step="0.01">
-
-                          <br/>
-
-                          <label>{{dataset.transparency}}</label>
-                        </div>
-                      </td>
-                      
                       <td class="text-center">
                         <img [src]="ogcService.buildLegendUrl(dataset.connectionDetails.baseUrl,dataset.connectionDetails.layerName)">
                       </td>
