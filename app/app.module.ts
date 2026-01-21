@@ -87,6 +87,16 @@ import { AdminSidebarComponent } from './components/ngComponents/admin/adminSide
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 
+import {
+	NgbAccordionButton,
+	NgbAccordionDirective,
+	NgbAccordionItem,
+	NgbAccordionHeader,
+	NgbAccordionToggle,
+	NgbAccordionBody,
+	NgbAccordionCollapse,
+} from '@ng-bootstrap/ng-bootstrap';
+
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -191,7 +201,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     PipesModule,
     DragDropModule,
     NgbDropdownModule,
-    SmallBoxComponent,
+    NgbAccordionButton,
+    NgbAccordionDirective,
+    NgbAccordionItem,
+    NgbAccordionHeader,
+    NgbAccordionToggle,
+    NgbAccordionBody,
+    NgbAccordionCollapse,
   ],
   providers: [
     StartupService,

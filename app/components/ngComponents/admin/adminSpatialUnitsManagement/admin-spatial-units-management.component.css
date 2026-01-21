@@ -167,13 +167,6 @@ input:checked + .switchslider:before {
   cursor: not-allowed;
 }
 
-/* Content header styles */
-.content-header {
-  padding: 15px 0;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #ddd;
-}
-
 .content-header h1 {
   margin: 0;
   font-size: 24px;

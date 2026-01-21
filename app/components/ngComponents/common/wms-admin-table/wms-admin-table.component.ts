@@ -8,7 +8,6 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
 import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component';
-import { setDefaultAutoSelectFamily } from 'net';
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
@@ -27,8 +26,6 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   public wmsGridOptions: any = {};
   
   private subscriptions: Subscription[] = [];
-  
-  isIndicatorWmsOverviewCollapse:boolean = false;
 
   ogcDataGridHelperService;
 
@@ -58,7 +55,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
 
     this.subscriptions.push(broadcastSub);
 
-    // listen to addOpen calls from indicator/georesources overview components
+    // listen to addOpen calls from indicator/georesources overview components (+ erstellen - buttons)
     this.wmsSharedComponentsService.onOpenAddModal().subscribe((resourceType:WmsResourceType) => {
       this.openAddModal(resourceType);
     })

@@ -3807,3 +3807,57 @@ input:checked + .switchsliderOrange {
   font-size: 13px;
   font-weight: 500;
 }
+
+/* ngb accordion custom styles */
+.accordion {
+  .accordion-item {
+    background: #fff;
+    border: 1px solid #d2d6de;
+    border-top-width: 3px;
+    border-top-color: var(--kommonitor-primary);
+    border-radius: 3px;
+    margin-bottom: 20px;
+
+    &.green {
+      border-top-color: #00a65a;
+    }
+
+    &.red {
+      border-top-color: #d73925;;
+    }
+
+    .accordion-header {
+      margin: 0;
+      font-size: inherit;
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+
+      button {
+        border: none;
+        background: none;
+        font-size: 18px;
+        font-weight: 600;
+        color: #444;
+        padding: 0;
+        width: 100%;
+        display: inline-flex;
+      }
+
+      .accordion-button::after {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        content: "\f068"; 
+        margin-left: auto;
+        font-size: .8em;
+      }
+
+      .accordion-button.collapsed::after {
+        content: "\f067"; 
+      }
+    }
+
+    .accordion-body {
+      padding: 10px;
+    }
+  }
+}

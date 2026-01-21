@@ -37,58 +37,43 @@
 
   <!-- Main content -->
   <section class="content container-fluid">
-    <!--------------------------
-      | Your Page Content Here |
-      -------------------------->
-
-    <div class="row">
-      <div class="col-md-12">
-        <!--------------------------------
-                  Spatial Units MANAGEMENT Area
-        -------------------------->
-
-        <div class="box box-primary">
-          <div class="box-header">
-            <h3 class="box-title">Raumebenen</h3>
+    
+    <div ngbAccordion>
+      <!-- POIs -->
+      <div ngbAccordionItem>
+        <h2 ngbAccordionHeader>
+          <button ngbAccordionButton>Raumebenen</button>
+        </h2>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ag-grid-angular
+              #spatialUnitOverviewTable
+              id="spatialUnitOverviewTable"
+              style="height: 70vh;"
+              class="ag-theme-alpine"
+              [columnDefs]="columnDefs"
+              [rowData]="rowData"
+              [defaultColDef]="defaultColDef"
+              [gridOptions]="gridOptions"
+              [pagination]="true"
+              [paginationPageSize]="paginationPageSize"
+              [paginationPageSizeSelector]="paginationPageSizeSelector"
+              [rowSelection]="'multiple'"
+              [suppressRowClickSelection]="true"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressColumnVirtualisation]="true"
+              (firstDataRendered)="onFirstDataRendered($event)"
+              (columnResized)="onColumnResized($event)"
+              (rowDataChanged)="onRowDataChanged()"
+              (modelUpdated)="onModelUpdated()"
+              (viewportChanged)="onViewportChanged()">
+            </ag-grid-angular>
           </div>
-          <!-- /.box-header -->
-          <div class="box-body">
-
-            <div class="admin-table-wrapper">
-              
-              <ag-grid-angular
-                #spatialUnitOverviewTable
-                id="spatialUnitOverviewTable"
-                style="height: 70vh;"
-                class="ag-theme-alpine"
-                [columnDefs]="columnDefs"
-                [rowData]="rowData"
-                [defaultColDef]="defaultColDef"
-                [gridOptions]="gridOptions"
-                [pagination]="true"
-                [paginationPageSize]="paginationPageSize"
-                [paginationPageSizeSelector]="paginationPageSizeSelector"
-                [rowSelection]="'multiple'"
-                [suppressRowClickSelection]="true"
-                [enableCellTextSelection]="true"
-                [ensureDomOrder]="true"
-                [suppressColumnVirtualisation]="true"
-                (firstDataRendered)="onFirstDataRendered($event)"
-                (columnResized)="onColumnResized($event)"
-                (rowDataChanged)="onRowDataChanged()"
-                (modelUpdated)="onModelUpdated()"
-                (viewportChanged)="onViewportChanged()">
-              </ag-grid-angular>
-
-            </div>
-          </div>
-          <!-- /.box-body -->
         </div>
-        <!-- /.box -->
-
       </div>
     </div>
-
+    
   </section>
   <!-- /.content -->
 </div> 
