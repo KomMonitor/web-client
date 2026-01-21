@@ -1,14 +1,45 @@
 :host {
 
   header {
-    height: 4em !important;
+    height: 3em !important;
+    display: grid;
+    grid-template-columns: min-content auto min-content;
+    padding: 5px;
+
+    .logoWrapper {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: .5em;
+    }
+
+    .titleWrapper {
+      text-align: center;
+    }
+
+    .buttonWrapper {
+      display: grid;
+      grid-template-columns: repeat(5, auto);
+      gap: .5em;
+      margin-right: 1em;
+
+      *:not(.switch) {
+        cursor: pointer;
+      }
+
+      .switch {
+        margin-top: 3px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        white-space: nowrap;
+      }
+    }
   }
 
   #userInterface-content {
     width: 100%;
     display: grid;
     grid-template-columns: min-content auto;
-    height: 90vh;
+    height: 100vh;
 
     #mapWrapper {
       position: relative;
@@ -17,7 +48,7 @@
 
   #dateSliderWrapper {
     position: absolute;
-    bottom: 25px;
+    bottom: 65px;
     margin-right: auto;
     margin-left: auto;
     left: 100px;
@@ -47,8 +78,8 @@
       border: 2px solid rgba(0,0,0,0.2) !important;
 
 
-      .hidden {
-        display: none;
+      &.hidden {
+        display: none !important;
       }
 
       .subMenuButtonWrapper {

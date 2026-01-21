@@ -1,40 +1,40 @@
 <header id="header" class="main-header">
 
-  <div  style="position:absolute; left:40%;  padding-top: 4px;">
-
-    <h4>{{exchangeData.appTitle}}</h4>
-  </div>
-
-  <div style="padding-left: 10px; padding-top: 4px;">
-
-     <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
-     <div *ngIf="exchangeData.customLogoURL && exchangeData.customLogoWidth">
-      <a target="_blank" rel="noopener noreferrer" href="{{exchangeData.customLogo_onClickURL}}">
-        <img src="{{exchangeData.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': exchangeData.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
-      </a>
-      
-     </div> 			  
-
-    <app-user-login></app-user-login>
-    <p *ngIf="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
-    <p (click)="openInfoModal()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
-    
-    <!-- <app-language-switcher></app-language-switcher> -->
-    <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
-    <a style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
-    		
-    <div id="switchAdvancedMode" *ngIf="visibilityHelperService.showAdvancedModeSwitch" 
-    style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
-      <strong>Erweiterte Ansicht</strong> &nbsp;
-      <label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 
-        ng-checked="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode"
-        ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label>
+    <div class="logoWrapper">
+      <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
+      <div *ngIf="exchangeData.customLogoURL && exchangeData.customLogoWidth">
+        <a target="_blank" rel="noopener noreferrer" href="{{exchangeData.customLogo_onClickURL}}">
+          <img src="{{exchangeData.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': exchangeData.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
+        </a>
+      </div> 			  
     </div>
-    <p style="clear: both;"></p>
 
+    <!-- <app-language-switcher></app-language-switcher> -->
+
+    <div class="titleWrapper">
+      <h4>{{exchangeData.appTitle}}</h4>
+    </div>
+
+    <div class="buttonWrapper">
+      <div id="switchAdvancedMode" class="switch" *ngIf="visibilityHelperService.showAdvancedModeSwitch" style="width:200px">
+        <strong>Erweiterte Ansicht</strong>
+        <label class="switch">
+          <input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty"
+              ng-change="onChangeUseTimeseriesAsProperty()">
+          <span class="switchslider round"></span>
+        </label>
+        <!-- <label class="switch" title="Ein- / Ausblenden von UI Elementen">
+          <input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 
+            ng-checked="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode"
+            ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label> -->
+      </div>
+      <p title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></p>
+      <p *ngIf="showAdminLogin" (click)="openAdminUI()" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
+      <p (click)="openInfoModal()" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
+      <app-user-login></app-user-login>
+    </div>
     
-
-  </div>
+    <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 
 </header>
 <div id="userInterface-content">

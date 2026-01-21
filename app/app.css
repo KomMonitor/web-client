@@ -2459,6 +2459,8 @@ transition: opacity 0.3s;
   border-radius: 2.5vh !important;
 	left: 10px;
 	z-index: 1003;
+  background-color: var(--kommonitor-primary) !important;
+  color: #fff !important;
 }
 
 .btn-circle img {
@@ -2502,9 +2504,9 @@ transition: opacity 0.3s;
 	height: 5vh;
   text-decoration: none;
   font-size: 14px;
-  color: white;
+  color: #000 !important;
   border-radius: 0 3vh 2.5vh 0 !important;
-	background-color: rgb(236,240,245);
+	background-color: rgb(236,240,245) !important;
 	z-index: 1003;
   border: 0 !important;
 }
