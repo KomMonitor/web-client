@@ -58,7 +58,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
 
     this.subscriptions.push(broadcastSub);
 
-    // listen to addOpen calls from indicator/georesources overview components
+    // listen to addOpen calls from indicator/georesources overview components (+ erstellen - buttons)
     this.wmsSharedComponentsService.onOpenAddModal().subscribe((resourceType:WmsResourceType) => {
       this.openAddModal(resourceType);
     })

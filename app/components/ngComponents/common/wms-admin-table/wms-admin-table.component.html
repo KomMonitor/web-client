@@ -1,46 +1,37 @@
-<div class="box box-primary collapsed-box">
-  <div class="box-header">
-    <h3 class="box-title">WMS</h3>
 
-    <div class="box-tools pull-right">
-      <button type="button" (click)="indicatorWmsOverviewCollapse.toggle()" class="btn btn-box-tool" data-widget="collapse">
-        <i class="fa" [ngClass]="{'fa-plus':isIndicatorWmsOverviewCollapse, 'fa-minus':!isIndicatorWmsOverviewCollapse}"></i>
-      </button>
-    </div>
-  </div>
 
-  <!-- /.box-header -->
-  <div class="box-body" #indicatorWmsOverviewCollapse="ngbCollapse" [(ngbCollapse)]="isIndicatorWmsOverviewCollapse">
-
-    <div class="admin-table-wrapper">
-
-      <ag-grid-angular 
-        #wmsGrid
-        class="ag-theme-alpine" 
-        style="height: 70vh; width: 100%;"
-        [rowData]="[]"
-        [columnDefs]="[]"
-        [gridOptions]="wmsGridOptions"
-        [defaultColDef]="{
-          editable: false,
-          sortable: true,
-          filter: true,
-          floatingFilter: true,
-          resizable: true,
-          wrapText: true,
-          autoHeight: true
-        }"
-        [suppressRowClickSelection]="true"
-        [rowSelection]="'multiple'"
-        [pagination]="true"
-        [paginationPageSize]="10"
-        [enableCellTextSelection]="true"
-        [ensureDomOrder]="true"
-        [suppressColumnVirtualisation]="true">
-      </ag-grid-angular>	              
-
-    </div>
-  </div>
-  <!-- /.box-body -->
+<div ngbAccordion>
+	<div ngbAccordionItem [collapsed]="false">
+		<h2 ngbAccordionHeader>
+			<button ngbAccordionButton>WMS</button>
+		</h2>
+		<div ngbAccordionCollapse>
+			<div ngbAccordionBody>
+        <ag-grid-angular 
+          #wmsGrid
+          class="ag-theme-alpine" 
+          style="height: 70vh; width: 100%;"
+          [rowData]="[]"
+          [columnDefs]="[]"
+          [gridOptions]="wmsGridOptions"
+          [defaultColDef]="{
+            editable: false,
+            sortable: true,
+            filter: true,
+            floatingFilter: true,
+            resizable: true,
+            wrapText: true,
+            autoHeight: true
+          }"
+          [suppressRowClickSelection]="true"
+          [rowSelection]="'multiple'"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          [enableCellTextSelection]="true"
+          [ensureDomOrder]="true"
+          [suppressColumnVirtualisation]="true">
+        </ag-grid-angular>
+			</div>
+		</div>
+	</div>
 </div>
-<!-- /.box -->

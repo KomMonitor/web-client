@@ -85,6 +85,16 @@ import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/w
 import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 
+import {
+	NgbAccordionButton,
+	NgbAccordionDirective,
+	NgbAccordionItem,
+	NgbAccordionHeader,
+	NgbAccordionToggle,
+	NgbAccordionBody,
+	NgbAccordionCollapse,
+} from '@ng-bootstrap/ng-bootstrap';
+
 
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
@@ -187,7 +197,14 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmDatePickerComponent,
     PipesModule,
     DragDropModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    NgbAccordionButton,
+    NgbAccordionDirective,
+    NgbAccordionItem,
+    NgbAccordionHeader,
+    NgbAccordionToggle,
+    NgbAccordionBody,
+    NgbAccordionCollapse,
   ],
   providers: [
     StartupService,
