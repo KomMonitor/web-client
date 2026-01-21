@@ -60,9 +60,10 @@
 							<div> 
 								<!-- progressbar -->
 								<ul id="progressbar">
-									<li style="width: 33.333%;" class="active">Einleitende Hinweise</li>
-									<li style="width: 33.333%;">Metadaten des Indikators-Skripts</li>
-									<li style="width: 33.333%;">Skriptinhalt und Parametrisierung</li>
+									<li style="width: 25%;" class="active">Einleitende Hinweise</li>
+									<li style="width: 25%;">Metadaten des Indikators-Skripts</li>
+									<li style="width: 25%;">Skriptinhalt und Parametrisierung</li>
+									<li style="width: 25%;">Zielzeitpunkte und Ausführungszeit</li>
 								</ul>
 							</div>							
 							<!-- fieldsets -->
@@ -107,15 +108,6 @@
 																<p><i class="glyphicon glyphicon-check scriptAddFormListItemIcon"></i></p>
 															</div>
 															<div class="scriptAddFormListText">
-																Die Skriptberechnung erfolgt nur f&uuml;r fehlende Zeitschnitte. Um eine Neuberechnung anzutriggern, kann &uuml;ber das Indikatoren-L&ouml;sch-Men&uuml; 
-																ein ganzer Zeitschnitt des Ziel-Indikators entfernt werden. <br />
-															</div>
-														</li>
-														<li class="scriptAddFormChecklistItem">
-															<div class="scriptAddFormChecklistItemWrapper">
-																<p><i class="glyphicon glyphicon-check scriptAddFormListItemIcon"></i></p>
-															</div>
-															<div class="scriptAddFormListText">
 																Eine nachtr&auml;gliche Bearbeitung der Skript-Konfiguration zur Berechnung des Ziel-Indikators ist derzeit nicht m&ouml;glich. 
 																Stattdessen muss ein vorhandenes Skript entfernt und neu angelegt werden.<br />
 															</div>
@@ -129,11 +121,7 @@
 													zuvor definierten Ziel-Indikators.
 												</li>
 											</ol>
-											<br />
-											<p>Das KomMonitor Gesamtsystem umfasst einen sogegannten <b>Processing Scheduler</b>, der anhand der
-												Skript- und Indikatoren-Metadaten automatisch die Berechnung der Ziel-Indikatoren-Zeitschnitte antriggert.
-												Die Berechnung selbst erfolgt &uuml;ber die <b>Processing Engine</b> Komponente.
-											</p>
+										
 										</div>
 									</div>
 
@@ -160,34 +148,7 @@
 								</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
-								<div class="row vertical-align">
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Skriptname*</label>
-											<input type="text" class="form-control" ng-model="datasetName"
-												placeholder="Name" required></input>
-											<div class="help-block with-errors"></div>
-											<div class="help-block">
-												<p>Name des anzulegenden Skripts.</p>
-
-											</div>
-										</div>
-									</div>
-									<div class="col-md-8 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Skript-Beschreibung*</label>
-											<textarea rows="3" type="text" class="form-control" ng-model="description"
-												placeholder="Beschreibung" required></textarea>
-
-											<div class="help-block">
-												<p>Hinweise &uuml;ber die Berechnung des Ziel-Indikators mittels des
-													Skripts</p>
-											</div>
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-
-								</div>
+								</br><hr style="border-top:1px solid #f4f4f4;"></br></br>
 
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
@@ -203,7 +164,7 @@
 											<br />
 											<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator" size="5"
 												ng-options="indicatorMetadata as indicatorMetadata.indicatorName + ' [' + indicatorMetadata.unit + ']' for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
-												class="form-control">
+												class="form-control" ng-change="onTargetIndicatorChanged()">
 												<option disabled selected value> -- Ziel-Indikator w&auml;hlen --
 												</option>
 											</select>
@@ -261,6 +222,28 @@
 									</div>
 								</div>
 
+								</br><hr style="border-top:1px solid #f4f4f4;"></br></br>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Raumeinheiten*</label>
+											<ui-select required width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_spatial_units">
+												<ui-select-match placeholder="Raumeinheiten auswählen">
+													{{$item.spatialUnitLevel}}
+												</ui-select-match>
+												<ui-select-choices repeat="spatialUnit.spatialUnitId as spatialUnit in selectableSpatialUnits | filter: $select.search">
+														{{spatialUnit.spatialUnitLevel}}
+												</ui-select-choices>
+											</ui-select>
+											<div class="help-block with-errors"></div>
+											<div class="help-block">
+												<p>Raumeinheiten, für die die Berechnung stattfinden soll</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
 								<input type="button" name="previous"
 									class="previous previous_addScript action-button-previous"
 									value="Voriger Schritt" />
@@ -272,25 +255,14 @@
 
 							<fieldset>
 								<h2 class="fs-title">Skriptinhalt und Parametrisierung</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber den Skript-Code und notwendige
+								<h3 class="fs-subtitle">Angaben &uuml;ber das Skript und notwendige
 									Skript-Parameter</h3>
 
 								<p>Die Berechnung von Indikatoren erfolgt in KomMonitor mittels eines
 									<b>Skript-basierten
 										Ansatzes</b>, f&uuml;r den Angaben &uuml;ber notwendige
 									<i>(Basis-)Indikatoren</i> und/oder
-									<i>Georessourcen</i> sowie <i>variable Skript-Parameter</i> und den <i>Skript
-										Code</i> selbst erforderlich sind.
-								</p>
-
-								<p>Der Skript Code muss dabei einem festgelegten Template folgen. Das Template steht
-									unter folgendem Link bereit: <a
-										href="./kommonitor-script-resources/kommonitor-script-template.js"
-										rel='noopener noreferrer' target='_blank'>KomMonitor Skript Template</a>.
-									<br />
-									Hinweise zur Skript-Entwicklung befinden sich im github Repository der <a
-										href="https://github.com/KomMonitor/processing-engine/tree/master/resources"
-										rel='noopener noreferrer' target='_blank'>KomMonitor Processing Engine</a>
+									<i>Georessourcen</i> sowie <i>variable Skript-Parameter</i> erforderlich sind.
 								</p>
 
 								<!-- <p>Neben einer generischen Definition bietet diese Oberfl&auml;che f&uuml;r g&auml;ngige Berechnungsf&auml;lle vereinfachte Eingabemasken.</p> -->
@@ -303,6 +275,27 @@
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>Auswahl des Skript-Typen*</label>
+											<div class="btn-group btn-group-justified"  data-toggle="buttons">
+												<label class="btn btn-primary active">
+													<input type="radio" name="options" id="focus_all" autocomplete="off" checked
+														ng-change="changeScriptTypeFilter('all')"
+														ng-model="$ctrl.focus"
+														value="all"> <i class="fas fa-globe-americas"></i> Alle
+												</label>
+												<label class="btn btn-primary">
+													<input type="radio" name="options" id="focus_indicator" autocomplete="off"
+														ng-change="changeScriptTypeFilter('indicator')"
+														ng-model="$ctrl.focus"
+														value="indicator"><i class="fas fa-sitemap"></i> Indikatoren-Skripts
+												</label>
+												<label class="btn btn-primary">
+													<input type="radio" name="options" id="focus_georesource" autocomplete="off"
+														ng-change="changeScriptTypeFilter('georesource')"
+														ng-model="$ctrl.focus"
+														value="georesource"><i class="fas fa-map-marked-alt"></i> Georessourcen-Skripts
+												</label>
+											</div>
+											<br />
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 												<input type="text" class="form-control input-sm"
@@ -310,14 +303,14 @@
 											</div>
 											<br />
 											<select ng-model="selectedScriptType" size="10"
-												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
-												class="form-control">
+												ng-options="scriptType as scriptType.title for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'title' | filter:scriptNameFilter"
+												class="form-control"
+												ng-change="onScriptTypeChanged()">
 												<option disabled selected value> -- Skript-Typ w&auml;hlen --
 												</option>
 											</select>
 											<div class="help-block">
-												<p>Die Option <b>Generische Definition</b> bedarf der manuellen
-													Definition aller Skript-Daten. Die &uuml;brigen Auswahloptionen
+												<p>Die Auswahloptionen
 													bieten vereinfachte Eingabemasken, die im Hintergrund die
 													notwendigen Skript-Daten sowie den vordefinierten Skript-Code
 													automatisch setzen.</p>
@@ -327,87 +320,317 @@
 									</div>
 								</div>
 
+								<!--
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Auswahl des Skript-Typen*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm"
+													placeholder="Stichwortfilter" ng-model="scriptNameFilter" ng-model-options="{debounce: 500, blur: 0}"> 
+											</div>
+											<br />
+											<select ng-model="selectedScript" size="10"
+												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypes | orderBy: 'displayName' | filter:scriptNameFilter"
+												ng-change="onScriptTypeChanged()"
+												class="form-control">
+												<option disabled selected value> -- Skript-Typ w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>-->
+
 								<!-- ACTUAL SCRIPT FIELDS DEPENDING ON SELECTION OF SCRIPT TYPE; AS ANGULAR MODULES -->
-								<div ng-if="selectedScriptType.apiName === 'generic'">
-									<script-generic></script-generic>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_sum'">
-									<script-sum></script-sum>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_subtract'">
-									<script-subtract></script-subtract>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_promille'">
-									<script-promille></script-promille>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_percentage'">
-									<script-percentage></script-percentage>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_share'">
-									<script-share></script-share>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_division'">
-									<script-division></script-division>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute'">
-									<script-change-absolute></script-change-absolute>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute_refDate'">
-									<script-change-absolute-ref-date></script-change-absolute-ref-date>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative_refDate'">
-									<script-change-relative-ref-date></script-change-relative-ref-date>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative'">
-									<script-change-relative></script-change-relative>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_trend'">
-									<script-trend></script-trend>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_continuity'">
-									<script-continuity></script-continuity>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_headlineIndicator'">
-									<script-headline-indicator></script-headline-indicator>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'indicator_multiplication'">
-									<script-multiplication></script-multiplication>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'georesource_pointsInPolygon'">
-									<script-points-in-polygon></script-points-in-polygon>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'georesource_statistics'">
-									<script-georesource-statistics></script-georesource-statistics>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'georesource_subsetShare'">
-									<script-georesource-subset-share></script-georesource-subset-share>
-								</div>
-
-								<div ng-if="selectedScriptType.apiName === 'lineSegmentInPolygon'">
-									<script-line-segment-in-polygon></script-line-segment-in-polygon>
-								</div>
+								<div ng-if="selectedScriptType.id">
+									<generic-script-ui></generic-script-ui>
+								</div>								
 
 								<input type="button" name="previous"
 									class="previous previous_addScript action-button-previous"
 									value="Voriger Schritt" />
 							</fieldset>
+
+
+							<fieldset>
+								<h2 class="fs-title">Zielzeitpunkte und Ausführungszeit</h2>
+								<h3 class="fs-subtitle">
+								</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div ng-show="!applicableDates || applicableDates.length == 0" class="col-md-6 col-sm-6 col-xs-12">
+										<div class="row vertical-align">
+											<div class="form-group">
+												<h3>Zielzeitpunkte</h3>
+												<div class="help-block with-errors">
+													<b style="color: red;">Es sind keine Zielzeitpunkte verfügbar.</b> </br>
+													Hinweis: Bitte wählen Sie Indikatoren, die mindestens einen gemeinsamen Zeitpunkt besitzen. </br>
+													Bei Georessourcen: Georessourcen müssen mindestens eine Gültigkeitsperiode mit einem Startdatum haben. 
+												</div>
+											</div>
+										</div>
+									</div>
+									<div ng-show="applicableDates && applicableDates.length > 0" class="col-md-6 col-sm-6 col-xs-12">
+										<div class="row vertical-align">
+											<div class="form-group">
+												<h3>Zielzeitpunkte</h3>
+												<label>Zeitpunkte, die berechnet werden sollen: </label>
+												<br />
+												<select class="form-control" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode"
+													ng-init="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode = $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions[0].apiName"
+													ng-options="targetTimeOption.apiName as targetTimeOption.displayName for targetTimeOption in $ctrl.kommonitorScriptHelperServiceInstance.targetTimeOptions"
+													ng-change="resetApplicableDates()">
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode != 'DATES'">
+											<div class="col-md-10 col-sm-12 col-xs-12">
+												<!-- <div style="text-align: left;"> -->
+												<div class="box collapsed-box" style="background: #ebf0fd;">
+													<div class="box-header">
+														<h3 class="box-title">Ausnahmen hinzufügen</h3>
+										
+														<div class="box-tools pull-right">
+															<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+															</button>
+														</div>
+													</div>
+													<!-- /.box-header -->
+													<div class="box-body">
+														<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode == 'MISSING'">
+															<div class="col-md-6 col-sm-6 col-xs-12">
+																<div class="form-group">
+																	<label>Nicht berechnen für: </label>
+																	<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.excludeDates">
+																		<ui-select-match placeholder="Daten auswählen">
+																			{{$item}}
+																		</ui-select-match>
+																		<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																				{{date}}
+																		</ui-select-choices>
+																	</ui-select>
+																	<div class="help-block with-errors"></div>
+																	<div class="help-block">
+																		<p>Zeitpunkte, die von der Berechnung ausgeschlossen werden sollen</p>
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-6 col-sm-6 col-xs-12">
+																<div class="form-group">
+																	<label>Zusätzlich berechnen für: </label>
+																	<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.includeDates">
+																		<ui-select-match placeholder="Daten auswählen">
+																			{{$item}}
+																		</ui-select-match>
+																		<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																				{{date}}
+																		</ui-select-choices>
+																	</ui-select>
+																	<div class="help-block with-errors"></div>
+																	<div class="help-block">
+																		<p>Zeitpunkte, die berechnet werden sollen, auch wenn sie bereits berechnet wurden</p>
+																	</div>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-6 col-sm-6 col-xs-12">
+															<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode == 'ALL'">
+																<div>
+																	<div class="form-group">
+																		<label for="notDates">Nicht berechnen für: </label>
+																		<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.excludeDates">
+																			<ui-select-match placeholder="Daten auswählen">
+																				{{$item}}
+																			</ui-select-match>
+																			<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																					{{date}}
+																			</ui-select-choices>
+																		</ui-select>
+																		<div class="help-block with-errors"></div>
+																		<div class="help-block">
+																			<p>Zeitpunkte, die von der Berechnung ausgeschlossen werden sollen</p>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="row vertical-align" ng-show="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.mode == 'DATES'">
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Berechnen für: </label>
+													<ui-select width="max-content" multiple ng-model="$ctrl.kommonitorScriptHelperServiceInstance.processParameters.target_time.includeDates">
+														<ui-select-match placeholder="Daten auswählen">
+															{{$item}}
+														</ui-select-match>
+														<ui-select-choices repeat="date in applicableDates | filter: $select.search">
+																{{date}}
+														</ui-select-choices>
+													</ui-select>
+													<div class="help-block with-errors"></div>
+													<div class="help-block">
+														<p>Bitte alle Zeitpunkte auswählen, die berechnet werden sollen</p>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="row vertical-align">
+											<div class="form-group">
+												<h3>Ausführungsintervall</h3>
+												<label>Wie oft soll das Skript ausgeführt werden?</label>
+												<div class="cronInputModeOptions">
+													<div class="mode-option">
+														<label>
+															<div><input type="radio" ng-model="cronInputMode" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" name="mode" value="interval" ng-change="updateCron()" checked/></div>
+															<div>Alle</div>
+															<div>
+																<input ng-model="intervalValue" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" class="form-control" type="number" id="intervalValue" min="1" max="30" />
+															</div>
+															<div>
+																<select class="form-control" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" ng-model="intervalUnit" id="intervalUnit">
+																	<option value="minute">Minuten</option>
+																	<option value="hour">Stunden</option>
+																	<option value="day">Tage</option>
+																	<option value="month" selected>Monate</option>
+																	<option value="year">Jahre</option>
+																</select>
+															</div>
+														</label>
+													</div>
+													<div class="mode-option">
+														<label>
+															<div><input type="radio" ng-model="cronInputMode" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" value="once" ng-change="updateCron()" /></div>
+															<div>Einmal</div>
+															<div>
+																<select class="form-control" ng-model="intervalUnit" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'once'" ng-change="updateCron()" id="intervalUnit">
+																	<option value="minute">in der Minute</option>
+																	<option value="hour">in der Stunde</option>
+																	<option value="day">am Tag</option>
+																	<option value="week">in der Woche</option>
+																	<option value="month" selected>im Monat</option>
+																	<option value="year">im Jahr</option>
+																</select>
+															</div>
+														</label>
+													</div>
+													<div class="mode-option">
+														<label>
+															<div><input type="radio" ng-model="cronInputMode" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" value="everyFirst" ng-change="updateCron()" /></div>
+															<div>Jeden ersten Sonntag</div>
+															<!--<div>
+																<select ng-change="updateCron()" class="form-control" ng-model="selectedDayOfWeek.number">
+																	<option value="0" selected>Sonntag</option>
+																	<option value="1">Montag</option>
+																	<option value="2">Dienstag</option>
+																	<option value="3">Mittwoch</option>
+																	<option value="4">Donnerstag</option>
+																	<option value="5">Freitag</option>
+																	<option value="6">Samstag</option>
+																</select>
+															</div>-->
+															<div>
+																<select ng-change="updateCron()" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'everyFirst'" class="form-control" ng-model="everyFirstInUnit" id="everyFirstInUnit">
+																	<option value="month" selected>im Monat</option>
+																	<option value="year">im Jahr</option>
+																</select>
+															</div>
+														</label>
+													</div>
+												</div>
+												<br/>
+												<label ng-show="intervalUnit != 'minute' || cronInputMode == 'everyFirst'">
+													Genauen Zeitpunkt einstellen:
+												</label>
+												<div ng-show="intervalUnit != 'minute' || cronInputMode == 'everyFirst'" id="intervalDetails">
+													<div ng-show="intervalUnit != 'minute' || cronInputMode == 'everyFirst'" class="intervalDetailsContent">
+														<div ng-show="['year'].includes(intervalUnit)  && cronInputMode != 'everyFirst'">
+															<label>Monat:</label>
+															<select ng-change="updateCron()" class="form-control" ng-model="selectedMonth" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in monthOptions"></select>
+														</div>
+														<div ng-show="['month', 'year'].includes(intervalUnit) && cronInputMode != 'everyFirst'">
+															<label>Tag:</label>
+															<select ng-change="updateCron()" class="form-control" ng-model="selectedDayOfMonth" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in dayOfMonthOptions"></select>
+														</div>
+														<div ng-show="['week'].includes(intervalUnit)">
+															<label>Wochentag:</label>
+															<select ng-change="updateCron()" class="form-control" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-model="selectedDayOfWeek.number" ng-options="day.number as day.name for day in dayOfWeekOptions">
+															</select>
+														</div>
+														<div ng-show="['day', 'week', 'month', 'year'].includes(intervalUnit) || cronInputMode == 'everyFirst'">
+															<label>Stunde:</label>
+															<select ng-change="updateCron()" class="form-control" ng-model="selectedHour" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in hourOptions"></select>
+														</div>
+														<div ng-show="['hour', 'day', 'week', 'month', 'year'].includes(intervalUnit) || cronInputMode == 'everyFirst'">
+															<label>Minute:</label>
+															<select ng-change="updateCron()" class="form-control" ng-model="selectedMinute" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-options="n as (n < 10 ? '0' + n : n) for n in minuteOptions"></select>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="row vertical-align">
+											<div class="col-md-10 col-sm-12 col-xs-12">
+												<div class="box collapsed-box" style="background: #ebf0fd;">
+													<div class="box-header">
+														<h3 class="box-title">Manuelle Eingabe durch Cron-Pattern</h3>
+										
+														<div class="box-tools pull-right">
+															<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+															</button>
+														</div>
+													</div>
+													<!-- /.box-header -->
+													<div class="box-body">
+														<div class="form-group">
+															Alternativ kann das Ausführungsintervall durch einen Cron-Ausdruck angegeben werden.
+															Hilfestellungen dazu finden Sie unter <a href="https://crontab.guru/" target="_blank">https://crontab.guru/</a>.
+														</div>
+														<div class="form-group">
+															<label class="switch">
+																<input type="checkbox" value="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" ng-change="updateCron()">
+																<span class="switchslider round"></span>
+															</label>
+															<label>Manuelles Cron-Pattern nutzen</label>
+														</div>
+														<div>
+															<input ng-disabled="!$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" type="text" class="form-control" 
+																ng-model="manualCron"
+																ng-change="updateCron()"
+																ng-pattern="cronRegexPattern"
+																placeholder="z.B. 0 0 1 */3 *" required></input>
+														</div>
+														<div class="help-block with-errors" ng-show="!$ctrl.kommonitorScriptHelperServiceInstance.processParameters.execution_interval.cron">
+															Ungültiger Cron-Ausdruck
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<input type="button" name="previous"
+									class="previous previous_addScript action-button-previous"
+									value="Voriger Schritt" />
+
+								<input type="button" name="next" class="next next_addScript action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
 						</form>
 					</div>
 				</div>
@@ -417,7 +640,8 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!datasetName || !description || !$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator || !$ctrl.kommonitorScriptHelperServiceInstance.scriptCode_readableString || (($ctrl.kommonitorScriptHelperServiceInstance.requiredIndicators_tmp.length == 0) && ($ctrl.kommonitorScriptHelperServiceInstance.requiredGeoresources_tmp.length == 0))" ng-click="addScript()">Skript
+					ng-disabled="getAddScriptBtnDisabledStatus()"
+					ng-click="addScript()">Skript
 					registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetScriptAddForm()">Zur&uuml;cksetzen</button>
 			</div>

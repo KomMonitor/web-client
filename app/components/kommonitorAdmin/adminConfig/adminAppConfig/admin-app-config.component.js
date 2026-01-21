@@ -17,7 +17,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 		$scope.keywordsInConfig = ["window.__env", "window.__env.appTitle", "window.__env.enableKeycloakSecurity", "window.__env.encryption", 
 			"window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME", 
 			"window.__env.VALID_START_DATE_PROPERTY_NAME", "window.__env.VALID_END_DATE_PROPERTY_NAME", "window.__env.indicatorDatePrefix",
-			"window.__env.apiUrl", "window.__env.targetUrlToProcessingEngine", "window.__env.targetUrlToReachabilityService_ORS",
+			"window.__env.apiUrl", "window.__env.targetUrlToProcessesApi", "window.__env.targetUrlToReachabilityService_ORS",
 			"window.__env.targetUrlToImporterService", "window.__env.simplifyGeometriesParameterName", "window.__env.simplifyGeometriesOptions", 
 			"window.__env.simplifyGeometries", "window.__env.numberOfDecimals", "window.__env.initialLatitude", "window.__env.initialLongitude",
 			"window.__env.initialZoomLevel", "window.__env.minZoomLevel", "window.__env.maxZoomLevel", "window.__env.baseLayers", "window.__env.initialIndicatorId",

@@ -1,5 +1,12 @@
 <div id="adminJobContent">
 	<!-- Content Header (Page header) -->
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+			<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
 	<section class="content-header">
 		<h1>
 			Indikatoren-Berechnung
@@ -32,12 +39,12 @@
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
-		<div class="box box-primary collapsed-box">
+		<div class="box box-primary">
 			<div class="box-header">
 				<h3 class="box-title">&Uuml;bersicht Berechnungs-Jobs zur Indikatoren-Zeitreihen-fortf&uuml;hrung</h3>
 
 				<div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 					</button>
 				</div>
 			</div>
@@ -50,27 +57,10 @@
 						<!-- small box -->
 						<div class="small-box bg-primary">
 							<div class="inner">
-								<h3>{{defaultComputationJobHealth.queueStatus}}</h3>
+								<p>Anzahl Jobs (maximal letzte 50):</p>
+								<h3>{{jobDescriptions.length}}</h3>
 				
-								<p>Status der Job-Ausf&uuml;hrung</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-primary">
-							<div class="inner">
-								<h3>{{defaultComputationJobHealth.newestJobId}}</h3>
-				
-								<p>neueste Job-Id</p>
+								
 							</div>
 							<div class="icon">
 								<i class="fas fa-file-code"></i>
@@ -84,9 +74,9 @@
 					<div class="col-md-3 col-sm-6 col-xs-12">
 				
 						<!-- small box -->
-						<div class="small-box bg-green">
+						<div class="small-box bg-green" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('successful')">
 							<div class="inner">
-								<h3>{{defaultComputationJobHealth.succeededJobs}}</h3>
+								<h3>{{getNumberForStatus('successful')}}</h3>
 				
 								<p>abgeschlossene Jobs</p>
 							</div>
@@ -101,9 +91,9 @@
 					<div class="col-md-3 col-sm-6 col-xs-12">
 				
 						<!-- small box -->
-						<div class="small-box bg-red">
+						<div class="small-box bg-red" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('failed')">
 							<div class="inner">
-								<h3>{{defaultComputationJobHealth.failedJobs}}</h3>
+								<h3>{{getNumberForStatus('failed')}}</h3>
 				
 								<p>gescheiterte Jobs</p>
 							</div>
@@ -123,9 +113,9 @@
 					<div class="col-md-3 col-sm-6 col-xs-12">
 				
 						<!-- small box -->
-						<div class="small-box bg-aqua">
+						<div class="small-box bg-aqua" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('running')">
 							<div class="inner">
-								<h3>{{defaultComputationJobHealth.activeJobs}}</h3>
+								<h3>{{getNumberForStatus('running')}}</h3>
 				
 								<p>laufende Jobs</p>
 							</div>
@@ -140,9 +130,9 @@
 					<div class="col-md-3 col-sm-6 col-xs-12">
 				
 						<!-- small box -->
-						<div class="small-box bg-orange">
+						<div class="small-box bg-orange" style="cursor: pointer" data-toggle="modal" data-target="#modal-job-table" ng-click="onJobStatusClicked('accepted')">
 							<div class="inner">
-								<h3>{{defaultComputationJobHealth.waitingJobs}}</h3>
+								<h3>{{getNumberForStatus('accepted')}}</h3>
 				
 								<p>wartende Jobs</p>
 							</div>
@@ -155,189 +145,10 @@
 					</div>
 					<!-- ./col -->
 
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-gray">
-							<div class="inner">
-								<h3>{{defaultComputationJobHealth.delayedJobs}}</h3>
-				
-								<p>wartende Jobs</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
 
 				</div>
 				<!-- ./row -->
 
-				<br/>
-
-				<div class="admin-table-wrapper">
-
-					<table id="jobExecutionTable_defaultComputation" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
-
-				</div>
-			</div>
-			<!-- /.box-body -->
-		</div>
-		<!-- /.box -->
-
-		<div class="box box-primary collapsed-box">
-			<div class="box-header">
-				<h3 class="box-title">&Uuml;bersicht Berechnungs-Jobs zur individuell-parametrisierten Indikatoren-Berechnung</h3>
-
-				<div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-					</button>
-				</div>
-			</div>
-			<!-- /.box-header -->
-			<div class="box-body">
-
-				<div class="row vertical-align">
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-primary">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.queueStatus}}</h3>
-				
-								<p>Status der Job-Ausf&uuml;hrung</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-primary">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.newestJobId}}</h3>
-				
-								<p>neueste Job-Id</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-					
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-green">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.succeededJobs}}</h3>
-				
-								<p>abgeschlossene Jobs</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-red">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.failedJobs}}</h3>
-				
-								<p>gescheiterte Jobs</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-
-				</div>
-				<!-- ./row -->
-
-				<div class="row vertical-align">
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-aqua">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.activeJobs}}</h3>
-				
-								<p>laufende Jobs</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-orange">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.waitingJobs}}</h3>
-				
-								<p>wartende Jobs</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-
-					<div class="col-md-3 col-sm-6 col-xs-12">
-				
-						<!-- small box -->
-						<div class="small-box bg-gray">
-							<div class="inner">
-								<h3>{{customizedComputationJobHealth.delayedJobs}}</h3>
-				
-								<p>wartende Jobs</p>
-							</div>
-							<div class="icon">
-								<i class="fas fa-file-code"></i>
-							</div>
-							<a class="small-box-footer"></a>
-						</div>
-				
-					</div>
-					<!-- ./col -->
-
-				</div>
-				<!-- ./row -->
-
-
-				<div class="admin-table-wrapper">
-					
-					<table id="jobExecutionTable_customizedComputation" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
-
-				</div>
 			</div>
 			<!-- /.box-body -->
 		</div>

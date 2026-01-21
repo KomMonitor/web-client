@@ -11,7 +11,7 @@ angular
 						// initialize any adminLTE box widgets
 						$('.box').boxWidget();
 
-						const targetURL = __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation";
+						const targetURL = __env.targetUrlToProcessesApi + "processes";
 
 						$scope.loadingData = false;
 
@@ -408,7 +408,7 @@ angular
 
 						$scope.appendDatesFromBaseIndicators = function(dates){
 
-							for (const baseIndicatorId of $scope.targetScriptMetadata.requiredIndicatorIds){
+							for (const baseIndicatorId of $scope.targetScriptMetadata.inputs.computation_ids){
 								var baseIndicator = $scope.fetchBaseIndicatorMetadata(baseIndicatorId);
 								for (const date of baseIndicator.applicableDates){
 									if(!dates.includes(date))
@@ -551,7 +551,7 @@ angular
 
 							// {
 							//   "targetSpatialUnitId": "targetSpatialUnitId",
-							//   "scriptId": "scriptId",
+							//   "scheduleId": "scheduleId",
 							//   "customProcessProperties": [
 							//     {
 							//       "dataType": "string",
@@ -577,10 +577,10 @@ angular
 
 							var processingInput = {};
 							processingInput.targetSpatialUnitId = $scope.targetSpatialUnit.spatialUnitId;
-							processingInput.scriptId = $scope.targetScriptMetadata.scriptId;
+							processingInput.scheduleID = $scope.targetScriptMetadata.scheduleID;
 							processingInput.targetDate = $scope.targetDate;
 							processingInput.georesourceIds = $scope.targetScriptMetadata.requiredGeoresourceIds;
-							processingInput.baseIndicatorIds = $scope.targetScriptMetadata.requiredIndicatorIds;
+							processingInput.baseIndicatorIds = $scope.targetScriptMetadata.inputs.computation_ids;
 							processingInput.customProcessProperties = new Array();
 
 							$scope.targetScriptMetadata.variableProcessParameters.forEach(function(processParam){

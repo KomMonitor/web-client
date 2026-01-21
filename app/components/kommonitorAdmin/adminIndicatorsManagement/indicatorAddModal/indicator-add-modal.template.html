@@ -333,21 +333,7 @@
 									</div>
 									
 									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div ng-show="enableLowestSpatialUnitSelect" class="form-group">
-											<label>Niedrigste Raumebene f&uuml;r automatisierte Berechnung</label>
-											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
-												ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"																							
-												class="form-control">
-												<option disabled selected value> -- Raumebene w&auml;hlen --
-												</option>
-											</select>
-
-											<div class="help-block">
-												<p>Angabe der niedrigsten Raumebene, f&uuml;r die der automatisiert berechenbare Indikator berechnet werden kann. 
-													Indikatorenwerte f&uuml;r h&ouml;here Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
-											</div>	
-											<div class="help-block with-errors"></div>
-										</div>
+										
 									</div>
 								</div>
 

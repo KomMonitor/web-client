@@ -432,7 +432,7 @@ angular
 						this.availableProcessScripts = scriptsArray;
             this.availableProcessScripts_map = new Map();
             for (const scriptMetadata of scriptsArray) {
-              this.availableProcessScripts_map.set(scriptMetadata.scriptId, scriptMetadata);
+              this.availableProcessScripts_map.set(scriptMetadata.scheduleID, scriptMetadata);
             }
           };
 
@@ -440,33 +440,33 @@ angular
             let tmpArray = [processScriptMetadata];
             Array.prototype.push.apply(tmpArray, this.availableProcessScripts);
             this.availableProcessScripts =  tmpArray;
-            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
+            this.availableProcessScripts_map.set(processScriptMetadata.scheduleID, processScriptMetadata);
           };
 
           this.replaceSingleProcessScriptMetadata = function(processScriptMetadata){
             for (let index = 0; index < this.availableProcessScripts.length; index++) {
               let processScript = this.availableProcessScripts[index];
-              if(processScript.scriptId == processScriptMetadata.scriptId){
+              if(processScript.scheduleID == processScriptMetadata.scheduleID){
                 this.availableProcessScripts[index] = processScriptMetadata;
                 break;
               }
             }
-            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
+            this.availableProcessScripts_map.set(processScriptMetadata.scheduleID, processScriptMetadata);
           };
 
-          this.deleteSingleProcessScriptMetadata = function(processScriptId){
+          this.deleteSingleProcessScriptMetadata = function(processScheduleId){
             for (let index = 0; index < this.availableProcessScripts.length; index++) {
               const processScript = this.availableProcessScripts[index];
-              if(processScript.scriptId == processScriptId){
+              if(processScript.scheduleID == processScheduleId){
                 this.availableProcessScripts.splice(index, 1);
                 break;
               }              
             }
-            this.availableProcessScripts_map.delete(processScriptId);
+            this.availableProcessScripts_map.delete(processScheduleId);
           };
 
-          this.getProcessScriptMetadataById = function(scriptId){
-            return this.availableProcessScripts_map.get(scriptId);
+          this.getProcessScriptMetadataById = function(scheduleId){
+            return this.availableProcessScripts_map.get(scheduleId);
           };
 
 
@@ -1154,7 +1154,7 @@ angular
             }
 
             //TODO revise metadata fecthing for protected endpoints        
-            var scriptsPromise = await this.fetchIndicatorScriptsMetadata(self.currentKeycloakLoginRoles, filter);
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata();
             var topicsPromise = await this.fetchTopicsMetadata(self.currentKeycloakLoginRoles, filter);
             var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles, filter);
             var georesourcesPromise = await this.fetchGeoresourcesMetadata(self.currentKeycloakLoginRoles, filter);
@@ -1631,7 +1631,7 @@ angular
 
               if(headlineIndicatorScriptsMap.has(headlineIndicatorMetadata.indicatorId)){
                 var targetScriptMetadata = headlineIndicatorScriptsMap.get(headlineIndicatorMetadata.indicatorId);
-                for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+                for (const requiredIndicatorId of targetScriptMetadata.inputs.computation_ids) {
                   if (indicatorsMap.has(requiredIndicatorId)){
                     item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
                   }                
@@ -1685,7 +1685,7 @@ angular
 
               if(computationIndicatorScriptsMap.has(computationIndicatorMetadata.indicatorId)){
                 var targetScriptMetadata = computationIndicatorScriptsMap.get(computationIndicatorMetadata.indicatorId);
-                for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+                for (const requiredIndicatorId of targetScriptMetadata.inputs.computation_ids) {
                   if (indicatorsMap.has(requiredIndicatorId)){
                     item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
                   }                
@@ -1912,8 +1912,78 @@ angular
             self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
           };
 
-          this.fetchIndicatorScriptsMetadata = async function(keycloakRolesArray){
-            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
+          this.fetchProcessScriptSchedules = async function(){
+            // July 2025: processes API required auth to query schedules and other resources
+            // KomMonitor, however, starts without login. Hence return empty array on auth error
+            return await $http({
+              url: __env.targetUrlToProcessesApi + "schedules",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                // remove any tmp jobIDs
+                for (const schedule of response.data.schedules) {
+                  schedule.jobIDs = schedule.jobIDs.filter(function(item){
+                  if (item.length < 34){
+                    // then it is not a UUID needed by KomMonitor
+                    return false;
+                  }
+                  return true;
+                });
+                }                
+      
+                return response.data.schedules;
+      
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;                
+                return [];
+            });
+          }
+
+          this.fetchSingleProcessScriptSchedule = async function(scheduleId){
+            // July 2025: processes API required auth to query schedules and other resources
+            // KomMonitor, however, starts without login. Hence return empty array on auth error
+            return await $http({
+              url: __env.targetUrlToProcessesApi + "schedules/" + scheduleId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                // filter out any jobs that have a short-termed prefect internal id
+                let scriptMetadata = response.data.schedules[0];
+                scriptMetadata.jobIDs = scriptMetadata.jobIDs.filter(function(item){
+                  if (item.length < 34){
+                    // then it is not a UUID needed by KomMonitor
+                    return false;
+                  }
+                  return true;
+                });
+      
+                return scriptMetadata;
+      
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;                
+                return [];
+            });
+          }
+
+          this.fetchIndicatorScriptsMetadata = async function(){
+
+            self.setProcessScripts(await self.fetchProcessScriptSchedules());
+          };
+
+          this.fetchSingleIndicatorScriptMetadata = async function(scheduleId){
+
+            let scriptMetadata = await self.fetchSingleProcessScriptSchedule(scheduleId);
+            self.replaceSingleProcessScriptMetadata(scriptMetadata);
+
+            return scriptMetadata;
           };
 
 					this.indicatorValueIsNoData = function(indicatorValue){

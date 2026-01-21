@@ -81,6 +81,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'codemirror/', to: 'codemirror/' },
             { from: nodeModulePathConstant + 'jshint/dist', to: 'jshint/' },
             { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' },
+            { from: nodeModulePathConstant + 'dompurify/dist/purify.min.js', to: 'dompurify/' },
             { from: nodeModulePathConstant + 'mathjax/es5/tex-chtml.js', to: 'mathjax/' },
             { from: nodeModulePathConstant + 'mathjax/es5/output/', to: 'mathjax/output/' },    
             { from: nodeModulePathConstant + 'code-prettify/loader/run_prettify.js', to: 'code-prettify/' }, 
@@ -99,6 +100,8 @@ module.exports = {
             { from: nodeModulePathConstant + 'pptxgenjs/dist', to: 'pptxgenjs/' },
             { from: nodeModulePathConstant + 'd3/dist/d3.min.js', to: 'd3/d3.min.js' },
             { from: nodeModulePathConstant + 'pako/dist/pako.min.js', to: 'pako/pako.min.js' },
+            { from: nodeModulePathConstant + 'cronstrue/', to: 'cronstrue/' },
+            { from: nodeModulePathConstant + 'later/later.min.js', to: 'later/later.min.js' },
             { from: './customizedExternalLibs/uuidv4_v8.3.2.min.js', to: 'uuid/' },
       ]})
     ]

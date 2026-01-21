@@ -1,0 +1,59 @@
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title">Notwendiger zeitlicher Bezug</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<!-- Inputs for new reference -->
+
+				<div class="row vertical-align">
+					<div class="col-md-2 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Anzahl</label>
+							<br />
+							<input ng-model="$parent.numberOfTemporalItems" 
+							type="number" min="{{parameterNumericMinValue_numTemporalItems}}" max="{{parameterNumericMaxValue_numTemporalItems}}" 
+							step="1" class="form-control input-sm"
+							ng-change="onChangeNumTemporalItems()" >
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-3 col-xs-12">
+						<div class="form-group">
+							<label>Art des zeitlichen Bezugs </label>
+							<br />
+							<select ng-model="$parent.temporalOption" size="5"
+								ng-options="temporalOption as temporalOption.displayName for temporalOption in $ctrl.kommonitorScriptHelperServiceInstance.temporalOptions"
+								ng-change="onChangeTemporalOption()"
+								class="form-control">
+								<option disabled selected value> -- Zeitbezug w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+
+</div>
+
+<script>
+  $('.box').boxWidget();
+</script>
