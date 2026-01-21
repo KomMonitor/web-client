@@ -1,4 +1,7 @@
 :host {
+  min-height: 100vh;
+  display: flex;
+
   .sidebar {
     width: 280px;
     background-color: #222d32;
@@ -108,10 +111,12 @@
 
       ::ng-deep .content-header {
         padding: 15px 15px 0px 15px;
+
         h1 {
           font-size: 24px;
           color: #333;
         }
+
         small {
           font-size: 15px;
           color: #777;
