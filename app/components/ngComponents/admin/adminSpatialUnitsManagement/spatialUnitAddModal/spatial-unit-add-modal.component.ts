@@ -1337,16 +1337,16 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     this.attributeMapping_attributeType = attributeMappingTypes[0];
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessagePart = '';
+    this.successMessagePart = '';
   }
 
   hideSuccessAlert() {
-    this.successMessage = '';
+    this.successMessagePart = '';
   }
 
   hideErrorAlert() {
-    this.errorMessage = '';
+    this.errorMessagePart = '';
   }
 
   hideMetadataErrorAlert() {
