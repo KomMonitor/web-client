@@ -1,5 +1,4 @@
 <div id="adminIndicatorsContent">
-
   <div align="center">
     <div class="loading-overlay-admin-panel" *ngIf="loadingData">
       <span class="glyphicon glyphicon-refresh icon-spin"></span>
@@ -18,88 +17,86 @@
         <span>Nur editierbare Datensätze anzeigen</span>
         <div>
           <label class="switch">
-            <input type="checkbox" [(ngModel)]="tableViewSwitcher" (ngModelChange)="onTableViewSwitch()">
+            <input
+              type="checkbox"
+              [(ngModel)]="tableViewSwitcher"
+              (ngModelChange)="onTableViewSwitch()"
+            />
             <span class="switchslider round"></span>
           </label>
         </div>
       </div>
       <!-- batch update indicators -->
-      <button id="button-batch-update-indicators" class="btn btn-success btn-sm" type="button" 
-              [disabled]="!checkEditorPermission()"
-              (click)="onClickBatchUpdate()">
+      <button
+        id="button-batch-update-indicators"
+        class="btn btn-success btn-sm"
+        type="button"
+        [disabled]="!checkEditorPermission()"
+        (click)="onClickBatchUpdate()"
+      >
         <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
       </button>
       <!-- add indicator -->
-     <!--  <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" 
+      <!--  <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" 
               (click)="openAddIndicatorModal()">
         <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
       </button> -->
       <div ngbDropdown class="d-inline-block">
-        <button class="btn btn-success btn-sm" ngbDropdownToggle>+ Erstellen</button>
+        <button class="btn btn-success btn-sm" ngbDropdownToggle>
+          + Erstellen
+        </button>
 
         <div ngbDropdownMenu class="addButton_dropdownWrapper">
-          <p ngbDropdownItem (click)="openAddIndicatorModal()">Indikator erstellen</p>
-          <p ngbDropdownItem (click)="wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)">WMS erstellen</p>
+          <p ngbDropdownItem (click)="openAddIndicatorModal()">
+            Indikator erstellen
+          </p>
+          <p
+            ngbDropdownItem
+            (click)="
+              wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)
+            "
+          >
+            WMS erstellen
+          </p>
         </div>
       </div>
       <!-- delete selected completely -->
-      <button class="btn btn-danger btn-sm" type="button" 
-              [disabled]="!checkDeletePermission()"
-              (click)="onClickDeleteSelected()">
+      <button
+        class="btn btn-danger btn-sm"
+        type="button"
+        [disabled]="!checkDeletePermission()"
+        (click)="onClickDeleteSelected()"
+      >
         <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
       </button>
     </div>
   </section>
 
-  <!-- Main content -->
   <section class="content container-fluid">
+    <expandable-box title="Indikatoren-Metadaten">
+      <ag-grid-angular
+        #agGrid
+        style="height: 70vh"
+        class="ag-theme-alpine"
+        [columnDefs]="columnDefs"
+        [rowData]="rowData"
+        [gridOptions]="gridOptions"
+        [defaultColDef]="gridOptions.defaultColDef"
+        [pagination]="true"
+        [paginationPageSize]="10"
+        [rowSelection]="'multiple'"
+        [suppressRowClickSelection]="true"
+        [enableCellTextSelection]="true"
+        [ensureDomOrder]="true"
+        [suppressColumnVirtualisation]="true"
+      >
+      </ag-grid-angular>
+    </expandable-box>
 
-    <div ngbAccordion>
-      <!-- POIs -->
-      <div ngbAccordionItem>
-        <h2 ngbAccordionHeader>
-          <button ngbAccordionButton>Indikatoren-Metadaten</button>
-        </h2>
-        <div ngbAccordionCollapse>
-          <div ngbAccordionBody>
-            <ag-grid-angular
-              #agGrid
-              style="height: 70vh;"
-              class="ag-theme-alpine"
-              [columnDefs]="columnDefs"
-              [rowData]="rowData"
-              [gridOptions]="gridOptions"
-              [defaultColDef]="gridOptions.defaultColDef"
-              [pagination]="true"
-              [paginationPageSize]="10"
-              [rowSelection]="'multiple'"
-              [suppressRowClickSelection]="true"
-              [enableCellTextSelection]="true"
-              [ensureDomOrder]="true"
-              [suppressColumnVirtualisation]="true">
-            </ag-grid-angular>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>
 
-    <div ngbAccordion>
-      <!-- Themenbaum -->
-      <div ngbAccordionItem>
-        <h2 ngbAccordionHeader>
-          <button ngbAccordionButton>Indikatoren-Reihenfolge in Themenkatalog</button>
-        </h2>
-        <div ngbAccordionCollapse>
-          <div ngbAccordionBody>
-           # add topic comp once ready
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <expandable-box title="Indikatoren-Reihenfolge in Themenkatalog">
+      TODO: add topic comp once ready
+    </expandable-box>
   </section>
-  <!-- /.content -->
-
-</div> 
+</div>

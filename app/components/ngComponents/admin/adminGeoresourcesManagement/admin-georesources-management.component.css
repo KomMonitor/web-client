@@ -1,8 +1,14 @@
 /* Admin Georesources Management Component Styles */
 
 /* AG Grid CSS imports */
-@import '~ag-grid-community/styles/ag-grid.css';
-@import '~ag-grid-community/styles/ag-theme-alpine.css';
+@import "~ag-grid-community/styles/ag-grid.css";
+@import "~ag-grid-community/styles/ag-theme-alpine.css";
+
+:host {
+  expandable-box {
+    margin: 15px;
+  }
+}
 
 /* Loading overlay */
 .loading-overlay-admin-panel {
@@ -69,7 +75,7 @@
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 .switchslider:before {
@@ -80,15 +86,15 @@
   left: 4px;
   bottom: 4px;
   background-color: white;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 input:checked + .switchslider {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 input:focus + .switchslider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #2196f3;
 }
 
 input:checked + .switchslider:before {
@@ -112,7 +118,9 @@ input:checked + .switchslider:before {
 .box {
   margin-bottom: 30px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 .box-header {
@@ -151,7 +159,7 @@ input:checked + .switchslider:before {
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-success {
@@ -187,16 +195,16 @@ input:checked + .switchslider:before {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .verticalAlign {
     margin-right: 0;
     margin-bottom: 10px;
   }
-  
+
   .content-header {
     padding: 10px;
   }
-  
+
   .box-body {
     padding: 15px;
   }
@@ -210,7 +218,7 @@ input:checked + .switchslider:before {
   --ag-row-hover-color: #f5f5f5;
   --ag-selected-row-background-color: #e3f2fd;
   --ag-font-size: 13px;
-  --ag-font-family: 'Source Sans Pro', sans-serif;
+  --ag-font-family: "Source Sans Pro", sans-serif;
   font-family: var(--ag-font-family);
 }
 
@@ -234,15 +242,14 @@ ag-grid-angular {
   border: 1px solid #dee2e6;
   border-radius: 4px;
   overflow: hidden;
-} 
+}
 
 .addButton_dropdownWrapper {
-
   p {
     display: block !important;
     font-weight: bold;
     font-size: 12px;
-    margin:.5em;
+    margin: 0.5em;
     cursor: pointer;
   }
 }
