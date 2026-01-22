@@ -1,26 +1,45 @@
-import { Component, Inject, OnInit, NgZone, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DOCUMENT } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
-import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
-import { SpatialUnitEditFeaturesModalComponent } from './spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component';
-import { SpatialUnitEditUserRolesModalComponent } from './spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component';
-import { SpatialUnitDeleteModalComponent } from './spatialUnitDeleteModal/spatial-unit-delete-modal.component';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { KommonitorCacheHelperService } from 'services/adminSpatialUnit/kommonitor-cache-helper.service';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridApi, ColumnApi, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import {
+  Component,
+  Inject,
+  OnInit,
+  NgZone,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { CommonModule, DOCUMENT } from "@angular/common";
+import { Subscription } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { SpatialUnitAddModalComponent } from "./spatialUnitAddModal/spatial-unit-add-modal.component";
+import { SpatialUnitEditMetadataModalComponent } from "./spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component";
+import { SpatialUnitEditFeaturesModalComponent } from "./spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component";
+import { SpatialUnitEditUserRolesModalComponent } from "./spatialUnitEditUserRolesModal/spatial-unit-edit-user-roles-modal.component";
+import { SpatialUnitDeleteModalComponent } from "./spatialUnitDeleteModal/spatial-unit-delete-modal.component";
+import { KommonitorDataExchangeService } from "services/adminSpatialUnit/kommonitor-data-exchange.service";
+import { KommonitorCacheHelperService } from "services/adminSpatialUnit/kommonitor-cache-helper.service";
+import { KommonitorDataGridHelperService } from "services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { AgGridAngular } from "ag-grid-angular";
+import {
+  ColDef,
+  GridOptions,
+  GridApi,
+  ColumnApi,
+  FirstDataRenderedEvent,
+  ColumnResizedEvent,
+} from "ag-grid-community";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { FormsModule } from "@angular/forms";
 declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'admin-spatial-units-management-new',
-  templateUrl: './admin-spatial-units-management.component.html',
-  styleUrls: ['./admin-spatial-units-management.component.css']
+  selector: "admin-spatial-units-management-new",
+  templateUrl: "./admin-spatial-units-management.component.html",
+  styleUrls: ["./admin-spatial-units-management.component.css"],
+  imports: [ExpandableBoxComponent, AgGridAngular, CommonModule, FormsModule],
+  standalone: true,
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   @ViewChild('spatialUnitOverviewTable', { static: true }) spatialUnitOverviewTable!: AgGridAngular;

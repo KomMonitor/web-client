@@ -1,4 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 
 interface AccordionItem {
   title: string;
@@ -9,8 +11,10 @@ interface AccordionItem {
 
 @Component({
   selector: "admin-role-explanation-new",
-  templateUrl: "./admin-role-explanation.template.html",
+  templateUrl: "./admin-role-explanation.component.html",
   styleUrls: ["./admin-role-explanation.component.css"],
+  imports: [ExpandableBoxComponent, CommonModule],
+  standalone: true,
 })
 export class AdminRoleExplanationComponent {
   loadingData = false;

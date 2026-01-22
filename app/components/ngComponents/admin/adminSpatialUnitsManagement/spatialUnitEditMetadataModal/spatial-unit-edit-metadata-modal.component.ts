@@ -9,6 +9,8 @@ import { ColorEvent } from 'ngx-color';
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
 import { KmLinePatternPickerComponent, LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 // Remove jQuery declaration - no longer needed
 // declare var $: any;
@@ -17,7 +19,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   selector: 'spatial-unit-edit-metadata-modal-new',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
   styleUrls: ['./spatial-unit-edit-metadata-modal.component.css'],
-  providers: []
+  providers: [],
+  imports: [FormsModule, CommonModule, KmColorPickerComponent, KmLinePatternPickerComponent],
+  standalone: true,
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;

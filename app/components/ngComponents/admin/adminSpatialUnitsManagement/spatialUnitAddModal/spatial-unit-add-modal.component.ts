@@ -1,23 +1,52 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, HostListener, Injectable } from '@angular/core';
-import { NgbActiveModal, NgbDatepicker, NgbDateParserFormatter, NgbDateStruct, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { HttpClient } from '@angular/common/http';
-import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { KommonitorDataGridHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
-import { ColorEvent } from 'ngx-color';
-import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
-import { KmLinePatternPickerComponent, LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ViewChild,
+  ElementRef,
+  HostListener,
+  Injectable,
+} from "@angular/core";
+import {
+  NgbActiveModal,
+  NgbDatepicker,
+  NgbDateParserFormatter,
+  NgbDateStruct,
+  NgbDateAdapter,
+} from "@ng-bootstrap/ng-bootstrap";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { HttpClient } from "@angular/common/http";
+import { KommonitorImporterHelperService } from "../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service";
+import { KommonitorDataGridHelperService } from "../../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { KommonitorDataExchangeService } from "../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service";
+import { AgGridAngular } from "ag-grid-angular";
+import { ColDef, GridOptions, GridApi, ColumnApi } from "ag-grid-community";
+import { ColorEvent } from "ngx-color";
+import { KmColorPickerComponent } from "../../../customElements/color-picker/km-color-picker.component";
+import {
+  KmLinePatternPickerComponent,
+  LinePatternOption,
+} from "../../../customElements/line-pattern-picker/km-line-pattern-picker.component";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { KmDatePickerComponent } from "../../../customElements/date-picker/km-date-picker.component";
 
 // Removed in favor of standalone km-date-picker component providers
 
 @Component({
-  selector: 'spatial-unit-add-modal-new',
-  templateUrl: './spatial-unit-add-modal.component.html',
-  styleUrls: ['./spatial-unit-add-modal.component.css']
+  selector: "spatial-unit-add-modal-new",
+  templateUrl: "./spatial-unit-add-modal.component.html",
+  styleUrls: ["./spatial-unit-add-modal.component.css"],
+  imports: [
+    FormsModule,
+    CommonModule,
+    KmColorPickerComponent,
+    KmLinePatternPickerComponent,
+    AgGridAngular,
+    KmDatePickerComponent,
+  ],
+  standalone: true,
 })
 export class SpatialUnitAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;

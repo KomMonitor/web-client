@@ -21,6 +21,12 @@ import {
   AdminTopicsManagementService,
   TopicOrderResponseEntry,
 } from "./admin-topics-management.service";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { TopicOrderSelectionComponent } from "./topicOrderSelection/topic-order-selection.component";
+import { TopicListComponent } from "./topicList/topicList.component";
+import { AddTopicComponent } from "./add-topic/add-topic.component";
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {
@@ -32,6 +38,15 @@ export class AdminTopicsManagementErrorHandlingService {
   templateUrl: "./admin-topics-management.component.html",
   styleUrls: ["./admin-topics-management.component.css"],
   providers: [AdminTopicsManagementErrorHandlingService],
+  imports: [
+    ExpandableBoxComponent,
+    FormsModule,
+    CommonModule,
+    TopicOrderSelectionComponent,
+    TopicListComponent,
+    AddTopicComponent,
+  ],
+  standalone: true,
 })
 export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   showTopicIds = false;

@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 declare var __env: any;
 
@@ -43,7 +45,9 @@ interface AffectedGeoresourceReference {
 @Component({
   selector: 'app-indicator-delete-modal',
   templateUrl: './indicator-delete-modal.component.html',
-  styleUrls: ['./indicator-delete-modal.component.css']
+  styleUrls: ['./indicator-delete-modal.component.css'],
+  imports: [FormsModule, CommonModule],
+  standalone: true
 })
 export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
 

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
@@ -9,11 +9,16 @@ import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommo
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import * as uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
+import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
+import { AgGridAngular } from "ag-grid-angular";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-wms-add-modal',
   templateUrl: './wms-add-modal.component.html',
-  styleUrls: ['./wms-add-modal.component.css']
+  styleUrls: ['./wms-add-modal.component.css'],
+  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, AgGridAngular, CommonModule],
+  standalone: true
 })
 export class WmsAddModalComponent implements OnInit {
   

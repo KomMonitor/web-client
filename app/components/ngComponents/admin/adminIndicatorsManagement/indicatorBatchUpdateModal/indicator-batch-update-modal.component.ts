@@ -1,10 +1,19 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  Input,
+} from "@angular/core";
+import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
+import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { KommonitorIndicatorDataExchangeService } from "services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
 
 declare const $: any;
 declare const __env: any;
@@ -29,9 +38,11 @@ interface BatchListItem {
 }
 
 @Component({
-  selector: 'indicator-batch-update-modal',
-  templateUrl: './indicator-batch-update-modal.component.html',
-  styleUrls: ['./indicator-batch-update-modal.component.css']
+  selector: "indicator-batch-update-modal",
+  templateUrl: "./indicator-batch-update-modal.component.html",
+  styleUrls: ["./indicator-batch-update-modal.component.css"],
+  imports: [FormsModule, CommonModule],
+  standalone: true,
 })
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 

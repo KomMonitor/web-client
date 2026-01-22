@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -8,11 +8,16 @@ import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicato
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
   selector: 'indicator-add-modal-new',
   templateUrl: './indicator-add-modal.component.html',
-  styleUrls: ['./indicator-add-modal.component.css']
+  styleUrls: ['./indicator-add-modal.component.css'],
+  imports: [CommonModule, FormsModule, AdminTopicsManagementComponent, NgbCollapseModule],
+  standalone: true
 })
 export class IndicatorAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;

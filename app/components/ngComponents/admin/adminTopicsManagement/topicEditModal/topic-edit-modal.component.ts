@@ -1,13 +1,16 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 import { Topic } from "../admin-topics-management.component";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "topic-edit-modal-new",
   templateUrl: "./topic-edit-modal.component.html",
   styleUrls: ["./topic-edit-modal.component.css"],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule],
+  standalone: true
 })
 export class TopicEditModalComponent implements OnInit {
   @Input() topic!: Topic;

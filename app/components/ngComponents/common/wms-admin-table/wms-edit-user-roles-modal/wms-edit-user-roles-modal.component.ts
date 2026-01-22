@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
@@ -9,11 +9,15 @@ import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-gri
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
+import { AgGridAngular } from "ag-grid-angular";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-wms-edit-user-roles-modal',
   templateUrl: './wms-edit-user-roles-modal.component.html',
-  styleUrls: ['./wms-edit-user-roles-modal.component.css']
+  styleUrls: ['./wms-edit-user-roles-modal.component.css'],
+  imports: [AgGridAngular, FormsModule, CommonModule],
+  standalone: true
 })
 export class WmsEditUserRolesModalComponent {
 

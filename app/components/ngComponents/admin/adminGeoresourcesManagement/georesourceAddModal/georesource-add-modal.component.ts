@@ -1,12 +1,23 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { HttpClient } from '@angular/common/http';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { HttpClient } from "@angular/common/http";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
-  selector: 'georesource-add-modal-new',
-  templateUrl: './georesource-add-modal.component.html',
-  styleUrls: ['./georesource-add-modal.component.css']
+  selector: "georesource-add-modal-new",
+  templateUrl: "./georesource-add-modal.component.html",
+  styleUrls: ["./georesource-add-modal.component.css"],
+  imports: [CommonModule, FormsModule, AdminTopicsManagementComponent],
+  standalone: true,
 })
 export class GeoresourceAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;

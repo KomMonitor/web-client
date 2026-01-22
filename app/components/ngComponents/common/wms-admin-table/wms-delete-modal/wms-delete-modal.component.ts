@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
@@ -7,7 +8,9 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 @Component({
   selector: 'app-wms-delete-modal',
   templateUrl: './wms-delete-modal.component.html',
-  styleUrls: ['./wms-delete-modal.component.css']
+  styleUrls: ['./wms-delete-modal.component.css'],
+  imports: [CommonModule],
+  standalone: true
 })
 export class WmsDeleteModalComponent {
  

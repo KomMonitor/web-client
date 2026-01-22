@@ -5,13 +5,18 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { FilterPipe } from '../../../../../pipes/filter.pipe';
 
 declare const $: any;
 
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
-  styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.css']
+  styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.css'],
+  imports: [CommonModule, FormsModule, FilterPipe],
+  standalone: true
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
   @ViewChild('modal') modal!: ElementRef;

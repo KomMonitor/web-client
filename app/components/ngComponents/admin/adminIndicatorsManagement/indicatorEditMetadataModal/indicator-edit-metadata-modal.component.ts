@@ -1,20 +1,31 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
+import { KommonitorIndicatorDataExchangeService } from "services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
+import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { FilterPipe } from "../../../../../pipes/filter.pipe";
 
 declare const $: any;
 declare const __env: any;
 declare const colorbrewer: any;
 
 @Component({
-  selector: 'indicator-edit-metadata-modal',
-  templateUrl: './indicator-edit-metadata-modal.component.html',
-  styleUrls: ['./indicator-edit-metadata-modal.component.css']
+  selector: "indicator-edit-metadata-modal",
+  templateUrl: "./indicator-edit-metadata-modal.component.html",
+  styleUrls: ["./indicator-edit-metadata-modal.component.css"],
+  imports: [FormsModule, CommonModule, FilterPipe],
+  standalone: true,
 })
 export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('modal') modal!: ElementRef;

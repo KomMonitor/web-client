@@ -1,28 +1,46 @@
-import { WmsResourceType } from './../../models/services.models';
-import { Component, OnInit, OnDestroy, Inject, ViewChild, AfterViewInit } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
-import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
-import { KommonitorGeoresourceCacheHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service';
-import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
-import { AgGridAngular } from 'ag-grid-angular';
-import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-add-modal.component';
-import { GeoresourceBatchUpdateModalComponent } from './georesourceBatchUpdateModal/georesource-batch-update-modal.component';
-import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
-import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
-import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
-import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
-import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
+import { WmsResourceType } from "./../../models/services.models";
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Inject,
+  ViewChild,
+  AfterViewInit,
+} from "@angular/core";
+import { CommonModule, DOCUMENT } from "@angular/common";
+import { Subscription } from "rxjs";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
+import { KommonitorGeoresourceDataExchangeService } from "../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service";
+import { KommonitorGeoresourceCacheHelperService } from "../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service";
+import { KommonitorGeoresourceDataGridHelperService } from "../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service";
+import { AgGridAngular } from "ag-grid-angular";
+import { GeoresourceAddModalComponent } from "./georesourceAddModal/georesource-add-modal.component";
+import { GeoresourceBatchUpdateModalComponent } from "./georesourceBatchUpdateModal/georesource-batch-update-modal.component";
+import { GeoresourceEditMetadataModalComponent } from "./georesourceEditMetadataModal/georesource-edit-metadata-modal.component";
+import { GeoresourceEditFeaturesModalComponent } from "./georesourceEditFeaturesModal/georesource-edit-features-modal.component";
+import { GeoresourceEditUserRolesModalComponent } from "./georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component";
+import { GeoresourceDeleteModalComponent } from "./georesourceDeleteModal/georesource-delete-modal.component";
+import { WmsSharedComponentsService } from "components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { WmsAdminTableComponent } from "../../common/wms-admin-table/wms-admin-table.component";
+import { FormsModule } from "@angular/forms";
 
 // Declare jQuery for AdminLTE
 declare const $: any;
 
 @Component({
-  selector: 'admin-georesources-management-new',
-  templateUrl: './admin-georesources-management.component.html',
-  styleUrls: ['./admin-georesources-management.component.css']
+  selector: "admin-georesources-management-new",
+  templateUrl: "./admin-georesources-management.component.html",
+  styleUrls: ["./admin-georesources-management.component.css"],
+  imports: [
+    ExpandableBoxComponent,
+    AgGridAngular,
+    CommonModule,
+    WmsAdminTableComponent,
+    FormsModule,
+  ],
+  standalone: true,
 })
 export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, AfterViewInit {
 

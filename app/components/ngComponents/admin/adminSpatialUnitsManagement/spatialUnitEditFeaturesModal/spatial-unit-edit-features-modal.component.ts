@@ -8,6 +8,9 @@ import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommoni
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 
 declare const $: any;
 declare const __env: any;
@@ -15,7 +18,9 @@ declare const __env: any;
 @Component({
   selector: 'spatial-unit-edit-features-modal-new',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-features-modal.component.css']
+  styleUrls: ['./spatial-unit-edit-features-modal.component.css'],
+  imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent],
+  standalone: true
 })
 export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
