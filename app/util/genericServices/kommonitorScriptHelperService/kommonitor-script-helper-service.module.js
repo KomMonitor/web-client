@@ -397,7 +397,7 @@ angular
             
             errorCounter = 0;
             // also trigger watching for job completion
-            self.waitForJobCompletion(jobResponse.jobID, scheduleId);
+            self.waitForJobCompletion(jobResponse.jobID, scheduleId, scriptMetadata_old.inputs.target_indicator_id);
             return;
           }
           else{
@@ -427,7 +427,7 @@ angular
 					});
       }
 
-      this.waitForJobCompletion = function(jobID, scheduleId){
+      this.waitForJobCompletion = function(jobID, scheduleId, targetIndicatorId){
 
         setTimeout(async function(){  
           try {
@@ -435,9 +435,11 @@ angular
 
             if(jobDescription.status == "successful"){
               // job finished
-              kommonitorToastHelperService.displaySuccessToast_lowerLeft("Indikatorenberechnung abgeschlossen", "Skripte und Jobs wurden neu geladen.");  
+              kommonitorToastHelperService.displaySuccessToast_lowerLeft("Indikatorenberechnung abgeschlossen", "Skripte Jobs und berechneter Zielindikator werden neu geladen.");  
               // $rootScope.$broadcast("refreshJobOverviewTable");
               $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);
+              // also refresh indicator overview table to show new indicator values
+              $rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", targetIndicatorId);
               return;
             }
             else if(jobDescription.status == "failed"){
@@ -447,7 +449,7 @@ angular
             } 
             else{
               // job still running
-              self.waitForJobCompletion(jobID, scheduleId);
+              self.waitForJobCompletion(jobID, scheduleId, targetIndicatorId);
             }
           } catch (error) {
             errorCounter++;
@@ -457,7 +459,7 @@ angular
               return;
             }
 
-            self.waitForJobCompletion(jobID, scheduleId);
+            self.waitForJobCompletion(jobID, scheduleId, targetIndicatorId);
           }
           
         }, 3000);
