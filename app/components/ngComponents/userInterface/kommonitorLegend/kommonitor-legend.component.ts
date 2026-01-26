@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NgbDate, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
@@ -11,12 +11,26 @@ import shpwrite from '@mapbox/shp-write';
 import Papa from 'papaparse';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { MapService } from 'services/map-service/map.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
+import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 
 @Component({
   selector: 'app-kommonitor-legend',
   templateUrl: './kommonitor-legend.component.html',
-  styleUrls: ['./kommonitor-legend.component.css']
+  styleUrls: ['./kommonitor-legend.component.scss'],
+  standalone: true,
+  imports: [
+    NgbCollapseModule, 
+    CommonModule, 
+    FormsModule, 
+    NgbDatepickerModule,
+    ActiveWmsFilter,
+    KommonitorClassificationComponent,
+    ExpandableBoxComponent]
 })
 export class KommonitorLegendComponent implements OnInit, OnChanges {
 

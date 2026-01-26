@@ -3,15 +3,22 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { colorbrewer } from './colors';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 
 @Component({
   selector: 'kommonitor-classification-component',
   templateUrl: './kommonitor-classification.component.html',
-  styleUrls: ['./kommonitor-classification.component.css']
+  styleUrls: ['./kommonitor-classification.component.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ClassificationMethodSelectComponent]
 })
 export class KommonitorClassificationComponent implements OnInit {
 
   exchangeData: DataExchange;
+
+  clrSelectVisible:boolean = false;
 
   methodName = 'Klassifizierungsmethode auswählen';
   showMethodSelection = false;

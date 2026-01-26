@@ -9,11 +9,8 @@ import { UserInterfaceComponent } from 'components/ngComponents/userInterface/us
 import { KommonitorMapComponent } from 'components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { StartupService } from 'services/startup-service/startup.service';
-import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { KommonitorClassificationComponent } from 'components/ngComponents/userInterface/kommonitorClassification/kommonitor-classification.component';
-import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 // import { MathjaxModule } from 'mathjax-angular';
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
 import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
@@ -85,7 +82,6 @@ import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/w
 import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
 import { AdminSidebarComponent } from './components/ngComponents/admin/adminSidebar/adminSidebar.component';
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
-import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { ExpandableBoxComponent } from './components/ngComponents/common/expandable-box/expandable-box.component';
 
 import {
@@ -97,6 +93,7 @@ import {
 	NgbAccordionBody,
 	NgbAccordionCollapse,
 } from '@ng-bootstrap/ng-bootstrap';
+import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -113,9 +110,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     MainComponent,
     UserInterfaceComponent,
     KommonitorMapComponent,
-    KommonitorLegendComponent,
-    KommonitorClassificationComponent,
-    ClassificationMethodSelectComponent,
     SidebarComponent,
     KommonitorDataSetupComponent,
     IndicatorMetadataTooltipComponent,
@@ -175,8 +169,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     WmsAddModalComponent,
     WmsEditModalComponent,
     WmsEditUserRolesModalComponent,
-    WmsDeleteModalComponent,
-    ActiveWmsFilter
+    WmsDeleteModalComponent
   ],
   imports: [
     CommonModule,
@@ -210,7 +203,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     NgbAccordionBody,
     NgbAccordionCollapse,
     SmallBoxComponent,
-    ExpandableBoxComponent
+    ExpandableBoxComponent,
+    KommonitorLegendComponent
   ],
   providers: [
     StartupService,
@@ -226,6 +220,8 @@ export function HttpLoaderFactory(http: HttpClient) {
       multi: true
     }
   ],
-  bootstrap: [MainComponent]
+  bootstrap: [MainComponent],
+  exports: [
+  ]
 })
 export class AppModule {}

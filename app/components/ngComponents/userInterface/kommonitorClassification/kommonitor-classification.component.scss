@@ -1,0 +1,21 @@
+:host {
+  #clr_dropdown {
+
+    display: none;
+
+    &.visible {
+      display: block;
+    }
+
+    ul {
+      display: block !important;
+      z-index: 1000 !important;
+      padding-left: 1em !important;
+
+      li {
+        margin-bottom: 10px !important;
+        cursor: pointer;
+      }
+    }
+  }
+}

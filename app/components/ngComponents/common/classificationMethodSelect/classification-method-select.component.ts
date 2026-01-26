@@ -1,10 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Classification } from 'components/ngComponents/models/classification.models';
 
 @Component({
   selector: 'app-classification-method-select',
   templateUrl: './classification-method-select.component.html',
-  styleUrls: ['./classification-method-select.component.css']
+  styleUrls: ['./classification-method-select.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule]
 })
 export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
 

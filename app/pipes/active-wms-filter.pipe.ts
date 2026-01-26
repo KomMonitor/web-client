@@ -3,7 +3,8 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
 
 @Pipe({
     name: 'activeWmsFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class ActiveWmsFilter implements PipeTransform {
 

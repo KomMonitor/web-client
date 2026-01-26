@@ -1,28 +1,28 @@
 <!-- classification  -->
-<div id="kommonitorClassification"
-  ng-mouseup="onClassificationMouseUp()">
+<div id="kommonitorClassification" (mouseup)="onClassificationMouseUp()">
   <div class="classification-container">
 
 
     <div *ngIf="exchangeData.selectedIndicator.indicatorType.includes('STATUS') && !exchangeData.isMeasureOfValueChecked && !exchangeData.isBalanceChecked" class="row vertical-align">      
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Farbpalettenwahl
-            <span class="caret"></span></button>
-            <ul class="dropdown-menu " style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
-            <li style="margin-right: 15px;" *ngFor="let colorPaletteEntry of colorbrewerPalettes">
-              <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
-                <div style="display: inline-block;">
-                  
-                  <svg width="100" height="20">
+            <button class="btn btn-primary dropdown-toggle btn-sm" type="button" (click)="clrSelectVisible=!clrSelectVisible">Farbpalettenwahl<span class="caret"></span></button>
+            <div id="clr_dropdown" [ngClass]="{'visible':clrSelectVisible}">
+              <ul class="dropdown-menu " style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+                <li style="margin-right: 15px;" *ngFor="let colorPaletteEntry of colorbrewerPalettes">
+                  <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
+                    <div style="display: inline-block;">
+                      
+                      <svg width="100" height="20">
 
-                      <rect *ngFor="let color of colorPaletteEntry.paletteArrayObject['5']; let i = index" [ngStyle]="{fill: color, x: (i * 20)+'px'}" width="20" height="20"></rect>
-                                            
-                  </svg>
-                </div>
-              </div>
-            </li>
-            </ul>
+                          <rect *ngFor="let color of colorPaletteEntry.paletteArrayObject['5']; let i = index" [ngStyle]="{fill: color, x: (i * 20)+'px'}" width="20" height="20"></rect>
+                                                
+                      </svg>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
           <div class="help-block with-errors"></div>
         </div>

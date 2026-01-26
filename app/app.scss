@@ -39,6 +39,15 @@ body {
 	color: rgb(247, 147, 30)
 }
 
+::ng-deep input, select {
+  font-size: 12px !important;
+  border-radius: 3px !important;
+}
+
+select {
+  cursor: pointer;
+}
+
 /* toastr library override of transparency */
 .toast { opacity: 0.8 }
 
@@ -1245,6 +1254,16 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	width: 280px;
   height: 220px;
   position: absolute;
+
+  button {
+    display: flex;
+    justify-content: center; /* horizontal */
+    align-items: center;     /* vertikal */
+
+    i {
+      font-size: 1.3em;
+    }
+  }
 }
 
 /* MAP UTIL BUTTONS */
@@ -1547,7 +1566,6 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 .nav-tabs > li > a {
     color: var(--kommonitor-primary);
 }
-
 
 .skin-blue .main-header .navbar {
 	background-color: var(--kommonitor-primary);
@@ -1881,29 +1899,6 @@ select {
     margin: 0 0 5px;
 		font: 16px/18px Arial, Helvetica, sans-serif;
     color: #777;
-}
-
-.boxedLegend {	
-	font: 12px/14px Arial, Helvetica, sans-serif;
-	background: white;
-	/* background: rgba(255,255,255,1); */
-	color: #555;
-	overflow: auto;
-	text-align: left;
-}
-
-.boxedLegend i {
-width: 18px;
-height: 18px;
-	max-width: 30px;
-float: left;
-margin-right: 8px;
-}
-
-.boxedLegend h4 {
-margin: 0 0 5px;
-	font: 16px/18px Arial, Helvetica, sans-serif;
-color: #777;
 }
 
 .wfsInputForm td i {
@@ -2452,6 +2447,8 @@ transition: opacity 0.3s;
 .btn-circle {
   width: 5vh;
   height: 5vh;
+  max-height: 45px;
+  max-width: 45px;
   text-align: center;
   padding: 6px 0 !important;
   font-size: 12px;
@@ -2461,6 +2458,10 @@ transition: opacity 0.3s;
 	z-index: 1003;
   background-color: var(--kommonitor-primary) !important;
   color: #fff !important;
+
+  i {
+    font-size: min(2.5vh, 25px);;
+  }
 }
 
 .btn-circle img {
@@ -2563,19 +2564,19 @@ transition: opacity 0.3s;
 }
 
 .btn-primary {
-    background-color: var(--kommonitor-primary);
-    border-color: var(--kommonitor-dark);
+  background-color: var(--kommonitor-primary) !important;
+  border-color: var(--kommonitor-dark) !important;
 }
 
 .btn-primary:active, .btn-primary.active {
-    background-color: var(--kommonitor-dark);
-	border-color: var(--kommonitor-dark);
+  background-color: var(--kommonitor-dark) !important;
+  border-color: var(--kommonitor-dark) !important;
 }
 
 .btn-primary:active:hover,.btn-primary.active:hover,.open>.dropdown-toggle.btn-primary:hover,.btn-primary:active:focus,.btn-primary.active:focus,.open>.dropdown-toggle.btn-primary:focus,.btn-primary:active.focus,.btn-primary.active.focus,.open>.dropdown-toggle.btn-primary.focus {
-    color: #fff;
-    background-color: var(--kommonitor-dark);
-	border-color: var(--kommonitor-dark);
+  color: #fff;
+  background-color: var(--kommonitor-dark) !important;
+	border-color: var(--kommonitor-dark) !important;
 	filter: brightness(85%);
 }
 
@@ -2630,31 +2631,32 @@ transition: opacity 0.3s;
 }
 
 .btn-leaflet-custom{
-	background-color: #fff;
+	background-color: #f4f4f4 !important;
 	width: 39px;
 	height: 39px;
   color: black;
 	position: absolute;
 	border: 2px solid rgba(0,0,0,0.2) !important;
 	background-clip: padding-box;
+  border-radius: 3px !important;
 	z-index: 1003;
 }
 
 .btn-leaflet-custom:hover {
-	background-color: rgba(244,244,244,1);
+	background-color: rgba(244,244,244,1) !important;
   color: black;
-	border: 2px solid rgba(0,0,0,0.2);
+	border: 2px solid rgba(0,0,0,0.2) !important;
 	background-clip: padding-box;
 	position: absolute;
 	z-index: 1003;
 }
 
 .btn-leaflet-custom.expertButton {
-  display: none;
+  visibility: hidden !important;
 }
 
 .btn-leaflet-custom.expertButton.visible {
-  display: block !important;
+  visibility: visible !important;
 }
 
 /* CUSTOM RANGE SLIDER  */
@@ -3861,5 +3863,38 @@ input:checked + .switchsliderOrange {
     .accordion-body {
       padding: 10px;
     }
+  }
+}
+
+.boxedLegend {	
+  font: 12px/14px Arial, Helvetica, sans-serif;
+  background: white;
+  /* background: rgba(255,255,255,1); */
+  color: #555;
+  overflow: auto;
+  text-align: left;
+
+  i {
+    width: 18px;
+    height: 18px;
+    max-width: 30px;
+    float: left;
+    margin-right: 8px;
+  }
+
+  h4 {
+    margin: 0 0 5px;
+    font: 16px/18px Arial, Helvetica, sans-serif;
+    color: #777;
+  }
+  
+  h3 {
+    font-size: 18px;
+  }
+}
+
+.nav-item {
+  a {
+    cursor: pointer;
   }
 }

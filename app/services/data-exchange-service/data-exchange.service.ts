@@ -186,28 +186,30 @@ export class DataExchangeService {
   measureOfValue: any;
   isMeasureOfValueChecked: boolean = false;
   allFeaturesRegionalMean: any;
-  labelMean_regional: any;
-  labelMean: any;
   allFeaturesMean: any;
-  labelAllFeatures: any;
-  labelFilteredFeatures: any;
-  labelSelectedFeatures: any;
-  labelNumberOfFeatures: any;
+
+  labelAllFeatures = "alle Raumeinheiten";
+  labelFilteredFeatures = "gefilterte Raumeinheiten";
+  labelSelectedFeatures = "selektierte Raumeinheiten";
+  labelNumberOfFeatures = "Anzahl:"
+  labelSum = "rechnerische Summe:"
+  labelMean = "rechnerisches arith. Mittel:"
+  labelSum_regional = "gesamtregionale Vergleichssumme:"
+  labelSpatiallyUnassignable_regional = "räumlich nicht zuordenbare:"
+  labelMean_regional = "gesamtregionaler Vergleichsmittelwert:"
+  labelMin = "Minimalwert:"
+  labelMax = "Maximalwert"
+
   allFeaturesNumberOfFeatures: any;
   selectedFeaturesNumberOfFeatures: any;
-  labelSum: any;
   allFeaturesSum: any;
-  labelSum_regional: any;
   allFeaturesRegionalSum: any;
   selectedFeaturesSum: any;
   selectedFeaturesMean: any;
-  labelMin: any;
-  labelMax: any;
   allFeaturesMin: any;
   selectedFeaturesMin: any;
   allFeaturesMax: any;
   selectedFeaturesMax: any;
-  labelSpatiallyUnassignable_regional: any;
   allFeaturesRegionalSpatiallyUnassignable: any;
   selectedIndicatorBackup!: IndicatorsDataset;
   displayableIndicators: any;
