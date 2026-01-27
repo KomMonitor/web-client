@@ -15,10 +15,11 @@
     display: none;
     position: fixed;
     background-color: #fff;
-    z-index: 9999;
+    z-index: 10002;
     border: 1px solid rgba(0,0,0,0.2);
     padding: .5em;
     width: 400px;
     color: black;
+    transform: none;
   }
 }

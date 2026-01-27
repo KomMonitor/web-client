@@ -10,7 +10,7 @@ interface IndicatorTooltipData {
 @Component({
   selector: 'app-indicator-metadata-tooltip',
   templateUrl: './indicator-metadata-tooltip.component.html',
-  styleUrls: ['./indicator-metadata-tooltip.component.css'],
+  styleUrls: ['./indicator-metadata-tooltip.component.scss'],
   standalone: true,
   imports: [CommonModule]
 })

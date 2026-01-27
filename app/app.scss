@@ -33,21 +33,14 @@
 
 body {
 	overflow-y: auto !important;
+  color: #333;
+  font-family: var(--custom-font-family) !important;
 }
 
 .kommonitorOrange{
 	color: rgb(247, 147, 30)
 }
 
-/* inputs */
-input, select, #method-select, #method-select-selected {
-  font-size: 12px !important;
-  border-radius: 3px !important;
-}
-
-select {
-  cursor: pointer;
-}
 
 /* toastr library override of transparency */
 .toast { opacity: 0.8 }
@@ -463,26 +456,15 @@ pre.CodeMirror-line {
 .list-group.list-group-root .list-group-item {
     border-radius: 0;
     border-width: 1px 0 0 0;
+    color: #333;
 }
 
 .list-group.list-group-root .list-group-item p {
   cursor: pointer;
 }
 
-.list-group.list-group-root .glyphicon.glyphicon-custom {
-  cursor: pointer;
-}
-
 .list-group.list-group-root .georesource-fav-details-wrapper {
   overflow-x: scroll;
-}
-
-.glyphicon-star {
-  color: var(--extend_bg) !important;
-}
-
-.glyphicon.glyphicon-custom {
-  top: 8px !important;
 }
 
 .list-group .list-group-item-grid-layout {
@@ -506,6 +488,7 @@ pre.CodeMirror-line {
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered {
     display: grid;
     grid-template-columns: 1fr auto;
+    padding-right: 1em !important;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources {
@@ -522,10 +505,6 @@ pre.CodeMirror-line {
   margin: 0 !important;
 } 
 
-.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources .glyphicon.glyphicon-star,
-.list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources .glyphicon.glyphicon-star-empty {
-  text-align: right;
-}
 /* .list-group.list-group-root .list-group-item.list-group-item-grid-layout a,
 .list-group.list-group-root .list-group-item.list-group-item-grid-layout p,
 .list-group.list-group-root .list-group-item.list-group-item-grid-layout input {
@@ -631,7 +610,7 @@ pre.CodeMirror-line {
 .list-group.list-group-root .list-group-item .indicator-element,
 .list-group.list-group-root .indicator-element {
   background-color: white;
-  color: #000;
+  color: #333;
   padding: .6em;
 }
 
@@ -3493,10 +3472,6 @@ input:checked + .switchslider:before {
   color: #fff !important;
 }
 
-.style-headline-indicator .glyphicon.glyphicon-star {
-  color: #fff !important;
-}
-
 .style-computation-indicator {
 	background-color: #6baed6;
 }
@@ -3867,6 +3842,37 @@ input:checked + .switchsliderOrange {
   }
 }
 
+
+/* new BS5 stuff, trying to consolidate styles */
+
+/* inputs */
+input, select, #method-select, #method-select-selected {
+  font-size: 12px !important;
+  border-radius: 3px !important;
+}
+
+select {
+  cursor: pointer;
+}
+
+.form-control:focus {
+  border-color: var(--kommonitor-primary); 
+  box-shadow: none !important;      
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.input-wrapper input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+}
+
 .boxedLegend {	
   font: 12px/14px Arial, Helvetica, sans-serif;
   background: white;
@@ -3897,5 +3903,28 @@ input:checked + .switchsliderOrange {
 .nav-item {
   a {
     cursor: pointer;
+  }
+}
+
+label {
+  display: inline-block;
+  max-width: 100%;
+  margin: .5em 0;
+  font-weight: 700;
+}
+
+.fav-star {
+  margin-top: auto;
+  margin-bottom: auto;
+  cursor: pointer;
+
+  &.fa-solid {
+    color: var(--extend_bg) !important;
+  }
+}
+
+.list-group-item {
+  .fav-star {
+    color: #fff;
   }
 }

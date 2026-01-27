@@ -17,13 +17,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
   templateUrl: './kommonitor-data-setup.component.html',
-  styleUrls: ['./kommonitor-data-setup.component.css'],
+  styleUrls: ['./kommonitor-data-setup.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IndicatorMetadataTooltipComponent, IndicatorFavFilter]
+  imports: [CommonModule, FormsModule, IndicatorMetadataTooltipComponent, IndicatorFavFilter, ExpandableBoxComponent]
 })
 export class KommonitorDataSetupComponent implements OnInit {
 
@@ -926,18 +927,6 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
   }
 
-  markAssociatedHierarchyElement(selectedIndicatorMetadata){
-    var selectedIndicatorId = selectedIndicatorMetadata.indicatorId;
-
-    setTimeout(() => {
-      for (var indicator of this.exchangeData.displayableIndicators) {
-        $("#indicatorHierarchyElement-" + indicator.indicatorId).removeClass('active');
-      }
-
-      $("#indicatorHierarchyElement-" + selectedIndicatorId).addClass('active');
-    },500);
-  };
-
   onChangeSelectedIndicator_fromAlphabeticalList(dataset){
     
     if(dataset.listType=='indicator') {
@@ -961,8 +950,6 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.broadcastService.broadcast('showLoadingIconOnMap');
 
       this.changeIndicatorWasClicked = true;
-
-      this.markAssociatedHierarchyElement(this.exchangeData.selectedIndicator);
      
       this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
 

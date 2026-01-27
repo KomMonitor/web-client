@@ -8,6 +8,7 @@
   .indicator-element.list-group-item-grid-layout.favs {
     display: grid;
     grid-template-columns: auto 1fr min-content;
+    padding-right: 1rem !important;
   }
 
   .indicator-element.list-group-item-grid-layout.favs div:first-child {
@@ -72,4 +73,19 @@
 
 .list-group-item p {
   margin: .5em 0;
+}
+
+
+/* Collapse animation */
+.collapse {
+  transition: height 0.35s ease;
+}
+
+.collapse.in {
+  display: block;
+}
+
+.list-group-item.active {
+  background-color: var(--kommonitor-primary) !important;
+  z-index: 10000 !important;
 }
