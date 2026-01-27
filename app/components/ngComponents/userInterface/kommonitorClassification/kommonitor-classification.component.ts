@@ -7,6 +7,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 
+
+
 @Component({
   selector: 'kommonitor-classification-component',
   templateUrl: './kommonitor-classification.component.html',

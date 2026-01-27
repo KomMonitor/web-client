@@ -39,7 +39,8 @@ body {
 	color: rgb(247, 147, 30)
 }
 
-::ng-deep input, select {
+/* inputs */
+input, select, #method-select, #method-select-selected {
   font-size: 12px !important;
   border-radius: 3px !important;
 }

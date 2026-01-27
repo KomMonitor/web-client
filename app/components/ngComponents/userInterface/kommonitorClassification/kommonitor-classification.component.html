@@ -42,12 +42,6 @@
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold;">Methode</div>
       <app-classification-method-select [defaultMethodId]="visualStyleHelperService.classifyMethod" [hiddenMethodIds]="hiddenMethodIds" (onMethodSelect)="onMethodSelected($event)"></app-classification-method-select>
-      <!-- todo  -->
-      <!-- <classification-method-select 
-        on-method-selected="onMethodSelected(method)"
-        default-method-id="{{visualStyleHelperService.classifyMethod}}"
-        hidden-method-ids="{{hiddenMethodIds}}">
-      </classification-method-select> -->
     </div>
 
     <!-- number of classes -->

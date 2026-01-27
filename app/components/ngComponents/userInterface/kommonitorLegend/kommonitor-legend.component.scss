@@ -26,7 +26,7 @@
     transition: opacity 0.3s;
     overflow: auto;
     padding: .5em;
-    height: 80vh;
+    max-height: 80vh;
     overflow-y: auto;
     min-width: 25vw;
   }
