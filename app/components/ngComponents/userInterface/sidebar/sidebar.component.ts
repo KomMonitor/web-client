@@ -1,10 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { KommonitorDataSetupComponent } from './kommonitorDataSetup/kommonitor-data-setup.component';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  styleUrls: ['./sidebar.component.css'],
+  standalone: true,
+  imports: [CommonModule, KommonitorDataSetupComponent]
 })
 export class SidebarComponent implements OnInit{
 

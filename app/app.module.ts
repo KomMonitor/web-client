@@ -12,9 +12,6 @@ import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MathjaxModule } from 'mathjax-angular';
-import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
-import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDataSetup/kommonitor-data-setup.component';
-import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { IndicatorRadarComponent } from 'components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
 import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
@@ -80,7 +77,6 @@ import { WmsAddModalComponent } from 'components/ngComponents/common/wms-admin-t
 import { WmsEditModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-modal/wms-edit-modal.component';
 import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
-import { AdminSidebarComponent } from './components/ngComponents/admin/adminSidebar/adminSidebar.component';
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
 import { ExpandableBoxComponent } from './components/ngComponents/common/expandable-box/expandable-box.component';
 
@@ -94,6 +90,7 @@ import {
 	NgbAccordionCollapse,
 } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
+import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -110,10 +107,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     MainComponent,
     UserInterfaceComponent,
     KommonitorMapComponent,
-    SidebarComponent,
-    KommonitorDataSetupComponent,
-    IndicatorMetadataTooltipComponent,
-    IndicatorFavFilter,
     IndicatorRadarComponent,
     IndicatorNameFilter,
     RegressionDiagramComponent,
@@ -136,7 +129,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminDashboardManagementComponent,
     AdminRoleExplanationComponent,
     AdminTopicsManagementComponent,
-    AdminSidebarComponent,
     TopicEditModalComponent,
     AdminSpatialUnitsManagementComponent,
     SpatialUnitAddModalComponent,
@@ -204,7 +196,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     NgbAccordionCollapse,
     SmallBoxComponent,
     ExpandableBoxComponent,
-    KommonitorLegendComponent
+    KommonitorLegendComponent,
+    SidebarComponent
   ],
   providers: [
     StartupService,

@@ -13,11 +13,17 @@ import { TopicOrderMode } from '../../../admin/adminTopicsManagement/admin-topic
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { UserFavourites } from 'components/ngComponents/models/favorites.models';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
   templateUrl: './kommonitor-data-setup.component.html',
-  styleUrls: ['./kommonitor-data-setup.component.css']
+  styleUrls: ['./kommonitor-data-setup.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, IndicatorMetadataTooltipComponent, IndicatorFavFilter]
 })
 export class KommonitorDataSetupComponent implements OnInit {
 

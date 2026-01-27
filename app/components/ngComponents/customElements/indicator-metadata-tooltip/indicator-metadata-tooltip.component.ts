@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 
@@ -9,7 +10,9 @@ interface IndicatorTooltipData {
 @Component({
   selector: 'app-indicator-metadata-tooltip',
   templateUrl: './indicator-metadata-tooltip.component.html',
-  styleUrls: ['./indicator-metadata-tooltip.component.css']
+  styleUrls: ['./indicator-metadata-tooltip.component.css'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class IndicatorMetadataTooltipComponent {
 

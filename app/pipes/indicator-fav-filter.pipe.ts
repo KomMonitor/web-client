@@ -4,7 +4,8 @@ import { KommonitorDataSetupComponent } from 'components/ngComponents/userInterf
 
 @Pipe({
     name: 'indicatorFavFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class IndicatorFavFilter implements PipeTransform {
 
