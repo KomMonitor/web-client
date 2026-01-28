@@ -4,7 +4,8 @@ import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/
 
 @Pipe({
     name: 'geoFavFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class GeoFavFilter implements PipeTransform {
 

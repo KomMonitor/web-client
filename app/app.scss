@@ -1062,21 +1062,21 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 }
 
 .vector-marker-icon-middlesized {
-	font-size: 10px !important;
+	font-size: 15px !important;
 }
 
 .vector-marker-icon-small {
-	font-size: 8px !important;
+	font-size: 10px !important;
 }
 
 .vector-marker-icon-extra-small {
-	font-size: 5px !important;
+	font-size: 8px !important;
 	width: 11px !important;
 	top: 5px !important;
 }
 
 .vector-marker-icon-big {
-	font-size: 18px !important;
+	font-size: 20px !important;
 }
 
 .vector-marker-shadow-small {
@@ -3855,6 +3855,10 @@ select {
   cursor: pointer;
 }
 
+.form-control {
+  appearance: auto !important;
+}
+
 .form-control:focus {
   border-color: var(--kommonitor-primary); 
   box-shadow: none !important;      
@@ -3927,4 +3931,10 @@ label {
   .fav-star {
     color: #fff;
   }
+}
+
+.checkbox-inline {
+  display: grid;
+  grid-template-columns: min-content auto auto;
+  gap: .5em;
 }

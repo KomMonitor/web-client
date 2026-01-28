@@ -80,3 +80,17 @@
     color: #000 !important;
   }
 }
+
+/* Collapse animation */
+.collapse {
+  transition: height 0.35s ease;
+}
+
+.collapse.in {
+  display: block;
+}
+
+.list-group-item.active {
+  background-color: var(--kommonitor-primary) !important;
+  z-index: 10000 !important;
+}

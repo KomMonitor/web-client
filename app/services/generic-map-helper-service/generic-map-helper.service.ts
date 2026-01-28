@@ -5,6 +5,7 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
+import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +48,8 @@ export class GenericMapHelperService {
 
   public constructor(
     private dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private iconTranslate: IconTranslateService
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -58,8 +60,8 @@ export class GenericMapHelperService {
       poiMarkerColor = 'green';
 
     var customMarker = L.AwesomeMarkers.icon({
-        icon: poiSymbolBootstrap3Name,
-        prefix: 'glyphicon',
+        icon: this.iconTranslate.translate(poiSymbolBootstrap3Name),
+        prefix: 'fa',
         markerColor: poiMarkerColor,
         iconColor: poiSymbolColor,
         extraClasses: this.exchangeData.selectedPOISize.iconClassName

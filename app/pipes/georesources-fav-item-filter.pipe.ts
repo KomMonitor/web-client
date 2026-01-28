@@ -3,7 +3,8 @@ import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/
 
 @Pipe({
     name: 'geoFavItemFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class GeoFavItemFilter implements PipeTransform {
 

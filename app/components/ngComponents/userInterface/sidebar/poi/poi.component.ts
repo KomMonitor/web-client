@@ -11,12 +11,18 @@ import { GeoresourcesDataset, GeoresourcesTopicsHierarchy } from '../../../model
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { IconTranslate } from 'pipes/icon-translate.pipe';
 
 
 @Component({
   selector: 'app-poi',
   templateUrl: './poi.component.html',
-  styleUrls: ['./poi.component.css']
+  styleUrls: ['./poi.component.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ExpandableBoxComponent, GeoFavFilter, GeoFavItemFilter, IconTranslate]
 })
 export class PoiComponent implements OnInit {
 

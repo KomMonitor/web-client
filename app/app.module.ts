@@ -12,7 +12,6 @@ import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MathjaxModule } from 'mathjax-angular';
-import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { IndicatorRadarComponent } from 'components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
 import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
 import { RegressionDiagramComponent } from 'components/ngComponents/userInterface/sidebar/regressionDiagram/regression-diagram.component';
@@ -21,11 +20,8 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { KommonitorDiagramsComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { KommonitorBalanceComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
-import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
 import { KommonitorFilterComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
-import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
-import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
 import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
 import { AdminComponent } from 'components/ngComponents/admin/admin.component';
 import { AdminDashboardManagementComponent } from 'components/ngComponents/admin/adminDashboardManagement/admin-dashboard-management.component';
@@ -91,6 +87,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
+import { AdminSidebarComponent } from 'components/ngComponents/admin/adminSidebar/adminSidebar.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -115,15 +112,12 @@ export function HttpLoaderFactory(http: HttpClient) {
     BaseIndicatorOfHeadlineIndicatorFilter,
     KommonitorDiagramsComponent,
     KommonitorBalanceComponent,
-    PoiComponent,
     KommonitorFilterComponent,
     DualListBoxComponent,
-    GeoFavFilter,
     TopicOrderSelectionComponent,
     TopicListComponent,
     SortByOrderPipe,
     AddTopicComponent,
-    GeoFavItemFilter,
     UserLoginComponent,
     AdminComponent,
     AdminDashboardManagementComponent,
@@ -161,7 +155,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     WmsAddModalComponent,
     WmsEditModalComponent,
     WmsEditUserRolesModalComponent,
-    WmsDeleteModalComponent
+    WmsDeleteModalComponent,
+    AdminSidebarComponent
   ],
   imports: [
     CommonModule,
