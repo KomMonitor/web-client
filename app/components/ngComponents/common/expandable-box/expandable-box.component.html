@@ -1,9 +1,10 @@
 <div class="box-wrapper">
-  <div class="box-header">
+  <div class="box-header" [class]="'top-border-' + borderColor">
     <div class="box-title">{{ title }}</div>
     <div class="box-tools">
       <button
         type="button"
+        *ngIf="isCollapsible"
         class="btn btn-box-tool"
         (click)="collapsed = !collapsed"
       >

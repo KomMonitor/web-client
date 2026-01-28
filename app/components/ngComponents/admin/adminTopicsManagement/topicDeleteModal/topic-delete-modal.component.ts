@@ -3,11 +3,14 @@ import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 import { Topic } from "../admin-topics-management.component";
 import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "topic-delete-modal-new",
   templateUrl: "./topic-delete-modal.component.html",
   styleUrls: ["./topic-delete-modal.component.css"],
+  imports: [CommonModule],
+  standalone: true
 })
 export class TopicDeleteModalComponent implements OnInit {
   @Input() currentTopic!: Topic;

@@ -1,3 +1,9 @@
+:host {
+  expandable-box {
+    margin: 15px;
+  }
+}
+
 /* Admin Indicators Management Component Styles */
 
 .loading-overlay-admin-panel {

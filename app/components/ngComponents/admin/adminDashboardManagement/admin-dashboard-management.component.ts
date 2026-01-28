@@ -1,16 +1,19 @@
-import { Component, Inject, OnInit, NgZone, OnDestroy } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DOCUMENT } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
-import * as echarts from 'echarts';
+import { Component, Inject, OnInit, NgZone, OnDestroy } from "@angular/core";
+import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { CommonModule, DOCUMENT } from "@angular/common";
+import { Subscription } from "rxjs";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import * as echarts from "echarts";
+import { SmallBoxComponent } from "./small-box/small-box.component";
 declare const $: any;
 
 @Component({
-  selector: 'admin-dashboard-management-new',
-  templateUrl: './admin-dashboard-management.component.html',
-  styleUrls: ['./admin-dashboard-management.component.css']
+  selector: "admin-dashboard-management-new",
+  templateUrl: "./admin-dashboard-management.component.html",
+  styleUrls: ["./admin-dashboard-management.component.css"],
+  imports: [SmallBoxComponent, TranslateModule, CommonModule],
+  standalone: true,
 })
 export class AdminDashboardManagementComponent implements OnInit, OnDestroy {
   loadingData = true;

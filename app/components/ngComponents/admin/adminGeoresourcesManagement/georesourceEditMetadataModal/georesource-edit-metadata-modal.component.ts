@@ -6,11 +6,17 @@ import { Subscription } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
   selector: 'georesource-edit-metadata-modal-new',
   templateUrl: './georesource-edit-metadata-modal.component.html',
-  styleUrls: ['./georesource-edit-metadata-modal.component.css']
+  styleUrls: ['./georesource-edit-metadata-modal.component.css'],
+  imports: [FormsModule, CommonModule, AdminTopicsManagementComponent],
+  standalone: true
+
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;

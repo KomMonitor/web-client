@@ -10,6 +10,7 @@ import 'codemirror/mode/xml/xml.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
+import { PipesModule } from "../../../../../pipes.module";
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
@@ -32,7 +33,9 @@ interface LintingIssue {
 @Component({
   selector: 'app-admin-landingpage-config',
   templateUrl: './admin-landingpage-config.component.html',
-  styleUrls: ['./admin-landingpage-config.component.css']
+  styleUrls: ['./admin-landingpage-config.component.css'],
+  imports: [PipesModule],
+  standalone: true
 })
 export class AdminLandingpageConfigComponent implements AfterViewInit { 
 

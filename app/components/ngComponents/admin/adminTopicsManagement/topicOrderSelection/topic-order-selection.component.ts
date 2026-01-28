@@ -7,11 +7,14 @@ import {
   AdminTopicsManagementService,
   TopicOrderResponseEntry,
 } from "../admin-topics-management.service";
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: "topic-order-selection",
   templateUrl: "./topic-order-selection.component.html",
   styleUrls: ["./topic-order-selection.component.css"],
+  imports: [FormsModule],
+  standalone: true,
 })
 export class TopicOrderSelectionComponent implements OnInit {
   @Input({ required: true }) orderModes!: TopicOrderResponseEntry[];

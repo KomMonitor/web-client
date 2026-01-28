@@ -19,11 +19,15 @@ import { KommonitorFilterDataGridHelperService } from 'services/adminFilterConfi
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 import { AdminFilterEditModalComponent } from './adminFilterEditModal/admin-filter-edit-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admin-filter-config',
   templateUrl: './admin-filter-config.component.html',
-  styleUrls: ['./admin-filter-config.component.css']
+  styleUrls: ['./admin-filter-config.component.css'],
+  imports: [AgGridAngular, ExpandableBoxComponent, CommonModule],
+  standalone: true
 })
 export class AdminFilterConfigComponent implements OnInit {
 

@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 declare const $: any;
 declare const __env: any;
@@ -13,7 +15,9 @@ declare const __env: any;
 @Component({
   selector: 'georesource-edit-user-roles-modal-new',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
-  styleUrls: ['./georesource-edit-user-roles-modal.component.css']
+  styleUrls: ['./georesource-edit-user-roles-modal.component.css'],
+  imports: [FormsModule, CommonModule, AgGridAngular],
+  standalone: true
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
   @ViewChild('roleManagementTable', { static: true }) roleManagementTable!: AgGridAngular;

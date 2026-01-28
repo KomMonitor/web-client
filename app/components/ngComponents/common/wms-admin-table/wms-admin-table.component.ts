@@ -11,11 +11,14 @@ import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
+import { ExpandableBoxComponent } from "../expandable-box/expandable-box.component";
 
 @Component({
   selector: 'app-wms-admin-table',
   templateUrl: './wms-admin-table.component.html',
-  styleUrls: ['./wms-admin-table.component.css']
+  styleUrls: ['./wms-admin-table.component.css'],
+  imports: [ExpandableBoxComponent, AgGridAngular],
+  standalone: true,
 })
 export class WmsAdminTableComponent implements OnInit, AfterViewInit {
 

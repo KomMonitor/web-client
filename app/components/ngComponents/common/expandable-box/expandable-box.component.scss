@@ -10,8 +10,7 @@
             position: relative;
             border-radius: 3px;
             border-top: 3px solid #d2d6de;
-            border-color: var(--kommonitor-primary);
-            padding: 5px 10px;
+            padding: 5px 5px 5px 10px;
             width: 100%;
             display: flex;
             align-items: center;
@@ -29,6 +28,17 @@
                 color: #97a0b3;
             }
 
+            &.top-border-primary {
+                border-top-color: var(--kommonitor-primary);
+            }
+
+            &.top-border-red {
+                border-top-color: #d73925;
+            }
+
+            &.top-border-green {
+                border-top-color: #00a65a;
+            }
         }
 
         .box-body {

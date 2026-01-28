@@ -1,16 +1,27 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
+import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
+import { MultiStepHelperServiceService } from "services/multi-step-helper-service/multi-step-helper-service.service";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { FilterPipe } from "../../../../../pipes/filter.pipe";
 
 declare const $: any;
 
 @Component({
-  selector: 'app-indicator-edit-features-modal',
-  templateUrl: './indicator-edit-features-modal.component.html',
-  styleUrls: ['./indicator-edit-features-modal.component.css']
+  selector: "app-indicator-edit-features-modal",
+  templateUrl: "./indicator-edit-features-modal.component.html",
+  styleUrls: ["./indicator-edit-features-modal.component.css"],
+  imports: [FormsModule, CommonModule, FilterPipe],
+  standalone: true,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   @ViewChild('modal') modal!: ElementRef;

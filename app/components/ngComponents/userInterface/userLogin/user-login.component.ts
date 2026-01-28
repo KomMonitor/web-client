@@ -1,7 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { BroadcastService } from './../../../../services/broadcast-service/broadcast.service';
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 
 interface UserRoleInformation {
   [key: string]: string[];
@@ -10,7 +12,9 @@ interface UserRoleInformation {
 @Component({
   selector: 'app-user-login',
   templateUrl: './user-login.component.html',
-  styleUrls: ['./user-login.component.css']
+  styleUrls: ['./user-login.component.css'],
+  imports: [CommonModule, NgbCollapseModule],
+  standalone: true
 })
 export class UserLoginComponent implements OnInit {
   showUserLogin = false;

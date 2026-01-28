@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription, forkJoin } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 declare const $: any;
 
@@ -33,7 +34,9 @@ interface AffectedIndicatorReference {
 @Component({
   selector: 'georesource-delete-modal-new',
   templateUrl: './georesource-delete-modal.component.html',
-  styleUrls: ['./georesource-delete-modal.component.css']
+  styleUrls: ['./georesource-delete-modal.component.css'],
+  imports: [CommonModule],
+  standalone: true
 })
 export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
 

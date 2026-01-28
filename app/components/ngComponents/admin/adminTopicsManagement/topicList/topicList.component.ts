@@ -1,12 +1,15 @@
 import { Component, Input } from "@angular/core";
 import { Topic, TopicResourceType } from "../admin-topics-management.component";
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { CdkDragDrop, CdkDropList, moveItemInArray } from "@angular/cdk/drag-drop";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { TopicDeleteModalComponent } from "../topicDeleteModal/topic-delete-modal.component";
 import { TopicEditModalComponent } from "../topicEditModal/topic-edit-modal.component";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 
 import { Injectable } from "@angular/core";
+import { AddTopicComponent } from "../add-topic/add-topic.component";
+import { CommonModule } from "@angular/common";
+import { SortByOrderPipe } from "../sortByOrder.pipe";
 
 @Injectable({ providedIn: "root" })
 export class ExpandedService {
@@ -17,6 +20,8 @@ export class ExpandedService {
   selector: "app-topic-list",
   templateUrl: "./topicList.component.html",
   styleUrls: ["./topicList.component.css"],
+  imports: [AddTopicComponent, CommonModule, SortByOrderPipe, CdkDropList],
+  standalone: true,
 })
 export class TopicListComponent {
   @Input({ required: true }) topics!: Topic[];

@@ -11,7 +11,9 @@ import * as turf from '@turf/turf';
 @Component({
   selector: 'app-single-feature-edit',
   templateUrl: './single-feature-edit.component.html',
-  styleUrls: ['./single-feature-edit.component.css']
+  styleUrls: ['./single-feature-edit.component.css'],
+  imports: [CommonModule, FormsModule],
+  standalone: true,
 })
 export class SingleFeatureEditComponent implements OnInit {
 

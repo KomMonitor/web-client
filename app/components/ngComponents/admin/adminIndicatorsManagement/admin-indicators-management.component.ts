@@ -1,29 +1,53 @@
-import { WmsResourceType } from './../../models/services.models';
-import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
-import { Component, Inject, OnInit, NgZone, OnDestroy, ViewChild } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DOCUMENT } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridReadyEvent, RowNode, SelectionChangedEvent } from 'ag-grid-community';
-import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
-import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
-import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
-import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
-import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { WmsResourceType } from "./../../models/services.models";
+import { WmsSharedComponentsService } from "components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service";
+import {
+  Component,
+  Inject,
+  OnInit,
+  NgZone,
+  OnDestroy,
+  ViewChild,
+} from "@angular/core";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { CommonModule, DOCUMENT } from "@angular/common";
+import { Subscription } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { AgGridAngular } from "ag-grid-angular";
+import {
+  ColDef,
+  GridOptions,
+  GridReadyEvent,
+  RowNode,
+  SelectionChangedEvent,
+} from "ag-grid-community";
+import { KommonitorIndicatorDataExchangeService } from "services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
+import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
+import { IndicatorAddModalComponent } from "./indicatorAddModal/indicator-add-modal.component";
+import { IndicatorEditMetadataModalComponent } from "./indicatorEditMetadataModal/indicator-edit-metadata-modal.component";
+import { IndicatorEditFeaturesModalComponent } from "./indicatorEditFeaturesModal/indicator-edit-features-modal.component";
+import { IndicatorDeleteModalComponent } from "./indicatorDeleteModal/indicator-delete-modal.component";
+import { IndicatorBatchUpdateModalComponent } from "./indicatorBatchUpdateModal/indicator-batch-update-modal.component";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { WmsAdminTableComponent } from "components/ngComponents/common/wms-admin-table/wms-admin-table.component";
+import { FormsModule } from "@angular/forms";
 
 declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'admin-indicators-management-new',
-  templateUrl: './admin-indicators-management.component.html',
-  styleUrls: ['./admin-indicators-management.component.css']
+  selector: "admin-indicators-management-new",
+  templateUrl: "./admin-indicators-management.component.html",
+  styleUrls: ["./admin-indicators-management.component.css"],
+  imports: [
+    ExpandableBoxComponent,
+    AgGridAngular,
+    WmsAdminTableComponent,
+    FormsModule,
+    CommonModule,
+  ],
+  standalone: true,
 })
 export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 

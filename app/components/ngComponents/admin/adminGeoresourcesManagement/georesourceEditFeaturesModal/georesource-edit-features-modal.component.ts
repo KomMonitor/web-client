@@ -1,18 +1,38 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+} from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
+import { AgGridAngular } from "ag-grid-angular";
+import {
+  ColDef,
+  GridOptions,
+  GridApi,
+  ColumnApi,
+  GridReadyEvent,
+  FirstDataRenderedEvent,
+  ColumnResizedEvent,
+} from "ag-grid-community";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { SingleFeatureEditComponent } from "components/ngComponents/common/single-feature-edit/single-feature-edit.component";
 
 declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'georesource-edit-features-modal-new',
-  templateUrl: './georesource-edit-features-modal.component.html',
-  styleUrls: ['./georesource-edit-features-modal.component.css']
+  selector: "georesource-edit-features-modal-new",
+  templateUrl: "./georesource-edit-features-modal.component.html",
+  styleUrls: ["./georesource-edit-features-modal.component.css"],
+  imports: [CommonModule, AgGridAngular, FormsModule, SingleFeatureEditComponent],
+  standalone: true,
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;

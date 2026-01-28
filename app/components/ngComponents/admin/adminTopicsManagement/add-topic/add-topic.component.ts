@@ -6,11 +6,14 @@ import {
   TopicResourceType,
 } from "../admin-topics-management.component";
 import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: "admin-add-topic",
   templateUrl: "./add-topic.component.html",
   styleUrls: ["./add-topic.component.css"],
+  imports: [FormsModule],
+  standalone: true,
 })
 export class AddTopicComponent {
   @Input({ required: true }) topicResourceType!: TopicResourceType;

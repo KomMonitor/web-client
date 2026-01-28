@@ -13,7 +13,7 @@ import { MultiStepHelperServiceService } from 'services/multi-step-helper-servic
   standalone: true,
   templateUrl: './admin-filter-edit-modal.component.html',
   styleUrls: ['./admin-filter-edit-modal.component.css'],
-  imports: [CommonModule, FormsModule, AgGridAngular]
+  imports: [CommonModule, FormsModule]
 })
 export class AdminFilterEditModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
