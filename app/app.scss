@@ -479,6 +479,17 @@ pre.CodeMirror-line {
   }
 }
 
+.list-group .list-group-item-entry-grid-layout {
+  display: grid;
+  grid-template-columns: auto min-content;
+}
+
+.list-group .list-group-item-entry-grid-layout div:first-child {
+  display: grid;
+  grid-template-columns: min-content min-content;
+  white-space: nowrap;
+}
+
 .list-group .list-group-item-grid-layout.selectedIndicator {
 	background: var(--kommonitor-primary) !important;
 	color: white !important;
