@@ -17,7 +17,13 @@ angular
 
 					var self = this;
 
+          $scope.indicatorNames_shortVersion = false;
+          $scope.printLayout = false;
+
 					$scope.activeTab = 0;
+
+          $scope.radarHeight = '60vh';
+          $scope.radarheight_defaultNum = 60;
 
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
@@ -78,6 +84,7 @@ angular
 
 					// RADAR CHART TIME SERIES FUNCTION
 					var updateRadarChart = async function (indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date) {
+
 						// based on prepared DOM, initialize echarts instance
 						$scope.date = date;
 						$scope.spatialUnitName = spatialUnitName;
@@ -139,7 +146,26 @@ angular
 						
 					});
 
+          $scope.onChangePrintLayout = function() {
+
+            // layout change to legend in plain iso scroll mode
+            modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+
+            checkResizeRadarChart();
+
+            setTimeout(function () {
+							$scope.radarChart.resize();
+						}, 350);
+          }
+
+          $scope.onChangeIndicatorNames = function() {
+            
+            // indicator names changes to abbreviation
+            modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+          }
+
 					var modifyRadarContent = async function (indicatorsForRadar) {
+
 						var indicatorArrayForRadarChart = new Array();
 						var defaultSeriesValueArray = new Array();
 
@@ -192,8 +218,13 @@ angular
 								// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
 								// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
 								// if(valueSum != null){
+
+                var name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
+                if($scope.indicatorNames_shortVersion && (indicatorsForRadar[i].indicatorMetadata.abbreviation!='' && indicatorsForRadar[i].indicatorMetadata.abbreviation!=null))
+                  name = indicatorsForRadar[i].indicatorMetadata.abbreviation;
+
 								indicatorArrayForRadarChart.push({
-									name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
+									name: name + " - " + indicatorsForRadar[i].selectedDate,
 									unit: indicatorsForRadar[i].indicatorMetadata.unit,
 									precision: indicatorsForRadar[i].indicatorMetadata.precision,
 									max: maxValue,
@@ -234,9 +265,8 @@ angular
                 },
 								grid: {
 									left: '4%',
-									top: 0,
 									right: '4%',
-									bottom: 30,
+									bottom: 50,
 									containLabel: true
 								},
 								title: {
@@ -325,14 +355,9 @@ angular
 										saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
 									}
 								},
-								legend: {
-									type: "scroll",
-									bottom: 0,
-									align: 'left',
-									left: 5,
-									data: ['Arithmetisches Mittel']
-								},
 								radar: {
+                  radius: '55%',
+                  center: ['50%', '45%'],
 									// shape: 'circle',
 									// name: {
 									//     textStyle: {
@@ -383,6 +408,26 @@ angular
 									]
 								}]
 							};
+
+              // set legend either in scroll or plain mode for print layout (scroll is not beeing displayed in print version)
+              if($scope.printLayout)
+                $scope.radarOption.legend = {
+                  orient: 'horizontal',
+									type: 'plain',
+                  bottom: 0,
+                  width: '80%',
+                  align: 'left',
+                  left: 5,
+                  data: ['Arithmetisches Mittel']
+                }
+              else
+                $scope.radarOption.legend = {
+									type: "scroll",
+									bottom: 0,
+									align: 'left',
+									left: 5,
+									data: ['Arithmetisches Mittel']
+								}
 
 							// check if any feature is still clicked/selected
 							// then append those as series within radar chart
@@ -462,9 +507,32 @@ angular
 						highlightFeatureInRadarChart(featureProperties);
 					});
 
+          var checkResizeRadarChart = function() {
+
+            // only adjust if printLayout (e.g. legend fully visible)
+            if($scope.printLayout) {
+
+              var strLengthTotal = $scope.radarOption.legend.data.reduce(function (sum, str) {
+                                                                            return sum + str.length;
+                                                                          }, 0);
+
+                                                      // 6 pixel for each letter                      35 for each coloured rect
+              var legendLengthTotal = (strLengthTotal * 6) + ($scope.radarOption.legend.data.length * 40);
+              var boxWidthTotal = document.getElementById('radarDiagram').clientWidth;
+              var numLines = Math.ceil( legendLengthTotal / boxWidthTotal );
+
+                                                // 5 vh for each line, rough estimate
+              $scope.radarHeight = (55 + (numLines * 8)) + 'vh';
+            } else
+              $scope.radarHeight = $scope.radarheight_defaultNum + 'vh';
+          }
+
 					var appendSeriesToRadarChart = function (featureProperties) {
 						// append feature name to legend
 						$scope.radarOption.legend.data.push(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
+
+            // check resize radar div based on legend entries (for printLayout)
+            checkResizeRadarChart();
 
 						// create feature data series
 						var featureSeries = {};
@@ -559,6 +627,9 @@ angular
 						if (legendIndex > -1) {
 							$scope.radarOption.legend.data.splice(legendIndex, 1);
 						}
+            
+            // check resize radar div based on legend entries (for printLayout)
+            checkResizeRadarChart();
 
 						// remove feature data series
 						var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
