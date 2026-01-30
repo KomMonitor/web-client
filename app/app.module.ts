@@ -22,7 +22,6 @@ import { KommonitorDiagramsComponent } from 'components/ngComponents/userInterfa
 import { KommonitorBalanceComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
 import { KommonitorFilterComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
-import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
 import { AdminComponent } from 'components/ngComponents/admin/admin.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -34,15 +33,7 @@ import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
 import { OrderByPipe } from 'pipes/order-by.pipe';
 import { PipesModule } from 'pipes.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { TopicEditModalComponent } from 'components/ngComponents/admin/adminTopicsManagement/topicEditModal/topic-edit-modal.component';
-import { AdminFilterConfigComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/admin-filter-config.component';
-import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
-import { WmsAddModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-add-modal/wms-add-modal.component';
-import { WmsEditModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-modal/wms-edit-modal.component';
-import { WmsEditUserRolesModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
-import { WmsDeleteModalComponent } from 'components/ngComponents/common/wms-admin-table/wms-delete-modal/wms-delete-modal.component';
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
-import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { ExpandableBoxComponent } from './components/ngComponents/common/expandable-box/expandable-box.component';
 
 import {
@@ -57,6 +48,7 @@ import {
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
 import { AdminSidebarComponent } from 'components/ngComponents/admin/adminSidebar/adminSidebar.component';
+import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
 
 
 export function initializeApp(startupService: StartupService) {
@@ -86,7 +78,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AdminComponent,
     OrderByPipe,
     AdminComponent,
-    OrderByPipe,
+    OrderByPipe
   ],
   imports: [
     CommonModule,
@@ -125,6 +117,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SidebarComponent,
     ExpandableBoxComponent,
     AdminSidebarComponent,
+    UserLoginComponent
   ],
   providers: [
     StartupService,

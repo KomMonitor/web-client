@@ -122,70 +122,50 @@
 
 							<div *ngFor="let mainTopic of preppedTopicGeoresourceHierarchy">
 								<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" [ngClass]="{'style-hierarchy-selected-poi-0': checkHierarchyPoiSelected(mainTopic)}">
-                  <div>
-                    <p id="{{mainTopic.topicId}}" title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)">
-                    <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}
-                    ({{mainTopic.totalCount}})</p>
-                    <input type="checkbox" [(ngModel)]="mainTopic.isSelected"
-                      value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}"
-                      (change)="handleShowAllOnTopic(mainTopic,'list')">
-                  </div>
-                  <div>
-                    <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(mainTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(mainTopic.topicId)}" (click)="onGeoresourceTopicFavClick(mainTopic.topicId)"></i>
-                  </div>
+                  <i class="fa-solid" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>
+                  <p id="{{mainTopic.topicId}}" title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)">{{mainTopic.topicName}} ({{mainTopic.totalCount}})</p>
+                  <input type="checkbox" [(ngModel)]="mainTopic.isSelected"
+                    value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}"
+                    (change)="handleShowAllOnTopic(mainTopic,'list')">
+                  <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(mainTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(mainTopic.topicId)}" (click)="onGeoresourceTopicFavClick(mainTopic.topicId)"></i>
 								</div>
 
 								<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}" uib-collapse="isCollapsed_mainTopic">
 								<div *ngFor="let subTopic of mainTopic.subTopics">
 
 									<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-1" [ngClass]="{'style-hierarchy-selected-poi-1': checkHierarchyPoiSelected(subTopic)}">
-                    <div>
-                      <p id="{{subTopic.topicId}}" class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)">
-                        <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}
-                        ({{subTopic.totalCount}})</p>
-                      <input type="checkbox" [(ngModel)]="subTopic.isSelected"
-                        value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}"
-                        (change)="handleShowAllOnTopic(subTopic,'list')">
-                    </div>
-                    <div>
-                      <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(subTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(subTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subTopic.topicId)"></i>
-                    </div>
+                    <i class="fa-solid" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>
+                    <p id="{{subTopic.topicId}}" class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)">{{subTopic.topicName}} ({{subTopic.totalCount}})</p>
+                    <input type="checkbox" [(ngModel)]="subTopic.isSelected"
+                      value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}"
+                      (change)="handleShowAllOnTopic(subTopic,'list')">
+                    <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(subTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(subTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subTopic.topicId)"></i>
 									</div>
 
 									<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
 									<div *ngFor="let subsubTopic of subTopic.subTopics">
 
 										<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout hierarchy-topic-level-2" [ngClass]="{'style-hierarchy-selected-poi-2': checkHierarchyPoiSelected(subsubTopic)}">
-                      <div>
-                        <p id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}" (click)="onTopicClick(subsubTopic.topicId)">
-                          <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}
-                          ({{subsubTopic.totalCount}})</p>
-                        <input type="checkbox" [(ngModel)]="subsubTopic.isSelected"
-                          value="subsubTopic.isSelected"
-                          id="showAllForTopic_{{subsubTopic.topicId}}"
-                          (change)="handleShowAllOnTopic(subsubTopic,'list')">
-                      </div>
-                      <div>
-                        <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(subsubTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(subsubTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subsubTopic.topicId)"></i>
-                      </div>
+                      <i class="fa-solid" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>
+                      <p id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubTopic.topicDescription}}" (click)="onTopicClick(subsubTopic.topicId)">{{subsubTopic.topicName}} ({{subsubTopic.totalCount}})</p>
+                      <input type="checkbox" [(ngModel)]="subsubTopic.isSelected"
+                        value="subsubTopic.isSelected"
+                        id="showAllForTopic_{{subsubTopic.topicId}}"
+                        (change)="handleShowAllOnTopic(subsubTopic,'list')">
+                      <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(subsubTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(subsubTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subsubTopic.topicId)"></i>
 										</div>
 
 										<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
 											<div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
 
 											<div class="list-group-item list-group-item-default list-group-grid-item list-group-item-grid-layout hierarchy-topic-level-3" [ngClass]="{'style-hierarchy-selected-poi-3': checkHierarchyPoiSelected(subsubsubTopic)}">
-                        <div>
-                          <p id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}" (click)="onTopicClick(subsubsubTopic.topicId)">
-                            <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}
-                            ({{subsubsubTopic.totalCount}})</p>
-                           <input type="checkbox" [(ngModel)]="subsubsubTopic.isSelected"
-                            value="subsubsubTopic.isSelected"
-                            id="showAllForTopic_{{subsubsubTopic.topicId}}"
-                            (change)="handleShowAllOnTopic(subsubsubTopic,'list')" class="test">
-                        </div>
-                        <div>
-                          <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(subsubsubTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(subsubsubTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subsubsubTopic.topicId)"></i>
-                        </div>
+                        <i class="fa-solid" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>  
+                        <p id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" title="{{subsubsubTopic.topicDescription}}" (click)="onTopicClick(subsubsubTopic.topicId)">{{subsubsubTopic.topicName}} ({{subsubsubTopic.totalCount}})</p>
+                        <input type="checkbox" [(ngModel)]="subsubsubTopic.isSelected"
+                          value="subsubsubTopic.isSelected"
+                          id="showAllForTopic_{{subsubsubTopic.topicId}}"
+                          (change)="handleShowAllOnTopic(subsubsubTopic,'list')" class="test">
+                        <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid': georesourceTopicFavSelected(subsubsubTopic.topicId), 'fa-regular':!georesourceTopicFavSelected(subsubsubTopic.topicId)}" (click)="onGeoresourceTopicFavClick(subsubsubTopic.topicId)"></i>
 											</div>
 
 											<div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubsubTopic.topicId)}">
@@ -290,8 +270,7 @@
 																</td>
 																<td class="text-center">
 																	<div style="text-align: center">
-																		<i
-																			[ngStyle]="{width:'15px', height:'15px', background: loi.loiColor, display:'inherit'}">
+																		<i class="poiColorLegend" [ngStyle]="{background: loi.loiColor, display:'inherit'}">
 																		</i>
 																	</div>
 
@@ -341,8 +320,7 @@
 																</td>
 																<td class="text-center">
 																	<div style="text-align: center">
-																		<i
-																			[ngStyle]="{width:'15px', height:'15px', background: aoi.aoiColor, display:'inherit'}">
+																		<i class="poiColorLegend" [ngStyle]="{background: aoi.aoiColor, display:'inherit'}">
 																		</i>
 																	</div>
 																</td>
@@ -606,8 +584,7 @@
 															</td>
 															<td class="text-center">
 																<div style="text-align: center">
-																	<i
-																		style="width:15px; height:15px" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
+																	<i class="poiColorLegend" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
 																	</i>
 																</div>
 
@@ -657,8 +634,7 @@
 															</td>
 															<td class="text-center">
 																<div style="text-align: center">
-																	<i
-																		style="width:15px; height:15px" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
+																	<i class="poiColorLegend" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
 																	</i>
 																</div>
 															</td>
@@ -918,8 +894,7 @@
 														</td>
 														<td class="text-center">
 															<div style="text-align: center">
-																<i
-																	style="width:15px; height:15px" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
+																<i class="poiColorLegend" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
 																</i>
 															</div>
 														</td>
@@ -966,8 +941,7 @@
 														</td>
 														<td class="text-center">
 															<div style="text-align: center">
-																<i
-																	style="width:15px; height:15px" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
+																<i class="poiColorLegend" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
 																</i>
 															</div>
 														</td>
@@ -1227,8 +1201,7 @@
 													</td>
 													<td class="text-center">
 														<div style="text-align: center">
-															<i
-																style="width:15px; height:15px" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
+															<i class="poiColorLegend" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
 															</i>
 														</div>
 													</td>
@@ -1275,8 +1248,7 @@
 													</td>
 													<td class="text-center">
 														<div style="text-align: center">
-															<i
-																style="width:15px; height:15px" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
+															<i class="poiColorLegend" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
 															</i>
 														</div>
 													</td>
@@ -1435,15 +1407,12 @@
 							<!-- end main Topics -->
 
 							<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" *ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
-								<div>
+                  <i	class="fa-solid" [ngClass]="{'fa-chevron-right':isCollapsed_noTopic, 'fa-chevron-down':!isCollapsed_noTopic}"></i>
                   <p id="noHierarchyGeoresourceDatasets"
                     title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger" 
-                    (click)="toggleNoTopicHierarchy()">
-                      <i	class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isCollapsed_noTopic, 'glyphicon-chevron-down':!isCollapsed_noTopic}"></i>ohne Themenbezug
-                    ({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
+                    (click)="toggleNoTopicHierarchy()">ohne Themenbezug ({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
 								  <input type="checkbox" value="showAllForTopic_null"
 									  [(ngModel)]="showAllForTopic_null">
-                </div>
 							</div>
 
 
@@ -1551,8 +1520,7 @@
 												</td>>
 												<td class="text-center">
 													<div style="text-align: center">
-														<i
-															style="width:15px; height:15px" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
+														<i class="poiColorLegend" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
 														</i>
 													</div>
 												</td>
@@ -1600,8 +1568,7 @@
 												</td>
 												<td class="text-center">
 													<div style="text-align: center">
-														<i
-															style="width:15px; height:15px" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
+														<i class="poiColorLegend" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
 														</i>
 													</div>
 												</td>
@@ -1767,485 +1734,370 @@
           aria-labelledby="poiTab2">
 
           <div class="just-padding">
+            <expandable-box [title]="'Points of Interest'" [collapsed]="true" *ngIf="isGeoresourceInfrastructureEnabled('poi')">
 
-						<!-- POINTS OF INTEREST -->
-						<div class="box box-primary collapsed-box" *ngIf="isGeoresourceInfrastructureEnabled('poi')">
-							<div class="box-header with-border">
-								<h3 class="box-title">Points of Interest</h3>
+              <div id="poiInputForm">
 
-								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa" [ngClass]="{'fa-plus':poiAlphListCollapse[0], 'fa-minus':!poiAlphListCollapse[0]}"></i>
-									</button>
-								</div>
-							</div>
-							<div class="box-body">
+                <table class="table table-condensed" style="margin-bottom:0px;">
+                  <thead>
+                    <tr>
+                      <th>Datensatz</th>
+                      <th>Beschreibung</th>
+                      <th>Legende</th>
+                      <th
+                        *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                        Lebenszeit-Beginn</th>
+                      <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                      <th></th>
+                    </tr>
+                  </thead>
 
-								<div class="">
+                  <tbody>
 
-									<div id="poiInputForm">
+                    <tr *ngFor='let poi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.poiData'>
+                      <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                      <td>
+                        <label class='checkbox-inline'><input type="checkbox"
+                            value="poi.datasetName" [(ngModel)]="poi.isSelected"
+                            (change)="handlePoiOnMap(poi)">
 
-										<table class="table table-condensed" style="margin-bottom:0px;">
-											<thead>
-												<tr>
-													<th>Datensatz</th>
-													<th>Beschreibung</th>
-													<th>Legende</th>
-													<th
-														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-														Lebenszeit-Beginn</th>
-													<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
-                          <th></th>
-												</tr>
-											</thead>
+                          <b>{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
+                        </label>
+                      </td>
+                      <td>
+                        <p>{{poi.metadata.description}}</p>
+                      </td>
+                      <td class="text-center">
+                        <div style="text-align: center">
+                          <div
+                            class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+                            <span
+                              *ngIf="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
+                              style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em" [ngStyle]="{color: poi.poiSymbolColor}"
+                              class="{{poi.poiSymbolBootstrap3Name | iconTranslate}}"
+                              aria-hidden="true"></span>
+                            <span 
+                              ng-else
+                              style="font-size:0.9em" [ngStyle]="{color: poi.poiSymbolColor}">
+                              {{ poi.poiMarkerText }}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td
+                        *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="poi.selectedDate"
+                          (change)="onChangeSelectedDate(poi)"
+                          class="form-control" required>
+                          <option *ngFor="let date of poi.availablePeriodsOfValidity" [ngValue]="date">{{date.startDate}}</option>
+                        </select>
+                        <!-- 
+                          ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                          ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
+                      </td>
+                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+                        <p class="poiList-downloadLink" (click)="getExportLinkForPoi(poi)"
+                          title="Download Features as GeoJSON"><i
+                            class="fas fa-file-download fa-lg"></i></p>
 
-											<tbody>
-
-												<tr *ngFor='let poi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.poiData'>
-													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-													<td>
-														<label class='checkbox-inline'><input type="checkbox"
-																value="poi.datasetName" [(ngModel)]="poi.isSelected"
-																(change)="handlePoiOnMap(poi)">
-
-															<b>{{poi.datasetName}}</b> <p *ngIf="poi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(poi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
-														</label>
-													</td>
-													<td>
-														<p>{{poi.metadata.description}}</p>
-													</td>
-													<td class="text-center">
-														<div style="text-align: center">
-															<div
-																class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																<span
-																	*ngIf="!poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol'"
-																	style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em" [ngStyle]="{color: poi.poiSymbolColor}"
-																	class="{{poi.poiSymbolBootstrap3Name | iconTranslate}}"
-																	aria-hidden="true"></span>
-																<span 
-																	ng-else
-																	style="font-size:0.9em" [ngStyle]="{color: poi.poiSymbolColor}">
-																	{{ poi.poiMarkerText }}
-																</span>
-															</div>
-														</div>
-													</td>
-													<td
-														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-														<select style="font-size: 11px; width:135px; padding: 0px;"
-															[(ngModel)]="poi.selectedDate"
-															(change)="onChangeSelectedDate(poi)"
-															class="form-control" required>
-                              <option *ngFor="let date of poi.availablePeriodsOfValidity" [ngValue]="date">{{date.startDate}}</option>
-														</select>
-                            <!-- 
-															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
-													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
-														<p class="poiList-downloadLink" (click)="getExportLinkForPoi(poi)"
-															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></p>
-
-														<p class="poiList-downloadLink" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
-														<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
-													</td>
-                          <td>
-                            <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':poiFavSelected(poi.georesourceId),'fa-regular':!poiFavSelected(poi.georesourceId)}" (click)="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
-                          </td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-
-									<br />
+                        <p class="poiList-downloadLink" (click)="dataExchangeService.downloadMetadataPDF_georesource(poi)"
+                                title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
+                        <!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
+                      </td>
+                      <td>
+                        <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':poiFavSelected(poi.georesourceId),'fa-regular':!poiFavSelected(poi.georesourceId)}" (click)="onPoiFavClick(poi.georesourceId)" style="color: black;"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </expandable-box>
 
 
+            <expandable-box [title]="'Lines of Interest'" [collapsed]="true" *ngIf="isGeoresourceInfrastructureEnabled('loi')">
 
-								</div>
+              <div id="loiInputForm">
 
-							</div>
-							<!-- /.box-body -->
+                <table class="table table-condensed" style="margin-bottom:0px;">
+                  <thead>
+                    <tr>
+                      <th>Datensatz</th>
+                      <th>Beschreibung</th>
+                      <th>Legende</th>
+                      <th
+                        *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                        Lebenszeit-Beginn</th>
+                      <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                    </tr>
+                  </thead>
 
-						</div>
-						<!-- /.box -->
+                  <tbody>
 
+                    <tr *ngFor='let loi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.loiData'>
+                      <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                      <td>
+                        <label class='checkbox-inline'><input type="checkbox"
+                            value="loi.datasetName" [(ngModel)]="loi.isSelected"
+                            (change)="handleLoiOnMap(loi)">
 
-						<!-- LINES OF INTEREST -->
-						<div class="box box-primary collapsed-box" *ngIf="isGeoresourceInfrastructureEnabled('loi')">
-							<div class="box-header with-border">
-								<h3 class="box-title">Lines of Interest</h3>
+                          <b>{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
+                        </label>
+                      </td>
+                      <td>
+                        <p>{{loi.metadata.description}}</p>
+                      </td>
+                      <td class="text-center">
+                        <div style="text-align: center">
+                          <i class="poiColorLegend" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
+                          </i>
+                        </div>
+                      </td>
+                      <td *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="loi.selectedDate"
+                          (change)="onChangeSelectedDate(loi)"
+                          class="form-control" required>
+                          <option *ngFor="let date of loi.availablePeriodsOfValidity" [ngValue]="date">{{date.startDate}}</option>
+                        </select>
 
-								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa"></i>
-									</button>
-								</div>
-							</div>
-							<div class="box-body">
-
-								<div class="">
-
-									<div id="loiInputForm">
-
-										<table class="table table-condensed" style="margin-bottom:0px;">
-											<thead>
-												<tr>
-													<th>Datensatz</th>
-													<th>Beschreibung</th>
-													<th>Legende</th>
-													<th
-														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-														Lebenszeit-Beginn</th>
-													<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
-												</tr>
-											</thead>
-
-											<tbody>
-
-												<tr *ngFor='let loi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.loiData'>
-													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-													<td>
-														<label class='checkbox-inline'><input type="checkbox"
-																value="loi.datasetName" [(ngModel)]="loi.isSelected"
-																(change)="handleLoiOnMap(loi)">
-
-															<b>{{loi.datasetName}}</b> <p *ngIf="loi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(loi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
-														</label>
-													</td>
-													<td>
-														<p>{{loi.metadata.description}}</p>
-													</td>
-													<td class="text-center">
-														<div style="text-align: center">
-															<i
-																style="width:15px; height:15px" [ngStyle]="{background: loi.loiColor}" style="display:inherit;">
-															</i>
-														</div>
-													</td>
-													<td *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-														<select style="font-size: 11px; width:135px; padding: 0px;"
-															[(ngModel)]="loi.selectedDate"
-															(change)="onChangeSelectedDate(loi)"
-															class="form-control" required>
-                              <option *ngFor="let date of loi.availablePeriodsOfValidity" [ngValue]="date">{{date.startDate}}</option>
-														</select>
-
-                            <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
-													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
-														<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
-															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></p>
-														
-														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
-														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-
-								</div>
-
-							</div>
-							<!-- /.box-body -->
-						</div>
-						<!-- /.box -->
+                        <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                          ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
+                      </td>
+                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+                        <p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
+                          title="Download Features as GeoJSON"><i
+                            class="fas fa-file-download fa-lg"></i></p>
+                        
+                        <p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(loi)"
+                                title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
+                        <!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </expandable-box>	
 
 
-						<!-- AREAS OF INTEREST -->
-						<div class="box box-primary collapsed-box" *ngIf="isGeoresourceInfrastructureEnabled('aoi')">
-							<div class="box-header with-border">
-								<h3 class="box-title">Areas of Interest</h3>
+            <expandable-box [title]="'Areas of Interest'" [collapsed]="true" *ngIf="isGeoresourceInfrastructureEnabled('aoi')">
 
-								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa"></i>
-									</button>
-								</div>
-							</div>
-							<div class="box-body">
+              <div id="aoiInputForm">
 
-								<div class="">
+                <table class="table table-condensed" style="margin-bottom:0px;">
+                  <thead>
+                    <tr>
+                      <th>Datensatz</th>
+                      <th>Beschreibung</th>
+                      <th>Legende</th>
+                      <th
+                        *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                        Lebenszeit-Beginn</th>
+                      <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                    </tr>
+                  </thead>
 
-									<div id="aoiInputForm">
+                  <tbody>
 
-										<table class="table table-condensed" style="margin-bottom:0px;">
-											<thead>
-												<tr>
-													<th>Datensatz</th>
-													<th>Beschreibung</th>
-													<th>Legende</th>
-													<th
-														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-														Lebenszeit-Beginn</th>
-													<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
-												</tr>
-											</thead>
+                    <tr *ngFor='let aoi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.aoiData'>
+                      <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                      <td>
+                        <label class='checkbox-inline'><input type="checkbox"
+                            value="aoi.datasetName" [(ngModel)]="aoi.isSelected"
+                            (change)="handleAoiOnMap(aoi)">
 
-											<tbody>
+                          <b>{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
+                      
+                        </label>
+                      </td>
+                      <td>
+                        <p>{{aoi.metadata.description}}</p>
+                      </td>
+                      <td class="text-center">
+                        <div style="text-align: center">
+                          <i class="poiColorLegend" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
+                          </i>
+                        </div>
+                      </td>
+                      <td
+                        *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
+                        <select style="font-size: 11px; width:135px; padding: 0px;"
+                          [(ngModel)]="aoi.selectedDate"
+                          (change)="onChangeSelectedDate(aoi)"
+                          class="form-control" required>
+                          <option *ngFor="let date of aoi.availablePeriodsOfValidity" [ngValue]="date">{{date.startDate}}</option>
+                        </select>
 
-												<tr *ngFor='let aoi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.aoiData'>
-													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-													<td>
-														<label class='checkbox-inline'><input type="checkbox"
-																value="aoi.datasetName" [(ngModel)]="aoi.isSelected"
-																(change)="handleAoiOnMap(aoi)">
+                        <!-- 
+                          ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                          ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
+                      </td>
+                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+                        <p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
+                          title="Download Features as GeoJSON"><i
+                            class="fas fa-file-download fa-lg"></i></p>
 
-															<b>{{aoi.datasetName}}</b> <p *ngIf="aoi.isSelected" title="Auf Layer zoomen" (click)="zoomToLayer(aoi)"><i style="font-size:1.5em;" class="fas fa-search-location"></i></p>
-													
-														</label>
-													</td>
-													<td>
-														<p>{{aoi.metadata.description}}</p>
-													</td>
-													<td class="text-center">
-														<div style="text-align: center">
-															<i
-																style="width:15px; height:15px" [ngStyle]="{background: aoi.aoiColor}" style="display:inherit;">
-															</i>
-														</div>
-													</td>
-													<td
-														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
-														<select style="font-size: 11px; width:135px; padding: 0px;"
-															[(ngModel)]="aoi.selectedDate"
-															(change)="onChangeSelectedDate(aoi)"
-															class="form-control" required>
-                              <option *ngFor="let date of aoi.availablePeriodsOfValidity" [ngValue]="date">{{date.startDate}}</option>
-														</select>
-
-                            <!-- 
-															ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-															ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
-													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
-														<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
-															title="Download Features as GeoJSON"><i
-																class="fas fa-file-download fa-lg"></i></p>
-
-														<p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
-																		title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
-														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-
-								</div>
-
-							</div>
-							<!-- /.box-body -->
-						</div>
-						<!-- /.box -->
+                        <p class="poiList-downloadLink"  (click)="dataExchangeService.downloadMetadataPDF_georesource(aoi)"
+                                title="Download Metadata PDF"><i class="fas fa-file-export fa-lg"></i></p>
+                        <!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </expandable-box>
 
 
-						<!-- WMS -->
-						<div class="box box-primary collapsed-box" *ngIf="isGeoresourceGeoserviceEnabled('wms')">
-							<div class="box-header with-border">
-								<h3 class="box-title">Web Map Service (WMS)</h3>
+            <expandable-box [title]="'Web Map Service (WMS)'" [collapsed]="true" *ngIf="isGeoresourceGeoserviceEnabled('wms')">
+              <div id="wmsInputForm">
 
-								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa"></i>
-									</button>
-								</div>
-							</div>
-							<div class="box-body">
+                <table class="table table-condensed" style="margin-bottom:0px;">
+                  <thead>
+                    <tr>
+                      <th>Datensatz</th>
+                      <th>Beschreibung</th>
+                      <th>WMS URL</th>
+                      <th>Legende</th>
+                    </tr>
+                  </thead>
 
-								<div id="wmsInputForm">
+                  <tbody>
 
-									<table class="table table-condensed" style="margin-bottom:0px;">
-										<thead>
-											<tr>
-												<th>Datensatz</th>
-												<th>Beschreibung</th>
-												<th>WMS URL</th>
-												<th>Legende</th>
-											</tr>
-										</thead>
+                    <tr
+                      *ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData'>
+                      <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                      <td>
+                        <label class='checkbox-inline'><input type="checkbox"
+                            value="dataset.title" [(ngModel)]="dataset.isSelected"
+                            (change)="handleWmsOnMap(dataset)">
 
-										<tbody>
+                          <b>{{dataset.title}}</b>
+                        </label>
+                      </td>
+                      <td>
+                        <p>{{dataset.description}}</p>
+                      </td>
+                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                        <div style="text-align: center">
+                          <a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+                            title="WMS GetCapabilities URL" rel='noopener noreferrer'
+                            target='_blank'><i
+                              class="fas fa-cloud-download-alt"></i></a>
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        <div *ngIf="! dataset.showLegend">
+                          <button class="btn btn-sm btn-primary"
+                            (click)="dataset.showLegend = true;">laden</button>
+                        </div>
+                        <div *ngIf="dataset.showLegend">
+                          <img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
+                        </div>
+                      </td>
+                      <td>
+                        <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(dataset.id), 'fa-regular':!wmsFavSelected(dataset.id)}" (click)="onWmsFavClick(dataset.id)" style="color: black;"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </expandable-box>
 
-											<tr
-												*ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData'>
-												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-												<td>
-													<label class='checkbox-inline'><input type="checkbox"
-															value="dataset.title" [(ngModel)]="dataset.isSelected"
-															(change)="handleWmsOnMap(dataset)">
 
-														<b>{{dataset.title}}</b>
-													</label>
-												</td>
-												<td>
-													<p>{{dataset.description}}</p>
-												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<div style="text-align: center">
-														<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
-															title="WMS GetCapabilities URL" rel='noopener noreferrer'
-															target='_blank'><i
-																class="fas fa-cloud-download-alt"></i></a>
-													</div>
-												</td>
-												<td class="text-center">
-													<div *ngIf="! dataset.showLegend">
-														<button class="btn btn-sm btn-primary"
-															(click)="dataset.showLegend = true;">laden</button>
-													</div>
-													<div *ngIf="dataset.showLegend">
-														<img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)">
-													</div>
-												</td>
-                        <td>
-                          <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(dataset.id), 'fa-regular':!wmsFavSelected(dataset.id)}" (click)="onWmsFavClick(dataset.id)" style="color: black;"></i>
-                        </td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-
-								<br />
-
-								<!-- <div style="text-align: center">
-
-												<button class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-add-wms">Eigenen WMS hinzuladen</button>
-
-											</div> -->
-
-							</div>
-							<!-- /.box-body -->
-
-						</div>
-						<!-- /.box -->
-
-						<!-- WfS -->
-						<div class="box box-primary collapsed-box" *ngIf="isGeoresourceGeoserviceEnabled('wfs')">
-							<div class="box-header with-border">
-								<h3 class="box-title">Web Feature Service (WFS)</h3>
-
-								<div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-											class="fa"></i>
-									</button>
-								</div>
-							</div>
-							<div class="box-body">
-
-								<p>Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern.
+            <expandable-box [title]="'Web Map Service (WMS)'" [collapsed]="true" *ngIf="isGeoresourceGeoserviceEnabled('wfs')">
+              <p>Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern.
 									Die Features werden zudem nach dem aktuellen Raumausschnitt der Kartendarstellung
-									gefiltert abgefragt.</p>
+                gefiltert abgefragt.</p>
 
-								<div id="wfsInputForm">
+              <div id="wfsInputForm">
 
-									<table class="table table-condensed" style="margin-bottom:0px;">
-										<thead>
-											<tr>
-												<th>Datensatz</th>
-												<th>Beschreibung</th>
-												<th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
-												<th>WFS URL</th>
-												<th>Legende</th>
-											</tr>
-										</thead>
+                <table class="table table-condensed" style="margin-bottom:0px;">
+                  <thead>
+                    <tr>
+                      <th>Datensatz</th>
+                      <th>Beschreibung</th>
+                      <th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
+                      <th>WFS URL</th>
+                      <th>Legende</th>
+                    </tr>
+                  </thead>
 
-										<tbody>
+                  <tbody>
 
-											<tr
-												*ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData'>
-												<td>
-													<label class='checkbox-inline'><input type="checkbox"
-															value="dataset.title" [(ngModel)]="dataset.isSelected"
-															(change)="handleWfsOnMap(dataset)">
+                    <tr
+                      *ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData'>
+                      <td>
+                        <label class='checkbox-inline'><input type="checkbox"
+                            value="dataset.title" [(ngModel)]="dataset.isSelected"
+                            (change)="handleWfsOnMap(dataset)">
 
-														<b>{{dataset.title}}</b>
-													</label>
-												</td>
-												<td>
-													<p>{{dataset.description}}</p>
-												</td>
-												<td>
-													<label class="switch">
-														<input id="filterCheckbox" type="checkbox"
-															[(ngModel)]="dataset.filterFeaturesToMapBBOX"
-															ng-checked="dataset.filterFeaturesToMapBBOX">
-														<span class="switchslider round"></span>
-													</label>
-												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
-													<div style="text-align: center">
-														<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
-															title="WFS GetCapabilities URL" rel='noopener noreferrer'
-															target='_blank'><i
-																class="fas fa-cloud-download-alt"></i></a>
-													</div>
-												</td>
-												<td class="text-center">
-													<div>
-														<div *ngIf="dataset.geometryType==='AOI'">
-															<div class="input-group colorpicker-component">
-																<input type="text" style="display:none;"
-																	class="form-control input-sm"
-																	[(ngModel)]="dataset.aoiColor"
-																	(change)="adjustWfsLayerColor(dataset)"
-																	placeholder="WFS Darstellungsfarbe" required />
-																<span title="Klicken, um die Farbe anzupassen"
-																	style="border: 1px solid #ccc;"
-																	class="input-group-addon"><i></i></span>
-															</div>
-														</div>
-														<div *ngIf="dataset.geometryType==='LOI'">
-															<div class="input-group colorpicker-component">
-																<input type="text" style="display:none;"
-																	class="form-control input-sm"
-																	[(ngModel)]="dataset.loiColor"
-																	(change)="adjustWfsLayerColor(dataset)"
-																	placeholder="WFS Darstellungsfarbe" required />
-																<span title="Klicken, um die Farbe anzupassen"
-																	style="border: 1px solid #ccc;"
-																	class="input-group-addon"><i></i></span>
-															</div>
-														</div>
-														<div *ngIf="dataset.geometryType==='POI'">
-															<div style="text-align: center">
-																<div
-																	class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-																	<span
-																		style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em" [ngStyle]="{color: dataset.poiSymbolColor}"
-																		class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"
-																		aria-hidden="true"></span>
-																</div>
-															</div>
-														</div>
-													</div>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
+                          <b>{{dataset.title}}</b>
+                        </label>
+                      </td>
+                      <td>
+                        <p>{{dataset.description}}</p>
+                      </td>
+                      <td>
+                        <label class="switch">
+                          <input id="filterCheckbox" type="checkbox"
+                            [(ngModel)]="dataset.filterFeaturesToMapBBOX"
+                            ng-checked="dataset.filterFeaturesToMapBBOX">
+                          <span class="switchslider round"></span>
+                        </label>
+                      </td>
+                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                        <div style="text-align: center">
+                          <a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+                            title="WFS GetCapabilities URL" rel='noopener noreferrer'
+                            target='_blank'><i
+                              class="fas fa-cloud-download-alt"></i></a>
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        <div>
+                          <div *ngIf="dataset.geometryType==='AOI'">
+                            <div class="input-group colorpicker-component">
+                              <input type="text" style="display:none;"
+                                class="form-control input-sm"
+                                [(ngModel)]="dataset.aoiColor"
+                                (change)="adjustWfsLayerColor(dataset)"
+                                placeholder="WFS Darstellungsfarbe" required />
+                              <span title="Klicken, um die Farbe anzupassen"
+                                style="border: 1px solid #ccc;"
+                                class="input-group-addon"><i></i></span>
+                            </div>
+                          </div>
+                          <div *ngIf="dataset.geometryType==='LOI'">
+                            <div class="input-group colorpicker-component">
+                              <input type="text" style="display:none;"
+                                class="form-control input-sm"
+                                [(ngModel)]="dataset.loiColor"
+                                (change)="adjustWfsLayerColor(dataset)"
+                                placeholder="WFS Darstellungsfarbe" required />
+                              <span title="Klicken, um die Farbe anzupassen"
+                                style="border: 1px solid #ccc;"
+                                class="input-group-addon"><i></i></span>
+                            </div>
+                          </div>
+                          <div *ngIf="dataset.geometryType==='POI'">
+                            <div style="text-align: center">
+                              <div
+                                class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+                                <span
+                                  style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em" [ngStyle]="{color: dataset.poiSymbolColor}"
+                                  class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"
+                                  aria-hidden="true"></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-								<br />
-
-								<!-- <div style="text-align: center">
-
-															<button class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-add-wfs">Eigenen WFS hinzuladen</button>
-
-														</div> -->
-
-							</div>
-							<!-- /.box-body -->
-
-						</div>
-						<!-- /.box -->
-
-
+            </expandable-box>
 					</div>
         </div>
         
@@ -2259,7 +2111,7 @@
                   <div class="list-group-item list-group-item-default list-group-item-grid-centered-georesources georesources-grid-item list-group-item-level-{{topic.level}}" [ngClass]="checkHierarchyPoiSelected(topic) ? 'style-fav-selected-poi-'+topic.level : 'style-fav-normal-item-'+topic.level">
                     <p *ngIf="topic.subTopics.length>0 || topic.poiData.length>0 || topic.aoiData.length>0 || topic.loiData.length>0 || topic.wmsData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
                       class="georesourcesFavCollapseTrigger">
-                    <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'glyphicon-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
+                    <i class="fa-solid" [ngClass]="{'fa-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'fa-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
                     <p *ngIf="topic.subTopics.length==0 && topic.poiData.length==0 && topic.aoiData.length==0 && topic.loiData.length==0 && topic.wmsData.length==0">{{topic.topicName}}</p>
                     <input type="checkbox" [(ngModel)]="topic.isSelected"
                       value="topic.isSelected" id="showAllForFavTopic_{{topic.topicId}}"
@@ -2358,7 +2210,7 @@
                             </td>
                             <td class="text-center">
                               <div style="text-align:center">
-                                <i style="width:15px; height:15px; display:inherit" [ngStyle]="{'background':loi.loiColor}">
+                                <i class="poiColorLegend" [ngStyle]="{'background':loi.loiColor, 'display':'inherit'}">
                                 </i>
                               </div>
                             </td>
@@ -2402,7 +2254,7 @@
                             </td>
                             <td class="text-center">
                               <div style="text-align:center">
-                                <i style="width:15px; height:15px; display:inherit" [ngStyle]="{'background':aoi.loiColor}">
+                                <i class="poiColorLegend" [ngStyle]="{'background':aoi.loiColor, 'display':'inherit'}">
                                 </i>
                               </div>
                             </td>

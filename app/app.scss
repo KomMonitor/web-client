@@ -469,15 +469,14 @@ pre.CodeMirror-line {
 
 .list-group .list-group-item-grid-layout {
   display: grid;
-  grid-template-columns: auto min-content;
-}
-
-.list-group .list-group-item-grid-layout div:first-child {
+  grid-template-columns: min-content auto min-content min-content;
+  gap: 1em;
   cursor: pointer;
+  padding: 1em;
 
-  display: grid;
-  grid-template-columns: auto min-content;
-  padding-right: 2em;
+  * {
+    margin: 0.5em 0 !important;
+  }
 }
 
 .list-group .list-group-item-grid-layout.selectedIndicator {
@@ -494,6 +493,8 @@ pre.CodeMirror-line {
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources {
   display: grid;
   grid-template-columns: auto min-content min-content;
+  padding-right: 1em !important;
+  gap: .5em;
 }
 
 .list-group.list-group-root .list-group-item.list-group-item-grid-centered-georesources *:first-child{
