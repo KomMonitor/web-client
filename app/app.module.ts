@@ -18,8 +18,6 @@ import { RegressionDiagramComponent } from 'components/ngComponents/userInterfac
 import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
 import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
-import { KommonitorDiagramsComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
-import { KommonitorBalanceComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
 import { AdminComponent } from 'components/ngComponents/admin/admin.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -69,8 +67,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     SelectedIndicatorFilter,
     BaseIndicatorOfComputedIndicatorFilter,
     BaseIndicatorOfHeadlineIndicatorFilter,
-    KommonitorDiagramsComponent,
-    KommonitorBalanceComponent,
     AdminComponent,
     OrderByPipe,
     AdminComponent,

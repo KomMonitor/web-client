@@ -7,11 +7,16 @@ import { FilterHelperService } from 'services/filter-helper-service/filter-helpe
 import { MapService } from 'services/map-service/map.service';
 import * as jStat from 'jstat';
 import * as noUiSlider from 'nouislider';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-kommonitor-balance',
   templateUrl: './kommonitor-balance.component.html',
-  styleUrls: ['./kommonitor-balance.component.css']
+  styleUrls: ['./kommonitor-balance.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ExpandableBoxComponent]
 })
 export class KommonitorBalanceComponent implements OnInit {
 

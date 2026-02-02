@@ -4,6 +4,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataSetupComponent } from './kommonitorDataSetup/kommonitor-data-setup.component';
 import { PoiComponent } from './poi/poi.component';
 import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.component';
+import { KommonitorBalanceComponent } from './kommonitorBalance/kommonitor-balance.component';
+import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-diagrams.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,7 +16,9 @@ import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.
     CommonModule, 
     KommonitorDataSetupComponent, 
     PoiComponent,
-    KommonitorFilterComponent]
+    KommonitorFilterComponent,
+    KommonitorBalanceComponent,
+    KommonitorDiagramsComponent]
 })
 export class SidebarComponent implements OnInit{
 
@@ -32,7 +36,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarFilterCollapse';
+    this.element = 'sidebarBalanceCollapse';
   }
 
   closeSidebar() {

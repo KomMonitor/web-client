@@ -5,12 +5,17 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { fromEvent, Observable, Subscription } from "rxjs";
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
   selector: 'app-kommonitor-diagrams',
   templateUrl: './kommonitor-diagrams.component.html',
-  styleUrls: ['./kommonitor-diagrams.component.css']
+  styleUrls: ['./kommonitor-diagrams.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgbCollapse]
 })
 export class KommonitorDiagramsComponent implements OnInit {
 

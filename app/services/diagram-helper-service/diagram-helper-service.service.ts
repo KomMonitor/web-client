@@ -557,7 +557,7 @@ export class DiagramHelperServiceService {
     }
 
     // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
-
+console.log("HIER")
     this.setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date);
 
     this.setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine);
@@ -1735,10 +1735,8 @@ export class DiagramHelperServiceService {
       }          
 
       // hide data points
-      console.log(timeseriesOptions.series[0]);
-      timeseriesOptions.series[0].itemStyle.opacity = 0;
-      timeseriesOptions.series[0].lineStyle.width = 3;
-      timeseriesOptions.series[0].lineStyle.type = "solid";  
+      console.log(timeseriesOptions);
+      timeseriesOptions.series[0].itemStyle = {opacity: 0, width: 3, type: "solid"};  
       
       var trendData:any = [];
 
