@@ -3,13 +3,18 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataSetupComponent } from './kommonitorDataSetup/kommonitor-data-setup.component';
 import { PoiComponent } from './poi/poi.component';
+import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.component';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
   standalone: true,
-  imports: [CommonModule, KommonitorDataSetupComponent, PoiComponent]
+  imports: [
+    CommonModule, 
+    KommonitorDataSetupComponent, 
+    PoiComponent,
+    KommonitorFilterComponent]
 })
 export class SidebarComponent implements OnInit{
 
@@ -27,7 +32,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarIndicatorConfigCollapse';
+    this.element = 'sidebarFilterCollapse';
   }
 
   closeSidebar() {

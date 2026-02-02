@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -8,13 +8,22 @@ import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 
 @Component({
   selector: 'app-kommonitor-filter',
   templateUrl: './kommonitor-filter.component.html',
-  styleUrls: ['./kommonitor-filter.component.css']
+  styleUrls: ['./kommonitor-filter.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    FormsModule,
+    ReactiveFormsModule,
+    DualListBoxComponent,
+    ExpandableBoxComponent]
 })
 export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
@@ -105,14 +114,14 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   higherSpatialUnitFilterFeatureGeoJSON;
   reappliedFilter = false;
 
-  selectionByFeatureSpatialFilterDuallistOptions:any = {
+  selectionByFeatureSpatialFilterDuallistOptions:dualListInput = {
     items: [],
     selectedItems: []
   };
   reloadList = false;
   reloadManualList = false;
 
-  manualSelectionSpatialFilterDuallistOptions:any = {
+  manualSelectionSpatialFilterDuallistOptions:dualListInput = {
     items: [],
     selectedItems: []
   };              
@@ -657,19 +666,19 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   };
 
-  updateSelectableAreas(selectionType) {
+  updateSelectableAreas(selectionType, showHideToggle=true) {
 
     this.loadingData = true;
     //send request to datamanagement API
     let selectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
     let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
     let upperSpatialUnitId = undefined;
-    
+
     // spatial filter not applicable since no upper spatial unit is available or selected
-    if(! this.selectedSpatialUnitForFilter){
+  /*   if(! this.selectedSpatialUnitForFilter){
       this.loadingData = false;
       return;
-    }
+    } */
 
     if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
       upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
@@ -695,6 +704,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       "/spatial-units/" + upperSpatialUnitId + "/" + datePath;
 
+    
     //send request
     this.http.get(url).subscribe({
       next: response => {
@@ -704,9 +714,12 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
         });
 
         if (selectionType === "manual") {
-          this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
           let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
-          this.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
+          let data = {items: dataArray, selectedItems: []};
+          this.manualSelectionSpatialFilterDuallistOptions = data;
+
+          if(showHideToggle)
+            this.showManualSelectionSpatialFilter = !this.showManualSelectionSpatialFilter;
         }
 
         if (selectionType === "byFeature") {
@@ -726,17 +739,13 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     
   };
 
-  onChangeShowManualSelection(checked) {
+  onChangeShowManualSelection() {
 
-    this.showManualSelectionSpatialFilter = checked;
+    this.onManualSelectionSpatialFilterActiveBtnPressed();	
 
     // return if toggle was deactivated
-    if(!this.showManualSelectionSpatialFilter)
-      this.onManualSelectionSpatialFilterResetBtnPressed();						
-    else {
-      this.showSelectionByFeatureSpatialFilter = false;
-      this.onManualSelectionSpatialFilterResetBtnPressed();								
-    }
+    if(this.showManualSelectionSpatialFilter)		
+      this.showSelectionByFeatureSpatialFilter = false;					
   };
 
   onChangeShowSelectionByFeature(checked) {
@@ -795,8 +804,20 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     }
   };
 
-  onManualSelectionSpatialFilterResetBtnPressed(){
+  onManualSelectionSpatialFilterActiveBtnPressed(){
+
     this.updateSelectableAreas("manual");
+
+    this.filterHelperService.clearFilteredFeatures();
+    this.filterHelperService.filterAndReplaceDataset();
+    if(this.exchangeData.useNoDataToggle) {
+      // todo $rootScope.$broadcast('applyNoDataDisplay')	
+    }
+  };
+
+  onManualSelectionSpatialFilterResetBtnPressed(){
+
+    this.updateSelectableAreas("manual", false);
 
     this.filterHelperService.clearFilteredFeatures();
     this.filterHelperService.filterAndReplaceDataset();

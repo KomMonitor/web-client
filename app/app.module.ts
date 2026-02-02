@@ -20,8 +20,6 @@ import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { KommonitorDiagramsComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorDiagrams/kommonitor-diagrams.component';
 import { KommonitorBalanceComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorBalance/kommonitor-balance.component';
-import { KommonitorFilterComponent } from 'components/ngComponents/userInterface/sidebar/kommonitorFilter/kommonitor-filter.component';
-import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { AdminComponent } from 'components/ngComponents/admin/admin.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -73,8 +71,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     BaseIndicatorOfHeadlineIndicatorFilter,
     KommonitorDiagramsComponent,
     KommonitorBalanceComponent,
-    KommonitorFilterComponent,
-    DualListBoxComponent,
     AdminComponent,
     OrderByPipe,
     AdminComponent,
