@@ -12,10 +12,6 @@ import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MathjaxModule } from 'mathjax-angular';
-import { RegressionDiagramComponent } from 'components/ngComponents/userInterface/sidebar/regressionDiagram/regression-diagram.component';
-import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
-import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
-import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 import { AdminComponent } from 'components/ngComponents/admin/admin.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -59,10 +55,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     MainComponent,
     UserInterfaceComponent,
     KommonitorMapComponent,
-    RegressionDiagramComponent,
-    SelectedIndicatorFilter,
-    BaseIndicatorOfComputedIndicatorFilter,
-    BaseIndicatorOfHeadlineIndicatorFilter,
     AdminComponent,
     OrderByPipe,
     AdminComponent,

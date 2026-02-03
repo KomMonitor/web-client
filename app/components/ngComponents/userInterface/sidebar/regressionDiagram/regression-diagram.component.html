@@ -6,415 +6,382 @@
 		</div>
 	</div>
 
-	<p></p>
+  <expandable-box [title]="exchangeData.enableScatterPlotRegression ? 'Lineare Regression zwischen zwei Indikatoren' : 'Streudiagramm für zwei Indikatoren' " [collapsed]="false">
+    <label class="switch">
+      <input type="checkbox" [(ngModel)]="diagramHelperService.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
+      <span class="switchslider round"></span>
+    </label>
+    <strong>nur gleicher Zeitschnitt</strong>
 
-	<!-- REGRESSION CHART CONFIG -->
-				<div class="box box-primary">
-					<div class="box-header with-border">
-						<h3 *ngIf="exchangeData.enableScatterPlotRegression" class="box-title">Lineare Regression zwischen zwei Indikatoren</h3>
-						<h3 *ngIf="!exchangeData.enableScatterPlotRegression" class="box-title">Streudiagramm für zwei Indikatoren</h3>
-						<div class="box-tools pull-right">
-							<button (click)="indicatorSelectCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-							</button>
-						</div>
-					</div>
-					<div class="box-body" #indicatorSelectCollapse="ngbCollapse" [(ngbCollapse)]="isIndicatorSelectCollapsed">
+    <p></p>
 
-						<label class="switch">
-							<input type="checkbox" [(ngModel)]="diagramHelperService.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
-						  <span class="switchslider round"></span>
-						</label>
-						<strong>nur gleicher Zeitschnitt</strong>
+    <ul class="nav nav-tabs" id="legendTabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="regressionDiagramTab1" data-bs-toggle="tab" tata-bs-target="#regressionDiagramTab1Content"
+          role="tab" aria-controls="regressionDiagramTab1Content" aria-selected="true">Alphabetische Liste</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [ngClass]="{'disabled': (exchangeData.selectedIndicator?.creationType != 'COMPUTATION')}" id="regressionDiagramTab2" data-bs-toggle="tab" tata-bs-target="#regressionDiagramTab2Content" role="tab"
+          aria-controls="regressionDiagramTab2Content" aria-selected="false">Auswahl aktueller Indikator</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [ngClass]="{'disabled': (!exchangeData.selectedIndicator?.isHeadlineIndicator)}" id="regressionDiagramTab3" data-bs-toggle="tab" tata-bs-target="#regressionDiagramTab3Content" role="tab"
+          aria-controls="regressionDiagramTab3Content" aria-selected="false">Auswahl aktueller Leitindikator</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="regressionDiagramTab1Content" role="tabpanel"
+        aria-labelledby="regressionDiagramTab1">
+          
+        <div class="just-padding">
+          <div text-style="text-align:center" style="text-align:center" class="hiddenTable">
 
-						<p></p>
+            <!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
 
-            <ul class="nav nav-tabs" id="legendTabs" role="tablist">
-              <li class="nav-item active">
-                <a class="nav-link active" id="regressionDiagramTab1" data-toggle="tab" href="#regressionDiagramTab1Content"
-                  role="tab" aria-controls="regressionDiagramTab1Content" aria-selected="true">Alphabetische Liste</a>
-              </li>
-              <li class="nav-item" [ngClass]="{'disabled': (exchangeData.selectedIndicator?.creationType != 'COMPUTATION')}">
-                <a class="nav-link" id="regressionDiagramTab2" data-toggle="tab" href="#regressionDiagramTab2Content" role="tab"
-                  aria-controls="regressionDiagramTab2Content" aria-selected="false">Auswahl aktueller Indikator</a>
-              </li>
-              <li class="nav-item" [ngClass]="{'disabled': (!exchangeData.selectedIndicator?.isHeadlineIndicator)}">
-                <a class="nav-link" id="regressionDiagramTab3" data-toggle="tab" href="#regressionDiagramTab3Content" role="tab"
-                  aria-controls="regressionDiagramTab3Content" aria-selected="false">Auswahl aktueller Leitindikator</a>
-              </li>
-            </ul>
-            <div class="tab-content">
-              <div class="tab-pane active" id="regressionDiagramTab1Content" role="tabpanel"
-                aria-labelledby="regressionDiagramTab1">
-                	
-								<div class="just-padding">
-									<div text-style="text-align:center" style="text-align:center" class="hiddenTable">
+            <div class="hiddenTableCell">
 
-										<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-	
-										<div class="hiddenTableCell">
-	
-	
-											<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
-	
-												<label>X-Achse</label>
-	
-												<div class="input-group">
-													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" (keyup)="filterAvailableIndicatorsXAxis($event)">
-												</div>
-	
-												<p></p>
-	
-													<!-- <select style="font-size: 12px;"
-														size="10" [(ngModel)]="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForXAxis"
-														(change)="onChangeSelectedIndicators()" class="form-control" required>
-														<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
-													</select> -->
-	
-													<div class="regressionInputForm">
-														<table class="table table-condensed " style="margin-bottom:0px;">
-															<thead>
-																<th>
-																	Indikator											
-																</th>
-																<th>
-																	Zeitschnitt
-																</th>
-															</thead>
-															<tbody> 
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:selection.indicatorNameFilterForXAxis'>
-																	<td>
-																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionX_alphabetical" [value]="input" [(ngModel)]="selection.selectedIndicatorForXAxis" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																		</div>
-																	</td>
-																	<td>
-																		<select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
-                                        class="form-control" required>
-                                      <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
-																		</select>
-                                    
-																	</td>
-																
-																</tr>	
-															</tbody>												
-														
-														</table>
-													</div>												
-											</div>
-	
-										</div>
-	
-										<div class="hiddenTableCell">
-	
-	
-											<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
-	
-												<label>Y-Achse</label>
-	
-												<div class="input-group">
-													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" (keyup)="filterAvailableIndicatorsYAxis($event)">
-												</div>
-	
-												<p></p>
-	
-													<!-- <select style="font-size: 12px;"
-														size="10" [(ngModel)]="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForYAxis"
-														(change)="onChangeSelectedIndicators()" class="form-control" required>
-														<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
-													</select> -->
-	
-													<div class="regressionInputForm">
-														<table class="table table-condensed " style="margin-bottom:0px;">
-															<thead>
-																<th>
-																	Indikator											
-																</th>
-																<th>
-																	Zeitschnitt
-																</th>
-															</thead>
-															<tbody>
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:selection.indicatorNameFilterForYAxis'>
-																	<td>
-																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionY_alphabetical" [value]="input" [(ngModel)]="selection.selectedIndicatorForYAxis" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																		</div>
-																	</td>
-																	<td>
-																		<select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
-                                        class="form-control" required>
-                                      <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
-                                    </select>
-																	</td>
-																
-																</tr>	
-															</tbody>												
-															
-														</table>
-	
-													</div>
-											</div>
-	
-										</div>
-	
-	
-									</div>
-								</div>
 
+              <div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
+
+                <label>X-Achse</label>
+
+                <div class="input-wrapper">
+                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                  <input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" (keyup)="filterAvailableIndicatorsXAxis($event)">
+                </div>
+
+                <p></p>
+
+                  <!-- <select style="font-size: 12px;"
+                    size="10" [(ngModel)]="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForXAxis"
+                    (change)="onChangeSelectedIndicators()" class="form-control" required>
+                    <option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
+                  </select> -->
+
+                  <div class="regressionInputForm">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <th>
+                          Indikator											
+                        </th>
+                        <th>
+                          Zeitschnitt
+                        </th>
+                      </thead>
+                      <tbody> 
+                        <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:selection.indicatorNameFilterForXAxis; let i = index'>
+                          <td>
+                            <div class="radioWrapper" style="margin-top: 0px; margin-bottom: 0px;">
+                              <input type="radio" name="regressionX_alphabetical" [value]="input" [(ngModel)]="selection.selectedIndicatorForXAxis" (change)="onChangeSelectedIndicators()"><label>{{input.indicatorMetadata.indicatorName}}</label>
+                            </div>
+                          </td>
+                          <td>
+                            <select style="font-size: 11px; width:135px" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
+                                class="form-control" required>
+                              <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                            </select>
+                            
+                          </td>
+                        
+                        </tr>	
+                      </tbody>												
+                    
+                    </table>
+                  </div>												
               </div>
-              <div class="tab-pane" id="regressionDiagramTab2Content" role="tabpanel"
-                aria-labelledby="regressionDiagramTab2">
-                
-								<div class="just-padding">
-									<div text-style="text-align:center" style="text-align:center" class="hiddenTable">
 
-										<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-	
-										<div class="hiddenTableCell">
-	
-	
-											<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
-	
-												<label>Ziel-Indikator (X-Achse)</label>
-	
-												<p></p>
-	
-													<div class="regressionInputForm">
-														<table class="table table-condensed " style="margin-bottom:0px;">
-															<thead>
-																<th>
-																	Indikator											
-																</th>
-																<th>
-																	Zeitschnitt
-																</th>
-															</thead>
-															<tbody> 
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
-																	<td>
-																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionX_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																		</div>
-																	</td>
-																	<td>
-																		<select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
-                                        class="form-control" required>
-                                      <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
-																		</select>
-																	</td>
-																
-																</tr>	
-															</tbody>												
-														
-														</table>
-													</div>												
-											</div>
-	
-										</div>
-	
-										<div class="hiddenTableCell">
-	
-	
-											<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
-	
-												<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
-	
-												<p></p>
-	
-													<!-- <select style="font-size: 12px;"
-														size="10" [(ngModel)]="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForYAxis"
-														(change)="onChangeSelectedIndicators()" class="form-control" required>
-														<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
-													</select> -->
-	
-													<div class="regressionInputForm">
-														<table class="table table-condensed " style="margin-bottom:0px;">
-															<thead>
-																<th>
-																	Indikator											
-																</th>
-																<th>
-																	Zeitschnitt
-																</th>
-															</thead>
-															<tbody>
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfComputedIndicatorFilter'>
-																	<td>
-																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionY_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																		</div>
-																	</td>
-																	<td>
-																		<select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
-                                        class="form-control" required>
-                                      <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
-																		</select>
-																	</td>
-																
-																</tr>	
-															</tbody>												
-															
-														</table>
-	
-													</div>
-											</div>
-	
-										</div>
-	
-	
-									</div>
-	
-								</div>
-							
+            </div>
+
+            <div class="hiddenTableCell">
+
+
+              <div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
+
+                <label>Y-Achse</label>
+
+                <div class="input-wrapper">
+                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                  <input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" (keyup)="filterAvailableIndicatorsYAxis($event)">
+                </div>
+
+                <p></p>
+
+                  <!-- <select style="font-size: 12px;"
+                    size="10" [(ngModel)]="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForYAxis"
+                    (change)="onChangeSelectedIndicators()" class="form-control" required>
+                    <option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
+                  </select> -->
+
+                  <div class="regressionInputForm">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <th>
+                          Indikator											
+                        </th>
+                        <th>
+                          Zeitschnitt
+                        </th>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | indicatorNameFilter:selection.indicatorNameFilterForYAxis'>
+                          <td>
+                            <div class="radioWrapper" style="margin-top: 0px; margin-bottom: 0px;">
+                              <input type="radio" name="regressionY_alphabetical" [value]="input" [(ngModel)]="selection.selectedIndicatorForYAxis" (change)="onChangeSelectedIndicators()"><label>{{input.indicatorMetadata.indicatorName}}</label>
+                            </div>
+                          </td>
+                          <td>
+                            <select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
+                                class="form-control" required>
+                              <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                            </select>
+                          </td>
+                        
+                        </tr>	
+                      </tbody>												
+                      
+                    </table>
+
+                  </div>
               </div>
-              <div class="tab-pane" id="regressionDiagramTab3Content" role="tabpanel"
-                aria-labelledby="regressionDiagramTab3">
-                
-								<div class="just-padding">
-									<div text-style="text-align:center" style="text-align:center" class="hiddenTable">
 
-										<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-	
-										<div class="hiddenTableCell">
-	
-	
-											<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
-	
-												<label>Leitindikator (X-Achse)</label>
-	
-												<p></p>
-	
-													<div class="regressionInputForm">
-														<table class="table table-condensed " style="margin-bottom:0px;">
-															<thead>
-																<th>
-																	Indikator											
-																</th>
-																<th>
-																	Zeitschnitt
-																</th>
-															</thead>
-															<tbody>
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
-																	<td>
-																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionX_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																		</div>
-																	</td>
-																	<td>
-																		<select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
-                                        class="form-control" required>
-                                      <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
-																		</select>
-																	</td>
-																
-																</tr>	
-															</tbody>												
-														
-														</table>
-													</div>												
-											</div>
-	
-										</div>
-	
-										<div class="hiddenTableCell">
-	
-	
-											<div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
-	
-												<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
-	
-												<p></p>
-	
-													<div class="regressionInputForm">
-														<table class="table table-condensed " style="margin-bottom:0px;">
-															<thead>
-																<th>
-																	Indikator											
-																</th>
-																<th>
-																	Zeitschnitt
-																</th>
-															</thead>
-															<tbody>
-																<tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfHeadlineIndicatorFilter'>
-																	<td>
-																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionY_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																		</div>
-																	</td>
-																	<td>
-																		<select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
-                                        class="form-control" required>
-                                      <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
-																		</select>
-																	</td>
-																
-																</tr>	
-															</tbody>												
-															
-														</table>
-	
-													</div>
-											</div>
-	
-										</div>
-	
-	
-									</div>
-	
-								</div>
-								
+            </div>
+
+
+          </div>
+        </div>
+
+      </div>
+      <div class="tab-pane" id="regressionDiagramTab2Content" role="tabpanel"
+        aria-labelledby="regressionDiagramTab2">
+        
+        <div class="just-padding">
+          <div text-style="text-align:center" style="text-align:center" class="hiddenTable">
+
+            <!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+
+            <div class="hiddenTableCell">
+
+
+              <div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
+
+                <label>Ziel-Indikator (X-Achse)</label>
+
+                <p></p>
+
+                  <div class="regressionInputForm">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <th>
+                          Indikator											
+                        </th>
+                        <th>
+                          Zeitschnitt
+                        </th>
+                      </thead>
+                      <tbody> 
+                        <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
+                          <td>
+                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+                              <label><input type="radio" name="regressionX_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            </div>
+                          </td>
+                          <td>
+                            <select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
+                                class="form-control" required>
+                              <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                            </select>
+                          </td>
+                        
+                        </tr>	
+                      </tbody>												
+                    
+                    </table>
+                  </div>												
               </div>
-            </div>						
 
-					</div>
-					<!-- /.box-body -->
-				</div>
-				<!-- /.box -->
+            </div>
 
-			<!-- REGRESSION CHART -->
-						<div style="margin-bottom: 0px;" [hidden]="!regressionChart" class="box box-success">
-							<div class="box-header with-border">
-								<h3 *ngIf="exchangeData.enableScatterPlotRegression" class="box-title">Lineare Regression - {{spatialUnitName}}</h3>
-								<h3 *ngIf="!exchangeData.enableScatterPlotRegression" class="box-title">Streudiagramm - {{spatialUnitName}}</h3>
+            <div class="hiddenTableCell">
 
-								<div class="box-tools pull-right">
-									<button (click)="radarCollapse.toggle()" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-									</button>
-								</div>
-							</div>
-							<div class="box-body" #radarCollapse="ngbCollapse" [(ngbCollapse)]="isRadarCollapsed">
-								<div class="chart">
 
-									<div class="row">
-										<div class="col-md-6" style="text-align: left;">
-											Das Streudiagramm kann bei Bedarf um eine lineare Regressionsanalyse erg&auml;nzt werden. 
-										</div>
-										<div class="col-md-6" style="text-align: right;">
-											<b title="Checkbox zur Wahl, ob lineare Regressionsanalyse sichtbar ist">lineare Regressionsanalyse darstellen?</b>
-											&nbsp;
-											<label class="switch">
-												<input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression" [(ngModel)]="exchangeData.enableScatterPlotRegression" (change)="onChangeEnableScatterPlotRegression()"
-													checked>
-												<span class="switchslider round"></span>
-											</label>		
-										</div>
-									</div>	
+              <div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
 
-									<div id="regressionDiagram" style="width:100%; min-height:60vh;"></div>
-								</div>
+                <label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
 
-									<div *ngIf="exchangeData.enableScatterPlotRegression">
-										<b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
-									</div>
-									
+                <p></p>
 
-							</div>
-							<!-- /.box-body -->
-						</div>
-						<!-- /.box -->
+                  <!-- <select style="font-size: 12px;"
+                    size="10" [(ngModel)]="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForYAxis"
+                    (change)="onChangeSelectedIndicators()" class="form-control" required>
+                    <option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
+                  </select> -->
+
+                  <div class="regressionInputForm">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <th>
+                          Indikator											
+                        </th>
+                        <th>
+                          Zeitschnitt
+                        </th>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfComputedIndicatorFilter'>
+                          <td>
+                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+                              <label><input type="radio" name="regressionY_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            </div>
+                          </td>
+                          <td>
+                            <select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
+                                class="form-control" required>
+                              <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                            </select>
+                          </td>
+                        
+                        </tr>	
+                      </tbody>												
+                      
+                    </table>
+
+                  </div>
+              </div>
+
+            </div>
+
+
+          </div>
+
+        </div>
+      
+      </div>
+      <div class="tab-pane" id="regressionDiagramTab3Content" role="tabpanel"
+        aria-labelledby="regressionDiagramTab3">
+        
+        <div class="just-padding">
+          <div text-style="text-align:center" style="text-align:center" class="hiddenTable">
+
+            <!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+
+            <div class="hiddenTableCell">
+
+
+              <div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
+
+                <label>Leitindikator (X-Achse)</label>
+
+                <p></p>
+
+                  <div class="regressionInputForm">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <th>
+                          Indikator											
+                        </th>
+                        <th>
+                          Zeitschnitt
+                        </th>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
+                          <td>
+                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+                              <label><input type="radio" name="regressionX_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            </div>
+                          </td>
+                          <td>
+                            <select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
+                                class="form-control" required>
+                              <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                            </select>
+                          </td>
+                        
+                        </tr>	
+                      </tbody>												
+                    
+                    </table>
+                  </div>												
+              </div>
+
+            </div>
+
+            <div class="hiddenTableCell">
+
+
+              <div text-style="text-align:center" style="text-align:center" class="hiddenTableContent">
+
+                <label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
+
+                <p></p>
+
+                  <div class="regressionInputForm">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <th>
+                          Indikator											
+                        </th>
+                        <th>
+                          Zeitschnitt
+                        </th>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfHeadlineIndicatorFilter'>
+                          <td>
+                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+                              <label><input type="radio" name="regressionY_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            </div>
+                          </td>
+                          <td>
+                            <select style="font-size: 11px; width:135px; padding: 0px;" [(ngModel)]="input.selectedDate" (change)="onChangeSelectedDate()"
+                                class="form-control" required>
+                              <option *ngFor="let date of input.indicatorMetadata.applicableDates" [attr.selected]="(date==input.selectedDate) ? 'selected' : null">{{date}}</option>
+                            </select>
+                          </td>
+                        
+                        </tr>	
+                      </tbody>												
+                      
+                    </table>
+
+                  </div>
+              </div>
+
+            </div>
+
+
+          </div>
+
+        </div>
+        
+      </div>
+    </div>
+  </expandable-box>
+ 
+  <expandable-box [title]="chartTitle" [collapsed]="false" [borderColor]="'green'">
+    <div class="chart">
+
+      <div class="row">
+        <div class="col-md-6" style="text-align: left;">
+          Das Streudiagramm kann bei Bedarf um eine lineare Regressionsanalyse erg&auml;nzt werden. 
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+          <b title="Checkbox zur Wahl, ob lineare Regressionsanalyse sichtbar ist">lineare Regressionsanalyse darstellen?</b>
+          &nbsp;
+          <label class="switch">
+            <input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression" [(ngModel)]="exchangeData.enableScatterPlotRegression" (change)="onChangeEnableScatterPlotRegression()"
+              checked>
+            <span class="switchslider round"></span>
+          </label>		
+        </div>
+      </div>	
+
+      <div id="regressionDiagram" style="width:100%; min-height:60vh;"></div>
+    </div>
+
+    <div *ngIf="exchangeData.enableScatterPlotRegression">
+      <b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
+    </div>
+  </expandable-box>
 
 </div>

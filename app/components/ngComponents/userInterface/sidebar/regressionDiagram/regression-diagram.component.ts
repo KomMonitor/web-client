@@ -5,11 +5,28 @@ import * as ecStat from 'echarts-stat';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
+import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
+import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
+import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
 
 @Component({
   selector: 'app-regression-diagram',
   templateUrl: './regression-diagram.component.html',
-  styleUrls: ['./regression-diagram.component.css']
+  styleUrls: ['./regression-diagram.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ExpandableBoxComponent, 
+    IndicatorNameFilter, 
+    SelectedIndicatorFilter,
+    BaseIndicatorOfComputedIndicatorFilter,
+    BaseIndicatorOfHeadlineIndicatorFilter
+  ]
 })
 export class RegressionDiagramComponent implements OnInit {
   
@@ -72,6 +89,8 @@ export class RegressionDiagramComponent implements OnInit {
 
   exchangeData;
 
+  chartTitle!: string;
+
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
@@ -115,6 +134,8 @@ export class RegressionDiagramComponent implements OnInit {
         } break;
       }
     });
+
+    this.chartTitle = this.exchangeData.enableScatterPlotRegression ? `Lineare Regression - ${this.spatialUnitName}` : `Streudiagramm - ${this.spatialUnitName}`;
   }
 
  /*  

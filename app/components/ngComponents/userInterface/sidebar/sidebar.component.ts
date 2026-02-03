@@ -7,6 +7,7 @@ import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.
 import { KommonitorBalanceComponent } from './kommonitorBalance/kommonitor-balance.component';
 import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-diagrams.component';
 import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.component';
+import { RegressionDiagramComponent } from './regressionDiagram/regression-diagram.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -20,7 +21,8 @@ import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.compon
     KommonitorFilterComponent,
     KommonitorBalanceComponent,
     KommonitorDiagramsComponent,
-    IndicatorRadarComponent]
+    IndicatorRadarComponent,
+    RegressionDiagramComponent]
 })
 export class SidebarComponent implements OnInit{
 
@@ -38,7 +40,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarRadarDiagramCollapse';
+    this.element = 'sidebarRegressionDiagramCollapse';
   }
 
   closeSidebar() {

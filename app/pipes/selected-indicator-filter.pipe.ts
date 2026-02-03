@@ -3,7 +3,8 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 
 @Pipe({
     name: 'currentlySelectedIndicatorFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class SelectedIndicatorFilter implements PipeTransform {
 

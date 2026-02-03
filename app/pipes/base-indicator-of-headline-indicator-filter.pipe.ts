@@ -3,7 +3,8 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 
 @Pipe({
     name: 'baseIndicatorOfHeadlineIndicatorFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class BaseIndicatorOfHeadlineIndicatorFilter implements PipeTransform {
 
