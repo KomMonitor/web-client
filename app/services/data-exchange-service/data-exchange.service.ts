@@ -158,9 +158,8 @@ export class DataExchangeService {
   customReportFontSize = window.__env.customReportFontSize;
 
   enableMeanDataDisplayInLegend = window.__env.enableMeanDataDisplayInLegend;
-  configMeanDataDisplay = window.__env.configMeanDataDisplay;
+  configMeanDataDisplay = window.__env.configMeanDataDisplay || 'both';
   
-
   defaultNumberOfDecimals = window.__env.numberOfDecimals;
   DATE_PREFIX = window.__env.indicatorDatePrefix;
   defaultColorForZeroValues = window.__env.defaultColorForZeroValues;

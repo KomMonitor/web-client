@@ -10,7 +10,7 @@ import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-dia
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'],
+  styleUrls: ['./sidebar.component.scss'],
   standalone: true,
   imports: [
     CommonModule, 
@@ -36,7 +36,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarBalanceCollapse';
+    //this.element = 'sidebarDiagramsCollapse';
   }
 
   closeSidebar() {

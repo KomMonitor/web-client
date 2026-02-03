@@ -8,6 +8,7 @@ import { fromEvent, Observable, Subscription } from "rxjs";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 
 @Component({
@@ -15,7 +16,7 @@ import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './kommonitor-diagrams.component.html',
   styleUrls: ['./kommonitor-diagrams.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbCollapse]
+  imports: [CommonModule, FormsModule, NgbCollapse, ExpandableBoxComponent]
 })
 export class KommonitorDiagramsComponent implements OnInit {
 
@@ -26,6 +27,9 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   isBarchartCollapsed = false;
   isLinechartCollapsed = false;
+
+  title!: string;
+  lineTitle!: string;
 
   constructor(
     private dataExchangeService: DataExchangeService,
@@ -169,6 +173,9 @@ export class KommonitorDiagramsComponent implements OnInit {
   updateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
 
     console.log("Updating diagrams!");
+
+    this.title = `Raumeinheits-Vergleich - ${spatialUnitName} - ${date}`;
+    this.lineTitle = `Zeitreihe - ${spatialUnitName}`;
 
     this.loadingData = true;
 

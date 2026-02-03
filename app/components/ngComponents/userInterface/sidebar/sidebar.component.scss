@@ -12,7 +12,7 @@
   #sidebarContentWrapper {
     
     width: 35vw;
-    padding-right: 1em;
+    margin-top: 2em;
 
     &.disabled {
       display: none;
@@ -24,11 +24,9 @@
 
     .close {
       position: absolute;
-      right: 0;
+      right: .5em;
       top: 0;
-      font-size: 12px;
-      text-decoration: underline;
-      margin: .3em;
+      font-size: 20px;
       cursor: pointer;
     }
   }
