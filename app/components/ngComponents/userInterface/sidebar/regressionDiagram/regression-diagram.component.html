@@ -17,15 +17,15 @@
 
     <ul class="nav nav-tabs" id="legendTabs" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" id="regressionDiagramTab1" data-bs-toggle="tab" tata-bs-target="#regressionDiagramTab1Content"
+        <a class="nav-link active" id="regressionDiagramTab1" data-bs-toggle="tab" data-bs-target="#regressionDiagramTab1Content"
           role="tab" aria-controls="regressionDiagramTab1Content" aria-selected="true">Alphabetische Liste</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [ngClass]="{'disabled': (exchangeData.selectedIndicator?.creationType != 'COMPUTATION')}" id="regressionDiagramTab2" data-bs-toggle="tab" tata-bs-target="#regressionDiagramTab2Content" role="tab"
+        <a class="nav-link" [ngClass]="{'disabled': (exchangeData.selectedIndicator?.creationType != 'COMPUTATION')}" id="regressionDiagramTab2" data-bs-toggle="tab" data-bs-target="#regressionDiagramTab2Content" role="tab"
           aria-controls="regressionDiagramTab2Content" aria-selected="false">Auswahl aktueller Indikator</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [ngClass]="{'disabled': (!exchangeData.selectedIndicator?.isHeadlineIndicator)}" id="regressionDiagramTab3" data-bs-toggle="tab" tata-bs-target="#regressionDiagramTab3Content" role="tab"
+        <a class="nav-link" [ngClass]="{'disabled': (!exchangeData.selectedIndicator?.isHeadlineIndicator)}" id="regressionDiagramTab3" data-bs-toggle="tab" data-bs-target="#regressionDiagramTab3Content" role="tab"
           aria-controls="regressionDiagramTab3Content" aria-selected="false">Auswahl aktueller Leitindikator</a>
       </li>
     </ul>
@@ -181,8 +181,8 @@
                       <tbody> 
                         <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
                           <td>
-                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-                              <label><input type="radio" name="regressionX_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            <div class="radioWrapper" style="margin-top: 0px; margin-bottom: 0px;">
+                              <input type="radio" name="regressionX_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()"><label>{{input.indicatorMetadata.indicatorName}}</label>
                             </div>
                           </td>
                           <td>
@@ -229,8 +229,8 @@
                       <tbody>
                         <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfComputedIndicatorFilter'>
                           <td>
-                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-                              <label><input type="radio" name="regressionY_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            <div class="radioWrapper" style="margin-top: 0px; margin-bottom: 0px;">
+                              <input type="radio" name="regressionY_computationIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()"><label>{{input.indicatorMetadata.indicatorName}}</label>
                             </div>
                           </td>
                           <td>
@@ -286,8 +286,8 @@
                       <tbody>
                         <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | currentlySelectedIndicatorFilter'>
                           <td>
-                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-                              <label><input type="radio" name="regressionX_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            <div class="radioWrapper" style="margin-top: 0px; margin-bottom: 0px;">
+                              <input type="radio" name="regressionX_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" (change)="onChangeSelectedIndicators()"><label>{{input.indicatorMetadata.indicatorName}}</label>
                             </div>
                           </td>
                           <td>
@@ -328,8 +328,8 @@
                       <tbody>
                         <tr *ngFor='let input of diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime | baseIndicatorOfHeadlineIndicatorFilter'>
                           <td>
-                            <div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-                              <label><input type="radio" name="regressionY_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+                            <div class="radioWrapper" style="margin-top: 0px; margin-bottom: 0px;">
+                              <input type="radio" name="regressionY_headlineIndicator" ng-value="input" [(ngModel)]="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" (change)="onChangeSelectedIndicators()"><label>{{input.indicatorMetadata.indicatorName}}</label>
                             </div>
                           </td>
                           <td>
