@@ -12,8 +12,6 @@ import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MathjaxModule } from 'mathjax-angular';
-import { IndicatorRadarComponent } from 'components/ngComponents/userInterface/sidebar/indicatorRadar/indicator-radar.component';
-import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
 import { RegressionDiagramComponent } from 'components/ngComponents/userInterface/sidebar/regressionDiagram/regression-diagram.component';
 import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
 import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
@@ -61,8 +59,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     MainComponent,
     UserInterfaceComponent,
     KommonitorMapComponent,
-    IndicatorRadarComponent,
-    IndicatorNameFilter,
     RegressionDiagramComponent,
     SelectedIndicatorFilter,
     BaseIndicatorOfComputedIndicatorFilter,

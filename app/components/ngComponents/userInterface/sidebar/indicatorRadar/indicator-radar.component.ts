@@ -4,13 +4,18 @@ import * as echarts from 'echarts';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-indicator-radar',
   templateUrl: './indicator-radar.component.html',
-  styleUrls: ['./indicator-radar.component.css']
-})
-export class IndicatorRadarComponent implements OnInit {
+  styleUrls: ['./indicator-radar.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, IndicatorNameFilter, ExpandableBoxComponent]
+}) export class IndicatorRadarComponent implements OnInit {
 
   
   activeTab = 0;
@@ -33,6 +38,8 @@ export class IndicatorRadarComponent implements OnInit {
   preppedIndicatorPropertiesForCurrentSpatialUnitAndTime!:any;
   propertiesForCurrentlySelectedIndicator!:any;
   propertiesForBaseIndicatorsOfCurrentHeadlineIndicator!: any;
+
+  chartTitle!: string;
 
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
@@ -61,6 +68,8 @@ export class IndicatorRadarComponent implements OnInit {
         }
         return false;
       });
+
+      this.chartTitle = `Indikatorenradar - ${this.spatialUnitName}`;
     },2000);
 
     this.broadcastService.currentBroadcastMsg.subscribe(result => {

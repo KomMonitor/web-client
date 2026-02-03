@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'indicatorNameFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class IndicatorNameFilter implements PipeTransform {
     transform(items: any[], filter: any): any {

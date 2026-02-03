@@ -6,6 +6,7 @@ import { PoiComponent } from './poi/poi.component';
 import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.component';
 import { KommonitorBalanceComponent } from './kommonitorBalance/kommonitor-balance.component';
 import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-diagrams.component';
+import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -18,7 +19,8 @@ import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-dia
     PoiComponent,
     KommonitorFilterComponent,
     KommonitorBalanceComponent,
-    KommonitorDiagramsComponent]
+    KommonitorDiagramsComponent,
+    IndicatorRadarComponent]
 })
 export class SidebarComponent implements OnInit{
 
@@ -36,7 +38,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    //this.element = 'sidebarDiagramsCollapse';
+    this.element = 'sidebarRadarDiagramCollapse';
   }
 
   closeSidebar() {
