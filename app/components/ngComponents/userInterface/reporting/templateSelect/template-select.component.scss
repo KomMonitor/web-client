@@ -1,0 +1,33 @@
+:host {
+
+  .template-selected {
+    background:#0078D7;
+    color: white;
+  }
+
+  .accordion-item {
+    border: 1px solid #ddd !important;
+
+    .accordion-header {
+      background-color: #f5f5f5 !important;
+
+      .accordion-button {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--custom-font-family);
+        box-shadow: none !important;
+      }
+
+      .accordion-button::after {
+        display: none !important;
+      }
+    }
+  }
+
+  .accordion-body {
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+  }
+}

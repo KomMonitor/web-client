@@ -40,7 +40,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarRegressionDiagramCollapse';
+    //this.element = 'sidebarRegressionDiagramCollapse';
   }
 
   closeSidebar() {

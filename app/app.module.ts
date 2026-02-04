@@ -21,7 +21,6 @@ import { KmLinePatternPickerComponent } from 'components/ngComponents/customElem
 import { KmDatePickerComponent } from 'components/ngComponents/customElements/date-picker/km-date-picker.component';
 import { AuthInterceptor } from 'util/interceptors/auth.interceptor';
 import { OrderByPipe } from 'pipes/order-by.pipe';
-import { PipesModule } from 'pipes.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { SmallBoxComponent } from './components/ngComponents/admin/adminDashboardManagement/small-box/small-box.component';
 import { ExpandableBoxComponent } from './components/ngComponents/common/expandable-box/expandable-box.component';
@@ -81,7 +80,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     KmDatePickerComponent,
-    PipesModule,
     DragDropModule,
     NgbDropdownModule,
     NgbAccordionButton,

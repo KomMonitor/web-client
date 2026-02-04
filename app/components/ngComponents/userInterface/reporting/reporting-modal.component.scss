@@ -1,0 +1,39 @@
+::ng-deep .modal-holder .modal-dialog { 
+  max-width: max-content;
+  width: max-content;
+  transform: none !important;
+}
+
+:host {
+  .modal-content {
+    width: 80vw;
+
+    &.content-small {
+      width: 40vw;
+    }
+    
+    .modal-header {
+
+      button {
+        border: none;
+        background-color: #fff;
+      }
+      
+      h4 {
+        margin: 0 0 5px;
+        font: 16px/18px Arial, Helvetica, sans-serif !important;
+        color: #777 !important;
+      }
+    }
+  }
+}
+
+::ng-deep .modal-custom-footer {
+  margin-top: 1em;
+  display: grid; 
+  grid-template-columns: auto auto;
+
+  div:last-child {
+    text-align: right;
+  }
+}

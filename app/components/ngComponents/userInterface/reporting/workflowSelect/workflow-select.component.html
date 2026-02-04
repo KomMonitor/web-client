@@ -7,16 +7,16 @@
           </p>
       </div>
   </div>
-    <div class="row text-center">
+    <div class="select-wrapper">
         <button id="reporting-createNewReportBtn" class="btn btn-primary" (click)='onWorkflowSelect([1])'>
             <i class="fa fa-plus"></i>
             Neuen Report erstellen
         </button>
-        <label for="reporting-load-settings-button" class="btn btn-primary">
-            <input type="file" id="reporting-load-settings-button" (change)="onConfigSelect($event)">
+        <button for="reporting-load-settings-button" class="btn btn-primary">
+            <input type="file" id="reporting-load-settings-button">
             <i class="fa fa-file-download"></i>
             &nbsp;&nbsp;Konfigurationsdatei importieren
-        </label>
+        </button>
     </div>
 </div>
 

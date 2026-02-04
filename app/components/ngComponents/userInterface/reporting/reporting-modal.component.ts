@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 import { WorkflowSelectComponent } from './workflowSelect/workflow-select.component';
-import { TemplateSelectComponent } from "./templateSelect/template-select.component";
-import { IndicatorAddComponent } from "./indicatorAdd/indicator-add.component";
-import { ReportingOverviewComponent } from "./reportingOverview/reporting-overview.component";
+import { TemplateSelectComponent } from './templateSelect/template-select.component';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 export interface sharedReportingData {
   pageConfig: any;
@@ -21,9 +21,16 @@ export interface reportingData {
 @Component({
   selector: 'app-reporting-modal',
   templateUrl: './reporting-modal.component.html',
-  styleUrls: ['./reporting-modal.component.css']
+  styleUrls: ['./reporting-modal.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    FormsModule,
+    WorkflowSelectComponent,
+    TemplateSelectComponent
+  ]
 })
-export class ReportingModalComponent {
+export class ReportingModalComponent implements OnInit {
 
   /* 
     0 = workflow select
@@ -31,7 +38,7 @@ export class ReportingModalComponent {
     2 = overview page
     3 = indicator add 
   */
-  workflowStatus = 0;
+  workflowStatus = 1;
   data: sharedReportingData = {
     pageConfig: {
       mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
@@ -101,6 +108,23 @@ export class ReportingModalComponent {
     template: {}
   };
  */
+
+  workflowState = WorkflowState;
+
+  constructor(
+    protected reportingService: ReportingService
+  ) {}
+
+  ngOnInit() {
+    this.reportingService.reportingData$.subscribe(val => {
+      console.log('Wert geändert:', val);
+    });
+  }
+
+  isWorkflowState(state:WorkflowState) {
+    return this.reportingService.currentWorkflowState==state;
+  }
+
   onWorkflowDefined(workflow) {
     this.workflowStatus = workflow[0];
 

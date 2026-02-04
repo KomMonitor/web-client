@@ -10,6 +10,7 @@ import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { Router } from '@angular/router';
+import { ReportingModalComponent } from './reporting/reporting-modal.component';
 
 @Component({
   selector: 'user-interface-new',
@@ -83,8 +84,6 @@ export class UserInterfaceComponent implements OnInit {
     if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
       //this.openInfoModal();
 
-    //this.openReportingModal();
-
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
       let values:any = broadcastMsg.values;
@@ -95,6 +94,8 @@ export class UserInterfaceComponent implements OnInit {
         } break;
       }
     });
+
+    this.openReportingModal()
   }
 
   isDiagramSidebarOpened() {
@@ -218,7 +219,7 @@ export class UserInterfaceComponent implements OnInit {
     }
 
     openReportingModal() {
-        /* const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true}); */
+        const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
     }
 
     onSidebarButtonClick(event) {

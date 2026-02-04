@@ -1,20 +1,29 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-workflow-select',
   standalone: true,
   templateUrl: './workflow-select.component.html',
-  styleUrls: ['./workflow-select.component.css']
+  styleUrls: ['./workflow-select.component.scss'],
+  imports: [CommonModule]
 })
 export class WorkflowSelectComponent {
 
   @Output() selectedWorkflow = new EventEmitter<any[]>();
 
+  constructor(
+    protected reportingService: ReportingService
+  ) {}
+
   onWorkflowSelect(value: any[]) {
     this.selectedWorkflow.emit(value);
+
+    this.reportingService.changeWorkflowState(WorkflowState.templateSelect);
   }
 
-  onConfigSelect(event:any) {
+  /* onConfigSelect(event:any) {
 
     let content = "";
     let file = event.target.files[0];
@@ -35,5 +44,5 @@ export class WorkflowSelectComponent {
         //$scope.onWorkflowSelected("existing", config);
     };
     reader.readAsText(file);
-  }
+  } */
 }

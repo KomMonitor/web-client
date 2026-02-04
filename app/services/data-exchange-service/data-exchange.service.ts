@@ -295,7 +295,7 @@ export class DataExchangeService {
   
   topicIndicatorHierarchy_forOrderView:any[] = [];
 
-  reportingDefaultTemplatePageElements = [
+  /* reportingDefaultTemplatePageElements = [
   {
     "type": "indicatorTitle-landscape",
     "dimensions": {
@@ -493,7 +493,7 @@ export class DataExchangeService {
     "placeholderText": "[Seitenzahl]",
     "css": "text-align: right; padding-right: 5px;"
   },
-];
+]; */
 
   POISizes = [{
     id: 0,
@@ -3022,17 +3022,6 @@ export class DataExchangeService {
 
       return this.isDisplayableIndicator(item);
     };
-  }
-
-  getDefaultReportingTemplatePageElement(type) {
-    let result = this.reportingDefaultTemplatePageElements.filter((el) => {
-      return el.type === type;
-    });
-    if(typeof(result) === "undefined") {
-      throw "No DefaultReportingTemplatePageElement exists for type " + type + "."
-    } else {
-      return result[0];
-    }
   }
 
   tryLogoutUser() {

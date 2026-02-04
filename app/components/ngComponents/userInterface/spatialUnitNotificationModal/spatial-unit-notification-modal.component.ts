@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { PipesModule } from 'pipes.module';
+import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 
 @Component({
   selector: 'spatial-unit-notification-modal',
   standalone: true,
   templateUrl: './spatial-unit-notification-modal.component.html',
   styleUrls: ['./spatial-unit-notification-modal.component.css'],
-  imports: [CommonModule, PipesModule]
+  imports: [CommonModule, SafeHtmlPipe]
 })
 export class SpatialUnitNotificationModalComponent implements OnInit {
 
