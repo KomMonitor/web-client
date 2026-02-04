@@ -8,6 +8,8 @@ angular
       __env, kommonitorMapService, kommonitorDataExchangeService) {
 
       var self = this;
+
+      this.spatialFilterIsActive = false;
       
       this.filteredIndicatorFeatureIds = new Map();
       this.selectedIndicatorFeatureIds = new Map();
@@ -59,6 +61,10 @@ angular
           this.filteredIndicatorFeatureIds = new Map();
         }
         for (const feature of features) {
+          if(feature.properties[targetDateProperty] === null || feature.properties[targetDateProperty] === undefined){
+            // no value - feature ha NoData value - skip            
+            continue;
+          }
           var value = +Number(feature.properties[targetDateProperty]).toFixed(__env.numberOfDecimals);
 
           if(value >= minFilterValue && value <= maxFilterValue){

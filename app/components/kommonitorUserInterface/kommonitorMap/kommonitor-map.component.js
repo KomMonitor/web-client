@@ -1358,7 +1358,8 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("updateSpatialFilterIsApplied", function (event) {
           kommonitorDataExchangeService.spatialFilterIsApplied = false;
-          if (kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0) {
+          // we must check, if user has actively checked the spatial filter button in addition to having filtered features
+          if (kommonitorFilterHelperService.spatialFilterIsActive && kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0) {
             kommonitorDataExchangeService.spatialFilterIsApplied = true;
           }
         })
