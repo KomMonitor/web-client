@@ -5,9 +5,7 @@ import { ReportingTemplateFilter } from 'pipes/reporting-template-filter.pipe';
 import { FormsModule } from '@angular/forms';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { NgbAccordionBody, NgbAccordionModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { sharedReportingData } from '../reporting-modal.component';
-import { ReportingService } from 'services/reporting-service/reporting.service';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-template-select',
@@ -17,11 +15,10 @@ import { ReportingService } from 'services/reporting-service/reporting.service';
   imports: [CommonModule, ReportingTemplateFilter, FormsModule, SafeHtmlPipe, NgbDatepickerModule, NgbAccordionModule]
 })
 export class TemplateSelectComponent implements OnInit {
- 
-  @Input() data!:sharedReportingData;
-  @Output() selectedWorkflow = new EventEmitter<any[]>();
 
   datePickerDate!: any;
+
+  workflowState = WorkflowState;
 
   constructor(
     protected reportingService: ReportingService
@@ -36,51 +33,13 @@ export class TemplateSelectComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.resetReportingConfig()
-
        // todo
   /*   this.datePicker = $('#reporting-general-settings-datefield').datepicker({
       autoclose: true,
       language: 'de',
       format: 'yyyy-mm-dd'
     });
-    document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false); */
-
-    // set the property "isPlaceholder" to false for specific page elements since their content should be replaced right away
-    for(let template of this.reportingService.availableTemplates) {
-      this.iteratePageElements( template, function(page, pageElement) {
-        pageElement.isPlaceholder = (
-          pageElement.type.includes("footerCreationInfo-") ||
-          pageElement.type.includes("pageNumber-") ||
-          pageElement.type === "textInput"
-          ) ? false : true;
-      })
-    }
-    
-    for(let template of this.reportingService.availableTemplates) {
-      for(let page of template.pages) {
-        for(let el of page.pageElements) {
-          el.isPlaceholder = (
-            el.type.includes("footerCreationInfo-") ||
-            el.type.includes("pageNumber-") ||
-            el.type === "textInput"
-            ) ? false : true;
-        }
-      }
-    }
-  }
-
-  resetReportingConfig() {
-    this.data.reportingConfig = {
-      template: {},
-      templateSections: [],
-      pages: [],
-      backupTemplate: {}
-    }
-  }
-
-  onWorkflowSelect(value: any[]) {
-    this.selectedWorkflow.emit(value);
+    document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false); */   
   }
 
   onChangeDatepickerDate() {
@@ -153,7 +112,7 @@ export class TemplateSelectComponent implements OnInit {
     }
   }
 
-  onTemplateElementClicked($event, template) {
+  onTemplateElementClicked($event, templateId) {
     let el = $event.target;
     el.style.backgroundColor = "#0078D7";
     el.style.color = "white";
@@ -163,81 +122,12 @@ export class TemplateSelectComponent implements OnInit {
         element.style.color = "black";
       }
     });
-    // set scope variable manually each time
-    if(this.reportingService.selectedTemplate !== template) {
-      this.reportingService.selectedTemplate = template;
-    }
-  }
-
-  /**
-   * converts a base64 encoded data url SVG image to a PNG image
-   * @param originalBase64 data url of svg image
-   * @param width target width in pixel of PNG image
-   * @return {Promise<String>} resolves to png data url of the image
-   */
-  async base64SvgToBase64Png (originalBase64, width) {
-    return await new Promise(resolve => {
-      let img:any = document.createElement('img');
-      img.onload = () => {
-        document.body.appendChild(img);
-        let canvas = document.createElement("canvas");
-        let ratio = (img.clientWidth / img.clientHeight) || 1;
-        document.body.removeChild(img);
-        canvas.width = width;
-        canvas.height = width / ratio;
-        let ctx:any = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        try {
-          let data = canvas.toDataURL('image/png');
-          resolve(data);
-        } catch (e) {
-          resolve(null);
-        }
-      };
-      img.src = originalBase64;
-    });
-  }
-
-  /**
-   * reads a file chosen by the user
-   * @returns {string} file content
-   */
-  readSingleFile(e) {
-    let content = "";
-    let srcElement = e.srcElement;
-    let file = e.target.files[0];
-    if (!file) {
-      return;
-    }
-    var reader = new FileReader();
-    // async
-    reader.onload = (e:any) => {
-      let content:any = e.target.result;
-
-      // if content is SVG base64 string then convert that to png image
-      // as svg is porblemativ when perfirming PDF export later with jsPDF
-      if(content.includes("svg")){
-        content = this.base64SvgToBase64Png(content, 250);
-      }
-
-      if(srcElement.id === "reporting-load-commune-logo-button") {
-        this.reportingService.generalSettings.communeLogo = content;
-        // set isPlaceholder to false
-        for(let template of this.reportingService.availableTemplates) {
-          this.iteratePageElements( template, function(page, pageElement) {
-            if(pageElement.type.includes("communeLogo-")) {
-              pageElement.isPlaceholder = false;
-              pageElement.src = content;
-            }
-          })
-        }
-      }
-     };
-    reader.readAsDataURL(file);
+    
+    this.reportingService.changeSelectedTemplate(templateId);
   }
 
   templateSupportsFreeText() {
-    if(typeof(this.reportingService.selectedTemplate) === "undefined")
+    if(!this.reportingService.selectedTemplate)
       return false;
 
     if(!this.reportingService.selectedTemplate.pages) {
@@ -256,8 +146,10 @@ export class TemplateSelectComponent implements OnInit {
 
   onTemplateSelected() {
 
+    this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
+
     // update selected template with general settings
-    for(let [idx, page] of this.reportingService.selectedTemplate.pages.entries()) {
+ /*    for(let [idx, page] of this.reportingService.selectedTemplate.pages.entries()) {
       for(let el of page.pageElements) {
         if(el.type.includes("footerCreationInfo-")) {
           el.text = "Erstellt am " + this.reportingService.generalSettings.creationDate + " von " + this.reportingService.generalSettings.creator + ", " + this.reportingService.generalSettings.commune
@@ -271,14 +163,11 @@ export class TemplateSelectComponent implements OnInit {
           el.placeholderText = "Seite " + this.getPageNumber(idx)
         }
       }
-    }
-
-    console.log(this.reportingService.selectedTemplate)
+    } 
 
     this.data.reportingConfig.template = this.reportingService.selectedTemplate;
     this.data.reportingConfig.backupTemplate = JSON.stringify(this.reportingService.selectedTemplate);
-
-    this.onWorkflowSelect([2,this.data]);
+    */
   }
   
   copy(obj) {
@@ -290,16 +179,8 @@ export class TemplateSelectComponent implements OnInit {
   }
 
   onBackToWorkflowSelectionClicked() {
-    this.reportingService.selectedTemplate = {};
-    this.onWorkflowSelect([0]);
-  }
-
-  iteratePageElements(template, functionToExecute) {
-    for(let page of template.pages) {
-      for(let pageElement of page.pageElements) {
-        functionToExecute(page, pageElement);
-      }
-    }
+    this.reportingService.changeSelectedTemplate(0);
+    this.reportingService.changeWorkflowState(this.workflowState.workflowSelect);
   }
 
 }

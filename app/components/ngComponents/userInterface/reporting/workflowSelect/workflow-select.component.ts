@@ -11,17 +11,12 @@ import { ReportingService, WorkflowState } from 'services/reporting-service/repo
 })
 export class WorkflowSelectComponent {
 
-  @Output() selectedWorkflow = new EventEmitter<any[]>();
+  workflowState = WorkflowState;
 
   constructor(
     protected reportingService: ReportingService
   ) {}
 
-  onWorkflowSelect(value: any[]) {
-    this.selectedWorkflow.emit(value);
-
-    this.reportingService.changeWorkflowState(WorkflowState.templateSelect);
-  }
 
   /* onConfigSelect(event:any) {
 

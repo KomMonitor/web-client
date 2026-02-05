@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
@@ -9,7 +9,9 @@ export interface ReportingData {
 
 export enum WorkflowState {
   workflowSelect,
-  templateSelect
+  templateSelect,
+  reportingOverview,
+  indicatorConfig
 }
 
 @Injectable({
@@ -18,7 +20,7 @@ export enum WorkflowState {
 export class ReportingService {
 
   default:ReportingData = {
-    workflowState: WorkflowState.workflowSelect,
+    workflowState: WorkflowState.reportingOverview,
     selectedTemplateId: 0
   }
 
@@ -29,6 +31,34 @@ export class ReportingService {
     creationDate: this.getCurrentDate(),
     freeText: "Text",
   };
+
+  config: any = {
+    pageConfig: {
+      mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
+      showMapLabels: true,
+      showRankingChartPerArea: true,
+      showLineChartPerArea: true,
+      showFreeText: true,
+      showRankingMeanLine: true,
+      showTitle: true,
+      showSubtitle: true,
+      showLogo: true,
+      showFooterCreationInfo: true,
+      showPageNumber: true,
+      sections: {
+        showOverviewSection_unclassified: true,
+        showOverviewSection_classified: true,
+        showBarchartOverview: true,
+        showLinechartOverview: true,
+        showBoxplotchartOverview: true,
+        showAreaSpecific: true,
+        showOverviewSection_reachability: true,
+        showDatatable: true
+      }
+    },
+    templateSections: [],
+    pages: []
+  }
   
   availableTemplateCategories = [
     {
@@ -2853,7 +2883,7 @@ export class ReportingService {
     }
   ];
 
-  selectedTemplate:any = this.availableTemplates[0];
+  selectedTemplateId:number = 0;
 
   private _reportingData$ = new BehaviorSubject<ReportingData>(this.default);
 
@@ -2862,7 +2892,107 @@ export class ReportingService {
 
   constructor(
     private dataExchangeService: DataExchangeService
-  ) {}
+  ) {
+    
+    for(let template of this.availableTemplates) {
+      this.iteratePageElements( template, function(page, pageElement) {
+        pageElement.isPlaceholder = (
+          pageElement.type.includes("footerCreationInfo-") ||
+          pageElement.type.includes("pageNumber-") ||
+          pageElement.type === "textInput"
+          ) ? false : true;
+      })
+    }
+    
+    for(let template of this.availableTemplates) {
+      for(let page of template.pages) {
+        for(let el of page.pageElements) {
+          el.isPlaceholder = (
+            el.type.includes("footerCreationInfo-") ||
+            el.type.includes("pageNumber-") ||
+            el.type === "textInput"
+            ) ? false : true;
+        }
+      }
+    }
+  }
+
+  iteratePageElements(template, functionToExecute) {
+    for(let page of template.pages) {
+      for(let pageElement of page.pageElements) {
+        functionToExecute(page, pageElement);
+      }
+    }
+  }
+
+  /**
+   * reads a file chosen by the user
+   * @returns {string} file content
+   */
+  readSingleFile(e) {
+    let content = "";
+    let srcElement = e.srcElement;
+    let file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = () => {
+
+      let content:any = reader.result as string;
+
+      // NICHT MEHR NOTWENDIG?!
+      // if content is SVG base64 string then convert that to png image
+      // as svg is porblemativ when perfirming PDF export later with jsPDF
+     /*  if(content.includes("svg")){
+        content = this.base64SvgToBase64Png(content, 250);
+      } */
+
+      if(srcElement.id === "reporting-load-commune-logo-button") {
+        this.generalSettings.communeLogo = content;
+        // set isPlaceholder to false
+        for(let template of this.availableTemplates) {
+          this.iteratePageElements( template, function(page, pageElement) {
+            if(pageElement.type.includes("communeLogo-")) {
+              pageElement.isPlaceholder = false;
+              pageElement.src = content;
+            }
+          })
+        }
+      }
+     };
+    reader.readAsDataURL(file);
+  }
+
+  /**
+   * converts a base64 encoded data url SVG image to a PNG image
+   * @param originalBase64 data url of svg image
+   * @param width target width in pixel of PNG image
+   * @return {Promise<String>} resolves to png data url of the image
+   */
+  async base64SvgToBase64Png (originalBase64, width) {
+    return await new Promise(resolve => {
+      let img:any = document.createElement('img');
+      img.onload = () => {
+        document.body.appendChild(img);
+        let canvas = document.createElement("canvas");
+        let ratio = (img.clientWidth / img.clientHeight) || 1;
+        document.body.removeChild(img);
+        canvas.width = width;
+        canvas.height = width / ratio;
+        let ctx:any = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        try {
+          let data = canvas.toDataURL('image/png');
+          resolve(data);
+        } catch (e) {
+          resolve(null);
+        }
+      };
+      img.src = originalBase64;
+    });
+  }
 
   setValue(val: ReportingData) {
     this._reportingData$.next(val);
@@ -2871,6 +3001,10 @@ export class ReportingService {
   changeWorkflowState(state: WorkflowState) {
     this.setValue({...this._reportingData$.value, workflowState: state});
   }
+
+  changeSelectedTemplate(templateId: number) {
+    this.setValue({...this._reportingData$.value, selectedTemplateId: templateId});
+  }
   
   get currentValue(): ReportingData {
     return this._reportingData$.value;
@@ -2878,6 +3012,11 @@ export class ReportingService {
 
   get currentWorkflowState(): WorkflowState {
     return this._reportingData$.value.workflowState;
+  }
+
+  get selectedTemplate():any {
+
+    return this.availableTemplates[this.selectedTemplateId];
   }
 
   // Format: YYYY-MM-DD

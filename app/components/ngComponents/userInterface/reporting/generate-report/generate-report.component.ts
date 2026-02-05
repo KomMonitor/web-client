@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { reportingData, sharedReportingData } from '../reporting-modal.component';
+import { reportingData } from '../reporting-modal.component';
 
 @Component({
   selector: 'app-generate-report',

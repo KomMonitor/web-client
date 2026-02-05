@@ -12,21 +12,17 @@ import * as L from 'leaflet';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GenerateReportComponent } from '../generate-report/generate-report.component';
-import { reportingData, sharedReportingData } from '../reporting-modal.component';
+import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-reporting-overview',
   standalone: true,
   templateUrl: './reporting-overview.component.html',
   styleUrls: ['./reporting-overview.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, SafeHtmlPipe]
 })
 export class ReportingOverviewComponent implements OnInit {
-
-  @Output() selectedWorkflow = new EventEmitter<any[]>();
-  @Input() data!:sharedReportingData;
-
-  config!: reportingData;
 
   lastPageOfAddedSectionPrepared = false;
   deviceScreenDpi;
@@ -53,20 +49,23 @@ export class ReportingOverviewComponent implements OnInit {
     }
   };
 
+  workflowState = WorkflowState;
+
   constructor(
     private dataExchangeService: DataExchangeService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
     protected diagramHelperService: DiagramHelperServiceService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    protected reportingService: ReportingService
   ) {}
 
   ngOnInit(): void {
     
     //if(this.data.templateData) {
 
-      let configFileSelected = false;
+    /*   let configFileSelected = false;
   
       if(configFileSelected) {
         //this.importConfig(data);
@@ -74,14 +73,14 @@ export class ReportingOverviewComponent implements OnInit {
 
         // pre-init pageConfig in template section as this is needed even before an indicator is selected. indicator/poi select may override this
         let templateSection = {
-          pageConfig: jQuery.extend(true, {}, this.data.pageConfig) // deep copy to preserve section specific settings
+          pageConfig: jQuery.extend(true, {}, this.reportingService.config.pageConfig) // deep copy to preserve section specific settings
         }
-        for(let page of this.data.reportingConfig.template.pages) {
+        for(let page of this.reportingService.config.pages) {
           page.templateSection = templateSection;
         }
 
-        this.data.reportingConfig.pages = this.data.reportingConfig.template.pages;
-      }
+        this.reportingService.config.pages = this.reportingService.config.pages;
+      } */
     //}
 
     this.deviceScreenDpi = this.calculateScreenDpi();
@@ -118,7 +117,7 @@ export class ReportingOverviewComponent implements OnInit {
 
   generateReport() {
     const reportingModalRef = this.modalService.open(GenerateReportComponent, {windowClass: 'modal-holder', centered: true});
-    reportingModalRef.componentInstance.data = this.data.reportingConfig;
+    //reportingModalRef.componentInstance.data = this.data.reportingConfig;
    // this.onWorkflowSelect([4,this.data.reportingConfig]);
   }
 
@@ -239,10 +238,10 @@ export class ReportingOverviewComponent implements OnInit {
 		}) */
 
 		onPageTurnClicked(orientation, index) {
-			let old_page = this.data.reportingConfig.pages[index];
-			let new_page = this.data.reportingConfig.pages[index + 1];
-			this.data.reportingConfig.pages[index] = new_page;
-			this.data.reportingConfig.pages[index + 1] = old_page;
+			let old_page = this.reportingService.config.pages[index];
+			let new_page = this.reportingService.config.pages[index + 1];
+			this.reportingService.config.pages[index] = new_page;
+			this.reportingService.config.pages[index + 1] = old_page;
 
 
 			setTimeout(async () => {
@@ -268,25 +267,21 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		onConfigureNewIndicatorClicked() {
-      this.onWorkflowSelect([3,this.data]);
+      this.reportingService.changeWorkflowState(this.workflowState.indicatorConfig)
 		}
 
 		onConfigureNewPoiLayerClicked() {
-      this.onWorkflowSelect([3,this.data]);
+      //this.onWorkflowSelect([3,this.data]);
 		}
 	
 		onBackToTemplateSelectionClicked() {
-      this.onWorkflowSelect([1]);
+      this.reportingService.changeWorkflowState(this.workflowState.templateSelect);
 		}
-
-    onWorkflowSelect(value: any[]) {
-      this.selectedWorkflow.emit(value);
-    }
 
 		reportingIndicatorConfigurationCompleted([indicator, template, templateBlank]) {
 
 			this.loadingData = true;
-      this.data.reportingConfig.template = template;
+      this.reportingService.config.template = template;
       this.templateBlank = templateBlank;
 			
 			let templateSection = {
@@ -303,7 +298,7 @@ export class ReportingOverviewComponent implements OnInit {
 				page.templateSection = templateSection;
 			}
 			// remove the placeholder template if this is the first section that gets added)
-			this.data.reportingConfig.pages = this.data.reportingConfig.pages.filter( page => {
+			this.reportingService.config.pages = this.reportingService.config.pages.filter( page => {
 				if(page.hasOwnProperty("templateSection")) {
 					return page.templateSection.hasOwnProperty("indicatorName");
 				} else {
@@ -311,21 +306,21 @@ export class ReportingOverviewComponent implements OnInit {
 				}
 			});
 			// append to array
-			//this.data.reportingConfig.pages.push(...template.pages);
+			//this.reportingService.config.pages.push(...template.pages);
 
-      let exists = this.data.reportingConfig.templateSections.filter(e => e.indicatorId==indicator.indicatorId);
+      let exists = this.reportingService.config.templateSections.filter(e => e.indicatorId==indicator.indicatorId);
       if(exists.length==0)
-			  this.data.reportingConfig.templateSections.push(templateSection);
+			  this.reportingService.config.templateSections.push(templateSection);
 				
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
-			this.setupNewPages(this.data.reportingConfig.templateSections.at(-1));
+			this.setupNewPages(this.reportingService.config.templateSections.at(-1));
 		}
 
 		reportingPoiLayerConfigurationCompleted([poiLayer, indicator, template, templateBlank]) {
 
       this.loadingData = true;
-      this.data.reportingConfig.template = template;
+      this.reportingService.config.template = template;
       this.templateBlank = templateBlank;
 
       // add indicator to 'added indicators'
@@ -345,7 +340,7 @@ export class ReportingOverviewComponent implements OnInit {
         page.templateSection = templateSection;
       }
       // remove all pages without property poiLayerName (clean template)
-      this.data.reportingConfig.pages = this.data.reportingConfig.pages.filter( page => {
+      this.reportingService.config.pages = this.reportingService.config.pages.filter( page => {
         if(page.hasOwnProperty("templateSection")) {
           return page.templateSection.hasOwnProperty("poiLayerName");
         } else {
@@ -353,33 +348,33 @@ export class ReportingOverviewComponent implements OnInit {
         }
       });
       // append to array
-      //this.data.reportingConfig.pages.push(...template.pages);
+      //this.reportingService.config.pages.push(...template.pages);
       
-      let exists = this.data.reportingConfig.templateSections.filter(e => e.poiLayerName==poiLayer.datasetName);
+      let exists = this.reportingService.config.templateSections.filter(e => e.poiLayerName==poiLayer.datasetName);
       if(exists.length==0)
-        this.data.reportingConfig.templateSections.push(templateSection);
+        this.reportingService.config.templateSections.push(templateSection);
         
       // setup pages after dom exists
       // at this point we still have all the echarts maps registered
-      this.setupNewPages(this.data.reportingConfig.templateSections.at(-1));
+      this.setupNewPages(this.reportingService.config.templateSections.at(-1));
 		}
 
 		removeTemplateSection(idx) {
 
-      let oldTemplateSections = this.data.reportingConfig.templateSections;
+      let oldTemplateSections = this.reportingService.config.templateSections;
      
-      let targetTemplateSection = this.data.reportingConfig.templateSections[idx]; 
+      let targetTemplateSection = this.reportingService.config.templateSections[idx]; 
 			let isIndicatorTemplateSection = targetTemplateSection.indicatorId ? true : false;
 			let indicatorIdOrPoiName = isIndicatorTemplateSection ? targetTemplateSection.indicatorId : targetTemplateSection.poiLayerName
-			this.data.reportingConfig.templateSections.splice(idx, 1);
+			this.reportingService.config.templateSections.splice(idx, 1);
 
 			// show empty template if this was the last indicator
-			if(this.data.reportingConfig.templateSections.length === 0) {
-				this.data.reportingConfig.pages = this.templateBlank.pages;
-        this.data.reportingConfig.template = this.templateBlank;
+			if(this.reportingService.config.templateSections.length === 0) {
+				this.reportingService.config.pages = this.templateBlank.pages;
+        this.reportingService.config.template = this.templateBlank;
 			} else{
 				// also remove corresponding pages from 
-				this.data.reportingConfig.pages = this.data.reportingConfig.pages.filter(item => {
+				this.reportingService.config.pages = this.reportingService.config.pages.filter(item => {
 					let keepItem = true;
 
 					if (isIndicatorTemplateSection){
@@ -395,7 +390,7 @@ export class ReportingOverviewComponent implements OnInit {
 				});
 			}
 
-      let newTemplateSections = this.data.reportingConfig.templateSections;
+      let newTemplateSections = this.reportingService.config.templateSections;
 
       this.reorderTemplateSections(newTemplateSections,oldTemplateSections);
 		}
@@ -411,7 +406,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 				let removedSection = difference[0];
 				// remove all pages for that section
-				this.data.reportingConfig.pages = this.data.reportingConfig.pages.filter( page => {
+				this.reportingService.config.pages = this.reportingService.config.pages.filter( page => {
 					if(!page.hasOwnProperty("templateSection")) return true; // for placeholder
 					
 					return page.templateSection.indicatorId !== removedSection.indicatorId ||
@@ -423,7 +418,7 @@ export class ReportingOverviewComponent implements OnInit {
 				// sort pages according to newVal
 				let sorted:any = [];
 				for(let section of newVal) {
-					for(let page of this.data.reportingConfig.pages) {
+					for(let page of this.reportingService.config.pages) {
 						if(page.templateSection.indicatorId === section.indicatorId &&
 							page.templateSection.spatialUnitId === section.spatialUnitId &&
 							page.templateSection.poiLayerName === section.poiLayerName) {
@@ -432,7 +427,7 @@ export class ReportingOverviewComponent implements OnInit {
 						}
 					}
 				}
-				this.data.reportingConfig.pages = sorted;
+				this.reportingService.config.pages = sorted;
 			}
 		}
 
@@ -463,12 +458,12 @@ export class ReportingOverviewComponent implements OnInit {
 
         this.lastPageOfAddedSectionPrepared = false;
         this.pagePreparationIndex = 0;
-        // this.pagePreparationSize = this.data.reportingConfig.pages.length; 
+        // this.pagePreparationSize = this.reportingService.config.pages.length; 
         this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
 
         let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
 
-        for(let [idx, page] of this.data.reportingConfig.pages.entries()) {
+        for(let [idx, page] of this.reportingService.config.pages.entries()) {
 
           if(page.templateSection.indicatorId !== indicatorId) {
               continue; // only do changes to new pages
@@ -654,10 +649,10 @@ export class ReportingOverviewComponent implements OnInit {
 
 			this.lastPageOfAddedSectionPrepared = false;
 			this.pagePreparationIndex = 0;
-			// this.pagePreparationSize = this.data.reportingConfig.pages.length; 
+			// this.pagePreparationSize = this.reportingService.config.pages.length; 
 			this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
 
-			for(let [idx, page] of this.data.reportingConfig.pages.entries()) {
+			for(let [idx, page] of this.reportingService.config.pages.entries()) {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
 					continue; // only do changes to new pages
@@ -770,7 +765,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 		async initializeLeafletMap(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
 			try {
-					let pageIdx = this.data.reportingConfig.pages.indexOf(page);
+					let pageIdx = this.reportingService.config.pages.indexOf(page);
 					let id = "reporting-overview-leaflet-map-container-" + pageIdx;
 					let pageDom:any = document.getElementById("reporting-overview-page-" + pageIdx);
 					let pageElementDom:any = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
@@ -817,7 +812,7 @@ export class ReportingOverviewComponent implements OnInit {
 					attrDiv.appendChild(attrImg);
 					pageElementDom.appendChild(attrDiv);
 
-					if(this.data.reportingConfig.template.name.includes("reachability")){
+					if(this.reportingService.config.template.name.includes("reachability")){
 						// also create the legend manually
 						let prevLegendDiv = pageDom.querySelector(".map-legend")
 						if(prevLegendDiv) prevLegendDiv.remove();
@@ -932,7 +927,7 @@ export class ReportingOverviewComponent implements OnInit {
 					leafletLayer.on("load", () => { 
 						// there are pages for two page orientations (landscape and portait)
 						// only trigger the screenshot for those pages, that are actually present
-						if(forceScreenshot || (page.orientation == this.data.reportingConfig.template.orientation)){
+						if(forceScreenshot || (page.orientation == this.reportingService.config.template.orientation)){
 						/* 	this.leafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
 								page.spatialUnitFeatureId, page.orientation, domNode); */
 						}
@@ -1107,14 +1102,14 @@ export class ReportingOverviewComponent implements OnInit {
 					}
 				}
 
-				this.data.reportingConfig.template = config.template;
-				this.data.reportingConfig.pages = config.pages;
-				this.data.reportingConfig.templateSections = config.templateSections;
+				this.reportingService.config.template = config.template;
+				this.reportingService.config.pages = config.pages;
+				this.reportingService.config.templateSections = config.templateSections;
 
 				// register echarts maps
-				for(let section of this.data.reportingConfig.templateSections) {
+				for(let section of this.reportingService.config.templateSections) {
 					for(let mapName of section.echartsRegisteredMapNames) {
-						if(this.data.reportingConfig.template.name.includes("reachability")) {
+						if(this.reportingService.config.template.name.includes("reachability")) {
 							if(!mapName.includes(section.spatialUnitName)) {
 								continue;
 							}
@@ -1134,7 +1129,7 @@ export class ReportingOverviewComponent implements OnInit {
 						}
 					}
 				}
-				for(let page of this.data.reportingConfig.pages) {
+				for(let page of this.reportingService.config.pages) {
 					for(let pageElement of page.pageElements) {
 						if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
 							for(let map of pageElement.echartsMaps) {
@@ -1145,7 +1140,7 @@ export class ReportingOverviewComponent implements OnInit {
 				}
 			
 
-				for(let section of this.data.reportingConfig.templateSections) {
+				for(let section of this.reportingService.config.templateSections) {
 					this.setupNewPages(section);
 				}
 			} catch (error:any) {
@@ -1156,10 +1151,11 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		showThisPage(page) {
-      
-      if (page.hidden){
+
+      /* if(page.hidden){
 				return false;
-			}
+			} */
+
 			let pageWillBeShown = false;
 			for(let visiblePage of this.filterPagesToShow()){
 				if(visiblePage == page) {
@@ -1172,7 +1168,7 @@ export class ReportingOverviewComponent implements OnInit {
 		getPageNumber(index) {
 			let pageNumber = 1;
 			for(let i = 0; i < index; i ++) {
-				if (this.showThisPage(this.data.reportingConfig.pages[i])) {
+				if (this.showThisPage(this.reportingService.config.pages[i])) {
 					pageNumber ++;
 				}
 			}
@@ -1182,8 +1178,8 @@ export class ReportingOverviewComponent implements OnInit {
 		filterPagesToShow() {
 			let pagesToShow:any[] = [];
 			let skipNextPage = false;
-			for (let i = 0; i < this.data.reportingConfig.pages.length; i ++) {
-				let page = this.data.reportingConfig.pages[i];
+			for (let i = 0; i < this.reportingService.selectedTemplate.pages.length; i ++) {
+				let page = this.reportingService.selectedTemplate.pages[i];
 				if (this.pageContainsDatatable(i)) {
 					pagesToShow.push(page);
 					skipNextPage = false;
@@ -1202,7 +1198,8 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		pageContainsDatatable(pageID) {
-			let page = this.data.reportingConfig.pages[pageID];
+
+			let page = this.reportingService.selectedTemplate.pages[pageID];
 			let pageContainsDatatable = false;
 			for(let pageElement of page.pageElements) {
 				if(pageElement.type == "datatable") {
@@ -1217,8 +1214,8 @@ export class ReportingOverviewComponent implements OnInit {
 			try {
 				let jsonToExport:any = {};
 
-				this.data.reportingConfig.pages = this.removeCircularReferences(this.data.reportingConfig.pages);
-				let temp = JSON.stringify( this.data.reportingConfig.pages, function(key, value) {
+				this.reportingService.config.pages = this.removeCircularReferences(this.reportingService.config.pages);
+				let temp = JSON.stringify( this.reportingService.config.pages, function(key, value) {
 					// Leaflet map contains cyclic object references so we have to remove it.
 					// We have to initialize the map again on import based on the stored boundingbox
 					if(key === "leafletMap") {
@@ -1229,8 +1226,8 @@ export class ReportingOverviewComponent implements OnInit {
 				})
 
 				jsonToExport.pages = JSON.parse( temp )
-				jsonToExport.template = fromJson(toJson( this.data.reportingConfig.template ));
-				jsonToExport.templateSections = this.data.reportingConfig.templateSections;
+				jsonToExport.template = fromJson(toJson( this.reportingService.config.template ));
+				jsonToExport.templateSections = this.reportingService.config.templateSections;
 
 				// Only store commune logo once (in first page)
 				// It is base64 encoded and adds quite a bit to the file size
@@ -1244,7 +1241,7 @@ export class ReportingOverviewComponent implements OnInit {
 				
 				for(let section of jsonToExport.templateSections) {
 					let mapNames:any = [...new Set(section.echartsRegisteredMapNames)]
-					if(this.data.reportingConfig.template.name.includes("reachability")) {
+					if(this.reportingService.config.template.name.includes("reachability")) {
 						let mapAdded = false;
 						for(let [idx, name] of mapNames.entries()) {
 							if(!name.includes(section.spatialUnitName)) {

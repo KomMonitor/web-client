@@ -4,9 +4,9 @@
     <button type="button" class="close" data-dismiss="modal" (click)="activeModal.close('Close click')"><i class="fas fa-xmark"></i></button>
   </div>
   <div class="modal-body" style="text-align: justify">
-    <app-workflow-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="isWorkflowState(workflowState.workflowSelect)"></app-workflow-select>
-    <app-template-select (selectedWorkflow)="onWorkflowDefined($event)" *ngIf="isWorkflowState(workflowState.templateSelect)"></app-template-select>
-    <!-- <app-reporting-overview (selectedWorkflow)="onWorkflowDefined($event)" [data]="data" *ngIf="workflowStatus==2"></app-reporting-overview>
-    <app-indicator-add (selectedWorkflow)="onWorkflowDefined($event)" [data]="data" *ngIf="workflowStatus==3"></app-indicator-add> -->
+    <app-workflow-select *ngIf="isWorkflowState(workflowState.workflowSelect)"></app-workflow-select>
+    <app-template-select *ngIf="isWorkflowState(workflowState.templateSelect)"></app-template-select>
+    <app-reporting-overview *ngIf="isWorkflowState(workflowState.reportingOverview)"></app-reporting-overview>
+    <app-indicator-add *ngIf="isWorkflowState(workflowState.indicatorConfig)"></app-indicator-add>
   </div>
 </div>

@@ -25,7 +25,7 @@
                           <ul>
                             <li *ngFor="let template of reportingService.availableTemplates | reportingTemplateFilter:category.id; index as ti"
                               class="reporting-selectable-template" [ngClass]="{'template-selected': (ti == 0 && i==0) }"
-                              (click)="onTemplateElementClicked($event, template)"
+                              (click)="onTemplateElementClicked($event, ti)"
                               id="collapse{{category.id}}-template{{i}}">
                               {{template.displayName}}
                             </li>
@@ -65,7 +65,7 @@
                       </label>
 
                       <label for="reporting-load-commune-logo-button" class="btn btn-primary">
-                          <input type="file" (change)="readSingleFile($event)" id="reporting-load-commune-logo-button">
+                          <input type="file" (change)="reportingService.readSingleFile($event)" id="reporting-load-commune-logo-button">
                           <i class="fa fa-file-download"></i>
                           &nbsp;&nbsp;Logo der Kommune auswählen
                       </label>
