@@ -66,7 +66,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"allowedRoles": ['roleId'],
 			"nextLowerHierarchyLevel": "Name of lower hierarchy level",
 			"spatialUnitLevel": "Name of spatial unit dataset",
 			"nextUpperHierarchyLevel": "Name of upper hierarchy level"
@@ -92,14 +91,14 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.roleManagementTableOptions = undefined;
-
 		$scope.nextLowerHierarchySpatialUnit = undefined;
 		$scope.nextUpperHierarchySpatialUnit = undefined;
 		$scope.hierarchyInvalid = false;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+
+		$scope.isDatasetOwner = false;
 
 		$scope.$on("onEditSpatialUnitMetadata", function (event, spatialUnitDataset) {
 
@@ -111,14 +110,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 		});
 
-		$scope.$on("availableRolesUpdate", function (event) {
-			refreshRoles();
-		});
-
-		function refreshRoles() {
-			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
-		}
+		
 
 		$scope.resetSpatialUnitEditMetadataForm = function(){
 
@@ -133,9 +125,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$scope.metadata.databasis = $scope.currentSpatialUnitDataset.metadata.databasis;
 			$scope.metadata.contact = $scope.currentSpatialUnitDataset.metadata.contact;
 			$scope.metadata.description = $scope.currentSpatialUnitDataset.metadata.description;
-
-			let allowedRoles = $scope.currentSpatialUnitDataset ? $scope.currentSpatialUnitDataset.allowedRoles : [];
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
 
 			$scope.metadata.lastUpdate = $scope.currentSpatialUnitDataset.metadata.lastUpdate;
 			// $('#spatialUnitEditMetadataLastUpdateDatepicker').data({date: $scope.currentSpatialUnitDataset.metadata.lastUpdate});
@@ -247,7 +236,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
-				"allowedRoles": [],
 				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null,
 				"isOutlineLayer": $scope.isOutlineLayer,
@@ -255,11 +243,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				"outlineWidth": $scope.outlineWidth,
 				"outlineDashArrayString": $scope.selectedOutlineDashArrayObject.dashArrayValue
 			};
-
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
-			for (const roleId of roleIds) {
-				patchBody.allowedRoles.push(roleId);
-			}
 
 			// TODO Create and perform POST Request with loading screen
 
@@ -383,8 +366,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('spatialUnitEditRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
-
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
 					if (spatialUnit.spatialUnitLevel === $scope.metadataImportSettings.nextLowerHierarchyLevel){
@@ -442,12 +423,6 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
-
-			metadataExport.allowedRoles = [];
-			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
-			for (const roleId of roleIds) {
-				metadataExport.allowedRoles.push(roleId);
-			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;

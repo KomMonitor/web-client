@@ -31,9 +31,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 							"description": "description",
 							"databasis": "databasis"
 						},
-						"allowedRoles": [
-							"allowedRoles",
-							"allowedRoles"
+						"permissions": [
+							"permissions",
+							"permissions"
 						],
 						"datasetName": "datasetName",
 						"abbreviation": "abbreviation",
@@ -91,8 +91,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-      "precision": "Custom decimal place",
-			"allowedRoles": ['roleId'],
+			"permissions": ['roleId'],
+			"precision": "Custom decimal place",
 			"refrencesToOtherIndicators": [
 				{
 				  "referenceDescription": "description about the reference",
@@ -130,7 +130,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						"breaks": ['break']
 					}
 				]
-			}
+			},
+			"ownerId": "ownerId",
+			"isPublic": false
 		};
 
 		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
@@ -157,18 +159,95 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.roleManagementTableOptions = undefined;		
 
+		$scope.ownerOrganization = undefined;
+		$scope.ownerOrgFilter = undefined;
+		$scope.isPublic = false;
+    $scope.resourcesCreatorRights = [];
+
+		$scope.onChangeOwner = function(orgUnitId) {
+			$scope.ownerOrganization = orgUnitId;
+
+			refreshRoles(orgUnitId);
+
+			if(orgUnitId)
+				$('#indicatorRoleForm').css('display','block');
+		}
+
 		$scope.$on("availableRolesUpdate", function (event) {
 			refreshRoles();
 		});
 
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			
+			$('#indicatorRoleForm').css('display','none');
+			
+      $scope.prepareCreatorList();
+
 			refreshRoles();
+			
 			$scope.onNumClassesChanged($scope.numClassesPerSpatialUnit);
+
+			setTimeout(() => {
+				$scope.$digest();	
+			}, 250);
 		});
 
-		function refreshRoles() {
-			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());
+    $scope.prepareCreatorList = function() {
+
+      if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+
+        let creatorRights = [];
+        let creatorRightsChildren = [];
+        kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+          
+          let key = roles.split('.')[0];
+          let role = roles.split('.')[1];
+
+          // case unit-resources-creator
+          if(role=='unit-resources-creator' && !$scope.resourcesCreatorRights.includes(key)) {
+            creatorRights.push(key);
+          }
+
+          // case client-resources-creator, gather unit-ids first, then fetch all unit-data
+          if(role=='client-resources-creator' && !creatorRightsChildren.includes(key)) {
+            creatorRightsChildren.push(key);
+          }
+        });
+
+        // gather all children
+        gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
+
+        $scope.resourcesCreatorRights = kommonitorDataExchangeService.accessControl.filter(elem => creatorRights.includes(elem.name));
+      }
+    }
+
+	function gatherCreatorRightsChildren(creatorRights, creatorRightsChildren) {
+        if(creatorRightsChildren.length>0) {
+			kommonitorDataExchangeService.accessControl.filter(elem => creatorRightsChildren.includes(elem.name)).flatMap(res => res.children).forEach(child => {
+			  kommonitorDataExchangeService.accessControl.filter(elem => elem.organizationalUnitId==child).forEach(childData => {
+				creatorRights.push(childData.name);
+				gatherCreatorRightsChildren(creatorRights, [childData.name]);
+			  });
+			  
+			});
+		}
+	}
+
+		
+		function refreshRoles(orgUnitId) {
+
+			let permissionIds_ownerUnit = orgUnitId ? kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId) : []; 
+			
+			// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+			kommonitorDataExchangeService.accessControl.forEach(item => {
+				if(item.organizationalUnitId==orgUnitId)
+					item.datasetOwner = true;
+				else
+					item.datasetOwner = false;
+			});
+			
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissionIds_ownerUnit, true);
 		}
 
 		$scope.datasetName = undefined;
@@ -339,6 +418,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
+			$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);			
+			
 			$scope.refreshRoles();
 
 			$scope.datasetName = undefined;
@@ -387,8 +468,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.spatialUnitClassification = [];
 			$scope.classBreaksInvalid = false;
 
-      $scope.indicatorPrecision = null;
-      $scope.showCustomCommaValue = false;
+			$scope.isPublic = false;
+			$scope.ownerOrganization = undefined;
+			$scope.ownerOrgFilter = undefined;
+			$scope.indicatorPrecision = null;
+			$scope.showCustomCommaValue = false;
 
 			$scope.postBody_indicators = undefined;
 
@@ -553,6 +637,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			});
 		};
 
+		$scope.onChangeIsPublic = function(isPublic){
+			$scope.isPublic = isPublic;
+			console.log($scope.isPublic);
+		}
+
 		$scope.buildPostBody_indicators = function(){
 			var postBody =
 			{
@@ -568,7 +657,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"databasis": $scope.metadata.databasis || null
 				},
 				"refrencesToOtherIndicators": [], // filled directly after
-				  "allowedRoles": [],
+				  "permissions": [],
 				  "datasetName": $scope.datasetName,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
           "precision": ($scope.showCustomCommaValue===true) ? $scope.indicatorPrecision : null,
@@ -590,12 +679,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"classificationMethod": $scope.classificationMethod.toUpperCase(),
 					"numClasses": $scope.numClassesPerSpatialUnit ? Number($scope.numClassesPerSpatialUnit) : 5,
 					"items": $scope.spatialUnitClassification.filter(entry => ! entry.breaks.includes(null)),
-				  }
+				  },
+				  "ownerId": $scope.ownerOrganization,
+				  "isPublic": $scope.isPublic ? true : false
 			};
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				postBody.allowedRoles.push(roleId);
+				postBody.permissions.push(roleId);
 			}
 
 			// TAGS
@@ -685,20 +776,23 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						$scope.loadingData = false;
 		
 				}, function errorCallback(error) {
-				  console.error("Error while adding computable indicatorMetadata service.");
-				  if(error.data){							
-					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					console.error("Error while adding indicator metadata.");
+					if(error.data.message) {							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
 					}
-					else{
+					else if (error.data) {
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 					}
 
-						$("#indicatorAddErrorAlert").show();
-						$scope.loadingData = false;
+					$("#indicatorAddErrorAlert").show();
+					$scope.loadingData = false;
 
-						setTimeout(() => {
-							$scope.$digest();
-						}, 250);
+					setTimeout(() => {
+						$scope.$digest();
+					}, 250);
 			  });
 
 		};
@@ -783,17 +877,17 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 			
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.allowedRoles);
-				
-				// indicator specific properties
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorAddRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.metadataImportSettings.permissions, true);
 
+				// indicator specific properties
+				
 				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation; 
-        $scope.indicatorPrecision = ($scope.metadataImportSettings.precision!="") ? parseInt($scope.metadataImportSettings.precision) : null;
-        
-        if($scope.indicatorPrecision!=null)
-          $scope.showCustomCommaValue = true;
-        else
-          $scope.showCustomCommaValue = false;
+				$scope.indicatorPrecision = ($scope.metadataImportSettings.precision!="") ? parseInt($scope.metadataImportSettings.precision) : null;
+				
+				if($scope.indicatorPrecision!=null)
+				$scope.showCustomCommaValue = true;
+				else
+				$scope.showCustomCommaValue = false;
 
 				for (const indicatorTypeOption of kommonitorDataExchangeService.indicatorTypeOptions) {
 					if(indicatorTypeOption.apiName === $scope.metadataImportSettings.indicatorType){
@@ -932,6 +1026,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						break;
 					}
 				}
+				$scope.ownerOrganization = $scope.metadataImportSettings.ownerId;
+
+				if($scope.metadataImportSettings.ownerId)
+					$('#indicatorRoleForm').css('display','block');
+
+				$scope.isPublic = $scope.metadataImportSettings.isPublic;
 
 				$scope.$digest();
 		};
@@ -972,11 +1072,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.referenceDateNote = $scope.indicatorReferenceDateNote || "";
 			metadataExport.displayOrder = $scope.displayOrder || 0;
 
-			metadataExport.allowedRoles = [];
+			metadataExport.permissions = [];
 
 			let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 			for (const roleId of roleIds) {
-				metadataExport.allowedRoles.push(roleId);
+				metadataExport.permissions.push(roleId);
 			}
 
 			if($scope.metadata.updateInterval){
@@ -1058,6 +1158,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				};
 
 				metadataExport.defaultClassificationMapping = defaultClassificationMapping;
+				metadataExport.ownerId = $scope.ownerOrganization;
+				metadataExport.isPublic = $scope.isPublic;
 			
 
 			var metadataJSON = JSON.stringify(metadataExport);

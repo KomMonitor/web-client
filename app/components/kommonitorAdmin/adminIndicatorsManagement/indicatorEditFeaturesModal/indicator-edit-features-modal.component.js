@@ -40,7 +40,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}
 					],
 					"applicableSpatialUnit": "applicableSpatialUnit",
-					"allowedRoles": [
+					"permissions": [
 						
 					]
 					"defaultClassificationMapping": {
@@ -69,12 +69,29 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			// make sure that initial fetching of availableRoles has happened
 			$scope.$on("initialMetadataLoadingCompleted", function (event) {
-				refreshRoles();
+
+				refreshRoles();	
 			});
 			
 			function refreshRoles() {
-				let allowedRoles = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.allowedRoles : [];
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, allowedRoles);
+
+				let permissions = $scope.targetApplicableSpatialUnit ? $scope.targetApplicableSpatialUnit.permissions : [];
+				if($scope.currentIndicatorDataset) {
+					let permissionIds_ownerUnit = kommonitorDataExchangeService.getAccessControlById($scope.currentIndicatorDataset.ownerId).permissions.filter(permission => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor").map(permission => permission.permissionId); 
+					permissions = permissions.concat(permissionIds_ownerUnit);
+				}
+
+				// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+				kommonitorDataExchangeService.accessControl.forEach(item => {
+					if($scope.currentIndicatorDataset) {
+						if(item.organizationalUnitId==$scope.currentIndicatorDataset.ownerId)
+							item.datasetOwner = true;
+						else
+							item.datasetOwner = false;
+					}
+				});
+
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, permissions, true);
 			}
 	
 			$scope.indicatorFeaturesJSON;
@@ -86,6 +103,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.indicatorsEditFeaturesMappingConfigPre = kommonitorDataExchangeService.syntaxHighlightJSON(kommonitorImporterHelperService.mappingConfigStructure_indicator);
 
 
+			$scope.isPublic = false;
 			$scope.overviewTableTargetSpatialUnitMetadata = undefined;
 	
 			$scope.spatialUnitRefKeyProperty = undefined;
@@ -98,6 +116,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.datasourceType = undefined;
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
+			$scope.datasourceInputSelected = false;
 
 			$scope.converterDefinition = undefined;
 			$scope.datasourceTypeDefinition = undefined;
@@ -134,6 +153,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				}
 	
 			});
+
+			$scope.onChangeIsPublic = function(isPublic){
+				$scope.isPublic = isPublic;
+				console.log($scope.isPublic);
+			}
 
 			// called if indicator was edited - then we must make sure that the view is refreshed
 			// i.e. if a new spatial unit was setup the first time via edit menu, then we must ensure that this new spatial unit is actually 
@@ -243,6 +267,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.resetIndicatorEditFeaturesForm = function(){
 
+				$scope.isPublic = false;
+
 				// reset edit banners
 				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success = undefined;
 				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
@@ -258,13 +284,15 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds());
+				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, [], true);
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
 				$scope.targetApplicableSpatialUnit = undefined;
 
-		
+				$scope.aggregationsMapping = [];
+				$scope.editIdx = undefined;
+
 				$scope.converter = undefined;
 				$scope.schema = undefined;
 				$scope.mimeType = undefined;
@@ -311,8 +339,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				}
 				
-				$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.targetApplicableSpatialUnit.allowedRoles);
-
+				refreshRoles();
 			};
 	
 			$scope.onChangeConverter = function(){
@@ -349,7 +376,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.getFeatureName = function(jsonFeature){
 				return jsonFeature[__env.FEATURE_NAME_PROPERTY_NAME];
 			};
-	
+
+			$scope.datasourceInputChanged = function(target) {
+				$scope.datasourceInputSelected = target.files.length !== 0;
+				$timeout(function() {
+					$scope.$digest();
+				}, 250);					
+			}
 			
 			$scope.buildImporterObjects = async function(){
 				$scope.converterDefinition = $scope.buildConverterDefinition();
@@ -358,6 +391,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 
+				// TODO FIXME currently set owner the same as indicator metadata
+				// is there a use case where different indicator spatial units timeseries may have different owners?  
+
 				var scopeProperties = {
 					"targetSpatialUnitMetadata": {
 						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
@@ -365,10 +401,18 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"currentIndicatorDataset": {
 						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
 					},
-					"allowedRoles": roleIds
+					"permissions": roleIds,
+					"ownerId": $scope.currentIndicatorDataset.ownerId,
+					"isPublic": $scope.isPublic
 				}
 				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
-	
+
+				$scope.aggregationsDefinition = $scope.buildAggregationsDefinition();
+				$scope.aggregationsDefinition.forEach(e => {
+					e.indicatorPutBody = {...$scope.putBody_indicators, applicableSpatialUnit: e.targetSpatialUnitName};
+					delete e.targetSpatialUnitName;
+				});
+
 				if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_indicators){
 					return false;
 				}
@@ -443,20 +487,23 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 						var updateIndicatorResponse_dryRun = undefined;
 						try {
-							updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, true);
+							updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, $scope.aggregationsDefinition, true);
 	
 							// this callback will be called asynchronously
 							// when the response is available
 	
 							if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)){
 								// all good, really execute the request to import data against data management API
-								var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, false);						
+								var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, $scope.aggregationsDefinition, false);						
 	
 								$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 								// $scope.refreshIndicatorEditFeaturesOverviewTable();
 	
 								$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
 								$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateIndicatorResponse);
+								if (updateIndicatorResponse.importedAggregations) {
+									$scope.importedAggregations = updateIndicatorResponse.importedAggregations.map(e => e.spatialUnit);
+								}
 	
 								$("#indicatorEditFeaturesSuccessAlert").show();
 								$scope.loadingData = false;
@@ -552,14 +599,14 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$scope.$digest();
 				}
 				
-				  $scope.converter = undefined;
-				for(var converter of kommonitorImporterHelperService.availableConverters){
-					if (converter.name === $scope.mappingConfigImportSettings.converter.name){
-						$scope.converter = converter;					
-						break;
-					}
-				}	
-				
+				  	$scope.converter = undefined;
+					for(var converter of kommonitorImporterHelperService.availableConverters){
+						if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+							$scope.converter = converter;					
+							break;
+						}
+					}	
+
 					$scope.schema = undefined;
 					if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
 						for (var schema of $scope.converter.schemas) {
@@ -585,6 +632,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 							break;
 						}
 					}
+
+					$scope.importAggregationsDefinition($scope.mappingConfigImportSettings.aggregations);
 	
 					$scope.$digest();
 	
@@ -615,11 +664,27 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						
 						}	
 					}
+
+					// set datasetOwner to disable checkboxes for owned datasets in permissions-table
+					kommonitorDataExchangeService.accessControl.forEach(item => {
+						if(item.organizationalUnitId==$scope.mappingConfigImportSettings.ownerId)
+							item.datasetOwner = true;
+						else
+							item.datasetOwner = false;
+					});
 		
-					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.allowedRoles);
+					$scope.roleManagementTableOptions = kommonitorDataGridHelperService.buildRoleManagementGrid('indicatorEditFeaturesRoleManagementTable', $scope.roleManagementTableOptions, kommonitorDataExchangeService.accessControl, $scope.mappingConfigImportSettings.permissions, true);
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
+					if($scope.mappingConfigImportSettings.isPublic)
+						$scope.isPublic = $scope.mappingConfigImportSettings.isPublic;
+					else
+						$scope.isPublic = $scope.currentIndicatorDataset.isPublic;
+
+					if($scope.mappingConfigImportSettings.ownerId)						
+						$scope.currentIndicatorDataset.ownerId = $scope.mappingConfigImportSettings.ownerId;
+
 					$scope.$digest();
 			};
 	
@@ -627,23 +692,28 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				var converterDefinition = $scope.buildConverterDefinition();
 				var datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 				var propertyMappingDefinition = $scope.buildPropertyMappingDefinition();			
+				var aggregationsDefinition = $scope.buildAggregationsDefinition();
 	
 				var mappingConfigExport = {
 					"converter": converterDefinition,
 					"dataSource": datasourceTypeDefinition,
 					"propertyMapping": propertyMappingDefinition,
 					"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"allowedRoles": []
+					"aggregations": aggregationsDefinition,
+					"permissions": []
 				};
 
-				mappingConfigExport.allowedRoles = [];
+				mappingConfigExport.permissions = [];
 
 				let roleIds = kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid($scope.roleManagementTableOptions);
 				for (const roleId of roleIds) {
-					mappingConfigExport.allowedRoles.push(roleId);
+					mappingConfigExport.permissions.push(roleId);
 				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
+
+				mappingConfigExport.isPublic = $scope.isPublic;
+				mappingConfigExport.ownerId = $scope.currentIndicatorDataset.ownerId;
 	
 				var name = $scope.datasetName;
 	
@@ -670,6 +740,82 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 				a.remove();
 			};
+
+			//#region  aggregation
+
+			$scope.aggregationsMapping = [];
+			$scope.editIdx = undefined;
+			$scope.aggregationsVis = true;
+
+			$scope.onChangeAggregationVis = function() { }
+
+			$scope.onClickUpdateAggregationMapping = function() {
+				$scope.aggregationsMapping.push({
+					"aggregationFunction": $scope.aggregationFunction,
+					"aggregatedSpatialUnitRefKeyProperty": $scope.aggregatedSpatialUnitRefKeyProperty,
+					"aggregatedTargetSpatialUnitMetadata": $scope.aggregatedTargetSpatialUnitMetadata
+				});
+				$scope.clearAggregationInputs();
+			}
+
+			$scope.onClickEditAggregationsMappingEntry = function(entry, idx) {
+				$scope.editIdx = idx;
+				$scope.aggregationFunction = entry.aggregationFunction;
+				$scope.aggregatedSpatialUnitRefKeyProperty = entry.aggregatedSpatialUnitRefKeyProperty;
+				$scope.aggregatedTargetSpatialUnitMetadata = entry.aggregatedTargetSpatialUnitMetadata;			
+			}
+
+			$scope.onClickDeleteAggregationsMappingEntry = function(idx) {
+				$scope.aggregationsMapping.splice(idx, 1);
+			}
+
+			$scope.onConfirmEditAggregation = function() {
+				$scope.aggregationsMapping[$scope.editIdx] = {
+					"aggregationFunction": $scope.aggregationFunction,
+					"aggregatedSpatialUnitRefKeyProperty": $scope.aggregatedSpatialUnitRefKeyProperty,
+					"aggregatedTargetSpatialUnitMetadata": $scope.aggregatedTargetSpatialUnitMetadata
+				};
+				$scope.editIdx = undefined;
+				$scope.clearAggregationInputs();
+			}
+
+			$scope.onAbortEditAggregation = function() {
+				$scope.editIdx = undefined;
+				$scope.clearAggregationInputs();
+			}
+
+			$scope.clearAggregationInputs = function() {
+				$scope.aggregationFunction = undefined;
+				$scope.aggregatedSpatialUnitRefKeyProperty = undefined;
+				$scope.aggregatedTargetSpatialUnitMetadata = undefined;
+			}
+
+			$scope.buildAggregationsDefinition = function() {
+				return this.aggregationsMapping.map(e => ({
+					aggregateFunction: e.aggregationFunction.apiName,
+					spatialReferenceKeyProperty: e.aggregatedSpatialUnitRefKeyProperty,
+					targetSpatialUnitName: e.aggregatedTargetSpatialUnitMetadata.spatialUnitLevel
+				}));
+			}
+
+			$scope.importAggregationsDefinition = function(aggDefinition) {
+				if (aggDefinition && aggDefinition instanceof Array) {
+					$scope.aggregationsMapping = aggDefinition.map(agg => {
+						const aggregationFunction = kommonitorImporterHelperService.aggregationsTypes.find(e => e.apiName === agg.aggregateFunction); 
+						const aggregatedSpatialUnitRefKeyProperty = agg.spatialReferenceKeyProperty;
+						const aggregatedTargetSpatialUnitMetadata = kommonitorDataExchangeService.availableSpatialUnits.find(e => e.spatialUnitLevel === agg.targetSpatialUnitName);
+						if (aggregationFunction && aggregatedSpatialUnitRefKeyProperty && aggregatedTargetSpatialUnitMetadata) {
+							return {
+								aggregationFunction,
+								aggregatedSpatialUnitRefKeyProperty,
+								aggregatedTargetSpatialUnitMetadata
+							}
+						}
+					}).filter(e => e !== undefined);
+				}
+			}
+
+			//#endregion
 	
 	
 				$scope.hideSuccessAlert = function(){

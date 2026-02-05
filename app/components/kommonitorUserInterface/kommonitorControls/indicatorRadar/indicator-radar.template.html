@@ -203,8 +203,29 @@
 						</div>
 					</div>
 					<div class="box-body">
+            <div class="row">
+              <div class="col-md-12" style="text-align: right;">
+                <b title="Checkbox zur Wahl, ob das Label der Indikatoren gek&uuml;rzt dargestellt werden soll">K&uuml;rzel verwenden</b>
+                &nbsp;
+                <label class="switch">
+                  <input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartLabel" ng-model="indicatorNames_shortVersion" ng-change="onChangeIndicatorNames()"
+                    checked>
+                  <span class="switchslider round"></span>
+                </label>
+
+                <br/>
+
+                <b title="Checkbox zur Wahl, ob die Legende in einer f&uuml;r den Export optimierten Variante dargestellt werden soll">Export optimierte Legende</b>
+                &nbsp;
+                <label class="switch">
+                  <input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.showBarChartAverageLine" ng-model="printLayout" ng-change="onChangePrintLayout()"
+                    checked>
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
+            </div>		
 						<div class="chart">
-							<div id="radarDiagram" style="width:100%; min-height:60vh;"></div>
+							<div id="radarDiagram" style="width:100%" ng-style="{'min-height' : radarHeight}"></div>
 						</div>
 					</div>
 					<!-- /.box-body -->

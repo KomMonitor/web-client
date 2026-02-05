@@ -1,0 +1,148 @@
+<div class="modal fade" id="modal-edit-spatial-unit-user-roles" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Zugriffsschutz und Eigent&uuml;merschaft f&uuml;r Raumeineit <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> editieren</h4>
+			</div>
+			<div class="modal-body">
+				
+				
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form role="form" class="multiStepForm form-group" id="spatialUnitEditUserRolesForm" data-toggle="validator" style="margin-bottom: 0px;">
+							<!-- progressbar -->
+							<div>
+								<ul id="progressbar">
+									<li style="width: 50%;" class="active">Zugriffsschutz</li>
+									<li style="width: 50%;">Eigent&uuml;merschaft</li>						
+								</ul>
+							</div>
+							<!-- fieldsets -->
+
+							<fieldset>
+								<h2 class="fs-title">Zugriffsschutz</h2>
+									<h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+		
+									<p>Zugriffsrechte (lesen, editieren) m&uuml;ssen explizit vergeben werden</p>
+							
+										<div class="row">
+                      <div class="col-md-12 col-sm-12 col-xs-12" ng-show="permissions.length!=0">
+                        <div class="form-group vertical-align">
+                            <label class="margin-right">Zeige nur zugewiesene Rechte</label>
+                            <label class="switch">
+                                <input type="checkbox" value="activeRolesOnly" ng-model="activeRolesOnly" ng-change="onActiveRolesOnlyChange()" ng-disabled="permissions.length==0">
+                                <span class="switchslider round"></span>
+                            </label>
+                        </div>
+                      </div>
+											<div class="col-md-3">
+												<label>&Ouml;ffentliche Lesefreigabe*</label>
+												<label class="switch">
+													<input type="checkbox" ng-model="currentSpatialUnitDataset.isPublic">
+													<span class="switchslider round"></span>
+												</label>
+												<div class="help-block">
+													<p>
+														&Ouml;ffentlich freigegebene Datens&auml;tze k&ouml;nnen ohne Login abgerufen werden.
+													</p>
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+													<!-- <div id="georesourceAddRoleManagementTable" style="height: 40vh; overflow-y: auto;" class="ag-theme-alpine"></div>     -->
+													<div id="spatialUnitEditRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>  
+												
+											</div>
+											<div class="col-md-3">
+												<div class="alert alert-info">
+													Als Eigent&uuml;mer-Organisation des Datensatzes k&ouml;nnen Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben. 
+												</div>
+											</div>
+										</div>	
+								
+										<input type="button" name="next" class="next next_editSpatialUnitRoles action-button" value="N&auml;chster Schritt"/>
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Eigent&uuml;merschaft eines Datensatzes</h2>
+									<h3 class="fs-subtitle">&Uuml;betragen der Eigent&uuml;merschaft von Datens&auml;tzen mit allen dazugeh&ouml;rigen Rechten</h3>
+									<div class="alert alert-danger">
+										Bitte beachten Sie, dass Sie beim &Uuml;bertragen einer Eigent&uuml;merschaft einer Resource unter Umst&auml;nden jegliche Rechte eben dieser verlieren.<br>Die Rechte werden unwiderruflich und sofort an den neuen Eigent&uuml;mer &uuml;bertragen.
+									</div>
+									<div class="row">
+										<div class="col-md-3"></div>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<label for="targetUserRoleSelect"><b>Eigent&uuml;merschaft &uuml;bertragen an</b></label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="ownerOrgFilter" ng-model-options="{debounce: 500, blur: 0}">
+											</div>
+											<select ng-if="$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="targetUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
+												<option ng-repeat="org in $ctrl.kommonitorDataExchangeServiceInstance.accessControl | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>
+											<select ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.checkAdminPermission()" id="addSpatialUnitUserRoleSelect" id="targetUserRoleSelect" ng-model="ownerOrganization" class="form-control" ng-change="onChangeOwner(ownerOrganization)" required>
+												<option selected value><b>Eigent&uuml;merschaft nicht &uuml;bertragen</b></option>
+												<option ng-repeat="org in resourcesCreatorRights | filter:ownerOrgFilter" value="{{org.organizationalUnitId}}">{{org.name}}</option>
+											</select>
+										</div>
+										<div class="col-md-3">
+											<label>aktuelle Eigent&uuml;mer-Organisationseinheit</label>
+											<p>{{$ctrl.kommonitorDataExchangeServiceInstance.getAccessControlById(currentSpatialUnitDataset.ownerId).name}}</p>
+											<div class="help-block" style="color: red" ng-if="ownerOrganization != currentSpatialUnitDataset.ownerId">
+												<p>
+													ACHTUNG: Sie sind dabei, die Eigent&uuml;merschaft an diesem Datensatz zu &auml;ndern.
+												</p>
+											</div>
+										</div>
+									</div>
+
+									<input type="button" name="previous" class="previous next_editSpatialUnitRoles action-button-previous" value="Voriger Schritt"/>
+							</fieldset>
+
+						</form>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+
+				<button type="button" class="btn btn-success"
+					ng-click="editSpatialUnitEditUserRolesForm()">Aktualisieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetSpatialUnitEditUserRolesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="spatialUnitEditUserRolesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigent&uuml;merschaft aktualisiert</h4>
+				Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigent&uuml;merschaft f&uuml;r die Raumeinheit '{{currentSpatialUnitDataset.spatialUnitLevel}}'
+			</div>
+
+			<div id="spatialUnitEditUserRolesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+				Bei der Aktualisierung des Zugriffsschutzes und der Eigent&uuml;merschaft ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -73,7 +73,7 @@ angular
 
       this.makeGeoresourceMetadata = function (file, customColor, customMarkerColor, type, geoJSON) {
         let tmpKommonitorGeoresource = {
-          "allowedRoles": [
+          "permissions": [
 
           ],
           "aoiColor": customColor,
@@ -144,7 +144,7 @@ angular
 
       this.makeGeoresourceMetadata_fromCsvRows = function (file, customColor, customMarkerColor, type, rows) {
         let tmpKommonitorGeoresource = {
-          "allowedRoles": [
+          "permissions": [
 
           ],
           "aoiColor": customColor,

@@ -13,7 +13,7 @@
     },
     {
         "id": "filter",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "measureOfValueClassification",
@@ -21,7 +21,7 @@
     },
     {
         "id": "balance",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "diagrams",
@@ -29,19 +29,19 @@
     },
     {
         "id": "radarDiagram",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "regressionDiagram",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "reachability",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "processing",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "reportingButton",
@@ -49,14 +49,22 @@
     },
     {
         "id": "indicatorLegendExportButtons",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "diagramExportButtons",
-        "roles": ["fakeAdvancedModeRole"]
+        "roles": ["fakeAdvancedModeGroup"]
     },
     {
         "id": "georesourceExportButtons",
-        "roles": ["fakeAdvancedModeRole"]
-    }
+        "roles": ["fakeAdvancedModeGroup"]
+    },
+    {
+        "id": "kommonitorIndicatorClassification",
+        "groups": []
+    } ,
+    {
+        "id": "kommonitorStatisticalValues",
+        "groups": []
+    } 
 ]
