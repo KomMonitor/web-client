@@ -14,6 +14,9 @@ angular
       this.filteredIndicatorFeatureIds = new Map();
       this.selectedIndicatorFeatureIds = new Map();
 
+      // spatial filter related features
+      this.filteredIndicatorFeatureIds_spatialFilter = new Map();
+
       this.completelyRemoveFilteredFeaturesFromDisplay = true;
 
       this.onChangeFilterBehaviourToggle = function(){
@@ -54,6 +57,7 @@ angular
 
       this.clearFilteredFeatures = function(){
         this.filteredIndicatorFeatureIds = new Map();
+        this.filteredIndicatorFeatureIds_spatialFilter = new Map();
       };
 
       this.applyRangeFilter = function(features, targetDateProperty, minFilterValue, maxFilterValue){
@@ -149,15 +153,17 @@ angular
           
         // }
         this.filteredIndicatorFeatureIds = new Map();
+        this.filteredIndicatorFeatureIds_spatialFilter = new Map();
 
         // manage map of filtered features
         let targetHigherSpatialUnitFilterFeatures = higherSpatialUnitFilterFeatureGeoJSON.features.filter(feature => targetFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]));
           
-        for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
-          this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+        for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {  
+                              
           for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
-            if(turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
-              this.filteredIndicatorFeatureIds.delete("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+            if(! turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
+              this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+              this.filteredIndicatorFeatureIds_spatialFilter.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
               break;
             }
           }          
@@ -172,11 +178,13 @@ angular
           
         // }
         this.filteredIndicatorFeatureIds = new Map();
+        this.filteredIndicatorFeatureIds_spatialFilter = new Map();
 
         // manage map of filtered features        
         for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
           if(!targetFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
             this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+            this.filteredIndicatorFeatureIds_spatialFilter.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
           }         
         }
 
