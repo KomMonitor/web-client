@@ -46,6 +46,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.datasetName = undefined;
 			$scope.description = undefined;
 			kommonitorScriptHelperService.targetIndicator = undefined;
+			$scope.showScheduleExistsHint = {status : false};
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -307,10 +308,29 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.selectableSpatialUnits = [];
 
-			$scope.onTargetIndicatorChanged = function (){
+			$scope.checkScheduleForSelectedTargetIndicator = async function () {
+				await $http({
+					url: __env.targetUrlToProcessesApi + "schedules/",
+					method: "GET"
+				}).then(function successCallback(response) {
+					for(const schedule of response.data.schedules) {
+						if (schedule.inputs.target_indicator_id == kommonitorScriptHelperService.targetIndicator.indicatorId) {
+							$scope.showScheduleExistsHint.status = true;
+							return;
+						}
+					}
+					$scope.showScheduleExistsHint.status = false;
+				}), function errorCallback(error) {
+					
+				};
+			}
+
+			$scope.onTargetIndicatorChanged = async function (){
 				if(kommonitorScriptHelperService.targetIndicator && kommonitorScriptHelperService.targetIndicator.indicatorId){
 					kommonitorScriptHelperService.processParameters.target_indicator_id = kommonitorScriptHelperService.targetIndicator.indicatorId;
 					$scope.resetSelectableSpatialUnits();
+
+					await $scope.checkScheduleForSelectedTargetIndicator();
 				}				
 			}
 

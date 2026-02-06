@@ -220,6 +220,16 @@
 										</div>
 										
 									</div>
+									
+								</div>
+								<div class="row vertical-align" ng-if="showScheduleExistsHint.status">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="alert alert-warning" >
+											<b>Hinweis: Für den ausgewählten Ziel-Indikator existiert bereits ein Skript.
+												Registrieren Sie ein neues Skript mit dem gleichen Ziel-Indikator, wird das
+												bestehende Skript überschrieben.</b>
+										</div>
+									</div>
 								</div>
 
 								</br><hr style="border-top:1px solid #f4f4f4;"></br></br>
@@ -639,10 +649,16 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
-				<button type="button" class="btn btn-success"
+				<button ng-if="!showScheduleExistsHint.status" type="button" class="btn btn-success"
 					ng-disabled="getAddScriptBtnDisabledStatus()"
-					ng-click="addScript()">Skript
-					registrieren</button>
+					ng-click="addScript()">
+					Skript registrieren
+				</button>
+				<button ng-if="showScheduleExistsHint.status" type="button" class="btn btn-warning"
+					ng-disabled="getAddScriptBtnDisabledStatus()"
+					ng-click="addScript()">
+					Skript überschreiben
+				</button>
 				<button type="button" class="btn btn-danger" ng-click="resetScriptAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
