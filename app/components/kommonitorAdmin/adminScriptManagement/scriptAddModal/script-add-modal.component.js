@@ -46,7 +46,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.datasetName = undefined;
 			$scope.description = undefined;
 			kommonitorScriptHelperService.targetIndicator = undefined;
-			$scope.showScheduleExistsHint = {status : false};
+			$scope.scheduleForSelectedTargetIndicator = {id : null};
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -203,6 +203,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				// TODO Create and perform POST Request with loading screen
 
 				try {
+					if ($scope.scheduleForSelectedTargetIndicator.id) {
+						await kommonitorScriptHelperService.deleteScript($scope.scheduleForSelectedTargetIndicator.id);
+						$scope.scheduleForSelectedTargetIndicator.id = null;
+					}
 					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.selectedScriptType.id);					
 
 					let scheduleId = addScriptResponse.scheduleID;
@@ -315,11 +319,11 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				}).then(function successCallback(response) {
 					for(const schedule of response.data.schedules) {
 						if (schedule.inputs.target_indicator_id == kommonitorScriptHelperService.targetIndicator.indicatorId) {
-							$scope.showScheduleExistsHint.status = true;
+							$scope.scheduleForSelectedTargetIndicator.id = schedule.scheduleID;
 							return;
 						}
 					}
-					$scope.showScheduleExistsHint.status = false;
+					$scope.scheduleForSelectedTargetIndicator.id = null;
 				}), function errorCallback(error) {
 					
 				};
