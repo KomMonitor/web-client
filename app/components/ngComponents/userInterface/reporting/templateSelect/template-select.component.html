@@ -100,8 +100,8 @@
           <div class="col-sm-9">
               <div class="row" style="margin:0">
                   <div id="reporting-template-preview-area">
-                      <div *ngFor="let page of reportingService.selectedTemplate?.pages; index as iPage" 
-                          [ngClass]="{'hiddenPage': !showThisPage(page)}"
+                      <div *ngFor="let page of reportingService.workingTemplate?.pages; index as iPage" 
+                          [ngClass]="{'hiddenPage': !reportingService.showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}">
                           <div *ngFor="let pageElement of page.pageElements"
                               [style]="{position: 'absolute',
@@ -125,7 +125,7 @@
 
                               <span [hidden]="!(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
-                                  Seite {{ getPageNumber(iPage) }}
+                                  Seite {{ reportingService.getPageNumber(iPage) }}
                               </span>
 
                               <span [hidden]="!(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
@@ -150,7 +150,7 @@
           </button>
         </div>
         <div>
-          <button id="reporting-templateSelectedBtn" class="btn btn-success pull-right" (click)='onTemplateSelected()' [disabled]='!reportingService.selectedTemplate'>Template auswählen</button>
+          <button id="reporting-templateSelectedBtn" class="btn btn-success pull-right" (click)='onTemplateSelected()' [disabled]='!reportingService.workingTemplate'>Template auswählen</button>
         </div>
       </div>
   </div>

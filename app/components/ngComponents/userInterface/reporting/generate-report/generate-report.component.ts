@@ -11,6 +11,7 @@ import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { reportingData } from '../reporting-modal.component';
+import { ReportingService } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-generate-report',
@@ -33,7 +34,8 @@ export class GenerateReportComponent implements OnInit {
   constructor(
     private dataExchangeService: DataExchangeService,
     private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    protected reportingService: ReportingService
   ) {}
 
   ngOnInit(): void {
@@ -91,7 +93,7 @@ export class GenerateReportComponent implements OnInit {
     doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
     doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
 
-    doc.layout = 'A4-'+this.data.pages[0].orientation;
+    doc.layout = 'A4-'+this.reportingService.workingTemplate.pages[0].orientation;
 
     var fontSize = 42;
     var fontFace = "Source Sans Pro";
@@ -176,7 +178,7 @@ export class GenerateReportComponent implements OnInit {
 
     // Pages
 
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -406,8 +408,8 @@ export class GenerateReportComponent implements OnInit {
   filterPagesToShow() {
     let pagesToShow:any[] = [];
     let skipNextPage = false;
-    for (let i = 0; i < this.data.pages.length; i ++) {
-      let page = this.data.pages[i];
+    for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i ++) {
+      let page = this.reportingService.workingTemplate.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
@@ -426,7 +428,7 @@ export class GenerateReportComponent implements OnInit {
   }
 
   pageContainsDatatable(pageID) {
-    let page = this.data.pages[pageID];
+    let page = this.reportingService.workingTemplate.pages[pageID];
     let pageContainsDatatable = false;
     for(let pageElement of page.pageElements) {
       if(pageElement.type == "datatable") {
@@ -456,7 +458,7 @@ export class GenerateReportComponent implements OnInit {
     let doc:any = new jsPDF({
       unit: 'mm',
       format: 'a4',
-      orientation: this.data.pages[0].orientation
+      orientation: this.reportingService.workingTemplate.pages[0].orientation
     });
  
     let fontName = "Helvetica"; // standard
@@ -473,7 +475,7 @@ export class GenerateReportComponent implements OnInit {
     doc.setDrawColor(148, 148, 148);
     doc.setFont(fontName, "normal", "normal"); 
     
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -485,7 +487,7 @@ export class GenerateReportComponent implements OnInit {
       
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
-
+console.log(pageElement)
         let pElementDom;
         if(pageElement.type === "linechart") {
           let arr = pageDom.querySelectorAll(".type-linechart");
@@ -506,7 +508,7 @@ export class GenerateReportComponent implements OnInit {
         pageElementDimensions.right = pageElement.dimensions.right && this.pxToMilli(pageElement.dimensions.right);
         pageElementDimensions.width = pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
         pageElementDimensions.height = pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
-        
+        console.log(pageElementDimensions)
         // TODO some cases could be merged, but it's better to do that later when stuff works
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
@@ -780,7 +782,7 @@ export class GenerateReportComponent implements OnInit {
   getPageNumber(index) {
     let pageNumber = 1;
     for(let i = 0; i < index; i ++) {
-      if (this.showThisPage(this.data.template.pages[i])) {
+      if (this.showThisPage(this.reportingService.workingTemplate.pages[i])) {
         pageNumber ++;
       }
     }
@@ -847,7 +849,7 @@ export class GenerateReportComponent implements OnInit {
     let zip = new JSZip();
     
     // screenshot map attribution and legend only once per section
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
     
       if(!this.showThisPage(page)) {
         continue;
@@ -910,7 +912,7 @@ export class GenerateReportComponent implements OnInit {
     /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
     } */
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;

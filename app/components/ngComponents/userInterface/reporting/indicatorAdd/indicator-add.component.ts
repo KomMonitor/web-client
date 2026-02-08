@@ -17,7 +17,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import { ReachabilityScenarioConfigurationComponent } from '../../sidebar/kommonitorReachability/reachability-scenario-modal/reachability-scenario-configuration/reachability-scenario-configuration.component';
 import * as noUiSlider from 'nouislider';
-import { ReportingService } from 'services/reporting-service/reporting.service';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 
 @Component({
@@ -44,6 +44,8 @@ export class IndicatorAddComponent implements OnInit {
     'Dezember'
   ];
   datesAsMs;
+
+  workflowState = WorkflowState;
 
   spatialUnitSelect = new FormControl;
   baseMapSelect = new FormControl;
@@ -247,35 +249,38 @@ export class IndicatorAddComponent implements OnInit {
   
   initialize() {
     this.loadingData = true;
+
+    // resets cloned template for preview (NOT working template in overview)
+    this.reportingService.resetTemplateClone();
     
     // give each page a unique id to track it by in ng-repeat
-    for(let page of this.reportingService.selectedTemplate.pages) {
+    for(let page of this.reportingService.clonedTemplate.pages) {
       page.id = this.templatePageIdCounter++;
     }
 
-    if(this.reportingService.selectedTemplate.name.includes("timestamp"))
+    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
       this.indexOfFirstAreaSpecificPage = 6;
-    if(this.reportingService.selectedTemplate.name.includes("timeseries"))
+    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
       this.indexOfFirstAreaSpecificPage = 8;
-    if(this.reportingService.selectedTemplate.name.includes("reachability"))
+    if(this.reportingService.clonedTemplate.name.includes("reachability"))
       this.indexOfFirstAreaSpecificPage = 2;
 
     // disable tabs to force user to pick a poi-layer / indicator first
-    let tabList:HTMLElement = document.querySelector("#reporting-add-indicator-tab-list")!;
+     /* let tabList:HTMLElement = document.querySelector("#reporting-add-indicator-tab-list")!;
 
-    let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane");
+   let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane");
     let tabChildren = Array.from(tabList.children)
     for(let [idx, tab] of tabChildren.entries()) {
       let id:any = tab.id.at(-1);
-      if( (this.reportingService.selectedTemplate.name.includes("reachability") && id==1) || // pois
-          (!this.reportingService.selectedTemplate.name.includes("reachability") && id==3) ) { // indicators
+      if( (this.reportingService.clonedTemplate.name.includes("reachability") && id==1) || // pois
+          (!this.reportingService.clonedTemplate.name.includes("reachability") && id==3) ) { // indicators
         tab.classList.add("active");
         tabPanes[idx].classList.add("active");
       } else {
         tab.classList.remove("active");
         tabPanes[idx].classList.remove("active");
       }
-    }
+    } */
 
     this.initializeDualLists();
 
@@ -325,7 +330,7 @@ export class IndicatorAddComponent implements OnInit {
 
     // now iterate over pages and adjust visibility according to settings
     // save that config at template level to adjust it in overview component and during export as well
-    for (const page of this.reportingService.selectedTemplate.pages) {
+    for (const page of this.reportingService.clonedTemplate.pages) {
       if(page.type == "map_overview_unclassified"){
         page.hidden = ! this.pageConfig.sections.showOverviewSection_unclassified;
         continue;
@@ -360,7 +365,7 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    this.reportingService.selectedTemplate.pageConfig = this.pageConfig;
+    this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
 
     this.loadingData = false; 
   }
@@ -446,7 +451,7 @@ export class IndicatorAddComponent implements OnInit {
     // in order to apply this config in overview and for report generation!
     this.loadingData = true; 
 
-    this.reportingService.selectedTemplate.pageConfig = this.pageConfig;		
+    this.reportingService.clonedTemplate.pageConfig = this.pageConfig;		
 
     this.loadingData = false;
   }
@@ -455,7 +460,7 @@ export class IndicatorAddComponent implements OnInit {
 
     this.pageConfig.showMapLabels = this.configForm.controls.sectionContentControl.controls.showMapLabels.value;
 
-    for(let i=0; i<this.reportingService.selectedTemplate.pages.length; i++) {
+    for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
       let map:any = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
      
       if(!map) {
@@ -493,7 +498,7 @@ export class IndicatorAddComponent implements OnInit {
 
     this.pageConfig.showRankingMeanLine = this.configForm.controls.sectionContentControl.controls.showRankingMeanLine.value;
 
-    for(let i=0; i<this.reportingService.selectedTemplate.pages.length; i++) {
+    for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
       let barChart:any = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
       if(!barChart) {
         continue; // no map on current page
@@ -527,13 +532,8 @@ export class IndicatorAddComponent implements OnInit {
     this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
 
-  onWorkflowBackButtonClicked() {
-    this.reset();
-    this.onWorkflowSelect([1]);
-  }
-
-  onWorkflowSelect(value: any[]) {
-    //this.selectedWorkflow.emit(value);
+  onBackToOverviewClicked() {
+    this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
   }
 /* 
   $scope.filterTimeseriesIndicator = function(indicator) {
@@ -574,7 +574,7 @@ export class IndicatorAddComponent implements OnInit {
 
   async onSelectedAreasChanged(newVal) {
     
-    if( typeof(this.reportingService.selectedTemplate) === "undefined") return;
+    if( typeof(this.reportingService.clonedTemplate) === "undefined") return;
     this.loadingData = true;
 
     this.selectedAreas = newVal;
@@ -583,7 +583,7 @@ export class IndicatorAddComponent implements OnInit {
     // this approach is not optimized for performance and might have to change in the future
 
     // remove all area-specific pages
-     this.reportingService.selectedTemplate.pages = this.reportingService.selectedTemplate.pages.filter( page => {
+     this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
     //this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.reportingConfig.template));
@@ -597,11 +597,11 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-    if(this.reportingService.selectedTemplate.name.includes("timestamp"))
+    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(newVal)
-    if(this.reportingService.selectedTemplate.name.includes("timeseries"))
+    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
       this.updateAreasForTimeseriesTemplates(newVal)
-    if(this.reportingService.selectedTemplate.name.includes("reachability"))
+    if(this.reportingService.clonedTemplate.name.includes("reachability"))
       this.updateAreasForReachabilityTemplates(newVal)
 
      this.updateDiagramsInterval_areas = setInterval(async () => { 
@@ -621,7 +621,7 @@ export class IndicatorAddComponent implements OnInit {
         this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
         justChanged = true;
       } 
-      if(this.reportingService.selectedTemplate.name.includes("reachability") || (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
+      if(this.reportingService.clonedTemplate.name.includes("reachability") || (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
         
         await this.initializeAllDiagrams();
         this.loadingData = false;
@@ -675,13 +675,13 @@ export class IndicatorAddComponent implements OnInit {
 
     // insert area-specific pages for each timestamp
     // right now the area-specific part is missing and we have to figure out where it was.
-    // get pages per timestamp -> insert new ones starting at indexOfFirstAreaSpecificPage -> replace per timestamp in this.reportingService.selectedTemplate.pages
+    // get pages per timestamp -> insert new ones starting at indexOfFirstAreaSpecificPage -> replace per timestamp in this.reportingService.clonedTemplate.pages
     if(this.selectedTimestamps.length) {
       let idx = 0
       for(let timestamp of this.selectedTimestamps) {
 
         // pagesForTimestamp is the template-section for that timestamp
-        let pagesForTimestamp = this.reportingService.selectedTemplate.pages.filter( page => {
+        let pagesForTimestamp = this.reportingService.clonedTemplate.pages.filter( page => {
           let dateEl = page.pageElements.find( el => {
             return el.type.includes("dataTimestamp-")
           });
@@ -690,7 +690,7 @@ export class IndicatorAddComponent implements OnInit {
         });
         // set index to first page of that timestamp
         // this is where we want to start replacing pages later
-        idx = this.reportingService.selectedTemplate.pages.indexOf( pagesForTimestamp[0] )
+        idx = this.reportingService.clonedTemplate.pages.indexOf( pagesForTimestamp[0] )
         // create a deep copy so we can assign new ids
         // we must remove leafletMap, as this causes CircularReference Errors
         // it will be added again during page creation anyway
@@ -731,14 +731,14 @@ export class IndicatorAddComponent implements OnInit {
         for(let page of pagesForTimestamp)
           page.id = this.templatePageIdCounter++;
         // then replace the whole timstamp-section with the new pages
-        this.reportingService.selectedTemplate.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
+        this.reportingService.clonedTemplate.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
       }
     } else {
       pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
       for(let page of pagesToInsertPerTimestamp)
         page.id = this.templatePageIdCounter++;
       // no timestamp selected, which makes inserting easier
-      this.reportingService.selectedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+      this.reportingService.clonedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
     }
   }
 
@@ -794,7 +794,7 @@ export class IndicatorAddComponent implements OnInit {
     pagesToInsert= JSON.parse(JSON.stringify(pagesToInsert));
     for(let page of pagesToInsert)
       page.id = this.templatePageIdCounter++;
-    this.reportingService.selectedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
+    this.reportingService.clonedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
   }
 
   updateAreasForReachabilityTemplates(newVal) {
@@ -850,12 +850,12 @@ export class IndicatorAddComponent implements OnInit {
 
       // create a deep copy so we can assign new ids
       //pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
-      let numberOfPagesToReplace = this.reportingService.selectedTemplate.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
+      let numberOfPagesToReplace = this.reportingService.clonedTemplate.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
       // insert area-specific pages
       for(let page of pagesToInsert)
         page.id = this.templatePageIdCounter++;
 
-      this.reportingService.selectedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
+      this.reportingService.clonedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
     }
   }
 
@@ -884,7 +884,7 @@ export class IndicatorAddComponent implements OnInit {
     let mappedNewVal = newVal.map(e => e.name);
     let mappedOldVal = oldVal.map(e => e.name);
 
-    if( typeof(this.reportingService.selectedTemplate) === "undefined") return;
+    if( typeof(this.reportingService.clonedTemplate) === "undefined") return;
     this.loadingData = true;
 
     // get difference between old and new value (the timestamps selected / deselected)
@@ -899,7 +899,7 @@ export class IndicatorAddComponent implements OnInit {
       // if this was the first timestamp
       if(newVal.length === 1) {
         // no need to insert pages, we just replace the placeholder timestamp
-        for(let page of this.reportingService.selectedTemplate.pages) {
+        for(let page of this.reportingService.clonedTemplate.pages) {
           for(let pageElement of page.pageElements) {
             if(pageElement.type.includes("dataTimestamp-")) {
               pageElement.text = difference[0].name;
@@ -967,8 +967,8 @@ export class IndicatorAddComponent implements OnInit {
           // determine position to insert pages (ascending timestamps) and insert them
           // iterate pages and check timestamp for each one
           let pagesInserted = false;
-          for(let i=this.reportingService.selectedTemplate.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
-            let page = this.reportingService.selectedTemplate.pages[i];
+          for(let i=this.reportingService.clonedTemplate.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
+            let page = this.reportingService.clonedTemplate.pages[i];
 
             for(let pElement of page.pageElements) {
               if(pElement.type.includes("dataTimestamp-")) {
@@ -982,7 +982,7 @@ export class IndicatorAddComponent implements OnInit {
                 if(date1Updated > date2Updated) {
                   // insert pages before pages with that timestamp
                   // i+1 because we want to insert after the page that has the older timestamp
-                  this.reportingService.selectedTemplate.pages.splice(i+1, 0, ...pagesToInsert);
+                  this.reportingService.clonedTemplate.pages.splice(i+1, 0, ...pagesToInsert);
 
                   pagesInserted = true;
                 }
@@ -995,19 +995,19 @@ export class IndicatorAddComponent implements OnInit {
           }
           
           if( !pagesInserted ) { // happens if the timestamp to insert is the oldest one
-            this.reportingService.selectedTemplate.pages.splice(0, 0, ...pagesToInsert); //prepend pages
+            this.reportingService.clonedTemplate.pages.splice(0, 0, ...pagesToInsert); //prepend pages
           }
         }
 
         // in case all timestamps were added at once and none was present before we still have placeholder pages at this point
         // all other pages got prepended since we compared against an invalid date.
         // remove those pages
-        for(let i=this.reportingService.selectedTemplate.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
-          let page = this.reportingService.selectedTemplate.pages[i];
+        for(let i=this.reportingService.clonedTemplate.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
+          let page = this.reportingService.clonedTemplate.pages[i];
           for(let pElement of page.pageElements) {
             if(pElement.type.includes("dataTimestamp-")) {
               if(pElement.isPlaceholder) {
-                this.reportingService.selectedTemplate.pages.splice(i, 1);
+                this.reportingService.clonedTemplate.pages.splice(i, 1);
               }
             }
           }
@@ -1023,11 +1023,11 @@ export class IndicatorAddComponent implements OnInit {
         for(let page of cleanTemplate.pages) {
           page.id = this.templatePageIdCounter++;
         }
-        //this.reportingService.selectedTemplate = cleanTemplate;
+        //this.reportingService.clonedTemplate = cleanTemplate;
       } else {
         // remove all pages that belong to removed timestamps
         for(let timestampToRemove of difference) {
-          this.reportingService.selectedTemplate.pages = this.reportingService.selectedTemplate.pages.filter( page => {
+          this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter( page => {
             let timestampEl = page.pageElements.find( el => {
               return el.type.includes("dataTimestamp-")
             })
@@ -1042,7 +1042,7 @@ export class IndicatorAddComponent implements OnInit {
     // but that one might change if we change the spatial unit
     if(newVal.length === oldVal.length && newVal.length === 1 && newVal[0].name != oldVal[0].name) {
       // simply update the timestamp on all pages
-      for(let page of this.reportingService.selectedTemplate.pages) {
+      for(let page of this.reportingService.clonedTemplate.pages) {
         for(let pageElement of page.pageElements) {
           if(pageElement.type.includes("reachability-subtitle-")) {
             pageElement.text = newVal[0].name;
@@ -1182,7 +1182,7 @@ export class IndicatorAddComponent implements OnInit {
         });
         // if any timestamp was deselected show a warning alert
         // except for reachability template, it doesn't matter there
-        if(selectedTimestamps_old.length > this.selectedTimestamps.length && !this.reportingService.selectedTemplate.name.includes("-reachability")) {
+        if(selectedTimestamps_old.length > this.selectedTimestamps.length && !this.reportingService.clonedTemplate.name.includes("-reachability")) {
           $("#reporting-spatialUnitChangeWarning").show();
         }
       } else {
@@ -1191,7 +1191,7 @@ export class IndicatorAddComponent implements OnInit {
         validTimestamps.push(mostRecentTimestampName)
       }
       
-      if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+      if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
         // Similar procedure as with timestamps
         let oldTimeseries = this.getFormattedDateSliderValues(true);
         
@@ -1251,7 +1251,7 @@ export class IndicatorAddComponent implements OnInit {
       // we have the wrong geometries set at this point, causing area selection to fail.
       // echarts requires properties.name to be present, create it from properties.NAME unless it exists
       let features;
-      if(this.reportingService.selectedTemplate.name.includes("reachability")) {
+      if(this.reportingService.clonedTemplate.name.includes("reachability")) {
         if(this.selectedIndicator) {
           features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ];
         } else {
@@ -1274,9 +1274,9 @@ export class IndicatorAddComponent implements OnInit {
         // User selects a poi layer first and we set the most recent timestamp programmatically, triggering this function without selected Indicator
         // We only need an echarts geoMap to show isochrones, POIs and spatial unit borders
         if(this.selectedIndicator) {
-          if(this.reportingService.selectedTemplate.name.includes("reachability")) {
+          if(this.reportingService.clonedTemplate.name.includes("reachability")) {
             this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
-          } else if (this.reportingService.selectedTemplate.name.includes("timeseries")) {
+          } else if (this.reportingService.clonedTemplate.name.includes("timeseries")) {
             let values = this.getFormattedDateSliderValues(true);
             let classifyUsingWholeTimeseries = false;
             let isTimeseries = true;
@@ -1297,7 +1297,7 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         await this.initializeAllDiagrams();
-        // if(!this.reportingService.selectedTemplate.name.includes("reachability")) {
+        // if(!this.reportingService.clonedTemplate.name.includes("reachability")) {
         // 	// in reachability template we have to update leaflet maps, too
         // 	this.loadingData = false;
         // }
@@ -1617,7 +1617,7 @@ export class IndicatorAddComponent implements OnInit {
       this.broadcastSerice.broadcast("reportingPoiLayerSelected", [this.selectedPoiLayer]);
 
       // get a new template (in case another poi layer was selected previously)
-      //this.reportingService.selectedTemplate = this.getCleanTemplate();
+      //this.reportingService.clonedTemplate = this.getCleanTemplate();
       
       // Indicator might not be selected at this point
       // We get information about all available spatial units (instead of applicable ones)
@@ -1651,7 +1651,7 @@ export class IndicatorAddComponent implements OnInit {
 
         
         // update information in preview
-        for(let page of this.reportingService.selectedTemplate.pages) {
+        for(let page of this.reportingService.clonedTemplate.pages) {
           for(let el of page.pageElements) {
             if(el.type.includes("indicatorTitle-")) {
               el.text = "Entfernungen für " + this.selectedPoiLayer.datasetName;
@@ -1733,11 +1733,11 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-    if(this.reportingService.selectedTemplate.name.includes("timestamp"))
+    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
       this.updateAreasForTimestampTemplates(this.selectedAreas)
-    if(this.reportingService.selectedTemplate.name.includes("timeseries"))
+    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
       this.updateAreasForTimeseriesTemplates(this.selectedAreas)
-    if(this.reportingService.selectedTemplate.name.includes("reachability"))
+    if(this.reportingService.clonedTemplate.name.includes("reachability"))
       this.updateAreasForReachabilityTemplates(this.selectedAreas)
 
      let updateDiagramsInterval = setInterval(() => {
@@ -1820,10 +1820,10 @@ export class IndicatorAddComponent implements OnInit {
     // })
     // this.selectedSpatialUnit = filter[0];
 
-    for(let page of this.reportingService.selectedTemplate.pages) {
+    for(let page of this.reportingService.clonedTemplate.pages) {
       for(let pageElement of page.pageElements) {
         if(pageElement.type === "map") {
-          let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.selectedTemplate.pages.indexOf(page) + "-map")
+          let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.clonedTemplate.pages.indexOf(page) + "-map")
           let map:any = echarts.getInstanceByDom(domNode)
           let options = map.getOption();
           // remove indicator data
@@ -1878,10 +1878,10 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
       
-      for(let page of this.reportingService.selectedTemplate.pages) {
+      for(let page of this.reportingService.clonedTemplate.pages) {
         for(let pageElement of page.pageElements) {
           if(pageElement.type === "map") {
-            let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.selectedTemplate.pages.indexOf(page) + "-map")
+            let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.clonedTemplate.pages.indexOf(page) + "-map")
             let map:any = echarts.getInstanceByDom(domNode)
             let options:any = map.getOption();
             let seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
@@ -1912,7 +1912,7 @@ export class IndicatorAddComponent implements OnInit {
 
     try {
       this.loadingData = true;
-      if(this.reportingService.selectedTemplate.name.includes("reachability")) {
+      if(this.reportingService.clonedTemplate.name.includes("reachability")) {
         this.handleIndicatorSelectForReachability(indicator);
         return;
       }
@@ -1934,8 +1934,8 @@ export class IndicatorAddComponent implements OnInit {
       this.selectedIndicator = indicator;
 
       // get a new template (in case another indicator was selected previously)
-      //this.reportingService.selectedTemplate = this.getCleanTemplate();
-      this.reportingService.selectedTemplate.pageConfig = this.pageConfig;
+      //this.reportingService.clonedTemplate = this.getCleanTemplate();
+      this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       
       // set spatial unit to highest available one
       let spatialUnits = this.dataExchangeService.pipedData.availableSpatialUnits;
@@ -1976,11 +1976,11 @@ export class IndicatorAddComponent implements OnInit {
         let mostRecentTimestamp = availableTimestamps.filter( el => {
           return el.properties.NAME === mostRecentTimestampName;
         })
-        if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+        if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
           this.initializeDateRangeSlider( timestampsForSelectedSpatialUnit,0,1 );
         }
         // update information in preview
-        for(let page of this.reportingService.selectedTemplate.pages) {
+        for(let page of this.reportingService.clonedTemplate.pages) {
           for(let el of page.pageElements) {
             if(el.type.includes("indicatorTitle-")) {
               el.text = indicator.indicatorName + " [" + indicator.unit + "]";
@@ -2019,7 +2019,7 @@ export class IndicatorAddComponent implements OnInit {
         // We want to skip the first one and only update diagrams once everything is ready for better performance.
         
         this.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
-        if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+        if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
           // This is an exception from the process above
           this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
           classifyUsingWholeTimeseries = false;
@@ -2061,11 +2061,11 @@ export class IndicatorAddComponent implements OnInit {
         // insert areaSpecific pages by default only for indicators with less than x areas to improve loading times
         //this.updateAreaSpecificSettings(areasListInput);
         //if(this.pageConfig.sections.showAreaSpecific) {
-          if(this.reportingService.selectedTemplate.name.includes("timestamp"))
+          if(this.reportingService.clonedTemplate.name.includes("timestamp"))
             this.updateAreasForTimestampTemplates(areasListInput)
-          if(this.reportingService.selectedTemplate.name.includes("timeseries"))
+          if(this.reportingService.clonedTemplate.name.includes("timeseries"))
             this.updateAreasForTimeseriesTemplates(areasListInput)
-          if(this.reportingService.selectedTemplate.name.includes("reachability"))
+          if(this.reportingService.clonedTemplate.name.includes("reachability"))
             this.updateAreasForReachabilityTemplates(areasListInput)
         //}
 
@@ -2086,11 +2086,11 @@ export class IndicatorAddComponent implements OnInit {
   updateAreaSpecificSettings(areasListInput) {
     if(areasListInput.length<this.numAreaSpecificPagesToShow) {
       this.pageConfig.sections.showAreaSpecific = true;
-      this.reportingService.selectedTemplate.pageConfig = this.pageConfig;
+      this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       this.configForm.controls.sectionControl.controls.showAreaSpecific.setValue(true);
     } else {
       this.pageConfig.sections.showAreaSpecific = false;
-      this.reportingService.selectedTemplate.pageConfig = this.pageConfig;
+      this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       this.configForm.controls.sectionControl.controls.showAreaSpecific.setValue(false);
     }
   }
@@ -2133,9 +2133,22 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onAddBtnClicked() {
-    this.reportingService.selectedTemplate.pageConfig = this.pageConfig;
+    
+    // different for POIs, todo change, see overview function reportingPoiLayerConfigurationCompleted
+    let templateSection = {
+      indicatorName: this.selectedIndicator ? this.selectedIndicator.indicatorName : "",
+      indicatorId: this.selectedIndicator ? this.selectedIndicator.indicatorId : "",
+      spatialUnitName: this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
+      absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
+      echartsRegisteredMapNames: this.reportingService.clonedTemplate.echartsRegisteredMapNames,
+      echartsMaps: [],
+      pageConfig: jQuery.extend(true, {}, this.pageConfig),
+      isochronesRangeType: this.isochronesRangeType,
+      isochronesRangeUnits: this.isochronesRangeUnits
+    }
+
     // for each page: add echarts configuration objects to the template
-    for(let [idx, page] of this.reportingService.selectedTemplate.pages.entries()) {
+    for(let [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
       let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + idx);
       
       for(let pageElement of page.pageElements) {
@@ -2182,24 +2195,21 @@ export class IndicatorAddComponent implements OnInit {
           pageElement.tableData = tableData; // [ [...], [...], [...] ]
         }
       }
-    }
-    if(this.selectedSpatialUnit.spatialUnitName) {
-      this.reportingService.selectedTemplate.spatialUnitName = this.selectedSpatialUnit.spatialUnitName;
-    }else {
-      this.reportingService.selectedTemplate.spatialUnitName = this.selectedSpatialUnit.spatialUnitLevel;
-    }
-    this.reportingService.selectedTemplate.absoluteLabelPositions = this.absoluteLabelPositions;
-    this.reportingService.selectedTemplate.echartsRegisteredMapNames = [...new Set(this.echartsRegisteredMapNames)];
-    this.reportingService.selectedTemplate.isochronesRangeType = this.isochronesRangeType;
-    this.reportingService.selectedTemplate.isochronesRangeUnits = this.isochronesRangeUnits;
-    if(!this.reportingService.selectedTemplate.name.includes("reachability")) {
-      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.reportingService.selectedTemplate, this.untouchedTemplateAsObj, Date.now()])
-    } else {
-      this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.reportingService.selectedTemplate, this.untouchedTemplateAsObj, Date.now()])
+
+      page.templateSection = templateSection;
     }
 
-   /*  this.data.reportingConfig.template = this.reportingService.selectedTemplate;
-    this.data.reportingConfig.pages = this.reportingService.selectedTemplate.pages;
+    this.reportingService.addIndicatorSection(templateSection);
+    this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
+
+   /*  if(!this.reportingService.clonedTemplate.name.includes("reachability")) {
+      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.reportingService.clonedTemplate, this.untouchedTemplateAsObj, Date.now()])
+    } else {
+      this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.reportingService.clonedTemplate, this.untouchedTemplateAsObj, Date.now()])
+    } */
+
+   /*  this.data.reportingConfig.template = this.reportingService.clonedTemplate;
+    this.data.reportingConfig.pages = this.reportingService.clonedTemplate.pages;
 
     this.onWorkflowSelect([2,this.data]); */
     //this.reset();
@@ -2392,7 +2402,7 @@ export class IndicatorAddComponent implements OnInit {
   
   async initLeafletMapBeneathEchartsMap(page, pageElement, map){
     // initialize the leaflet map beneath the transparent-background echarts map
-      let pageIdx:any = this.reportingService.selectedTemplate.pages.indexOf(page);
+      let pageIdx:any = this.reportingService.clonedTemplate.pages.indexOf(page);
       let id = "reporting-addPoiLayer-leaflet-map-container-" + pageIdx;
       let pageDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx);
       let pageElementDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
@@ -2439,7 +2449,7 @@ export class IndicatorAddComponent implements OnInit {
       attrDiv.appendChild(attrImg);
       pageElementDom.appendChild(attrDiv);
 
-      if(this.reportingService.selectedTemplate.name.includes("reachability")){
+      if(this.reportingService.clonedTemplate.name.includes("reachability")){
         // also create the reachability specific legend manually
         let prevLegendDiv = pageDom.querySelector(".map-legend")
         if(prevLegendDiv) prevLegendDiv.remove();
@@ -2550,7 +2560,7 @@ export class IndicatorAddComponent implements OnInit {
       /* leafletLayer.on("load", async () => { 
         // there are pages for two page orientations (landscape and portait)
         // only trigger the screenshot for those pages, that are actually present
-        if(page.orientation == this.reportingService.selectedTemplate.orientation){
+        if(page.orientation == this.reportingService.clonedTemplate.orientation){
           // hier
           setTimeout(async() => {
           copy unten
@@ -2564,7 +2574,7 @@ export class IndicatorAddComponent implements OnInit {
       leafletLayer.addTo(leafletMap);	
 
       leafletMap.whenReady(async () => {
-        if(page.orientation == this.reportingService.selectedTemplate.orientation){
+        if(page.orientation == this.reportingService.clonedTemplate.orientation){
           await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
                       page.spatialUnitFeatureId, page.orientation, domNode, leafletMap);
           
@@ -2608,7 +2618,7 @@ export class IndicatorAddComponent implements OnInit {
   // async
   async createPageElement_Map(wrapper, page, pageElement) {
 
-    if(this.reportingService.selectedTemplate.name.includes("reachability")) {
+    if(this.reportingService.clonedTemplate.name.includes("reachability")) {
       let map = await this.createMapForReachability(wrapper, page, pageElement);
       return map;
     }
@@ -2619,7 +2629,7 @@ export class IndicatorAddComponent implements OnInit {
     
     // get the timestamp from pageElement, not from dom because dom might not be up to date yet
     let dateElement;
-    if(this.reportingService.selectedTemplate.name.includes("reachability")) {
+    if(this.reportingService.clonedTemplate.name.includes("reachability")) {
       dateElement = page.pageElements.find( el => {
         return el.type.includes("reachability-subtitle-");
       });
@@ -2639,7 +2649,7 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
     
-    if(this.reportingService.selectedTemplate.name.includes("reachability")) {
+    if(this.reportingService.clonedTemplate.name.includes("reachability")) {
       mapName = this.selectedIndicator.indicatorId + "_" + timestamp + "_" + this.selectedSpatialUnit.spatialUnitName;
     } else {
       mapName = this.selectedIndicator.indicatorId + "_" + dateElement.text + "_" + this.selectedSpatialUnit.spatialUnitName;
@@ -2868,7 +2878,7 @@ export class IndicatorAddComponent implements OnInit {
               })
             }
 
-            for(let [idx, page] of this.reportingService.selectedTemplate.pages.entries()) {
+            for(let [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
               for(let pageElement of page.pageElements) {
                 if(pageElement.type === "map" && !page.area) {
                   let domNode:any = document.getElementById("reporting-addIndicator-page-" + idx + "-map");
@@ -3199,7 +3209,7 @@ export class IndicatorAddComponent implements OnInit {
     let timestamp = undefined;
     let timeseries:any = undefined;
 
-    if(this.reportingService.selectedTemplate.name.includes("timestamp")) {
+    if(this.reportingService.clonedTemplate.name.includes("timestamp")) {
       // get the timestamp from pageElement, not from dom because dom might not be up to date yet
       let dateElement = page.pageElements.find( el => {
         return el.type.includes("dataTimestamp-");
@@ -3207,7 +3217,7 @@ export class IndicatorAddComponent implements OnInit {
       timestamp = dateElement.text;
     }
 
-    if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+    if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
       let inBetweenValues = true;
       timeseries = this.getFormattedDateSliderValues(inBetweenValues);
     }
@@ -3227,7 +3237,7 @@ export class IndicatorAddComponent implements OnInit {
       if( !isSelected )
         continue;
 
-      if(this.reportingService.selectedTemplate.name.includes("timestamp")) {
+      if(this.reportingService.clonedTemplate.name.includes("timestamp")) {
         // get the timestamp from pageElement, not from dom because dom might not be up to date yet
         let dateElement = page.pageElements.find( el => {
           return el.type.includes("dataTimestamp-");
@@ -3244,7 +3254,7 @@ export class IndicatorAddComponent implements OnInit {
         });
       }
 
-      if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+      if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
         for(let timestamp of timeseries.dates) {
           let value = feature.properties["DATE_" + timestamp];
           if(typeof(value) == 'number')
@@ -3262,7 +3272,7 @@ export class IndicatorAddComponent implements OnInit {
     rowsData.sort((a, b) => a.name.localeCompare(b.name))
 
     // append average as last row if needed
-    if(this.reportingService.selectedTemplate.name.includes("timestamp")) {
+    if(this.reportingService.clonedTemplate.name.includes("timestamp")) {
       rowsData.push({
         name: "Durchschnitt Selektion",
         value:  this.calculateAvg(this.selectedIndicator, timestamp, true)
@@ -3307,15 +3317,15 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         // insert after current one
-        let currentPageIndex = this.reportingService.selectedTemplate.pages.indexOf(page)
-        this.reportingService.selectedTemplate.pages.splice(currentPageIndex + 1, 0, newPage);
+        let currentPageIndex = this.reportingService.clonedTemplate.pages.indexOf(page)
+        this.reportingService.clonedTemplate.pages.splice(currentPageIndex + 1, 0, newPage);
       }
     }
 
     // create table rows once the pages exist
     this.insertDatatableRowsInterval = setInterval(() => {
       // get current index of page (might have changed in the meantime)
-      let idx = this.reportingService.selectedTemplate.pages.indexOf(page)
+      let idx = this.reportingService.clonedTemplate.pages.indexOf(page)
       let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
 
       if(wrapper) {
@@ -3329,7 +3339,7 @@ export class IndicatorAddComponent implements OnInit {
       wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
 
       let columnNames;
-      if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+      if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
         columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
       } else {
         columnNames  = ["Bereich", "Wert"]
@@ -3339,7 +3349,7 @@ export class IndicatorAddComponent implements OnInit {
 
       wrapper.appendChild(table);
       let tbody = table.querySelector("tbody");
-      let pageElement = this.reportingService.selectedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
+      let pageElement = this.reportingService.clonedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
       pageElement.isPlaceholder = false;
 
       for(let i=0;i<rowsData.length; i++) {
@@ -3365,7 +3375,7 @@ export class IndicatorAddComponent implements OnInit {
             table = this.createDatatableSkeleton(columnNames);
             wrapper.appendChild(table);
             let tbody:any = table.querySelector("tbody");
-            pageElement = this.reportingService.selectedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
+            pageElement = this.reportingService.clonedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
             pageElement.isPlaceholder = false;
             
             for(let j=i; j<(i + maxRows); j++) {
@@ -3643,9 +3653,9 @@ export class IndicatorAddComponent implements OnInit {
 // async
   async initializeAllDiagrams() {
 
-			if(!this.reportingService.selectedTemplate)
+			if(!this.reportingService.clonedTemplate)
 				return;
-			if(this.reportingService.selectedTemplate.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
+			if(this.reportingService.clonedTemplate.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
 				return;
 			}
 			if(!this.diagramsPrepared) {
@@ -3683,12 +3693,12 @@ export class IndicatorAddComponent implements OnInit {
 			this.pagePreparationSize = document.querySelectorAll("[id^='reporting-addIndicator-page-'].reporting-page").length; // all starting with that id
 			let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
 
-			for(let i=0; i<this.reportingService.selectedTemplate.pages.length; i++) {
+			for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
 
 				setTimeout(async () => {
 					pageIdx++;
-					let page = this.reportingService.selectedTemplate.pages[i];
-					let prevPage = i>1 ? this.reportingService.selectedTemplate.pages[i-1] : undefined;
+					let page = this.reportingService.clonedTemplate.pages[i];
+					let prevPage = i>1 ? this.reportingService.clonedTemplate.pages[i-1] : undefined;
 					let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
 
 					if(prevPage) {
@@ -3786,13 +3796,13 @@ export class IndicatorAddComponent implements OnInit {
 							case "datatable": {
 								// remove all following datatable pages first so we don't add too many.
 								// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
-								let nextPage = i<this.reportingService.selectedTemplate.pages.length-1 ? this.reportingService.selectedTemplate.pages[i+1] : undefined;
+								let nextPage = i<this.reportingService.clonedTemplate.pages.length-1 ? this.reportingService.clonedTemplate.pages[i+1] : undefined;
 								if(nextPage) {
 									let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
 									while(nextPageIncludesDatatable) {
-										this.reportingService.selectedTemplate.pages.splice(i+1, 1) //remove page
+										this.reportingService.clonedTemplate.pages.splice(i+1, 1) //remove page
 										//update next page
-										nextPage = i<this.reportingService.selectedTemplate.pages.length-1 ? this.reportingService.selectedTemplate.pages[i+1] : undefined;
+										nextPage = i<this.reportingService.clonedTemplate.pages.length-1 ? this.reportingService.clonedTemplate.pages[i+1] : undefined;
 										nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
 									}
 								}
@@ -3846,8 +3856,8 @@ export class IndicatorAddComponent implements OnInit {
   filterPagesToShow() {
     let pagesToShow:any[] = [];
     let skipNextPage = false;
-    for (let i = 0; i < this.reportingService.selectedTemplate.pages.length; i ++) {
-      let page = this.reportingService.selectedTemplate.pages[i];
+    for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i ++) {
+      let page = this.reportingService.clonedTemplate.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
@@ -3866,7 +3876,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   pageContainsDatatable(pageID) {
-    let page = this.reportingService.selectedTemplate.pages[pageID];
+    let page = this.reportingService.clonedTemplate.pages[pageID];
     let pageContainsDatatable = false;
     for(let pageElement of page.pageElements) {
       if(pageElement.type == "datatable") {
@@ -3879,7 +3889,7 @@ export class IndicatorAddComponent implements OnInit {
   getPageNumber(index) {
     let pageNumber = 1;
     for(let i = 0; i < index; i ++) {
-      if (this.showThisPage(this.reportingService.selectedTemplate.pages[i])) {
+      if (this.showThisPage(this.reportingService.clonedTemplate.pages[i])) {
         pageNumber ++;
       }
     }
@@ -4053,7 +4063,7 @@ export class IndicatorAddComponent implements OnInit {
     this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
     
     // set dates on all pages according to new slider values
-    for(let page of this.reportingService.selectedTemplate.pages) {
+    for(let page of this.reportingService.clonedTemplate.pages) {
       let dateEl = page.pageElements.find( el => {
         return el.type.includes("dataTimestamp-") || el.type.includes("dataTimeseries-")
       });
@@ -4187,23 +4197,23 @@ export class IndicatorAddComponent implements OnInit {
     let isAreaSelected = false;
     let isTimestampSelected = false;
 
-    if(!this.reportingService.selectedTemplate) {
+    if(!this.reportingService.clonedTemplate) {
       return false;
     }
 
-    if(this.selectedIndicator || this.reportingService.selectedTemplate.name.includes("reachability")) {
+    if(this.selectedIndicator || this.reportingService.clonedTemplate.name.includes("reachability")) {
       isIndicatorSelected = true;
     }
-    if(this.selectedAreas.length >= 1  || this.reportingService.selectedTemplate.name.includes("reachability")) {
+    if(this.selectedAreas.length >= 1  || this.reportingService.clonedTemplate.name.includes("reachability")) {
       isAreaSelected = true;
     }
 
-    if( (this.reportingService.selectedTemplate.name.includes("timestamp") || this.reportingService.selectedTemplate.name.includes("reachability") ) && 
+    if( (this.reportingService.clonedTemplate.name.includes("timestamp") || this.reportingService.clonedTemplate.name.includes("reachability") ) && 
       this.selectedTimestamps.length >= 1) {
       isTimestampSelected = true;
     }
 
-    if(this.reportingService.selectedTemplate.name.includes("timeseries")) {
+    if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
       if(!this.dateSlider) {
         return false;
       }
