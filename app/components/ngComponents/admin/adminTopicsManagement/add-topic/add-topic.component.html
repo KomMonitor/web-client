@@ -1,45 +1,36 @@
-<div class="list-group-item list-group-item-success" style="border-top: double">
-  <form
-    role="form"
-    class="form-group"
-    data-toggle="validator"
-    style="margin-bottom: 0px"
-  >
-    <div class="row">
-      <div class="col-md-3">
-        <button
-          class="btn btn-success btn-sm"
-          (click)="onAddTopic()"
-          [disabled]="!newTopicTitle || !newTopicDescription"
-        >
-          <i class="fas fa-plus"></i> &nbsp; &nbsp; {{getType()}} hinzufügen
-        </button>
-      </div>
-      <div class="col-md-4">
-        <input
-          style="width: 100%"
-          class="form-control"
-          type="text"
-          placeholder="Titel des {{getType()}}s"
-          [(ngModel)]="newTopicTitle"
-          name="newTopicTitle"
-          required
-        />
-        <div class="help-block with-errors"></div>
-      </div>
-      <div class="col-md-5">
-        <textarea
-          style="width: 100%"
-          rows="1"
-          class="form-control"
-          type="text"
-          placeholder="Beschreibung des {{getType()}}s"
-          [(ngModel)]="newTopicDescription"
-          name="newTopicDescription"
-          required
-        ></textarea>
-        <div class="help-block with-errors"></div>
-      </div>
-    </div>
-  </form>
-</div>
+<form role="form" class="row" style="margin-bottom: 0px">
+  <div class="col-3">
+    <button
+      class="btn btn-success btn-sm"
+      (click)="onAddTopic()"
+      [disabled]="!newTopicTitle || !newTopicDescription"
+    >
+      <i class="fas fa-plus"></i> &nbsp; &nbsp; {{ getType() }} hinzufügen
+    </button>
+  </div>
+  <div class="col-4">
+    <input
+      style="width: 100%"
+      class="form-control"
+      type="text"
+      placeholder="Titel des {{ getType() }}s"
+      [(ngModel)]="newTopicTitle"
+      name="newTopicTitle"
+      required
+    />
+    <div class="help-block with-errors"></div>
+  </div>
+  <div class="col-5">
+    <textarea
+      style="width: 100%"
+      rows="1"
+      class="form-control form-control-sm"
+      type="text"
+      placeholder="Beschreibung des {{ getType() }}s"
+      [(ngModel)]="newTopicDescription"
+      name="newTopicDescription"
+      required
+    ></textarea>
+    <div class="help-block with-errors"></div>
+  </div>
+</form>

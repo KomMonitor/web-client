@@ -12,6 +12,6 @@ export class SmallBoxComponent {
   @Input({ required: true }) titleText!: string;
   @Input() descriptionText: string = "";
   @Input() boxColor: string = "#fff";
-  @Input() textColor: string = "#000";
+  @Input() textColor: string = "#fff";
   @Input() iconClass: string | undefined;
 }

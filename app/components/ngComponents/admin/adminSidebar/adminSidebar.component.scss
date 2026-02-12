@@ -30,9 +30,17 @@
       }
     }
 
+    .sidebar-subheader {
+      height: 40px;
+      background-color: #1a2226;
+      color: #4b646f;
+      display: flex;
+      padding: 10px 15px;
+      font-size: 12px;
+    }
+
     .nav-pills {
       flex-direction: column;
-      padding: 10px 0;
 
       .nav-item.child {
         background-color: #2c3b41;
@@ -53,6 +61,7 @@
         align-items: center;
         padding: 10px 20px;
         border-radius: 0px;
+        border-left: 3px solid transparent;
         gap: 5px;
 
         .label {
@@ -71,7 +80,7 @@
 
         &.active {
           background-color: unset;
-          border-left: 3px solid var(--kommonitor-primary);
+          border-left-color: var(--kommonitor-primary);
           color: white;
         }
 
