@@ -5,7 +5,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
-import { FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { HttpClient } from '@angular/common/http';
@@ -15,9 +15,8 @@ import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot
 import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
-import { ReachabilityScenarioConfigurationComponent } from '../../sidebar/kommonitorReachability/reachability-scenario-modal/reachability-scenario-configuration/reachability-scenario-configuration.component';
 import * as noUiSlider from 'nouislider';
-import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 
 @Component({
@@ -53,36 +52,11 @@ export class IndicatorAddComponent implements OnInit {
 
   numAreaSpecificPagesToShow:number = 20;
 
-  // new Forms type, only used by form itself, transferred to page.config when necessary for the time beeing
-  configForm = new FormGroup({
-    sectionControl: new FormGroup({
-      showOverviewSection_unclassified: new FormControl<boolean>(true),
-      showOverviewSection_classified: new FormControl<boolean>(true),
-      showBarchartOverview: new FormControl<boolean>(true),
-      showLinechartOverview: new FormControl<boolean>(true),
-      showBoxplotchartOverview: new FormControl<boolean>(true),
-      showOverviewSection_reachability: new FormControl<boolean>(true),
-      showAreaSpecific: new FormControl<boolean>(true), // false by default, to improve loading times. Will be changed if selected specificAreas < x, or manually
-      showDatatable: new FormControl<boolean>(true)
-    }),
-    headerFooterControl: new FormGroup({
-      showTitle: new FormControl<boolean>(true),
-      showSubtitle: new FormControl<boolean>(true),
-      showLogo: new FormControl<boolean>(true),
-      showFooterCreationInfo: new FormControl<boolean>(true),
-      showPageNumber: new FormControl<boolean>(true)
-    }),
-    sectionContentControl: new FormGroup({
-      showMapLabels: new FormControl<boolean>(true),
-      baseMapSelect:new FormControl(this.dataExchangeService.pipedData.baseLayerDefinitionsArray[0]),
-      showRankingChartPerArea: new FormControl<boolean>(true),
-      showRankingMeanLine: new FormControl<boolean>(true),
-      showLineChartPerArea: new FormControl<boolean>(true),
-      showFreeText: new FormControl<boolean>(true),
-      mapLegendBackgroundColor: new FormControl<string>('rgba(255, 255, 255, 0.75)')
-    }),
-    
-  });
+  configForm = this.fb.nonNullable.group({
+    sectionContentControl: this.fb.nonNullable.group(this.reportingService.config.sectionContentControl),
+    sectionControl: this.fb.nonNullable.group(this.reportingService.config.sectionControl),
+    headerFooterControl: this.fb.nonNullable.group(this.reportingService.config.headerFooterControl)
+  })
 
 	template:any = undefined;
   untouchedTemplateAsString = "";
@@ -170,29 +144,7 @@ export class IndicatorAddComponent implements OnInit {
   
   timeseriesAdjustedOnSpatialUnitChange;
 
-  pageConfig:any = {
-			mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-			showMapLabels: true,
-			showRankingChartPerArea: true,
-			showLineChartPerArea: true,
-			showFreeText: true,
-			showRankingMeanLine: true,
-			showTitle: true,
-			showSubtitle: true,
-			showLogo: true,
-			showFooterCreationInfo: true,
-			showPageNumber: true,
-			sections: {
-				showOverviewSection_unclassified: true,
-				showOverviewSection_classified: true,
-				showBarchartOverview: true,
-				showLinechartOverview: true,
-				showBoxplotchartOverview: true,
-				showAreaSpecific: true,
-				showOverviewSection_reachability: true,
-				showDatatable: true
-			}
-  }
+  pageConfig = this.configForm.getRawValue();
 
   selectedBaseMap;
 
@@ -211,7 +163,8 @@ export class IndicatorAddComponent implements OnInit {
     private broadcastService: BroadcastService,
     private reachabilityHelperService: ReachabilityHelperService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
-    protected reportingService: ReportingService
+    protected reportingService: ReportingService,
+    private fb: FormBuilder
   ) {
   }
 
@@ -297,30 +250,7 @@ export class IndicatorAddComponent implements OnInit {
 
   onChangePageSettings(){
 
-    // copy from formControl to old format until migrated
-    this.pageConfig = {
-			mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-			showMapLabels: this.configForm.controls.sectionContentControl.controls.showMapLabels.value,
-			showRankingChartPerArea: this.configForm.controls.sectionContentControl.controls.showRankingChartPerArea.value,
-			showLineChartPerArea: this.configForm.controls.sectionContentControl.controls.showLineChartPerArea.value,
-			showFreeText: this.configForm.controls.sectionContentControl.controls.showFreeText.value,
-			showRankingMeanLine: this.configForm.controls.sectionContentControl.controls.showRankingMeanLine.value,
-			showTitle: this.configForm.controls.headerFooterControl.controls.showTitle.value,
-			showSubtitle: this.configForm.controls.headerFooterControl.controls.showSubtitle.value,
-			showLogo: this.configForm.controls.headerFooterControl.controls.showLogo.value,
-			showFooterCreationInfo: this.configForm.controls.headerFooterControl.controls.showFooterCreationInfo.value,
-			showPageNumber: this.configForm.controls.headerFooterControl.controls.showPageNumber.value,
-			sections: {
-				showOverviewSection_unclassified: this.configForm.controls.sectionControl.controls.showOverviewSection_unclassified.value,
-				showOverviewSection_classified: this.configForm.controls.sectionControl.controls.showOverviewSection_classified.value,
-				showBarchartOverview: this.configForm.controls.sectionControl.controls.showBarchartOverview.value,
-				showLinechartOverview: this.configForm.controls.sectionControl.controls.showLinechartOverview.value,
-				showBoxplotchartOverview: this.configForm.controls.sectionControl.controls.showBoxplotchartOverview.value,
-				showAreaSpecific: this.configForm.controls.sectionControl.controls.showAreaSpecific.value,
-				showOverviewSection_reachability: this.configForm.controls.sectionControl.controls.showOverviewSection_reachability.value,
-				showDatatable: this.configForm.controls.sectionControl.controls.showDatatable.value,
-			}
-    };
+    this.pageConfig = this.configForm.getRawValue();
 
     this.onChangeShowPageSection();
   }
@@ -332,35 +262,35 @@ export class IndicatorAddComponent implements OnInit {
     // save that config at template level to adjust it in overview component and during export as well
     for (const page of this.reportingService.clonedTemplate.pages) {
       if(page.type == "map_overview_unclassified"){
-        page.hidden = ! this.pageConfig.sections.showOverviewSection_unclassified;
+        page.hidden = ! this.pageConfig.sectionControl.showOverviewSection_unclassified;
         continue;
       }
       if(page.type == "map_overview_classified"){
-        page.hidden = ! this.pageConfig.sections.showOverviewSection_classified;
+        page.hidden = ! this.pageConfig.sectionControl.showOverviewSection_classified;
         continue;
       }
       if(page.type == "barchart_overview"){
-        page.hidden = ! this.pageConfig.sections.showBarchartOverview;
+        page.hidden = ! this.pageConfig.sectionControl.showBarchartOverview;
         continue;
       }
       if(page.type == "linechart_overview"){
-        page.hidden = ! this.pageConfig.sections.showLinechartOverview;
+        page.hidden = ! this.pageConfig.sectionControl.showLinechartOverview;
         continue;
       }
       if(page.type == "boxplot_overview"){
-        page.hidden = ! this.pageConfig.sections.showBoxplotchartOverview;
+        page.hidden = ! this.pageConfig.sectionControl.showBoxplotchartOverview;
         continue;
       }
       if(page.type == "area_specific"){
-        page.hidden = ! this.pageConfig.sections.showAreaSpecific;
+        page.hidden = ! this.pageConfig.sectionControl.showAreaSpecific;
         continue;
       }
       if(page.type == "map_overview_reachability"){
-        page.hidden = ! this.pageConfig.sections.showOverviewSection_reachability;
+        page.hidden = ! this.pageConfig.sectionControl.showOverviewSection_reachability;
         continue;
       }
       if(page.type == "datatable"){
-        page.hidden = ! this.pageConfig.sections.showDatatable;
+        page.hidden = ! this.pageConfig.sectionControl.showDatatable;
         continue;
       }
     }
@@ -375,36 +305,36 @@ export class IndicatorAddComponent implements OnInit {
     switch(pageElement.type) {
       case "indicatorTitle-landscape":
       case "indicatorTitle-portrait": {
-        return this.pageConfig.showTitle;
+        return this.pageConfig.headerFooterControl.showTitle;
       }
 
       case "communeLogo-landscape":
       case "communeLogo-portrait": {
-        return this.pageConfig.showLogo;
+        return this.pageConfig.headerFooterControl.showLogo;
       }
       case "dataTimestamp-landscape":
       case "dataTimestamp-portrait": {
-        return this.pageConfig.showSubtitle;
+        return this.pageConfig.headerFooterControl.showSubtitle;
       }
       case "dataTimeseries-landscape":
       case "dataTimeseries-portrait": {
-        return this.pageConfig.showSubtitle;
+        return this.pageConfig.headerFooterControl.showSubtitle;
       }
       case "reachability-subtitle-landscape":
       case "reachability-subtitle-portrait": {
-        return this.pageConfig.showSubtitle;
+        return this.pageConfig.headerFooterControl.showSubtitle;
       }
       case "footerHorizontalSpacer-landscape":
       case "footerHorizontalSpacer-portrait": {
-        return this.pageConfig.showFooterCreationInfo;
+        return this.pageConfig.headerFooterControl.showFooterCreationInfo;
       }
       case "footerCreationInfo-landscape":
       case "footerCreationInfo-portrait": {  
-        return this.pageConfig.showFooterCreationInfo;
+        return this.pageConfig.headerFooterControl.showFooterCreationInfo;
       } 
       case "pageNumber-landscape":
       case "pageNumber-portrait": {
-        return this.pageConfig.showPageNumber;
+        return this.pageConfig.headerFooterControl.showPageNumber;
       }
       // template-specific elements
       case "map": {
@@ -424,21 +354,21 @@ export class IndicatorAddComponent implements OnInit {
       // }
       case "barchart": {
         if(page.type == 'area_specific'){
-          return this.pageConfig.showRankingChartPerArea;
+          return this.pageConfig.sectionContentControl.showRankingChartPerArea;
         }
         return true;					
       }
       case "linechart": {
         if(page.type == 'area_specific'){
-          return this.pageConfig.showLineChartPerArea;
+          return this.pageConfig.sectionContentControl.showLineChartPerArea;
         }
         return true;
       }
       case "textInput": {
-        return this.pageConfig.showFreeText;
+        return this.pageConfig.sectionContentControl.showFreeText;
       }
       case "datatable": {
-        return this.pageConfig.sections.showDatatable;
+        return this.pageConfig.sectionControl.showDatatable;
       }
       default:{
         return true;
@@ -458,7 +388,7 @@ export class IndicatorAddComponent implements OnInit {
 
   onChangeShowMapLabels() {
 
-    this.pageConfig.showMapLabels = this.configForm.controls.sectionContentControl.controls.showMapLabels.value;
+    this.pageConfig.sectionContentControl.showMapLabels = this.configForm.controls.sectionContentControl.controls.showMapLabels.value;
 
     for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
       let map:any = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
@@ -469,13 +399,13 @@ export class IndicatorAddComponent implements OnInit {
 
       let instance:any = echarts.getInstanceByDom(map);
       let options = instance.getOption();
-      options.series[0].label.show = this.pageConfig.showMapLabels;
-      options.series[0].select.label.show = this.pageConfig.showMapLabels;
+      options.series[0].label.show = this.pageConfig.sectionContentControl.showMapLabels;
+      options.series[0].select.label.show = this.pageConfig.sectionContentControl.showMapLabels;
       for(let item of options.series[0].data) {
         if(typeof item.label === "undefined") {
           item.label = {};
         }
-        item.label.show = this.pageConfig.showMapLabels;
+        item.label.show = this.pageConfig.sectionContentControl.showMapLabels;
       }
       instance.setOption(options, {
         replaceMerge: ['series']
@@ -496,7 +426,7 @@ export class IndicatorAddComponent implements OnInit {
 
   onChangeShowRankingMeanLine() {
 
-    this.pageConfig.showRankingMeanLine = this.configForm.controls.sectionContentControl.controls.showRankingMeanLine.value;
+    this.pageConfig.sectionContentControl.showRankingMeanLine = this.configForm.controls.sectionContentControl.controls.showRankingMeanLine.value;
 
     for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
       let barChart:any = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
@@ -506,7 +436,7 @@ export class IndicatorAddComponent implements OnInit {
 
       let instance:any = echarts.getInstanceByDom(barChart);
       let options = instance.getOption();				
-      if (! this.pageConfig.showRankingMeanLine){
+      if (! this.pageConfig.sectionContentControl.showRankingMeanLine){
         options.series[0].markLine_backup = options.series[0].markLine;
         options.series[0].markLine = {};
       }
@@ -802,15 +732,15 @@ export class IndicatorAddComponent implements OnInit {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-     /*  let landscapePageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage ];
+      const landscapePageToInsert:any = structuredClone(this.reportingService.clonedTemplate.pages[ this.indexOfFirstAreaSpecificPage ]);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(landscapePageToInsert);
 
-      let portraitPageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
+      const portraitPageToInsert:any = structuredClone(this.reportingService.clonedTemplate.pages[ this.indexOfFirstAreaSpecificPage + 1 ]);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsert.push(portraitPageToInsert); */
+      pagesToInsert.push(portraitPageToInsert);
     }
 
     // sort alphabetically by area name
@@ -1649,7 +1579,6 @@ export class IndicatorAddComponent implements OnInit {
           name: mostRecentTimestampName
         }];
 
-        
         // update information in preview
         for(let page of this.reportingService.clonedTemplate.pages) {
           for(let el of page.pageElements) {
@@ -2085,11 +2014,11 @@ export class IndicatorAddComponent implements OnInit {
 
   updateAreaSpecificSettings(areasListInput) {
     if(areasListInput.length<this.numAreaSpecificPagesToShow) {
-      this.pageConfig.sections.showAreaSpecific = true;
+      this.pageConfig.sectionControl.showAreaSpecific = true;
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       this.configForm.controls.sectionControl.controls.showAreaSpecific.setValue(true);
     } else {
-      this.pageConfig.sections.showAreaSpecific = false;
+      this.pageConfig.sectionControl.showAreaSpecific = false;
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       this.configForm.controls.sectionControl.controls.showAreaSpecific.setValue(false);
     }
@@ -2134,10 +2063,10 @@ export class IndicatorAddComponent implements OnInit {
 
   onAddBtnClicked() {
     
-    // different for POIs, todo change, see overview function reportingPoiLayerConfigurationCompleted
     let templateSection = {
       indicatorName: this.selectedIndicator ? this.selectedIndicator.indicatorName : "",
       indicatorId: this.selectedIndicator ? this.selectedIndicator.indicatorId : "",
+      poiLayerName: this.selectedPoiLayer.datasetName,
       spatialUnitName: this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
       absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
       echartsRegisteredMapNames: this.reportingService.clonedTemplate.echartsRegisteredMapNames,
@@ -2146,6 +2075,7 @@ export class IndicatorAddComponent implements OnInit {
       isochronesRangeType: this.isochronesRangeType,
       isochronesRangeUnits: this.isochronesRangeUnits
     }
+   
 
     // for each page: add echarts configuration objects to the template
     for(let [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
@@ -2713,7 +2643,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.classify === true) {
       options.visualMap.show = true;
-      options.visualMap.backgroundColor = this.pageConfig.mapLegendBackgroundColor;
+      options.visualMap.backgroundColor = this.pageConfig.sectionContentControl.mapLegendBackgroundColor;
     } else {
       options.visualMap.show = false;
     }

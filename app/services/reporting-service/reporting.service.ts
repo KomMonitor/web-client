@@ -20,6 +20,50 @@ export enum WorkflowState {
   indicatorConfig
 }
 
+export interface ConfigData {
+  sectionControl: SectionConfig; 
+  headerFooterControl: HeaderFooterConfig;
+  sectionContentControl: SectionContentConfig;
+}
+
+export interface SectionContentConfig {
+  showMapLabels: boolean;
+  baseMapSelect: any;
+  showRankingChartPerArea: boolean;
+  showRankingMeanLine: boolean;
+  showLineChartPerArea: boolean;
+  showFreeText: boolean;
+  mapLegendBackgroundColor: string;
+}
+
+export interface HeaderFooterConfig {
+  showTitle: boolean;
+  showSubtitle: boolean;
+  showLogo: boolean;
+  showFooterCreationInfo: boolean;
+  showPageNumber: boolean;
+}
+
+export interface SectionConfig {
+  showOverviewSection_unclassified: boolean;
+  showOverviewSection_classified: boolean;
+  showBarchartOverview: boolean;
+  showLinechartOverview: boolean;
+  showBoxplotchartOverview: boolean;
+  showOverviewSection_reachability: boolean;
+  showAreaSpecific: boolean; // false by default, to improve loading times. Will be changed if selected specificAreas < x, or manually
+  showDatatable: boolean;
+}
+
+export interface TemplateData {
+  id: number;
+  name: string;
+  displayName: string;
+  categoryId: number,
+  orientation: string;
+  pages: any[]
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,7 +71,7 @@ export class ReportingService {
 
   default:ReportingData = {
     workflowState: WorkflowState.reportingOverview,
-    selectedTemplateId: 0,
+    selectedTemplateId: 4,
     sections: {
       indicators: [],
       georesources: []
@@ -42,30 +86,42 @@ export class ReportingService {
     freeText: "Text",
   };
 
-  // default values, can be changed by section  
-  config: any = {
-    pageConfig: {
-      mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
+  config: ConfigData = {
+    sectionContentControl: {
+      baseMapSelect: {
+        "layerConfig": {
+          name: "leere Karte", 
+          url: "",
+          layerType: "TILE_LAYER", 
+          layerName_WMS: "", 
+          attribution_html: "", 
+          minZoomLevel: window.__env.minZoomLevel, 
+          maxZoomLevel: window.__env.maxZoomLevel 
+        }
+      },
+      mapLegendBackgroundColor: 'rgba(255, 255, 255, 0.75)',
       showMapLabels: true,
       showRankingChartPerArea: true,
       showLineChartPerArea: true,
       showFreeText: true,
       showRankingMeanLine: true,
+    },
+    headerFooterControl: {
       showTitle: true,
       showSubtitle: true,
       showLogo: true,
       showFooterCreationInfo: true,
       showPageNumber: true,
-      sections: {
-        showOverviewSection_unclassified: true,
-        showOverviewSection_classified: true,
-        showBarchartOverview: true,
-        showLinechartOverview: true,
-        showBoxplotchartOverview: true,
-        showAreaSpecific: true,
-        showOverviewSection_reachability: true,
-        showDatatable: true
-      }
+    },
+    sectionControl: {
+      showOverviewSection_unclassified: true,
+      showOverviewSection_classified: true,
+      showBarchartOverview: true,
+      showLinechartOverview: true,
+      showBoxplotchartOverview: true,
+      showAreaSpecific: true,
+      showOverviewSection_reachability: true,
+      showDatatable: true
     }
   }
   
@@ -287,13 +343,14 @@ export class ReportingService {
 
   // A basic version of the templates.
   // These are not full-fledged templates yet, but they can serve as a starting point and are adjusted according to user choices dynamically.
-  availableTemplates = [
+  availableTemplates:TemplateData[] = [
     {
-      "name": "A4-landscape-timestamp",
-      "displayName": "DIN A4, Querformat",
-      "categoryId": 1,
-      "orientation" : "landscape",
-      "pages": [
+      id: 0,
+      name: "A4-landscape-timestamp",
+      displayName: "DIN A4, Querformat",
+      categoryId: 1,
+      orientation : "landscape",
+      pages: [
         {
           "type": "map_overview_unclassified",
           "orientation": "landscape",
@@ -749,11 +806,12 @@ export class ReportingService {
       ]
     },
     {
-      "name": "A4-portrait-timestamp",
-      "displayName": "DIN A4, Hochformat",
-      "categoryId": 1,
-      "orientation": "portrait",
-      "pages": [
+      id: 1,
+      name: "A4-portrait-timestamp",
+      displayName: "DIN A4, Hochformat",
+      categoryId: 1,
+      orientation: "portrait",
+      pages: [
         {
           "type": "map_overview_unclassified",
           "orientation": "portrait",
@@ -1209,11 +1267,12 @@ export class ReportingService {
       ]
     },
     {
-      "name": "A4-landscape-timeseries",
-      "displayName": "DIN A4, Querformat",
-      "categoryId": 2,
-      "orientation": "landscape",
-      "pages": [
+      id: 2,
+      name: "A4-landscape-timeseries",
+      displayName: "DIN A4, Querformat",
+      categoryId: 2,
+      orientation: "landscape",
+      pages: [
         {
           "type": "map_overview_unclassified",
           "orientation": "landscape",
@@ -1774,11 +1833,12 @@ export class ReportingService {
       ]
     },
     {
-      "name": "A4-portrait-timeseries",
-      "displayName": "DIN A4, Hochformat",
-      "categoryId": 2,
-      "orientation": "portrait",
-      "pages": [
+      id: 3,
+      name: "A4-portrait-timeseries",
+      displayName: "DIN A4, Hochformat",
+      categoryId: 2,
+      orientation: "portrait",
+      pages: [
         {
           "type": "map_overview_unclassified",
           "orientation": "portrait",
@@ -2339,11 +2399,12 @@ export class ReportingService {
       ]
     },
     {
-      "name": "A4-landscape-reachability",
-      "displayName": "DIN A4, Querformat",
-      "categoryId": 3,
-      "orientation" : "landscape",
-      "pages": [
+      id: 4,
+      name: "A4-landscape-reachability",
+      displayName: "DIN A4, Querformat",
+      categoryId: 3,
+      orientation : "landscape",
+      pages: [
         {
           "type": "map_overview_reachability",
           "orientation": "landscape",
@@ -2615,11 +2676,12 @@ export class ReportingService {
       ]
     },
     {
-      "name": "A4-portrait-reachability",
-      "displayName": "DIN A4, Hochformat",
-      "categoryId": 3,
-      "orientation" : "portrait",
-      "pages": [
+      id: 5,
+      name: "A4-portrait-reachability",
+      displayName: "DIN A4, Hochformat",
+      categoryId: 3,
+      orientation : "portrait",
+      pages: [
         {
           "type": "map_overview_reachability",
           "orientation": "portrait",
@@ -2903,9 +2965,7 @@ export class ReportingService {
   // nach außen NUR Observable
   reportingData$: Observable<ReportingData> = this._reportingData$.asObservable();
 
-  constructor(
-    private dataExchangeService: DataExchangeService
-  ) {
+  constructor() {
     
     for(let template of this.availableTemplates) {
       this.iteratePageElements( template, function(page, pageElement) {

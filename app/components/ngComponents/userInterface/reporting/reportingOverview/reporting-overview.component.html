@@ -88,40 +88,40 @@
                                   [innerHTML]="(pageElement.placeholderText ? pageElement.placeholderText : '') | safeHtml">
                               </span>
                               <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                              <span [hidden]="!reportingService.config.pageConfig.showPageNumber || !(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showPageNumber || !(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   Seite {{getPageNumber(iPage)}}
                               </span>
 
-                              <span [hidden]="!reportingService.config.pageConfig.showFooterCreationInfo || !(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showFooterCreationInfo || !(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!reportingService.config.pageConfig.showFreeText || !(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.sectionContentControl.showFreeText || !(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <img [hidden]="!reportingService.config.pageConfig.showLogo || !(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
+                              <img [hidden]="!reportingService.config.headerFooterControl.showLogo || !(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
                                   src="{{pageElement.src}}">
 
-                              <span [hidden]="!reportingService.config.pageConfig.showTitle || !(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showTitle || !(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!reportingService.config.pageConfig.showSubtitle || !(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!reportingService.config.pageConfig.showSubtitle || !(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!reportingService.config.pageConfig.showSubtitle || !(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>

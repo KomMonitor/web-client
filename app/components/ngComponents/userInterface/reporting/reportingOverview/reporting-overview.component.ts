@@ -131,36 +131,36 @@ export class ReportingOverviewComponent implements OnInit {
     switch(pageElement.type) {
       case "indicatorTitle-landscape":
       case "indicatorTitle-portrait": {
-        return page.templateSection.pageConfig.showTitle;
+        return page.templateSection.pageConfig.headerFooterControl.showTitle;
       }
 
       case "communeLogo-landscape":
       case "communeLogo-portrait": {
-        return page.templateSection.pageConfig.showLogo;
+        return page.templateSection.pageConfig.headerFooterControl.showLogo;
       }
       case "dataTimestamp-landscape":
       case "dataTimestamp-portrait": {
-        return page.templateSection.pageConfig.showSubtitle;
+        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
       }
       case "dataTimeseries-landscape":
       case "dataTimeseries-portrait": {
-        return page.templateSection.pageConfig.showSubtitle;
+        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
       }
       case "reachability-subtitle-landscape":
       case "reachability-subtitle-portrait": {
-        return page.templateSection.pageConfig.showSubtitle;
+        return page.templateSection.pageConfig.headerFooterControl.showSubtitle;
       }
       case "footerHorizontalSpacer-landscape":
       case "footerHorizontalSpacer-portrait": {
-        return page.templateSection.pageConfig.showFooterCreationInfo;
+        return page.templateSection.pageConfig.headerFooterControl.showFooterCreationInfo;
       }
       case "footerCreationInfo-landscape":
       case "footerCreationInfo-portrait": {  
-        return page.templateSection.pageConfig.showFooterCreationInfo;
+        return page.templateSection.pageConfig.headerFooterControl.showFooterCreationInfo;
       } 
       case "pageNumber-landscape":
       case "pageNumber-portrait": {
-        return page.templateSection.pageConfig.showPageNumber;
+        return page.templateSection.pageConfig.headerFooterControl.showPageNumber;
       }
       // template-specific elements
       case "map": {
@@ -180,21 +180,21 @@ export class ReportingOverviewComponent implements OnInit {
       // }
       case "barchart": {
         if(page.type == 'area_specific'){
-          return page.templateSection.pageConfig.showRankingChartPerArea;
+          return page.templateSection.pageConfig.sectionContentControl.showRankingChartPerArea;
         }
         return true;					
       }
       case "linechart": {
         if(page.type == 'area_specific'){
-          return page.templateSection.pageConfig.showLineChartPerArea;
+          return page.templateSection.pageConfig.sectionContentControl.showLineChartPerArea;
         }
         return true;
       }
       case "textInput": {
-        return page.templateSection.pageConfig.showFreeText;
+        return page.templateSection.pageConfig.sectionContentControl.showFreeText;
       }
       case "datatable": {
-        return page.templateSection.pageConfig.sections.showDatatable;
+        return page.templateSection.pageConfig.sectionControl.showDatatable;
       }
       default:{
         return true;
@@ -273,7 +273,7 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		onConfigureNewPoiLayerClicked() {
-      //this.onWorkflowSelect([3,this.data]);
+      this.reportingService.changeWorkflowState(this.workflowState.indicatorConfig)
 		}
 	
 		onBackToTemplateSelectionClicked() {

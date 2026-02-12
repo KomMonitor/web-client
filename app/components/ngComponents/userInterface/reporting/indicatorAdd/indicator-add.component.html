@@ -21,7 +21,7 @@
                         <a class="nav-link" [ngClass]="{'active': !reportingService.clonedTemplate.name.includes('-reachability')}" data-bs-target="#indicators" aria-controls="indicators" role="tab" data-bs-toggle="tab">Indikatoren</a>
                       </li>
                       <li class="nav-item" id="reporting-add-indicator-tab4" role="presentation">
-                          <a class="nav-link" [ngClass]="{'disabled': !selectedIndicator}" data-bs-target="#area" aria-controls="area" role="tab" data-bs-toggle="tab"  tabindex="-1">Bereich</a>
+                          <a class="nav-link" [ngClass]="{'disabled': !selectedIndicator && !selectedPoiLayer}" data-bs-target="#area" aria-controls="area" role="tab" data-bs-toggle="tab"  tabindex="-1">Bereich</a>
                       </li>
                       <li class="nav-item" id="reporting-add-indicator-tab5" role="presentation" *ngIf="!reportingService.clonedTemplate.name.includes('-reachability')">
                           <a class="nav-link" [ngClass]="{'disabled': !selectedIndicator}" data-bs-target="#time" aria-controls="time" role="tab" data-bs-toggle="tab" tabindex="-1"

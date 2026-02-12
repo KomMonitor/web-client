@@ -16,17 +16,16 @@
                   <h3>Kategorien</h3>
 
                   <div ngbAccordion>
-                    <div ngbAccordionItem [collapsed]="false" *ngFor="let category of reportingService.availableTemplateCategories; index as i">
+                    <div ngbAccordionItem [collapsed]="false" *ngFor="let category of reportingService.availableTemplateCategories">
                       <h2 ngbAccordionHeader>
                         <button ngbAccordionButton>{{category.displayName}}</button>
                       </h2>
                       <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                           <ul>
-                            <li *ngFor="let template of reportingService.availableTemplates | reportingTemplateFilter:category.id; index as ti"
-                              class="reporting-selectable-template" [ngClass]="{'template-selected': (ti == 0 && i==0) }"
-                              (click)="onTemplateElementClicked($event, ti)"
-                              id="collapse{{category.id}}-template{{i}}">
+                            <li *ngFor="let template of reportingService.availableTemplates | reportingTemplateFilter:category.id"
+                              class="reporting-selectable-template" [ngClass]="{'template-selected': template.id==0 }"
+                              (click)="onTemplateElementClicked($event, template.id)">
                               {{template.displayName}}
                             </li>
                           </ul>
