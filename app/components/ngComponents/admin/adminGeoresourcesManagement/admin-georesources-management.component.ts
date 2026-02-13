@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { CommonModule, DOCUMENT } from "@angular/common";
 import { Subscription } from "rxjs";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
 import { KommonitorGeoresourceDataExchangeService } from "../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service";
 import { KommonitorGeoresourceCacheHelperService } from "../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service";
@@ -41,6 +41,7 @@ declare const $: any;
     WmsAdminTableComponent,
     FormsModule,
     AdminContentViewComponent,
+    NgbDropdownModule,
   ],
   standalone: true,
 })

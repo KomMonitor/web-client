@@ -7,22 +7,19 @@
 </admin-content-view>
 
 <ng-template #controls>
-  <div class="verticalAlign">
-    <span>Nur editierbare Datens&auml;tze anzeigen</span>
-    <div>
-      <label class="switch">
-        <input
-          type="checkbox"
-          [(ngModel)]="tableViewSwitcher"
-          (ngModelChange)="onTableViewSwitch()"
-        />
-        <span class="switchslider round"></span>
-      </label>
-    </div>
+  <span>Nur editierbare Datensätze anzeigen</span>
+  <div>
+    <label class="switch">
+      <input
+        type="checkbox"
+        [(ngModel)]="tableViewSwitcher"
+        (ngModelChange)="onTableViewSwitch()"
+      />
+      <span class="switchslider round"></span>
+    </label>
   </div>
   <!-- batch update georesources -->
   <button
-    id="button-batch-update-georesources"
     class="btn btn-success btn-sm"
     type="button"
     [disabled]="!checkEditorPermission()"

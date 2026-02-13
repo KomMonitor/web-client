@@ -12,7 +12,7 @@ import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { CommonModule, DOCUMENT } from "@angular/common";
 import { Subscription } from "rxjs";
 import { HttpClient } from "@angular/common/http";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AgGridAngular } from "ag-grid-angular";
 import {
   ColDef,
@@ -48,6 +48,7 @@ declare const __env: any;
     FormsModule,
     CommonModule,
     AdminContentViewComponent,
+    NgbDropdownModule,
   ],
   standalone: true,
 })
