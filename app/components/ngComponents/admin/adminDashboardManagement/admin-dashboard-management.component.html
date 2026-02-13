@@ -1,83 +1,84 @@
-<div id="adminDashboardContent">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+<admin-content-view
+  [title]="'ADMIN_DASHBOARD.OVERVIEW' | translate"
+  [description]="'ADMIN_DASHBOARD.OVERVIEW_DESCRIPTION' | translate"
+  [contentTemplate]="content"
+></admin-content-view>
+<ng-template #content>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-xs-12"></div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <small-box
+        [titleText]="getOrganisationCount()"
+        [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
+        boxColor="#00c0ef"
+        iconClass="fas fa-users"
+      ></small-box>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <small-box
+        [titleText]="getTopicCounts()"
+        [descriptionText]="getTopicsLabel()"
+        boxColor="#d2d6de"
+        textColor="#000000"
+        iconClass="fas fa-book"
+      ></small-box>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12"></div>
+  </div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <small-box
+        [titleText]="getSpatialUnitCount()"
+        [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
+        boxColor="#337ab7"
+        iconClass="fas fa-layer-group"
+      ></small-box>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <small-box
+        [titleText]="getGeoresourceCount()"
+        [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
+        boxColor="#FF851B"
+        iconClass="fas fa-map-marked-alt"
+      >
+      </small-box>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <small-box
+        [titleText]="getIndicatorCount()"
+        [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
+        boxColor="#00a65a"
+        iconClass="fas fa-sitemap"
+      ></small-box>
+    </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <small-box
+        [titleText]="getIndicatorScriptCount()"
+        [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
+        boxColor="#605ca8"
+        iconClass="fas fa-file-code"
+      ></small-box>
     </div>
   </div>
-  <section class="content-header">
-    <h1>
-      {{ "ADMIN_DASHBOARD.OVERVIEW" | translate }}
-      <small>{{ "ADMIN_DASHBOARD.OVERVIEW_DESCRIPTION" | translate }}</small>
-    </h1>
-  </section>
-  <section class="content container-fluid">
-    <div class="row vertical-align">
-      <div class="col-md-3 col-sm-6 col-xs-12"></div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <small-box
-          [titleText]="getOrganisationCount()"
-          [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
-          boxColor="#00c0ef"
-          iconClass="fas fa-users"
-        ></small-box>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <small-box
-          [titleText]="getTopicCounts()"
-          [descriptionText]="getTopicsLabel()"
-          boxColor="#d2d6de"
-          textColor="#000000"
-          iconClass="fas fa-book"
-        ></small-box>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12"></div>
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div
+        id="indicatorsPerSpatialUnitDiagram"
+        style="width: 100%; min-height: 500px"
+      ></div>
     </div>
-    <div class="row vertical-align">
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <small-box
-          [titleText]="getSpatialUnitCount()"
-          [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
-          boxColor="#337ab7"
-          iconClass="fas fa-layer-group"
-        ></small-box>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <small-box
-          [titleText]="getGeoresourceCount()"
-          [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
-          boxColor="#FF851B"
-          iconClass="fas fa-map-marked-alt"
-        >
-        </small-box>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <small-box
-          [titleText]="getIndicatorCount()"
-          [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
-          boxColor="#00a65a"
-          iconClass="fas fa-sitemap"
-        ></small-box>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <small-box
-          [titleText]="getIndicatorScriptCount()"
-          [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
-          boxColor="#605ca8"
-          iconClass="fas fa-file-code"
-        ></small-box>
-      </div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div
+        id="georesourcesPerTypeDiagram"
+        style="width: 100%; min-height: 500px"
+      ></div>
     </div>
-    <div class="row vertical-align">
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <div id="indicatorsPerSpatialUnitDiagram" style="width:100%; min-height:500px;"></div>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <div id="georesourcesPerTypeDiagram" style="width:100%; min-height:500px;"></div>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <div id="indicatorsPerTopicDiagram" style="width:100%; min-height:500px;"></div>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-12"></div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div
+        id="indicatorsPerTopicDiagram"
+        style="width: 100%; min-height: 500px"
+      ></div>
     </div>
-  </section>
-</div> 
+    <div class="col-md-3 col-sm-6 col-xs-12"></div>
+  </div>
+</ng-template>

@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
 
 interface AccordionItem {
   title: string;
@@ -13,7 +14,7 @@ interface AccordionItem {
   selector: "admin-role-explanation-new",
   templateUrl: "./admin-role-explanation.component.html",
   styleUrls: ["./admin-role-explanation.component.css"],
-  imports: [ExpandableBoxComponent, CommonModule],
+  imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminRoleExplanationComponent {
@@ -155,7 +156,7 @@ export class AdminRoleExplanationComponent {
     },
     {
       title: this.decodeHtmlEntities(
-        "Was ist die Eigent&uuml;merschaft an Datens&auml;tzen?"
+        "Was ist die Eigent&uuml;merschaft an Datens&auml;tzen?",
       ),
       content: `Bei der Erstellung neuer Raumeinheiten, Indikatoren und Georessourcen ist die Angabe
       erforderlich, welche Gruppe Eigent&uuml;mer der Ressource ist.
@@ -168,7 +169,7 @@ export class AdminRoleExplanationComponent {
     },
     {
       title: this.decodeHtmlEntities(
-        "Kann die Eigent&uuml;merschaft ver&auml;ndert werden?"
+        "Kann die Eigent&uuml;merschaft ver&auml;ndert werden?",
       ),
       content: `Ja, Superadministratoren mit der Rolle <code>kommonitor-creator</code> sowie Mitgliedern der
       Eigent&uuml;mer-Gruppe ist es m&ouml;glich, die Eigent&uuml;merstellung an eine andere
@@ -196,7 +197,7 @@ export class AdminRoleExplanationComponent {
     },
     {
       title: this.decodeHtmlEntities(
-        "Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?"
+        "Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?",
       ),
       content: `Mitglieder der Eigent&uuml;mer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
       Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, l&ouml;schen).
@@ -219,7 +220,7 @@ export class AdminRoleExplanationComponent {
     },
     {
       title: this.decodeHtmlEntities(
-        "Wie erfolgt die &ouml;ffentliche Freigabe von Datens&auml;tzen?"
+        "Wie erfolgt die &ouml;ffentliche Freigabe von Datens&auml;tzen?",
       ),
       content: `&Auml;hnlich wie bei der gruppenspezifischen Freigabe von Datens&auml;tzen ist es nur
       Mitgliedern der Eigent&uuml;mer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
@@ -242,7 +243,7 @@ export class AdminRoleExplanationComponent {
     },
     {
       title: this.decodeHtmlEntities(
-        "Wie funktioniert die Datenfreigabe von Indikatoren f&uuml;r bestimmte Raumeinheiten?"
+        "Wie funktioniert die Datenfreigabe von Indikatoren f&uuml;r bestimmte Raumeinheiten?",
       ),
       content: `Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln.
 
@@ -267,7 +268,7 @@ export class AdminRoleExplanationComponent {
       nestedItems: [
         {
           title: this.decodeHtmlEntities(
-            "Szenario Indikator nicht &ouml;ffentlich"
+            "Szenario Indikator nicht &ouml;ffentlich",
           ),
           content: `<table class="table">
 									<tr>
@@ -302,7 +303,7 @@ export class AdminRoleExplanationComponent {
         },
         {
           title: this.decodeHtmlEntities(
-            "Szenario Indikator teilweise &ouml;ffentlich"
+            "Szenario Indikator teilweise &ouml;ffentlich",
           ),
           content: `<table class="table">
 									<tr>
@@ -350,7 +351,7 @@ export class AdminRoleExplanationComponent {
         },
         {
           title: this.decodeHtmlEntities(
-            "Szenario Indikator komplett &ouml;ffentlich"
+            "Szenario Indikator komplett &ouml;ffentlich",
           ),
           content: `<table class="table">
 									<tr>

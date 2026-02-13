@@ -31,6 +31,7 @@ import {
 } from "ag-grid-community";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { FormsModule } from "@angular/forms";
+import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
 declare const $: any;
 declare const __env: any;
 
@@ -38,11 +39,18 @@ declare const __env: any;
   selector: "admin-spatial-units-management-new",
   templateUrl: "./admin-spatial-units-management.component.html",
   styleUrls: ["./admin-spatial-units-management.component.css"],
-  imports: [ExpandableBoxComponent, AgGridAngular, CommonModule, FormsModule],
+  imports: [
+    ExpandableBoxComponent,
+    AgGridAngular,
+    CommonModule,
+    FormsModule,
+    AdminContentViewComponent,
+  ],
   standalone: true,
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
-  @ViewChild('spatialUnitOverviewTable', { static: true }) spatialUnitOverviewTable!: AgGridAngular;
+  @ViewChild("spatialUnitOverviewTable", { static: true })
+  spatialUnitOverviewTable!: AgGridAngular;
 
   public loadingData: boolean = true;
   public initializationCompleted: boolean = false;
@@ -69,49 +77,57 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     private kommonitorCacheHelperService: KommonitorCacheHelperService,
-    private kommonitorDataGridHelperService: KommonitorDataGridHelperService
+    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
   ) {}
 
   ngOnInit(): void {
-    
-    
     // Subscribe to spatial units data
-    const spatialUnitsSub = this.kommonitorDataExchangeService.spatialUnits$.subscribe(spatialUnits => {
-      if (spatialUnits && spatialUnits.length > 0) {
-        this.loadingData = false;
-        this.initializationCompleted = true;
-        this.buildDataGrid_spatialUnits(spatialUnits);
-      } else {
-      }
-    });
+    const spatialUnitsSub =
+      this.kommonitorDataExchangeService.spatialUnits$.subscribe(
+        (spatialUnits) => {
+          if (spatialUnits && spatialUnits.length > 0) {
+            this.loadingData = false;
+            this.initializationCompleted = true;
+            this.buildDataGrid_spatialUnits(spatialUnits);
+          } else {
+          }
+        },
+      );
     this.subscriptions.push(spatialUnitsSub);
 
     // Subscribe to loading state
-    const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(loading => {
-      this.loadingData = loading;
-    });
+    const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe(
+      (loading) => {
+        this.loadingData = loading;
+      },
+    );
     this.subscriptions.push(loadingSub);
 
     // Subscribe to error state
-    const errorSub = this.kommonitorDataExchangeService.error$.subscribe(error => {
-      if (error) {
-        // You can add error handling UI here
-      }
-    });
+    const errorSub = this.kommonitorDataExchangeService.error$.subscribe(
+      (error) => {
+        if (error) {
+          // You can add error handling UI here
+        }
+      },
+    );
     this.subscriptions.push(errorSub);
 
     this.setupEventListeners();
-    
+
     // Fetch spatial units data
     this.fetchSpatialUnitsData();
-    
+
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
         this.fetchSpatialUnitsData();
-        
+
         // If still no data after fallback, stop loading anyway
-        if (!this.kommonitorDataExchangeService.availableSpatialUnits || this.kommonitorDataExchangeService.availableSpatialUnits.length === 0) {
+        if (
+          !this.kommonitorDataExchangeService.availableSpatialUnits ||
+          this.kommonitorDataExchangeService.availableSpatialUnits.length === 0
+        ) {
           this.loadingData = false;
           this.initializationCompleted = true;
         }
@@ -120,18 +136,17 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private setupEventListeners(): void {
     // Listen for the global metadata loading completion event
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe(data => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
+    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
+      if (data.msg === "initialMetadataLoadingCompleted") {
         this.zone.run(() => {
           this.fetchSpatialUnitsData();
         });
-      }
-      else if (data.msg === 'refreshSpatialUnitOverviewTable') {
+      } else if (data.msg === "refreshSpatialUnitOverviewTable") {
         this.zone.run(() => {
           this.loadingData = true;
           // Extract crudType and targetSpatialUnitId from the broadcast data values
@@ -141,25 +156,24 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
         });
       }
       // Handle grid button click events
-      else if (data.msg === 'onEditSpatialUnitMetadata') {
+      else if (data.msg === "onEditSpatialUnitMetadata") {
         this.zone.run(() => {
           this.onClickEditMetadata(data.values);
         });
-      }
-      else if (data.msg === 'onEditSpatialUnitFeatures') {
+      } else if (data.msg === "onEditSpatialUnitFeatures") {
         this.zone.run(() => {
           this.onClickEditFeatures(data.values);
         });
-      }
-      else if (data.msg === 'onEditSpatialUnitUserRoles') {
+      } else if (data.msg === "onEditSpatialUnitUserRoles") {
         this.zone.run(() => {
           this.onClickEditUserRoles(data.values);
         });
-      }
-      else if (data.msg === 'onDeleteSpatialUnits') {
+      } else if (data.msg === "onDeleteSpatialUnits") {
         this.zone.run(() => {
           // Ensure data.values is an array for delete operation
-          const datasetsToDelete = Array.isArray(data.values) ? data.values : [data.values];
+          const datasetsToDelete = Array.isArray(data.values)
+            ? data.values
+            : [data.values];
           this.onClickDeleteSpatialUnits(datasetsToDelete);
         });
       }
@@ -171,19 +185,21 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
    * Fetch spatial units data from the service
    */
   private fetchSpatialUnitsData(): void {
-    
     // Get current roles or use empty array as fallback
-    const currentRoles = this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
-    
-    this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(currentRoles).subscribe({
-      next: (spatialUnits) => {
-        // The data will be handled by the subscription in ngOnInit
-      },
-      error: (error) => {
-        this.loadingData = false;
-        this.initializationCompleted = true;
-      }
-    });
+    const currentRoles =
+      this.kommonitorDataExchangeService.currentKeycloakLoginRoles || [];
+
+    this.kommonitorDataExchangeService
+      .fetchSpatialUnitsMetadata(currentRoles)
+      .subscribe({
+        next: (spatialUnits) => {
+          // The data will be handled by the subscription in ngOnInit
+        },
+        error: (error) => {
+          this.loadingData = false;
+          this.initializationCompleted = true;
+        },
+      });
   }
 
   public initializeOrRefreshOverviewTable(): void {
@@ -214,103 +230,122 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       // omit size to avoid Bootstrap max-width caps like modal-lg
       backdrop: true,
       keyboard: false,
-      container: 'body',
+      container: "body",
       animation: false,
-      modalDialogClass: 'modal-large',
-      windowClass: 'modal-large-window'
+      modalDialogClass: "modal-large",
+      windowClass: "modal-large-window",
     });
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   onClickEditMetadata(spatialUnitMetadata: any): void {
-    const modalRef = this.modalService.open(SpatialUnitEditMetadataModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
-    });
-    
+    const modalRef = this.modalService.open(
+      SpatialUnitEditMetadataModalComponent,
+      {
+        backdrop: true,
+        keyboard: false,
+        container: "body",
+        animation: false,
+        modalDialogClass: "modal-medium",
+        windowClass: "modal-medium",
+      },
+    );
+
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   onClickEditFeatures(spatialUnitMetadata: any): void {
-    const modalRef = this.modalService.open(SpatialUnitEditFeaturesModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
-    });
-    
+    const modalRef = this.modalService.open(
+      SpatialUnitEditFeaturesModalComponent,
+      {
+        backdrop: true,
+        keyboard: false,
+        container: "body",
+        animation: false,
+        modalDialogClass: "modal-medium",
+        windowClass: "modal-medium",
+      },
+    );
+
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   onClickEditUserRoles(spatialUnitMetadata: any): void {
-    const modalRef = this.modalService.open(SpatialUnitEditUserRolesModalComponent, {
-      backdrop: true,
-      keyboard: false,
-      container: 'body',
-      animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
-    });
-    
+    const modalRef = this.modalService.open(
+      SpatialUnitEditUserRolesModalComponent,
+      {
+        backdrop: true,
+        keyboard: false,
+        container: "body",
+        animation: false,
+        modalDialogClass: "modal-medium",
+        windowClass: "modal-medium",
+      },
+    );
+
     modalRef.componentInstance.currentSpatialUnitDataset = spatialUnitMetadata;
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   onClickDeleteSpatialUnits(spatialUnitsMetadata: any[]): void {
     const modalRef = this.modalService.open(SpatialUnitDeleteModalComponent, {
       backdrop: true,
       keyboard: false,
-      container: 'body',
+      container: "body",
       animation: false,
-      modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
+      modalDialogClass: "modal-medium",
+      windowClass: "modal-medium",
     });
-    
+
     modalRef.componentInstance.datasetsToDelete = spatialUnitsMetadata;
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   // Utility methods
@@ -318,61 +353,75 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     return this.kommonitorDataExchangeService.checkCreatePermission();
   }
 
-  refreshSpatialUnitOverviewTable(crudType?: string, targetSpatialUnitId?: string | string[]): void {
+  refreshSpatialUnitOverviewTable(
+    crudType?: string,
+    targetSpatialUnitId?: string | string[],
+  ): void {
     if (!crudType || !targetSpatialUnitId) {
       // Refetch all metadata from spatial units to update table
-      this.kommonitorDataExchangeService.fetchSpatialUnitsMetadata(
-        this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-      ).subscribe({
-        next: (response) => {
-          this.initializeOrRefreshOverviewTable();
-          this.loadingData = false;
-        },
-        error: (response) => {
-          this.loadingData = false;
-        }
-      });
-    }
-    else if (crudType && targetSpatialUnitId) {
-      if (crudType === 'edit') {
+      this.kommonitorDataExchangeService
+        .fetchSpatialUnitsMetadata(
+          this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+        )
+        .subscribe({
+          next: (response) => {
+            this.initializeOrRefreshOverviewTable();
+            this.loadingData = false;
+          },
+          error: (response) => {
+            this.loadingData = false;
+          },
+        });
+    } else if (crudType && targetSpatialUnitId) {
+      if (crudType === "edit") {
         // Fetch single spatial unit metadata and update the table
-        this.kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(
-          targetSpatialUnitId as string, 
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-        ).subscribe({
-          next: (data) => {
-            this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
-            this.initializeOrRefreshOverviewTable();
-            this.loadingData = false;
-          },
-          error: (response) => {
-            this.loadingData = false;
-          }
-        });
-      }
-      else if (crudType === 'add') {
+        this.kommonitorCacheHelperService
+          .fetchSingleSpatialUnitMetadata(
+            targetSpatialUnitId as string,
+            this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+          )
+          .subscribe({
+            next: (data) => {
+              this.kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(
+                data,
+              );
+              this.initializeOrRefreshOverviewTable();
+              this.loadingData = false;
+            },
+            error: (response) => {
+              this.loadingData = false;
+            },
+          });
+      } else if (crudType === "add") {
         // Fetch single spatial unit metadata and add to table
-        this.kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(
-          targetSpatialUnitId as string, 
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
-        ).subscribe({
-          next: (data) => {
-            this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
-            this.initializeOrRefreshOverviewTable();
-            this.loadingData = false;
-          },
-          error: (response) => {
-            this.loadingData = false;
-          }
-        });
-      }
-      else if (crudType === 'delete') {
+        this.kommonitorCacheHelperService
+          .fetchSingleSpatialUnitMetadata(
+            targetSpatialUnitId as string,
+            this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+          )
+          .subscribe({
+            next: (data) => {
+              this.kommonitorDataExchangeService.addSingleSpatialUnitMetadata(
+                data,
+              );
+              this.initializeOrRefreshOverviewTable();
+              this.loadingData = false;
+            },
+            error: (response) => {
+              this.loadingData = false;
+            },
+          });
+      } else if (crudType === "delete") {
         // Handle delete operation
-        if (typeof targetSpatialUnitId === 'string') {
-          this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(targetSpatialUnitId);
+        if (typeof targetSpatialUnitId === "string") {
+          this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(
+            targetSpatialUnitId,
+          );
         } else if (Array.isArray(targetSpatialUnitId)) {
           for (const id of targetSpatialUnitId) {
-            this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(id);
+            this.kommonitorDataExchangeService.deleteSingleSpatialUnitMetadata(
+              id,
+            );
           }
         }
         this.initializeOrRefreshOverviewTable();
@@ -384,16 +433,19 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   // AG Grid methods - using hybrid approach
   private buildDataGrid_spatialUnits(spatialUnitMetadataArray: any[]): void {
     // Get base configuration from service
-    const baseGridOptions = this.kommonitorDataGridHelperService.buildDataGridOptions_spatialUnits(spatialUnitMetadataArray);
-    
+    const baseGridOptions =
+      this.kommonitorDataGridHelperService.buildDataGridOptions_spatialUnits(
+        spatialUnitMetadataArray,
+      );
+
     // Extract service configuration
     this.columnDefs = baseGridOptions.columnDefs || [];
     this.rowData = baseGridOptions.rowData || [];
     this.defaultColDef = baseGridOptions.defaultColDef || {};
-    
+
     // Add component-specific columns that are not in the service
     this.addComponentSpecificColumns();
-    
+
     // Override with component-specific settings
     this.gridOptions = {
       ...baseGridOptions,
@@ -410,7 +462,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       },
       onColumnResized: (event) => {
         this.headerHeightSetter();
-      }
+      },
     };
   }
 
@@ -418,27 +470,31 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   private addComponentSpecificColumns(): void {
     // Add the missing Umringslayer columns after the existing columns
     this.columnDefs.push(
-      { 
-        headerName: 'Linienfarbe (Umringslayer)', 
-        minWidth: 200, 
-        cellRenderer: (params: any) => params.data.outlineColor || '-',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + (params.data.outlineColor || '-')
+      {
+        headerName: "Linienfarbe (Umringslayer)",
+        minWidth: 200,
+        cellRenderer: (params: any) => params.data.outlineColor || "-",
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" + (params.data.outlineColor || "-"),
       },
-      { 
-        headerName: 'Linienbreite (Umringslayer)', 
-        minWidth: 200, 
-        cellRenderer: (params: any) => params.data.outlineWidth || '-',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + (params.data.outlineWidth || '-')
+      {
+        headerName: "Linienbreite (Umringslayer)",
+        minWidth: 200,
+        cellRenderer: (params: any) => params.data.outlineWidth || "-",
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" + (params.data.outlineWidth || "-"),
       },
-      { 
-        headerName: 'Linienmuster (Umringslayer)', 
-        minWidth: 200, 
-        cellRenderer: (params: any) => params.data.outlineDashArrayString || '-',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + (params.data.outlineDashArrayString || '-')
-      }
+      {
+        headerName: "Linienmuster (Umringslayer)",
+        minWidth: 200,
+        cellRenderer: (params: any) =>
+          params.data.outlineDashArrayString || "-",
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" + (params.data.outlineDashArrayString || "-"),
+      },
     );
   }
 
@@ -453,21 +509,21 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       resizable: true,
       wrapText: true,
       autoHeight: true,
-      cellStyle: { 
-        'font-size': '12px', 
-        'white-space': 'normal !important', 
-        'line-height': '20px !important', 
-        'word-break': 'break-word !important', 
-        'padding-top': '17px', 
-        'padding-bottom': '17px' 
-      }
+      cellStyle: {
+        "font-size": "12px",
+        "white-space": "normal !important",
+        "line-height": "20px !important",
+        "word-break": "break-word !important",
+        "padding-top": "17px",
+        "padding-bottom": "17px",
+      },
     };
   }
 
   private buildGridOptions(spatialUnitMetadataArray: any[]): GridOptions {
     return {
       suppressRowClickSelection: true,
-      rowSelection: 'multiple',
+      rowSelection: "multiple",
       enableCellTextSelection: true,
       ensureDomOrder: true,
       pagination: true,
@@ -484,7 +540,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
       },
       onColumnResized: (event) => {
         this.headerHeightSetter();
-      }
+      },
     };
   }
 
@@ -507,128 +563,197 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
         currentPage: this.gridApi.paginationGetCurrentPage(),
         totalPages: this.gridApi.paginationGetTotalPages(),
         totalRows: this.gridApi.paginationGetRowCount(),
-        pageSize: this.gridApi.paginationGetPageSize()
+        pageSize: this.gridApi.paginationGetPageSize(),
       };
     }
     return null;
   }
 
-  private buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
+  private buildDataGridColumnConfig_spatialUnits(
+    spatialUnitMetadataArray: any[],
+  ): ColDef[] {
     return [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 170, 
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: this.displayEditButtons_spatialUnits.bind(this)
-      },
-      { headerName: 'Id', field: 'spatialUnitId', pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: 'spatialUnitLevel', pinned: 'left', minWidth: 300 },
-      { 
-        headerName: 'Beschreibung', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => params.data.metadata.description,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + params.data.metadata.description
-      },
-      { headerName: 'Nächst niedrigere Raumebene', field: 'nextLowerHierarchyLevel', minWidth: 250 },
-      { headerName: 'Nächst höhere Raumebene', field: 'nextUpperHierarchyLevel', minWidth: 250 },
       {
-        headerName: 'Gültigkeitszeitraum', 
+        headerName: "Editierfunktionen",
+        pinned: "left",
+        maxWidth: 170,
+        checkboxSelection: false,
+        headerCheckboxSelection: false,
+        headerCheckboxSelectionFilteredOnly: true,
+        filter: false,
+        sortable: false,
+        cellRenderer: this.displayEditButtons_spatialUnits.bind(this),
+      },
+      {
+        headerName: "Id",
+        field: "spatialUnitId",
+        pinned: "left",
+        maxWidth: 125,
+      },
+      {
+        headerName: "Name",
+        field: "spatialUnitLevel",
+        pinned: "left",
+        minWidth: 300,
+      },
+      {
+        headerName: "Beschreibung",
+        minWidth: 400,
+        cellRenderer: (params: any) => params.data.metadata.description,
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" + params.data.metadata.description,
+      },
+      {
+        headerName: "Nächst niedrigere Raumebene",
+        field: "nextLowerHierarchyLevel",
+        minWidth: 250,
+      },
+      {
+        headerName: "Nächst höhere Raumebene",
+        field: "nextUpperHierarchyLevel",
+        minWidth: 250,
+      },
+      {
+        headerName: "Gültigkeitszeitraum",
         minWidth: 400,
         cellRenderer: (params: any) => {
-          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
-          for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
+          let html =
+            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          for (const periodOfValidity of params.data
+            .availablePeriodsOfValidity) {
             html += '<li style="margin-right: 15px;">';
             if (periodOfValidity.endDate) {
-              html += '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
+              html +=
+                "<p>" +
+                periodOfValidity.startDate +
+                " &dash; " +
+                periodOfValidity.endDate +
+                "</p>";
             } else {
-              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
+              html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
             }
-            html += '</li>';
+            html += "</li>";
           }
-          html += '</ul>';
+          html += "</ul>";
           return html;
         },
-        filter: 'agTextColumnFilter',
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          if (params.data.availablePeriodsOfValidity && params.data.availablePeriodsOfValidity.length > 1) {
-            return '' + JSON.stringify(params.data.availablePeriodsOfValidity);
+          if (
+            params.data.availablePeriodsOfValidity &&
+            params.data.availablePeriodsOfValidity.length > 1
+          ) {
+            return "" + JSON.stringify(params.data.availablePeriodsOfValidity);
           }
           return params.data.availablePeriodsOfValidity;
-        }
+        },
       },
-      { 
-        headerName: 'Datenquelle', 
-        minWidth: 400, 
+      {
+        headerName: "Datenquelle",
+        minWidth: 400,
         cellRenderer: (params: any) => params.data.metadata.datasource,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + params.data.metadata.datasource
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" + params.data.metadata.datasource,
       },
-      { 
-        headerName: 'Datenhalter und Kontakt', 
-        minWidth: 400, 
+      {
+        headerName: "Datenhalter und Kontakt",
+        minWidth: 400,
         cellRenderer: (params: any) => params.data.metadata.contact,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + params.data.metadata.contact
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) => "" + params.data.metadata.contact,
       },
-      { 
-        headerName: 'Rollen', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions)
+      {
+        headerName: "Rollen",
+        minWidth: 400,
+        cellRenderer: (params: any) =>
+          this.kommonitorDataExchangeService.getAllowedRolesString(
+            params.data.permissions,
+          ),
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" +
+          this.kommonitorDataExchangeService.getAllowedRolesString(
+            params.data.permissions,
+          ),
       },
-      { 
-        headerName: 'Öffentlich sichtbar', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => params.data.isPublic ? 'ja' : 'nein',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + (params.data.isPublic ? 'ja' : 'nein')
+      {
+        headerName: "Öffentlich sichtbar",
+        minWidth: 400,
+        cellRenderer: (params: any) => (params.data.isPublic ? "ja" : "nein"),
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" + (params.data.isPublic ? "ja" : "nein"),
       },
-      { 
-        headerName: 'Eigentümer', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId)
-      }
+      {
+        headerName: "Eigentümer",
+        minWidth: 400,
+        cellRenderer: (params: any) =>
+          this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" +
+          this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
+      },
     ];
   }
 
-  private buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
-    return spatialUnitMetadataArray.map(metadata => ({
+  private buildDataGridRowData_spatialUnits(
+    spatialUnitMetadataArray: any[],
+  ): any[] {
+    return spatialUnitMetadataArray.map((metadata) => ({
       ...metadata,
       spatialUnitId: metadata.spatialUnitId,
-      spatialUnitLevel: metadata.spatialUnitLevel
+      spatialUnitLevel: metadata.spatialUnitLevel,
     }));
   }
 
   private displayEditButtons_spatialUnits(params: any): string {
     const data = params.data;
     let html = '<div class="btn-group btn-group-sm">';
-    
+
     // Edit Metadata Button
-    html += '<button id="btn_spatialUnit_editMetadata_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" title="Metadaten editieren" ' + 
-            (data.userPermissions && data.userPermissions.includes('editor') ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
-    
+    html +=
+      '<button id="btn_spatialUnit_editMetadata_' +
+      data.spatialUnitId +
+      '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" title="Metadaten editieren" ' +
+      (data.userPermissions && data.userPermissions.includes("editor")
+        ? ""
+        : "disabled") +
+      '><i class="fas fa-pencil-alt"></i></button>';
+
     // Edit Features Button
-    html += '<button id="btn_spatialUnit_editFeatures_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" title="Features fortführen" ' + 
-            (data.userPermissions && data.userPermissions.includes('editor') ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
-    
+    html +=
+      '<button id="btn_spatialUnit_editFeatures_' +
+      data.spatialUnitId +
+      '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" title="Features fortführen" ' +
+      (data.userPermissions && data.userPermissions.includes("editor")
+        ? ""
+        : "disabled") +
+      '><i class="fas fa-draw-polygon"></i></button>';
+
     // Edit User Roles Button
-    html += '<button id="btn_spatialUnit_editUserRoles_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' + 
-            (data.userPermissions && data.userPermissions.includes('creator') ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>';
-    
+    html +=
+      '<button id="btn_spatialUnit_editUserRoles_' +
+      data.spatialUnitId +
+      '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
+      (data.userPermissions && data.userPermissions.includes("creator")
+        ? ""
+        : "disabled") +
+      '><i class="fas fa-user-lock"></i></button>';
+
     // Delete Button
-    html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" title="Raumebene entfernen" ' + 
-            (data.userPermissions && data.userPermissions.includes('creator') ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
-    
-    html += '</div>';
+    html +=
+      '<button id="btn_spatialUnit_deleteSpatialUnit_' +
+      data.spatialUnitId +
+      '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" title="Raumebene entfernen" ' +
+      (data.userPermissions && data.userPermissions.includes("creator")
+        ? ""
+        : "disabled") +
+      '><i class="fas fa-trash"></i></button>';
+
+    html += "</div>";
     return html;
   }
 
@@ -658,80 +783,114 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // Use event delegation on the grid container instead of individual buttons
     // This ensures handlers work even for dynamically rendered buttons
     const $ = (window as any).$;
-    
+
     // Remove any existing handlers first to avoid duplicates
-    $('#spatialUnitOverviewTable').off('click', '.spatialUnitEditMetadataBtn');
-    $('#spatialUnitOverviewTable').off('click', '.spatialUnitEditFeaturesBtn');
-    $('#spatialUnitOverviewTable').off('click', '.spatialUnitEditUserRolesBtn');
-    $('#spatialUnitOverviewTable').off('click', '.spatialUnitDeleteBtn');
+    $("#spatialUnitOverviewTable").off("click", ".spatialUnitEditMetadataBtn");
+    $("#spatialUnitOverviewTable").off("click", ".spatialUnitEditFeaturesBtn");
+    $("#spatialUnitOverviewTable").off("click", ".spatialUnitEditUserRolesBtn");
+    $("#spatialUnitOverviewTable").off("click", ".spatialUnitDeleteBtn");
 
     // Edit Metadata Button - use event delegation
-    $('#spatialUnitOverviewTable').on('click', '.spatialUnitEditMetadataBtn', (event: any) => {
-      event.stopPropagation();
-      event.preventDefault();
-      
-      // Get the button element (could be the icon inside)
-      const button = $(event.target).closest('.spatialUnitEditMetadataBtn')[0];
-      const spatialUnitId = button.id.split('_')[3];
-      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-      
-      if (spatialUnitMetadata) {
-        this.zone.run(() => {
-          this.onClickEditMetadata(spatialUnitMetadata);
-        });
-      }
-    });
+    $("#spatialUnitOverviewTable").on(
+      "click",
+      ".spatialUnitEditMetadataBtn",
+      (event: any) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Get the button element (could be the icon inside)
+        const button = $(event.target).closest(
+          ".spatialUnitEditMetadataBtn",
+        )[0];
+        const spatialUnitId = button.id.split("_")[3];
+        const spatialUnitMetadata =
+          this.kommonitorDataExchangeService.getSpatialUnitMetadataById(
+            spatialUnitId,
+          );
+
+        if (spatialUnitMetadata) {
+          this.zone.run(() => {
+            this.onClickEditMetadata(spatialUnitMetadata);
+          });
+        }
+      },
+    );
 
     // Edit Features Button - use event delegation
-    $('#spatialUnitOverviewTable').on('click', '.spatialUnitEditFeaturesBtn', (event: any) => {
-      event.stopPropagation();
-      event.preventDefault();
-      
-      // Get the button element (could be the icon inside)
-      const button = $(event.target).closest('.spatialUnitEditFeaturesBtn')[0];
-      const spatialUnitId = button.id.split('_')[3];
-      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-      
-      if (spatialUnitMetadata) {
-        this.zone.run(() => {
-          this.onClickEditFeatures(spatialUnitMetadata);
-        });
-      }
-    });
+    $("#spatialUnitOverviewTable").on(
+      "click",
+      ".spatialUnitEditFeaturesBtn",
+      (event: any) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Get the button element (could be the icon inside)
+        const button = $(event.target).closest(
+          ".spatialUnitEditFeaturesBtn",
+        )[0];
+        const spatialUnitId = button.id.split("_")[3];
+        const spatialUnitMetadata =
+          this.kommonitorDataExchangeService.getSpatialUnitMetadataById(
+            spatialUnitId,
+          );
+
+        if (spatialUnitMetadata) {
+          this.zone.run(() => {
+            this.onClickEditFeatures(spatialUnitMetadata);
+          });
+        }
+      },
+    );
 
     // Edit User Roles Button - use event delegation
-    $('#spatialUnitOverviewTable').on('click', '.spatialUnitEditUserRolesBtn', (event: any) => {
-      event.stopPropagation();
-      event.preventDefault();
-      
-      // Get the button element (could be the icon inside)
-      const button = $(event.target).closest('.spatialUnitEditUserRolesBtn')[0];
-      const spatialUnitId = button.id.split('_')[3];
-      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+    $("#spatialUnitOverviewTable").on(
+      "click",
+      ".spatialUnitEditUserRolesBtn",
+      (event: any) => {
+        event.stopPropagation();
+        event.preventDefault();
 
-      if (spatialUnitMetadata) {
-        this.zone.run(() => {
-          this.onClickEditUserRoles(spatialUnitMetadata);
-        });
-      }
-    });
+        // Get the button element (could be the icon inside)
+        const button = $(event.target).closest(
+          ".spatialUnitEditUserRolesBtn",
+        )[0];
+        const spatialUnitId = button.id.split("_")[3];
+        const spatialUnitMetadata =
+          this.kommonitorDataExchangeService.getSpatialUnitMetadataById(
+            spatialUnitId,
+          );
+
+        if (spatialUnitMetadata) {
+          this.zone.run(() => {
+            this.onClickEditUserRoles(spatialUnitMetadata);
+          });
+        }
+      },
+    );
 
     // Delete Button - use event delegation
-    $('#spatialUnitOverviewTable').on('click', '.spatialUnitDeleteBtn', (event: any) => {
-      event.stopPropagation();
-      event.preventDefault();
-      
-      // Get the button element (could be the icon inside)
-      const button = $(event.target).closest('.spatialUnitDeleteBtn')[0];
-      const spatialUnitId = button.id.split('_')[3];
-      const spatialUnitMetadata = this.kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
-      
-      if (spatialUnitMetadata) {
-        this.zone.run(() => {
-          this.onClickDeleteSpatialUnits([spatialUnitMetadata]);
-        });
-      }
-    });
+    $("#spatialUnitOverviewTable").on(
+      "click",
+      ".spatialUnitDeleteBtn",
+      (event: any) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Get the button element (could be the icon inside)
+        const button = $(event.target).closest(".spatialUnitDeleteBtn")[0];
+        const spatialUnitId = button.id.split("_")[3];
+        const spatialUnitMetadata =
+          this.kommonitorDataExchangeService.getSpatialUnitMetadataById(
+            spatialUnitId,
+          );
+
+        if (spatialUnitMetadata) {
+          this.zone.run(() => {
+            this.onClickDeleteSpatialUnits([spatialUnitMetadata]);
+          });
+        }
+      },
+    );
   }
 
   private headerHeightSetter(): void {
@@ -742,11 +901,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   private headerHeightGetter(): number {
-    const headerElement = document.querySelector('.ag-header');
+    const headerElement = document.querySelector(".ag-header");
     if (headerElement) {
-      const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
+      const headerTextElements = headerElement.querySelectorAll(
+        ".ag-header-cell-text",
+      );
       let maxHeight = 0;
-      headerTextElements.forEach(element => {
+      headerTextElements.forEach((element) => {
         const height = element.scrollHeight;
         if (height > maxHeight) {
           maxHeight = height;
@@ -760,8 +921,8 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   getSelectedSpatialUnitsMetadata(): any[] {
     if (this.gridApi) {
       const selectedNodes = this.gridApi.getSelectedNodes();
-      return selectedNodes.map(node => node.data);
+      return selectedNodes.map((node) => node.data);
     }
     return [];
   }
-} 
+}

@@ -1,102 +1,84 @@
-<div id="adminIndicatorsContent">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+<admin-content-view
+  title="Verwalten der Indikatoren"
+  description="Info"
+  [controlsTemplate]="controls"
+  [contentTemplate]="content"
+>
+</admin-content-view>
+<ng-template #controls>
+  <div>Nur editierbare Datensätze anzeigen</div>
+  <div>
+    <label class="switch">
+      <input
+        type="checkbox"
+        [(ngModel)]="tableViewSwitcher"
+        (ngModelChange)="onTableViewSwitch()"
+      />
+      <span class="switchslider round"></span>
+    </label>
+  </div>
+  <button
+    id="button-batch-update-indicators"
+    class="btn btn-success btn-sm"
+    type="button"
+    [disabled]="!checkEditorPermission()"
+    (click)="onClickBatchUpdate()"
+  >
+    <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
+  </button>
+  <div ngbDropdown class="d-inline-block">
+    <button class="btn btn-success btn-sm" ngbDropdownToggle>
+      + Erstellen
+    </button>
+
+    <div ngbDropdownMenu class="addButton_dropdownWrapper">
+      <p ngbDropdownItem (click)="openAddIndicatorModal()">
+        Indikator erstellen
+      </p>
+      <p
+        ngbDropdownItem
+        (click)="
+          wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)
+        "
+      >
+        WMS erstellen
+      </p>
     </div>
   </div>
+  <!-- delete selected completely -->
+  <button
+    class="btn btn-danger btn-sm"
+    type="button"
+    [disabled]="!checkDeletePermission()"
+    (click)="onClickDeleteSelected()"
+  >
+    <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
+  </button>
+</ng-template>
+<ng-template #content>
+  <expandable-box title="Indikatoren-Metadaten">
+    <ag-grid-angular
+      #agGrid
+      style="height: 70vh"
+      class="ag-theme-alpine"
+      [columnDefs]="columnDefs"
+      [rowData]="rowData"
+      [gridOptions]="gridOptions"
+      [defaultColDef]="gridOptions.defaultColDef"
+      [pagination]="true"
+      [paginationPageSize]="10"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [enableCellTextSelection]="true"
+      [ensureDomOrder]="true"
+      [suppressColumnVirtualisation]="true"
+    >
+    </ag-grid-angular>
+  </expandable-box>
 
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Verwalten der Indikatoren
-      <small>Info</small>
-    </h1>
+  <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>
 
-    <div class="adminTableButtonWrapper">
-      <div class="verticalAlign">
-        <span>Nur editierbare Datensätze anzeigen</span>
-        <div>
-          <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="tableViewSwitcher"
-              (ngModelChange)="onTableViewSwitch()"
-            />
-            <span class="switchslider round"></span>
-          </label>
-        </div>
-      </div>
-      <!-- batch update indicators -->
-      <button
-        id="button-batch-update-indicators"
-        class="btn btn-success btn-sm"
-        type="button"
-        [disabled]="!checkEditorPermission()"
-        (click)="onClickBatchUpdate()"
-      >
-        <i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update
-      </button>
-      <!-- add indicator -->
-      <!--  <button [disabled]="!checkCreatePermission()" class="btn btn-success btn-sm" type="button" 
-              (click)="openAddIndicatorModal()">
-        <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
-      </button> -->
-      <div ngbDropdown class="d-inline-block">
-        <button class="btn btn-success btn-sm" ngbDropdownToggle>
-          + Erstellen
-        </button>
-
-        <div ngbDropdownMenu class="addButton_dropdownWrapper">
-          <p ngbDropdownItem (click)="openAddIndicatorModal()">
-            Indikator erstellen
-          </p>
-          <p
-            ngbDropdownItem
-            (click)="
-              wmsSharedComponentsService.openAddModal(WmsResourceType.INDICATOR)
-            "
-          >
-            WMS erstellen
-          </p>
-        </div>
-      </div>
-      <!-- delete selected completely -->
-      <button
-        class="btn btn-danger btn-sm"
-        type="button"
-        [disabled]="!checkDeletePermission()"
-        (click)="onClickDeleteSelected()"
-      >
-        <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
-      </button>
-    </div>
-  </section>
-
-  <section class="content container-fluid">
-    <expandable-box title="Indikatoren-Metadaten">
-      <ag-grid-angular
-        #agGrid
-        style="height: 70vh"
-        class="ag-theme-alpine"
-        [columnDefs]="columnDefs"
-        [rowData]="rowData"
-        [gridOptions]="gridOptions"
-        [defaultColDef]="gridOptions.defaultColDef"
-        [pagination]="true"
-        [paginationPageSize]="10"
-        [rowSelection]="'multiple'"
-        [suppressRowClickSelection]="true"
-        [enableCellTextSelection]="true"
-        [ensureDomOrder]="true"
-        [suppressColumnVirtualisation]="true"
-      >
-      </ag-grid-angular>
-    </expandable-box>
-
-    <app-wms-admin-table [resourceType]="resourceType"></app-wms-admin-table>
-
-    <expandable-box title="Indikatoren-Reihenfolge in Themenkatalog">
-      TODO: add topic comp once ready
-    </expandable-box>
-  </section>
-</div>
+  <expandable-box title="Indikatoren-Reihenfolge in Themenkatalog">
+    TODO: add topic comp once ready
+  </expandable-box>
+</ng-template>

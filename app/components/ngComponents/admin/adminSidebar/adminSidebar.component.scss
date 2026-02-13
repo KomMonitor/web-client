@@ -117,20 +117,6 @@
     .tab-content {
       background-color: #ecf0f5;
       flex: 1;
-
-      ::ng-deep .content-header {
-        padding: 15px 15px 0px 15px;
-
-        h1 {
-          font-size: 24px;
-          color: #333;
-        }
-
-        small {
-          font-size: 15px;
-          color: #777;
-        }
-      }
     }
 
     footer {
