@@ -118,6 +118,12 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				$scope.description = undefined;
 				kommonitorScriptHelperService.targetIndicator = undefined;
 
+				$scope.changeScriptTypeFilter('all');
+
+				var progressbar = document.getElementsByClassName('progressbar-script-add-modal');
+				progressbar[0].children[0].click();
+
+				kommonitorScriptHelperService.processParameters = {};
 				kommonitorScriptHelperService.reset();
 
 				$scope.init();
@@ -240,6 +246,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 					$("#scriptAddSuccessAlert").show();
 					$scope.loadingData = false;
+
+					$scope.resetScriptAddForm();
 
 					setTimeout(() => {
 						$scope.loadingData = false;
