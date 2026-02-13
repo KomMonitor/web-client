@@ -21,7 +21,7 @@ import "codemirror/mode/css/css.js";
 import "codemirror/mode/htmlmixed/htmlmixed.js";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { CommonModule } from "@angular/common";
-import { AdminContentViewComponent } from "../../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../../admin-content-view/admin-content-view.component";
 
 // import 'codemirror/addon/display/autoRefresh.js';
 

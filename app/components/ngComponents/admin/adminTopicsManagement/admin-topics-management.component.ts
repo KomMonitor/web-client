@@ -27,7 +27,7 @@ import { CommonModule } from "@angular/common";
 import { TopicOrderSelectionComponent } from "./topicOrderSelection/topic-order-selection.component";
 import { TopicListComponent } from "./topicList/topicList.component";
 import { AddTopicComponent } from "./add-topic/add-topic.component";
-import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {

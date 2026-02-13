@@ -36,7 +36,6 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
-import { AdminSidebarComponent } from 'components/ngComponents/admin/adminSidebar/adminSidebar.component';
 import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
 
 
@@ -54,9 +53,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     MainComponent,
     UserInterfaceComponent,
     KommonitorMapComponent,
-    AdminComponent,
-    OrderByPipe,
-    AdminComponent,
     OrderByPipe
   ],
   imports: [
@@ -94,7 +90,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     KommonitorLegendComponent,
     SidebarComponent,
     ExpandableBoxComponent,
-    AdminSidebarComponent,
+    AdminComponent,
     UserLoginComponent
   ],
   providers: [

@@ -25,7 +25,7 @@ import { GlobalFilterEntry } from "components/ngComponents/models/globalFilters.
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { CommonModule } from "@angular/common";
-import { AdminContentViewComponent } from "../../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../../admin-content-view/admin-content-view.component";
 
 @Component({
   selector: "app-admin-filter-config",

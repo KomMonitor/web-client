@@ -32,7 +32,7 @@ import { IndicatorBatchUpdateModalComponent } from "./indicatorBatchUpdateModal/
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { WmsAdminTableComponent } from "components/ngComponents/common/wms-admin-table/wms-admin-table.component";
 import { FormsModule } from "@angular/forms";
-import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 
 declare const $: any;
 declare const __env: any;

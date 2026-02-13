@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 
 interface AccordionItem {
   title: string;

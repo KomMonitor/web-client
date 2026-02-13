@@ -1,11 +1,10 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
+import { Component, Input } from "@angular/core";
 
 @Component({
   selector: "small-box",
   templateUrl: "./small-box.component.html",
   styleUrls: ["./small-box.component.scss"],
-  imports: [BrowserModule],
+  imports: [],
   standalone: true,
 })
 export class SmallBoxComponent {

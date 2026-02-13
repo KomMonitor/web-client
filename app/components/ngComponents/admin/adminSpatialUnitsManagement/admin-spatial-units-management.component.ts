@@ -31,7 +31,7 @@ import {
 } from "ag-grid-community";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { FormsModule } from "@angular/forms";
-import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 declare const $: any;
 declare const __env: any;
 

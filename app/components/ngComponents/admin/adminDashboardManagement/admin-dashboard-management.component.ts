@@ -13,7 +13,7 @@ import { Subscription } from "rxjs";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import * as echarts from "echarts";
 import { SmallBoxComponent } from "./small-box/small-box.component";
-import { AdminContentViewComponent } from "../adminSidebar/admin-content-view/admin-content-view.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 declare const $: any;
 
 @Component({
