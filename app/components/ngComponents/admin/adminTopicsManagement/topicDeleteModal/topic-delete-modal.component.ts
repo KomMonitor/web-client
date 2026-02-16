@@ -6,7 +6,7 @@ import { KommonitorIndicatorDataExchangeService } from "../../../../../services/
 import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: "topic-delete-modal-new",
+  selector: "topic-delete-modal",
   templateUrl: "./topic-delete-modal.component.html",
   styleUrls: ["./topic-delete-modal.component.css"],
   imports: [CommonModule],

@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
-  selector: 'indicator-add-modal-new',
+  selector: 'indicator-add-modal',
   templateUrl: './indicator-add-modal.component.html',
   styleUrls: ['./indicator-add-modal.component.css'],
   imports: [CommonModule, FormsModule, AdminTopicsManagementComponent, NgbCollapseModule],

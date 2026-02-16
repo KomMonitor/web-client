@@ -32,7 +32,7 @@ interface AffectedIndicatorReference {
 }
 
 @Component({
-  selector: 'georesource-delete-modal-new',
+  selector: 'georesource-delete-modal',
   templateUrl: './georesource-delete-modal.component.html',
   styleUrls: ['./georesource-delete-modal.component.css'],
   imports: [CommonModule],

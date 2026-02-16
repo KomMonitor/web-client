@@ -42,7 +42,7 @@ interface LintingIssue {
 }
 
 @Component({
-  selector: "admin-app-config-new",
+  selector: "admin-app-config",
   templateUrl: "./admin-app-config.component.html",
   styleUrls: ["./admin-app-config.component.css"],
   imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],

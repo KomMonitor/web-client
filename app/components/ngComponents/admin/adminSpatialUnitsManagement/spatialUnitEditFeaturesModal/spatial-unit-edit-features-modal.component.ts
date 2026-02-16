@@ -16,7 +16,7 @@ declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'spatial-unit-edit-features-modal-new',
+  selector: 'spatial-unit-edit-features-modal',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
   styleUrls: ['./spatial-unit-edit-features-modal.component.css'],
   imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent],

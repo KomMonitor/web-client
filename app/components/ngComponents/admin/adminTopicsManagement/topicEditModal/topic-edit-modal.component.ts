@@ -12,7 +12,7 @@ import { Topic } from "../admin-topics-management.component";
 import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: "topic-edit-modal-new",
+  selector: "topic-edit-modal",
   templateUrl: "./topic-edit-modal.component.html",
   styleUrls: ["./topic-edit-modal.component.css"],
   imports: [FormsModule, CommonModule, ReactiveFormsModule],

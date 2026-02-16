@@ -31,7 +31,7 @@ import { AdminContentViewComponent } from "../admin-content-view/admin-content-v
 declare const $: any;
 
 @Component({
-  selector: "admin-georesources-management-new",
+  selector: "admin-georesources-management",
   templateUrl: "./admin-georesources-management.component.html",
   styleUrls: ["./admin-georesources-management.component.css"],
   imports: [

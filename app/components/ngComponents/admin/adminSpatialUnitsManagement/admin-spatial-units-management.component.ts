@@ -36,7 +36,7 @@ declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: "admin-spatial-units-management-new",
+  selector: "admin-spatial-units-management",
   templateUrl: "./admin-spatial-units-management.component.html",
   styleUrls: ["./admin-spatial-units-management.component.css"],
   imports: [

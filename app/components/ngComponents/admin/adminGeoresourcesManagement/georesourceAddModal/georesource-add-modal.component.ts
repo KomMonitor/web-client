@@ -13,7 +13,7 @@ import { FormsModule } from "@angular/forms";
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
-  selector: "georesource-add-modal-new",
+  selector: "georesource-add-modal",
   templateUrl: "./georesource-add-modal.component.html",
   styleUrls: ["./georesource-add-modal.component.css"],
   imports: [CommonModule, FormsModule, AdminTopicsManagementComponent],

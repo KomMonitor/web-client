@@ -17,7 +17,7 @@ import { AdminContentViewComponent } from "../admin-content-view/admin-content-v
 declare const $: any;
 
 @Component({
-  selector: "admin-dashboard-management-new",
+  selector: "admin-dashboard-management",
   templateUrl: "./admin-dashboard-management.component.html",
   styleUrls: ["./admin-dashboard-management.component.css"],
   imports: [

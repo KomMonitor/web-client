@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
-  selector: 'georesource-edit-metadata-modal-new',
+  selector: 'georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.css'],
   imports: [FormsModule, CommonModule, AdminTopicsManagementComponent],

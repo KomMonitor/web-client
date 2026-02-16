@@ -38,7 +38,7 @@ declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: "admin-indicators-management-new",
+  selector: "admin-indicators-management",
   templateUrl: "./admin-indicators-management.component.html",
   styleUrls: ["./admin-indicators-management.component.css"],
   imports: [
