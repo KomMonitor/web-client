@@ -45,6 +45,11 @@ export class AuthInterceptor implements HttpInterceptor {
       return false;
     }
 
+    // for KomMonitor real-time-data
+    if (url.includes("/timeseries-management/")) {
+      return false;
+    }
+
     return true;
   }
 } 

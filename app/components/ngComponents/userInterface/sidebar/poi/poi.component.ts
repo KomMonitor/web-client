@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
@@ -22,7 +22,14 @@ import { IconTranslate } from 'pipes/icon-translate.pipe';
   templateUrl: './poi.component.html',
   styleUrls: ['./poi.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ExpandableBoxComponent, GeoFavFilter, GeoFavItemFilter, IconTranslate]
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ExpandableBoxComponent, 
+    GeoFavFilter, 
+    GeoFavItemFilter, 
+    IconTranslate
+  ]
 })
 export class PoiComponent implements OnInit {
 
@@ -82,7 +89,8 @@ export class PoiComponent implements OnInit {
     private http: HttpClient,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
     private favService: FavService,
-    protected ogcService: OgcService
+    protected ogcService: OgcService,
+    private viewContainerRef: ViewContainerRef,
   ) {
     this.exchangeData = dataExchangeService.pipedData;
     this.selectedPoiSize = this.exchangeData.selectedPOISize.id;
@@ -692,7 +700,7 @@ export class PoiComponent implements OnInit {
       // depending on type we must call different methods
       if (georesourceDataset.isPOI){
         this.removePoiLayerFromMap(georesourceDataset);
-        this.addPoiLayerToMap(georesourceDataset, this.useCluster);
+        this.addPoiLayerToMap(georesourceDataset, this.useCluster, this.viewContainerRef);
       }
       else if (georesourceDataset.isLOI){
         this.removeLoiLayerFromMap(georesourceDataset);
@@ -715,7 +723,7 @@ export class PoiComponent implements OnInit {
       // depending on type we must call different methods
       if (georesourceDataset.isPOI){
         this.removePoiLayerFromMap(georesourceDataset);
-        this.addPoiLayerToMap(georesourceDataset, this.useCluster);
+        this.addPoiLayerToMap(georesourceDataset, this.useCluster, this.viewContainerRef);
       }
       else if (georesourceDataset.isLOI){
         this.removeLoiLayerFromMap(georesourceDataset);
@@ -752,7 +760,7 @@ export class PoiComponent implements OnInit {
 
     if(poi.isSelected){
       //display on Map
-      this.addPoiLayerToMap(poi, this.useCluster);
+      this.addPoiLayerToMap(poi, this.useCluster, this.viewContainerRef);
     }
     else{
       // unselect topic
@@ -818,7 +826,7 @@ export class PoiComponent implements OnInit {
     }
   }
 
-  addPoiLayerToMap(poiGeoresource, useCluster) {
+  addPoiLayerToMap(poiGeoresource, useCluster, viewContainerRef) {
     this.loadingData = true;
     this.broadcastService.broadcast('showLoadingIconOnMap');
 
@@ -839,7 +847,7 @@ export class PoiComponent implements OnInit {
 
         poiGeoresource.geoJSON = geoJSON;
 
-        this.mapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
+        this.mapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, viewContainerRef);
         this.loadingData = false;
       },
       error: error => {
@@ -869,7 +877,7 @@ export class PoiComponent implements OnInit {
         this.removePoiLayerFromMap(poi);
 
         // remove layer and add layer again
-        this.addPoiLayerToMap(poi, this.useCluster);
+        this.addPoiLayerToMap(poi, this.useCluster, this.viewContainerRef);
       }
     }
 

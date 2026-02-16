@@ -94,8 +94,6 @@ export class UserInterfaceComponent implements OnInit {
         } break;
       }
     });
-
-    this.openReportingModal()
   }
 
   isDiagramSidebarOpened() {

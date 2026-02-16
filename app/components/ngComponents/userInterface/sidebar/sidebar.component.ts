@@ -8,6 +8,8 @@ import { KommonitorBalanceComponent } from './kommonitorBalance/kommonitor-balan
 import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-diagrams.component';
 import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.component';
 import { RegressionDiagramComponent } from './regressionDiagram/regression-diagram.component';
+import { RtdDiagramsComponent } from './rtdDiagrams/rtd-diagrams/rtd-diagrams.component';
+import { SidebarService } from './sidebar.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,11 +24,14 @@ import { RegressionDiagramComponent } from './regressionDiagram/regression-diagr
     KommonitorBalanceComponent,
     KommonitorDiagramsComponent,
     IndicatorRadarComponent,
-    RegressionDiagramComponent]
+    RegressionDiagramComponent,
+    RtdDiagramsComponent]
 })
 export class SidebarComponent implements OnInit{
 
   @Input() element:any = undefined;
+
+  data!:any;
 
   expandedWidthElements = [
     'sidebarDiagramsCollapse',
@@ -35,16 +40,19 @@ export class SidebarComponent implements OnInit{
   ];
 
   constructor(
-    private broadcastService: BroadcastService 
+    private sidebarService: SidebarService
   ) {}
 
   ngOnInit(): void {
-    // default open
-    //this.element = 'sidebarRegressionDiagramCollapse';
+
+    // listen to open/close calls
+    this.sidebarService.sidebarOpenElement$.subscribe(value => {
+      this.element = value.sidebarIdentifier;
+      this.data = value.data;
+    });
   }
 
   closeSidebar() {
     this.element = undefined;
-    this.broadcastService.broadcast('sidebarClosed');
   }
 }

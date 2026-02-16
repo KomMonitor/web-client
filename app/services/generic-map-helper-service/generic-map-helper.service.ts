@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { Inject, Injectable, ComponentRef, EnvironmentInjector  } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -6,6 +7,8 @@ import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
+import { ParameterData, RealTimeDataService, StationData } from 'services/real-time-data-service/real-time-data.service';
+import { RtdPopupContentComponent } from 'components/ngComponents/userInterface/sidebar/poi/rtd-popoup-content/rtd-popup-content/rtd-popup-content.component';
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +52,9 @@ export class GenericMapHelperService {
   public constructor(
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
-    private iconTranslate: IconTranslateService
+    private iconTranslate: IconTranslateService,
+    private rtdService: RealTimeDataService,
+    private injector: EnvironmentInjector
   ) {
     this.exchangeData = this.dataExchangeService.pipedData;
   }
@@ -141,15 +146,16 @@ export class GenericMapHelperService {
     return marker;
   }
   
-  addPoiMarker(markers, poiMarker) {
+  addPoiMarker(markers, poiMarker, viewContainerRef=false) {
             
     // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
     var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-      for (var p in poiMarker.feature.properties) {
-          popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
-      }
-      popupContent += '</table></div>';
+    for (var p in poiMarker.feature.properties) {
+        popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
+    }
+
+    popupContent += '</table></div>';
 
     if (poiMarker.feature.properties.name) {
       poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
@@ -164,9 +170,54 @@ export class GenericMapHelperService {
       // poiMarker.bindPopup(propertiesString);
       poiMarker.bindPopup(popupContent);
     }
+
+    // catch rtd pois to gather data on the fly
+    if(poiMarker.metadataObject.metadata.databasis.toLowerCase()=='rtd') {
+      poiMarker.on('click', async (e) => {
+
+        let rtdStationId = poiMarker.metadataObject.geoJSON.features[0].properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+        if(rtdStationId) {
+
+          var stationData = this.rtdService.getStationData(rtdStationId);
+          poiMarker = this.addRtdPopupContent(poiMarker, stationData, viewContainerRef);
+        }
+      });
+    }
+    
     markers.addLayer(poiMarker);
 
     return markers;
+  }
+
+  addRtdPopupContent(marker, stationData:StationData | undefined, viewContainerRef) {
+
+    if(stationData && viewContainerRef) {
+
+      const componentRef: ComponentRef<RtdPopupContentComponent> =
+        viewContainerRef.createComponent(RtdPopupContentComponent, {
+          environmentInjector: this.injector
+        });
+
+      componentRef.instance.data = stationData;
+
+      const newContent = componentRef.location.nativeElement as HTMLElement;
+
+      const popup = marker.getPopup();
+      let currentContent = popup.getContent();
+
+      let container: HTMLElement;
+
+      if (currentContent instanceof HTMLElement) {
+        container = currentContent;
+      } else {
+        container = document.createElement('div');
+        container.innerHTML = currentContent ?? '';
+      }
+
+      container.appendChild(newContent);
+
+      popup.setContent(container);
+    }
   }
 
   createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset){

@@ -17,6 +17,7 @@ import 'leaflet-search';
 
 import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { RealTimeDataService } from 'services/real-time-data-service/real-time-data.service';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -181,7 +182,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private filterHelperService: FilterHelperService,
     private genericMapHelperService: GenericMapHelperService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private rtdService: RealTimeDataService
   ) { 
     this.exchangeData = this.dataExchangeService.pipedData;
     this.exchangeData.useOutlierDetectionOnIndicator = this.useOutlierDetectionOnIndicator;
@@ -1626,7 +1628,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   });        
   */
   
-  addPoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date, useCluster]) {
+  addPoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date, useCluster, viewContainerRef]) {
+
+    this.handleRtdData(georesourceMetadataAndGeoJSON);
 
     let markers:any;
     if (useCluster) {
@@ -1638,7 +1642,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         //.bindPopup( poiFeature.properties.name )
         let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
         
-        markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker));
+        markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker, viewContainerRef));
       });
     } else {
       markers = L.featureGroup();
@@ -1648,7 +1652,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         //.bindPopup( poiFeature.properties.name )
         let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
         
-        markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
+        markers = this.genericMapHelperService.addPoiMarker(markers, newMarker, viewContainerRef);
       });
     }       
 
@@ -1661,11 +1665,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, this.poiLayerGroupName);
     markers.addTo(this.map);
+
     this.updateSearchControl();
     // $scope.map.addLayer( markers );
     this.map.invalidateSize(true);
 
     this.hideLoadingIconOnMap();
+  }
+
+  async handleRtdData(georesourceMetadataAndGeoJSON) {
+    if(georesourceMetadataAndGeoJSON.metadata.databasis.toLowerCase()=='rtd')
+      await this.rtdService.loadStationData();
   }
 
 

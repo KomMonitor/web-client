@@ -264,6 +264,8 @@ export class DataExchangeService {
   baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
   simplifyGeometriesOptions = window.__env.simplifyGeometriesOptions;
 
+  baseUrlToRealTimeData = 'http://localhost:8085/timeseries-management';
+
   wmsDatasets!:WmsDataset[];
   wfsDatasets = window.__env.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
   wmsDatasets_keywordFiltered!:WmsDataset[];

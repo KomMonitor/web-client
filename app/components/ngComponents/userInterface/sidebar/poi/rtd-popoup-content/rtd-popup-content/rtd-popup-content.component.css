@@ -1,0 +1,7 @@
+:host {
+  a {
+    color: blue !important;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

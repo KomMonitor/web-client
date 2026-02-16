@@ -76,8 +76,8 @@ export class MapService {
     this.broadcastService.broadcast("replaceIndicatorAsGeoJSON", [indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]);
   }
 
-  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
-    this.broadcastService.broadcast("addPoiGeoresourceAsGeoJSON", [poiGeoresource, date, useCluster]);
+  addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster, viewContainerRef) {
+    this.broadcastService.broadcast("addPoiGeoresourceAsGeoJSON", [poiGeoresource, date, useCluster, viewContainerRef]);
   }
 
   addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
