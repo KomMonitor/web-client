@@ -8,7 +8,7 @@
     <div class="col-md-3 col-sm-6 col-xs-12"></div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <small-box
-        [titleText]="getOrganisationCount()"
+        [titleText]="organisationCount"
         [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
         boxColor="#00c0ef"
         iconClass="fas fa-users"
@@ -16,8 +16,8 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <small-box
-        [titleText]="getTopicCounts()"
-        [descriptionText]="getTopicsLabel()"
+        [titleText]="topicCounts"
+        [descriptionText]="topicsLabel"
         boxColor="#d2d6de"
         textColor="#000000"
         iconClass="fas fa-book"
@@ -28,7 +28,7 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12">
       <small-box
-        [titleText]="getSpatialUnitCount()"
+        [titleText]="spatialUnitCount"
         [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
         boxColor="#337ab7"
         iconClass="fas fa-layer-group"
@@ -36,16 +36,15 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <small-box
-        [titleText]="getGeoresourceCount()"
+        [titleText]="georesourceCount"
         [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
         boxColor="#FF851B"
         iconClass="fas fa-map-marked-alt"
-      >
-      </small-box>
+      ></small-box>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <small-box
-        [titleText]="getIndicatorCount()"
+        [titleText]="indicatorCount"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
         boxColor="#00a65a"
         iconClass="fas fa-sitemap"
@@ -53,7 +52,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <small-box
-        [titleText]="getIndicatorScriptCount()"
+        [titleText]="indicatorScriptCount"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
         boxColor="#605ca8"
         iconClass="fas fa-file-code"
@@ -63,19 +62,22 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12">
       <div
-        id="indicatorsPerSpatialUnitDiagram"
+        echarts
+        [options]="indicatorsPerSpatialUnitChartOptions"
         style="width: 100%; min-height: 500px"
       ></div>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <div
-        id="georesourcesPerTypeDiagram"
+        echarts
+        [options]="georesourcesPerTypeChartOptions"
         style="width: 100%; min-height: 500px"
       ></div>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <div
-        id="indicatorsPerTopicDiagram"
+        echarts
+        [options]="indicatorsPerTopicChartOptions"
         style="width: 100%; min-height: 500px"
       ></div>
     </div>

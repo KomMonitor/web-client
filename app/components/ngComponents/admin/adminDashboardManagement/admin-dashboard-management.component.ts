@@ -1,20 +1,91 @@
-import {
-  Component,
-  Inject,
-  OnInit,
-  NgZone,
-  OnDestroy,
-  AfterViewInit,
-} from "@angular/core";
+import { Component, OnInit, DestroyRef, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { CommonModule, DOCUMENT } from "@angular/common";
-import { Subscription } from "rxjs";
+import { CommonModule } from "@angular/common";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import * as echarts from "echarts";
+import * as echarts from "echarts/core";
+import type { EChartsOption, TooltipComponentOption } from "echarts";
+
 import { SmallBoxComponent } from "./small-box/small-box.component";
 import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
-declare const $: any;
+
+import { NgxEchartsDirective, provideEchartsCore } from "ngx-echarts";
+
+interface PieSeriesDataItem {
+  name: string;
+  value: number;
+}
+
+const PIE_EMPHASIS = {
+  itemStyle: {
+    shadowBlur: 10,
+    shadowOffsetX: 0,
+    shadowColor: "rgba(0, 0, 0, 0.5)",
+  },
+};
+
+const PIE_TOOLTIP: TooltipComponentOption = {
+  trigger: "item",
+  confine: true,
+  formatter: "{a} <br/>{b} : {c} ({d}%)",
+  textStyle: { fontSize: 12 },
+};
+
+const PIE_LABEL = { position: "inner" as const };
+
+const FALLBACK_TIMEOUT_MS = 5_000;
+
+/** Recursively collects all sub-topics from a topic tree. */
+function collectSubTopics(topics: any[]): any[] {
+  const result: any[] = [];
+  for (const topic of topics) {
+    if (topic.subTopics?.length) {
+      for (const sub of topic.subTopics) {
+        result.push(sub);
+        result.push(...collectSubTopics([sub]));
+      }
+    }
+  }
+  return result;
+}
+
+/** Builds a standard ECharts pie-chart option object. */
+function buildPieChartOptions(
+  title: string,
+  data: PieSeriesDataItem[],
+  color: string,
+): EChartsOption {
+  return {
+    title: { text: title, left: "center", show: true, top: 15 },
+    tooltip: PIE_TOOLTIP,
+    series: [
+      {
+        name: title,
+        type: "pie",
+        radius: "90%",
+        center: ["50%", "50%"],
+        data,
+        itemStyle: { color, shadowBlur: 20, shadowColor: "rgba(0, 0, 0, 0.5)" },
+        emphasis: PIE_EMPHASIS,
+        label: PIE_LABEL,
+      },
+    ],
+  };
+}
+
+/** Maps a georesource to its geometry type key. */
+function georesourceTypeOf(georesource: any): "POI" | "LOI" | "AOI" {
+  if (georesource.isLOI) return "LOI";
+  if (georesource.isAOI) return "AOI";
+  return "POI";
+}
+
+const GEORESOURCE_TYPE_I18N: Record<string, string> = {
+  POI: "ADMIN_DASHBOARD.POINTS_OF_INTEREST",
+  LOI: "ADMIN_DASHBOARD.LINES_OF_INTEREST",
+  AOI: "ADMIN_DASHBOARD.AREAS_OF_INTEREST",
+};
 
 @Component({
   selector: "admin-dashboard-management",
@@ -24,512 +95,210 @@ declare const $: any;
     SmallBoxComponent,
     TranslateModule,
     CommonModule,
+    NgxEchartsDirective,
     AdminContentViewComponent,
   ],
+  providers: [provideEchartsCore({ echarts })],
   standalone: true,
 })
-export class AdminDashboardManagementComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
+export class AdminDashboardManagementComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   loadingData = true;
-  numberOfMainTopics = 0;
-  numberOfSubTopics = 0;
 
-  indicatorsPerTopicChart: any;
-  georesourcesPerTypeChart: any;
-  indicatorsPerSpatialUnitChart: any;
+  organisationCount = "0";
+  topicCounts = "0/0";
+  topicsLabel = "";
+  indicatorCount = "";
+  georesourceCount = "";
+  spatialUnitCount = "";
+  indicatorScriptCount = "";
 
-  indicatorsPerTopicChartOptions: any;
-  georesourcesPerTypeChartOptions: any;
-  indicatorsPerSpatialUnitChartOptions: any;
+  indicatorsPerTopicChartOptions: EChartsOption | null = null;
+  georesourcesPerTypeChartOptions: EChartsOption | null = null;
+  indicatorsPerSpatialUnitChartOptions: EChartsOption | null = null;
 
-  pieChartTooltip = {
-    trigger: "item",
-    confine: "true",
-    formatter: "{a} <br/>{b} : {c} ({d}%)",
-    textStyle: { fontSize: 12 },
-  };
-  pieChartLabel = {
-    normal: { position: "inside", fontSize: 12 },
-  };
-
-  private subscription: Subscription | undefined;
-  private initializationTimeout: any;
+  private initializationTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private broadcastService: BroadcastService,
-    private ngZone: NgZone,
-    @Inject(DOCUMENT) private document: Document,
     private translateService: TranslateService,
-    protected kommonitorDataExchangeService: DataExchangeService,
-  ) {
-    console.log("AdminDashboardManagementComponent constructor initialized");
-  }
-
-  ngAfterViewInit(): void {
-    this.initCharts();
-  }
+    protected dataExchange: DataExchangeService,
+  ) {}
 
   ngOnInit(): void {
-    console.log("AdminDashboardManagementComponent ngOnInit");
-    this.loadingData = true;
-
-    // initialize any adminLTE box widgets
-    /* ($('.box') as any).boxWidget(); */
-
-    // this.initCharts();
-    this.setupEventListeners();
     this.setupBroadcastListeners();
     this.setupLanguageChangeListener();
 
-    // Check if data is already available and initialize immediately
-    this.checkDataAvailabilityAndInitialize();
+    this.tryInitialize();
 
-    // Fallback timeout in case no events are fired
+    // Fallback in case broadcast events never fire
     this.initializationTimeout = setTimeout(() => {
-      console.log("Fallback: Initializing dashboard after timeout");
-      this.checkDataAvailabilityAndInitialize();
-    }, 5000); // 5 second fallback
+      this.tryInitialize();
+    }, FALLBACK_TIMEOUT_MS);
+
+    this.destroyRef.onDestroy(() => this.clearTimeout());
   }
 
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-    if (this.initializationTimeout) {
-      clearTimeout(this.initializationTimeout);
-    }
-  }
-
-  getIndicatorScriptCount(): string {
-    return this.kommonitorDataExchangeService.availableProcessScripts
-      ? this.kommonitorDataExchangeService.availableProcessScripts.length.toString()
-      : "";
-  }
-
-  getOrganisationCount(): string {
-    return this.kommonitorDataExchangeService.accessControl
-      ? this.kommonitorDataExchangeService.accessControl.length.toString()
-      : "0";
-  }
-
-  getTopicCounts(): string {
-    return `${this.numberOfMainTopics}/${this.numberOfSubTopics}`;
-  }
-
-  getTopicsLabel(): string {
-    return `${this.translateService.instant("ADMIN_DASHBOARD.MAIN_TOPICS")}/${this.translateService.instant("ADMIN_DASHBOARD.SUB_TOPICS")}`;
-  }
-
-  getIndicatorCount(): string {
-    return this.kommonitorDataExchangeService.availableIndicators
-      ? this.kommonitorDataExchangeService.availableIndicators.length.toString()
-      : "";
-  }
-
-  getGeoresourceCount(): string {
-    return this.kommonitorDataExchangeService.availableGeoresources
-      ? this.kommonitorDataExchangeService.availableGeoresources.length.toString()
-      : "";
-  }
-
-  getSpatialUnitCount(): string {
-    return this.kommonitorDataExchangeService.availableSpatialUnits
-      ? this.kommonitorDataExchangeService.availableSpatialUnits.length.toString()
-      : "";
-  }
-
-  private checkDataAvailabilityAndInitialize(): void {
-    // Check if required data is available
+  private tryInitialize(): void {
     if (this.isDataAvailable()) {
-      console.log("Data is available, initializing dashboard");
-      this.refreshAdminDashboardDiagrams();
-      if (this.initializationTimeout) {
-        clearTimeout(this.initializationTimeout);
-      }
-    } else {
-      console.log("Data not yet available, waiting for events...");
+      this.refreshDashboard();
+      this.clearTimeout();
     }
   }
 
   private isDataAvailable(): boolean {
-    return (
-      this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableTopics &&
-      this.kommonitorDataExchangeService.availableTopics.length > 0 &&
-      this.kommonitorDataExchangeService.availableIndicators &&
-      this.kommonitorDataExchangeService.availableIndicators.length >= 0 &&
-      this.kommonitorDataExchangeService.availableGeoresources &&
-      this.kommonitorDataExchangeService.availableGeoresources.length >= 0 &&
-      this.kommonitorDataExchangeService.availableSpatialUnits &&
-      this.kommonitorDataExchangeService.availableSpatialUnits.length >= 0
+    const d = this.dataExchange;
+    return !!(
+      d?.availableTopics?.length &&
+      d.availableIndicators &&
+      d.availableGeoresources &&
+      d.availableSpatialUnits
     );
+  }
+
+  private clearTimeout(): void {
+    if (this.initializationTimeout) {
+      clearTimeout(this.initializationTimeout);
+      this.initializationTimeout = null;
+    }
   }
 
   private setupBroadcastListeners(): void {
-    this.subscription = this.broadcastService.currentBroadcastMsg.subscribe(
-      (broadcastMsg) => {
-        if (broadcastMsg.msg === "refreshAdminDashboardDiagrams") {
-          console.log("refresh admin charts");
-          this.refreshAdminDashboardDiagrams();
-        } else if (broadcastMsg.msg === "initialMetadataLoadingFailed") {
-          console.log("Metadata loading failed");
-          this.loadingData = false;
-          if (this.initializationTimeout) {
-            clearTimeout(this.initializationTimeout);
-          }
-        } else if (broadcastMsg.msg === "initialMetadataLoadingCompleted") {
-          console.log("refresh admin overview");
-          if (this.initializationTimeout) {
-            clearTimeout(this.initializationTimeout);
-          }
-          setTimeout(() => {
-            this.refreshAdminDashboardDiagrams();
-          }, 250);
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg) => {
+        switch (msg.msg) {
+          case "refreshAdminDashboardDiagrams":
+            this.refreshDashboard();
+            break;
+          case "initialMetadataLoadingFailed":
+            this.loadingData = false;
+            this.clearTimeout();
+            break;
+          case "initialMetadataLoadingCompleted":
+            this.clearTimeout();
+            setTimeout(() => this.refreshDashboard(), 250);
+            break;
         }
-      },
-    );
+      });
   }
 
   private setupLanguageChangeListener(): void {
-    this.translateService.onLangChange.subscribe(() => {
-      console.log("Language changed, refreshing dashboard charts");
-      if (this.isDataAvailable()) {
-        this.refreshAdminDashboardDiagrams();
-      }
-    });
-  }
-
-  private initCharts(): void {
-    this.indicatorsPerTopicChart = echarts.init(
-      this.document.getElementById("indicatorsPerTopicDiagram"),
-    );
-    this.georesourcesPerTypeChart = echarts.init(
-      this.document.getElementById("georesourcesPerTypeDiagram"),
-    );
-    this.indicatorsPerSpatialUnitChart = echarts.init(
-      this.document.getElementById("indicatorsPerSpatialUnitDiagram"),
-    );
-    this.indicatorsPerTopicChart.showLoading();
-    this.georesourcesPerTypeChart.showLoading();
-    this.indicatorsPerSpatialUnitChart.showLoading();
-  }
-
-  private setupEventListeners(): void {
-    $(window).on("resize", () => {
-      this.ngZone.runOutsideAngular(() => {
-        if (this.indicatorsPerTopicChart) this.indicatorsPerTopicChart.resize();
-        if (this.georesourcesPerTypeChart)
-          this.georesourcesPerTypeChart.resize();
-        if (this.indicatorsPerSpatialUnitChart)
-          this.indicatorsPerSpatialUnitChart.resize();
+    this.translateService.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.isDataAvailable()) {
+          this.refreshDashboard();
+        }
       });
-    });
   }
 
-  refreshAdminDashboardDiagrams(): void {
-    try {
-      console.log("Refreshing admin dashboard diagrams");
-
-      if (!this.isDataAvailable()) {
-        console.warn("Data not available for dashboard refresh");
-        this.loadingData = false;
-        return;
-      }
-
-      const mainTopics: any[] = [];
-      let subTopics: any[] = [];
-
-      this.kommonitorDataExchangeService.availableTopics.forEach(
-        (topic: any) => {
-          if (topic.topicType === "main") {
-            mainTopics.push(topic);
-          }
-        },
-      );
-
-      subTopics = this.addSubTopics(mainTopics, subTopics);
-      this.numberOfMainTopics = mainTopics.length;
-      this.numberOfSubTopics = subTopics.length;
-
-      this.updateCharts();
+  refreshDashboard(): void {
+    if (!this.isDataAvailable()) {
       this.loadingData = false;
+      return;
+    }
 
-      console.log("Dashboard refresh completed");
+    try {
+      this.updateDisplayValues();
+      this.updateChartOptions();
     } catch (error) {
       console.error("Error refreshing dashboard:", error);
+    } finally {
       this.loadingData = false;
     }
   }
 
-  private addSubTopics(mainTopics: any[], subTopics: any[]): any[] {
-    for (const mainTopic of mainTopics) {
-      if (mainTopic.subTopics && mainTopic.subTopics.length > 0) {
-        for (const subTopic of mainTopic.subTopics) {
-          subTopics.push(subTopic);
-          if (subTopic.subTopics && subTopic.subTopics.length > 0) {
-            subTopics = this.addSubTopics(subTopic.subTopics, subTopics);
-          }
-        }
-      }
-    }
-    return subTopics;
+  private updateDisplayValues(): void {
+    const d = this.dataExchange;
+
+    this.organisationCount = String(d.accessControl?.length ?? 0);
+    this.indicatorCount = String(d.availableIndicators?.length ?? 0);
+    this.georesourceCount = String(d.availableGeoresources?.length ?? 0);
+    this.spatialUnitCount = String(d.availableSpatialUnits?.length ?? 0);
+    this.indicatorScriptCount = String(d.availableProcessScripts?.length ?? 0);
+
+    const mainTopics = d.availableTopics.filter(
+      (t: any) => t.topicType === "main",
+    );
+    const subTopics = collectSubTopics(mainTopics);
+
+    this.topicCounts = `${mainTopics.length}/${subTopics.length}`;
+    this.topicsLabel = [
+      this.translateService.instant("ADMIN_DASHBOARD.MAIN_TOPICS"),
+      this.translateService.instant("ADMIN_DASHBOARD.SUB_TOPICS"),
+    ].join("/");
   }
 
-  private updateCharts(): void {
-    this.updateIndicatorsPerTopicChart();
-    this.updateGeoresourcesPerTypeChart();
-    this.updateIndicatorsPerSpatialUnitChart();
+  private updateChartOptions(): void {
+    this.indicatorsPerTopicChartOptions = this.buildIndicatorsPerTopicChart();
+    this.georesourcesPerTypeChartOptions = this.buildGeoresourcesPerTypeChart();
+    this.indicatorsPerSpatialUnitChartOptions =
+      this.buildIndicatorsPerSpatialUnitChart();
   }
 
-  private updateIndicatorsPerTopicChart(): void {
-    try {
-      this.indicatorsPerTopicChart.showLoading();
-      const indicatorsPerTopicSeriesData: any[] = [];
+  private buildIndicatorsPerTopicChart(): EChartsOption {
+    const data: PieSeriesDataItem[] = (
+      this.dataExchange.topicIndicatorHierarchy ?? []
+    )
+      .filter((t: any) => t.indicatorCount > 0)
+      .map((t: any) => ({ name: t.topicName, value: t.indicatorCount }));
 
-      if (this.kommonitorDataExchangeService.topicIndicatorHierarchy) {
-        this.kommonitorDataExchangeService.topicIndicatorHierarchy.forEach(
-          (mainTopic: any) => {
-            if (mainTopic.indicatorCount > 0) {
-              indicatorsPerTopicSeriesData.push({
-                name: mainTopic.topicName,
-                value: mainTopic.indicatorCount,
-              });
-            }
-          },
-        );
-      }
-
-      this.indicatorsPerTopicChartOptions = {
-        title: {
-          text: this.translateService.instant(
-            "ADMIN_DASHBOARD.INDICATORS_PER_TOPIC",
-          ),
-          left: "center",
-          show: true,
-          top: 15,
-          fontSize: 12,
-        },
-        tooltip: this.pieChartTooltip,
-        series: [
-          {
-            name: this.translateService.instant(
-              "ADMIN_DASHBOARD.INDICATORS_PER_TOPIC",
-            ),
-            type: "pie",
-            radius: "90%",
-            center: ["50%", "50%"],
-            data: indicatorsPerTopicSeriesData,
-            itemStyle: {
-              normal: {
-                color: "#00a65b",
-                shadowBlur: 20,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-              emphasis: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-            label: this.pieChartLabel,
-          },
-        ],
-      };
-      this.indicatorsPerTopicChart.setOption(
-        this.indicatorsPerTopicChartOptions,
-      );
-      this.indicatorsPerTopicChart.hideLoading();
-    } catch (error) {
-      console.error("Error updating indicators per topic chart:", error);
-      this.indicatorsPerTopicChart.hideLoading();
-    }
+    return buildPieChartOptions(
+      this.translateService.instant("ADMIN_DASHBOARD.INDICATORS_PER_TOPIC"),
+      data,
+      "#00a65b",
+    );
   }
 
-  private updateGeoresourcesPerTypeChart(): void {
-    try {
-      this.georesourcesPerTypeChart.showLoading();
-      const georesourcesPerTypeMap: Map<string, number> = new Map();
+  private buildGeoresourcesPerTypeChart(): EChartsOption {
+    const countMap = new Map<string, number>();
 
-      if (this.kommonitorDataExchangeService.availableGeoresources) {
-        this.kommonitorDataExchangeService.availableGeoresources.forEach(
-          (georesource: any) => {
-            let georesourceType = "POI";
-            if (georesource.isLOI) {
-              georesourceType = "LOI";
-            } else if (georesource.isAOI) {
-              georesourceType = "AOI";
-            }
-            if (georesourcesPerTypeMap.has(georesourceType)) {
-              georesourcesPerTypeMap.set(
-                georesourceType,
-                georesourcesPerTypeMap.get(georesourceType)! + 1,
-              );
-            } else {
-              georesourcesPerTypeMap.set(georesourceType, 1);
-            }
-          },
-        );
-      }
-
-      const georesourcesPerTypeSeriesData: any[] = [];
-      if (georesourcesPerTypeMap.has("POI")) {
-        georesourcesPerTypeSeriesData.push({
-          name: this.translateService.instant(
-            "ADMIN_DASHBOARD.POINTS_OF_INTEREST",
-          ),
-          value: georesourcesPerTypeMap.get("POI"),
-        });
-      }
-      if (georesourcesPerTypeMap.has("LOI")) {
-        georesourcesPerTypeSeriesData.push({
-          name: this.translateService.instant(
-            "ADMIN_DASHBOARD.LINES_OF_INTEREST",
-          ),
-          value: georesourcesPerTypeMap.get("LOI"),
-        });
-      }
-      if (georesourcesPerTypeMap.has("AOI")) {
-        georesourcesPerTypeSeriesData.push({
-          name: this.translateService.instant(
-            "ADMIN_DASHBOARD.AREAS_OF_INTEREST",
-          ),
-          value: georesourcesPerTypeMap.get("AOI"),
-        });
-      }
-
-      this.georesourcesPerTypeChartOptions = {
-        title: {
-          text: this.translateService.instant(
-            "ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE",
-          ),
-          left: "center",
-          show: true,
-          top: 15,
-          fontSize: 12,
-        },
-        tooltip: this.pieChartTooltip,
-        series: [
-          {
-            name: this.translateService.instant(
-              "ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE",
-            ),
-            type: "pie",
-            radius: "90%",
-            center: ["50%", "50%"],
-            data: georesourcesPerTypeSeriesData,
-            itemStyle: {
-              normal: {
-                color: "#ff851b",
-                shadowBlur: 20,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-              emphasis: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-            label: this.pieChartLabel,
-          },
-        ],
-      };
-      this.georesourcesPerTypeChart.setOption(
-        this.georesourcesPerTypeChartOptions,
-      );
-      this.georesourcesPerTypeChart.hideLoading();
-    } catch (error) {
-      console.error("Error updating georesources per type chart:", error);
-      this.georesourcesPerTypeChart.hideLoading();
+    for (const geo of this.dataExchange.availableGeoresources ?? []) {
+      const type = georesourceTypeOf(geo);
+      countMap.set(type, (countMap.get(type) ?? 0) + 1);
     }
+
+    const data: PieSeriesDataItem[] = ["POI", "LOI", "AOI"]
+      .filter((key) => countMap.has(key))
+      .map((key) => ({
+        name: this.translateService.instant(GEORESOURCE_TYPE_I18N[key]),
+        value: countMap.get(key)!,
+      }));
+
+    return buildPieChartOptions(
+      this.translateService.instant("ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE"),
+      data,
+      "#ff851b",
+    );
   }
 
-  private updateIndicatorsPerSpatialUnitChart(): void {
-    try {
-      this.indicatorsPerSpatialUnitChart.showLoading();
-      const indicatorsPerSpatialUnitMap: Map<string, number> = new Map();
+  private buildIndicatorsPerSpatialUnitChart(): EChartsOption {
+    const countMap = new Map<string, number>();
 
-      if (this.kommonitorDataExchangeService.availableIndicators) {
-        this.kommonitorDataExchangeService.availableIndicators.forEach(
-          (indicator: any) => {
-            if (indicator.applicableSpatialUnits) {
-              indicator.applicableSpatialUnits.forEach(
-                (applicableSpatialUnit: any) => {
-                  const spatialUnitName = applicableSpatialUnit.spatialUnitName;
-                  if (indicatorsPerSpatialUnitMap.has(spatialUnitName)) {
-                    indicatorsPerSpatialUnitMap.set(
-                      spatialUnitName,
-                      indicatorsPerSpatialUnitMap.get(spatialUnitName)! + 1,
-                    );
-                  } else {
-                    indicatorsPerSpatialUnitMap.set(spatialUnitName, 1);
-                  }
-                },
-              );
-            }
-          },
-        );
+    for (const indicator of this.dataExchange.availableIndicators ?? []) {
+      for (const su of indicator.applicableSpatialUnits ?? []) {
+        const name: string = su.spatialUnitName;
+        countMap.set(name, (countMap.get(name) ?? 0) + 1);
       }
-
-      const indicatorsPerSpatialUnitSeriesData: any[] = [];
-      if (this.kommonitorDataExchangeService.availableSpatialUnits) {
-        this.kommonitorDataExchangeService.availableSpatialUnits.forEach(
-          (spatialUnit: any) => {
-            if (indicatorsPerSpatialUnitMap.has(spatialUnit.spatialUnitLevel)) {
-              indicatorsPerSpatialUnitSeriesData.push({
-                name: spatialUnit.spatialUnitLevel,
-                value: indicatorsPerSpatialUnitMap.get(
-                  spatialUnit.spatialUnitLevel,
-                ),
-              });
-            }
-          },
-        );
-      }
-
-      this.indicatorsPerSpatialUnitChartOptions = {
-        title: {
-          text: this.translateService.instant(
-            "ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT",
-          ),
-          left: "center",
-          show: true,
-          top: 15,
-          fontSize: 12,
-        },
-        tooltip: this.pieChartTooltip,
-        series: [
-          {
-            name: this.translateService.instant(
-              "ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT",
-            ),
-            type: "pie",
-            radius: "90%",
-            center: ["50%", "50%"],
-            data: indicatorsPerSpatialUnitSeriesData,
-            itemStyle: {
-              normal: {
-                color: "#337ab7",
-                shadowBlur: 20,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-              emphasis: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-            label: this.pieChartLabel,
-          },
-        ],
-      };
-      this.indicatorsPerSpatialUnitChart.setOption(
-        this.indicatorsPerSpatialUnitChartOptions,
-      );
-      this.indicatorsPerSpatialUnitChart.hideLoading();
-    } catch (error) {
-      console.error("Error updating indicators per spatial unit chart:", error);
-      this.indicatorsPerSpatialUnitChart.hideLoading();
     }
+
+    const data: PieSeriesDataItem[] = (
+      this.dataExchange.availableSpatialUnits ?? []
+    )
+      .filter((su: any) => countMap.has(su.spatialUnitLevel))
+      .map((su: any) => ({
+        name: su.spatialUnitLevel,
+        value: countMap.get(su.spatialUnitLevel)!,
+      }));
+
+    return buildPieChartOptions(
+      this.translateService.instant(
+        "ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT",
+      ),
+      data,
+      "#337ab7",
+    );
   }
 }
