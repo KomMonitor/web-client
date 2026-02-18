@@ -1,13 +1,16 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', 'kommonitorFavService', '__env',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 'kommonitorGlobalFilterHelperService', 'kommonitorFavService', 
+	'__env', 'kommonitorFilterHelperService',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, kommonitorFavService, __env) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, kommonitorGlobalFilterHelperService, kommonitorFavService, __env,
+		kommonitorFilterHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 		this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
+		this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
