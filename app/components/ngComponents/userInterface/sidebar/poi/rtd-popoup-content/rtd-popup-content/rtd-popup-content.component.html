@@ -2,8 +2,8 @@
 <div>
   <table class="table table-condensed">
     <tbody>
-      <tr *ngFor="let row of data.parameters">
-        <td><a (click)="onParameterClick(data, row)">{{row.name}} [{{row.unit}}]</a></td>
+      <tr *ngFor="let row of stationData.parameters">
+        <td><a (click)="onParameterClick(row)">{{row.name}} [{{row.unit}}]</a></td>
         <td>123.4</td>
       </tr>
     </tbody>

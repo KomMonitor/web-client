@@ -1,6 +1,6 @@
 :host {
   a {
-    color: blue !important;
+    color: var(--kommonitor-primary) !important;
     text-decoration: underline;
     cursor: pointer;
   }

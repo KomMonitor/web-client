@@ -1642,7 +1642,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         //.bindPopup( poiFeature.properties.name )
         let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
         
-        markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker, viewContainerRef));
+        markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker, poiFeature, viewContainerRef));
       });
     } else {
       markers = L.featureGroup();
@@ -1652,7 +1652,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         //.bindPopup( poiFeature.properties.name )
         let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
         
-        markers = this.genericMapHelperService.addPoiMarker(markers, newMarker, viewContainerRef);
+        markers = this.genericMapHelperService.addPoiMarker(markers, newMarker, poiFeature, viewContainerRef);
       });
     }       
 
@@ -1674,7 +1674,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   async handleRtdData(georesourceMetadataAndGeoJSON) {
-    if(georesourceMetadataAndGeoJSON.metadata.databasis.toLowerCase()=='rtd')
+    if(georesourceMetadataAndGeoJSON.metadata.databasis?.toLowerCase()=='rtd')
       await this.rtdService.loadStationData();
   }
 

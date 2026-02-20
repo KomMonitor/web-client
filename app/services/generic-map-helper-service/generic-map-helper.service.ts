@@ -146,10 +146,8 @@ export class GenericMapHelperService {
     return marker;
   }
   
-  addPoiMarker(markers, poiMarker, viewContainerRef=false) {
+  addPoiMarker(markers, poiMarker, poiFeature=undefined, viewContainerRef=false) {
             
-    // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
     var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
     for (var p in poiMarker.feature.properties) {
         popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
@@ -172,14 +170,16 @@ export class GenericMapHelperService {
     }
 
     // catch rtd pois to gather data on the fly
-    if(poiMarker.metadataObject.metadata.databasis.toLowerCase()=='rtd') {
+    if(this.isRtdElement(poiMarker)) {
+
       poiMarker.on('click', async (e) => {
 
-        let rtdStationId = poiMarker.metadataObject.geoJSON.features[0].properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+        let rtdStationId = poiMarker.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
         if(rtdStationId) {
 
           var stationData = this.rtdService.getStationData(rtdStationId);
-          poiMarker = this.addRtdPopupContent(poiMarker, stationData, viewContainerRef);
+          if(stationData)
+            poiMarker = this.addRtdPopupContent(poiMarker, stationData, poiFeature, viewContainerRef);
         }
       });
     }
@@ -189,7 +189,14 @@ export class GenericMapHelperService {
     return markers;
   }
 
-  addRtdPopupContent(marker, stationData:StationData | undefined, viewContainerRef) {
+  isRtdElement(poiMarker):boolean {
+    if(poiMarker.metadataObject.metadata.databasis?.toLowerCase()=='rtd')
+      return true;
+
+    return false;
+  }
+
+  addRtdPopupContent(marker, stationData:StationData | undefined, poiFeature, viewContainerRef) {
 
     if(stationData && viewContainerRef) {
 
@@ -198,7 +205,8 @@ export class GenericMapHelperService {
           environmentInjector: this.injector
         });
 
-      componentRef.instance.data = stationData;
+      componentRef.instance.stationData = stationData;
+      componentRef.instance.poiFeature = poiFeature;
 
       const newContent = componentRef.location.nativeElement as HTMLElement;
 

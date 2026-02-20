@@ -12,13 +12,15 @@ import { SidebarService } from '../../../sidebar.service';
 })
 export class RtdPopupContentComponent {
 
-  @Input() data!: StationData;
+  @Input() stationData!: StationData;
+  @Input() poiFeature!: any;
 
   constructor(
     private sidebarService: SidebarService
   ) {}
 
-  onParameterClick(station: StationData, parameter: ParameterData) {
-    this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse', data: {station: station, parameter: parameter}});
+  onParameterClick(parameter: ParameterData) {
+
+    this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse', data: {station: this.stationData, parameter: parameter, poiFeature: this.poiFeature}});
   }
 }

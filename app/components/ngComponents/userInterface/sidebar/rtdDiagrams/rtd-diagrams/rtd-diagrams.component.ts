@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { ParameterData, RealTimeDataService, StationData } from 'services/real-time-data-service/real-time-data.service';
+import { ParameterData, RealTimeDataService, StationData, TimeseriesData } from 'services/real-time-data-service/real-time-data.service';
 import * as echarts from 'echarts';
 
 export interface InputData {
   station: StationData;
   parameter: ParameterData;
+  poiFeature: any;
 }
 
 @Component({
@@ -26,6 +27,8 @@ export class RtdDiagramsComponent implements OnChanges {
   loadingData:boolean = false;
 
   lineTitle: string = '';
+  poiTitle: string = '';
+  poiAddress: string = '';
 
   lineChart!:any;
   lineOption!:any;
@@ -37,11 +40,13 @@ export class RtdDiagramsComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
 
     if(this.data) {
+      this.poiTitle = this.data.poiFeature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME];
+      this.poiAddress = this.data.poiFeature.properties.Adresse;
       this.lineTitle = `${this.data.parameter.name} [${this.data.parameter.unit}]`;   
     
       this.rtdService.getTimeseries(this.data.station, this.data.parameter).subscribe({
-        next: response => {
-          this.updateLineChart();
+        next: (response:TimeseriesData[]) => {
+          this.buildLineChart(response);
         },
         error: error => {
           console.error('Unable to get timeseries data', error);
@@ -50,7 +55,10 @@ export class RtdDiagramsComponent implements OnChanges {
     }
   }
 
-  updateLineChart() {
+  buildLineChart(data:TimeseriesData[]) {
+    
+    this.rtdService.setLineChartOptions(this.data.parameter, this.rtdService.buildValuesArray(data), this.rtdService.buildDatesArray(data), this.data.station.name);
+
     // based on prepared DOM, initialize echarts instance
     if (!this.lineChart)
       this.lineChart = echarts.init(document.getElementById('rtdLineDiagram'));
@@ -61,8 +69,7 @@ export class RtdDiagramsComponent implements OnChanges {
     }
 
     // use configuration item and data specified to show chart
-    this.lineOption = this.rtdService.getLineChartOptions(true);
-    this.lineChart.setOption(this.lineOption);
+    this.lineChart.setOption(this.rtdService.lineChartOptions);
 
     this.lineChart.hideLoading();
     setTimeout(() => {

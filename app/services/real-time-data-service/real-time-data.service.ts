@@ -69,21 +69,10 @@ export class RealTimeDataService {
     return this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}`);
   }
 
-  prepCustomStyling(customFontFamilyEnabled, options) {
-
-    if(customFontFamilyEnabled===true)
-      options.textStyle = {fontFamily: this.customFontFamily};
-
-    return options;
-  }
-
-  getLineChartOptions(customFontFamilyEnabled = false) {
-    return this.prepCustomStyling(customFontFamilyEnabled, this.lineChartOptions);
-  };
-
-  setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
+  setLineChartOptions(parameter:ParameterData, valuesArray:number[], datesArray:string[], title) {
 
     var lineOption:any = {
+      textStyle: {fontFamily: this.customFontFamily},
       // grid get rid of whitespace around chart
       grid: {
         left: '4%',
@@ -93,7 +82,7 @@ export class RealTimeDataService {
         containLabel: true
       },
       title: {
-        text: 'Zeitreihe - ' + spatialUnitName,
+        text: 'Zeitreihe - ' + title,
         left: 'center',
         show: false,
         textStyle: {
@@ -112,7 +101,7 @@ export class RealTimeDataService {
 
             if(! paramObj.seriesName.includes("Stack")){
               var value = this.dataExchangeService.getIndicatorValue_asFormattedText(paramObj.value);
-              string += paramObj.seriesName + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]" + "<br/>";
+              string += paramObj.seriesName + ": " + value + " [" + parameter.unit + "]" + "<br/>";
             }                
           });
 
@@ -132,21 +121,6 @@ export class RealTimeDataService {
           // mark : {show: true},
           dataView: {
             show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
-
-              // 	<table class="table table-condensed table-hover">
-              // 	<thead>
-              // 		<tr>
-              // 			<th>Indikator-Name</th>
-              // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-              // 		</tr>
-              // 	</thead>
-              // 	<tbody>
-              // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-              // 			<td>{{indicator.referencedIndicatorName}}</td>
-              // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-              // 		</tr>
-              // 	</tbody>
-              // </table>
 
               var lineSeries = opt.series;
               var timestamps = opt.xAxis[0].data;
@@ -196,7 +170,7 @@ export class RealTimeDataService {
         data: []
       },
       xAxis: {
-        name: indicatorMetadataAndGeoJSON.indicatorName,
+        name: parameter.name,
         nameLocation: 'center',
         nameGap: 22,
         // axisLabel: {
@@ -210,11 +184,11 @@ export class RealTimeDataService {
         axisTick: {
           show: false
         },
-        data: indicatorTimeSeriesDatesArray
+        data: datesArray
       },
       yAxis: {
         type: 'value',
-        name: indicatorMetadataAndGeoJSON.unit,
+        name: parameter.unit,
         axisLabel: {
           formatter: (value, index) => {
             return this.dataExchangeService.getIndicatorValue_asFormattedText(value);
@@ -226,185 +200,42 @@ export class RealTimeDataService {
         // }
       },
       series: [          
-      
+        {
+          name: `${parameter.name} [${parameter.unit}]`,
+          type: 'line',
+          data: valuesArray,
+          symbolSize: 6,
+          symbol: "emptyCircle",
+          lineStyle: {
+            normal: {
+              color: 'gray',
+              width: 2,
+              type: 'dashed'
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderWidth: 3,
+              color: 'gray'
+            }
+          }
+        }
       ]
-    };
-
-
-    let meanLine = {
-      name: this.dataExchangeService.rankingChartAverageLabel,
-      type: 'line',
-      data: indicatorTimeSeriesAverageArray,
-      symbolSize: 6,
-      symbol: "emptyCircle",
-      lineStyle: {
-        normal: {
-          color: 'gray',
-          width: 2,
-          type: 'dashed'
-        }
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 3,
-          color: 'gray'
-        }
-      }
-    };
-
-    let regionalMeanLine = {
-      name: this.dataExchangeService.rankingChartRegionalReferenceValueLabel,
-      type: 'line',
-      symbolSize: 8,
-      symbol: "circle",
-      data: indicatorTimeSeriesRegionalMeanArray,
-      lineStyle: {
-        normal: {
-          color: 'gray',
-          width: 2,
-          type: 'dashed'
-        }
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 3,
-          color: 'gray'
-        }
-      }
-    };           
-
-    let regionalMeanUsed = false;
-
-    // only add regional mean line if it contains at least one meaningful entry
-    if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
-      lineOption.series.push(regionalMeanLine);
-      lineOption.legend.data.push(this.dataExchangeService.rankingChartRegionalReferenceValueLabel);
-      regionalMeanUsed = true;
-    }
-
-    if(this.dataExchangeService.configMeanDataDisplay == "both" || (regionalMeanUsed == false && this.dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
-      lineOption.series.push(meanLine);
-      lineOption.legend.data.push(this.dataExchangeService.rankingChartAverageLabel);
-    }     
-
-    // SETTING FOR MIN AND MAX STACK
-
-    // default for min value of 0
-    var minStack:any = {
-      name: "MinStack",
-      type: 'line',
-      data: indicatorTimeSeriesMinArray,
-      stack: "MinMax",
-      // areaStyle:{
-      //   color: "#d6d6d6"
-      // },
-      lineStyle: {
-        opacity: 0
-      },
-      itemStyle: {
-        opacity: 0
-      },
-      silent: true
-    };
-
-    var minLine = {
-      name: "Min",
-      type: 'line',
-      data: indicatorTimeSeriesMinArray,
-      lineStyle: {
-        opacity: 0,
-        color: "#d6d6d6"
-      },
-      itemStyle: {
-        opacity: 0
-      }
-    };
-
-    var maxStack =  {
-      name: "MaxStack",
-      type: 'line',
-      data: indicatorTimeSeriesMaxArray,
-      stack: "MinMax",
-      areaStyle:{
-        color: "#d6d6d6"
-      },
-      lineStyle: {
-        opacity: 0
-      },
-      itemStyle: {
-        opacity: 0
-      },
-      silent: true
-    };
-
-    var maxLine =  {
-      name: "Max",
-      type: 'line',
-      data: indicatorTimeSeriesMaxArray,
-      lineStyle: {
-        opacity: 0,
-        color: "#d6d6d6"
-      },
-      itemStyle: {
-        opacity: 0
-      }
-    };
-
-    // perform checks if there are negative values or only > 0 values
-    // then stacks must be adjusted to be correctly displayed
-    var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
-    if(minStack_minValue < 0){
-      minStack.areaStyle = {
-          color: "#d6d6d6"
-      };
-    }
-
-    let indicatorTimeSeriesMaxArray_copy = JSON.parse(JSON.stringify(indicatorTimeSeriesMaxArray));
-
-    if ((indicatorTimeSeriesMinArray.filter(item => item > 0))){
-      for (let index = 0; index < indicatorTimeSeriesMaxArray_copy.length; index++) {
-
-        if(indicatorTimeSeriesMinArray[index] > 0){
-          indicatorTimeSeriesMaxArray_copy[index] = indicatorTimeSeriesMaxArray_copy[index] - indicatorTimeSeriesMinArray[index];
-        }            
-      }
-      maxStack.data = indicatorTimeSeriesMaxArray_copy;
-    }
-
-    lineOption.series.push(minLine);
-    lineOption.series.push(maxLine);
-    lineOption.series.push(minStack);
-    lineOption.series.push(maxStack);
-
-    // spatially unassignable
-    let regionalSpatiallyUnassignableLine = {
-      name: "räumlich nicht zuordenbare",
-      type: 'line',
-      symbol: "diamond",
-      symbolSize: 10,
-      data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
-      lineStyle: {
-        normal: {
-          color: 'gray',
-          width: 2,
-          type: 'dashed'
-        }
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 3,
-          color: 'gray'
-        }
-      }
-    };
-    // only add regional spatially unassignable line if it contains at least one meaningful entry
-    if(indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some(el => el !== null)){
-      lineOption.series.push(regionalSpatiallyUnassignableLine);
-      lineOption.legend.data.push("räumlich nicht zuordenbare");
-    };
+    };     
     
-
     // use configuration item and data specified to show chart
     this.lineChartOptions = lineOption;
+  }
+
+  buildDatesArray(data:TimeseriesData[]):string[] {
+    return data.map(e => {
+      return new Date(e.timestamp).toLocaleDateString('de-DE'); 
+    });
+  }
+
+  buildValuesArray(data:TimeseriesData[]):number[] {
+    return data.map(e => {
+      return e.value; 
+    });
   }
 }
