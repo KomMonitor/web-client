@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 export interface StationData {
@@ -17,11 +17,16 @@ export interface ParameterData {
   id: number;
   name: string;
   unit: string;
+  selected: boolean;
 }
 
 export interface TimeseriesData {
   value: number;
   timestamp: Date;
+}
+
+export interface TimeseriesMap {
+  [key: string]: TimeseriesData[];
 }
 
 @Injectable({
@@ -65,11 +70,24 @@ export class RealTimeDataService {
     return this.stationData.find(e => e.id==stationId);
   }
 
-  getTimeseries(station: StationData, parameter: ParameterData):Observable<any> {
-    return this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}`);
+  stationExists(stationId: number):boolean {
+    return this.stationData.some(e => e.id==stationId);
   }
 
-  setLineChartOptions(parameter:ParameterData, valuesArray:number[], datesArray:string[], title) {
+  getTimeseries(parameter: ParameterData):Observable<TimeseriesMap> {
+
+    var selectedItems = this.stationData.filter(e => e.parameters.some(p => p.id==parameter.id && p.selected===true));
+
+    const requests = selectedItems.reduce((acc, station) => {
+      acc[station.name] = this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}`);
+      return acc;
+    }, {} as Record<string, Observable<any>>);
+
+    return forkJoin(requests);
+    //return this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/331/${parameter.id}`);
+  }
+
+  setLineChartOptions(parameter:ParameterData, series:any[], datesArray:string[]) {
 
     var lineOption:any = {
       textStyle: {fontFamily: this.customFontFamily},
@@ -82,7 +100,7 @@ export class RealTimeDataService {
         containLabel: true
       },
       title: {
-        text: 'Zeitreihe - ' + title,
+        text: `Zeitreihe - ${parameter.name}`,
         left: 'center',
         show: false,
         textStyle: {
@@ -170,7 +188,7 @@ export class RealTimeDataService {
         data: []
       },
       xAxis: {
-        name: parameter.name,
+        name: 'Zeit',
         nameLocation: 'center',
         nameGap: 22,
         // axisLabel: {
@@ -199,43 +217,55 @@ export class RealTimeDataService {
         //     show: true
         // }
       },
-      series: [          
-        {
-          name: `${parameter.name} [${parameter.unit}]`,
-          type: 'line',
-          data: valuesArray,
-          symbolSize: 6,
-          symbol: "emptyCircle",
-          lineStyle: {
-            normal: {
-              color: 'gray',
-              width: 2,
-              type: 'dashed'
-            }
-          },
-          itemStyle: {
-            normal: {
-              borderWidth: 3,
-              color: 'gray'
-            }
-          }
-        }
-      ]
+      series: series
     };     
     
     // use configuration item and data specified to show chart
     this.lineChartOptions = lineOption;
   }
 
-  buildDatesArray(data:TimeseriesData[]):string[] {
-    return data.map(e => {
-      return new Date(e.timestamp).toLocaleDateString('de-DE'); 
+  buildDatesArray(data:TimeseriesMap):string[] {
+
+    let dates:Date[] = [];
+
+    Object.entries(data).forEach(([id, value]) => {
+      value.forEach(e => {
+        if(!dates.includes(e.timestamp))
+          dates.push(e.timestamp);
+      })
     });
+    
+    return dates.map(e => { return new Date(e).toLocaleDateString('de-DE'); });
   }
 
-  buildValuesArray(data:TimeseriesData[]):number[] {
-    return data.map(e => {
-      return e.value; 
-    });
+  buildValuesArray(data:TimeseriesMap):any {
+
+    var series:any[] = [];
+
+    Object.entries(data).forEach(([id, value]) => {
+
+      series.push({
+        name: `Test`,
+        type: 'line',
+        data: value.map(e => e.value),
+        symbolSize: 6,
+        symbol: "emptyCircle",
+        lineStyle: {
+          normal: {
+            color: 'gray',
+            width: 2,
+            type: 'dashed'
+          }
+        },
+        itemStyle: {
+          normal: {
+            borderWidth: 3,
+            color: 'gray'
+          }
+        }
+      });
+    });  
+
+    return series;
   }
 }

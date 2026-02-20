@@ -3,6 +3,7 @@
   <table class="table table-condensed">
     <tbody>
       <tr *ngFor="let row of stationData.parameters">
+        <td><input type="checkbox" [(ngModel)]="row.selected"></td>
         <td><a (click)="onParameterClick(row)">{{row.name}} [{{row.unit}}]</a></td>
         <td>123.4</td>
       </tr>

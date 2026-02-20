@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { ParameterData, StationData } from 'services/real-time-data-service/real-time-data.service';
 import { SidebarService } from '../../../sidebar.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-rtd-popup-content',
   templateUrl: './rtd-popup-content.component.html',
   styleUrls: ['./rtd-popup-content.component.css'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class RtdPopupContentComponent {
 
@@ -21,6 +22,7 @@ export class RtdPopupContentComponent {
 
   onParameterClick(parameter: ParameterData) {
 
-    this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse', data: {station: this.stationData, parameter: parameter, poiFeature: this.poiFeature}});
+    parameter.selected = true;
+    this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse', data: {parameter: parameter, poiFeature: this.poiFeature}});
   }
 }
