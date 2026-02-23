@@ -35,6 +35,11 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			$scope.loadingData = true;
 			$scope.availableScriptDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableProcessScripts));
 
+			//filter out scripts on unaccessible target indicators
+			$scope.availableScriptDatasets = $scope.availableScriptDatasets.filter(
+				script => kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(script.inputs.target_indicator_id)
+			);
+
 			kommonitorDataGridHelperService.buildDataGrid_scripts($scope.availableScriptDatasets, $scope.showScriptIds, $scope.showProcessDescription);
 
 			$scope.loadingData = false;
