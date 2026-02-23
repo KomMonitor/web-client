@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { ParameterData, RealTimeDataService, StationData, TimeseriesData, TimeseriesMap } from 'services/real-time-data-service/real-time-data.service';
 import * as echarts from 'echarts';
@@ -19,9 +19,7 @@ export interface InputData {
     ExpandableBoxComponent
   ]
 })
-export class RtdDiagramsComponent implements OnChanges {
-
-  @Input() data!: InputData;
+export class RtdDiagramsComponent implements OnInit {
 
   loadingData:boolean = false;
 
@@ -30,35 +28,29 @@ export class RtdDiagramsComponent implements OnChanges {
   lineChart!:any;
   lineOption!:any;
 
+  parameter!:ParameterData;
+
   constructor(
     private rtdService: RealTimeDataService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
-
-    if(this.data) {
-      this.lineTitle = `${this.data.parameter.name} [${this.data.parameter.unit}]`;   
-    
-      this.rtdService.getTimeseries(this.data.parameter).subscribe(
-        result => this.buildLineChart(result)
-      )
-
-      /*  next: (response:TimeseriesData[]) => {
-          this.buildLineChart(response);
-        },
-        error: error => {
-          console.error('Unable to get timeseries data', error);
-        } */
-    }
+  ngOnInit(): void {
+    // listen to changed rtd selected data
+    this.rtdService.selectedData$.subscribe(value => {
+      if(value.parameter) {
+        this.parameter = value.parameter;
+        this.lineTitle = `${this.parameter.name} [${this.parameter.unit}]`;   
+      
+        this.rtdService.getTimeseries(value.parameter).subscribe(
+          result => this.buildLineChart(result)
+        )
+      }
+    });
   }
 
   buildLineChart(data:TimeseriesMap) {
-    
-/*  Object.entries(result).forEach(([id, value]) => {
-            console.log(id, value);
-          }); */
 
-    this.rtdService.setLineChartOptions(this.data.parameter, this.rtdService.buildValuesArray(data), this.rtdService.buildDatesArray(data));
+    this.rtdService.setLineChartOptions(this.parameter, this.rtdService.buildValuesArray(data), this.rtdService.buildDatesArray(data));
 
     // based on prepared DOM, initialize echarts instance
     if (!this.lineChart)

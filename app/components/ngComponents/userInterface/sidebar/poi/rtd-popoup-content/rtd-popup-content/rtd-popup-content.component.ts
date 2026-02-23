@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { ParameterData, StationData } from 'services/real-time-data-service/real-time-data.service';
+import { ParameterData, RealTimeDataService, StationData } from 'services/real-time-data-service/real-time-data.service';
 import { SidebarService } from '../../../sidebar.service';
 import { FormsModule } from '@angular/forms';
 
@@ -17,12 +17,19 @@ export class RtdPopupContentComponent {
   @Input() poiFeature!: any;
 
   constructor(
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private rtdService: RealTimeDataService
   ) {}
 
-  onParameterClick(parameter: ParameterData) {
+  onChangeSelectedParameter(parameter: ParameterData) {
+    this.rtdService.selectedData$.next({parameter: parameter, poiFeature: this.poiFeature});
+  }
 
-    parameter.selected = true;
-    this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse', data: {parameter: parameter, poiFeature: this.poiFeature}});
+  onParameterClick(parameter: ParameterData) {
+    if(parameter.selected!==true) {
+      parameter.selected = true;
+      this.onChangeSelectedParameter(parameter);
+      this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse'});
+    }
   }
 }

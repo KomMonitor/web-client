@@ -5,12 +5,12 @@
 		</div>
 	</div>
 
-  <expandable-box *ngIf="data" [title]="'Echtzeitdaten'" [collapsed]="false">
+  <expandable-box *ngIf="parameter" [title]="'Echtzeitdaten'" [collapsed]="false">
     <div style="text-align: left">
       Infos und mehr 
     </div>
   </expandable-box>
-  <expandable-box *ngIf="data" [title]="lineTitle" [collapsed]="false" [borderColor]="'green'">
+  <expandable-box *ngIf="parameter" [title]="lineTitle" [collapsed]="false" [borderColor]="'green'">
     <div class="chart">
       <div id="rtdLineDiagram" style="width:100%; min-height:40vh;"></div>
     </div>  

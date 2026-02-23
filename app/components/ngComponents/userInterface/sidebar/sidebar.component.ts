@@ -48,7 +48,6 @@ export class SidebarComponent implements OnInit{
     // listen to open/close calls
     this.sidebarService.sidebarOpenElement$.subscribe(value => {
       this.element = value.sidebarIdentifier;
-      this.data = value.data;
     });
   }
 

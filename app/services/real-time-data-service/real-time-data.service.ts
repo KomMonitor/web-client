@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 export interface StationData {
@@ -29,6 +29,11 @@ export interface TimeseriesMap {
   [key: string]: TimeseriesData[];
 }
 
+export interface SelectedData {
+  parameter: ParameterData | undefined;
+  poiFeature: any | undefined;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,6 +44,17 @@ export class RealTimeDataService {
   lineChartOptions = {series: [{name:''}]};
 
   customFontFamily!:any; 
+
+  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined});
+
+  lineColor:string[] = [
+    'red',
+    'green',
+    'yellow',
+    'blue',
+    'purple',
+    'amber',
+  ]
 
   constructor(
     private http: HttpClient,
@@ -84,7 +100,6 @@ export class RealTimeDataService {
     }, {} as Record<string, Observable<any>>);
 
     return forkJoin(requests);
-    //return this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/331/${parameter.id}`);
   }
 
   setLineChartOptions(parameter:ParameterData, series:any[], datesArray:string[]) {
@@ -183,9 +198,9 @@ export class RealTimeDataService {
         }
       },
       legend: {
-        type: "scroll",
-        bottom: 0,
-        data: []
+        type: "plain",
+        orient: "horizontal",
+        bottom: 0
       },
       xAxis: {
         name: 'Zeit',
@@ -241,20 +256,20 @@ export class RealTimeDataService {
   buildValuesArray(data:TimeseriesMap):any {
 
     var series:any[] = [];
+    var index = 0;
 
     Object.entries(data).forEach(([id, value]) => {
 
       series.push({
-        name: `Test`,
+        name: id,
         type: 'line',
         data: value.map(e => e.value),
         symbolSize: 6,
         symbol: "emptyCircle",
         lineStyle: {
           normal: {
-            color: 'gray',
+            color: this.lineColor[index],
             width: 2,
-            type: 'dashed'
           }
         },
         itemStyle: {
@@ -264,6 +279,8 @@ export class RealTimeDataService {
           }
         }
       });
+
+      index++;
     });  
 
     return series;
