@@ -1,0 +1,20 @@
+:host {
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  bottom: 0;
+  z-index: 1200;
+
+  .toast {
+    opacity: 1;
+    margin: 10px;
+    position: relative;
+
+    .btn-close {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+  }
+}

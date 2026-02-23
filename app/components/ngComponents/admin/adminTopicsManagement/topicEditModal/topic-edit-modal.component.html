@@ -34,17 +34,22 @@
 
     <div class="row vertical-align">
       <div class="col-md-5">
-        <label>Name des Eintrags*</label>
+        <label for="topic-name-input">Name des Eintrags*</label>
         <input
+          id="topic-name-input"
           style="width: 100%"
           class="form-control"
           type="text"
           placeholder="Titel des Eintrags"
           formControlName="name"
           required
+          [attr.aria-invalid]="topicForm.get('name')?.invalid && topicForm.get('name')?.touched"
+          [attr.aria-describedby]="topicForm.get('name')?.invalid && topicForm.get('name')?.touched ? 'name-error' : null"
         />
         <div
+          id="name-error"
           class="help-block with-errors"
+          role="alert"
           *ngIf="
             topicForm.get('name')?.invalid && topicForm.get('name')?.touched
           "
@@ -53,17 +58,22 @@
         </div>
       </div>
       <div class="col-md-7">
-        <label>Beschreibung des Eintrags*</label>
+        <label for="topic-description-input">Beschreibung des Eintrags*</label>
         <textarea
+          id="topic-description-input"
           style="width: 100%"
           rows="5"
           class="form-control"
           placeholder="Beschreibung des Eintrags"
           formControlName="description"
           required
+          [attr.aria-invalid]="topicForm.get('description')?.invalid && topicForm.get('description')?.touched"
+          [attr.aria-describedby]="topicForm.get('description')?.invalid && topicForm.get('description')?.touched ? 'description-error' : null"
         ></textarea>
         <div
+          id="description-error"
           class="help-block with-errors"
+          role="alert"
           *ngIf="
             topicForm.get('description')?.invalid &&
             topicForm.get('description')?.touched
@@ -98,12 +108,15 @@
   *ngIf="successMessage"
   class="alert alert-success alert-dismissable"
   style="position: absolute; bottom: 0px; width: 100%"
+  role="alert"
+  aria-live="polite"
+  aria-atomic="true"
 >
   <button
     type="button"
     class="close"
     (click)="hideSuccessAlert()"
-    aria-hidden="true"
+    aria-label="Erfolgsmeldung schließen"
   >
     &times;
   </button>
@@ -116,12 +129,15 @@
   *ngIf="errorMessage"
   class="alert alert-danger alert-dismissable"
   style="position: absolute; bottom: 0px; width: 100%"
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
 >
   <button
     type="button"
     class="close"
     (click)="hideErrorAlert()"
-    aria-hidden="true"
+    aria-label="Fehlermeldung schließen"
   >
     &times;
   </button>

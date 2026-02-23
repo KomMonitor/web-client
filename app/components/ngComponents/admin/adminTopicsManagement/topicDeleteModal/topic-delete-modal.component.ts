@@ -1,36 +1,41 @@
-import { Component, OnInit, OnDestroy, Input, Inject } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 import { Topic } from "../admin-topics-management.component";
 import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
 import { CommonModule } from "@angular/common";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { finalize } from "rxjs/operators";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: "topic-delete-modal",
   templateUrl: "./topic-delete-modal.component.html",
   styleUrls: ["./topic-delete-modal.component.css"],
   imports: [CommonModule],
-  standalone: true
+  standalone: true,
 })
 export class TopicDeleteModalComponent implements OnInit {
-  @Input() currentTopic!: Topic;
-  topicToDeletePrettyPrint: string = "";
+  @Input() currentTopic?: Topic;
+  topicToDeletePrettyPrint: SafeHtml | string = "";
   loadingData = false;
-  errorMessagePart: string = "";
+  errorMessagePart: SafeHtml | string = "";
   successMessage: string = "";
 
   constructor(
     public activeModal: NgbActiveModal,
     private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
-    private srvc: AdminTopicsManagementService
+    private srvc: AdminTopicsManagementService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit() {
     if (this.currentTopic) {
+      const html = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+        this.currentTopic,
+      );
       this.topicToDeletePrettyPrint =
-        this.kommonitorDataExchangeService.syntaxHighlightJSON(
-          this.currentTopic
-        );
+        this.sanitizer.bypassSecurityTrustHtml(html);
       this.resetTopicDeleteForm();
     }
   }
@@ -41,28 +46,35 @@ export class TopicDeleteModalComponent implements OnInit {
   }
 
   deleteTopic() {
-    const topicId = this.currentTopic.topicId;
+    const topicId = this.currentTopic?.topicId;
     if (!topicId) {
       return;
     }
     this.loadingData = true;
 
-    this.srvc.deleteTopic(topicId).subscribe({
-      next: async () => {
-        this.loadingData = false;
-        this.successMessage = "success";
-        // Close modal after a short delay to show success message
-        setTimeout(() => {
-          this.activeModal.close({ action: "deleted" });
-        }, 1500);
-      },
-      error: (error) => {
-        this.errorMessagePart = error.data
-          ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data)
-          : this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        this.loadingData = false;
-      },
-    });
+    this.srvc
+      .deleteTopic(topicId)
+      .pipe(
+        takeUntilDestroyed(),
+        finalize(() => {
+          this.loadingData = false;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = "success";
+          // Close modal after a short delay to show success message
+          setTimeout(() => {
+            this.activeModal.close({ action: "deleted" });
+          }, 1500);
+        },
+        error: (error: any) => {
+          const html = error.data
+            ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data)
+            : this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.sanitizer.bypassSecurityTrustHtml(html);
+        },
+      });
   }
 
   hideSuccessAlert() {

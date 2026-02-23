@@ -13,6 +13,7 @@ import { AdminTopicsManagementComponent } from "./adminTopicsManagement/admin-to
 import { CommonModule } from "@angular/common";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { UserLoginComponent } from "../userInterface/userLogin/user-login.component";
+import { NotificationComponent } from "../common/notification/notification.component";
 
 @Component({
   selector: "app-admin",
@@ -31,6 +32,7 @@ import { UserLoginComponent } from "../userInterface/userLogin/user-login.compon
     CommonModule,
     NgbNavModule,
     UserLoginComponent,
+    NotificationComponent,
   ],
   standalone: true,
 })
