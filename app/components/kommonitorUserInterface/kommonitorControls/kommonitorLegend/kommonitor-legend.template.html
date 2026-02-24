@@ -150,7 +150,7 @@
 							 <!-- only show, if spatial units are not completely removed from dataset -->
 							<div ng-if="(! $ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && ($ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied)">
 								<div class="row" style="margin-right: 0px;">
-									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForSpatiallyFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">durch r&auml;umlichen Filter ausgeblendete Raumeinheiten</div>
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</div><br>
 								</div>				

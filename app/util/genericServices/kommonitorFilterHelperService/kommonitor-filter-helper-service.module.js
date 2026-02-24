@@ -55,6 +55,10 @@ angular
         return this.filteredIndicatorFeatureIds.has("" + featureId);
       };
 
+      this.featureIsCurrentlySpatiallyFiltered = function(featureId){
+        return this.filteredIndicatorFeatureIds_spatialFilter.has("" + featureId);
+      };
+
       this.clearFilteredFeatures = function(){
         this.filteredIndicatorFeatureIds = new Map();
         this.filteredIndicatorFeatureIds_spatialFilter = new Map();
