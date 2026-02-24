@@ -159,7 +159,7 @@
 							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && (! $ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied)">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
-									<div class="col-md-6">durch Filter ausgeblendete Raumeinheiten</div>
+									<div class="col-md-6">durch Wertebereichsfilter ausgeblendete Raumeinheiten</div>
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size}}</div><br>
 								</div>				
 							</div>
@@ -169,7 +169,7 @@
 							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && ($ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size > 0) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size - $ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size ) > 0">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
-									<div class="col-md-6">durch Filter ausgeblendete Raumeinheiten</div>
+									<div class="col-md-6">durch Wertebereichsfilter ausgeblendete Raumeinheiten</div>
 									<!-- only display the subtract of filtered features minus spatially filtered features -->
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size - $ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</div><br>
 								</div>				

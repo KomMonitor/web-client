@@ -314,6 +314,8 @@
 									id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
 							<i class="fas fa-filter"></i>
 							<span ng-click="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
+							<br>
+							<span>ausgeblendete Raumeinheiten: {{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size - $ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</span>							
 							<i class="fas fa-close" ng-click="onRangeFilterCloseButtonClick()" title="Filter entfernen"></i>
 						</div>
 					</div>
