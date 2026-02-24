@@ -54,7 +54,7 @@ export class RealTimeDataService {
     'blue',
     'purple',
     'amber',
-  ]
+  ];
 
   constructor(
     private http: HttpClient,
@@ -237,6 +237,20 @@ export class RealTimeDataService {
     
     // use configuration item and data specified to show chart
     this.lineChartOptions = lineOption;
+  }
+
+  buildRangeSliderValues(data: TimeseriesMap):Date[] {
+
+    let dates:Date[] = [];
+
+    Object.entries(data).forEach(([id, value]) => {
+      value.forEach(e => {
+        if(!dates.includes(e.timestamp))
+          dates.push(e.timestamp);
+      })
+    });
+    
+    return dates;
   }
 
   buildDatesArray(data:TimeseriesMap):string[] {

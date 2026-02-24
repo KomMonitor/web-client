@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { ParameterData, RealTimeDataService, StationData, TimeseriesData, TimeseriesMap } from 'services/real-time-data-service/real-time-data.service';
+import { ParameterData, RealTimeDataService, TimeseriesMap } from 'services/real-time-data-service/real-time-data.service';
 import * as echarts from 'echarts';
+import * as noUiSlider from 'nouislider';
+import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
+
 
 export interface InputData {
   parameter: ParameterData;
@@ -12,14 +15,15 @@ export interface InputData {
 @Component({
   selector: 'app-rtd-diagrams',
   templateUrl: './rtd-diagrams.component.html',
-  styleUrls: ['./rtd-diagrams.component.css'],
+  styleUrls: ['./rtd-diagrams.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
-    ExpandableBoxComponent
+    ExpandableBoxComponent,
+    CustomSliderComponent
   ]
 })
-export class RtdDiagramsComponent implements OnInit {
+export class RtdDiagramsComponent implements OnInit, AfterViewInit {
 
   loadingData:boolean = false;
 
@@ -30,6 +34,11 @@ export class RtdDiagramsComponent implements OnInit {
 
   parameter!:ParameterData;
 
+  DisplayMode = DisplayType;  
+  SliderType = SliderType;
+  sliderMarker:any[] = [];
+  sliderData:any[] = [];
+
   constructor(
     private rtdService: RealTimeDataService
   ) {}
@@ -38,14 +47,31 @@ export class RtdDiagramsComponent implements OnInit {
     // listen to changed rtd selected data
     this.rtdService.selectedData$.subscribe(value => {
       if(value.parameter) {
+        this.loadingData = true;
         this.parameter = value.parameter;
         this.lineTitle = `${this.parameter.name} [${this.parameter.unit}]`;   
       
         this.rtdService.getTimeseries(value.parameter).subscribe(
-          result => this.buildLineChart(result)
+          result => {
+            this.buildLineChart(result);
+
+            var timestamps = this.rtdService.buildRangeSliderValues(result);
+            this.sliderData = timestamps;
+            this.sliderMarker = [timestamps[0], timestamps[timestamps.length-1]];
+
+            this.loadingData = false;
+          }
         )
       }
     });
+  }
+
+  onSliderChange(value: number | number[]) {
+    console.log(value);
+  }
+
+  ngAfterViewInit(): void {
+   
   }
 
   buildLineChart(data:TimeseriesMap) {

@@ -1,0 +1,14 @@
+:host {
+  height: 70px;
+  display: block;
+  padding-top: 3em;
+  margin: 0 3em 2em 3em;
+
+  font-size: 12px;
+}
+
+::ng-deep {
+  .noUi-horizontal .noUi-handle {
+    right: -10px !important; 
+  }
+}
