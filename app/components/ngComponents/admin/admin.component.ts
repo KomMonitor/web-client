@@ -14,6 +14,7 @@ import { CommonModule } from "@angular/common";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 import { UserLoginComponent } from "../userInterface/userLogin/user-login.component";
 import { NotificationComponent } from "../common/notification/notification.component";
+import { AdminScriptExecutionComponent } from "./adminScriptExecution/admin-script-execution.component";
 
 @Component({
   selector: "app-admin",
@@ -29,6 +30,7 @@ import { NotificationComponent } from "../common/notification/notification.compo
     AdminRoleExplanationComponent,
     AdminSpatialUnitsManagementComponent,
     AdminTopicsManagementComponent,
+    AdminScriptExecutionComponent,
     CommonModule,
     NgbNavModule,
     UserLoginComponent,
