@@ -8,7 +8,7 @@ export class BroadcastService {
 
   constructor() { }
 
-  broadcastMsg = new BehaviorSubject({msg: '', values: {}});
+  broadcastMsg = new BehaviorSubject<any>({msg: '', values: undefined});
 
   currentBroadcastMsg = this.broadcastMsg.asObservable();
 
