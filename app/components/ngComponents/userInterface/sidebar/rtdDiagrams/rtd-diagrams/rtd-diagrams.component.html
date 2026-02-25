@@ -11,9 +11,23 @@
     </div>
   </expandable-box>
   <expandable-box [title]="lineTitle" [collapsed]="false" [borderColor]="'green'">
-    <div class="chart">
-      <custom-slider *ngIf="!loadingData" [data]="sliderData" [type]="SliderType.RANGE" [markerPositions]="sliderMarker" [displayMode]="DisplayMode.DATE" (valueChange)="onSliderChange($event)"></custom-slider>
 
+    <div style="text-align: center">
+      <label>
+        <b>Darstellungsform</b>
+        <select [(ngModel)]="displayFormat" (change)="onChangeDisplayFormat()" class="form-control">
+          <option [value]="displayFormatOptions.STD">Standard</option>
+          <option [value]="displayFormatOptions.AVG">Durchschnitt</option>
+          <option [value]="displayFormatOptions.MIN">Minimum</option>
+          <option [value]="displayFormatOptions.MAX">Maximum</option>
+          <option [value]="displayFormatOptions.SUM">Summe</option>
+        </select>
+      </label>
+    </div>
+
+    <custom-slider *ngIf="!loadingData" [data]="sliderData" [type]="SliderType.RANGE" [markerPositions]="sliderMarker" [displayMode]="DisplayMode.DATE" (valueChange)="onSliderChange($event)"></custom-slider>
+    
+    <div class="chart">
       <div id="rtdLineDiagram" style="width:100%; min-height:40vh;"></div>
     </div>  
   </expandable-box>

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { DisplayFormat } from 'components/ngComponents/userInterface/sidebar/rtdDiagrams/rtd-diagrams/rtd-diagrams.component';
 import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
@@ -32,6 +33,7 @@ export interface TimeseriesMap {
 export interface SelectedData {
   parameter: ParameterData | undefined;
   poiFeature: any | undefined;
+  displayFormat: DisplayFormat;
 }
 
 @Injectable({
@@ -45,7 +47,7 @@ export class RealTimeDataService {
 
   customFontFamily!:any; 
 
-  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined});
+  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined, displayFormat: DisplayFormat.STD});
 
   lineColor:string[] = [
     'red',

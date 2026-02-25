@@ -1,15 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { ParameterData, RealTimeDataService, TimeseriesMap } from 'services/real-time-data-service/real-time-data.service';
 import * as echarts from 'echarts';
-import * as noUiSlider from 'nouislider';
 import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
+import { FormsModule } from '@angular/forms';
 
 
 export interface InputData {
   parameter: ParameterData;
   poiFeature: any;
+}
+
+export enum DisplayFormat {
+  STD = 'std',
+  AVG = 'avg',
+  MIN = 'min',
+  MAX = 'max',
+  SUM = 'sum'
 }
 
 @Component({
@@ -20,10 +28,11 @@ export interface InputData {
   imports: [
     CommonModule,
     ExpandableBoxComponent,
-    CustomSliderComponent
+    CustomSliderComponent,
+    FormsModule
   ]
 })
-export class RtdDiagramsComponent implements OnInit, AfterViewInit {
+export class RtdDiagramsComponent implements OnInit {
 
   loadingData:boolean = false;
 
@@ -31,6 +40,9 @@ export class RtdDiagramsComponent implements OnInit, AfterViewInit {
 
   lineChart!:any;
   lineOption!:any;
+
+  displayFormat: DisplayFormat = DisplayFormat.STD;
+  displayFormatOptions = DisplayFormat;
 
   parameter!:ParameterData;
 
@@ -46,6 +58,7 @@ export class RtdDiagramsComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     // listen to changed rtd selected data
     this.rtdService.selectedData$.subscribe(value => {
+
       if(value.parameter) {
         this.loadingData = true;
         this.parameter = value.parameter;
@@ -66,12 +79,12 @@ export class RtdDiagramsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSliderChange(value: number | number[]) {
-    console.log(value);
+  onChangeDisplayFormat() {
+    this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), displayFormat: this.displayFormat});
   }
 
-  ngAfterViewInit(): void {
-   
+  onSliderChange(value: number | number[]) {
+    console.log(value);
   }
 
   buildLineChart(data:TimeseriesMap) {
