@@ -3304,7 +3304,7 @@ angular
                                 html += '<div class="box box-danger collapsed-box" style="width:200px;"><div class="box-header"><span class="box-title" style="font-size:12px">';
                                 //html += error.type;
                                 html += getErrorTypeShortDescription(error);
-                                html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool jobError" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
+                                html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool jobError" data-widget="collapse"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
                                 html += getErrorTypeLongDescription(error);
                                 //html += "</br></br>"
                                 //html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
@@ -3400,9 +3400,11 @@ angular
                   suppressColumnVirtualisation: true,          
                   onFirstDataRendered: function () {
                     headerHeightSetter(self.dataGridOptions_processJobs);
+                    self.registerClickHandler_jobOverviewErrorBoxes();   
                   },
                   onColumnResized: function () {
-                    headerHeightSetter(self.dataGridOptions_processJobs);                    
+                    headerHeightSetter(self.dataGridOptions_processJobs); 
+                    self.registerClickHandler_jobOverviewErrorBoxes();                      
                   },
                   onViewportChanged: function () {   
                     self.registerClickHandler_jobOverviewErrorBoxes();    
