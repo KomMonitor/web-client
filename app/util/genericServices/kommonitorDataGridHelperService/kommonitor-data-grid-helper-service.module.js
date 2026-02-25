@@ -2421,7 +2421,14 @@ angular
 
                 let html = "";
 
-                html += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+                let targetIndicatorId = kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+                if(targetIndicatorId){
+                  html += targetIndicatorId;
+                }
+                else{
+                  // display text in red if indicator name cannot be retrieved - this is the case if the target indicator has been deleted after the script execution has been triggered and before the script execution is completed and the script overview table is updated with the new job id of the triggered script execution
+                  html += "<p style='color:red;'>Zielindikator könnte gelöscht worden sein - Id laut Skript: " + params.data.inputs.target_indicator_id + "</p>";
+                }
 
                 html += "<br> <br>"
                   + "<button class='btn-sm executeScriptBtn' id='btnExecuteScript_" + params.data.scheduleID +"'";
@@ -2490,12 +2497,23 @@ angular
             [
               { headerName: 'Methodik', minWidth: 300, cellRenderer: function (params) {
 
+                if(kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id)){
                   return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                }
+                else{
+                  // display text in red if indicator name cannot be retrieved - this is the case if the target indicator has been deleted after the script execution has been triggered and before the script execution is completed and the script overview table is updated with the new job id of the triggered script execution
+                  return "<p style='color:red;'>Keine Methodik-Informationen verfügbar - Zielindikator könnte gelöscht worden sein</p>";
+                }
                 
                 },
                 filter: 'agTextColumnFilter', 
                 filterValueGetter: (params) => {
-                  return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                  if(kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id)){
+                    return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                  }
+                  else{
+                    return "Keine Methodik-Informationen verfügbar - Zielindikator könnte gelöscht worden sein";
+                  } 
                 } 
               },
             ]);
