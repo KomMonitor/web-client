@@ -10,9 +10,8 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 			$('.box').boxWidget();
 
 			$scope.tmpIndicatorSelection = undefined;
-
 			$scope.compIndicatorSelection = undefined;
-
+			$scope.georesourceSelection = undefined;
 			$scope.baseIndicators = [];
 
 			$scope.inputData = {}
@@ -64,6 +63,26 @@ angular.module('genericScriptUi').component('genericScriptUi', {
 				$scope.compIndicatorSelection = undefined;
 				$scope.refIndicatorSelection = undefined;
 				$scope.baseIndicators = [];
+				$scope.georesourceSelection = undefined;
+				$scope.inputData = {}
+				$scope.legendValues = {};
+				$scope.compFilterData = {
+					operator: null,
+					operatorOptions: null,
+					propertySchema: {},
+					propertyOptions: [],
+					propertyName: null,
+					propertyValueOptions: null,
+					propertyValue: null,
+				};
+				$scope.numericPropertyOptions = undefined;
+				$scope.compPropSelection = {
+					numericPropertyName: null
+				};
+				$scope.refDateSelection = {
+					referenceDate: null
+				};
+				$scope.resetComputationFormulaAndLegend();
 			});
 
 			$scope.init = function(){
