@@ -1117,6 +1117,9 @@ angular
 
           this.fetchAllMetadata = async function(filter){
             console.log("fetching all metadata from management component");
+
+            window.__env.targetUrlToProcessesApi = "http://localhost:8099/";
+            __env.targetUrlToProcessesApi = "http://localhost:8099/";
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
             var metadataPromises = [];
@@ -2692,7 +2695,7 @@ angular
                      width = cellWidth;
                    }
 
-                   jspdf.addImage(imgData, "PNG", data.cell.x,  data.cell.y, width, cellHeight);
+                   jspdf.addImage(imgData, "PNG", data.cell.x + cellWidth * 10/100,  data.cell.y + cellHeight * 5/100, width, cellHeight);
                 }
               }
             });

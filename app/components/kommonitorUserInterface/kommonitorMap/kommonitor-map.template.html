@@ -12,7 +12,8 @@
   </div>
 
   <div style="max-width: 50%; z-index: 1; position: absolute;">
-    <p id="indicatorProcessDescription" mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></p>
+    <!-- ensure white background color as this container is used to make a screenshot for indicator metadata export -->
+    <p id="indicatorProcessDescription" style="background-color: white;" mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></p>
   </div>
 
   <div id="map" style="z-index: 2;" ng-init="$ctrl.initializeMap()"></div>
