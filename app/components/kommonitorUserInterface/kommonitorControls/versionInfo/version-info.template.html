@@ -1,4 +1,65 @@
 <div id="versionInfo">
+		<!-- version info  -->
+	<div id="" class="box box-primary collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Neuerungen in KomMonitor V5.0.0</h3>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			Version 5 von KomMonitor f&uuml;hrt eine neue Methodik für die automatisierte Fortf&uuml;hrung/Berechnung von Indikatoren aus Georessourcen oder anderen (Sub-)Indikatoren ein.
+			Diese Methodik basiert auf einer neuen Komponente, der KomMonitor Processes API, die den OGC API - Processes Standard implementiert und in Kombination mit Prefect eine verbesserte
+			Scheduling Mechanik erm&ouml;glicht. Die bisherigen Komponenten (Processing Engine und Processing Scheduler) werden damit ersetzt.
+			
+			<br><br>
+			Im Detail sind folgende Aspekte als wesentliche &Auml;nderungen zu beachten:
+
+			<ul>
+				<li>
+					Anpassungen in der <b>Skriptverwaltung</b>
+					<ul>
+						<li>
+							<b>Dynamische Prozessbeschreibungen:</b></br>
+							Prozessbeschreibungen werden dynamisch aus den verf&uuml;gbaren Skripten der KomMonitor Processes API generiert.
+
+						</li>
+						<li>
+							<b>Auswahl von Raumebenen:</b></br>
+							Bei der Erstellung eines Skripts k&ouml;nnen nun die Raumebenen explizit ausgew&auml;hlt werden, auf die sich die Berechnung beziehen soll.
+							Es ist auch m&ouml;glich, mehrere Raumebenen auszuw&auml;hlen.
+						</li>
+						<li>
+							<b>Indikatoren-spezifische Ausf&uuml;hrungsintervalle:</b></br>
+							Ausf&uuml;hrungsintervalle k&ouml;nnen nun für jeden Indikator separat festgelegt werden. Dadurch ist es m&ouml;glich, die Berechnungsh&auml;ufigkeit 
+							von Indikatoren zu passend einzustellen.
+						</li>
+
+						<li>
+							<b>Individuelle Zielzeitpunkte:</b></br>
+							F&uuml;r die Ausf&uuml;hrung von Skripten stehen unterschiedliche Methodiken zur Auswahl, um festzulegen, welche Zielzeitpunkte für Indikatoren berechnet werden sollen. 
+						</li>
+
+						<li>
+							<b>On-Demand Skriptausf&uuml;hrung:</b></br>
+							Indikatorenskripte k&ouml;nnen nun auch manuell angesto&szlig;en werden. Dadurch ist es m&ouml;glich, die Berechnung von Indikatoren auch spontan und nicht nur nach 
+							einem festgelegten Zeitplan durchzuf&uuml;hren.
+
+						</li>
+						<li>
+							<b>Detaillierte Jobzusammenfassung:</b></br>
+							Die Ergebnisse der Skriptausf&uuml;hrung werden in einer detaillierten Jobzusammenfassung dargestellt, die Informationen zu berechneten Indikatoren, Zielzeitpunkten, 
+							Fehlermeldungen und weiteren Aspekten enth&auml;lt.
+
+						</li>
+					</ul>
+				</li>
+			</ul>
+
+		</div>
+	</div>
 	<!-- version info  -->
 	<div id="" class="box box-primary collapsed-box">
 		<div class="box-header with-border">
