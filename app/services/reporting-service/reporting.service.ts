@@ -3205,6 +3205,10 @@ export class ReportingService {
     return this._reportingData$.value.sections;
   }
 
+  getAreaSpecificPageClone(pageIndex:number):any {
+    return structuredClone(this.availableTemplates[this._reportingData$.value.selectedTemplateId].pages[pageIndex]);
+  }
+
   // Format: YYYY-MM-DD
   getCurrentDate() {
     let now = new Date();

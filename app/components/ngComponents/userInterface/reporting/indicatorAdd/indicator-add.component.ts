@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { fromJson, toJson } from 'angular';
@@ -512,7 +513,7 @@ export class IndicatorAddComponent implements OnInit {
     // to make things easier we remove all area-specific pages and recreate them using newVal
     // this approach is not optimized for performance and might have to change in the future
 
-    // remove all area-specific pages
+    // remove all area-specific pages hier
      this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter( page => {
       return !page.hasOwnProperty("area")
     });
@@ -583,17 +584,15 @@ export class IndicatorAddComponent implements OnInit {
    
     let pagesToInsertPerTimestamp:any[] = [];
     for(let area of newVal) {
+      const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
+      landscapePageToInsert.area = area.name;
+      landscapePageToInsert.id = this.templatePageIdCounter++;
+      pagesToInsertPerTimestamp.push(landscapePageToInsert);
 
-      // get page to insert from untouched template
-      /* let landscapePage:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage];
-      landscapePage.area = area.name;
-      landscapePage.id = this.templatePageIdCounter++;
-      pagesToInsertPerTimestamp.push(landscapePage);
-
-      let portraitPage:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage + 1];
-      portraitPage.area = area.name;
-      portraitPage.id = this.templatePageIdCounter++;
-      pagesToInsertPerTimestamp.push(portraitPage); */
+      const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage + 1);
+      portraitPageToInsert.area = area.name;
+      portraitPageToInsert.id = this.templatePageIdCounter++;
+      pagesToInsertPerTimestamp.push(portraitPageToInsert);
     }
 
     // sort alphabetically by area name
@@ -675,16 +674,15 @@ export class IndicatorAddComponent implements OnInit {
   updateAreasForTimeseriesTemplates(newVal) {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
-      // get pages to insert from untouched template
-      /* let landscapePageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage ];
+      const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(landscapePageToInsert);
 
-      let portraitPageToInsert:any = JSON.parse(this.data.reportingConfig.backupTemplate).pages[ this.indexOfFirstAreaSpecificPage + 1 ];
+      const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage+1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
-      pagesToInsert.push(portraitPageToInsert); */
+      pagesToInsert.push(portraitPageToInsert);
     }
 
     // sort alphabetically by area name
@@ -732,12 +730,12 @@ export class IndicatorAddComponent implements OnInit {
     let pagesToInsert:any[] = [];
     for(let area of newVal) {
       // get pages to insert from untouched template
-      const landscapePageToInsert:any = structuredClone(this.reportingService.clonedTemplate.pages[ this.indexOfFirstAreaSpecificPage ]);
+      const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(landscapePageToInsert);
 
-      const portraitPageToInsert:any = structuredClone(this.reportingService.clonedTemplate.pages[ this.indexOfFirstAreaSpecificPage + 1 ]);
+      const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage+1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
       pagesToInsert.push(portraitPageToInsert);
@@ -1775,64 +1773,64 @@ export class IndicatorAddComponent implements OnInit {
     }
   }
 
-  handleIndicatorSelectForReachability(indicator) {
+  async handleIndicatorSelectForReachability(indicator) {
     this.selectedIndicator = indicator;
     let indicatorId = this.selectedIndicator.indicatorId;
-    let featureCollection:any = this.queryFeatures(indicatorId, this.selectedSpatialUnit).subscribe({
-      next: (response:any) => {
-          this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel] = response.features
-          let allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel]
-          this.updateAreasDualList(allAreas, undefined ) // don't select any areas
-      }
-    });
+    let featureCollection:any = await firstValueFrom(this.queryFeatures(indicatorId, this.selectedSpatialUnit));
+   
+    this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel] = featureCollection.features;
+    let allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
+    this.updateAreasDualList(allAreas, allAreas ) // don't select any areas
     
+    if(!this.selectedSpatialUnit.spatialUnitName) {
+      // set the applicable spatial unit from the indicator as selected spatial unit
+      let filter = this.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
+        return spatialUnit.spatialUnitName === this.selectedSpatialUnit.spatialUnitLevel;
+      })
+      if(filter && filter.length) {
+        this.selectedSpatialUnit = filter[0];
+      }
+    }
+
+    this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
+    this.selectedIndicator.geoJSON = featureCollection;
+    this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(this.selectedIndicator.geoJSON.features);
+    if(this.selectedIndicator.geoJSON.features[0] && !this.selectedIndicator.geoJSON.features[0].properties.bbox){
+      for(let feature of this.selectedIndicator.geoJSON.features) {
+        let bbox = turf.bbox(feature); // calculate bbox for each feature
+        feature.properties.bbox = bbox;
+      }
+    }
+    
+    for(let page of this.reportingService.clonedTemplate.pages) {
+      for(let pageElement of page.pageElements) {
+        if(pageElement.type === "map") {
+          let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.clonedTemplate.pages.indexOf(page) + "-map")
+          let map:any = echarts.getInstanceByDom(domNode)
+          let options:any = map.getOption();
+          let seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
+          options.series[0] = seriesOptions;
+          options.series[0].label.formatter = '{b}\n{c}';
+          map.setOption(options, {
+            replaceMerge: ['series']
+          });
+        }
+
+        if(pageElement.type.includes("reachability-subtitle-")) {
+          pageElement.text = this.selectedTimestamps[0].name;
+          if(this.isochrones) {
+            pageElement.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
+          }
+          pageElement.text += ", " + indicator.indicatorName;
+          pageElement.isPlaceholder = false;
+        }
+      }
+    }
+
     setTimeout(() => {
-      if(!this.selectedSpatialUnit.spatialUnitName) {
-        // set the applicable spatial unit from the indicator as selected spatial unit
-        let filter = this.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
-          return spatialUnit.spatialUnitName === this.selectedSpatialUnit.spatialUnitLevel;
-        })
-        if(filter && filter.length) {
-          this.selectedSpatialUnit = filter[0];
-        }
-      }
-
-      this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
-      this.selectedIndicator.geoJSON = featureCollection;
-      this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(this.selectedIndicator.geoJSON.features);
-      if(this.selectedIndicator.geoJSON.features[0] && !this.selectedIndicator.geoJSON.features[0].properties.bbox){
-        for(let feature of this.selectedIndicator.geoJSON.features) {
-          let bbox = turf.bbox(feature); // calculate bbox for each feature
-          feature.properties.bbox = bbox;
-        }
-      }
-      
-      for(let page of this.reportingService.clonedTemplate.pages) {
-        for(let pageElement of page.pageElements) {
-          if(pageElement.type === "map") {
-            let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.clonedTemplate.pages.indexOf(page) + "-map")
-            let map:any = echarts.getInstanceByDom(domNode)
-            let options:any = map.getOption();
-            let seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
-            options.series[0] = seriesOptions;
-            options.series[0].label.formatter = '{b}\n{c}';
-            map.setOption(options, {
-              replaceMerge: ['series']
-            });
-          }
-
-          if(pageElement.type.includes("reachability-subtitle-")) {
-            pageElement.text = this.selectedTimestamps[0].name;
-            if(this.isochrones) {
-              pageElement.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
-            }
-            pageElement.text += ", " + indicator.indicatorName;
-            pageElement.isPlaceholder = false;
-          }
-        }
-      }
       this.loadingData = false;
-    },1000);
+    },3000);
+
   }
 
   async onIndicatorSelected() {
@@ -1842,7 +1840,7 @@ export class IndicatorAddComponent implements OnInit {
     try {
       this.loadingData = true;
       if(this.reportingService.clonedTemplate.name.includes("reachability")) {
-        this.handleIndicatorSelectForReachability(indicator);
+        await this.handleIndicatorSelectForReachability(indicator);
         return;
       }
 
@@ -2066,7 +2064,7 @@ export class IndicatorAddComponent implements OnInit {
     let templateSection = {
       indicatorName: this.selectedIndicator ? this.selectedIndicator.indicatorName : "",
       indicatorId: this.selectedIndicator ? this.selectedIndicator.indicatorId : "",
-      poiLayerName: this.selectedPoiLayer.datasetName,
+      poiLayerName: this.selectedPoiLayer ? this.selectedPoiLayer.datasetName : "",
       spatialUnitName: this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
       absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
       echartsRegisteredMapNames: this.reportingService.clonedTemplate.echartsRegisteredMapNames,
