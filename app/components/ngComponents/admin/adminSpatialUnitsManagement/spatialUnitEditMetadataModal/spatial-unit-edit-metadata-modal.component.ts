@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
 // declare var $: any;
 
 @Component({
-  selector: 'spatial-unit-edit-metadata-modal-new',
+  selector: 'spatial-unit-edit-metadata-modal',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
   styleUrls: ['./spatial-unit-edit-metadata-modal.component.css'],
   providers: [],

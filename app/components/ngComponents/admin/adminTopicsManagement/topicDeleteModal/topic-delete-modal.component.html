@@ -1,8 +1,11 @@
 <div class="modal-header">
-  <button type="button" class="close" aria-label="Close" (click)="close()">
-    <span aria-hidden="true">&times;</span>
-  </button>
   <h4 class="modal-title">Themeneintrag löschen</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="close()"
+  ></button>
 </div>
 
 <div class="modal-body">
@@ -13,28 +16,69 @@
   </div>
 
   <h4><b>Soll folgender Themeneintrag wirklich gelöscht werden?</b></h4>
-  <p>Dabei werden auch sämtliche Unterthemen dauerhaft aus dem System entfernt.</p>
+  <p>
+    Dabei werden auch sämtliche Unterthemen dauerhaft aus dem System entfernt.
+  </p>
 
-  <pre id="deleteTopicPre" style="overflow:auto; max-height:500px;" [innerHTML]="topicToDeletePrettyPrint"></pre>
+  <pre
+    id="deleteTopicPre"
+    style="overflow: auto; max-height: 500px"
+    [innerHTML]="topicToDeletePrettyPrint"
+  ></pre>
 
-  <div *ngIf="successMessage" id="topicDeleteSuccessAlert" class="alert alert-success alert-dismissable" style="position: absolute; bottom: 0px; width: 100%;">
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-check"></i>Folgender Themeneintrag inkl. Unterthemen wurden erfolgreich gelöscht</h4>
-    <pre>{{currentTopic}}</pre>
+  <div
+    *ngIf="successMessage"
+    id="topicDeleteSuccessAlert"
+    class="alert alert-success alert-dismissable"
+    style="position: absolute; bottom: 0px; width: 100%"
+  >
+    <button
+      type="button"
+      class="close"
+      (click)="hideSuccessAlert()"
+      aria-hidden="true"
+    >
+      &times;
+    </button>
+    <h4>
+      <i class="icon fa fa-check"></i>Folgender Themeneintrag inkl. Unterthemen
+      wurden erfolgreich gelöscht
+    </h4>
+    <pre>{{ currentTopic }}</pre>
   </div>
 
-  <div *ngIf="errorMessagePart" id="topicDeleteErrorAlert" class="alert alert-danger alert-dismissable" style="position: absolute; bottom: 0px; width: 100%;">
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <div
+    *ngIf="errorMessagePart"
+    id="topicDeleteErrorAlert"
+    class="alert alert-danger alert-dismissable"
+    style="position: absolute; bottom: 0px; width: 100%"
+  >
+    <button
+      type="button"
+      class="close"
+      (click)="hideErrorAlert()"
+      aria-hidden="true"
+    >
+      &times;
+    </button>
     <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
     Beim Löschen des Themeneintrags ist ein Fehler aufgetreten. Fehlermeldung:
-    <br/>
+    <br />
     <pre [innerHTML]="errorMessagePart"></pre>
   </div>
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
-  <button type="button" class="btn btn-danger" (click)="deleteTopic()" [disabled]="!currentTopic">
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    Schließen
+  </button>
+  <div style="flex: 1"></div>
+  <button
+    type="button"
+    class="btn btn-danger"
+    (click)="deleteTopic()"
+    [disabled]="!currentTopic"
+  >
     Themeneintrag unwiderruflich löschen
   </button>
-</div> 
+</div>

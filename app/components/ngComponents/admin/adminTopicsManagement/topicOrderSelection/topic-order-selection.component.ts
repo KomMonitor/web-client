@@ -1,4 +1,10 @@
-import { Component, Input, OnInit } from "@angular/core";
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from "@angular/core";
 import {
   TopicOrderMode,
   TopicResourceType,
@@ -8,6 +14,9 @@ import {
   TopicOrderResponseEntry,
 } from "../admin-topics-management.service";
 import { FormsModule } from "@angular/forms";
+import { finalize, catchError, delay } from "rxjs/operators";
+import { throwError } from "rxjs";
+import { NotificationService } from "../../../common/notification/notification.service";
 
 @Component({
   selector: "topic-order-selection",
@@ -16,29 +25,61 @@ import { FormsModule } from "@angular/forms";
   imports: [FormsModule],
   standalone: true,
 })
-export class TopicOrderSelectionComponent implements OnInit {
+export class TopicOrderSelectionComponent implements OnInit, OnChanges {
   @Input({ required: true }) orderModes!: TopicOrderResponseEntry[];
   @Input({ required: true }) topicResourceType!: TopicResourceType;
 
-  selectedOption: TopicOrderMode | undefined;
+  readonly ALPHABETICAL: TopicOrderMode = "alphabetical" as TopicOrderMode;
+  readonly CUSTOM: TopicOrderMode = "custom" as TopicOrderMode;
 
-  constructor(private topicSrvc: AdminTopicsManagementService) {}
+  selectedOption: TopicOrderMode | undefined;
+  isBusy = false;
+
+  constructor(
+    private topicSrvc: AdminTopicsManagementService,
+    private notificationService: NotificationService,
+  ) {}
 
   ngOnInit() {
-    const match = this.orderModes.find(
-      (mode) => mode.topicResource === this.topicResourceType
-    );
-    if (match) {
-      this.selectedOption = match.orderMode;
+    this.syncSelectedOption();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["orderModes"] || changes["topicResourceType"]) {
+      this.syncSelectedOption();
     }
   }
 
+  private syncSelectedOption() {
+    if (!this.orderModes || !this.topicResourceType) return;
+    const match = this.orderModes.find(
+      (mode) => mode.topicResource === this.topicResourceType,
+    );
+    this.selectedOption = match?.orderMode;
+  }
+
   setOption(mode: TopicOrderMode) {
-    this.topicSrvc.setOrderMode(this.topicResourceType, mode).subscribe({
-      next: () => {},
-      error: (error) => {
-        console.error("Failed to set topic order mode:", error);
-      },
-    });
+    const previous = this.selectedOption;
+    this.selectedOption = mode;
+    this.isBusy = true;
+
+    this.topicSrvc
+      .setOrderMode(this.topicResourceType, mode)
+      .pipe(
+        delay(1500),
+        finalize(() => {
+          this.isBusy = false;
+        }),
+        catchError((err) => {
+          this.selectedOption = previous;
+          this.notificationService.showError("Failed to update topic order.");
+          return throwError(() => err);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          // success — nothing additional needed for now
+        },
+      });
   }
 }

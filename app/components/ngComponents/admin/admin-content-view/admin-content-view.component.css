@@ -1,0 +1,30 @@
+:host {
+  .view-header {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .title {
+      font-size: 24px;
+      color: #333;
+    }
+
+    .description {
+      font-size: 15px;
+      color: #777;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .view-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+    }
+  }
+}

@@ -13,7 +13,7 @@ declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'georesource-edit-user-roles-modal-new',
+  selector: 'georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
   styleUrls: ['./georesource-edit-user-roles-modal.component.css'],
   imports: [FormsModule, CommonModule, AgGridAngular],

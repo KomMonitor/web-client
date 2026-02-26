@@ -1,300 +1,221 @@
-<admin-sidebar></admin-sidebar>
-
-<!-- <div class="wrapper hold-transition skin-blue sidebar-mini"> -->
-<div class="wrapper" [hidden]="true">
-
-  <!-- Main Header -->
-  <header class="main-header">
-
-    <!-- Logo -->
-    <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><img src="logos/KM_Logo1.svg"></span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><img src="logos/KM_Logo1.svg"><b>KomMonitor</b></span>
+<div class="d-flex flex-column flex-shrink-0 sidebar">
+  <header class="sidebar-header">
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      href="http://kommonitor.de"
+      class="logo"
+    >
+      <!-- <span class="logo-mini"><img src="logos/KM_Logo1.svg" /></span> -->
+      <img src="logos/KM_Logo1.svg" />
+      <b>KomMonitor</b>
     </a>
-
-    <!-- Header Navbar -->
-    <nav class="navbar navbar-static-top kommonitor-theme" role="navigation">
-      <!-- Sidebar toggle button-->
-      <a href="" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
-      </a>
-
-      <!-- Language Switcher and Administration Exit Button Container -->
-      <div style="float: left; margin-top: 8px; display: flex; align-items: center; gap: 10px;">
-        <!-- Language Switcher -->
-        <!-- <admin-language-switcher></admin-language-switcher> -->
-        
-        <!-- Switch back to KomMonitor Main Application -->
-        <a href="#!/" class="btn btn-danger" (click)="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
-      </div>
-
-      <!-- TODO: handle redirection with global filter parameter -->
-      <!-- <a ng-href="/#!/?application={{$ctrl.kommonitorGlobalFilterHelperServiceInstance.applicationFilterId}}" class="btn btn-danger" style="margin-top:8px;" (click)="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a> -->
-
-      <!-- user profile information -->
-      <!-- <user-login-admin></user-login-admin> -->
-
-      <!-- Navbar Right Menu -->
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-
-
-        </ul>
-      </div>
-    </nav>
   </header>
-  <!-- Left side column. contains the logo and sidebar -->
-  <aside class="main-sidebar">
+  <div class="sidebar-subheader">Administration</div>
+  <div
+    ngbNav
+    #nav="ngbNav"
+    [(activeId)]="active"
+    class="nav-pills flex-column"
+    orientation="vertical"
+  >
+    <ng-container ngbNavItem="overview">
+      <button ngbNavLink>
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Übersicht</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-dashboard-management></admin-dashboard-management>
+      </ng-template>
+    </ng-container>
 
-    <!-- sidebar: style can be found in sidebar.less -->
-    <section class="sidebar">
-
-      <!-- Sidebar Menu -->
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">Administration</li>
-        <!-- Optionally, you can add icons to the links -->
-        <li id="adminDashboardNavItem" class="active" (click)="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li id="adminUsersNavItem" *ngIf="dataExchangeService.checkGroupsEditPermission()" (click)="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Gruppenverwaltung</span></a></li>
-        <li id="adminRoleExplanationNavItem" (click)="onClickOtherAdminPanel('adminRoleExplanationNavItem')"><a data-toggle="tab" data-target="#roleExplanationWrapper" href=""><i class="fa-solid fa-user-lock"></i> <span>Gruppen-/Rechtekonzept</span></a></li>        
-        <li id="adminTopicsNavItem" *ngIf="dataExchangeService.checkThemesEditPermission()" (click)="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
-        <li id="adminGeodataWrapperNavItem" *ngIf="dataExchangeService.checkResourcesEditPermission()" class="treeview">
-          <a data-toggle="tab" href="" (click)="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
-            <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-          </a>
-          <ul class="treeview-menu">
-            <li id="adminSpatialUnitsNavItem"><a data-toggle="tab" data-target="#spatialUnitsWrapper" (click)="onClickGeodataAdminPanel('adminSpatialUnitsNavItem')" href=""><i class="fas fa-layer-group"></i> <span>Raumebenen</span></a></li>
-            <li id="adminIndicatorsNavItem"><a data-toggle="tab" data-target="#indicatorsWrapper" (click)="onClickGeodataAdminPanel('adminIndicatorsNavItem')" href=""><i class="fas fa-sitemap"></i> <span>Indikatoren</span></a></li>
-            <li id="adminGeoresourcesNavItem"><a data-toggle="tab" data-target="#georesourcesWrapper" (click)="onClickGeodataAdminPanel('adminGeoresourcesNavItem')" href=""><i class="fas fa-map-marked-alt"></i> <span>Georessourcen</span></a></li>
-          </ul>
-        </li>
-        <li id="adminScriptsNavItem" *ngIf="dataExchangeService.checkResourcesEditPermission()" (click)="onClickOtherAdminPanel('adminScriptsNavItem')"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
-        <li id="adminScriptExecutionNavItem" *ngIf="dataExchangeService.checkResourcesEditPermission()" (click)="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li>
-        <li id="adminConfigWrapperNavItem" *ngIf="dataExchangeService.checkAdminPermission()" class="treeview">
-          <a data-toggle="tab" href="" (click)="onClickConfigWrapperItem()"><i class="fas fa-tools"></i> <span>Einstellungen</span>
-            <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-          </a>
-          <ul class="treeview-menu">
-            <li id="adminAppConfigNavItem"><a data-toggle="tab" data-target="#appConfigWrapper" (click)="onClickConfigAdminPanel('adminAppConfigNavItem')" href=""><i class="fas fa-cogs"></i> <span>Allgemeine Einstellungen</span></a></li>
-            <!-- hide keycloak settings screen as those config must not be changed by any user directly -->
-            <!-- <li id="adminKeycloakConfigNavItem"><a data-toggle="tab" data-target="#keycloakConfigWrapper" (click)="onClickConfigAdminPanel('adminKeycloakConfigNavItem')" href=""><i class="fas fa-users-cog"></i> <span>Keycloak-Konfiguration</span></a></li> -->
-            <li id="adminControlsConfigNavItem"><a data-toggle="tab" data-target="#controlsConfigWrapper" (click)="onClickConfigAdminPanel('adminControlsConfigNavItem')" href=""><i class="far fa-eye-slash"></i> <span>Widget-Konfiguration</span></a></li>            
-            <li id="adminFilterConfigNavItem"><a data-toggle="tab" data-target="#filterConfigWrapper" (click)="onClickConfigAdminPanel('adminFilterConfigNavItem')" href=""><i class="fa fa-filter"></i> <span>Filter-Konfiguration</span></a></li>
-            <li id="adminLandingpageConfigNavItem"><a data-toggle="tab" data-target="#landingpageConfigWrapper" (click)="onClickConfigAdminPanel('adminFilterConfigNavItem')" href=""><i class="fa fa-file-code"></i> <span>Startseiten-Konfiguration</span></a></li>
-          </ul>
-        </li>
-
-      </ul>
-      <!-- /.sidebar-menu -->
-    </section>
-    <!-- /.sidebar -->
-  </aside>
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-
-    <div class="tab-content">
-
-      <div id="dashboardWrapper" class="tab-pane fade in active">
-
-        <!-- <admin-dashboard-management-new></admin-dashboard-management-new> -->
-
-      </div>
-
-      <div id="roleExplanationWrapper" class="tab-pane fade in">
-
-        <!-- <admin-role-explanation-new></admin-role-explanation-new> -->
-
-      </div>
-
-      <div id="userWrapper" *ngIf="dataExchangeService.checkGroupsEditPermission()" class="tab-pane fade in">
-
+    <ng-container ngbNavItem="groupMgmt">
+      <button ngbNavLink>
+        <i class="fas fa-users"></i>
+        <span>Gruppenverwaltung</span>
+      </button>
+      <ng-template ngbNavContent>
         <!-- <admin-role-management></admin-role-management> -->
+      </ng-template>
+    </ng-container>
 
-      </div>
+    <ng-container ngbNavItem="groupRights">
+      <button ngbNavLink>
+        <i class="fa-solid fa-user-lock"></i>
+        <span>Gruppen-/Rechtekonzept</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-role-explanation></admin-role-explanation>
+      </ng-template>
+    </ng-container>
 
-      <div id="topicsWrapper" *ngIf="dataExchangeService.checkThemesEditPermission()" class="tab-pane fade in">
+    <ng-container ngbNavItem="topicMgmt">
+      <button ngbNavLink>
+        <i class="fas fa-book"></i>
+        <span>Themenverwaltung</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-topics-management></admin-topics-management>
+      </ng-template>
+    </ng-container>
 
-        <!-- <admin-topics-management></admin-topics-management> -->
+    <button
+      class="btn btn-link nav-link w-100 text-start"
+      (click)="isGeodataMgmtExpanded = !isGeodataMgmtExpanded"
+      [attr.aria-expanded]="isGeodataMgmtExpanded"
+    >
+      <i class="fas fa-globe-americas"></i>
+      <span class="label">Geodatenverwaltung</span>
+      <span
+        class="fa collapse-marker"
+        [class.fa-angle-down]="isGeodataMgmtExpanded"
+        [class.fa-angle-left]="!isGeodataMgmtExpanded"
+      ></span>
+    </button>
 
-      </div>
+    <div
+      ngbNavItem="roomLevels"
+      [class.d-none]="!isGeodataMgmtExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-layer-group"></i>
+        <span>Raumebenen</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-spatial-units-management></admin-spatial-units-management>
+      </ng-template>
+    </div>
 
-      <div id="spatialUnitsWrapper" *ngIf="dataExchangeService.checkResourcesEditPermission()" class="tab-pane fade in">
+    <div
+      ngbNavItem="indicators"
+      [class.d-none]="!isGeodataMgmtExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-sitemap"></i>
+        <span>Indikatoren</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-indicators-management></admin-indicators-management>
+      </ng-template>
+    </div>
 
-        <!-- <admin-spatial-units-management-new></admin-spatial-units-management-new> -->
+    <div
+      ngbNavItem="georessources"
+      [class.d-none]="!isGeodataMgmtExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-map-marked-alt"></i>
+        <span>Georessourcen</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-georesources-management></admin-georesources-management>
+      </ng-template>
+    </div>
 
-      </div>
-
-      <div id="indicatorsWrapper" *ngIf="dataExchangeService.checkResourcesEditPermission()" class="tab-pane fade in">
-
-        <!-- <admin-indicators-management-new></admin-indicators-management-new> -->
-
-      </div>
-
-      <div id="georesourcesWrapper" *ngIf="dataExchangeService.checkResourcesEditPermission()" class="tab-pane fade in">
-
-        <!-- <admin-georesources-management-new></admin-georesources-management-new> -->
-
-      </div>
-
-      <div id="scriptWrapper" *ngIf="dataExchangeService.checkResourcesEditPermission()" class="tab-pane fade in">
-
+    <ng-container ngbNavItem="scriptMgmt">
+      <button ngbNavLink>
+        <i class="far fa-file-code"></i>
+        <span>Skriptverwaltung</span>
+      </button>
+      <ng-template ngbNavContent>
         <!-- <admin-script-management></admin-script-management> -->
+      </ng-template>
+    </ng-container>
 
-      </div>
+    <ng-container ngbNavItem="indicatorCalculation">
+      <button ngbNavLink>
+        <i class="far fa-file-code"></i>
+        <span>Indikatorenberechnung</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-script-execution></admin-script-execution>
+      </ng-template>
+    </ng-container>
 
-      <div id="scriptExecutionWrapper" *ngIf="dataExchangeService.checkResourcesEditPermission()" class="tab-pane fade in">
+    <button
+      class="btn btn-link nav-link w-100 text-start"
+      (click)="isSettingsExpanded = !isSettingsExpanded"
+      [attr.aria-expanded]="isSettingsExpanded"
+    >
+      <i class="fas fa-tools"></i>
+      <span class="label">Einstellungen</span>
+      <span
+        class="fa collapse-marker"
+        [class.fa-angle-down]="isSettingsExpanded"
+        [class.fa-angle-left]="!isSettingsExpanded"
+      ></span>
+    </button>
 
-        <!-- <admin-script-execution></admin-script-execution> -->
+    <div
+      ngbNavItem="commonSettings"
+      [class.d-none]="!isSettingsExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-cogs"></i>
+        <span>Allgemeine Einstellungen</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-app-config></admin-app-config>
+      </ng-template>
+    </div>
 
-      </div>
+    <div
+      ngbNavItem="widgetConfig"
+      [class.d-none]="!isSettingsExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="far fa-eye-slash"></i>
+        <span>Widget-Konfiguration</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-controls-config></admin-controls-config>
+      </ng-template>
+    </div>
 
-      <div id="appConfigWrapper" *ngIf="dataExchangeService.checkAdminPermission()" class="tab-pane fade in">
-
-        <!-- <admin-app-config-new></admin-app-config-new> -->
-
-      </div>
-
-      <!-- hide keycloak settings screen as those config must not be changed by any user directly -->
-      <!-- <div id="keycloakConfigWrapper" *ngIf="dataExchangeService.checkAdminPermission()" class="tab-pane fade in">
-
-        <admin-keycloak-config></admin-keycloak-config>
-
-      </div> -->
-
-      <div id="controlsConfigWrapper" *ngIf="dataExchangeService.checkAdminPermission()" class="tab-pane fade in">
-
-        <!-- <admin-controls-config-new></admin-controls-config-new> -->
-
-      </div>
-
-      <div id="filterConfigWrapper" *ngIf="dataExchangeService.checkAdminPermission()" class="tab-pane fade in">
-
-        <!-- <app-admin-filter-config></app-admin-filter-config> -->
-
-      </div>
-      
-      <div id="landingpageConfigWrapper" *ngIf="dataExchangeService.checkAdminPermission()" class="tab-pane fade in">
-
-        <!-- <app-admin-landingpage-config></app-admin-landingpage-config> -->
-
-      </div>
-
-      
-      <!-- <spatial-unit-add-modal></spatial-unit-add-modal>
-
-      
-      <spatial-unit-edit-metadata-modal></spatial-unit-edit-metadata-modal>
-
-      
-      <spatial-unit-edit-features-modal></spatial-unit-edit-features-modal>
-
-      
-      <spatial-unit-edit-user-roles-modal></spatial-unit-edit-user-roles-modal>
-
-      
-      <spatial-unit-delete-modal></spatial-unit-delete-modal>
-      
-      
-      <georesource-add-modal></georesource-add-modal>
-
-      
-      <georesource-batch-update-modal></georesource-batch-update-modal>
-
-      
-      <georesource-edit-features-modal></georesource-edit-features-modal>
-
-      
-      <georesource-edit-metadata-modal></georesource-edit-metadata-modal>
-
-      
-      <georesource-edit-user-roles-modal></georesource-edit-user-roles-modal>
-
-      
-      <georesource-delete-modal></georesource-delete-modal>
-
-
-      
-      <indicator-add-modal></indicator-add-modal>
-
-      
-      <indicator-batch-update-modal></indicator-batch-update-modal>
-
-      
-      <indicator-edit-features-modal></indicator-edit-features-modal>
-
-      
-      <indicator-edit-metadata-modal></indicator-edit-metadata-modal>
-
-      
-      <app-indicator-edit-features-modal></app-indicator-edit-features-modal>
-
-      
-      <indicator-edit-indicator-spatial-unit-roles-modal></indicator-edit-indicator-spatial-unit-roles-modal>
-
-      
-      <indicator-delete-modal></indicator-delete-modal>
-
-
-      
-      <topic-edit-modal-new></topic-edit-modal-new>
-
-      
-      <topic-delete-modal-new></topic-delete-modal-new>
-
-      
-      <script-add-modal></script-add-modal>
-
-      
-      <script-delete-modal></script-delete-modal>
-
-      
-      <role-add-modal></role-add-modal>
-
-      
-      <role-edit-metadata-modal></role-edit-metadata-modal>
-
-      
-      <role-edit-group-rights-modal></role-edit-group-rights-modal>
-
-      
-      <role-delete-modal></role-delete-modal>
-
-      
-      <admin-filter-add-modal></admin-filter-add-modal>
-
-      
-      <admin-filter-edit-modal></admin-filter-edit-modal>
-
-      
-      <batch-update-result-modal></batch-update-result-modal> -->
-    
-      <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
-				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
-				<button type="button" class="close" (click)="dataExchangeService.hideErrorAlert()"
-					aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Achtung</h4>
-				Es ist ein Fehler bei der Datenverarbeitung aufgetreten. Die Fehlermeldung lautet:
-				<br />
-				<pre [innerHTML]="dataExchangeService.pipedData.errorMessage"></pre>
-	    </div>
-      
+    <div
+      ngbNavItem="filterConfig"
+      [class.d-none]="!isSettingsExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fa fa-filter"></i>
+        <span>Filter-Konfiguration</span>
+      </button>
+      <ng-template ngbNavContent>
+        <app-admin-filter-config></app-admin-filter-config>
+      </ng-template>
     </div>
   </div>
-  <!-- /.content-wrapper -->
-
-  <!-- Main Footer -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      Vielen Dank f&uuml;r die Nutzung von KomMonitor
-    </div>
-    <strong>Copyright &copy; <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong>
-  </footer>
-
 </div>
-<!-- ./wrapper -->
+
+<div class="content-wrapper">
+  <header>
+    <button
+      type="button"
+      class="btn btn-danger btn-sm"
+      (click)="switchToMapApplication()"
+    >
+      <i class="fas fa-user-cog"></i>
+      <span>Administration verlassen</span>
+    </button>
+    <div class="spacer"></div>
+    <app-user-login></app-user-login>
+  </header>
+
+  <div [ngbNavOutlet]="nav" class="flex-grow-1"></div>
+
+  <footer>
+    <strong
+      >Copyright &copy;
+      <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong
+    >
+    <div class="hidden-xs">Vielen Dank f&uuml;r die Nutzung von KomMonitor</div>
+  </footer>
+</div>
+
+<app-notification></app-notification>

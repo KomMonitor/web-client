@@ -1,32 +1,58 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { AdminAppConfigComponent } from "./adminConfig/adminAppConfig/admin-app-config.component";
+import { AdminControlsConfigComponent } from "./adminConfig/adminControlsConfig/admin-controls-config.component";
+import { AdminDashboardManagementComponent } from "./adminDashboardManagement/admin-dashboard-management.component";
+import { AdminFilterConfigComponent } from "./adminConfig/adminFilterConfig/admin-filter-config.component";
+import { AdminGeoresourcesManagementComponent } from "./adminGeoresourcesManagement/admin-georesources-management.component";
+import { AdminIndicatorsManagementComponent } from "./adminIndicatorsManagement/admin-indicators-management.component";
+import { AdminRoleExplanationComponent } from "./adminRoleExplanation/admin-role-explanation.component";
+import { AdminSpatialUnitsManagementComponent } from "./adminSpatialUnitsManagement/admin-spatial-units-management.component";
+import { AdminTopicsManagementComponent } from "./adminTopicsManagement/admin-topics-management.component";
+import { CommonModule } from "@angular/common";
+import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
+import { UserLoginComponent } from "../userInterface/userLogin/user-login.component";
+import { NotificationComponent } from "../common/notification/notification.component";
+import { AdminScriptExecutionComponent } from "./adminScriptExecution/admin-script-execution.component";
 
 @Component({
-  selector: 'app-admin',
-  templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.css']
+  selector: "app-admin",
+  templateUrl: "./admin.component.html",
+  styleUrls: ["./admin.component.css"],
+  imports: [
+    AdminAppConfigComponent,
+    AdminControlsConfigComponent,
+    AdminDashboardManagementComponent,
+    AdminFilterConfigComponent,
+    AdminGeoresourcesManagementComponent,
+    AdminIndicatorsManagementComponent,
+    AdminRoleExplanationComponent,
+    AdminSpatialUnitsManagementComponent,
+    AdminTopicsManagementComponent,
+    AdminScriptExecutionComponent,
+    CommonModule,
+    NgbNavModule,
+    UserLoginComponent,
+    NotificationComponent,
+  ],
+  standalone: true,
 })
-export class AdminComponent implements OnInit{
+export class AdminComponent implements OnInit {
+  active = "overview";
 
-  selectedResourceType = 'spatialUnits';
-
-  activeItemBackupId = "adminDashboardNavItem";
+  isGeodataMgmtExpanded = false;
+  isSettingsExpanded = false;
 
   userRoleInformation = {};
-  userGroupInformation:any[] = [];
+  userGroupInformation: any[] = [];
 
   constructor(
     private router: Router,
-    protected dataExchangeService: DataExchangeService
+    protected dataExchangeService: DataExchangeService,
   ) {}
 
-  switchToMapApplication() {
-    this.router.navigate(['']);
-  }
-
   ngOnInit(): void {
-      
     // if(! this.dataExchangeService.enableKeycloakSecurity){
     // 	  this.checkAuthorizationOnStartup_withoutKeycloak();
     // }
@@ -38,77 +64,36 @@ export class AdminComponent implements OnInit{
   }
 
   prepUserInformation() {
+    if (this.dataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
+      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(
+        (roles) => {
+          let key = roles.split(".")[0];
+          let role = roles.split(".")[1];
 
-    if(this.dataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
-      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
-        
-        let key = roles.split('.')[0];
-        let role = roles.split('.')[1];
+          if (!this.userRoleInformation.hasOwnProperty(key)) {
+            this.userRoleInformation[key] = [];
+          }
 
-        if(!this.userRoleInformation.hasOwnProperty(key)) {
-          this.userRoleInformation[key] = [];
-        }
-        
-        this.userRoleInformation[key].push(role);
-
-      });
+          this.userRoleInformation[key].push(role);
+        },
+      );
     }
 
-    if(this.dataExchangeService.currentKeycloakLoginGroups.length>0) {
-      this.dataExchangeService.currentKeycloakLoginGroups.forEach((group, index) => {
+    if (this.dataExchangeService.currentKeycloakLoginGroups.length > 0) {
+      this.dataExchangeService.currentKeycloakLoginGroups.forEach(
+        (group, index) => {
+          let parts = group.split("/");
+          this.userGroupInformation[index] = [];
 
-        let parts = group.split('/');
-        this.userGroupInformation[index] = [];
-
-        parts.forEach(part => {
-          if(part.length>0)
-            this.userGroupInformation[index].push(part);
-        });
-      });
+          parts.forEach((part) => {
+            if (part.length > 0) this.userGroupInformation[index].push(part);
+          });
+        },
+      );
     }
   }
 
-  onClickGeodataAdminPanel(idOfNavBarItem){
-    this.activeItemBackupId = idOfNavBarItem;
-    $('.sidebar-menu li').removeClass("active");
-
-    document.getElementById('adminGeodataWrapperNavItem')?.setAttribute("class", "active");
-  };
-
-  onClickConfigAdminPanel(idOfNavBarItem){
-    this.activeItemBackupId = idOfNavBarItem;
-    $('.sidebar-menu li').removeClass("active");
-
-    document.getElementById('adminConfigWrapperNavItem')?.setAttribute("class", "active");
-  };
-
-  onClickOtherAdminPanel(idOfNavBarItem){
-    this.activeItemBackupId = idOfNavBarItem;
-    $('#adminGeodataWrapperNavItem ul li').removeClass("active");
-    $('#adminConfigWrapperNavItem ul li').removeClass("active");
-  };
-
-  onClickGeodataWrapperItem(){
-
-    // $('#adminGeodataWrapperNavItem').toggleClass("active");
-
-    setTimeout(() => {
-      if(this.activeItemBackupId != 'adminSpatialUnitsNavItem' && this.activeItemBackupId != 'adminGeoresourcesNavItem' && this.activeItemBackupId != 'adminIndicatorsNavItem'){
-        // $('#adminGeodataWrapperNavItem').toggleClass("active");
-        $('#'+this.activeItemBackupId).addClass("active");
-      }
-    }, 40);
-  };
-
-  onClickConfigWrapperItem(){
-
-    // $('#adminGeodataWrapperNavItem').toggleClass("active");
-
-    setTimeout(() => {
-      if(this.activeItemBackupId != 'adminAppConfigNavItem' && this.activeItemBackupId != 'adminKeycloakConfigNavItem' && this.activeItemBackupId != 'adminControlsConfigNavItem'){
-        // $('#adminGeodataWrapperNavItem').toggleClass("active");
-        $('#'+this.activeItemBackupId).addClass("active");
-      }
-    }, 40);
-  };								
+  switchToMapApplication() {
+    this.router.navigate([""]);
+  }
 }

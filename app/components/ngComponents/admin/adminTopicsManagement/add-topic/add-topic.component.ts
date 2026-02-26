@@ -6,6 +6,7 @@ import {
   TopicResourceType,
 } from "../admin-topics-management.component";
 import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { take } from 'rxjs/operators';
 import { FormsModule } from "@angular/forms";
 
 @Component({
@@ -38,6 +39,7 @@ export class AddTopicComponent {
         this.newTopicDescription,
         this.parentTopic
       )
+      .pipe(take(1))
       .subscribe({
         next: () => {
           this.newTopicDescription = "";
@@ -46,7 +48,7 @@ export class AddTopicComponent {
         error: (error) => {
           this.errorHandlingService.errorMessagePart =
             this.kommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data || error
+              error?.data || error
             );
         },
       });

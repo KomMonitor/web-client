@@ -145,6 +145,7 @@
     "ng2-ion-range-slider": "^2.0.0",
     "ng2-nouislider": "^2.0.0",
     "ngx-color": "^8.0.3",
+    "ngx-echarts": "^16.2.0",
     "nouislider": "^15.8.1",
     "pako": "^2.1.0",
     "papaparse": "^5.4.1",

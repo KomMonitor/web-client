@@ -10,7 +10,7 @@ declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'spatial-unit-delete-modal-new',
+  selector: 'spatial-unit-delete-modal',
   templateUrl: './spatial-unit-delete-modal.component.html',
   styleUrls: ['./spatial-unit-delete-modal.component.css'],
   imports: [CommonModule],

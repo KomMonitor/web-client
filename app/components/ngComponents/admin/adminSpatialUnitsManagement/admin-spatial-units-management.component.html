@@ -1,74 +1,52 @@
-<div id="adminSpatialUnitsContent">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
+<admin-content-view
+  title="Verwalten der Raumebenen"
+  description="Info"
+  [controlsTemplate]="controls"
+  [contentTemplate]="content"
+>
+</admin-content-view>
+<ng-template #controls>
+  <span>Nur editierbare Datensätze anzeigen</span>
+  <div>
+    <label class="switch">
+      <input
+        type="checkbox"
+        [(ngModel)]="tableViewSwitcher"
+        (ngModelChange)="onTableViewSwitch()"
+      />
+      <span class="switchslider round"></span>
+    </label>
   </div>
+  <button
+    [disabled]="!kommonitorDataExchangeService.checkCreatePermission()"
+    class="btn btn-success btn-sm"
+    type="button"
+    (click)="openAddSpatialUnitModal()"
+  >
+    <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
+  </button>
+</ng-template>
 
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Verwalten der Raumebenen
-      <small>Info</small>
-    </h1>
-
-    <div class="adminTableButtonWrapper">
-      <div class="verticalAlign">
-        <span>Nur editierbare Datens&auml;tze anzeigen</span>
-        <div>
-          <label class="switch">
-            <input
-              type="checkbox"
-              [(ngModel)]="tableViewSwitcher"
-              (ngModelChange)="onTableViewSwitch()"
-            />
-            <span class="switchslider round"></span>
-          </label>
-        </div>
-      </div>
-      <button
-        [disabled]="!kommonitorDataExchangeService.checkCreatePermission()"
-        class="btn btn-success btn-sm"
-        type="button"
-        (click)="openAddSpatialUnitModal()"
-      >
-        <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
-      </button>
-      <!-- edit metadata -->
-
-      <!-- edit features -->
-
-      <!-- delete b timestamp -->
-    </div>
-  </section>
-
-  <!-- Main content -->
-  <section class="content container-fluid">
-    <expandable-box title="Raumebenen" [isCollapsible]="false">
-      <ag-grid-angular
-        #spatialUnitOverviewTable
-        id="spatialUnitOverviewTable"
-        style="height: 70vh"
-        class="ag-theme-alpine"
-        [columnDefs]="columnDefs"
-        [rowData]="rowData"
-        [defaultColDef]="defaultColDef"
-        [gridOptions]="gridOptions"
-        [pagination]="true"
-        [paginationPageSize]="paginationPageSize"
-        [paginationPageSizeSelector]="paginationPageSizeSelector"
-        [rowSelection]="'multiple'"
-        [suppressRowClickSelection]="true"
-        [enableCellTextSelection]="true"
-        [ensureDomOrder]="true"
-        [suppressColumnVirtualisation]="true"
-        (firstDataRendered)="onFirstDataRendered($event)"
-        (columnResized)="onColumnResized($event)"
-        (rowDataChanged)="onRowDataChanged()"
-        (modelUpdated)="onModelUpdated()"
-        (viewportChanged)="onViewportChanged()"
-      >
-      </ag-grid-angular>
-    </expandable-box>
-  </section>
-</div>
+<ng-template #content>
+  <expandable-box title="Raumebenen" [isCollapsible]="false">
+    <ag-grid-angular
+      #spatialUnitOverviewTable
+      id="spatialUnitOverviewTable"
+      style="height: 70vh"
+      class="ag-theme-alpine"
+      [columnDefs]="columnDefs"
+      [rowData]="rowData"
+      [defaultColDef]="defaultColDef"
+      [gridOptions]="gridOptions"
+      [pagination]="true"
+      [paginationPageSize]="paginationPageSize"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [enableCellTextSelection]="true"
+      [ensureDomOrder]="true"
+      [suppressColumnVirtualisation]="true"
+    >
+    </ag-grid-angular>
+  </expandable-box>
+</ng-template>

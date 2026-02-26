@@ -1,17 +1,12 @@
-import { Injectable, Inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Injectable } from '@angular/core';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
 import { KommonitorDataExchangeService } from './kommonitor-data-exchange.service';
 import { 
   GridOptions, 
   ColDef, 
   GridApi, 
-  ColumnApi,
-  ICellRendererParams,
-  ICellRendererComp,
   GridReadyEvent
 } from 'ag-grid-community';
-import { AgGridAngular } from 'ag-grid-angular';
 import { HttpClient } from '@angular/common/http';
 
 // Declare environment variables
@@ -42,54 +37,10 @@ export class KommonitorDataGridHelperService {
   featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
 
   constructor(
-    private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private kommonitorDataExchangeService: KommonitorDataExchangeService,
     private http: HttpClient
   ) {}
-
-  /**
-   * Main method to build the spatial units data grid
-   * Returns GridOptions for use in Angular templates with ag-grid-angular
-   */
-  buildDataGrid_spatialUnits(spatialUnitMetadataArray: any[]): GridOptions {
-    // Store the data for future use
-    this.currentSpatialUnitsData = spatialUnitMetadataArray;
-    
-    // Build and return grid options for use in Angular template
-    this.dataGridOptions_spatialUnits = this.buildDataGridOptions_spatialUnits(spatialUnitMetadataArray);
-    
-    return this.dataGridOptions_spatialUnits;
-  }
-
-
-
-  // Store current spatial units data
-  private currentSpatialUnitsData: any[] = [];
-
-  /**
-   * Build the grid options configuration for ag-grid-angular
-   * Returns base configuration that component can extend
-   */
-  buildDataGridOptions_spatialUnits(spatialUnitMetadataArray: any[]): GridOptions {
-    const columnDefs = this.buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray);
-    const rowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
-
-    const gridOptions: GridOptions = {
-      columnDefs: columnDefs,
-      rowData: rowData,
-      defaultColDef: this.buildDefaultColDef(),
-      suppressRowClickSelection: true,
-      rowSelection: 'multiple',
-      enableCellTextSelection: true,
-      ensureDomOrder: true,
-      pagination: true,
-      paginationPageSize: 10,
-      suppressColumnVirtualisation: true
-    };
-
-    return gridOptions;
-  }
 
   /**
    * Build default column definition
@@ -114,105 +65,6 @@ export class KommonitorDataGridHelperService {
         'padding-bottom': '17px' 
       }
     };
-  }
-
-  /**
-   * Build column configuration for spatial units with proper cell renderers
-   */
-  buildDataGridColumnConfig_spatialUnits(spatialUnitMetadataArray: any[]): ColDef[] {
-    const columnDefs: ColDef[] = [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 170, 
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: (params: any) => this.displayEditButtons_spatialUnits(params)
-      },
-      { headerName: 'Id', field: 'spatialUnitId', pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: 'spatialUnitLevel', pinned: 'left', minWidth: 300 },
-      { 
-        headerName: 'Beschreibung', 
-        minWidth: 400, 
-        cellRenderer: (params: ICellRendererParams) => params.data.metadata.description,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + params.data.metadata.description
-      },
-      { headerName: 'Nächst niedrigere Raumebene', field: 'nextLowerHierarchyLevel', minWidth: 250 },
-      { headerName: 'Nächst höhere Raumebene', field: 'nextUpperHierarchyLevel', minWidth: 250 },
-      {
-        headerName: 'Gültigkeitszeitraum', 
-        minWidth: 400,
-        cellRenderer: (params: ICellRendererParams) => {
-          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
-          for (const periodOfValidity of params.data.availablePeriodsOfValidity) {
-            html += '<li style="margin-right: 15px;">';
-            if (periodOfValidity.endDate) {
-              html += '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
-            } else {
-              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
-            }
-            html += '</li>';
-          }
-          html += '</ul>';
-          return html;
-        },
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => {
-          if (params.data.availablePeriodsOfValidity && params.data.availablePeriodsOfValidity.length > 1) {
-            return '' + JSON.stringify(params.data.availablePeriodsOfValidity);
-          }
-          return params.data.availablePeriodsOfValidity;
-        }
-      },
-      { 
-        headerName: 'Datenquelle', 
-        minWidth: 400, 
-        cellRenderer: (params: ICellRendererParams) => params.data.metadata.datasource,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + params.data.metadata.datasource
-      },
-      { 
-        headerName: 'Datenhalter und Kontakt', 
-        minWidth: 400, 
-        cellRenderer: (params: ICellRendererParams) => params.data.metadata.contact,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + params.data.metadata.contact
-      },
-      { 
-        headerName: 'Rollen', 
-        minWidth: 400, 
-        cellRenderer: (params: ICellRendererParams) => this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions)
-      },
-      { 
-        headerName: 'Öffentlich sichtbar', 
-        minWidth: 400, 
-        cellRenderer: (params: ICellRendererParams) => params.data.isPublic ? 'ja' : 'nein',
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + (params.data.isPublic ? 'ja' : 'nein')
-      },
-      { 
-        headerName: 'Eigentümer', 
-        minWidth: 400, 
-        cellRenderer: (params: ICellRendererParams) => this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId),
-        filter: 'agTextColumnFilter',
-        filterValueGetter: (params: any) => '' + this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId)
-      }
-    ];
-
-    return columnDefs;
-  }
-
-  /**
-   * Build row data for spatial units (just return the input array)
-   */
-  buildDataGridRowData_spatialUnits(spatialUnitMetadataArray: any[]): any[] {
-    return spatialUnitMetadataArray;
   }
 
   /**
@@ -283,35 +135,6 @@ export class KommonitorDataGridHelperService {
       headerHeight: 40,
       rowHeight: 35
     };
-  }
-
-
-
-  /**
-   * Cell renderer for edit buttons
-   */
-  displayEditButtons_spatialUnits(params: any): string {
-    const data = params.data;
-    let html = '<div class="btn-group btn-group-sm">';
-    
-    // Edit Metadata Button
-    html += '<button id="btn_spatialUnit_editMetadata_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren" ' + 
-            (data.userPermissions.includes('editor') ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
-    
-    // Edit Features Button
-    html += '<button id="btn_spatialUnit_editFeatures_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortführen" ' + 
-            (data.userPermissions.includes('editor') ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
-    
-    // Edit User Roles Button
-    html += '<button id="btn_spatialUnit_editUserRoles_' + data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditUserRolesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-user-roles" title="Zugriffsschutz und Eigentümerschaft editieren" ' + 
-            (data.userPermissions.includes('creator') ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>';
-    
-    // Delete Button
-    html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumebene entfernen" ' + 
-            (data.userPermissions.includes('creator') ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
-    
-    html += '</div>';
-    return html;
   }
 
   /**
@@ -1359,16 +1182,16 @@ export class KommonitorDataGridHelperService {
   /**
    * Refresh spatial units grid with new data
    */
-  refreshSpatialUnitsGrid(spatialUnitMetadataArray: any[]): void {
-    this.currentSpatialUnitsData = spatialUnitMetadataArray;
+  // refreshSpatialUnitsGrid(spatialUnitMetadataArray: any[]): void {
+  //   this.currentSpatialUnitsData = spatialUnitMetadataArray;
     
-    if (this.gridApi_spatialUnits) {
-      const newRowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
-      this.gridApi_spatialUnits.setRowData(newRowData);
-      // Re-register click handlers after data update
-      setTimeout(() => this.registerClickHandler_spatialUnits(), 100);
-    }
-  }
+  //   if (this.gridApi_spatialUnits) {
+  //     const newRowData = this.buildDataGridRowData_spatialUnits(spatialUnitMetadataArray);
+  //     this.gridApi_spatialUnits.setRowData(newRowData);
+  //     // Re-register click handlers after data update
+  //     setTimeout(() => this.registerClickHandler_spatialUnits(), 100);
+  //   }
+  // }
 
   /**
    * Get current spatial units grid options

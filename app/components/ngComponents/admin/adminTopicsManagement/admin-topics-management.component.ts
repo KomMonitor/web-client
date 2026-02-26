@@ -27,6 +27,7 @@ import { CommonModule } from "@angular/common";
 import { TopicOrderSelectionComponent } from "./topicOrderSelection/topic-order-selection.component";
 import { TopicListComponent } from "./topicList/topicList.component";
 import { AddTopicComponent } from "./add-topic/add-topic.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {
@@ -45,6 +46,7 @@ export class AdminTopicsManagementErrorHandlingService {
     TopicOrderSelectionComponent,
     TopicListComponent,
     AddTopicComponent,
+    AdminContentViewComponent,
   ],
   standalone: true,
 })
@@ -60,18 +62,18 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
     private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     protected errorHandlingService: AdminTopicsManagementErrorHandlingService,
     private topicSrvc: AdminTopicsManagementService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
   ) {}
 
   get filteredIndicatorTopics(): Topic[] {
     return this.kommonitorDataExchangeService.availableTopics.filter(
-      (t) => t.topicType === "main" && t.topicResource === "indicator"
+      (t) => t.topicType === "main" && t.topicResource === "indicator",
     );
   }
 
   get filteredGeoRessourceTopics(): Topic[] {
     return this.kommonitorDataExchangeService.availableTopics.filter(
-      (t) => t.topicType === "main" && t.topicResource === "georesource"
+      (t) => t.topicType === "main" && t.topicResource === "georesource",
     );
   }
 
@@ -81,7 +83,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
         if (broadcastMsg.msg === "refreshTopicsOverview") {
           // this.refreshTopicsOverview();
         }
-      }
+      },
     );
 
     this.topicSrvc.getOrderModes().subscribe({

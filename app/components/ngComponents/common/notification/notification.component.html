@@ -1,0 +1,25 @@
+<div>
+  <ngb-toast
+    *ngFor="let notification of notificationService.notifications"
+    [class]="notification.options.classname"
+    [autohide]="notification.options.autohide ?? true"
+    [delay]="notification.options.delay || 5000"
+    (hidden)="notificationService.remove(notification)"
+  >
+    <ng-template [ngIf]="isTemplate(notification.content)" [ngIfElse]="text">
+      <ng-template
+        [ngTemplateOutlet]="$any(notification.content)"
+      ></ng-template>
+    </ng-template>
+
+    <ng-template #text>{{ notification.content }}</ng-template>
+
+    <button
+      *ngIf="!(notification.options.autohide ?? true)"
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="notificationService.remove(notification)"
+    ></button>
+  </ngb-toast>
+</div>

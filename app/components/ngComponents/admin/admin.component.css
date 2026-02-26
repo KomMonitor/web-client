@@ -1,0 +1,133 @@
+:host {
+  min-height: 100vh;
+  display: flex;
+
+  .sidebar {
+    width: 280px;
+    background-color: #222d32;
+
+    .sidebar-header {
+      height: 50px;
+      background-color: var(--kommonitor-primary);
+      filter: brightness(85%);
+
+      .logo {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 10px;
+        text-decoration: none;
+
+        img {
+          height: 40px;
+          margin-right: 10px;
+        }
+
+        b {
+          font-size: 20px;
+          color: white;
+        }
+      }
+    }
+
+    .sidebar-subheader {
+      height: 40px;
+      background-color: #1a2226;
+      color: #4b646f;
+      display: flex;
+      padding: 10px 15px;
+      font-size: 12px;
+    }
+
+    .nav-pills {
+      flex-direction: column;
+
+      .nav-item.child {
+        background-color: #2c3b41;
+        height: 34px;
+
+        .nav-link {
+          padding: 5px 20px 5px 40px;
+        }
+
+        &:hover {
+          background-color: none;
+        }
+      }
+
+      .nav-link {
+        color: #c2c7d0;
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        border-radius: 0px;
+        border-left: 3px solid transparent;
+        gap: 5px;
+
+        .label {
+          flex: 1;
+        }
+
+        i {
+          width: 20px;
+          text-align: center;
+        }
+
+        &:hover {
+          background-color: none;
+          color: white;
+        }
+
+        &.active {
+          background-color: unset;
+          border-left-color: var(--kommonitor-primary);
+          color: white;
+        }
+
+        .icon {
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    header {
+      height: 50px;
+      background-color: var(--kommonitor-primary);
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+
+      .btn-danger {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .spacer {
+        flex: 1;
+      }
+    }
+
+    .tab-content {
+      background-color: #ecf0f5;
+      flex: 1;
+    }
+
+    footer {
+      height: 50px;
+      background-color: #ffff;
+      padding: 0px 15px;
+      color: #444;
+      border-top: 1px solid #d2d6de;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+}

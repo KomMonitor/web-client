@@ -1,0 +1,11 @@
+<div class="view-header">
+  <div class="title">{{ title }}</div>
+  <div class="description">{{ description }}</div>
+  <div class="spacer"></div>
+  <div *ngIf="controlsTemplate" class="view-controls">
+    <ng-container *ngTemplateOutlet="controlsTemplate"></ng-container>
+  </div>
+</div>
+<div class="container-fluid">
+  <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+</div>
