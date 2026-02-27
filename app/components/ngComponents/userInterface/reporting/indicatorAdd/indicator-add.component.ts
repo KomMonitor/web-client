@@ -206,6 +206,8 @@ export class IndicatorAddComponent implements OnInit {
 
     // resets cloned template for preview (NOT working template in overview)
     this.reportingService.resetTemplateClone();
+
+    this.setAreaSpecificPagesVisibility();
     
     // give each page a unique id to track it by in ng-repeat
     for(let page of this.reportingService.clonedTemplate.pages) {
@@ -247,6 +249,15 @@ export class IndicatorAddComponent implements OnInit {
 	  this.selectedBaseMap = this.dataExchangeService.pipedData.baseLayerDefinitionsArray[1];
 
     this.loadingData = false;
+  }
+
+  setAreaSpecificPagesVisibility() {
+
+    if(this.pageConfig.sectionControl.showAreaSpecific===false)
+      this.reportingService.clonedTemplate.pages.map(page => {
+        if(page.type == "area_specific")
+          page.hidden = true;
+      });
   }
 
   onChangePageSettings(){
@@ -528,12 +539,14 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
-      this.updateAreasForTimestampTemplates(newVal)
-    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
-      this.updateAreasForTimeseriesTemplates(newVal)
-    if(this.reportingService.clonedTemplate.name.includes("reachability"))
-      this.updateAreasForReachabilityTemplates(newVal)
+    if(this.pageConfig.sectionControl.showAreaSpecific===true) {
+      if(this.reportingService.clonedTemplate.name.includes("timestamp"))
+        this.updateAreasForTimestampTemplates(newVal)
+      if(this.reportingService.clonedTemplate.name.includes("timeseries"))
+        this.updateAreasForTimeseriesTemplates(newVal)
+      if(this.reportingService.clonedTemplate.name.includes("reachability"))
+        this.updateAreasForReachabilityTemplates(newVal)
+    }
 
      this.updateDiagramsInterval_areas = setInterval(async () => { 
       
@@ -1660,14 +1673,16 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
-      this.updateAreasForTimestampTemplates(this.selectedAreas)
-    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
-      this.updateAreasForTimeseriesTemplates(this.selectedAreas)
-    if(this.reportingService.clonedTemplate.name.includes("reachability"))
-      this.updateAreasForReachabilityTemplates(this.selectedAreas)
+    if(this.pageConfig.sectionControl.showAreaSpecific===true) {    
+      if(this.reportingService.clonedTemplate.name.includes("timestamp"))
+        this.updateAreasForTimestampTemplates(this.selectedAreas)
+      if(this.reportingService.clonedTemplate.name.includes("timeseries"))
+        this.updateAreasForTimeseriesTemplates(this.selectedAreas)
+      if(this.reportingService.clonedTemplate.name.includes("reachability"))
+        this.updateAreasForReachabilityTemplates(this.selectedAreas)
+    }
 
-     let updateDiagramsInterval = setInterval(() => {
+    let updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -1985,16 +2000,14 @@ export class IndicatorAddComponent implements OnInit {
         this.selectedAreas = areasListInput;
         this.selectedTimestamps = timestampsListSelected;
 
-        // insert areaSpecific pages by default only for indicators with less than x areas to improve loading times
-        //this.updateAreaSpecificSettings(areasListInput);
-        //if(this.pageConfig.sections.showAreaSpecific) {
+        if(this.pageConfig.sectionControl.showAreaSpecific===true) {
           if(this.reportingService.clonedTemplate.name.includes("timestamp"))
             this.updateAreasForTimestampTemplates(areasListInput)
           if(this.reportingService.clonedTemplate.name.includes("timeseries"))
             this.updateAreasForTimeseriesTemplates(areasListInput)
           if(this.reportingService.clonedTemplate.name.includes("reachability"))
             this.updateAreasForReachabilityTemplates(areasListInput)
-        //}
+        }
 
         // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
         this.initSelectedDualListOption();    

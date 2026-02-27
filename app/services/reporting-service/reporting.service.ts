@@ -119,7 +119,7 @@ export class ReportingService {
       showBarchartOverview: true,
       showLinechartOverview: true,
       showBoxplotchartOverview: true,
-      showAreaSpecific: true,
+      showAreaSpecific: false,
       showOverviewSection_reachability: true,
       showDatatable: true
     }
@@ -3179,6 +3179,7 @@ export class ReportingService {
 
   resetTemplateClone() {
     this.tempTemplate = structuredClone(this.availableTemplates[this._reportingData$.value.selectedTemplateId]);
+
     this.bakeInCustomInfoToClone();
   }
 
