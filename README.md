@@ -176,7 +176,6 @@ The main app configuration file is located at [app/config/env_backup.js](./app/c
   // Data Imporret URL
   window.__env.targetUrlToImporterService = 'http://localhost:8087/importer/';
 
-
 ```
 
 The config file contains many more items that are explained by comments within the source file [app/config/env_backup.js](./app/config/env_backup.js). Please study it's content for any more information.
@@ -292,7 +291,6 @@ services:
 
 volumes:
  client_config_storage:
-
 
 ```
 
