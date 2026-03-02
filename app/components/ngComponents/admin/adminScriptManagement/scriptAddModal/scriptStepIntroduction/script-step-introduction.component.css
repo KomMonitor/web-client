@@ -1,0 +1,11 @@
+.checklist-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.checklist-icon {
+  color: green;
+  margin-top: 3px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,46 @@
+<admin-content-view
+  title="Skriptverwaltung"
+  description="Steuerung der semi-automatisierten Indikatorenberechnung"
+  [controlsTemplate]="controls"
+  [contentTemplate]="content"
+></admin-content-view>
+
+<ng-template #controls>
+  <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkCreatePermission()" -->
+  <button
+    class="btn btn-success btn-sm"
+    type="button"
+    (click)="onClickAddScript()"
+  >
+    <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
+  </button>
+
+  <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkDeletePermission() || selectedRows.length === 0" -->
+  <button
+    class="btn btn-danger btn-sm"
+    type="button"
+    (click)="onClickDeleteScripts()"
+  >
+    <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
+  </button>
+</ng-template>
+
+<ng-template #content>
+  <!-- TODO: use Loading Overlay Component -->
+  <div *ngIf="loadingData" class="loading-overlay-admin-panel text-center">
+    <i class="fas fa-spinner fa-spin fa-2x"></i>
+  </div>
+
+  <div *ngIf="!loadingData" class="admin-table-wrapper">
+    <ag-grid-angular
+      style="height: 70vh; width: 100%"
+      class="ag-theme-alpine"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData"
+      [gridOptions]="gridOptions"
+      (selectionChanged)="onSelectionChanged()"
+      rowSelection="multiple"
+    ></ag-grid-angular>
+  </div>
+</ng-template>

@@ -1,0 +1,26 @@
+.badge.bg-info {
+  background-color: #17a2b8;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+pre {
+  max-height: 300px;
+  overflow: auto;
+}
+
+label,
+.center {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.help-block {
+  text-align: center;
+  width: 100%;
+  color: #737373;
+  font-size: 12px;
+}

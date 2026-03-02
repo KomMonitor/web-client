@@ -1,0 +1,77 @@
+<p class="center">
+  Die Berechnung von Indikatoren erfolgt in KomMonitor mittels eines
+  <b>Skript-basierten Ansatzes</b>, f&uuml;r den Angaben &uuml;ber notwendige
+  <i>(Basis-)Indikatoren</i> und/oder <i>Georessourcen</i> sowie
+  <i>variable Skript-Parameter</i> und den <i>Skript Code</i> selbst
+  erforderlich sind.
+</p>
+
+<p class="center">
+  Der Skript Code muss dabei einem festgelegten Template folgen. Das Template
+  steht unter folgendem Link bereit:
+  <a
+    href="./kommonitor-script-resources/kommonitor-script-template.js"
+    rel="noopener noreferrer"
+    target="_blank"
+    >KomMonitor Skript Template</a
+  >.
+  <br />
+  Hinweise zur Skript-Entwicklung befinden sich im github Repository der
+  <a
+    href="https://github.com/KomMonitor/processing-engine/tree/master/resources"
+    rel="noopener noreferrer"
+    target="_blank"
+    >KomMonitor Processing Engine</a
+  >
+</p>
+
+<p class="center">
+  <b><i>* = Pflichtfeld</i></b>
+</p>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Auswahl des Skript-Typen*</label>
+      <div class="input-group mb-2">
+        <span class="input-group-text"><i class="fas fa-filter"></i></span>
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Stichwortfilter"
+          [(ngModel)]="scriptNameFilter"
+        />
+      </div>
+      <select
+        size="10"
+        class="form-control"
+        [(ngModel)]="selectedScriptType"
+        (ngModelChange)="onChangeScriptType()"
+      >
+        <option disabled [ngValue]="null">-- Skript-Typ wählen --</option>
+        <option *ngFor="let type of getFilteredScriptTypes()" [ngValue]="type">
+          {{ type.displayName }}
+        </option>
+      </select>
+      <div class="help-block">
+        <p>
+          Die Option <b>Generische Definition</b> bedarf der manuellen
+          Definition aller Skript-Daten. Die &uuml;brigen Auswahloptionen bieten
+          vereinfachte Eingabemasken, die im Hintergrund die notwendigen
+          Skript-Daten sowie den vordefinierten Skript-Code automatisch setzen.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCRIPT TYPE SPECIFIC SECTIONS ===================== -->
+
+<div *ngIf="selectedScriptType?.apiName === 'generic'">
+  <app-script-definition-wrapper
+    title="Generische manuelle Definition aller Skript-Daten"
+    description="Mindestens ein (Basis-)Indikator oder eine Georessource muss angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind möglich."
+    [content]="temp"
+  ></app-script-definition-wrapper>
+  <ng-template #temp>test</ng-template>
+</div>

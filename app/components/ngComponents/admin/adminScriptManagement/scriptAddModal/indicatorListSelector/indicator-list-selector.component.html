@@ -1,0 +1,58 @@
+<div class="card mb-3">
+  <div class="card-header"><h5>Notwendige (Basis-)Indikatoren</h5></div>
+  <div class="card-body">
+    <div class="row mb-2">
+      <div class="col-md-9">
+        <select
+          class="form-control form-control-sm"
+          [(ngModel)]="tmpSelection"
+          size="4"
+        >
+          <option disabled [ngValue]="null">-- Indikator wählen --</option>
+          <option *ngFor="let ind of availableIndicators" [ngValue]="ind">
+            {{ ind.indicatorName }}
+          </option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button
+          class="btn btn-success btn-sm w-100"
+          (click)="onAdd()"
+          [disabled]="!tmpSelection"
+        >
+          <i class="fas fa-plus"></i> Hinzufügen
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="selectedIndicators.length > 0">
+      <table
+        class="table table-condensed table-bordered table-striped"
+        style="font-size: 12px"
+      >
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ind of selectedIndicators">
+            <td>{{ ind.indicatorId }}</td>
+            <td>{{ ind.indicatorName }}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" (click)="remove.emit(ind)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p *ngIf="selectedIndicators.length === 0" class="text-muted">
+      Noch keine Basis-Indikatoren hinzugefügt.
+    </p>
+  </div>
+</div>

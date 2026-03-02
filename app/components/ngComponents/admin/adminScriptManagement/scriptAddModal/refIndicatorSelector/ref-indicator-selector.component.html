@@ -1,0 +1,24 @@
+<div class="card mb-3">
+  <div class="card-header">
+    <h5>{{ label }}</h5>
+  </div>
+  <div class="card-body">
+    <div class="form-group">
+      <label>Auswahl des Referenzindikators</label>
+      <select
+        class="form-control form-control-sm"
+        size="4"
+        [ngModel]="selection"
+        (ngModelChange)="selectionChange.emit($event)"
+      >
+        <option disabled [ngValue]="null">-- Indikator wählen --</option>
+        <option *ngFor="let ind of availableIndicators" [ngValue]="ind">
+          {{ ind.indicatorName }}
+        </option>
+      </select>
+    </div>
+    <div *ngIf="selection" class="mt-2">
+      <span class="badge bg-info">{{ selection.indicatorName }}</span>
+    </div>
+  </div>
+</div>
