@@ -500,11 +500,14 @@ angular
 							return;
 						}
 
-						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
+						var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
+                        if (legendIndex === -1) {
+							if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							appendSeriesToRadarChart(featureProperties);
-						}
+							}
 
-						highlightFeatureInRadarChart(featureProperties);
+							highlightFeatureInRadarChart(featureProperties);
+						}	
 					});
 
           var checkResizeRadarChart = function() {
