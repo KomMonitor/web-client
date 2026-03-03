@@ -19,7 +19,7 @@ import { ReportingService, WorkflowState } from 'services/reporting-service/repo
   selector: 'app-reporting-overview',
   standalone: true,
   templateUrl: './reporting-overview.component.html',
-  styleUrls: ['./reporting-overview.component.css'],
+  styleUrls: ['./reporting-overview.component.scss'],
   imports: [CommonModule, SafeHtmlPipe]
 })
 export class ReportingOverviewComponent implements OnInit {
@@ -402,377 +402,136 @@ export class ReportingOverviewComponent implements OnInit {
       this.loadingData = true;
 
       this.reportingService.templateSections.indicators.forEach(async indicator => {
+        await this.setupIndicatorPages(indicator);
+      });
 
-        // for indicator without poi layer
-        let indicatorId = indicator.indicatorId;
-        let spatialUnit, featureCollection, features, geoJSON;
-
-        spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, indicator.spatialUnitName);
-        this.currentSpatialUnit = spatialUnit;
-
-        featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
-        features = this.createLowerCaseNameProperty(featureCollection.features);
-        this.geoJsonForReachability_byFeatureName = new Map();
-
-        for (let feature of features) {
-          this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-        }
-
-        this.geoJsonForReachability_byFeatureName.set("undefined", features);
-
-        geoJSON = { features: features };
-
-        this.lastPageOfAddedSectionPrepared = false;
-        this.pagePreparationIndex = 0;
-        // this.pagePreparationSize = this.reportingService.workingTemplate.pages.length; 
-        this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
-
-        let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
-
-        for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-
-          if(page.templateSection.indicatorId !== indicatorId) {
-              continue; // only do changes to new pages
-          }
-
-          setTimeout(async () => {
-            // Indicator and spatial unit are the same for all added pages								
-
-            let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-            for(let pageElement of page.pageElements) {
-              // usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-              // for now we more or less hardcode this, but it might have to change in the future
-              let pElementDom;
-              if(pageElement.type === "linechart") {
-                let arr = pageDom.querySelectorAll(".type-linechart");
-                if(pageElement.showPercentageChangeToPrevTimestamp) {
-                  pElementDom = arr[1];
-                } else {
-                  pElementDom = arr[0];
-                }
-              } else {
-                pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
-              }
-              
-              // recreate boxplots, itemNameFormatter did not get transferred
-              if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-                let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
-                pageElement.echartsOptions.dataset[1].transform.config = {
-                  itemNameFormatter: function (params) {
-                    return xAxisLabels[params.value];
-                  }
-                }
-              }
-
-              if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-                let instance = echarts.init( pElementDom );
-
-
-                // todo 
-                // not necessary in v4 anymore?! works even without, creates error if active
-               /*  if(pageElement.type === "map") {	
-                  console.log(pageElement.echartsOptions)
-                  for(let series of pageElement.echartsOptions.series) {
-                    console.log(series.boundingCoords)
-                    series.left = 0;
-                    series.top = 0;
-                    series.right = 0;
-                    series.bottom = 0;
-                    // series.boundingCoords = boundingCoords,
-                    series.projection = {
-                      project: (point) => this.mercatorProjection_d3(point),
-                      unproject: (point) => this.mercatorProjection_d3.invert(point)
-                    }
-                  }
-          
-                  if(pageElement.echartsOptions.geo){
-                    pageElement.echartsOptions.geo[0].top = 0;
-                    pageElement.echartsOptions.geo[0].left = 0;
-                    pageElement.echartsOptions.geo[0].right = 0;
-                    pageElement.echartsOptions.geo[0].bottom = 0;
-                    pageElement.echartsOptions.geo[0].projection = {
-                      project: (point) => this.mercatorProjection_d3(point),
-                      unproject: (point) => this.mercatorProjection_d3.invert(point)
-                    }				
-                    console.log(pageElement.echartsOptions.geo[0].boundingCoords);
-                    // pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
-                  }
-                  
-                  if(page.area && page.area.length) {
-                    // at this point we have not yet set echarts options, so we provide them as an extra parameter
-                    this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-                  } else {
-                    // recreate label positions
-                    pageElement.echartsOptions.labelLayout = function(feature) {
-                      // Set fixed position for labels that were previously dragged by user
-                      // For all other labels try to avoid overlaps
-                      let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-                      let text = feature.text.split("\n")[0] // area name is the first line
-                      if(names.includes(text)) {
-                        let idx = names.indexOf(text)
-                        return {
-                          x: page.templateSection.absoluteLabelPositions[idx].x,
-                          y: page.templateSection.absoluteLabelPositions[idx].y,
-                          draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-                        }
-                      } else {
-                        return {
-                          moveOverlap: 'shiftY',
-                          x: feature.rect.x + feature.rect.width / 2,
-                          draggable: false
-                        }
-                      }	
-                    }
-                  }
-                  
-                } */
-
-                instance.setOption(pageElement.echartsOptions)
-
-                if(pageElement.type === "map") {
-                  await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-                }
-              }
-
-              // if(pageElement.type === "overallAverage") {
-              // 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-              // }
-  
-              // if(pageElement.type === "selectionAverage") {
-              // 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-              // }
-
-              if(pageElement.type === "mapLegend") {
-                pageElement.isPlaceholder = false;
-                pageDom.querySelector(".type-mapLegend").style.display = "none";
-              }
-
-              // if(pageElement.type === "overallChange") {
-              // 	let wrapper = pageDom.querySelector(".type-overallChange")
-              // 	wrapper.style.border = "none";
-              // }
-
-              // if(pageElement.type === "selectionChange") {
-              // 	let wrapper = pageDom.querySelector(".type-selectionChange")
-              // 	wrapper.style.border = "none";
-              // }
-
-              if(pageElement.type === "datatable") {
-                this.createDatatablePage(pElementDom, pageElement);
-              }
-            }
-
-            // if the last page is reached and full prepared we want to show that to the user
-            // wait additionally for 500 ms
-            this.pagePreparationIndex = idx;
-
-            // every 10 percent log progress to user
-           /*  if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
-              this.$digest();	
-            }	
- */
-            if(idx == this.pagePreparationSize - 1){
-              this.lastPageOfAddedSectionPrepared = true;
-            }
-            
-          });
-        }
-        
+      this.reportingService.templateSections.georesources.forEach(async georesource => {
+        await this.setupPagesForReachability(georesource);
       });
 
       this.loadingData = false;
 		}
 
-		async setupNewPages(templateSection) {
+    async setupIndicatorPages(indicator) {
 
-      if(!templateSection.poiLayerName) {
+      // for indicator without poi layer
+      let indicatorId = indicator.indicatorId;
+      let spatialUnit, featureCollection, features, geoJSON;
 
-        // for indicator without poi layer
-        let indicatorId = templateSection.indicatorId;
-        let spatialUnit, featureCollection, features, geoJSON;
+      spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, indicator.spatialUnitName);
+      this.currentSpatialUnit = spatialUnit;
 
-        spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
-        this.currentSpatialUnit = spatialUnit;
+      featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
+      features = this.createLowerCaseNameProperty(featureCollection.features);
+      this.geoJsonForReachability_byFeatureName = new Map();
 
-        featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
-        features = this.createLowerCaseNameProperty(featureCollection.features);
-        this.geoJsonForReachability_byFeatureName = new Map();
+      for (let feature of features) {
+        this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+      }
 
-        for (let feature of features) {
-          this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+      this.geoJsonForReachability_byFeatureName.set("undefined", features);
+
+      geoJSON = { features: features };
+
+      this.lastPageOfAddedSectionPrepared = false;
+      this.pagePreparationIndex = 0;
+      // this.pagePreparationSize = this.reportingService.workingTemplate.pages.length; 
+      this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+
+      let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
+
+      for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+
+        if(page.templateSection.indicatorId !== indicatorId) {
+            continue; // only do changes to new pages
         }
 
-        this.geoJsonForReachability_byFeatureName.set("undefined", features);
+        setTimeout(async () => {
+          // Indicator and spatial unit are the same for all added pages								
 
-
-        geoJSON = { features: features };
-
-
-        this.lastPageOfAddedSectionPrepared = false;
-        this.pagePreparationIndex = 0;
-        // this.pagePreparationSize = this.reportingService.workingTemplate.pages.length; 
-        this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
-
-        let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
-
-        for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-
-          if(page.templateSection.indicatorId !== indicatorId) {
-              continue; // only do changes to new pages
-          }
-
-          setTimeout(async () => {
-            // Indicator and spatial unit are the same for all added pages								
-
-            let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-            for(let pageElement of page.pageElements) {
-              // usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-              // for now we more or less hardcode this, but it might have to change in the future
-              let pElementDom;
-              if(pageElement.type === "linechart") {
-                let arr = pageDom.querySelectorAll(".type-linechart");
-                if(pageElement.showPercentageChangeToPrevTimestamp) {
-                  pElementDom = arr[1];
-                } else {
-                  pElementDom = arr[0];
-                }
+          let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
+          for(let pageElement of page.pageElements) {
+            // usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+            // for now we more or less hardcode this, but it might have to change in the future
+            let pElementDom;
+            if(pageElement.type === "linechart") {
+              let arr = pageDom.querySelectorAll(".type-linechart");
+              if(pageElement.showPercentageChangeToPrevTimestamp) {
+                pElementDom = arr[1];
               } else {
-                pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+                pElementDom = arr[0];
               }
-              
-              // recreate boxplots, itemNameFormatter did not get transferred
-              if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-                let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
-                pageElement.echartsOptions.dataset[1].transform.config = {
-                  itemNameFormatter: function (params) {
-                    return xAxisLabels[params.value];
-                  }
-                }
-              }
-
-              if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-                let instance = echarts.init( pElementDom );
-
-
-                // todo 
-                // not necessary in v4 anymore?! works even without, creates error if active
-               /*  if(pageElement.type === "map") {	
-                  console.log(pageElement.echartsOptions)
-                  for(let series of pageElement.echartsOptions.series) {
-                    console.log(series.boundingCoords)
-                    series.left = 0;
-                    series.top = 0;
-                    series.right = 0;
-                    series.bottom = 0;
-                    // series.boundingCoords = boundingCoords,
-                    series.projection = {
-                      project: (point) => this.mercatorProjection_d3(point),
-                      unproject: (point) => this.mercatorProjection_d3.invert(point)
-                    }
-                  }
-          
-                  if(pageElement.echartsOptions.geo){
-                    pageElement.echartsOptions.geo[0].top = 0;
-                    pageElement.echartsOptions.geo[0].left = 0;
-                    pageElement.echartsOptions.geo[0].right = 0;
-                    pageElement.echartsOptions.geo[0].bottom = 0;
-                    pageElement.echartsOptions.geo[0].projection = {
-                      project: (point) => this.mercatorProjection_d3(point),
-                      unproject: (point) => this.mercatorProjection_d3.invert(point)
-                    }				
-                    console.log(pageElement.echartsOptions.geo[0].boundingCoords);
-                    // pageElement.echartsOptions.geo[0].boundingCoords = boundingCoords
-                  }
-                  
-                  if(page.area && page.area.length) {
-                    // at this point we have not yet set echarts options, so we provide them as an extra parameter
-                    this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-                  } else {
-                    // recreate label positions
-                    pageElement.echartsOptions.labelLayout = function(feature) {
-                      // Set fixed position for labels that were previously dragged by user
-                      // For all other labels try to avoid overlaps
-                      let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-                      let text = feature.text.split("\n")[0] // area name is the first line
-                      if(names.includes(text)) {
-                        let idx = names.indexOf(text)
-                        return {
-                          x: page.templateSection.absoluteLabelPositions[idx].x,
-                          y: page.templateSection.absoluteLabelPositions[idx].y,
-                          draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-                        }
-                      } else {
-                        return {
-                          moveOverlap: 'shiftY',
-                          x: feature.rect.x + feature.rect.width / 2,
-                          draggable: false
-                        }
-                      }	
-                    }
-                  }
-                  
-                } */
-
-                instance.setOption(pageElement.echartsOptions)
-
-                if(pageElement.type === "map") {
-                  await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-                }
-              }
-
-              // if(pageElement.type === "overallAverage") {
-              // 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-              // }
-  
-              // if(pageElement.type === "selectionAverage") {
-              // 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-              // }
-
-              if(pageElement.type === "mapLegend") {
-                pageElement.isPlaceholder = false;
-                pageDom.querySelector(".type-mapLegend").style.display = "none";
-              }
-
-              // if(pageElement.type === "overallChange") {
-              // 	let wrapper = pageDom.querySelector(".type-overallChange")
-              // 	wrapper.style.border = "none";
-              // }
-
-              // if(pageElement.type === "selectionChange") {
-              // 	let wrapper = pageDom.querySelector(".type-selectionChange")
-              // 	wrapper.style.border = "none";
-              // }
-
-              if(pageElement.type === "datatable") {
-                this.createDatatablePage(pElementDom, pageElement);
-              }
-            }
-
-            // if the last page is reached and full prepared we want to show that to the user
-            // wait additionally for 500 ms
-            this.pagePreparationIndex = idx;
-
-            // every 10 percent log progress to user
-           /*  if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
-              this.$digest();	
-            }	
- */
-            if(idx == this.pagePreparationSize - 1){
-              this.lastPageOfAddedSectionPrepared = true;
+            } else {
+              pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
             }
             
-          });
-        }
+            // recreate boxplots, itemNameFormatter did not get transferred
+            if(pageElement.type === "linechart" && pageElement.showBoxplots) {
+              let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+              pageElement.echartsOptions.dataset[1].transform.config = {
+                itemNameFormatter: function (params) {
+                  return xAxisLabels[params.value];
+                }
+              }
+            }
 
-        this.loadingData = false;
-      } else {					
-        await this.handleSetupNewPagesForReachability(templateSection)
+            if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+              let instance = echarts.init( pElementDom );
+
+              instance.setOption(pageElement.echartsOptions)
+
+              if(pageElement.type === "map") {
+                await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
+              }
+            }
+
+            // if(pageElement.type === "overallAverage") {
+            // 	pageDom.querySelector(".type-overallAverage").style.border = "none";
+            // }
+
+            // if(pageElement.type === "selectionAverage") {
+            // 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
+            // }
+
+            if(pageElement.type === "mapLegend") {
+              pageElement.isPlaceholder = false;
+              pageDom.querySelector(".type-mapLegend").style.display = "none";
+            }
+
+            // if(pageElement.type === "overallChange") {
+            // 	let wrapper = pageDom.querySelector(".type-overallChange")
+            // 	wrapper.style.border = "none";
+            // }
+
+            // if(pageElement.type === "selectionChange") {
+            // 	let wrapper = pageDom.querySelector(".type-selectionChange")
+            // 	wrapper.style.border = "none";
+            // }
+
+            if(pageElement.type === "datatable") {
+              this.createDatatablePage(pElementDom, pageElement);
+            }
+          }
+
+          // if the last page is reached and full prepared we want to show that to the user
+          // wait additionally for 500 ms
+          this.pagePreparationIndex = idx;
+
+          // every 10 percent log progress to user
+          /*  if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
+            this.$digest();	
+          }	
+*/
+          if(idx == this.pagePreparationSize - 1){
+            this.lastPageOfAddedSectionPrepared = true;
+          }
+          
+        });
       }
-		}
-
+    }
 		
     // async
-		async handleSetupNewPagesForReachability(templateSection) {
+		async setupPagesForReachability(templateSection) {
 			let poiLayerName = templateSection.poiLayerName;
 			let spatialUnit, featureCollection, features, geoJSON, indicatorId;
 			// if indicator was chosen
@@ -817,58 +576,6 @@ export class ReportingOverviewComponent implements OnInit {
 
 						if(pageElement.type === "map") {
 							 let instance = echarts.init( pElementDom );
-
-							for(let series of pageElement.echartsOptions.series) {
-
-								series.left = 0;
-								series.top = 0;
-								series.right = 0;
-								series.bottom = 0;
-								// series.boundingCoords = newBounds,
-								series.projection = {
-									project: (point) => this.mercatorProjection_d3(point),
-									unproject: (point) => this.mercatorProjection_d3.invert(point)
-								}
-							}
-			
-							if(pageElement.echartsOptions.geo){
-								pageElement.echartsOptions.geo[0].top = 0;
-								pageElement.echartsOptions.geo[0].left = 0;
-								pageElement.echartsOptions.geo[0].right = 0;
-								pageElement.echartsOptions.geo[0].bottom = 0;
-								pageElement.echartsOptions.geo[0].projection = {
-									project: (point) => this.mercatorProjection_d3(point),
-									unproject: (point) => this.mercatorProjection_d3.invert(point)
-								}				
-								// pageElement.echartsOptions.geo[0].boundingCoords = newBounds
-							}
-
-							if(page.area && page.area.length) {
-								// at this point we have not yet set echarts options, so we provide them as an extra parameter
-								//this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
-							} else {
-								// recreate label positions
-								pageElement.echartsOptions.labelLayout = function(feature) {
-									// Set fixed position for labels that were previously dragged by user
-									// For all other labels try to avoid overlaps
-									let names = page.templateSection.absoluteLabelPositions.map(el=>el.name)
-									let text = feature.text.split("\n")[0] // area name is the first line
-									if(names.includes(text)) {
-										let idx = names.indexOf(text)
-										return {
-											x: page.templateSection.absoluteLabelPositions[idx].x,
-											y: page.templateSection.absoluteLabelPositions[idx].y,
-											draggable: false // Don't allow label dragging in overview, we could have different spatial units here
-										}
-									} else {
-										return {
-											moveOverlap: 'shiftY',
-											x: feature.rect.x + feature.rect.width / 2,
-											draggable: false
-										}
-									}	
-								}
-							}
 
 							instance.setOption( pageElement.echartsOptions )
 

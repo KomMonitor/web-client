@@ -516,8 +516,7 @@
                       &nbsp;&nbsp;Zurück zur Übersicht
                   </button>
                   
-                  <!-- [disabled]="!validateConfiguration() || ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate"  -->
-                  <button type="button" class="btn btn-success pull-right" (click)='onAddBtnClicked()'>
+                  <button type="button" class="btn btn-success pull-right" (click)='onAddBtnClicked()' [disabled]="!validateConfiguration()|| ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
                       <i class="fa fa-plus"></i>
                       <span [hidden]="!(reportingService.clonedTemplate.name.includes('-reachability'))">POI-Layer hinzufügen</span>
                       <span [hidden]="!(!reportingService.clonedTemplate.name.includes('-reachability'))">Indikator hinzufügen</span>

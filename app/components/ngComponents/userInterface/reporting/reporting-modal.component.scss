@@ -4,9 +4,25 @@
   transform: none !important;
 }
 
+::ng-deep {
+
+    .btn {
+      font-size: 14px !important;
+    }
+
+    .btn-warning {
+      color: #fff !important;
+    }
+}
+
 :host {
   .modal-content {
     width: 80vw;
+    font-size: 14px;
+
+    h3 {
+      font-size: 24px !important;
+    }
 
     &.content-small {
       width: 40vw;
@@ -33,7 +49,14 @@
   display: grid; 
   grid-template-columns: auto auto;
 
+  .btn {
+    width: min-content;
+    white-space: nowrap;
+    margin-right: 1em;
+  }
+
   div:last-child {
     text-align: right;
+    margin: 0;
   }
 }

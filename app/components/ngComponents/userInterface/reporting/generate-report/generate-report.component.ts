@@ -11,7 +11,7 @@ import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { reportingData } from '../reporting-modal.component';
-import { ReportingService } from 'services/reporting-service/reporting.service';
+import { ConfigData, ReportingService } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-generate-report',
@@ -189,6 +189,8 @@ export class GenerateReportComponent implements OnInit {
 
       let formatFactor = 3.4;
 
+      let pageConfig:ConfigData = page.templateSection.pageConfig;
+
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
 
@@ -215,7 +217,7 @@ export class GenerateReportComponent implements OnInit {
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
-            if (! page.templateSection.pageConfig.showTitle){
+            if (! pageConfig.headerFooterControl.showTitle){
               // skip
               continue;
             }
@@ -225,7 +227,7 @@ export class GenerateReportComponent implements OnInit {
 
           case "communeLogo-landscape":
           case "communeLogo-portrait": {
-            if (! page.templateSection.pageConfig.showLogo){
+            if (! pageConfig.headerFooterControl.showLogo){
               // skip
               continue;
             }
@@ -243,7 +245,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "dataTimestamp-landscape":
           case "dataTimestamp-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -252,7 +254,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "dataTimeseries-landscape":
           case "dataTimeseries-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -261,7 +263,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "reachability-subtitle-landscape":
           case "reachability-subtitle-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -270,7 +272,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "footerHorizontalSpacer-landscape":
           case "footerHorizontalSpacer-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -279,7 +281,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "footerCreationInfo-landscape":
           case "footerCreationInfo-portrait": {  
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;								
             }
@@ -288,7 +290,7 @@ export class GenerateReportComponent implements OnInit {
           } 
           case "pageNumber-landscape":
           case "pageNumber-portrait": {
-            if (! page.templateSection.pageConfig.showPageNumber){
+            if (! pageConfig.headerFooterControl.showPageNumber){
               // skip
               continue;
             }
@@ -328,7 +330,7 @@ export class GenerateReportComponent implements OnInit {
     // 				break;
     // 			}
           case "barchart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom);
@@ -338,7 +340,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "linechart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom);
@@ -348,7 +350,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "textInput": {
-            if (! page.templateSection.pageConfig.showFreeText){
+            if (! pageConfig.sectionContentControl.showFreeText){
               // skip
               continue;
             }
@@ -484,10 +486,11 @@ export class GenerateReportComponent implements OnInit {
       if(idx > 0) {
         doc.addPage(null, page.orientation);
       }
+
+      let pageConfig:ConfigData = page.templateSection.pageConfig;
       
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
-console.log(pageElement)
         let pElementDom;
         if(pageElement.type === "linechart") {
           let arr = pageDom.querySelectorAll(".type-linechart");
@@ -508,12 +511,11 @@ console.log(pageElement)
         pageElementDimensions.right = pageElement.dimensions.right && this.pxToMilli(pageElement.dimensions.right);
         pageElementDimensions.width = pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
         pageElementDimensions.height = pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
-        console.log(pageElementDimensions)
         // TODO some cases could be merged, but it's better to do that later when stuff works
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
-            if (! page.templateSection.pageConfig.showTitle){
+            if (! pageConfig.headerFooterControl.showTitle){
               // skip
               continue;
             }
@@ -526,7 +528,7 @@ console.log(pageElement)
           }
           case "communeLogo-landscape":
           case "communeLogo-portrait": {
-            if (! page.templateSection.pageConfig.showLogo){
+            if (! pageConfig.headerFooterControl.showLogo){
               // skip
               continue;
             }
@@ -539,7 +541,7 @@ console.log(pageElement)
           }
           case "dataTimestamp-landscape":
           case "dataTimestamp-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -548,7 +550,7 @@ console.log(pageElement)
           }
           case "dataTimeseries-landscape":
           case "dataTimeseries-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -557,7 +559,7 @@ console.log(pageElement)
           }
           case "reachability-subtitle-landscape":
           case "reachability-subtitle-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -566,7 +568,7 @@ console.log(pageElement)
           }
           case "footerHorizontalSpacer-landscape":
           case "footerHorizontalSpacer-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -580,7 +582,7 @@ console.log(pageElement)
           }
           case "footerCreationInfo-landscape":
           case "footerCreationInfo-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -589,7 +591,7 @@ console.log(pageElement)
           }
           case "pageNumber-landscape":
           case "pageNumber-portrait": {
-            if (! page.templateSection.pageConfig.showPageNumber){
+            if (! pageConfig.headerFooterControl.showPageNumber){
               // skip
               continue;
             }
@@ -637,7 +639,7 @@ console.log(pageElement)
           // 	break;
           // }
           case "barchart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom)
@@ -647,7 +649,7 @@ console.log(pageElement)
             break;
           }
           case "linechart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom)
@@ -657,7 +659,7 @@ console.log(pageElement)
             break;
           }
           case "textInput": {
-            if (! page.templateSection.pageConfig.showFreeText){
+            if (! pageConfig.sectionContentControl.showFreeText){
               // skip
               continue;
             }
@@ -917,6 +919,8 @@ console.log(pageElement)
       if(!this.showThisPage(page)) {
         continue;
       }
+ 
+      let pageConfig:ConfigData = page.templateSection.pageConfig;
 
       let paragraphs:any = [];
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
@@ -929,7 +933,7 @@ console.log(pageElement)
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
-            if (! page.templateSection.pageConfig.showTitle){
+            if (! pageConfig.headerFooterControl.showTitle){
               // skip
               continue;
             }
@@ -965,7 +969,7 @@ console.log(pageElement)
           }
           case "communeLogo-landscape":
           case "communeLogo-portrait": {
-            if (! page.templateSection.pageConfig.showLogo){
+            if (! pageConfig.headerFooterControl.showLogo){
               // skip
               continue;
             }
@@ -1000,7 +1004,7 @@ console.log(pageElement)
           case "dataTimestamp-portrait":
           case "dataTimeseries-portrait":
           case "reachability-subtitle-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -1036,7 +1040,7 @@ console.log(pageElement)
           
           case "footerHorizontalSpacer-landscape":
           case "footerHorizontalSpacer-portrait":
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -1072,7 +1076,7 @@ console.log(pageElement)
             break;
           case "footerCreationInfo-landscape":
           case "footerCreationInfo-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -1108,7 +1112,7 @@ console.log(pageElement)
           }
           case "pageNumber-landscape":
           case "pageNumber-portrait": {
-            if (! page.templateSection.pageConfig.showPageNumber){
+            if (! pageConfig.headerFooterControl.showPageNumber){
               // skip
               continue;
             }
@@ -1146,10 +1150,10 @@ console.log(pageElement)
           case "map":
           case "barchart":
           case "linechart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea && pageElement.type === "linechart" ){
               continue;
             }
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea && pageElement.type === "barchart" ){
               continue;
             }
             let pElementDom;
@@ -1348,7 +1352,7 @@ console.log(pageElement)
           // 	break;
           // }
           case "textInput": {
-            if (! page.templateSection.pageConfig.showFreeText){
+            if (! pageConfig.sectionContentControl.showFreeText){
               // skip
               continue;
             }

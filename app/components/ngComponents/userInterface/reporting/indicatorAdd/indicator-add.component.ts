@@ -23,7 +23,7 @@ import { DualListBoxComponent } from 'components/ngComponents/customElements/dua
 @Component({
   selector: 'app-indicator-add',
   templateUrl: './indicator-add.component.html',
-  styleUrls: ['./indicator-add.component.css'],
+  styleUrls: ['./indicator-add.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, DualListBoxComponent, BaseMapFilter]
 })
@@ -539,14 +539,12 @@ export class IndicatorAddComponent implements OnInit {
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
 
-    if(this.pageConfig.sectionControl.showAreaSpecific===true) {
-      if(this.reportingService.clonedTemplate.name.includes("timestamp"))
-        this.updateAreasForTimestampTemplates(newVal)
-      if(this.reportingService.clonedTemplate.name.includes("timeseries"))
-        this.updateAreasForTimeseriesTemplates(newVal)
-      if(this.reportingService.clonedTemplate.name.includes("reachability"))
-        this.updateAreasForReachabilityTemplates(newVal)
-    }
+    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
+      this.updateAreasForTimestampTemplates(newVal)
+    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
+      this.updateAreasForTimeseriesTemplates(newVal)
+    if(this.reportingService.clonedTemplate.name.includes("reachability"))
+      this.updateAreasForReachabilityTemplates(newVal)
 
      this.updateDiagramsInterval_areas = setInterval(async () => { 
       
@@ -600,11 +598,13 @@ export class IndicatorAddComponent implements OnInit {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
+      landscapePageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsertPerTimestamp.push(landscapePageToInsert);
 
       const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage + 1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
+      portraitPageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsertPerTimestamp.push(portraitPageToInsert);
     }
 
@@ -690,11 +690,13 @@ export class IndicatorAddComponent implements OnInit {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
+      landscapePageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(landscapePageToInsert);
 
       const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage+1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
+      portraitPageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(portraitPageToInsert);
     }
 
@@ -746,11 +748,13 @@ export class IndicatorAddComponent implements OnInit {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
+      landscapePageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(landscapePageToInsert);
 
       const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage+1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
+      portraitPageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(portraitPageToInsert);
     }
 
@@ -1672,16 +1676,14 @@ export class IndicatorAddComponent implements OnInit {
     // add one page to display the total map of all selected spatial unit features
     numberOfTargetSpatialUnitFeatures ++;				
     this.leafletScreenshotCacheHelperService.resetCounter(numberOfTargetSpatialUnitFeatures, false);
-
-    if(this.pageConfig.sectionControl.showAreaSpecific===true) {    
-      if(this.reportingService.clonedTemplate.name.includes("timestamp"))
-        this.updateAreasForTimestampTemplates(this.selectedAreas)
-      if(this.reportingService.clonedTemplate.name.includes("timeseries"))
-        this.updateAreasForTimeseriesTemplates(this.selectedAreas)
-      if(this.reportingService.clonedTemplate.name.includes("reachability"))
-        this.updateAreasForReachabilityTemplates(this.selectedAreas)
-    }
-
+ 
+    if(this.reportingService.clonedTemplate.name.includes("timestamp"))
+      this.updateAreasForTimestampTemplates(this.selectedAreas)
+    if(this.reportingService.clonedTemplate.name.includes("timeseries"))
+      this.updateAreasForTimeseriesTemplates(this.selectedAreas)
+    if(this.reportingService.clonedTemplate.name.includes("reachability"))
+      this.updateAreasForReachabilityTemplates(this.selectedAreas)
+    
     let updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
@@ -2000,15 +2002,13 @@ export class IndicatorAddComponent implements OnInit {
         this.selectedAreas = areasListInput;
         this.selectedTimestamps = timestampsListSelected;
 
-        if(this.pageConfig.sectionControl.showAreaSpecific===true) {
-          if(this.reportingService.clonedTemplate.name.includes("timestamp"))
-            this.updateAreasForTimestampTemplates(areasListInput)
-          if(this.reportingService.clonedTemplate.name.includes("timeseries"))
-            this.updateAreasForTimeseriesTemplates(areasListInput)
-          if(this.reportingService.clonedTemplate.name.includes("reachability"))
-            this.updateAreasForReachabilityTemplates(areasListInput)
-        }
-
+        if(this.reportingService.clonedTemplate.name.includes("timestamp"))
+          this.updateAreasForTimestampTemplates(areasListInput)
+        if(this.reportingService.clonedTemplate.name.includes("timeseries"))
+          this.updateAreasForTimeseriesTemplates(areasListInput)
+        if(this.reportingService.clonedTemplate.name.includes("reachability"))
+          this.updateAreasForReachabilityTemplates(areasListInput)
+        
         // call initSelectedDualListOption, as the selected Items have not been processed yet - only been selected on the dual lists
         this.initSelectedDualListOption();    
 
@@ -2073,11 +2073,12 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onAddBtnClicked() {
-    
+    console.log(this.selectedPoiLayer)
     let templateSection = {
       indicatorName: this.selectedIndicator ? this.selectedIndicator.indicatorName : "",
       indicatorId: this.selectedIndicator ? this.selectedIndicator.indicatorId : "",
       poiLayerName: this.selectedPoiLayer ? this.selectedPoiLayer.datasetName : "",
+      georesourceId: this.selectedPoiLayer ? this.selectedPoiLayer.georesourceId : "",
       spatialUnitName: this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
       absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
       echartsRegisteredMapNames: this.reportingService.clonedTemplate.echartsRegisteredMapNames,
@@ -2086,7 +2087,9 @@ export class IndicatorAddComponent implements OnInit {
       isochronesRangeType: this.isochronesRangeType,
       isochronesRangeUnits: this.isochronesRangeUnits
     }
-   
+
+    // remove pages not visible
+    this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter(e => e.hidden!==true);
 
     // for each page: add echarts configuration objects to the template
     for(let [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
@@ -2140,7 +2143,11 @@ export class IndicatorAddComponent implements OnInit {
       page.templateSection = templateSection;
     }
 
-    this.reportingService.addIndicatorSection(templateSection);
+    if(!this.reportingService.clonedTemplate.name.includes("reachability"))
+      this.reportingService.addIndicatorSection(templateSection);
+    else
+      this.reportingService.addPoiSection(templateSection);
+
     this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
 
    /*  if(!this.reportingService.clonedTemplate.name.includes("reachability")) {
