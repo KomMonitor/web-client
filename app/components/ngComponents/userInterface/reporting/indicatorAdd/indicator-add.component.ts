@@ -19,16 +19,28 @@ import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import * as noUiSlider from 'nouislider';
 import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
 
 @Component({
   selector: 'app-indicator-add',
   templateUrl: './indicator-add.component.html',
   styleUrls: ['./indicator-add.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DualListBoxComponent, BaseMapFilter]
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule, 
+    DualListBoxComponent, 
+    BaseMapFilter,
+    CustomSliderComponent
+  ]
 })
 export class IndicatorAddComponent implements OnInit {
   
+  sliderDisplaMode = DisplayType;
+  sliderType = SliderType;
+  sliderValues!:any[];
+
   months = [
     'Januar',
     'Fabruar',
@@ -598,13 +610,11 @@ export class IndicatorAddComponent implements OnInit {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
-      landscapePageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsertPerTimestamp.push(landscapePageToInsert);
 
       const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage + 1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
-      portraitPageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsertPerTimestamp.push(portraitPageToInsert);
     }
 
@@ -690,13 +700,11 @@ export class IndicatorAddComponent implements OnInit {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
-      landscapePageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(landscapePageToInsert);
 
       const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage+1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
-      portraitPageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(portraitPageToInsert);
     }
 
@@ -748,13 +756,11 @@ export class IndicatorAddComponent implements OnInit {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
-      landscapePageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(landscapePageToInsert);
 
       const portraitPageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage+1);
       portraitPageToInsert.area = area.name;
       portraitPageToInsert.id = this.templatePageIdCounter++;
-      portraitPageToInsert.hidden = !this.pageConfig.sectionControl.showAreaSpecific;
       pagesToInsert.push(portraitPageToInsert);
     }
 
@@ -855,10 +861,11 @@ export class IndicatorAddComponent implements OnInit {
       }
       
       if(newVal.length > 1) {
+    console.log(newVal, oldVal, difference);
         for(let timestampToInsert of difference) {
 
           // setup pages to insert first
-          let pagesToInsert = fromJson(this.untouchedTemplateAsString).pages;
+          let pagesToInsert = this.reportingService.getTemplatePagesForReinsert();
           for(let page of pagesToInsert) {
             page.id = this.templatePageIdCounter++;
           }
@@ -868,13 +875,13 @@ export class IndicatorAddComponent implements OnInit {
           for(let area of this.selectedAreas) {
             
             let tempArea:any = area;
-            let page = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage ];
+            let page = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
             page.area = tempArea.name;
             page.id = this.templatePageIdCounter++;
             areaSpecificPages.push(page);
             
             // repeat for the same area page with other orientation
-            let page_otherOrientation = fromJson(this.untouchedTemplateAsString).pages[ this.indexOfFirstAreaSpecificPage + 1];
+            let page_otherOrientation = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage + 1);
             page_otherOrientation.area = area.name;
             page_otherOrientation.id = this.templatePageIdCounter++;
             areaSpecificPages.push(page_otherOrientation);
@@ -1001,7 +1008,7 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-     let updateDiagramsInterval = setInterval(() => {
+    let updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -1318,8 +1325,8 @@ export class IndicatorAddComponent implements OnInit {
     this.onSelectedAreasChanged(event)
   }
 
-  onUpdatedManualSelectedTimestamps(event:any) {
-    this.onSelectedTimestampsChanged(event,this.selectedTimestamps);
+  async onUpdatedManualSelectedTimestamps(event:any) {
+    await this.onSelectedTimestampsChanged(event,this.selectedTimestamps);
   }
 
   updateTimestampsDualList(data, selectedItems) {
@@ -2505,27 +2512,13 @@ export class IndicatorAddComponent implements OnInit {
       // here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
       // for all spatial unit features		
       let domNode = leafletMap["_container"];	
-      /* leafletLayer.on("load", async () => { 
-        // there are pages for two page orientations (landscape and portait)
-        // only trigger the screenshot for those pages, that are actually present
-        if(page.orientation == this.reportingService.clonedTemplate.orientation){
-          // hier
-          setTimeout(async() => {
-          copy unten
-            await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
-                        page.spatialUnitFeatureId, page.orientation, domNode);
-          },1000);
-          
-        }
-                
-      });		 */			
+	
       leafletLayer.addTo(leafletMap);	
 
       leafletMap.whenReady(async () => {
         if(page.orientation == this.reportingService.clonedTemplate.orientation){
           await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
                       page.spatialUnitFeatureId, page.orientation, domNode, leafletMap);
-          
         }
       })	
       
@@ -4089,6 +4082,8 @@ export class IndicatorAddComponent implements OnInit {
   initializeDateRangeSlider(availableDates, min, max) {
 
     this.datesAsMs = this.createDatesFromIndicatorDates(availableDates);
+
+    this.sliderValues = this.datesAsMs;
 
     this.dateSlider = document.getElementById('reportingDateSlider');
     let config: any  = {

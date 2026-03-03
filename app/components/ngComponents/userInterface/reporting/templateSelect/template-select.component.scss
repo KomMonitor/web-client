@@ -29,5 +29,10 @@
       list-style-type: none;
       padding-left: 0;
     }
+
+    /* fix for duplicate entries */
+    ul:last-of-type {
+      display: none !important;
+    }
   }
 }

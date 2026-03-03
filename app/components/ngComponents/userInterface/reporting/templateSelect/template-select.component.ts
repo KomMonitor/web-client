@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ReportingTemplateFilter } from 'pipes/reporting-template-filter.pipe';
 import { FormsModule } from '@angular/forms';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
-import { NgbAccordionBody, NgbAccordionModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAccordionModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({

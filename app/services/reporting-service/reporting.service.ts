@@ -70,8 +70,8 @@ export interface TemplateData {
 export class ReportingService {
 
   default:ReportingData = {
-    workflowState: WorkflowState.reportingOverview,
-    selectedTemplateId: 4,
+    workflowState: WorkflowState.templateSelect,
+    selectedTemplateId: 0,
     sections: {
       indicators: [],
       georesources: []
@@ -119,7 +119,7 @@ export class ReportingService {
       showBarchartOverview: true,
       showLinechartOverview: true,
       showBoxplotchartOverview: true,
-      showAreaSpecific: false,
+      showAreaSpecific: true,
       showOverviewSection_reachability: true,
       showDatatable: true
     }
@@ -129,14 +129,17 @@ export class ReportingService {
     {
       id: 1,
       displayName: "Zeitpunkt",
+      collapsed: false
     },
     {
       id: 2,
       displayName: "Zeitserie",
+      collapsed: true
     },
     {
       id: 3,
       displayName: "Erreichbarkeit",
+      collapsed: true
     }
   ];
 
@@ -3223,6 +3226,10 @@ export class ReportingService {
   get templateSections():SectionData {
 
     return this._reportingData$.value.sections;
+  }
+
+  getTemplatePagesForReinsert() {
+    return structuredClone(this.selectedTemplate.pages);
   }
 
   getAreaSpecificPageClone(pageIndex:number):any {
