@@ -1,0 +1,78 @@
+/* ── Progress Stepper ── */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  cursor: default;
+}
+
+.stepper-step.clickable {
+  cursor: pointer;
+}
+
+.stepper-step.clickable:hover .stepper-circle {
+  opacity: 0.8;
+}
+
+.stepper-step.disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.stepper-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #bbb;
+  background: #fff;
+  color: #999;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.stepper-step.active .stepper-circle,
+.stepper-step.completed .stepper-circle {
+  background: #1a73e8;
+  border-color: #1a73e8;
+  color: #fff;
+}
+
+.stepper-label {
+  margin-top: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #999;
+  text-align: center;
+  max-width: 130px;
+}
+
+.stepper-step.active .stepper-label,
+.stepper-step.completed .stepper-label {
+  color: #1a73e8;
+}
+
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: #ddd;
+  margin-top: 17px; /* vertically centre against circle */
+  min-width: 40px;
+}
+
+.stepper-line.completed {
+  background: #1a73e8;
+}

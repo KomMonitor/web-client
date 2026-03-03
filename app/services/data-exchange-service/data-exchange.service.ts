@@ -647,7 +647,6 @@ export class DataExchangeService {
   }
 
   async fetchAllMetadata(filter = undefined){
-
     await this.cacheHelperService.init();
     console.log("fetching all metadata from management component");
 
@@ -684,7 +683,7 @@ export class DataExchangeService {
 
     // revise metadata fecthing for protected endpoints 
     forkJoin({
-      scriptsPromise: this.fetchIndicatorScriptsMetadata(this.currentKeycloakLoginRoles),
+      scriptsPromise: this.fetchIndicatorScriptsMetadata(),
       topicsPromise: this.fetchTopicsMetadata(this.currentKeycloakLoginRoles),
       spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles),
       georesourcesPromise: this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter),
@@ -824,8 +823,8 @@ export class DataExchangeService {
     this.setIndicators(await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
   }
 
-  async fetchIndicatorScriptsMetadata(keycloakRolesArray){
-    this.setProcessScripts(await this.cacheHelperService.fetchProcessScriptsMetadata(keycloakRolesArray));
+  async fetchIndicatorScriptsMetadata(){
+    this.setProcessScripts(await this.cacheHelperService.fetchProcessScriptsMetadata(this.currentKeycloakLoginRoles));
   }
 
   async fetchServices(keycloakRolesArray, filter = undefined) {
