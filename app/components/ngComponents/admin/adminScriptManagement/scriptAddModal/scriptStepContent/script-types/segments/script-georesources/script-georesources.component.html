@@ -1,0 +1,112 @@
+<expandable-box title="Notwendige Georessourcen" borderColor="red">
+  <div class="row vertical-align">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <app-filterable-select
+        label="Auswahl der für die Berechnung erforderlichen Georessourcen"
+        propertyKey="datasetName"
+        filterPlaceholder="Stichwortfilter"
+        selectPlaceholder="-- Georessource als Berechnungsgrundlage wählen --"
+        [options]="dataExchangeService.availableGeoresources"
+        (selectedItemChange)="onChangeGeoressource($event)"
+      ></app-filterable-select>
+    </div>
+  </div>
+
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>ID der selektierten Georessource</label>
+        <input
+          type="text"
+          class="form-control input-sm"
+          disabled
+          placeholder="GeoressourcenId"
+          [value]="selectedGeoresource?.georesourceId || ''"
+        />
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Name der selektierten Georessource</label>
+        <input
+          type="text"
+          class="form-control input-sm"
+          disabled
+          placeholder="IndikatorenName"
+          [value]="selectedGeoresource?.datasetName || ''"
+        />
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row vertical-align pt-2">
+    <div class="col-12 d-flex justify-content-center">
+      <div class="form-group">
+        <button
+          class="btn btn-success btn-sm"
+          [disabled]="!selectedGeoresource"
+          (click)="scriptHelperService.addBaseGeoresource(selectedGeoresource)"
+        >
+          Hinzufügen
+        </button>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabelle der definierten Georessourcen -->
+  <div class="row vertical-align">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <label>&Uuml;bersicht der definierten Georessourcen</label>
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Editierfunktionen</th>
+            <th>Geometrie-Typ</th>
+            <th>ID der Georessource</th>
+            <th>Name der Georessource</th>
+            <th>Beschreibung</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let baseGeoresource of scriptHelperService.requiredGeoresources_tmp
+            "
+          >
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  (click)="
+                    scriptHelperService.removeBaseGeoresource(baseGeoresource)
+                  "
+                  title="Eintrag löschen"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+            <td>
+              <div *ngIf="baseGeoresource.isPOI">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div *ngIf="baseGeoresource.isLOI">
+                <i class="fas fa-minus"></i>
+              </div>
+              <div *ngIf="baseGeoresource.isAOI">
+                <i class="fas fa-square"></i>
+              </div>
+            </td>
+            <td>{{ baseGeoresource.georesourceId }}</td>
+            <td>{{ baseGeoresource.datasetName }}</td>
+            <td>{{ baseGeoresource.metadata?.description }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</expandable-box>

@@ -12,16 +12,17 @@
     type="button"
     (click)="onClickAddScript()"
   >
-    <i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen
+    <i class="fas fa-plus"></i> Erstellen
   </button>
 
   <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkDeletePermission() || selectedRows.length === 0" -->
   <button
     class="btn btn-danger btn-sm"
     type="button"
+    [disabled]="selectedRows.length === 0"
     (click)="onClickDeleteScripts()"
   >
-    <i class="fas fa-trash"></i>&nbsp;&nbsp;Löschen
+    <i class="fas fa-trash"></i> Löschen
   </button>
 </ng-template>
 

@@ -1,7 +1,12 @@
 <div class="modal-header">
   <h4 class="modal-title">Skripte löschen</h4>
-  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()">
-    <span aria-hidden="true">&times;</span>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Schließen"
+    (click)="close()"
+  >
+    <!-- <span aria-hidden="true">&times;</span> -->
   </button>
 </div>
 
@@ -12,7 +17,10 @@
   </div>
 
   <h4><b>Sollen die folgenden Skripte wirklich gelöscht werden?</b></h4>
-  <p>Der jeweilige Ziel-Indikator kann dann nicht mehr automatisiert durch KomMonitor berechnet werden.</p>
+  <p>
+    Der jeweilige Ziel-Indikator kann dann nicht mehr automatisiert durch
+    KomMonitor berechnet werden.
+  </p>
 
   <div *ngIf="datasetsToDelete.length > 0">
     <ul>
@@ -21,24 +29,48 @@
   </div>
 
   <div *ngIf="datasetsToDelete.length === 0">
-    <pre>Kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+    <pre>
+Kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
+    >
   </div>
 
   <!-- Success Alert -->
   <div *ngIf="showSuccessAlert" class="alert alert-success alert-dismissable">
-    <button type="button" class="btn-close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
-    <h4><i class="icon fa fa-check"></i> Folgende Skripte wurden erfolgreich gelöscht</h4>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="hideSuccessAlert()"
+      aria-hidden="true"
+    >
+      &times;
+    </button>
+    <h4>
+      <i class="icon fa fa-check"></i> Folgende Skripte wurden erfolgreich
+      gelöscht
+    </h4>
     <ul>
-      <li *ngFor="let dataset of successfullyDeletedDatasets">{{ dataset.name }}</li>
+      <li *ngFor="let dataset of successfullyDeletedDatasets">
+        {{ dataset.name }}
+      </li>
     </ul>
   </div>
 
   <!-- Error Alert -->
   <div *ngIf="showErrorAlert" class="alert alert-danger alert-dismissable">
-    <button type="button" class="btn-close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="hideErrorAlert()"
+      aria-hidden="true"
+    >
+      &times;
+    </button>
     <h4><i class="icon fa fa-ban"></i> Löschen gescheitert</h4>
     <p>Folgende Datensätze konnten nicht gelöscht werden.</p>
-    <table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size:11px;">
+    <table
+      class="table table-bordered table-condensed"
+      style="width: 100%; overflow: auto; font-size: 11px"
+    >
       <thead>
         <tr>
           <th>Name</th>
@@ -56,7 +88,10 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    Schließen
+  </button>
+  <div style="flex: 1"></div>
   <button
     type="button"
     class="btn btn-danger"

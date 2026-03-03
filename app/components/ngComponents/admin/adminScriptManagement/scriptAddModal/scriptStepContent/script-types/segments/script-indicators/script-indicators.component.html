@@ -1,0 +1,102 @@
+<expandable-box title="Notwendige (Basis-)Indikatoren" borderColor="red">
+  <div class="row vertical-align">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <app-filterable-select
+        label="Auswahl der für die Berechnung erforderlichen (Basis-)Indikatoren"
+        propertyKey="indicatorName"
+        filterPlaceholder="Stichwortfilter"
+        selectPlaceholder="-- Indikator als Berechnungsgrundlage wählen --"
+        [options]="dataExchangeService.availableIndicators"
+        (selectedItemChange)="onChangeIndicator($event)"
+      ></app-filterable-select>
+    </div>
+  </div>
+
+  <div class="row vertical-align">
+    <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>ID des selektierten Indikators</label>
+        <input
+          type="text"
+          class="form-control input-sm"
+          disabled
+          placeholder="IndikatorenId"
+          [value]="selectedIndicator?.indicatorId || ''"
+        />
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Name des selektierten Indikators</label>
+        <input
+          type="text"
+          class="form-control input-sm"
+          disabled
+          placeholder="IndikatorenName"
+          [value]="selectedIndicator?.indicatorName || ''"
+        />
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row vertical-align pt-2">
+    <div class="col-12 d-flex justify-content-center">
+      <div class="form-group">
+        <button
+          class="btn btn-success btn-sm"
+          [disabled]="!selectedIndicator"
+          (click)="scriptHelperService.addBaseIndicator(selectedIndicator)"
+        >
+          Hinzufügen
+        </button>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabelle der definierten (Basis-)Indikatoren -->
+  <div class="row vertical-align">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <label>Übersicht der definierten (Basis-)Indikatoren</label>
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Editierfunktionen</th>
+            <th>ID des Indikators</th>
+            <th>Name des Indikators</th>
+            <th>Beschreibung</th>
+            <th>Einheit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let baseIndicator of scriptHelperService.requiredIndicators_tmp
+            "
+          >
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  (click)="
+                    scriptHelperService.removeBaseIndicator(baseIndicator)
+                  "
+                  title="Eintrag löschen"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+            <td>{{ baseIndicator.indicatorId }}</td>
+            <td>{{ baseIndicator.indicatorName }}</td>
+            <td>{{ baseIndicator.metadata?.description }}</td>
+            <td>{{ baseIndicator.unit }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</expandable-box>

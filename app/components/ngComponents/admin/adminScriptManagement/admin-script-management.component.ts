@@ -210,19 +210,18 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   public onClickAddScript(): void {
     // if (!this.dataExchangeService.checkCreatePermission()) return;
     const modalRef = this.modalService.open(ScriptAddModalComponent, {
-      modalDialogClass: "modal-medium",
+      // modalDialogClass: "modal-medium",
+      size: "xl",
       backdrop: "static",
     });
   }
 
   public onClickDeleteScripts(): void {
-    debugger;
-    // if (!this.dataExchangeService.checkDeletePermission()) return;
     const selectedScripts = this.agGrid?.api?.getSelectedRows() || [];
     if (selectedScripts.length === 0) return;
 
     const modalRef = this.modalService.open(ScriptDeleteModalComponent, {
-      size: "xl",
+      size: "lg",
       backdrop: "static",
     });
     modalRef.componentInstance.datasetsToDelete = JSON.parse(

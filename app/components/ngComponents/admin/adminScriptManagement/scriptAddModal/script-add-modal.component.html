@@ -59,51 +59,53 @@
     <div class="sub-heading">
       Angaben über den Skript-Code und notwendige Skript-Parameter
     </div>
-    <app-script-step-content></app-script-step-content>
+    <app-script-step-content
+      (allValid)="scriptStepValidChanged($event)"
+    ></app-script-step-content>
+  </div>
 
-    <!-- ---- SUCCESS / ERROR ALERTS ---- -->
-    <div
-      *ngIf="showIndicatorMetadataEditSuccessAlert"
-      class="alert alert-success mt-3"
+  <!-- ---- SUCCESS / ERROR ALERTS ---- -->
+  <div
+    *ngIf="showIndicatorMetadataEditSuccessAlert"
+    class="alert alert-success mt-3"
+  >
+    <button
+      type="button"
+      class="btn-close"
+      (click)="showIndicatorMetadataEditSuccessAlert = false"
     >
-      <button
-        type="button"
-        class="btn-close"
-        (click)="showIndicatorMetadataEditSuccessAlert = false"
-      >
-        &times;
-      </button>
-      <i class="fas fa-check"></i> Indikator-Metadaten erfolgreich aktualisiert.
-    </div>
-    <div
-      *ngIf="showIndicatorMetadataEditErrorAlert"
-      class="alert alert-danger mt-3"
+      &times;
+    </button>
+    <i class="fas fa-check"></i> Indikator-Metadaten erfolgreich aktualisiert.
+  </div>
+  <div
+    *ngIf="showIndicatorMetadataEditErrorAlert"
+    class="alert alert-danger mt-3"
+  >
+    <button
+      type="button"
+      class="btn-close"
+      (click)="showIndicatorMetadataEditErrorAlert = false"
     >
-      <button
-        type="button"
-        class="btn-close"
-        (click)="showIndicatorMetadataEditErrorAlert = false"
-      >
-        &times;
-      </button>
-      <i class="fas fa-ban"></i> Fehler beim Aktualisieren der
-      Indikator-Metadaten.
-      <pre>{{ errorMessagePart_indicatorMetadata }}</pre>
-    </div>
+      &times;
+    </button>
+    <i class="fas fa-ban"></i> Fehler beim Aktualisieren der
+    Indikator-Metadaten.
+    <pre>{{ errorMessagePart_indicatorMetadata }}</pre>
+  </div>
 
-    <div *ngIf="showSuccessAlert" class="alert alert-success mt-3">
-      <button type="button" class="btn-close" (click)="hideSuccessAlert()">
-        &times;
-      </button>
-      <i class="fas fa-check"></i> Skript wurde erfolgreich registriert.
-    </div>
-    <div *ngIf="showErrorAlert" class="alert alert-danger mt-3">
-      <button type="button" class="btn-close" (click)="hideErrorAlert()">
-        &times;
-      </button>
-      <i class="fas fa-ban"></i> Fehler beim Registrieren des Skripts.
-      <pre>{{ errorMessagePart }}</pre>
-    </div>
+  <div *ngIf="showSuccessAlert" class="alert alert-success mt-3">
+    <button type="button" class="btn-close" (click)="hideSuccessAlert()">
+      &times;
+    </button>
+    <i class="fas fa-check"></i> Skript wurde erfolgreich registriert.
+  </div>
+  <div *ngIf="showErrorAlert" class="alert alert-danger mt-3">
+    <button type="button" class="btn-close" (click)="hideErrorAlert()">
+      &times;
+    </button>
+    <i class="fas fa-ban"></i> Fehler beim Registrieren des Skripts.
+    <pre>{{ errorMessagePart }}</pre>
   </div>
 
   <div class="stepper-buttons">

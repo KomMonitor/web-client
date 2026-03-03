@@ -1,57 +1,43 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { HttpClient } from "@angular/common/http";
-import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
+import {
+  ScriptHelperService,
+  ScriptSelectItem,
+} from "services/script-helper-service/script-helper.service";
 import { ScriptDefinitionWrapperComponent } from "./script-definition-wrapper/script-definition-wrapper.component";
+import { FilterableSelectComponent } from "../../../../common/filterableSelect/filterable-select.component";
+import { ScriptGenericComponent } from "./script-types/script-generic/script-generic.component";
 
 @Component({
   selector: "app-script-step-content",
   templateUrl: "./script-step-content.component.html",
   styleUrls: ["./script-step-content.component.css"],
-  imports: [CommonModule, FormsModule, ScriptDefinitionWrapperComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ScriptDefinitionWrapperComponent,
+    ScriptGenericComponent,
+    FilterableSelectComponent,
+  ],
   standalone: true,
 })
-export class ScriptStepContentComponent implements OnInit {
-  // Script type selection & filter
-  selectedScriptType: any = null;
-  scriptNameFilter: string = "";
+export class ScriptStepContentComponent {
+  @Output() allValid: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  // Parameters (generic type)
-  parameterName_tmp: string = "";
-  parameterDescription_tmp: string = "";
-  parameterDefaultValue_tmp: any = undefined;
-  parameterNumericMinValue_tmp: number = 0;
-  parameterNumericMaxValue_tmp: number = 1;
-  parameterDataType_tmp: any = null;
+  protected selectedScriptType: ScriptSelectItem | undefined = undefined;
 
-  constructor(
-    public scriptHelperService: ScriptHelperService,
-    private http: HttpClient,
-  ) {}
+  protected scriptTypeOptions: ScriptSelectItem[] =
+    this.scriptHelperService.availableScriptTypeOptions;
 
-  ngOnInit(): void {
-    this.parameterDataType_tmp =
-      this.scriptHelperService.availableScriptDataTypes[0];
-  }
+  constructor(protected scriptHelperService: ScriptHelperService) {}
 
+  // TODO: remove later?
   reset(): void {
-    this.selectedScriptType = null;
-    this.scriptNameFilter = "";
-    this.parameterDataType_tmp =
-      this.scriptHelperService.availableScriptDataTypes[0];
+    this.selectedScriptType = undefined;
   }
 
-  getFilteredScriptTypes(): any[] {
-    const types = this.scriptHelperService.availableScriptTypeOptions || [];
-    if (!this.scriptNameFilter) return types;
-    const filter = this.scriptNameFilter.toLowerCase();
-    return types.filter((t: any) =>
-      t.displayName?.toLowerCase().includes(filter),
-    );
+  onChangeScriptType(item: ScriptSelectItem): void {
+    this.selectedScriptType = item;
   }
-
-  onChangeScriptType(): void {
-  }
-
 }

@@ -47,14 +47,9 @@ export class ScriptAddModalComponent implements OnInit, OnDestroy {
     description: "",
     associatedIndicatorId: "",
   };
-
-  /** Delegates to child so the footer button binding still works. */
-  get selectedScriptType(): any {
-    return this.scriptStepContent?.selectedScriptType ?? null;
-  }
+  scriptStepValid: boolean = false;
 
   loadingData: boolean = false;
-
   // Alerts
   showSuccessAlert: boolean = false;
   showErrorAlert: boolean = false;
@@ -109,7 +104,6 @@ export class ScriptAddModalComponent implements OnInit, OnDestroy {
     }
   }
 
-
   // ---- Submit ----
   async addScript(): Promise<void> {
     this.loadingData = true;
@@ -122,7 +116,8 @@ export class ScriptAddModalComponent implements OnInit, OnDestroy {
 
     const name = this.scriptMetadata.name.trim();
     const description = this.scriptMetadata.description.trim();
-    const associatedIndicatorId = this.scriptMetadata.associatedIndicatorId.trim();
+    const associatedIndicatorId =
+      this.scriptMetadata.associatedIndicatorId.trim();
     debugger;
     try {
       await this.scriptHelperService.postNewScript(
@@ -176,6 +171,11 @@ export class ScriptAddModalComponent implements OnInit, OnDestroy {
       this.scriptMetadata.name.trim() !== "" &&
       this.scriptMetadata.description.trim() !== "" &&
       this.scriptMetadata.associatedIndicatorId.trim() !== ""
+      // this.scriptStepValid
     );
+  }
+
+  scriptStepValidChanged(valid: boolean) {
+    this.scriptStepValid = valid;
   }
 }

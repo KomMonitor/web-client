@@ -1,0 +1,60 @@
+<expandable-box title="Skript Code (gemäß Skript Template)" borderColor="red">
+  <div class="row vertical-align">
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Einladen des Skript Codes aus einer Datei:</label>
+        <input
+          class="pull-left form-control"
+          type="file"
+          id="scriptCodeImportFile"
+          accept=".js"
+          (change)="onScriptCodeFileChange($event)"
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          Der Skript Code muss als Klartext Javascript Datei hochgeladen werden
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row vertical-align">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="form-group">
+        <label>Vorschaufenster des Skript-Codes*</label>
+        <div #scriptCodeMirrorContainer *ngIf="rawScriptCode"></div>
+      </div>
+    </div>
+  </div>
+</expandable-box>
+
+<div
+  *ngIf="showScriptCodeErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  class="alert alert-danger alert-dismissable"
+>
+  <button
+    type="button"
+    class="close"
+    (click)="hideScriptCodeErrorAlert()"
+    aria-hidden="true"
+  >
+    &times;
+  </button>
+  <h4><i class="icon fa fa-ban"></i> Script Code Import gescheitert</h4>
+  Beim Import des Script Codes aus einer Datei ist ein Fehler aufgetreten.
+  Fehlermeldung:
+  <br />
+  <pre>{{ indicatorScriptCodeImportError }}</pre>
+  <br /><br />
+  <p>
+    Bitte stellen Sie sicher, dass das
+    <a
+      href="./kommonitor-script-resources/kommonitor-script-template.js"
+      rel="noopener noreferrer"
+      target="_blank"
+      >KomMonitor Skript Template</a
+    >
+    eingehalten wird und die Datei den Code als einfachen String enth&auml;lt.
+  </p>
+</div>

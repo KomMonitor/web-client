@@ -6,7 +6,10 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 declare const MathJax: any;
 declare var PR: any;
 
-
+export interface ScriptSelectItem {
+  displayName: string;
+  apiName: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +17,7 @@ export class ScriptHelperService {
 
   targetUrlToManagementService = window.__env.apiUrl + window.__env.basePath + "/";
 
-  availableScriptDataTypes = [
+  availableScriptDataTypes: ScriptSelectItem[] = [
     {
       "displayName": "Textuell (String)",
       "apiName": "string"
@@ -33,7 +36,7 @@ export class ScriptHelperService {
     }
   ];
 
-  availableScriptTypeOptions = [
+  availableScriptTypeOptions: ScriptSelectItem[] = [
     {
       "displayName": "Generische Definition",
       "apiName": "generic"
@@ -112,7 +115,7 @@ export class ScriptHelperService {
     }             
   ];
 
-  temporalOptions = [
+  temporalOptions: ScriptSelectItem[] = [
     {
       "apiName": "YEARS",
       "displayName": "Jahr(e)"
@@ -246,11 +249,11 @@ export class ScriptHelperService {
     }	
   }
 
-  prettifyScriptCodePreview(htmlDomElementId){
+  prettifyScriptCodePreview(htmlDomElementOrId: HTMLElement | string): void {
 
     setTimeout(() => {
 
-      $(htmlDomElementId).removeClass("prettyprinted");
+      $(htmlDomElementOrId).removeClass("prettyprinted");
 
       // todo ?!
       //PR.prettyPrint();

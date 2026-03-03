@@ -46,6 +46,7 @@ pre {
 }
 
 .stepper-buttons {
+  padding-top: 10px;
   display: flex;
   gap: 16px;
   justify-content: center;

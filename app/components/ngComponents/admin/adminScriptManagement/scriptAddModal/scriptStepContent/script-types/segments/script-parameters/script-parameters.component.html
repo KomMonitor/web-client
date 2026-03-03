@@ -1,0 +1,306 @@
+<expandable-box title="Optionale Skript-Parameter" borderColor="red">
+  <p>
+    Ein Skript-Parameter besteht aus einem <b>Namen</b>, einer
+    <b>Beschreibung</b>, einem festgelegten <b>Datentyp</b>, und einem
+    <b>Standard-Wert</b>. Bei numerischen Parametern kann darüber hinaus der
+    gültige Wertebereich festgelegt werden.
+  </p>
+
+  <div class="row vertical-align">
+    <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Parametername*</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="parameterName_tmp"
+          placeholder="Name"
+          required
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>Name des anzulegenden Skript-Parameters.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Beschreibung*</label>
+        <textarea
+          rows="3"
+          class="form-control"
+          [(ngModel)]="parameterDescription_tmp"
+          placeholder="Beschreibung"
+          required
+        ></textarea>
+        <div class="help-block">
+          <p>
+            Hinweise über die Verwendung des Parameters innerhalb des Skripts
+          </p>
+        </div>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row vertical-align">
+    <!-- Datentyp -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Datentyp des Parameters*</label>
+        <select
+          [(ngModel)]="parameterDataType_tmp"
+          size="5"
+          class="form-control"
+          (ngModelChange)="onChangeParameterDataType()"
+        >
+          <option disabled selected [ngValue]="undefined">
+            -- Parameter-Datentyp wählen --
+          </option>
+          <option
+            *ngFor="
+              let dataType of scriptHelperService.availableScriptDataTypes
+            "
+            [ngValue]="dataType"
+          >
+            {{ dataType.displayName }}
+          </option>
+        </select>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+
+    <!-- Standard-Wert -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="form-group">
+        <label>Standard-Wert*</label>
+        <div *ngIf="parameterDataType_tmp?.apiName === 'string'">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="parameterDefaultValue_tmp"
+            placeholder="textueller Standard-Wert"
+            required
+          />
+        </div>
+        <div *ngIf="parameterDataType_tmp?.apiName === 'boolean'">
+          <input
+            type="checkbox"
+            [(ngModel)]="parameterDefaultValue_tmp"
+            required
+          />
+        </div>
+        <div *ngIf="parameterDataType_tmp?.apiName === 'integer'">
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [(ngModel)]="parameterDefaultValue_tmp"
+            placeholder="Ganzzahl Standard-Wert"
+            required
+          />
+        </div>
+        <div *ngIf="parameterDataType_tmp?.apiName === 'double'">
+          <input
+            type="number"
+            step="0.000000001"
+            class="form-control"
+            [(ngModel)]="parameterDefaultValue_tmp"
+            placeholder="Gleitkommazahl Standard-Wert"
+            required
+          />
+          <div class="help-block">
+            <p>Maximal 8 Nachkommastellen.</p>
+          </div>
+        </div>
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>
+            Standard-Wert des anzulegenden Skript-Parameters, dessen Wert bei
+            automatisierten Indikatoren-Zeitreihen-Fortführung für diesen
+            Parameter gesetzt wird.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Min (integer) -->
+    <div
+      class="col-md-3 col-sm-6 col-xs-12"
+      *ngIf="parameterDataType_tmp?.apiName === 'integer'"
+    >
+      <div class="form-group">
+        <label>Minimaler Wert (untere Gültigkeitsgrenze)*</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [(ngModel)]="parameterNumericMinValue_tmp"
+          placeholder="Ganzzahl Min-Wert"
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>
+            Minimaler Wert des anzulegenden numerischen Skript-Parameters im
+            Sinne eines Gültigkeitsbereichs. Maximal 8 Nachkommastellen
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Max (integer) -->
+    <div
+      class="col-md-3 col-sm-6 col-xs-12"
+      *ngIf="parameterDataType_tmp?.apiName === 'integer'"
+    >
+      <div class="form-group">
+        <label>Maximaler Wert (obere Gültigkeitsgrenze)*</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [(ngModel)]="parameterNumericMaxValue_tmp"
+          placeholder="Ganzzahl Max-Wert"
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>
+            Maximaler Wert des anzulegenden numerischen Skript-Parameters im
+            Sinne eines Gültigkeitsbereichs. Maximal 8 Nachkommastellen
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Min (double) -->
+    <div
+      class="col-md-3 col-sm-6 col-xs-12"
+      *ngIf="parameterDataType_tmp?.apiName === 'double'"
+    >
+      <div class="form-group">
+        <label>Minimaler Wert (untere Gültigkeitsgrenze)*</label>
+        <input
+          type="number"
+          step="0.000000001"
+          class="form-control"
+          [(ngModel)]="parameterNumericMinValue_tmp"
+          placeholder="Gleitkommazahl Min-Wert"
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>
+            Minimaler Wert des anzulegenden numerischen Skript-Parameters im
+            Sinne eines Gültigkeitsbereichs. Maximal 8 Nachkommastellen
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Max (double) -->
+    <div
+      class="col-md-3 col-sm-6 col-xs-12"
+      *ngIf="parameterDataType_tmp?.apiName === 'double'"
+    >
+      <div class="form-group">
+        <label>Maximaler Wert (obere Gültigkeitsgrenze)*</label>
+        <input
+          type="number"
+          step="0.000000001"
+          class="form-control"
+          [(ngModel)]="parameterNumericMaxValue_tmp"
+          placeholder="Gleitkommazahl Max-Wert"
+        />
+        <div class="help-block with-errors"></div>
+        <div class="help-block">
+          <p>
+            Maximaler Wert des anzulegenden numerischen Skript-Parameters im
+            Sinne eines Gültigkeitsbereichs. Maximal 8 Nachkommastellen
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row vertical-align pt-2">
+    <div class="col-12 d-flex justify-content-center">
+      <div class="form-group">
+        <button
+          class="btn btn-success btn-sm"
+          [disabled]="isAddParameterDisabled()"
+          (click)="onAddScriptParameter()"
+        >
+          Hinzufügen
+        </button>
+        <div class="help-block with-errors"></div>
+      </div>
+    </div>
+  </div>
+
+  <br /><br />
+
+  <!-- Tabelle der definierten Skript-Parameter -->
+  <div class="row vertical-align">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <label>Übersicht der definierten Skript-Parameter</label>
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Editierfunktionen</th>
+            <th>Name des Parameters</th>
+            <th>Beschreibung</th>
+            <th>Datentyp</th>
+            <th>Standard-Wert</th>
+            <th>Min-Wert</th>
+            <th>Max-Wert</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let scriptParameter of scriptHelperService.requiredScriptParameters_tmp
+            "
+          >
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  (click)="
+                    scriptHelperService.removeScriptParameter(scriptParameter)
+                  "
+                  title="Eintrag löschen"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+            <td>{{ scriptParameter.name }}</td>
+            <td>{{ scriptParameter.description }}</td>
+            <td>{{ scriptParameter.dataType }}</td>
+            <td>{{ scriptParameter.defaultValue }}</td>
+            <td>
+              <ng-container
+                *ngIf="
+                  scriptParameter.dataType === 'integer' ||
+                  scriptParameter.dataType === 'double'
+                "
+              >
+                {{ scriptParameter.minParameterValueForNumericInputs }}
+              </ng-container>
+            </td>
+            <td>
+              <ng-container
+                *ngIf="
+                  scriptParameter.dataType === 'integer' ||
+                  scriptParameter.dataType === 'double'
+                "
+              >
+                {{ scriptParameter.maxParameterValueForNumericInputs }}
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</expandable-box>
