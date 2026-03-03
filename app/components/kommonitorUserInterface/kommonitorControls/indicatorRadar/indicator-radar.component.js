@@ -505,9 +505,8 @@ angular
 							if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 								appendSeriesToRadarChart(featureProperties);
 							}
-
-							highlightFeatureInRadarChart(featureProperties);
 						}
+						highlightFeatureInRadarChart(featureProperties);
 					});
 
           var checkResizeRadarChart = function() {
