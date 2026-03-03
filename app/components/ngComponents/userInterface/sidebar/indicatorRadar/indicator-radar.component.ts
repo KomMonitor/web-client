@@ -466,12 +466,16 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   }
 
   onUpdateDiagramsForHoveredFeature([featureProperties]) {
-
       if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
           return;
       }
-      if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-          this.appendSeriesToRadarChart(featureProperties);
+
+      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      if (legendIndex === -1) {
+        if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            console.log("Feature append");
+            this.appendSeriesToRadarChart(featureProperties);
+        }
       }
       this.highlightFeatureInRadarChart(featureProperties);
   }
@@ -557,21 +561,29 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   removeSeriesFromRadarChart(featureProperties) {
       // remove feature from legend
-      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
-      if (legendIndex > -1) {
-          this.radarOption.legend.data.splice(legendIndex, 1);
-      }
-      // remove feature data series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
-      if (dataIndex > -1) {
-          this.radarOption.series[0].data.splice(dataIndex, 1);
-      }
-      // second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
-      this.radarChart.setOption(this.radarOption, true);
-      setTimeout( () => {
-          this.radarChart.resize();
-      }, 350);
-      this.registerEventsIfNecessary();
+      var targetIndices: number[] = [];  
+      this.radarOption.legend.data.forEach((val: any, index: number) => {
+        if (val === featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+            targetIndices.push(index);
+        }
+      });
+      targetIndices.forEach(legendIndex => {
+        if (legendIndex > -1) {
+            this.radarOption.legend.data.splice(legendIndex, 1);
+        }
+        // remove feature data series
+        var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+        if (dataIndex > -1) {
+            this.radarOption.series[0].data.splice(dataIndex, 1);
+        }
+        // second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
+        this.radarChart.setOption(this.radarOption, true);
+        setTimeout( () => {
+            this.radarChart.resize();
+        }, 350);
+        this.registerEventsIfNecessary();
+      });
+
   }
   
   unhighlightFeatureInRadarChart(featureProperties) {
