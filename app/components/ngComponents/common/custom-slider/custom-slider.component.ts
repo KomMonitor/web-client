@@ -26,7 +26,7 @@ export class CustomSliderComponent implements AfterViewInit {
 
   @Input() data:any[] = [];
   @Input() type: SliderType = SliderType.NORMAL;
-  @Input() markerPositions: number[] = [0];
+  @Input() markerPositions: any[] = [0];
   @Input() displayMode: DisplayType = DisplayType.NORMAL
 
   @Output() valueChange = new EventEmitter<number | number[]>();
@@ -94,7 +94,10 @@ export class CustomSliderComponent implements AfterViewInit {
   }
 
   defineMarkerPositions():number[] {
-    return this.markerPositions.map(e => this.data.indexOf(e));
+    // getTime, weil "indexOf" bei Date nicht zuverlässig funktioniert
+    return this.markerPositions.map(m =>
+      this.data.findIndex(d => d.getTime() === m.getTime())
+    );
   }
 
   formatValue(value:number):any {

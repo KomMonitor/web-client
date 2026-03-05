@@ -63,14 +63,18 @@ export class RtdDiagramsComponent implements OnInit {
         this.loadingData = true;
         this.parameter = value.parameter;
         this.lineTitle = `${this.parameter.name} [${this.parameter.unit}]`;   
+        
+        var timestamps = this.rtdService.getRangeSliderValues();
+        this.sliderData = timestamps;
+
+        if(!this.rtdService.selectedData$.value.range)
+          this.sliderMarker = [timestamps[0], timestamps[timestamps.length-1]];
+        else
+          this.sliderMarker = [this.rtdService.selectedData$.value.range.start, this.rtdService.selectedData$.value.range.end];
       
         this.rtdService.getTimeseries(value.parameter).subscribe(
           result => {
             this.buildLineChart(result);
-
-            var timestamps = this.rtdService.buildRangeSliderValues(result);
-            this.sliderData = timestamps;
-            this.sliderMarker = [timestamps[0], timestamps[timestamps.length-1]];
 
             this.loadingData = false;
           }
@@ -84,7 +88,8 @@ export class RtdDiagramsComponent implements OnInit {
   }
 
   onSliderChange(value: number | number[]) {
-    console.log(value);
+
+    this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), range: {start: value[0], end: value[1]}});
   }
 
   buildLineChart(data:TimeseriesMap) {

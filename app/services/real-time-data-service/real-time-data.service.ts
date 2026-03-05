@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DisplayFormat } from 'components/ngComponents/userInterface/sidebar/rtdDiagrams/rtd-diagrams/rtd-diagrams.component';
 import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
@@ -39,6 +39,10 @@ export interface SelectedData {
   parameter: ParameterData | undefined;
   poiFeature: any | undefined;
   displayFormat: DisplayFormat;
+  range: undefined | {
+    start: Date;
+    end: Date;
+  }
 }
 
 @Injectable({
@@ -52,7 +56,7 @@ export class RealTimeDataService {
 
   customFontFamily!:any; 
 
-  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined, displayFormat: DisplayFormat.STD});
+  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined, displayFormat: DisplayFormat.STD, range: undefined});
 
   lineColor:string[] = [
     'red',
@@ -101,8 +105,19 @@ export class RealTimeDataService {
 
     var selectedItems = this.stationData.filter(e => e.parameters.some(p => p.id==parameter.id && p.selected===true));
 
+    let params = new HttpParams();
+    if(this.selectedData$.value.range) {
+      let start = new Date(this.selectedData$.value.range.start)
+      start.setUTCHours(1,0,0,1);
+      params = params.set('start', start.toISOString())
+
+      let end = new Date(this.selectedData$.value.range.end);
+      end.setUTCHours(11,59,59,999);
+      params = params.set('end', end.toISOString());
+    }
+
     const requests = selectedItems.reduce((acc, station) => {
-      acc[station.name] = this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}`);
+      acc[station.name] = this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}`,{params});
       return acc;
     }, {} as Record<string, Observable<any>>);
 
@@ -246,17 +261,23 @@ export class RealTimeDataService {
     this.lineChartOptions = lineOption;
   }
 
-  buildRangeSliderValues(data: TimeseriesMap):Date[] {
+  getRangeSliderValues():Date[] {
 
-    let dates:Date[] = [];
+    if(!this.selectedData$.value.parameter?.range) 
+      return [];
 
-    Object.entries(data).forEach(([id, value]) => {
-      value.forEach(e => {
-        if(!dates.includes(e.timestamp))
-          dates.push(e.timestamp);
-      })
-    });
-    
+    const start = new Date(this.selectedData$.value.parameter?.range.start);
+    const end = new Date(this.selectedData$.value.parameter?.range.end);
+
+    const dates: Date[] = [];
+
+    let current = new Date(start);
+
+    while (current <= end) {
+      dates.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
     return dates;
   }
 
