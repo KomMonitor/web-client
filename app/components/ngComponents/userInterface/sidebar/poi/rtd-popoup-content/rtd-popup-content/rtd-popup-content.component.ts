@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-rtd-popup-content',
   templateUrl: './rtd-popup-content.component.html',
-  styleUrls: ['./rtd-popup-content.component.css'],
+  styleUrls: ['./rtd-popup-content.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule]
 })

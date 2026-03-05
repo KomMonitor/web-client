@@ -18,6 +18,11 @@ export interface ParameterData {
   id: number;
   name: string;
   unit: string;
+  last_entry: TimeseriesData;
+  range: {
+    start: Date;
+    end: Date;
+  }
   selected: boolean;
 }
 
