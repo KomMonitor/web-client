@@ -22,15 +22,20 @@ export class RtdPopupContentComponent {
   ) {}
 
   onChangeSelectedParameter(parameter: ParameterData) {
+
     this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), parameter: parameter, poiFeature: this.poiFeature});
+    this.rtdService.checkForSelectedParams();
+
+    if(parameter.selected)
+      this.rtdService.equalizeSelectedParameter(parameter);
+
+    this.sidebarService.openRtdDiagrams();
   }
 
   onParameterClick(parameter: ParameterData) {
-    if(parameter.selected!==true) {
-      parameter.selected = true;
-      this.onChangeSelectedParameter(parameter);
-    }
+    parameter.selected = true;
+    this.onChangeSelectedParameter(parameter);
     
-    this.sidebarService.sidebarOpenElement$.next({sidebarIdentifier:'sidebarRtdDiagramCollapse'});
+    this.sidebarService.openRtdDiagrams();
   }
 }

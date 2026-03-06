@@ -5,6 +5,7 @@ import { ParameterData, RealTimeDataService, TimeseriesMap } from 'services/real
 import * as echarts from 'echarts';
 import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
 import { FormsModule } from '@angular/forms';
+import { CdkDragPlaceholder } from "@angular/cdk/drag-drop";
 
 
 export interface InputData {
@@ -30,7 +31,7 @@ export enum DisplayFormat {
     ExpandableBoxComponent,
     CustomSliderComponent,
     FormsModule
-  ]
+]
 })
 export class RtdDiagramsComponent implements OnInit {
 
@@ -79,7 +80,7 @@ export class RtdDiagramsComponent implements OnInit {
             this.loadingData = false;
           }
         )
-      }
+      } 
     });
   }
 

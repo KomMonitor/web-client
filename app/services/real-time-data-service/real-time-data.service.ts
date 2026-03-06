@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DisplayFormat } from 'components/ngComponents/userInterface/sidebar/rtdDiagrams/rtd-diagrams/rtd-diagrams.component';
+import { SidebarService } from 'components/ngComponents/userInterface/sidebar/sidebar.service';
 import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
@@ -69,7 +70,8 @@ export class RealTimeDataService {
 
   constructor(
     private http: HttpClient,
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private sidebarService: SidebarService
   ) { 
     this.customFontFamily = this.setCustomFontFamily();
 
@@ -80,6 +82,26 @@ export class RealTimeDataService {
     var elem:any = document.querySelector('#fontFamily-reference');
     var style = getComputedStyle(elem);
     return style.fontFamily;
+  }
+
+  equalizeSelectedParameter(parameter: ParameterData) {
+    // resets all previously selected parameters to false if param.ids do not match. only equal params can be displayed at once
+    this.stationData.map(station => {
+      station.parameters.map(param => {
+        if(param.id!=parameter.id)
+          param.selected = false;
+      })
+    });
+  }
+
+  checkForSelectedParams() {
+
+    const selected = this.stationData.some(station => 
+      station.parameters?.some(param => param.selected===true)
+    );
+
+    if(selected===false)
+      this.sidebarService.openPois();
   }
 
   loadStationData():Promise<void> {
@@ -243,6 +265,12 @@ export class RealTimeDataService {
       },
       yAxis: {
         type: 'value',
+        min: function (value) {
+          return value.min - (value.min*0.1);
+        },
+        max: function (value) {
+          return value.max + (value.max*0.1);
+        },
         name: parameter.unit,
         axisLabel: {
           formatter: (value, index) => {

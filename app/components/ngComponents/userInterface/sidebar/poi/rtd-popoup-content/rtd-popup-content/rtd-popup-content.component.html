@@ -5,7 +5,8 @@
       <tr *ngFor="let row of stationData.parameters">
         <td><input type="checkbox" [(ngModel)]="row.selected" (change)="onChangeSelectedParameter(row)"></td>
         <td><a (click)="onParameterClick(row)">{{row.name}} [{{row.unit}}]</a></td>
-        <td>{{row.last_entry.value}} {{row.unit}} <span class="last_entry">({{row.last_entry.timestamp | date: 'dd.MM. HH:mm:ss'}})</span></td>
+        <td *ngIf="row.last_entry">{{row.last_entry.value}} {{row.unit}}<br><span class="last_entry">({{row.last_entry.timestamp | date: 'dd.MM. HH:mm:ss'}})</span></td>
+        <td *ngIf="!row.last_entry">-</td>
       </tr>
     </tbody>
   </table>
