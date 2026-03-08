@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { DisplayFormat } from 'components/ngComponents/userInterface/sidebar/rtdDiagrams/rtd-diagrams/rtd-diagrams.component';
+import { DisplayBreakup, DisplayFormat } from 'components/ngComponents/userInterface/sidebar/rtdDiagrams/rtd-diagrams/rtd-diagrams.component';
 import { SidebarService } from 'components/ngComponents/userInterface/sidebar/sidebar.service';
 import { BehaviorSubject, Observable, forkJoin } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -32,14 +32,24 @@ export interface TimeseriesData {
   timestamp: Date;
 }
 
+export interface AggTimeseriesData {
+  aggregated_values: number;
+  time_bucket: Date;
+}
+
 export interface TimeseriesMap {
   [key: string]: TimeseriesData[];
+}
+
+export interface AggTimeseriesMap {
+  [key: string]: AggTimeseriesData[];
 }
 
 export interface SelectedData {
   parameter: ParameterData | undefined;
   poiFeature: any | undefined;
   displayFormat: DisplayFormat;
+  displayBreakup: DisplayBreakup;
   range: undefined | {
     start: Date;
     end: Date;
@@ -57,7 +67,10 @@ export class RealTimeDataService {
 
   customFontFamily!:any; 
 
-  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined, displayFormat: DisplayFormat.STD, range: undefined});
+  displayFormat = DisplayFormat;
+  displayBreakup = DisplayBreakup;
+
+  selectedData$ = new BehaviorSubject<SelectedData>({parameter: undefined, poiFeature: undefined, displayFormat: DisplayFormat.STD, displayBreakup: DisplayBreakup.DAY, range: undefined});
 
   lineColor:string[] = [
     'red',
@@ -100,8 +113,7 @@ export class RealTimeDataService {
       station.parameters?.some(param => param.selected===true)
     );
 
-    if(selected===false)
-      this.sidebarService.openPois();
+    return selected;
   }
 
   loadStationData():Promise<void> {
@@ -123,10 +135,10 @@ export class RealTimeDataService {
     return this.stationData.some(e => e.id==stationId);
   }
 
-  getTimeseries(parameter: ParameterData):Observable<TimeseriesMap> {
+  getTimeseries(parameter: ParameterData):Observable<TimeseriesMap | AggTimeseriesMap> {
 
     var selectedItems = this.stationData.filter(e => e.parameters.some(p => p.id==parameter.id && p.selected===true));
-
+console.log(this.selectedData$.value.range)
     let params = new HttpParams();
     if(this.selectedData$.value.range) {
       let start = new Date(this.selectedData$.value.range.start)
@@ -134,19 +146,46 @@ export class RealTimeDataService {
       params = params.set('start', start.toISOString())
 
       let end = new Date(this.selectedData$.value.range.end);
-      end.setUTCHours(11,59,59,999);
+      end.setUTCHours(11,59,59,999);                          // change to 23,59,59,999 once fixed @benni
       params = params.set('end', end.toISOString());
     }
 
+    if(this.selectedData$.value.displayFormat && this.selectedData$.value.displayBreakup) {
+      params = params.set('function', this.selectedData$.value.displayFormat);
+      params = params.set('frequency', this.selectedData$.value.displayBreakup);
+    }
+
     const requests = selectedItems.reduce((acc, station) => {
-      acc[station.name] = this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}`,{params});
+      acc[station.name] = this.http.get<TimeseriesData[]>(`${this.dataExchangeService.baseUrlToRealTimeData}/timeseries/${station.id}/${parameter.id}${(this.selectedData$.value.displayFormat!=this.displayFormat.STD)?'/aggregates':''}`,{params});
       return acc;
     }, {} as Record<string, Observable<any>>);
 
     return forkJoin(requests);
   }
 
-  setLineChartOptions(parameter:ParameterData, series:any[], datesArray:string[]) {
+  buildTimestamps(data:TimeseriesMap):any[] {
+    let dates:string[] = [];
+    Object.entries(data).forEach(([id, value]) => {
+      value.forEach(e => {
+
+        let timestamp = new Date(e.timestamp);
+        timestamp.setHours(11,0,0,0);
+
+        if(!dates.includes(timestamp.toISOString()))
+          dates.push(timestamp.toISOString());
+      })
+    });
+
+    console.log(dates)
+
+    return dates;
+  }
+
+  setLineChartOptions(parameter:ParameterData, data:TimeseriesMap) {
+
+    let timestampMap = this.buildTimestamps(data);
+    let datesArray = this.buildDatesArray(timestampMap);
+    let series = this.buildValuesArray(data, timestampMap);
 
     var lineOption:any = {
       textStyle: {fontFamily: this.customFontFamily},
@@ -289,41 +328,111 @@ export class RealTimeDataService {
     this.lineChartOptions = lineOption;
   }
 
-  getRangeSliderValues():Date[] {
+  getRangeSliderValues(parameter:ParameterData):Date[] {
 
-    if(!this.selectedData$.value.parameter?.range) 
-      return [];
+    let minStart: number | null = null;
+    let maxEnd: number | null = null;
 
-    const start = new Date(this.selectedData$.value.parameter?.range.start);
-    const end = new Date(this.selectedData$.value.parameter?.range.end);
+    var selectedItems = this.stationData.filter(e => e.parameters.some(p => p.id==parameter.id && p.selected===true));
 
-    const dates: Date[] = [];
+    // globales start/end bestimmen
+    for (const station of selectedItems) {
+      for (const p of station.parameters) {
+        if (p.id === parameter.id && p.selected) {
 
-    let current = new Date(start);
+          const start = new Date(p.range.start).getTime();
+          const end = new Date(p.range.end).getTime();
 
-    while (current <= end) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
+          if (minStart === null || start < minStart) {
+            minStart = start;
+          }
+
+          if (maxEnd === null || end > maxEnd) {
+            maxEnd = end;
+          }
+        }
+      }
     }
 
-    return dates;
+    if (minStart === null || maxEnd === null) {
+      return [];
+    }
+
+    // auf Tagesgrenzen normalisieren
+    const startDate = new Date(minStart);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(maxEnd);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Tagesarray erzeugen
+    const days: Date[] = [];
+    const current = new Date(startDate);
+    current.setHours(0, 0, 0, 0);
+
+    while (current.getTime() <= endDate.getTime()) {
+      
+      if(current.getTime()!=startDate.getTime())
+        current.setHours(23, 59, 59, 999);
+
+      const day = new Date(current);
+      days.push(day);
+
+      current.setDate(current.getDate() + 1);
+      current.setHours(0, 0, 0, 0); // wichtig
+    }
+
+    return days;
   }
 
-  buildDatesArray(data:TimeseriesMap):string[] {
+  buildDatesArray(dates):string[] {
 
-    let dates:Date[] = [];
-
-    Object.entries(data).forEach(([id, value]) => {
-      value.forEach(e => {
-        if(!dates.includes(e.timestamp))
-          dates.push(e.timestamp);
-      })
+    const monthFormatter = Intl.DateTimeFormat('de-DE', {
+      month: '2-digit',
+      year: 'numeric'
     });
+
+    if(this.selectedData$.value.displayBreakup==this.displayBreakup.MONTH)
+      return dates.map(e => { return monthFormatter.format(new Date(e)); });
+
+    if(this.selectedData$.value.displayBreakup==this.displayBreakup.YEAR)
+      return dates.map(e => { return new Date(e).getFullYear().toString(); });
     
     return dates.map(e => { return new Date(e).toLocaleDateString('de-DE'); });
   }
 
-  buildValuesArray(data:TimeseriesMap):any {
+  mapValues(values:TimeseriesData[], timestamps:string[]):any[] {
+
+    // Hilfsfunktion: Datum in YYYY-MM-DD-String konvertieren
+    const toDayString = (d: Date) =>
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0');
+
+    // Map nach Tag aufbauen
+    const valueMap = new Map<string, number>();
+
+    for (const v of values) {
+      const day = toDayString(new Date(v.timestamp));
+      // Optional: Wenn mehrere Werte am Tag, letzter gewinnt
+      valueMap.set(day, v.value);
+    }
+
+    // Timestamps mappen, auf Tagesbasis matchen
+    let merger = timestamps.map(ts => {
+      const day = toDayString(new Date(ts));
+      return {
+        timestamp: new Date(ts),
+        value: valueMap.get(day) ?? null
+      };
+    });
+
+    return merger.map(e => e.value);
+  }
+
+  buildValuesArray(data:TimeseriesMap, timestamps:string[]):any {
 
     var series:any[] = [];
     var index = 0;
@@ -333,7 +442,7 @@ export class RealTimeDataService {
       series.push({
         name: id,
         type: 'line',
-        data: value.map(e => e.value),
+        data: this.mapValues(value, timestamps),
         symbolSize: 6,
         symbol: "emptyCircle",
         lineStyle: {

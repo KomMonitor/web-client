@@ -20,6 +20,7 @@ export class SidebarService {
   sidebarOpenElement$ = new BehaviorSubject<SidebarData>({sidebarIdentifier: this.defaultSidebarOpenElement});
 
   openPois() {
+    console.log("hier")
     this.openedSidebarElement = SidebarElement.POI;
     this.sidebarOpenElement$.next({sidebarIdentifier:'sidebarPoiCollapse'});
   }

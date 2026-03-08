@@ -12,7 +12,11 @@
   </expandable-box>
   <expandable-box [title]="lineTitle" [collapsed]="false" [borderColor]="'green'">
 
-    <div style="text-align: center">
+    <div class="chart" *ngIf="this.loadingData"> 
+      <b>No data selected</b>
+    </div>  
+    
+    <div style="text-align: center" [ngClass]="{'hidden': this.loadingData}">
       <label>
         <b>Darstellungsform</b>
         <select [(ngModel)]="displayFormat" (change)="onChangeDisplayFormat()" class="form-control">
@@ -23,11 +27,20 @@
           <option [value]="displayFormatOptions.SUM">Summe</option>
         </select>
       </label>
+      <label>
+        <b>Aufl&ouml;sung</b>
+        <select [(ngModel)]="displayBreakup" (change)="onChangeDisplayFormat()" [disabled]="displayFormat==displayFormatOptions.STD" class="form-control">
+          <option [value]="displayBreakupOptions.DAY">Tage</option>
+          <option [value]="displayBreakupOptions.MONTH">Monate</option>
+          <option [value]="displayBreakupOptions.YEAR">Jahre</option>
+        </select>
+      </label>
     </div>
 
     <custom-slider *ngIf="!loadingData" [data]="sliderData" [type]="SliderType.RANGE" [markerPositions]="sliderMarker" [displayMode]="DisplayMode.DATE" (valueChange)="onSliderChange($event)"></custom-slider>
     
-    <div class="chart">
+    <!-- use class iso *ngif to load but hide element, otherwise echarts can not build diagram -->
+    <div class="chart" [ngClass]="{'hidden': this.loadingData}"> 
       <div id="rtdLineDiagram" style="width:100%; min-height:40vh;"></div>
     </div>  
   </expandable-box>

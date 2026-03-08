@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { ParameterData, RealTimeDataService, TimeseriesMap } from 'services/real-time-data-service/real-time-data.service';
+import { AggTimeseriesData, AggTimeseriesMap, ParameterData, RealTimeDataService, TimeseriesMap } from 'services/real-time-data-service/real-time-data.service';
 import * as echarts from 'echarts';
 import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,12 @@ export enum DisplayFormat {
   MIN = 'min',
   MAX = 'max',
   SUM = 'sum'
+}
+
+export enum DisplayBreakup {
+  DAY = '1 day',
+  MONTH = '1 month',
+  YEAR = '1 year'
 }
 
 @Component({
@@ -45,6 +51,9 @@ export class RtdDiagramsComponent implements OnInit {
   displayFormat: DisplayFormat = DisplayFormat.STD;
   displayFormatOptions = DisplayFormat;
 
+  displayBreakup: DisplayBreakup = DisplayBreakup.DAY;
+  displayBreakupOptions = DisplayBreakup;
+
   parameter!:ParameterData;
 
   DisplayMode = DisplayType;  
@@ -65,7 +74,7 @@ export class RtdDiagramsComponent implements OnInit {
         this.parameter = value.parameter;
         this.lineTitle = `${this.parameter.name} [${this.parameter.unit}]`;   
         
-        var timestamps = this.rtdService.getRangeSliderValues();
+        var timestamps = this.rtdService.getRangeSliderValues(value.parameter);
         this.sliderData = timestamps;
 
         if(!this.rtdService.selectedData$.value.range)
@@ -74,8 +83,12 @@ export class RtdDiagramsComponent implements OnInit {
           this.sliderMarker = [this.rtdService.selectedData$.value.range.start, this.rtdService.selectedData$.value.range.end];
       
         this.rtdService.getTimeseries(value.parameter).subscribe(
-          result => {
-            this.buildLineChart(result);
+          (result:any) => {
+
+            if(this.rtdService.selectedData$.value.displayFormat!=this.displayFormatOptions.STD)
+              this.buildLineChart(this.orderData(this.normalizeData(result)));
+            else
+              this.buildLineChart(this.orderData(result));
 
             this.loadingData = false;
           }
@@ -84,18 +97,44 @@ export class RtdDiagramsComponent implements OnInit {
     });
   }
 
+  normalizeData(data:AggTimeseriesMap): TimeseriesMap {
+    return Object.fromEntries(
+      Object.entries(data).map(([key, values]) => [
+        key,
+        (values ?? []).map(v => ({
+          value: v.aggregated_values,
+          timestamp: v.time_bucket
+        }))
+      ])
+    );
+  }
+
+  orderData(data: TimeseriesMap): TimeseriesMap {
+    Object.values(data).forEach(series => {
+      series.sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+    });
+
+    return data;
+  }
+
   onChangeDisplayFormat() {
-    this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), displayFormat: this.displayFormat});
+
+    if(this.displayFormat==this.displayFormatOptions.STD)
+      this.displayBreakup = this.displayBreakupOptions.DAY;
+
+    this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), displayFormat: this.displayFormat, displayBreakup: this.displayBreakup});
   }
 
   onSliderChange(value: number | number[]) {
-
     this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), range: {start: value[0], end: value[1]}});
   }
 
   buildLineChart(data:TimeseriesMap) {
 
-    this.rtdService.setLineChartOptions(this.parameter, this.rtdService.buildValuesArray(data), this.rtdService.buildDatesArray(data));
+    this.rtdService.setLineChartOptions(this.parameter, data);
 
     // based on prepared DOM, initialize echarts instance
     if (!this.lineChart)

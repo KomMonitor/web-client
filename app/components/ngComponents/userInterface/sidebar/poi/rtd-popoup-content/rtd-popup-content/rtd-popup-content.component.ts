@@ -22,14 +22,15 @@ export class RtdPopupContentComponent {
   ) {}
 
   onChangeSelectedParameter(parameter: ParameterData) {
-
     this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), parameter: parameter, poiFeature: this.poiFeature});
-    this.rtdService.checkForSelectedParams();
-
+    
     if(parameter.selected)
       this.rtdService.equalizeSelectedParameter(parameter);
 
-    this.sidebarService.openRtdDiagrams();
+    if(this.rtdService.checkForSelectedParams())
+      this.sidebarService.openRtdDiagrams();
+    else
+      this.sidebarService.openPois();
   }
 
   onParameterClick(parameter: ParameterData) {
