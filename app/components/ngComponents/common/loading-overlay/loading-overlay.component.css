@@ -32,8 +32,12 @@
   margin-top: 8px;
   color: #333;
   font-weight: 500;
+  padding: 10px;
+  background-color: white;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

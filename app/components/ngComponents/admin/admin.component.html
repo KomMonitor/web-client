@@ -19,7 +19,7 @@
     class="nav-pills flex-column"
     orientation="vertical"
   >
-    <ng-container ngbNavItem="overview">
+    <ng-container [ngbNavItem]="AdminNavItem.Overview">
       <button ngbNavLink>
         <i class="fas fa-tachometer-alt"></i>
         <span>Übersicht</span>
@@ -29,17 +29,17 @@
       </ng-template>
     </ng-container>
 
-    <ng-container ngbNavItem="groupMgmt">
+    <ng-container [ngbNavItem]="AdminNavItem.GroupMgmt">
       <button ngbNavLink>
         <i class="fas fa-users"></i>
         <span>Gruppenverwaltung</span>
       </button>
       <ng-template ngbNavContent>
-        <!-- <admin-role-management></admin-role-management> -->
+        <admin-role-management></admin-role-management>
       </ng-template>
     </ng-container>
 
-    <ng-container ngbNavItem="groupRights">
+    <ng-container [ngbNavItem]="AdminNavItem.GroupRights">
       <button ngbNavLink>
         <i class="fa-solid fa-user-lock"></i>
         <span>Gruppen-/Rechtekonzept</span>
@@ -49,7 +49,7 @@
       </ng-template>
     </ng-container>
 
-    <ng-container ngbNavItem="topicMgmt">
+    <ng-container [ngbNavItem]="AdminNavItem.TopicMgmt">
       <button ngbNavLink>
         <i class="fas fa-book"></i>
         <span>Themenverwaltung</span>
@@ -74,7 +74,7 @@
     </button>
 
     <div
-      ngbNavItem="roomLevels"
+      [ngbNavItem]="AdminNavItem.RoomLevels"
       [class.d-none]="!isGeodataMgmtExpanded"
       class="child"
     >
@@ -88,7 +88,7 @@
     </div>
 
     <div
-      ngbNavItem="indicators"
+      [ngbNavItem]="AdminNavItem.Indicators"
       [class.d-none]="!isGeodataMgmtExpanded"
       class="child"
     >
@@ -102,7 +102,7 @@
     </div>
 
     <div
-      ngbNavItem="georessources"
+      [ngbNavItem]="AdminNavItem.Georesources"
       [class.d-none]="!isGeodataMgmtExpanded"
       class="child"
     >
@@ -115,7 +115,7 @@
       </ng-template>
     </div>
 
-    <ng-container ngbNavItem="scriptMgmt">
+    <ng-container [ngbNavItem]="AdminNavItem.ScriptMgmt">
       <button ngbNavLink>
         <i class="far fa-file-code"></i>
         <span>Skriptverwaltung</span>
@@ -125,7 +125,7 @@
       </ng-template>
     </ng-container>
 
-    <ng-container ngbNavItem="indicatorCalculation">
+    <ng-container [ngbNavItem]="AdminNavItem.IndicatorCalculation">
       <button ngbNavLink>
         <i class="far fa-file-code"></i>
         <span>Indikatorenberechnung</span>
@@ -150,7 +150,7 @@
     </button>
 
     <div
-      ngbNavItem="commonSettings"
+      [ngbNavItem]="AdminNavItem.CommonSettings"
       [class.d-none]="!isSettingsExpanded"
       class="child"
     >
@@ -164,7 +164,7 @@
     </div>
 
     <div
-      ngbNavItem="widgetConfig"
+      [ngbNavItem]="AdminNavItem.WidgetConfig"
       [class.d-none]="!isSettingsExpanded"
       class="child"
     >
@@ -178,7 +178,7 @@
     </div>
 
     <div
-      ngbNavItem="filterConfig"
+      [ngbNavItem]="AdminNavItem.FilterConfig"
       [class.d-none]="!isSettingsExpanded"
       class="child"
     >

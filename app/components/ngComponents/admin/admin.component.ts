@@ -16,6 +16,22 @@ import { UserLoginComponent } from "../userInterface/userLogin/user-login.compon
 import { NotificationComponent } from "../common/notification/notification.component";
 import { AdminScriptExecutionComponent } from "./adminScriptExecution/admin-script-execution.component";
 import { AdminScriptManagementComponent } from "./adminScriptManagement/admin-script-management.component";
+import { AdminRoleManagementComponent } from "./adminRoleManagement/admin-role-management.component";
+
+export enum AdminNavItem {
+  Overview = "overview",
+  GroupMgmt = "groupMgmt",
+  GroupRights = "groupRights",
+  TopicMgmt = "topicMgmt",
+  RoomLevels = "roomLevels",
+  Indicators = "indicators",
+  Georesources = "georessources",
+  ScriptMgmt = "scriptMgmt",
+  IndicatorCalculation = "indicatorCalculation",
+  CommonSettings = "commonSettings",
+  WidgetConfig = "widgetConfig",
+  FilterConfig = "filterConfig",
+}
 
 @Component({
   selector: "app-admin",
@@ -37,11 +53,13 @@ import { AdminScriptManagementComponent } from "./adminScriptManagement/admin-sc
     NgbNavModule,
     UserLoginComponent,
     NotificationComponent,
+    AdminRoleManagementComponent,
   ],
   standalone: true,
 })
 export class AdminComponent implements OnInit {
-  active = "overview";
+  readonly AdminNavItem = AdminNavItem;
+  active: AdminNavItem = AdminNavItem.Overview;
 
   isGeodataMgmtExpanded = false;
   isSettingsExpanded = false;

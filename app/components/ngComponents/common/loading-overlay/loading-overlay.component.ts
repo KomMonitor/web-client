@@ -9,6 +9,6 @@ import { Component, Input } from "@angular/core";
   standalone: true,
 })
 export class LoadingOverlayComponent {
-  @Input() loading: boolean = false;
+  @Input({required: true}) loading!: boolean;
   @Input() message?: string;
 }

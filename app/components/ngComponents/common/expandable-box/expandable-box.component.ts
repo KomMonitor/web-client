@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgbCollapseModule } from "@ng-bootstrap/ng-bootstrap";
 
-export type ExpanableBoxBorderColor = "primary" | "red" | "green";
+export type ExpanableBoxBorderColor = "primary" | "red" | "green" | "cyan";
 
 @Component({
   selector: "expandable-box",
@@ -22,6 +22,12 @@ export class ExpandableBoxComponent implements OnInit {
   ngOnInit() {
     if (this.isCollapsible === false) {
       this.collapsed = false;
+    }
+  }
+
+  onCollapseToggle() {
+    if (this.isCollapsible) {
+      this.collapsed = !this.collapsed;
     }
   }
 }

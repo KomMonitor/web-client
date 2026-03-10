@@ -332,7 +332,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.loadingData = false;
     } else {
       // Fetch access control data from server
-      this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
+      this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
         next: (data) => {
           this.prepareCreatorList();
           this.loadingData = false;

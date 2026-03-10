@@ -4,6 +4,8 @@
   align-items: flex-start;
   justify-content: center;
   padding: 8px 0 4px;
+  overflow: visible;
+  position: relative;
 }
 
 .stepper-step {
@@ -12,6 +14,7 @@
   align-items: center;
   flex: 0 0 auto;
   cursor: default;
+  padding: 0 8px;
 }
 
 .stepper-step.clickable {
@@ -19,7 +22,10 @@
 }
 
 .stepper-step.clickable:hover .stepper-circle {
-  opacity: 0.8;
+  opacity: 1; /* remove transparency on hover */
+  transform: translateY(-2px) scale(1.2);
+  box-shadow: 0 8px 20px rgba(26, 115, 232, 0.18);
+  z-index: 4; /* bring hovered bubble above others */
 }
 
 .stepper-step.disabled {
@@ -39,7 +45,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 200ms cubic-bezier(.2,.9,.2,1), box-shadow 200ms ease;
+  position: relative;
+  z-index: 3; /* ensure bubbles sit above the progress line */
 }
 
 .stepper-step.active .stepper-circle,
@@ -57,7 +65,10 @@
   letter-spacing: 0.04em;
   color: #999;
   text-align: center;
-  max-width: 130px;
+  white-space: nowrap;
+  max-width: none;
+  padding: 0 8px;
+  z-index: 2; /* ensure labels sit above connector lines */
 }
 
 .stepper-step.active .stepper-label,
@@ -68,9 +79,34 @@
 .stepper-line {
   flex: 1;
   height: 2px;
-  background: #ddd;
+  background: transparent; /* base line handled by pseudo-element */
   margin-top: 17px; /* vertically centre against circle */
   min-width: 40px;
+  z-index: 1; /* sit below labels */
+}
+
+/* base, continuous connector line */
+.stepper::before {
+  content: "";
+  position: absolute;
+  left: var(--line-left, 0px);
+  width: var(--line-width, 100%);
+  height: 2px;
+  background: #ddd;
+  top: 25px; /* aligns to roughly vertical center of the bubbles */
+  z-index: 1;
+}
+
+/* colored progress overlay (width set by component) */
+.stepper-progress {
+  position: absolute;
+  left: var(--line-left, 0px);
+  width: var(--progress-width, 0px);
+  height: 2px;
+  background: #1a73e8;
+  top: 25px; /* same alignment as base line */
+  z-index: 2;
+  transition: width 220ms ease;
 }
 
 .stepper-line.completed {

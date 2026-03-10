@@ -1,5 +1,5 @@
 <div class="form-group">
-  <label>{{ label }}</label>
+  <label *ngIf="label">{{ label }}</label>
   <div class="input-group mb-2">
     <span class="input-group-text"><i class="fas fa-filter"></i></span>
     <input
@@ -15,7 +15,7 @@
     [(ngModel)]="selectedItem"
     (ngModelChange)="onSelectionChange($event)"
   >
-    <option disabled [ngValue]="null">{{ selectPlaceholder }}</option>
+    <option class="placeholder-option" [ngValue]="null">{{ selectPlaceholder }}</option>
     <option *ngFor="let option of filteredOptions" [ngValue]="option">
       {{ option[propertyKey] }}
     </option>

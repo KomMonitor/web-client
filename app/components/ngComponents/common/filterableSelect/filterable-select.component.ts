@@ -16,9 +16,9 @@ import { FormsModule } from "@angular/forms";
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
-export class FilterableSelectComponent implements OnChanges {
+export class FilterableSelectComponent<T> implements OnChanges {
   /** Label displayed above the filter input */
-  @Input() label: string = "";
+  @Input() label: string | undefined;
 
   /** Key of the property to display in the options */
   @Input({ required: true }) propertyKey!: string;
@@ -27,7 +27,7 @@ export class FilterableSelectComponent implements OnChanges {
   @Input() filterPlaceholder: string = "Filter...";
 
   /** List of options to display; each item must have a property matching `propertyKey` */
-  @Input() options: any[] = [];
+  @Input() options: T[] = [];
 
   /** Non-selectable placeholder shown as the first entry in the list */
   @Input() selectPlaceholder: string = "-- Bitte wählen --";
@@ -36,12 +36,12 @@ export class FilterableSelectComponent implements OnChanges {
   @Input() selectionSize: number = 5;
 
   /** Emits the selected option whenever the selection changes */
-  @Output() selectedItemChange = new EventEmitter<any>();
+  @Output() selectedItemChange = new EventEmitter<T>();
 
   filterText: string = "";
-  selectedItem: any = null;
+  selectedItem: T | null = null;
 
-  get filteredOptions(): any[] {
+  get filteredOptions(): T[] {
     if (!this.filterText) return this.options;
     const lower = this.filterText.toLowerCase();
     return this.options.filter((o) =>
@@ -56,7 +56,7 @@ export class FilterableSelectComponent implements OnChanges {
     }
   }
 
-  onSelectionChange(item: any): void {
+  onSelectionChange(item: T): void {
     this.selectedItemChange.emit(item);
   }
 

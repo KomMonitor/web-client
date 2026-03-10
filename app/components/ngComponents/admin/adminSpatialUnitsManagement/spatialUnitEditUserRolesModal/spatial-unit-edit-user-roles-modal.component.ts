@@ -484,7 +484,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     } else {
       // Fetch access control data from server
-      this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
+      this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
         next: (data) => {
           // If we have data and a spatial unit dataset, refresh the table
           if (this.currentSpatialUnitDataset) {

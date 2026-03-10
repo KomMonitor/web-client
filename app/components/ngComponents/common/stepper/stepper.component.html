@@ -1,4 +1,6 @@
-<div class="stepper mb-4">
+<div class="stepper mb-4" #stepperRoot>
+  <!-- continuous progress overlay (width controlled by component) -->
+  <div class="stepper-progress"></div>
   <ng-container *ngFor="let step of steps; let i = index">
     <!-- Step bubble + label -->
     <div
@@ -9,7 +11,7 @@
       [class.disabled]="!isClickable(i + 1)"
       (click)="onStepClick(i + 1)"
     >
-      <div class="stepper-circle">{{ i + 1 }}</div>
+        <div class="stepper-circle" #circle>{{ i + 1 }}</div>
       <div class="stepper-label">{{ step.label }}</div>
     </div>
 

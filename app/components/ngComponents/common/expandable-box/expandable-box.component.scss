@@ -39,6 +39,14 @@
             &.top-border-green {
                 border-top-color: #00a65a;
             }
+
+            &.top-border-cyan {
+                border-top-color: #00c0ef;
+            }
+
+            &.collapsible:hover {
+                cursor: pointer;
+            }
         }
 
         .box-body {

@@ -1,0 +1,169 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    Gruppenspezifische Rechte der Organisationseinheit
+    <i
+      ><b>{{ currentDataset.name }}</b></i
+    >
+    editieren
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Schließen"
+    (click)="close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <app-loading-overlay [loading]="loadingData" message="Lade Rollendaten...">
+    <div *ngIf="showErrorAlert" class="alert alert-danger" role="alert">
+      Fehler beim Aktualisieren der Rechte:
+      <span [innerHTML]="errorMessagePart"></span>
+    </div>
+
+    <div class="stepper-wrapper">
+      <app-stepper
+        [steps]="steps"
+        [(currentStep)]="currentStep"
+        [allStepsClickable]="true"
+      ></app-stepper>
+    </div>
+
+    <!-- Step 1: Authority roles (read-only) -->
+    <ng-container *ngIf="currentStep === 1">
+      <h2 class="fs-title text-center">Zugewiesene administrative Rechte</h2>
+
+      <expandable-box title="Bedienhinweise" [collapsed]="true">
+        <p class="text-center">
+          Die Tabelle zeigt die administrativen Rechte, die die ausgewählte
+          Gruppe für andere Gruppen besitzt.
+        </p>
+        <p class="text-center">
+          <i>
+            Achtung: Die Tabelle ist nicht editierbar. Sie stellt dar, ob die
+            gewählte Gruppe überhaupt administrative Aufgaben für sich selbst
+            oder andere Gruppen übernimmt.
+          </i>
+        </p>
+        <p class="text-center">
+          <i>
+            <b>
+              Wenn Sie der gewählten Gruppe Rechte geben wollen, so muss dies
+              über das Menü "Rechte anderer Gruppen" geschehen.
+            </b>
+          </i>
+        </p>
+      </expandable-box>
+
+      <div class="row mt-3">
+        <div class="col-12">
+          <ag-grid-angular
+            class="ag-theme-alpine"
+            style="height: 45vh; width: 100%"
+            [columnDefs]="authorityColumnDefs"
+            [rowData]="authorityRowData"
+            [defaultColDef]="authorityDefaultColDef"
+            [gridOptions]="authorityGridOptions"
+            [pagination]="true"
+          ></ag-grid-angular>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Step 2: Delegated roles (editable) -->
+    <ng-container *ngIf="currentStep === 2">
+      <h2 class="fs-title text-center">Delegierte administrative Rechte</h2>
+
+      <expandable-box title="Bedienhinweise" [collapsed]="true">
+        <p class="text-center">
+          Die Tabelle zeigt administrative Rechte, die andere Gruppen für die
+          ausgewählte Gruppe besitzen. Weitere administrative Rechte können hier
+          durch entsprechende Häkchen an andere Gruppen übertragen werden.
+        </p>
+        <p class="text-center">
+          <i>
+            <b>
+              Achtung: Auch die Rechte der gewählten Gruppe an sich selbst
+              werden über dieses Menü kontrolliert. In diesem Fall ist die
+              gewählte Gruppe ebenfalls als 'andere Gruppe' zu betrachten, für
+              die entsprechende administrative Aufgaben zugewiesen werden
+              können.
+            </b>
+          </i>
+        </p>
+        <p class="text-center">
+          <i>
+            <b>Unterschied Diese Gruppe / Untergruppen:</b>
+            Diese Angabe kontrolliert, ob delegierte administrative Aufgaben nur
+            für die gewählte Gruppe explizit erlaubt werden, oder ob sich die
+            delegierte Administration auch auf die Untergruppen der gewählten
+            Gruppe erstreckt. Beispiel: eine neue Gruppe 'Amt Übergeordnet'
+            (inkl. weiterer Untergruppen) wird erstellt und soll von einer
+            bereits vorhandenen Gruppe 'Amt Globaladmin' verwaltet werden. Wenn
+            nun administrative Rechte an 'Amt Globaladmin' zugewiesen werden,
+            muss entschieden werden, ob 'Amt Globaladmin' nur die explizite
+            Gruppe ('Amt Übergeordnet') verwalten darf, oder auch alle Ihre
+            etwaigen Untergruppen.
+          </i>
+        </p>
+      </expandable-box>
+
+      <!-- <div
+        class="row mt-3"
+        *ngIf="delegatedRowData.length > 0 || !activeDelegatedRolesOnly"
+      >
+        <div class="col-12 mb-2">
+          <div
+            class="form-check form-switch d-inline-flex align-items-center gap-2"
+          >
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="activeDelegatedRolesOnly"
+              [(ngModel)]="activeDelegatedRolesOnly"
+              (ngModelChange)="onActiveDelegatedRolesOnlyChange()"
+            />
+            <label class="form-check-label" for="activeDelegatedRolesOnly">
+              Zeige nur Gruppen mit zugewiesenen Rechten
+            </label>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="row">
+        <div class="col-12">
+          <ag-grid-angular
+            class="ag-theme-alpine"
+            style="height: 45vh; width: 100%"
+            [columnDefs]="delegatedColumnDefs"
+            [rowData]="delegatedRowData"
+            [defaultColDef]="delegatedDefaultColDef"
+            [gridOptions]="delegatedGridOptions"
+            [pagination]="true"
+          ></ag-grid-angular>
+        </div>
+      </div>
+    </ng-container>
+  </app-loading-overlay>
+</div>
+
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-outline-secondary me-auto"
+    (click)="close()"
+  >
+    Schließen
+  </button>
+  <button
+    type="button"
+    class="btn btn-success"
+    [disabled]="loadingData"
+    (click)="updateDelegatedRoles()"
+  >
+    Rechte aktualisieren
+  </button>
+  <button type="button" class="btn btn-danger" (click)="reset()">
+    Zurücksetzen
+  </button>
+</div>

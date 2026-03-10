@@ -507,10 +507,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Fetches access control metadata
    */
-  fetchAccessControlMetadata(): Observable<AccessControlMetadata[]> {
-    
+  fetchAccessControlMetadata(useCache: boolean): Observable<AccessControlMetadata[]> {
     // Check cache first
-    if (this.isCacheValid(this.accessControlCache)) {
+    if (useCache && this.isCacheValid(this.accessControlCache)) {
       this.accessControlSubject.next(this.accessControlCache!.data);
       return of(this.accessControlCache!.data);
     }
@@ -851,8 +850,8 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Get access control metadata by organizational unit ID
    */
-  getAccessControlById(id: string): AccessControlMetadata | null {
-    return this.accessControl.find(unit => unit.organizationalUnitId === id) || null;
+  getAccessControlById(id: string): AccessControlMetadata | undefined {
+    return this.accessControl.find(unit => unit.organizationalUnitId === id);
   }
 
   /**
