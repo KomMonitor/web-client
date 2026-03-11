@@ -3328,16 +3328,15 @@ input:checked + .switchslider:before {
 }
 
 .reporting-added-templateSections-row {
-	display: flex;
-	display: -webkit-flex;
-	flex-wrap: wrap;
-	align-items: center;
+	display: grid !important;
+  grid-template-columns: 1fr auto !important;
 	padding: 5px 0px 5px 0px;
 	/* cursor: pointer;   */  /* that suggests to the user that the whole reporting row could be clicked in order to be edited, but that is not implemented - only the delete button shall be clickable  */
 }
 
 .reporting-hr-divider {
-	border-top: 1px solid rgb(196, 196, 196)
+	border-top: 1px solid rgb(196, 196, 196);
+  margin: 0.5em 0;
 }
 
 #reporting-indicator-select-box select,

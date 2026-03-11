@@ -359,15 +359,15 @@ export class GenerateReportComponent implements OnInit {
           }
           case "datatable": {							
 
-            let table:any = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
+            let table = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table") as HTMLTableElement;;
 
             let data:any = [];
             if(table && table.rows.length>0) {
-              table.rows.forEach((row, rowIndex) => {
+              Array.from(table.rows).forEach((row, rowIndex) => {
 
                 let singleRowData:any[] = [];
                 if(row.cells && row.cells.length>0) {
-                  row.cells.forEach((cell, cellIndex) => {
+                  Array.from(row.cells).forEach((cell, cellIndex) => {
 
                     let fillColour = '#dedede';
                     if(rowIndex>0) {

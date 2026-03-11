@@ -156,6 +156,7 @@ export class LeafletScreenshotCacheHelperService {
           });
       }, 150);
     } else {
+      
       // only increase executedCacheMap due to log progress
       this.executedScreenshotMapKeys.set(CacheKey, CacheKey);
       // send UI update information

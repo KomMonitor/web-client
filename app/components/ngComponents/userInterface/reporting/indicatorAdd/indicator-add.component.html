@@ -508,31 +508,30 @@
           <div class="col-sm-2"></div>
       </div>
 
-      <div class="row">
-          <div class="col-sm-12">
-              <div>
-                  <button class="btn btn-warning" (click)='onBackToOverviewClicked()'>
-                      <i class="fa fa-arrow-left"></i>
-                      &nbsp;&nbsp;Zurück zur Übersicht
-                  </button>
-                  
-                  <button type="button" class="btn btn-success pull-right" (click)='onAddBtnClicked()' [disabled]="!validateConfiguration()|| ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
-                      <i class="fa fa-plus"></i>
-                      <span [hidden]="!(reportingService.clonedTemplate.name.includes('-reachability'))">POI-Layer hinzufügen</span>
-                      <span [hidden]="!(!reportingService.clonedTemplate.name.includes('-reachability'))">Indikator hinzufügen</span>
-                  </button>
+      <div class="modal-custom-footer">
+        <div>
+          <button class="btn btn-warning" (click)='onBackToOverviewClicked()'>
+              <i class="fa fa-arrow-left"></i>
+              &nbsp;&nbsp;Zurück zur Übersicht
+          </button>
 
-                  <button [disabled]="true" *ngIf="! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0 "style="margin-right: 15px;" type="button" class="btn btn-info pull-right">
-                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-                      <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
-                  </button>
+          <button [disabled]="true" *ngIf="! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0"  class="btn btn-info pull-right">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+              <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
+          </button>
 
-                  <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
-                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-                      <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
-                  </button>
-              </div>
-          </div>
+          <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" class="btn btn-warning pull-right">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+              <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
+          </button>
+        </div>
+        <div>
+          <button class="btn btn-success pull-right" (click)='onAddBtnClicked()' [disabled]="!validateConfiguration()|| ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
+              <i class="fa fa-plus"></i>
+              <span [hidden]="!(reportingService.clonedTemplate.name.includes('-reachability'))">POI-Layer hinzufügen</span>
+              <span [hidden]="!(!reportingService.clonedTemplate.name.includes('-reachability'))">Indikator hinzufügen</span>
+          </button>
+        </div>
       </div>
   </div>
 </div>

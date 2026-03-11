@@ -26,7 +26,7 @@ export class CustomSliderComponent implements AfterViewInit {
 
   @Input() data:any[] = [];
   @Input() type: SliderType = SliderType.NORMAL;
-  @Input() markerPositions: number[] = [0];
+  @Input() markerPositions: any[] = [0];
   @Input() displayMode: DisplayType = DisplayType.NORMAL
 
   @Output() valueChange = new EventEmitter<number | number[]>();
@@ -50,6 +50,12 @@ export class CustomSliderComponent implements AfterViewInit {
       this.initSlider();
   }
 
+  createPipValues(values: number[], maxPips = 5) {
+    const step = Math.ceil(values.length / maxPips);
+
+    return values.filter((_, i) => i % step === 0);
+  }
+
   private initSlider() {
     this.sliderInstance = this.sliderContainer.nativeElement;
 
@@ -67,8 +73,8 @@ export class CustomSliderComponent implements AfterViewInit {
       connect: (this.type==SliderType.RANGE),
       pips: {
         mode: 'values' as any,
-        values: pips,
-        density: 0,
+        values: this.createPipValues(pips),
+        density: 4,
         format: {
           to: (value) => {
             return this.formatValue(value);
@@ -94,10 +100,16 @@ export class CustomSliderComponent implements AfterViewInit {
   }
 
   defineMarkerPositions():number[] {
-    return this.markerPositions.map(e => this.data.indexOf(e));
+    // getTime, weil "indexOf" bei Date nicht zuverlässig funktioniert
+    return this.markerPositions.map(m =>
+      this.data.findIndex(d => d.getTime() === m.getTime())
+    );
   }
 
   formatValue(value:number):any {
+
+    value = Math.ceil(value);
+    
     if(this.displayMode == DisplayType.YEAR)
       return new Date(this.data[value]).getFullYear();
 
@@ -110,6 +122,6 @@ export class CustomSliderComponent implements AfterViewInit {
   }
 
   reFormatValues(values:number[]):any[] {
-    return values.map(e => this.data[e]);
+    return values.map(e => this.data[Math.ceil(e)]);
   }
 }

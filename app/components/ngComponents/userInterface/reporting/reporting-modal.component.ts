@@ -33,42 +33,6 @@ export interface reportingData {
 export class ReportingModalComponent implements OnInit {
 
   activeModal = inject(NgbActiveModal);
-/* 
-  pageConfig = {
-    mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-    showMapLabels: true,
-    showRankingChartPerArea: true,
-    showLineChartPerArea: true,
-    showFreeText: true,
-    showRankingMeanLine: true,
-    showTitle: true,
-    showSubtitle: true,
-    showLogo: true,
-    showFooterCreationInfo: true,
-    showPageNumber: true,
-    sections: {
-      showOverviewSection_unclassified: true,
-      showOverviewSection_classified: true,
-      showBarchartOverview: true,
-      showLinechartOverview: true,
-      showBoxplotchartOverview: true,
-      showAreaSpecific: true,
-      showOverviewSection_reachability: true,
-      showDatatable: true
-    }
-  }
-          
-  config:any = {
-    templateSections: [
-      // {
-      // 	indicator: "",
-      // 	poiLayer: ""
-      // }
-    ],
-    pages: [],
-    template: {}
-  };
- */
 
   workflowState = WorkflowState;
 

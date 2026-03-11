@@ -2080,7 +2080,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   onAddBtnClicked() {
-    console.log(this.selectedPoiLayer)
+    
     let templateSection = {
       indicatorName: this.selectedIndicator ? this.selectedIndicator.indicatorName : "",
       indicatorId: this.selectedIndicator ? this.selectedIndicator.indicatorId : "",
@@ -3593,7 +3593,7 @@ export class IndicatorAddComponent implements OnInit {
 
 // async
   async initializeAllDiagrams() {
-
+console.log('init all diagrams')
 			if(!this.reportingService.clonedTemplate)
 				return;
 			if(this.reportingService.clonedTemplate.name.includes("timestamp") && this.selectedTimestamps.length === 0) {
@@ -3637,7 +3637,7 @@ export class IndicatorAddComponent implements OnInit {
 			for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
 
 				setTimeout(async () => {
-					pageIdx++;
+				 	pageIdx++;
 					let page = this.reportingService.clonedTemplate.pages[i];
 					let prevPage = i>1 ? this.reportingService.clonedTemplate.pages[i-1] : undefined;
 					let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
@@ -3672,7 +3672,7 @@ export class IndicatorAddComponent implements OnInit {
 						} else {
 							pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + i + "-" + pageElement.type)
 						}
-						
+						 
 						switch(pageElement.type) {
 							case "map": {
 
@@ -3756,19 +3756,11 @@ export class IndicatorAddComponent implements OnInit {
 					// if the last page is reached and full prepared we want to show that to the user
 					// wait additionally for 500 ms
 					this.pagePreparationIndex = i;
-
-					// every 10 percent log progress to user
-				/* 	if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
-						this.$digest();	
-					}			 */	
 					
 					if (i == this.pagePreparationSize - 1) {
 						this.lastPageOfAddedSectionPrepared = true;
-					/* 	$timeout(function () {
-							this.$digest();
-						}, 1000) */;
 					}
-				})
+				}) 
 				
 			}
 
