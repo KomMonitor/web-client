@@ -48,15 +48,15 @@ angular
                   if(kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
                     kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
                       
-                      let key = roles.split('.')[0];
-                      let role = roles.split('.')[1];
+						const groupEndIndex = roles.lastIndexOf('.');
+						let key = roles.slice(0, groupEndIndex);
+						let role = roles.slice(groupEndIndex + 1);
 
-                      if(!$scope.userRoleInformation.hasOwnProperty(key)) {
-                        $scope.userRoleInformation[key] = [];
-                      }
+                      	if(!$scope.userRoleInformation.hasOwnProperty(key)) {
+                        	$scope.userRoleInformation[key] = [];
+                      	}
                       
-                      $scope.userRoleInformation[key].push(role);
-
+                      	$scope.userRoleInformation[key].push(role);
                     });
                   }
 
