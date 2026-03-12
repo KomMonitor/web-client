@@ -148,18 +148,19 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
         let creatorRightsChildren = [];
         kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
           
-          let key = roles.split('.')[0];
-          let role = roles.split('.')[1];
+			const groupEndIndex = roles.lastIndexOf('.');
+			let key = roles.slice(0, groupEndIndex);
+			let role = roles.slice(groupEndIndex + 1);
 
-          // case unit-resources-creator
-          if(role=='unit-resources-creator' && !$scope.resourcesCreatorRights.includes(key)) {
-            creatorRights.push(key);
-          }
+			// case unit-resources-creator
+			if(role=='unit-resources-creator' && !$scope.resourcesCreatorRights.includes(key)) {
+				creatorRights.push(key);
+			}
 
-          // case client-resources-creator, gather unit-ids first, then fetch all unit-data
-          if(role=='client-resources-creator' && !creatorRightsChildren.includes(key)) {
-            creatorRightsChildren.push(key);
-          }
+			// case client-resources-creator, gather unit-ids first, then fetch all unit-data
+			if(role=='client-resources-creator' && !creatorRightsChildren.includes(key)) {
+				creatorRightsChildren.push(key);
+			}
         });
 
         // gather all children
