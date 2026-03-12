@@ -36,7 +36,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { KommonitorLegendComponent } from 'components/ngComponents/userInterface/kommonitorLegend/kommonitor-legend.component';
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
-import { UserLoginComponent } from 'components/ngComponents/userInterface/userLogin/user-login.component';
+import { UserLoginComponent } from './components/ngComponents/common/userLogin/user-login.component';
 
 
 export function initializeApp(startupService: StartupService) {
