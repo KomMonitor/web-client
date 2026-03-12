@@ -20,7 +20,6 @@
       <label>
         <b>Darstellungsform</b>
         <select [(ngModel)]="displayFormat" (change)="onChangeDisplayFormat()" class="form-control">
-          <option [value]="displayFormatOptions.STD">Standard</option>
           <option [value]="displayFormatOptions.AVG">Durchschnitt</option>
           <option [value]="displayFormatOptions.MIN">Minimum</option>
           <option [value]="displayFormatOptions.MAX">Maximum</option>

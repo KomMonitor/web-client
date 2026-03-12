@@ -48,7 +48,7 @@ export class RtdDiagramsComponent implements OnInit {
   lineChart!:any;
   lineOption!:any;
 
-  displayFormat: DisplayFormat = DisplayFormat.STD;
+  displayFormat: DisplayFormat = DisplayFormat.AVG;
   displayFormatOptions = DisplayFormat;
 
   displayBreakup: DisplayBreakup = DisplayBreakup.DAY;
