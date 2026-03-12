@@ -496,8 +496,133 @@ angular
         return poiMarkerLayer;
       };
 
+      this.getPoiSymbol = function(poiMetadataObject){
+        let sym = "icons/metacom/apotheke.jpg"; // default symbol
+        if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("bäckerei")){
+          sym = "icons/metacom/baeckerei.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("apotheke")){
+          sym = "icons/metacom/apotheke.jpg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("kino")){
+          sym = "icons/metacom/kino.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("restaurant")){
+          sym = "icons/metacom/restaurant2orange.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("caf")){
+          sym = "icons/metacom/cafe.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("eis")){
+          sym = "icons/metacom/eiscafe.png";
+        }
+        else if(poiMetadataObject.datasetName && (poiMetadataObject.datasetName.toLowerCase().includes("bar") || poiMetadataObject.datasetName.toLowerCase().includes("kneipe"))){
+          sym = "icons/metacom/kneipe3.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("bus")){
+          sym = "icons/metacom/haltestelle.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("bahn")){
+          sym = "icons/metacom/bahnhof.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("rewe")){
+          sym = "icons/logographeme/Rewe_Logo.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("penny")){
+          sym = "icons/logographeme/Penny-Logo.svg.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("aldi")){
+          sym = "icons/logographeme/ALDI_Nord_Logo_2015.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("edeka")){
+          sym = "icons/logographeme/Logo_Edeka.svg.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("supermarkt")){
+          sym = "icons/metacom/markt.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("kiz")){
+          sym = "icons/poiIcons/KIZ_herne.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("emma")){
+          sym = "icons/poiIcons/emma_the_muh.png";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("schule")){
+          sym = "icons/metacom/schule_inklusion2.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("polizei")){
+          sym = "icons/metacom/polizeiwache.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("krankenhaus")){
+          sym = "icons/metacom/krankenhaus.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("krankenhaus")){
+          sym = "icons/metacom/krankenhaus.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("tankstelle")){
+          sym = "icons/metacom/tankstelle.jpeg";
+        }
+        
+        return sym;
+      }
+
       this.createCustomMarker = function(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
         var customMarker;
+
+        // DiKomAll demonstrator: include custom icon with labels instead of regular KomMonitor markers.
+
+        let icon;
+        const sym = this.getPoiSymbol(metadataObject); 
+
+        // #3b82f6 is the default blue color for the marker pin, but it can be customized via the poiMarkerColor parameter. The symbol color can also be customized via the poiSymbolColor parameter. For simplicity, the marker pin color is not changed based on the dataset in this example, but it could be extended to do so if desired.
+        let markerColor = "#3b82f6"; // default marker color
+        markerColor = poiMarkerColor;
+
+
+        // if (__env.initialSymbolStyle === 'photos' && iconUrl) {
+        //     // Photo marker
+        //     icon = L.divIcon({
+        //         className: 'custom-div-icon',
+        //         html: `
+        //           <div class="marker-pin">
+        //             <div class="marker-pin-inner">
+        //               <img src="${iconUrl}" alt="">
+        //             </div>
+        //           </div>
+        //         `,
+        //         iconSize: [80, 80],
+        //         iconAnchor: [40, 80]
+        //     });
+        // } 
+        if (__env.initialSymbolStyle === 'symbols_labels' || __env.initialSymbolStyle === 'photos') {
+            // Icon + Label
+          icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `
+                  <div class="marker-pin" style="background: ${markerColor};">
+                    <div class="marker-pin-inner">
+                      <img src="${sym}" style="padding: 5px;">
+                    </div>
+                    <div class="marker-label">${poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] || 'Kein Name vorhanden'}</div>
+                  </div>
+                `,
+                iconSize: [80, 80],
+                iconAnchor: [40, 80]
+            });
+        } else {
+            // Default / Symbol only
+            icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `
+                  <div class="marker-pin" style="background: ${markerColor};">
+                    <div class="marker-pin-inner">
+                      <img src="${sym}" style="padding: 5px;">
+                    </div>
+                  </div>
+                `,
+                iconSize: [80, 80],
+                iconAnchor: [40, 80]
+            });
+        }
 
         var customMarker = L.VectorMarkers.icon({
           viewBox: '0 0 32 52',
@@ -513,30 +638,30 @@ angular
           extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
         });
 
-        // special treatment for geocoded results
-        if(metadataObject.isGeocodedDataset){
-          if (poiFeature.properties["geocoder_geocoderank"] == 2){
-            customMarker = L.VectorMarkers.icon({
-              markerColor: "green",
-              viewBox: '0 0 32 52',
-              iconSize: [30 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
-              iconAnchor: [ 15 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
-              shadowSize: [0, 0], // ausgeschaltete Schatten
-              // um Schatten einzuschalten: //shadowSize:   [36 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 16 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
-              // um Schatten einzuschalten: //shadowAnchor: [35 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 10 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
-              icon: poiSymbolBootstrap3Name,
-              prefix: 'glyphicon',
-              iconColor: poiSymbolColor,
-              extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
-            });
-          }          
-        }
+        // // special treatment for geocoded results
+        // if(metadataObject.isGeocodedDataset){
+        //   if (poiFeature.properties["geocoder_geocoderank"] == 2){
+        //     customMarker = L.VectorMarkers.icon({
+        //       markerColor: "green",
+        //       viewBox: '0 0 32 52',
+        //       iconSize: [30 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+        //       iconAnchor: [ 15 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 50 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+        //       shadowSize: [0, 0], // ausgeschaltete Schatten
+        //       // um Schatten einzuschalten: //shadowSize:   [36 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 16 * kommonitorDataExchangeService.selectedPOISize.scaleFactor ],
+        //       // um Schatten einzuschalten: //shadowAnchor: [35 * kommonitorDataExchangeService.selectedPOISize.scaleFactor, 10 * kommonitorDataExchangeService.selectedPOISize.scaleFactor],
+        //       icon: poiSymbolBootstrap3Name,
+        //       prefix: 'glyphicon',
+        //       iconColor: poiSymbolColor,
+        //       extraClasses: kommonitorDataExchangeService.selectedPOISize.iconClassName
+        //     });
+        //   }          
+        // }
 
         var newMarker;
 
         if(poiFeature.geometry.type === "Point"){              
           // LAT LON order
-          newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+          newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: icon });
 
           //populate the original geoJSOn feature to the marker layer!
           newMarker.feature = poiFeature;
@@ -546,7 +671,7 @@ angular
 
           // simply take the first point as feature reference POI
           // LAT LON order
-          newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+          newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: icon });
 
           //populate the original geoJSOn feature to the marker layer!
           newMarker.feature = poiFeature;
