@@ -501,6 +501,21 @@ angular
         if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("bäckerei")){
           sym = "icons/metacom/baeckerei.png";
         }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("schule")){
+          sym = "icons/metacom/schule_inklusion2.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("polizei")){
+          sym = "icons/metacom/polizeiwache.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("kranken")){
+          sym = "icons/metacom/krankenhaus.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("krankenhaus")){
+          sym = "icons/metacom/krankenhaus.jpeg";
+        }
+        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("tankstelle")){
+          sym = "icons/metacom/tankstelle.jpeg";
+        }
         else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("apotheke")){
           sym = "icons/metacom/apotheke.jpg";
         }
@@ -545,22 +560,7 @@ angular
         }
         else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("emma")){
           sym = "icons/poiIcons/emma_the_muh.png";
-        }
-        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("schule")){
-          sym = "icons/metacom/schule_inklusion2.jpeg";
-        }
-        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("polizei")){
-          sym = "icons/metacom/polizeiwache.jpeg";
-        }
-        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("krankenhaus")){
-          sym = "icons/metacom/krankenhaus.jpeg";
-        }
-        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("krankenhaus")){
-          sym = "icons/metacom/krankenhaus.jpeg";
-        }
-        else if(poiMetadataObject.datasetName && poiMetadataObject.datasetName.toLowerCase().includes("tankstelle")){
-          sym = "icons/metacom/tankstelle.jpeg";
-        }
+        }        
         
         return sym;
       }
