@@ -169,12 +169,40 @@ angular
 
 
 				  // DiKomAll: load some example layers
-				  for (const element of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
-					if(element.isPOI && (element.datasetName.toLowerCase().includes("kiz") || element.datasetName.toLowerCase().includes("eis"))){
-						element.isSelected = true;
-					  $scope.handlePoiOnMap(element);
-					}
+				  // if there are __env.initialLandmarks then we must detect corresponding layers and load them to the map. This is for demo purposes to easily load some layers to the map by just adding them as query params, e.g. ?landmarks=kiz,eis
+				  // special case kiz herne --> shall always be loaded if available  
+				  if(__env.initialLandmarks && __env.initialLandmarks !== ""){  
+					// it is a comma separated list of landmark names, e.g. kiz,eis
+					// hwence we must split the string by comma and trim each landmark name and then check if any layer in displayableGeoresources_keywordFiltered has a datasetName that includes the landmark name, if so then we set it to selected and call handlePoiOnMap for that layer
+					let landmarkNames = __env.initialLandmarks.split(",");
+					landmarkNames = landmarkNames.map(name => name.trim());
+
+					for (const element of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
+
+						for (const landmarkName of landmarkNames) {
+							if(element.isPOI && (element.datasetName.toLowerCase().includes("kiz") || element.datasetName.toLowerCase().includes(landmarkName.toLowerCase()))){
+								element.isSelected = true;
+								$scope.handlePoiOnMap(element);
+							}
+							// special cases
+							else if(landmarkName.toLowerCase() === "bakery" && element.isPOI && element.datasetName.toLowerCase().includes("bäckerei")){
+								element.isSelected = true;
+								$scope.handlePoiOnMap(element);
+							}
+							else if(landmarkName.toLowerCase() === "aldinord" && element.isPOI && element.datasetName.toLowerCase().includes("aldi")){
+								element.isSelected = true;
+								$scope.handlePoiOnMap(element);
+							}
+							else if(landmarkName.toLowerCase() === "cafe" && element.isPOI && element.datasetName.toLowerCase().includes("caf")){
+								element.isSelected = true;
+								$scope.handlePoiOnMap(element);
+							}
+						}
+					
+				  	}
+
 				  }
+				  
                 }); 
 
                 function prepTopicsTree(tree, level, parent) {

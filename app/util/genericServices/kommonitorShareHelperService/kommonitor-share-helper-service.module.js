@@ -75,6 +75,7 @@ angular
         if ($routeParams[this.paramName_hideIndicator]){
           __env.hideIndicator = $routeParams[this.paramName_hideIndicator];
         }
+
       };
 
       this.init = function(){
