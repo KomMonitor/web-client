@@ -20,7 +20,7 @@ export enum SliderType {
   standalone: true,
   imports: [CommonModule]
 })
-export class CustomSliderComponent implements AfterViewInit {
+export class CustomSliderComponent implements OnInit, AfterViewInit {
 
   @ViewChild('sliderContainer') sliderContainer!: ElementRef;
 
@@ -35,7 +35,7 @@ export class CustomSliderComponent implements AfterViewInit {
 
   errorMsg = '';
 
-  ngAfterViewInit() {
+  ngOnInit() {
 
     if(!this.data || this.data.length==0)
       this.errorMsg = 'Data not set or empty';
@@ -45,7 +45,9 @@ export class CustomSliderComponent implements AfterViewInit {
 
     if(this.type==SliderType.NORMAL && this.markerPositions.length>1)
       this.errorMsg = 'Type normal needs one marker position only';
+  }
 
+  ngAfterViewInit(): void {
     if(this.errorMsg=='')
       this.initSlider();
   }
@@ -104,6 +106,11 @@ export class CustomSliderComponent implements AfterViewInit {
     return this.markerPositions.map(m =>
       this.data.findIndex(d => d.getTime() === m.getTime())
     );
+  }
+  
+  getSliderValues() {
+    const values = this.sliderInstance.noUiSlider.get();
+    return Array.isArray(values) ? values : [values];
   }
 
   formatValue(value:number):any {

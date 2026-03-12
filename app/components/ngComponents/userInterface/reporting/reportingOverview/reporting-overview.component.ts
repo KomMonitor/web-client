@@ -1,3 +1,4 @@
+import { CustomSliderComponent, DisplayType, SliderType } from './../../../common/custom-slider/custom-slider.component';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { fromJson, toJson } from 'angular';

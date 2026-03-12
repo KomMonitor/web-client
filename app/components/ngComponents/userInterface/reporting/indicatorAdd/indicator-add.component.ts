@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { fromJson, toJson } from 'angular';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -16,7 +16,6 @@ import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot
 import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
-import * as noUiSlider from 'nouislider';
 import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
@@ -40,6 +39,18 @@ export class IndicatorAddComponent implements OnInit {
   sliderDisplaMode = DisplayType;
   sliderType = SliderType;
   sliderValues!:any[];
+  sliderPositions!:any[];
+
+  dateSlider;
+
+  private _slider?: CustomSliderComponent;
+
+  @ViewChild(CustomSliderComponent)
+  set slider(value: CustomSliderComponent | undefined) {
+    if (value) {
+      this._slider = value;
+    }
+  }
 
   months = [
     'Januar',
@@ -164,8 +175,6 @@ export class IndicatorAddComponent implements OnInit {
   lastPageOfAddedSectionPrepared;
   pagePreparationIndex;
   pagePreparationSize;
-
-  dateSlider;
 
   constructor(
     protected dataExchangeService: DataExchangeService,
@@ -1147,8 +1156,8 @@ export class IndicatorAddComponent implements OnInit {
         // Similar procedure as with timestamps
         let oldTimeseries = this.getFormattedDateSliderValues(true);
         
-        let from = new Date(this.dateSlider.result.from_value);
-        let to = new Date(this.dateSlider.result.to_value);
+        let from = new Date();
+        let to = new Date();
         let filteredTimeseries = validTimestamps.filter( el => {
           let date = new Date(el);
           date.setHours(0); // remove time-offset...TODO is there a better way?
@@ -2070,7 +2079,6 @@ export class IndicatorAddComponent implements OnInit {
     }
     this.loadingData = false;
     this.templatePageIdCounter = 1;
-    this.dateSlider = undefined;
     this.echartsRegisteredMapNames = [];
 
     for(let i=2;i<7;i++) {
@@ -3948,11 +3956,12 @@ console.log('init all diagrams')
 
   getFormatedSliderReturn() {
 
-    let data = this.dateSlider.noUiSlider.get(true);
+    let data = this._slider?.getSliderValues();
+    console.log(data)
     
     return {
-      from: this.datesAsMs[Math.round(data[0])],
-      to: this.datesAsMs[Math.round(data[1])]
+      from: '',
+      to: ''
     };
   }
 
@@ -4028,8 +4037,8 @@ console.log('init all diagrams')
 
     let dateSliderDate = this.getFormatedSliderReturn();
 
-    if(!this.dateSlider)
-				throw new Error("Tried to get dateslider values but dateslider was not defined.");
+    /* if(!this.dateSlider)
+				throw new Error("Tried to get dateslider values but dateslider was not defined."); */
 			
     let from:any = new Date(dateSliderDate.from);
     let to:any = new Date(dateSliderDate.to);
@@ -4073,52 +4082,12 @@ console.log('init all diagrams')
 
   initializeDateRangeSlider(availableDates, min, max) {
 
-    this.datesAsMs = this.createDatesFromIndicatorDates(availableDates);
+    this.sliderValues = this.createDateArray(availableDates);
+    this.sliderPositions = [this.sliderValues[0],this.sliderValues[this.sliderValues.length-1]];
+  }
 
-    this.sliderValues = this.datesAsMs;
-
-    this.dateSlider = document.getElementById('reportingDateSlider');
-    let config: any  = {
-      behaviour: 'drag',
-      connect: true,
-      keyboard: true, 
-      range: {
-          'min': 0, // index from
-          'max': this.datesAsMs.length-1
-      },
-      start: [0, this.datesAsMs.length-1 ], // index 
-      step: 1,
-      tooltips: true,
-      format: {
-        to: (value) => { 
-          // index value to UI format
-          return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
-        },
-        from: (value) => { 
-          return value;
-        }
-      },
-      pips: {
-        mode: 'range',
-        density: 1,
-        format: {
-          to: (value) => { 
-            // index value to UI format
-            return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
-          },
-          from: (value) => { 
-            return value;
-          }
-        }
-      }
-    };
-
-    noUiSlider.cssClasses.target += ' custom-dateSlider';
-    noUiSlider.create(this.dateSlider, config);
-
-    this.dateSlider.noUiSlider.on('end', () => {
-      this.onChangeDateSliderInterval();
-    });
+  createDateArray(dates:number[]):Date[] {
+    return dates.map(d => new Date(d));
   }
 
   validateConfiguration() {
