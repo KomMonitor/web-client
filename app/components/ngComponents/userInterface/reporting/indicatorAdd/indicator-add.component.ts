@@ -870,7 +870,7 @@ export class IndicatorAddComponent implements OnInit {
       }
       
       if(newVal.length > 1) {
-    console.log(newVal, oldVal, difference);
+
         for(let timestampToInsert of difference) {
 
           // setup pages to insert first
@@ -1433,6 +1433,7 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
     }
+
     return validTimestamps;
   }
 
@@ -3239,7 +3240,8 @@ export class IndicatorAddComponent implements OnInit {
       // at this point we are not actually adding any rows to the table
       if(i > 0 && i % maxRows == 0) {
         // add a new page
-        let newPage = fromJson(this.untouchedTemplateAsString).pages.at(-1);
+        let newPage = this.reportingService.getDatatablePageClone();
+
         newPage.id = this.templatePageIdCounter++;
         // setup new page
         for(let pageElement of newPage.pageElements) {
@@ -3274,7 +3276,9 @@ export class IndicatorAddComponent implements OnInit {
     // create table rows once the pages exist
     this.insertDatatableRowsInterval = setInterval(() => {
       // get current index of page (might have changed in the meantime)
+      console.log(this.reportingService.clonedTemplate.pages)
       let idx = this.reportingService.clonedTemplate.pages.indexOf(page)
+
       let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
 
       if(wrapper) {
@@ -3307,6 +3311,8 @@ export class IndicatorAddComponent implements OnInit {
         
         if((i % maxRows) == 0) {
           if(i > 0) idx++
+
+          console.log(idx)
           const idx_save = idx;
           const i_save = i;
           this.intervalArr[idx_save] = setInterval(() => {
@@ -3355,10 +3361,10 @@ export class IndicatorAddComponent implements OnInit {
 
               tbody.appendChild(row)
             }
-          }, 0, 100, true);
+          }, 0, 500, true);
         }
       }
-    }, 0, 100, true);
+    }, 0, 500, true);
   }
 
 
@@ -3956,12 +3962,25 @@ console.log('init all diagrams')
 
   getFormatedSliderReturn() {
 
-    let data = this._slider?.getSliderValues();
-    console.log(data)
+    let data:any | undefined = this._slider?.getSliderValues();
     
+    if(data) {
+
+      const [dayFrom, monthFrom, yearFrom] = data[0].split('.');
+      const fromMs: number = new Date(Number(yearFrom), Number(monthFrom) - 1, Number(dayFrom)).getTime();
+      
+      const [dayTo, monthTo, yearTo] = data[1].split('.');
+      const toMs: number = new Date(Number(yearTo), Number(monthTo) - 1, Number(dayTo)).getTime();
+
+      return {
+        from: fromMs,
+        to: toMs
+      };
+    }
+
     return {
-      from: '',
-      to: ''
+      from: this.datesAsMs[0], 
+      to: this.datesAsMs[this.datesAsMs.length-1]
     };
   }
 
@@ -3990,6 +4009,8 @@ console.log('init all diagrams')
     return this.dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, this.selectedIndicator.metadata.updateInterval);
   }
 
+
+  
   onChangeDateSliderInterval() {
     this.loadingData = true;
     // needed to tell angular something has changed
@@ -4050,6 +4071,7 @@ console.log('init all diagrams')
       inBetweenDates = validTimestamps.filter( el => {
         let date = new Date(el);
         date.setHours(0); // remove time-offset...TODO is there a better way?
+
         return from < date && date < to;
       });
     }
@@ -4081,6 +4103,8 @@ console.log('init all diagrams')
 
 
   initializeDateRangeSlider(availableDates, min, max) {
+
+    this.datesAsMs = this.createDatesFromIndicatorDates(availableDates);
 
     this.sliderValues = this.createDateArray(availableDates);
     this.sliderPositions = [this.sliderValues[0],this.sliderValues[this.sliderValues.length-1]];

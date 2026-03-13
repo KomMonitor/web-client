@@ -140,7 +140,7 @@
                         </div>
                         <div [hidden]="!(reportingService.clonedTemplate.name.includes('-timeseries'))">
                           <div id="reporting-dateSliderWrapper" *ngIf="sliderValues">
-                            <custom-slider [data]="sliderValues" [markerPositions]="sliderPositions" [type]="sliderType.RANGE" [displayMode]="sliderDisplaMode.DATE"></custom-slider>
+                            <custom-slider [data]="sliderValues" [markerPositions]="sliderPositions" [type]="sliderType.RANGE" [displayMode]="sliderDisplaMode.DATE" (valueChange)="onChangeDateSliderInterval()"></custom-slider>
                           </div>
                         </div>
                       </div>

@@ -3239,6 +3239,13 @@ export class ReportingService {
     return page;
   }
 
+  getDatatablePageClone():any {
+
+    let page = structuredClone(this.availableTemplates[this._reportingData$.value.selectedTemplateId].pages.at(-1));
+    page = this.bakeInCustomInfoToClonePage(page, 0);
+    return page;
+  }
+
   // Format: YYYY-MM-DD
   getCurrentDate() {
     let now = new Date();
