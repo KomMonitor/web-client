@@ -54,7 +54,7 @@ export class CacheHelperServiceService implements OnInit{
   }
 
   checkAuthentication() {
-    if (this.authService.Auth.keycloak.authenticated) {
+    if (this.authService.isAuthenticated()) {
       this.georesourcesEndpoint = this.georesourcesProtectedEndpoint;
       this.spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
       this.indicatorsEndpoint = this.indicatorsProtectedEndpoint;

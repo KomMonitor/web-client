@@ -80,7 +80,7 @@ export class ShareHelperService implements OnInit{
       if (this.$routeParams[this.paramName_loginRequired] && JSON.parse(this.$routeParams[this.paramName_loginRequired])){
         // login required
         if(window.window.__env.enableKeycloakSecurity){
-          if (this.authService.Auth.keycloak.authenticated) {
+          if (this.authService.isAuthenticated()) {
             // if (Auth.keycloak.showAdminView) {
             //   return true;
             // } else {
@@ -88,7 +88,7 @@ export class ShareHelperService implements OnInit{
             // }
           }
           else {
-            this.authService.Auth.keycloak.login({
+            this.authService.login({
               redirectUri: this.currentShareLink
             });
           }

@@ -40,17 +40,16 @@ interface KeycloakUser {
   selector: "app-user-login",
   templateUrl: "./user-login.component.html",
   styleUrls: ["./user-login.component.scss"],
-  imports: [CommonModule, NgbCollapseModule, NgbPopoverModule, SessionValidityComponent],
+  imports: [
+    CommonModule,
+    NgbCollapseModule,
+    NgbPopoverModule,
+    SessionValidityComponent,
+  ],
   standalone: true,
 })
 export class UserLoginComponent implements OnInit, OnDestroy {
   @ViewChild("userLoginPopover") popover!: NgbPopover;
-
-  private static readonly ADMIN_ROLE_SUFFIXES = [
-    "-creator",
-    "-publisher",
-    "-editor",
-  ] as const;
 
   private isOverAnchor$ = new BehaviorSubject<boolean>(false);
   private isOverPopover$ = new BehaviorSubject<boolean>(false);
@@ -127,23 +126,9 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     this.enableKeycloakSecurity =
       this.dataExchangeService.enableKeycloakSecurity;
 
-    if (this.authService.Auth?.keycloak?.authenticated) {
-      this.authenticated = this.authService.Auth.keycloak.authenticated;
+    this.authenticated = this.authService.isAuthenticated();
+    if (this.authenticated) {
       this.currentKeycloakUser = this.dataExchangeService.currentKeycloakUser;
-
-      if (
-        this.authService.Auth.keycloak.tokenParsed &&
-        this.authService.Auth.keycloak.tokenParsed.realm_access &&
-        this.authService.Auth.keycloak.tokenParsed.realm_access.roles &&
-        this.authService.Auth.keycloak.tokenParsed.realm_access.roles.some(
-          (role) =>
-            UserLoginComponent.ADMIN_ROLE_SUFFIXES.some((suffix) =>
-              role.endsWith(suffix),
-            ),
-        )
-      ) {
-        this.authService.Auth.keycloak.showAdminView = true;
-      }
     }
   }
 
@@ -185,7 +170,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
 
   tryLoginUser(): void {
     if (this.dataExchangeService.enableKeycloakSecurity) {
-      this.authService.Auth.keycloak.login();
+      this.authService.login();
     } else {
       this.tryLoginUser_withoutKeycloak();
     }
@@ -208,11 +193,17 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   tryLogoutUser(): void {
-    this.dataExchangeService.tryLogoutUser();
+    this.authService.logout();
   }
 
   extendKeycloakSession(): void {
-    this.dataExchangeService.extendKeycloakSession();
+    // Auth.keycloak.updateToken(5).then(function () {
+    //   console.log("keycloak token refreshed.");
+    // }).catch(function () {
+    //   console.error('Failed to refresh token. Will redirect to Login screen');
+    //   Auth.keycloak.login();
+    // });
+    this.authService.login();
   }
 
   onAnchorEnter(): void {

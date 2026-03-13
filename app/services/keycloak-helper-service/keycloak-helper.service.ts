@@ -203,7 +203,7 @@ export class KeycloakHelperService implements OnInit {
   async renameExistingRoles(oldOrganizationalUnitName, newOrganizationalUnitName, organizationalUnit) {
     try {
       // first get auth token to make admin requests
-      var bearerToken = this.authService.Auth.keycloak.token;
+      var bearerToken = this.authService.getToken();
 
       for (let suffix of this.roleSuffixes) {
         await this.renameExistingRole_withToken(bearerToken, oldOrganizationalUnitName + "-" + suffix, newOrganizationalUnitName + "-" + suffix, organizationalUnit);
@@ -218,7 +218,7 @@ export class KeycloakHelperService implements OnInit {
   async deleteRoles(organizationalUnitName) {
     try {
       // first get auth token to make admin requests
-      var bearerToken = this.authService.Auth.keycloak.token;
+      var bearerToken = this.authService.getToken();
 
       for (let suffix of this.roleSuffixes) {
         await this.deleteRole_withToken(bearerToken, organizationalUnitName + "-" + suffix);
@@ -232,7 +232,7 @@ export class KeycloakHelperService implements OnInit {
   async getAllRoles() {
     try {
       // first get auth token to make admin requests
-      var bearerToken = this.authService.Auth.keycloak.token;
+      var bearerToken = this.authService.getToken();
 
       // then make admin request
       return await this.getAllRoles_withToken(bearerToken);
@@ -271,7 +271,7 @@ export class KeycloakHelperService implements OnInit {
   async getClientQueryUsersRole() {
     let realmManagementClientId = await this.getRealmManagementClientId();
 
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let header = {
       'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -291,7 +291,7 @@ export class KeycloakHelperService implements OnInit {
 
   async getMemberCountForGroup(memberId){
     
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let header = {
       'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -312,7 +312,7 @@ export class KeycloakHelperService implements OnInit {
   async getClientQueryGroupsRole(){
     let realmManagementClientId = await this.getRealmManagementClientId();
 
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let header = {
       'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -333,7 +333,7 @@ export class KeycloakHelperService implements OnInit {
   async postNewGroup(organizationalUnit, parentOrganizationalUnit) {
     try {
       // get auth token to make admin requests
-      var bearerToken = this.authService.Auth.keycloak.token;
+      var bearerToken = this.authService.getToken();
 
       let groupBody = { 
         "name": organizationalUnit.name, 
@@ -428,7 +428,7 @@ export class KeycloakHelperService implements OnInit {
   async getAllGroups() {
     try {
       // first get auth token to make admin requests
-      var bearerToken = this.authService.Auth.keycloak.token;
+      var bearerToken = this.authService.getToken();
 
       // then make admin request
       return await this.getAllGroups_withToken(bearerToken);
@@ -559,7 +559,7 @@ export class KeycloakHelperService implements OnInit {
 
   async getGroupDetails(organizationalUnit, parentOrganizationalUnit){
 
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     // differentiate between root tier and sub tier
 
@@ -573,7 +573,7 @@ export class KeycloakHelperService implements OnInit {
 
   async updateExistingGroup(organizationalUnit, oldName, parentOrganizationalUnit){
     // get auth token to make admin requests
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let groupBody = { 
       "id": organizationalUnit.keycloakId,
@@ -639,7 +639,7 @@ export class KeycloakHelperService implements OnInit {
   async deleteGroup(organizationalUnit){
     try {
       // first get auth token to make admin requests
-      var bearerToken = this.authService.Auth.keycloak.token;
+      var bearerToken = this.authService.getToken();
 
       await this.deleteGroup_withToken(bearerToken, organizationalUnit.keycloakId);
 
@@ -693,7 +693,7 @@ export class KeycloakHelperService implements OnInit {
   }
 
   async getRealmManagementClientId() {
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let header = {
       'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -714,7 +714,7 @@ export class KeycloakHelperService implements OnInit {
   }
 
   async enableFineGrainedPermissionsForGroup(groupId) {
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let body = {
       "enabled":true
@@ -740,7 +740,7 @@ export class KeycloakHelperService implements OnInit {
   }
 
   async postPolicyForRole(keycloakRole, realmManagementClientId) {
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let body = {
       "name": "member-of-" + keycloakRole.name,
@@ -799,7 +799,7 @@ export class KeycloakHelperService implements OnInit {
   async getSingleParentClientUserRolePolicy(realmManagementClientId, parentOrganizationalUnit){
     // fetch the client-users-creator role policy of the parent org
 
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let parentClientUserCreatorPolicyName = parentOrganizationalUnit.name + ".client-users-creator";
 
@@ -859,7 +859,7 @@ export class KeycloakHelperService implements OnInit {
 
   async getScopeResourceId(realmManagementClientId, scopeUUID){
     // http://keycloak:8080/admin/realms/kommonitor/clients/ab58087d-9911-4a76-9d70-89a422e4f644/authz/resource-server/policy/7e1274c7-6b40-4e53-baad-9009f0633e3c/scopes
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let header = {
       'Authorization': "Bearer " + bearerToken // Note the appropriate header
@@ -878,7 +878,7 @@ export class KeycloakHelperService implements OnInit {
   }
 
   async putRolePolicyForKeycloakGroupResourceScope(realmManagementClientId, fineGrainPermissionResourceUUID, scopeUUID, scopePermissionName, groupId, rolePoliciesArray){
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     /*
       {
@@ -930,7 +930,7 @@ export class KeycloakHelperService implements OnInit {
   
   async setKeycloakPoliciesForKomMonitorOrganization(organizationalUnit, allOrganizationalUnits) {
     // get auth token to make admin requests
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     try {
 
@@ -978,7 +978,7 @@ export class KeycloakHelperService implements OnInit {
     
     let fineGrainPermissionResource_role:any = await this.enableFineGrainedPermissionsForRole(role);
 
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let policyIds = rolePoliciesArray.map(policy => policy.id); 
     let scopeUUID = fineGrainPermissionResource_role.scopePermissions["map-role"];
@@ -1016,7 +1016,7 @@ export class KeycloakHelperService implements OnInit {
 
   async getRoleByName(roleName){
 
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let header = {
       'Content-Type': 'application/json',
@@ -1036,7 +1036,7 @@ export class KeycloakHelperService implements OnInit {
   }
 
   async enableFineGrainedPermissionsForRole(role) {
-    var bearerToken = this.authService.Auth.keycloak.token;
+    var bearerToken = this.authService.getToken();
 
     let body = {
       "enabled":true

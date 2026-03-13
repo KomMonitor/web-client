@@ -3,16 +3,29 @@ import { CanActivateFn, Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 
-export const authGuard: CanActivateFn = () => {
+const ADMIN_ROLE_SUFFIXES = ["-creator", "-publisher", "-editor"] as const;
+
+export const authAdminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const dataExchangeService = inject(DataExchangeService);
   const router = inject(Router);
 
   if (dataExchangeService.enableKeycloakSecurity) {
-    if (authService.Auth?.keycloak?.authenticated) {
-      return true;
+    if (authService.isAuthenticated()) {
+      const tokenParsed = authService.getTokenParsed();
+      if (
+        tokenParsed &&
+        tokenParsed.realm_access &&
+        tokenParsed.realm_access.roles &&
+        tokenParsed.realm_access.roles.some((role) =>
+          ADMIN_ROLE_SUFFIXES.some((suffix) => role.endsWith(suffix)),
+        )
+      ) {
+        return true;
+      }
+      return router.createUrlTree(["/"]);
     }
-    authService.Auth.keycloak.login();
+    authService.login();
     return false;
   }
 

@@ -13,6 +13,7 @@ import { GlobalFilterHelperService } from 'services/global-filter-helper-service
 import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { KeycloakProfile } from 'keycloak-js';
 
 export interface DataExchange {
   customGreetingsContact_mail: string;
@@ -87,7 +88,7 @@ export interface DataExchange {
   customLogo_onClickURL: any;
   customLogoURL: any;
   customLogoWidth: any;
-  currentKeycloakUser: KeycloakUser;
+  currentKeycloakUser: KeycloakProfile;
   enableKeycloakSecurity: any;
   currentKomMonitorLoginRoleNames:any;
   currentKeycloakLoginGroups: any;
@@ -110,13 +111,6 @@ export interface DataExchange {
   wmsDatasets:any;
   rangeFilterIsApplied:any;
   baseLayerDefinitionsArray: any[];
-}
-
-export interface KeycloakUser {
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
 }
 
 export interface SpatialUnit {
@@ -604,7 +598,7 @@ export class DataExchangeService {
   currentKomMonitorLoginRoleNames:any[] = [];
   currentKeycloakLoginGroups:any[] = [];
   currentKomMonitorLoginOrganizationalUnits:any[] = [];
-  currentKeycloakUser!:KeycloakUser;
+  currentKeycloakUser!:KeycloakProfile;
 
   enableScatterPlotRegression = window.__env.enableScatterPlotRegression;
   enableBilanceTrend = window.__env.enableBilanceTrend;
@@ -648,21 +642,26 @@ export class DataExchangeService {
     await this.cacheHelperService.init();
     console.log("fetching all metadata from management component");
 
-    if (this.authService.Auth.keycloak.authenticated){
-      await this.authService.Auth.keycloak.loadUserProfile()
-      .then((profile) => {
+    if (this.authService.isAuthenticated()) {
+      const loadUser$ = this.authService.loadUserProfile();
+      if (!loadUser$) {
+        console.log('User profile is not available');
+        return;
+      }
+      await loadUser$.then((profile) => {
         // set user profile
         this.currentKeycloakUser = profile;
         console.log("User logged in with email: " + profile.email);
 
-        if(this.authService.Auth.keycloak.tokenParsed && this.authService.Auth.keycloak.tokenParsed.realm_access && this.authService.Auth.keycloak.tokenParsed.realm_access.roles){
-          this.currentKeycloakLoginRoles = this.authService.Auth.keycloak.tokenParsed.realm_access.roles;
+        const tokenParsed = this.authService.getTokenParsed();
+        if(tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles){
+          this.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
           if (this.currentKeycloakLoginRoles.includes(window.__env.keycloakKomMonitorAdminRoleName)) {
             this.isRealmAdmin = true;
             // this.currentKeycloakLoginRoles = this.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
           }
-          if (this.authService.Auth.keycloak.tokenParsed.groups) {
-            this.currentKeycloakLoginGroups = this.authService.Auth.keycloak.tokenParsed.groups;
+          if (tokenParsed['groups']) {
+            this.currentKeycloakLoginGroups = tokenParsed['groups'];
           }
           this.currentKeycloakLoginGroupNames = this.currentKeycloakLoginGroups.map(groupPath => groupPath.split("/")[groupPath.split("/").length - 1]);
         } else {
@@ -678,7 +677,7 @@ export class DataExchangeService {
 
     // revise metadata fecthing for protected endpoints 
     forkJoin({
-      scriptsPromise: this.fetchIndicatorScriptsMetadata(),
+      // scriptsPromise: this.fetchIndicatorScriptsMetadata(),
       topicsPromise: this.fetchTopicsMetadata(this.currentKeycloakLoginRoles),
       spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles),
       georesourcesPromise: this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter),
@@ -2998,21 +2997,6 @@ export class DataExchangeService {
 
       return this.isDisplayableIndicator(item);
     };
-  }
-
-  tryLogoutUser() {
-    this.authService.Auth.keycloak.logout();
-  }
-
-  extendKeycloakSession() {
-    // Auth.keycloak.updateToken(5).then(function () {
-    //   console.log("keycloak token refreshed.");
-    // }).catch(function () {
-    //   console.error('Failed to refresh token. Will redirect to Login screen');
-    //   Auth.keycloak.login();
-    // });
-
-    this.authService.Auth.keycloak.login();
   }
 
   isDisplayableGeoresource(item){

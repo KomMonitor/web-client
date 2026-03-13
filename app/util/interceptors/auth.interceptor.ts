@@ -14,7 +14,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Get the token from the Auth service
-    const token = this.authService.Auth?.keycloak?.token;
+    const token = this.authService.getToken();
 
     if (token && this.urlRequiresKeycloakAuthHeader(request.url)) {
       // Clone the request and add the authorization header

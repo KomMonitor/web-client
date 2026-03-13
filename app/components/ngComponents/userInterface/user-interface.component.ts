@@ -27,7 +27,6 @@ export class UserInterfaceComponent implements OnInit {
   diagramSubMenuOpen: boolean = false;
 
   showUserLogin = false;
-  authenticated = false;
   password;
   showAdminLogin = false;
 
@@ -74,7 +73,7 @@ export class UserInterfaceComponent implements OnInit {
       this.dataExchangeService.fetchAllMetadata();
     }
 
-    this.checkAuthentication();
+    this.showAdminLogin = this.authService.hasAdminRights();
     
     setTimeout(() => {
       this.prepUserInformation();
@@ -173,42 +172,6 @@ export class UserInterfaceComponent implements OnInit {
 				location.href = '/administration';
 			}
 		}
-
-		tryLoginUser(){
-			if(this.exchangeData.enableKeycloakSecurity){
-				this.authService.Auth.keycloak.login();
-			}
-			else{
-				this.tryLoginUser_withoutKeycloak();
-			}
-		}
-
-		tryLogoutUser() {
-			//Auth.keycloak.logout();
-		}
-/*  
-		$scope.tryLoginUserByKeypress = function ($event) {
-			var keyCode = $event.which || $event.keyCode;
-			//check for enter key
-	    if (keyCode === 13) {
-	        $scope.tryLoginUser();
-	    }
-		};
-  */
-		checkAuthentication() {	
-			this.exchangeData.currentKeycloakLoginRoles = [];
-
-			if (this.authService.Auth.keycloak.authenticated) {
-				this.authenticated = this.authService.Auth.keycloak.authenticated;
-				if(this.authService.Auth.keycloak.tokenParsed 
-					&& this.authService.Auth.keycloak.tokenParsed.realm_access 
-					&& this.authService.Auth.keycloak.tokenParsed.realm_access.roles 
-					&& this.authService.Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
-						this.authService.Auth.keycloak.showAdminView = true;
-						this.showAdminLogin = true;
-				}
-			}
-		};
 
 		openAdminUI() {
 			this.router.navigate(['/administration']);

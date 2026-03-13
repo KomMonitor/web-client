@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 
-import Keycloak from 'keycloak-js';
 import { AuthService } from 'services/auth-service/auth.service';
 import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 
@@ -26,51 +25,13 @@ export class StartupService {
         
         // todo, wait for config, then keycloak
         setTimeout(async () => {
-          await this.initKeycloak();
+          await this.authService.initKeycloak();
+          this.keycloakHelperService.init();
           resolve();
         },1000);
     });
   }
     
-  private async initKeycloak(): Promise<any> {
-
-    let auth = {
-      keycloak: {}
-    };
-
-    if (window.__env.enableKeycloakSecurity) {
-      var keycloakAdapter = new Keycloak(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
-
-      // https://www.keycloak.org/docs/latest/securing_apps/#session-status-iframe
-      // https://www.keycloak.org/docs/latest/securing_apps/#_modern_browsers
-
-      return await keycloakAdapter.init({
-        onLoad: 'check-sso',
-        checkLoginIframe: false,
-        silentCheckSsoFallback: false
-      }).then( (authenticated) => {
-        console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
-        auth.keycloak = keycloakAdapter;
-
-        // hier
-        // beides ehemals innerhalb der actory('Auth',  () => { funktion
-        this.authService.init(auth);
-        this.keycloakHelperService.init();
-
-        try {
-          console.debug('Trying to bootstrap application.');
-        }
-        catch (e) {
-          console.error('Application bootstrapping failed.');
-          console.error(e);
-        }
-      }).catch(function () {
-        console.log('Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security');
-        alert('Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security');
-      });
-    }
-  }
-  
   /*
  LOAD CONFIG FILES FROM CONFIG STORAGE SERVER
 */

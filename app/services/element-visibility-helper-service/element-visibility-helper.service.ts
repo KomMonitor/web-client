@@ -45,7 +45,7 @@ export class ElementVisibilityHelperService implements OnInit {
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
 
-    if(this.authService.Auth.keycloak.authenticated && window.__env.showFavoriteSelection)
+    if(this.authService.isAuthenticated() && window.__env.showFavoriteSelection)
       this.elementVisibility['favSelection'] = true;
     else
       this.elementVisibility['favSelection'] = false;
@@ -87,7 +87,7 @@ export class ElementVisibilityHelperService implements OnInit {
     } else {
 
       // authenticated access control
-      if (this.authService.Auth.keycloak.authenticated) {
+      if (this.authService.isAuthenticated()) {
         if (element.groups === undefined || element.groups.length === 0) {
             return true;
         }
@@ -96,14 +96,14 @@ export class ElementVisibilityHelperService implements OnInit {
         }
         // admin role user always sees all data and widgets
         // role kommonitor-creator still exists
-        if (this.authService.Auth.keycloak.tokenParsed.realm_access.roles.includes(window.__env.keycloakKomMonitorAdminRoleName)) {
+        if (this.authService.getTokenParsed()?.realm_access?.roles.includes(window.__env.keycloakKomMonitorAdminRoleName)) {
           return true;
         }
         var hasAllowedGroup = false;          
         for (var i = 0; i < element.groups.length; i++) {
           // get groups and compare to each leaf node in group hierarchy.
           // get group name by identifying last '/' from group hierarchy
-          let groupNames = this.authService.Auth.keycloak.tokenParsed.groups.map(groupstring => groupstring.substring(groupstring.lastIndexOf("/") + 1));
+          let groupNames = this.authService.getTokenParsed()?.['groups'].map(groupstring => groupstring.substring(groupstring.lastIndexOf("/") + 1)) ?? [];
           if(groupNames.includes(element.groups[i])){
             hasAllowedGroup = true;
             return true;
