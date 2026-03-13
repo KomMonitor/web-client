@@ -12,11 +12,11 @@ import { AdminSpatialUnitsManagementComponent } from "./adminSpatialUnitsManagem
 import { AdminTopicsManagementComponent } from "./adminTopicsManagement/admin-topics-management.component";
 import { CommonModule } from "@angular/common";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { UserLoginComponent } from "../userInterface/userLogin/user-login.component";
 import { NotificationComponent } from "../common/notification/notification.component";
 import { AdminScriptExecutionComponent } from "./adminScriptExecution/admin-script-execution.component";
 import { AdminScriptManagementComponent } from "./adminScriptManagement/admin-script-management.component";
 import { AdminRoleManagementComponent } from "./adminRoleManagement/admin-role-management.component";
+import { UserLoginComponent } from "../common/userLogin/user-login.component";
 
 export enum AdminNavItem {
   Overview = "overview",

@@ -1,0 +1,89 @@
+/* UserLogin Component Styles */
+/* ::ng-deep is needed because NgbPopover with container="body" renders outside the component */
+::ng-deep .user-login-popover {
+  width: 300px;
+  max-width: 300px;
+}
+
+::ng-deep .user-login-popover .popover-body {
+  padding: 15px;
+}
+
+.controls {
+  .btn {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+}
+
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  ::ng-deep .user-login-popover {
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* Box styles for roles and groups */
+.box.box-simplified {
+  border: 1px solid #d2d6de;
+  margin-bottom: 10px;
+}
+
+.box.box-simplified .box-header {
+  padding: 5px 10px;
+  border-bottom: 1px solid #d2d6de;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: space-between;
+
+  &:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+  }
+}
+
+.box.box-simplified .box-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.box.box-simplified .box-body {
+  padding: 10px;
+}
+
+
+/* Table styles */
+.box-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.box-body table th {
+  font-weight: bold;
+  text-align: left;
+  padding: 5px;
+}
+
+.box-body table td {
+  padding: 5px;
+}
+
+.role-values-cell {
+  padding-left: 1em;
+}
+
+.box-body table p {
+  margin: 2px 0;
+}
+
+/* Utility classes */
+.word-break-all {
+  word-break: break-all;
+}
+
+.group-item {
+  margin: 0;
+}
