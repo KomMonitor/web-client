@@ -131,10 +131,7 @@
       </div>
     </div>
 
-    <span
-      ><b>Session Gültigkeit:</b>
-      {{ keycloakTokenExpirationInfo }} Minuten</span
-    >
+    <app-session-validity></app-session-validity>
 
     <div class="d-grid gap-2 controls">
       <button class="btn btn-danger" (click)="tryLogoutUser()" type="button">

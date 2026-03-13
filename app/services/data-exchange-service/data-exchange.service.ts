@@ -88,7 +88,6 @@ export interface DataExchange {
   customLogoURL: any;
   customLogoWidth: any;
   currentKeycloakUser: KeycloakUser;
-  keycloakTokenExpirationInfo: any;
   enableKeycloakSecurity: any;
   currentKomMonitorLoginRoleNames:any;
   currentKeycloakLoginGroups: any;
@@ -222,7 +221,6 @@ export class DataExchangeService {
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName:any;
   simplifyGeometries:any;
-  keycloakTokenExpirationInfo: any;
   FEATURE_NAME_PROPERTY_NAME:any;
   availableGeoresources!:GeoresourcesDataset[];
   availableIndicators:any;
@@ -671,9 +669,6 @@ export class DataExchangeService {
           this.currentKeycloakLoginRoles = [];
           this.currentKeycloakLoginGroups = [];
         }
-
-        // set token expiration
-        this.startCheckSessionExpiration();                
         })
       .catch(function () {
         console.log('Failed to load user profile');
@@ -1645,24 +1640,6 @@ export class DataExchangeService {
     }
     return false;
   };
-
-  startCheckSessionExpiration() {
-    setInterval(() => {
-      // minutes until current browser session invalidates
-      // use refresh token as this is used when calling "updateToken" keycloak method. Only if that is invalid the whole session is invalid
-      this.keycloakTokenExpirationInfo = Math.round((this.authService.Auth.keycloak.refreshTokenParsed.exp + this.authService.Auth.keycloak.timeSkew - new Date().getTime() / 1000) / 60);
-      if(! this.keycloakTokenExpirationInfo){
-        this.keycloakTokenExpirationInfo = 30;
-      }
-
-      // if session is expired then show warning to User!
-      if (this.keycloakTokenExpirationInfo < 0){
-        this.keycloakTokenExpirationInfo = 0;
-        this.displayMapApplicationError("Ihre aktuelle Login-Session ist abgelaufen. Sie müssen sich neu einloggen. Nutzen Sie dazu das User-Menü oben rechts.");
-      }
-
-    }, 1000 * 60);            
-  }
 
   async fetchAccessControlMetadata(keycloakRolesArray){
     this.setAccessControl(await this.cacheHelperService.fetchAccessControlMetadata(keycloakRolesArray));

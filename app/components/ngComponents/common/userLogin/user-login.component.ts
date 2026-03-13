@@ -16,13 +16,8 @@ import {
   NgbPopover,
   NgbPopoverModule,
 } from "@ng-bootstrap/ng-bootstrap";
-import {
-  BehaviorSubject,
-  Subject,
-  combineLatest,
-  of,
-  timer,
-} from "rxjs";
+import { SessionValidityComponent } from "./session-validity/session-validity.component";
+import { BehaviorSubject, Subject, combineLatest, of, timer } from "rxjs";
 import {
   distinctUntilChanged,
   map,
@@ -45,13 +40,17 @@ interface KeycloakUser {
   selector: "app-user-login",
   templateUrl: "./user-login.component.html",
   styleUrls: ["./user-login.component.scss"],
-  imports: [CommonModule, NgbCollapseModule, NgbPopoverModule],
+  imports: [CommonModule, NgbCollapseModule, NgbPopoverModule, SessionValidityComponent],
   standalone: true,
 })
 export class UserLoginComponent implements OnInit, OnDestroy {
   @ViewChild("userLoginPopover") popover!: NgbPopover;
 
-  private static readonly ADMIN_ROLE_SUFFIXES = ["-creator", "-publisher", "-editor"] as const;
+  private static readonly ADMIN_ROLE_SUFFIXES = [
+    "-creator",
+    "-publisher",
+    "-editor",
+  ] as const;
 
   private isOverAnchor$ = new BehaviorSubject<boolean>(false);
   private isOverPopover$ = new BehaviorSubject<boolean>(false);
@@ -64,7 +63,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   currentKeycloakUser: KeycloakUser = {};
   userRoleInformation: UserRoleInformation = {};
   userGroupInformation: string[][] = [];
-  keycloakTokenExpirationInfo: string = "";
   password: string = "";
 
   isUserLoginRolesCollapse = true;
@@ -92,14 +90,14 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.broadcastService.currentBroadcastMsg.pipe(
-      takeUntil(this.destroy$),
-    ).subscribe((res) => {
-      if (res.msg === "initialMetadataLoadingCompleted") {
-        this.checkAuthentication();
-        this.prepUserInformation();
-      }
-    });
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        if (res.msg === "initialMetadataLoadingCompleted") {
+          this.checkAuthentication();
+          this.prepUserInformation();
+        }
+      });
 
     combineLatest([this.isOverAnchor$, this.isOverPopover$])
       .pipe(
@@ -132,15 +130,16 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     if (this.authService.Auth?.keycloak?.authenticated) {
       this.authenticated = this.authService.Auth.keycloak.authenticated;
       this.currentKeycloakUser = this.dataExchangeService.currentKeycloakUser;
-      this.keycloakTokenExpirationInfo =
-        this.dataExchangeService.keycloakTokenExpirationInfo;
 
       if (
         this.authService.Auth.keycloak.tokenParsed &&
         this.authService.Auth.keycloak.tokenParsed.realm_access &&
         this.authService.Auth.keycloak.tokenParsed.realm_access.roles &&
         this.authService.Auth.keycloak.tokenParsed.realm_access.roles.some(
-          (role) => UserLoginComponent.ADMIN_ROLE_SUFFIXES.some((suffix) => role.endsWith(suffix))
+          (role) =>
+            UserLoginComponent.ADMIN_ROLE_SUFFIXES.some((suffix) =>
+              role.endsWith(suffix),
+            ),
         )
       ) {
         this.authService.Auth.keycloak.showAdminView = true;
@@ -157,7 +156,9 @@ export class UserLoginComponent implements OnInit, OnDestroy {
           const key = roles.split(".")[0];
           const role = roles.split(".")[1];
 
-          if (!Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)) {
+          if (
+            !Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)
+          ) {
             this.userRoleInformation[key] = [];
           }
 
@@ -230,8 +231,16 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     this.popoverLeaveUnlisten?.();
     const popoverEl = this.document.querySelector(".user-login-popover");
     if (popoverEl) {
-      this.popoverEnterUnlisten = this.renderer.listen(popoverEl, "mouseenter", () => this.isOverPopover$.next(true));
-      this.popoverLeaveUnlisten = this.renderer.listen(popoverEl, "mouseleave", () => this.isOverPopover$.next(false));
+      this.popoverEnterUnlisten = this.renderer.listen(
+        popoverEl,
+        "mouseenter",
+        () => this.isOverPopover$.next(true),
+      );
+      this.popoverLeaveUnlisten = this.renderer.listen(
+        popoverEl,
+        "mouseleave",
+        () => this.isOverPopover$.next(false),
+      );
     }
   }
 

@@ -17,6 +17,7 @@ import { AdminScriptExecutionComponent } from "./adminScriptExecution/admin-scri
 import { AdminScriptManagementComponent } from "./adminScriptManagement/admin-script-management.component";
 import { AdminRoleManagementComponent } from "./adminRoleManagement/admin-role-management.component";
 import { UserLoginComponent } from "../common/userLogin/user-login.component";
+import { SessionValidityComponent } from "../common/userLogin/session-validity/session-validity.component";
 
 export enum AdminNavItem {
   Overview = "overview",
@@ -54,7 +55,8 @@ export enum AdminNavItem {
     UserLoginComponent,
     NotificationComponent,
     AdminRoleManagementComponent,
-  ],
+    SessionValidityComponent
+],
   standalone: true,
 })
 export class AdminComponent implements OnInit {
