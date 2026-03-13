@@ -82,29 +82,34 @@ angular
         return undefined;
       }
 
-      this.checkForScreenshot = async function (mapName, spatialUnitId, featureId, pageOrientation, domElement) {
+      this.checkForScreenshot = function (mapName, spatialUnitId, featureId, pageOrientation, domElement) {
 
         let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
         if (!self.cacheMap.has(CacheKey)) {
           // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
           // for now we try to only execute one screenshot process for each spatial unit
           // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item         
-          setTimeout(function () {
-            let leafletMapScreenshot = domtoimage
-              .toJpeg(domElement, { quality: 1 })
-              .then(function (dataUrl) {
-                self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
-              })
-              .catch(function (error) {
-                console.error('oops, something went wrong!', error);
-              });
-          }, 150);
+          return new Promise((resolve, reject) => {
+            setTimeout(function () {
+              domtoimage
+                .toJpeg(domElement, { quality: 1 })
+                .then(function (dataUrl) {
+                  self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
+                  resolve(dataUrl);
+                })
+                .catch(function (error) {
+                  console.error('oops, something went wrong!', error);
+                  reject(error);
+                });
+            }, 150);
+          });
         }
         else{
           // only increase executedCacheMap due to log progress
           self.executedScreenshotMapKeys.set(CacheKey, CacheKey);
           // send UI update information
           self.logProgress();     
+          return Promise.resolve(self.cacheMap.get(CacheKey).imageDataUrl);
         }
 
       }
