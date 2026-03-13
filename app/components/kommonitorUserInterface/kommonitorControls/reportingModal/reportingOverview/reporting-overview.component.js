@@ -253,7 +253,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.$on("reportingIndicatorConfigurationCompleted", function(event, data) {
 			$scope.loadingData = true;
-			let [indicator, template] = data;
+			let [indicator, template, geoJSON] = data;
 
 			// apply submitted pageConfig to all sections of the selected template
 			
@@ -284,13 +284,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config.templateSections.push(templateSection);
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
-			$scope.setupNewPages($scope.config.templateSections.at(-1));
+			$scope.setupNewPages($scope.config.templateSections.at(-1), geoJSON);
 		});
 
 		$scope.$on("reportingPoiLayerConfigurationCompleted", function(event, data) {
 			$scope.loadingData = true;
 			// add indicator to 'added indicators'
-			let [poiLayer, indicator, template] = data;
+			let [poiLayer, indicator, template, geoJSON] = data;
 
 			// apply submitted pageConfig to all sections of the selected template
 
@@ -323,7 +323,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				
 			// setup pages after dom exists
 			// at this point we still have all the echarts maps registered
-			$scope.setupNewPages($scope.config.templateSections.at(-1));
+			$scope.setupNewPages($scope.config.templateSections.at(-1), geoJSON);
 		});
 
 		$scope.removeTemplateSection = function(idx) {
@@ -391,7 +391,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		});
 
-		$scope.setupNewPages = async function(templateSection) {
+		$scope.setupNewPages = async function(templateSection, geoJSON_provided) {
 
 				if(!templateSection.poiLayerName) {
 
@@ -399,10 +399,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 					let indicatorId = templateSection.indicatorId;
 					let spatialUnit, featureCollection, features, geoJSON;
 					
-					spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName)
-					$scope.currentSpatialUnit = spatialUnit;
-					featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
-					features = $scope.createLowerCaseNameProperty(featureCollection.features);
+					if (geoJSON_provided) {
+						geoJSON = geoJSON_provided;
+						features = geoJSON.features;
+						// we still need spatial unit info
+						spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName)
+						$scope.currentSpatialUnit = spatialUnit;
+					} else {
+						spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName)
+						$scope.currentSpatialUnit = spatialUnit;
+						featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+						features = $scope.createLowerCaseNameProperty(featureCollection.features);
+						geoJSON = { features: features };
+					}
 
 					$scope.geoJsonForReachability_byFeatureName = new Map();
 
@@ -411,8 +420,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 					$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
-
-					geoJSON = { features: features };
 
 					$scope.lastPageOfAddedSectionPrepared = false;
 					$scope.pagePreparationIndex = 0;
@@ -430,6 +437,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 								continue; // only do changes to new pages
 						}
 
+						// PERFORMANCE OPTIMIZATION:
+						// if page is already complete (from reportingIndicatorAdd), we only need to re-render preview if it is a preview page
+						// background pages can be skipped entirely!
+						let isPreview = $scope.isPageInPreview(page, idx);
+						if (page.generatedData && page.generatedData.isComplete && !isPreview) {
+							continue;
+						}
+
 						await $scope.preparePage(idx, page, indicatorId, undefined, spatialUnit, geoJSON);
 						
 						$scope.pagePreparationIndex = idx;
@@ -445,11 +460,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 						$scope.$digest();
 					});
 				} else {					
-					await $scope.handleSetupNewPagesForReachability(templateSection)
+					await $scope.handleSetupNewPagesForReachability(templateSection, geoJSON_provided)
 				}
 		}
 
-		$scope.handleSetupNewPagesForReachability = async function(templateSection) {
+		$scope.handleSetupNewPagesForReachability = async function(templateSection, geoJSON_provided) {
 			let poiLayerName = templateSection.poiLayerName;
 			let spatialUnit, featureCollection, features, geoJSON, indicatorId;
 			// if indicator was chosen
@@ -457,16 +472,25 @@ angular.module('reportingOverview').component('reportingOverview', {
 				indicatorId = templateSection.indicatorId;
 			}
 			
-			if (indicatorId) {
-				spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
-				featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+			if (geoJSON_provided) {
+				geoJSON = geoJSON_provided;
+				features = geoJSON.features;
+				if (indicatorId) {
+					spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+				} else {
+					spatialUnit = await $scope.getSpatialUnitByName(templateSection.spatialUnitName);
+				}
 			} else {
-				spatialUnit = await $scope.getSpatialUnitByName(templateSection.spatialUnitName);
-				featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
+				if (indicatorId) {
+					spatialUnit = await $scope.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+					featureCollection = await $scope.queryFeatures(indicatorId, spatialUnit);
+				} else {
+					spatialUnit = await $scope.getSpatialUnitByName(templateSection.spatialUnitName);
+					featureCollection = await $scope.queryFeatures(undefined, spatialUnit);
+				}
+				features = $scope.createLowerCaseNameProperty(featureCollection.features);
+				geoJSON = { features: features };
 			}
-
-			features = $scope.createLowerCaseNameProperty(featureCollection.features);
-			geoJSON = { features: features };
 
 			$scope.geoJsonForReachability_byFeatureName = new Map();
 
@@ -486,6 +510,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
 					continue; // only do changes to new pages
+				}
+
+				// PERFORMANCE OPTIMIZATION:
+				let isPreview = $scope.isPageInPreview(page, idx);
+				if (page.generatedData && page.generatedData.isComplete && !isPreview) {
+					continue;
 				}
 
 				await $scope.preparePage(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON);
