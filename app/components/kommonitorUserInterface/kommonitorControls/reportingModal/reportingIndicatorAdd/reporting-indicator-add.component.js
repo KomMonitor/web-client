@@ -1777,9 +1777,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.template.isochronesRangeType = $scope.isochronesRangeType;
 			$scope.template.isochronesRangeUnits = $scope.isochronesRangeUnits;
 			if(!$scope.template.name.includes("reachability")) {
-				$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
+				$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template, $scope.selectedIndicator.geoJSON])
 			} else {
-				$scope.$emit('reportingAddNewPoiLayerClicked', [$scope.selectedPoiLayer, $scope.selectedIndicator, $scope.template])
+				$scope.$emit('reportingAddNewPoiLayerClicked', [$scope.selectedPoiLayer, $scope.selectedIndicator, $scope.template, $scope.geoJsonForReachability])
 			}
 			$scope.reset();
 		}
@@ -3390,6 +3390,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.preparePageForIndicatorAdd = async function(idx, page) {
 			let isPreview = $scope.isPageInPreview(page, idx);
 			page.indexInConfigPages = idx; // help for page number generation
+			
+			// initialize generatedData if not present
+			if (!page.generatedData) {
+				page.generatedData = {
+					echarts: {},
+					mapImage: undefined,
+					tableData: undefined,
+					isComplete: false
+				};
+			}
 
 			if (!isPreview) {
 				$scope.pageToProcess = page;
@@ -3402,18 +3412,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(!pageDom) {
 				console.error("Could not find DOM for page " + idx);
 				return;
-			}
-
-			let prevPage = idx > 0 ? $scope.template.pages[idx-1] : undefined;
-			let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
-
-			if(prevPage) {
-				let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
-				if(pageIncludesDatatable && prevPageIncludesDatatable) {
-					// for datatable we might have skipped preview for additional pages
-					// but they are handled within createPageElement_Datatable
-					// however, for background processing we should still ensure they are "processed" if they exist as separate pages
-				}
 			}
 
 			for(let pageElement of page.pageElements) {
@@ -3443,9 +3441,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							}
 							
 						}
-						await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map, isPreview);
+						page.generatedData.mapImage = await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map, isPreview);
 
 						pageElement.isPlaceholder = false;
+
+						// store ECharts image
+						page.generatedData.echarts[pageElement.type] = map.getDataURL({pixelRatio: 2});
 
 						if (!isPreview) {
 							map.dispose();
@@ -3455,13 +3456,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					case "mapLegend": {
 						pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
 						if (isPreview) {
-							pageDom.querySelector(".type-mapLegend").style.display = "none";
+							let legendDom = pageDom.querySelector(".type-mapLegend");
+							if(legendDom) legendDom.style.display = "none";
 						}
 						break;
 					}
 					case "barchart": {
 						let instance = $scope.createPageElement_BarChartDiagram(pElementDom, page, pageElement);
 						pageElement.isPlaceholder = false;
+						page.generatedData.echarts[pageElement.type] = instance.getDataURL({pixelRatio: 2});
 						if (!isPreview) {
 							instance.dispose();
 						}
@@ -3470,6 +3473,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					case "linechart": {
 						let instance = $scope.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
 						pageElement.isPlaceholder = false;
+						let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? "_perc" : "");
+						page.generatedData.echarts[key] = instance.getDataURL({pixelRatio: 2});
 						if (!isPreview) {
 							instance.dispose();
 						}
@@ -3477,27 +3482,30 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 					case "datatable": {
 						// remove all following datatable pages first so we don't add too many.
-						// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
 						let nextPage = idx < $scope.template.pages.length-1 ? $scope.template.pages[idx+1] : undefined;
 						if(nextPage) {
 							let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
 							while(nextPageIncludesDatatable) {
 								$scope.template.pages.splice(idx+1, 1) //remove page
-								//update next page
 								nextPage = idx < $scope.template.pages.length-1 ? $scope.template.pages[idx+1] : undefined;
 								nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
 							}
 						}
 						$scope.createPageElement_Datatable(pElementDom, page, isPreview);
+						// tableData is populated inside createPageElement_Datatable directly on pageElement
+						page.generatedData.tableData = pageElement.tableData;
 						break;
 					}
 				}
 			}
 
+			page.generatedData.isComplete = true;
+
 			if (!isPreview) {
 				$scope.pageToProcess = undefined;
 				await $timeout(function(){}, 0);
 			}
+		
 		
 
 			// apply current page configuration as it is performed asynchronously 
