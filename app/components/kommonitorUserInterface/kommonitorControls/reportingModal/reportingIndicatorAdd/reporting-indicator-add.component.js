@@ -50,7 +50,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.pagePreparationSize = 0;
 
 		$scope.pageToProcess = undefined;
-		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 5;
+		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
 
 		$scope.isPageInPreview = function(page, index) {
 			if(page.type !== 'area_specific') {
@@ -60,6 +60,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let areaSpecificPages = $scope.template.pages.filter(p => p.type === 'area_specific');
 			let areaIdx = areaSpecificPages.indexOf(page);
 			return areaIdx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
+		};
+
+		$scope.isLastPreviewPage = function(page, index) {
+			if(page.type !== 'area_specific') {
+				return false;
+			}
+			let areaSpecificPages = $scope.template.pages.filter(p => p.type === 'area_specific');
+			let areaIdx = areaSpecificPages.indexOf(page);
+			return areaIdx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
+		};
+
+		$scope.countBackgroundPages = function() {
+			if (!$scope.template) return 0;
+			let areaSpecificPages = $scope.template.pages.filter(p => p.type === 'area_specific');
+			return Math.max(0, areaSpecificPages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
 		};
 
 		$scope.isochronesTypeOfMovementMapping = {
@@ -3402,7 +3417,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					
 					$scope.pagePreparationIndex = i; // show current index for UI feedback
 					if(totalPreparedCount % logProgressIndexSeparator === 0){
-						$scope.$digest();	
+						$timeout(function(){
+							$scope.$digest();
+						});
 					}
 				}
 			}
@@ -3421,12 +3438,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 					$scope.pagePreparationIndex = i;
 					if(totalPreparedCount % logProgressIndexSeparator === 0){
-						$scope.$digest();	
+						$timeout(function(){
+							$scope.$digest();
+						});							
 					}
 				}
 			}
 
 			$scope.lastPageOfAddedSectionPrepared = true;
+			$scope.pagePreparationIndex = $scope.pagePreparationSize; // ensure it reaches 100%
 			$timeout(function () {
 				$scope.$digest();
 			}, 1000);
