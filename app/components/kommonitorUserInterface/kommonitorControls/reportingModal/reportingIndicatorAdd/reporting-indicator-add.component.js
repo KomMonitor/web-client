@@ -3358,6 +3358,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.pagePreparationSize = $scope.template.pages.length; 
 			let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
 
+			$scope.loadingData = false; // Turn off spinner before heavy async loop starts to avoid flickering
+
 			setTimeout(function () {
 				$scope.$digest();
 			});
@@ -3508,14 +3510,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				await $timeout(function(){}, 0);
 			}
 		
-		
-
-			// apply current page configuration as it is performed asynchronously 
-				setTimeout(function(){
-					$scope.onChangePageConfig();
-					$scope.onChangeShowPageSection();
-					$scope.$digest();
-				});
 		}
 
 		$scope.showThisPage = function(page) {
