@@ -2169,18 +2169,6 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.addPoiSection(templateSection);
 
     this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
-
-   /*  if(!this.reportingService.clonedTemplate.name.includes("reachability")) {
-      this.broadcastSerice.broadcast('reportingIndicatorConfigurationCompleted', [this.selectedIndicator, this.reportingService.clonedTemplate, this.untouchedTemplateAsObj, Date.now()])
-    } else {
-      this.broadcastSerice.broadcast('reportingPoiLayerConfigurationCompleted', [this.selectedPoiLayer, this.selectedIndicator, this.reportingService.clonedTemplate, this.untouchedTemplateAsObj, Date.now()])
-    } */
-
-   /*  this.data.reportingConfig.template = this.reportingService.clonedTemplate;
-    this.data.reportingConfig.pages = this.reportingService.clonedTemplate.pages;
-
-    this.onWorkflowSelect([2,this.data]); */
-    //this.reset();
   }
 
   async getReportingRechabilityMapAttribution(){
@@ -3280,7 +3268,6 @@ export class IndicatorAddComponent implements OnInit {
     // create table rows once the pages exist
     this.insertDatatableRowsInterval = setInterval(() => {
       // get current index of page (might have changed in the meantime)
-      console.log(this.reportingService.clonedTemplate.pages)
       let idx = this.reportingService.clonedTemplate.pages.indexOf(page)
 
       let wrapper:any = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
@@ -3312,63 +3299,56 @@ export class IndicatorAddComponent implements OnInit {
       for(let i=0;i<rowsData.length; i++) {
         // see which page we have to add the row to
         // switch to next page if necessary
-        
+      
         if((i % maxRows) == 0) {
           if(i > 0) idx++
 
-          console.log(idx)
           const idx_save = idx;
           const i_save = i;
-          this.intervalArr[idx_save] = setInterval(() => {
-            // check if page exists already in dom, if not try again later
-            wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
-            if(wrapper) {
-              clearInterval(this.intervalArr[idx]); // code below still executes once
-            } else {
-              return;
-            }
-            // page exists
-            wrapper.innerHTML = "";
-            wrapper.style.border = "none"; // hide dotted border from outer dom element
-            wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-            table = this.createDatatableSkeleton(columnNames);
-            wrapper.appendChild(table);
-            let tbody:any = table.querySelector("tbody");
-            pageElement = this.reportingService.clonedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
-            pageElement.isPlaceholder = false;
-            
-            for(let j=i; j<(i + maxRows); j++) {
-              if(!rowsData[j])
-                break; // on last page
 
-              let row = document.createElement("tr");
-              row.style.height = "25px";
+          wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
+        
+          wrapper.innerHTML = "";
+          wrapper.style.border = "none"; // hide dotted border from outer dom element
+          wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+          table = this.createDatatableSkeleton(columnNames);
+          wrapper.appendChild(table);
+          let tbody:any = table.querySelector("tbody");
+          pageElement = this.reportingService.clonedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
+          pageElement.isPlaceholder = false;
 
-              for(let colName of columnNames) {
-                let td = document.createElement("td");
-                if(colName === "Bereich") {
-                  td.innerText = rowsData[j].name;
-                  td.classList.add("text-left");
-                }
-              
-                if(colName === "Zeitpunkt") {
-                  td.innerText = rowsData[j].timestamp;
-                }
-              
-                if(colName === "Wert") {
-                  td.innerText = rowsData[j].value;
-                  td.classList.add("text-right");
-                }
-              
-                row.appendChild(td);
+          for(let j=i; j<(i + maxRows); j++) {
+            if(!rowsData[j])
+              break; // on last page
+
+            let row = document.createElement("tr");
+            row.style.height = "25px";
+
+            for(let colName of columnNames) {
+              let td = document.createElement("td");
+              if(colName === "Bereich") {
+                td.innerText = rowsData[j].name;
+                td.classList.add("text-left");
               }
-
-              tbody.appendChild(row)
+            
+              if(colName === "Zeitpunkt") {
+                td.innerText = rowsData[j].timestamp;
+              }
+            
+              if(colName === "Wert") {
+                td.innerText = rowsData[j].value;
+                td.classList.add("text-right");
+              }
+            
+              row.appendChild(td);
             }
-          }, 0, 500, true);
+
+            tbody.appendChild(row)
+          }
+         
         }
       }
-    }, 0, 500, true);
+    }, 0, 100, true);
   }
 
 
@@ -4146,9 +4126,10 @@ console.log('init all diagrams')
     }
 
     if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
-      if(!this.dateSlider) {
+
+      if(!this.selectedSpatialUnit)
         return false;
-      }
+
       if( !this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName]) {
         return false;
       }

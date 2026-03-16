@@ -11,7 +11,7 @@ import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { reportingData } from '../reporting-modal.component';
-import { ConfigData, ReportingService } from 'services/reporting-service/reporting.service';
+import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-generate-report',
@@ -31,6 +31,8 @@ export class GenerateReportComponent implements OnInit {
   echartsImgPixelRatio = 2;
   pxPerMilli;
 
+  workflowState = WorkflowState;
+
   constructor(
     private dataExchangeService: DataExchangeService,
     private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
@@ -42,6 +44,8 @@ export class GenerateReportComponent implements OnInit {
 
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+
+    this.reportingService.changeWorkflowState(this.workflowState.formatSelect);
   }
 
   
@@ -61,29 +65,29 @@ export class GenerateReportComponent implements OnInit {
   //async
   async generateReport(format) {
 
-    this.setLoadingScreen();
+    this.reportingService.changeWorkflowState(this.workflowState.reportGeneration);
 
     try {
+
+      this.loadingData = true;
+
       format === "pdf" && await this.generatePdfReport();
       format === "docx" && await this.generateWordReport();
       format === "zip" && await this.generateZipFolder();
       format === "pptx" && await this.generatePptxReport();
+      
+      this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
+      
+      this.loadingData = false;
+      this.activeModal.close();
 
-      this.unsetLoadingScreen();
     } catch (error:any) {
       console.error(error);
       this.dataExchangeService.displayMapApplicationError(error.message);
-      this.unsetLoadingScreen();
+      this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
+      this.loadingData = false;
+      this.activeModal.close();
     }
-  }
-
-  setLoadingScreen() {
-    this.broadcastService.broadcast('reportGenerationInProgress');
-    this.activeModal.close();
-  }
-
-  unsetLoadingScreen() {
-    this.broadcastService.broadcast('reportGenerationCompleted');
   }
 
   async generatePptxReport() {

@@ -6,10 +6,10 @@
   </div>
   <div class="modal-body">
     <div>
-      <button type="button" class="btn btn-primary" (click)="generateReport('pdf')">PDF</button>
-      <button type="button" class="btn btn-primary" (click)="generateReport('docx')">DOCX</button>
-      <button type="button" class="btn btn-primary" (click)="generateReport('zip')">ZIP</button>
-      <button type="button" class="btn btn-primary" (click)="generateReport('pptx')">PPTX</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('pdf')" [disabled]="loadingData">PDF</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('docx')" [disabled]="loadingData">DOCX</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('zip')" [disabled]="loadingData">ZIP</button>
+      <button type="button" class="btn btn-primary" (click)="generateReport('pptx')" [disabled]="loadingData">PPTX</button>
     </div>
     <br>
     <br>

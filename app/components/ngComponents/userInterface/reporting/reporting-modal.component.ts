@@ -46,7 +46,11 @@ export class ReportingModalComponent implements OnInit {
     });
   }
 
-  isWorkflowState(state:WorkflowState) {
+  isWorkflowState(state:WorkflowState | WorkflowState[]) {
+
+    if(Array.isArray(state))
+      return state.includes(this.reportingService.currentWorkflowState);
+
     return this.reportingService.currentWorkflowState==state;
   }
 }

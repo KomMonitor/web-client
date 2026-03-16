@@ -18,7 +18,9 @@ export enum WorkflowState {
   workflowSelect,
   templateSelect,
   reportingOverview,
-  indicatorConfig
+  indicatorConfig,
+  formatSelect,
+  reportGeneration
 }
 
 export interface ConfigData {
@@ -71,7 +73,7 @@ export interface TemplateData {
 export class ReportingService {
 
   default:ReportingData = {
-    workflowState: WorkflowState.templateSelect,
+    workflowState: WorkflowState.reportingOverview,
     selectedTemplateId: 0,
     sections: {
       indicators: [],

@@ -1,13 +1,11 @@
-import { CustomSliderComponent, DisplayType, SliderType } from './../../../common/custom-slider/custom-slider.component';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { fromJson, toJson } from 'angular';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
@@ -40,6 +38,7 @@ export class ReportingOverviewComponent implements OnInit {
   templateBlank:any;
 
   loadingData = false;
+  loadingReport = false;
   echartsImgPixelRatio = 2;
   pxPerMilli;
 
@@ -56,7 +55,6 @@ export class ReportingOverviewComponent implements OnInit {
   constructor(
     private dataExchangeService: DataExchangeService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
-    private broadcastService: BroadcastService,
     private http: HttpClient,
     protected diagramHelperService: DiagramHelperServiceService,
     private modalService: NgbModal,
@@ -90,34 +88,10 @@ export class ReportingOverviewComponent implements OnInit {
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 
     this.setupPages();
+  }
 
-    // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
-
-      switch (title) {
-        case 'reportingIndicatorConfigurationCompleted' : {
-          if(values[values.length-1]>(Date.now()-1000)) 
-            this.reportingIndicatorConfigurationCompleted(values);
-          else
-            console.log("reportingIndicatorConfigurationCompleted - blocked")
-        } break;
-        case 'reportingPoiLayerConfigurationCompleted' : {
-          // check if broadcast has been done shortly prior. ghost-broadcasts in the air... 
-          if(values[values.length-1]>(Date.now()-1000)) 
-            this.reportingPoiLayerConfigurationCompleted(values);
-          else
-            console.log("reportingPoiLayerConfigurationCompleted - blocked")
-        } break;
-        case 'reportGenerationInProgress': {
-          this.loadingData = true;
-        } break;
-        case 'reportGenerationCompleted': {
-          this.loadingData = false;
-        } break;
-      }
-    });
+  showReportLoading() {
+    return !(this.reportingService.currentWorkflowState==this.workflowState.formatSelect || this.reportingService.currentWorkflowState==this.workflowState.reportGeneration);
   }
 
   generateReport() {
