@@ -44,7 +44,7 @@ export class UserInterfaceComponent implements OnInit {
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private router: Router
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
   }
 
   ngOnInit(): void {

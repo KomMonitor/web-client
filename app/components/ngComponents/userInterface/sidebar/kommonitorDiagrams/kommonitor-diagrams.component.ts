@@ -37,7 +37,7 @@ export class KommonitorDiagramsComponent implements OnInit {
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
   }
 
   ngOnInit(): void {

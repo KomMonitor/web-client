@@ -51,7 +51,7 @@ export class GenericMapHelperService {
     private broadcastService: BroadcastService,
     private iconTranslate: IconTranslateService
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
   }
 
   createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject) {
@@ -103,25 +103,25 @@ export class GenericMapHelperService {
     let fontSize = "13px;"
     let offset = [0, -25];
 
-    if (this.dataExchangeService.pipedData.selectedPOISize.label == "sehr klein") {
+    if (this.dataExchangeService.selectedPOISize.label == "sehr klein") {
       offset = [0, -12];
       if(poiText.length == 1) { fontSize = "9px"; }
       else if(poiText.length == 2) { fontSize = "6px"; }
       else if(poiText.length == 3) { fontSize = "4px"; }
     }
-    else if (this.dataExchangeService.pipedData.selectedPOISize.label == "klein") {
+    else if (this.dataExchangeService.selectedPOISize.label == "klein") {
       offset = [0, -20];
       if(poiText.length == 1) { fontSize = "11px"; }
       else if(poiText.length == 2) { fontSize = "8px"; }
       else if(poiText.length == 3) { fontSize = "5px"; }
     }
-    else if (this.dataExchangeService.pipedData.selectedPOISize.label == "mittel") {
+    else if (this.dataExchangeService.selectedPOISize.label == "mittel") {
       offset = [0, -25];
       if(poiText.length == 1) { fontSize = "13px"; }
       else if(poiText.length == 2) { fontSize = "11px"; }
       else if(poiText.length == 3) { fontSize = "9px"; }
     }
-    else if (this.dataExchangeService.pipedData.selectedPOISize.label == "groß") {
+    else if (this.dataExchangeService.selectedPOISize.label == "groß") {
       offset = [0, -32];
       if(poiText.length == 1) { fontSize = "20px"; }
       else if(poiText.length == 2) { fontSize = "15px"; }

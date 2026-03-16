@@ -38,8 +38,8 @@ export class ElementVisibilityHelperService implements OnInit {
     this.isAdvancedMode = window.__env.isAdvancedMode;
     this.showAdvancedModeSwitch = window.__env.showAdvancedModeSwitch;
 
-    this.dataExchangeService.pipedData.showDiagramExportButtons = true;
-    this.dataExchangeService.pipedData.showGeoresourceExportButtons = true;
+    this.dataExchangeService.showDiagramExportButtons = true;
+    this.dataExchangeService.showGeoresourceExportButtons = true;
     this.elementVisibility = {};
     this.configStorageService.controlsConfig.forEach(element => {
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
@@ -112,11 +112,11 @@ export class ElementVisibilityHelperService implements OnInit {
 
         // special case for diagram export buttons
         if(! hasAllowedGroup && element.id === "diagramExportButtons"){
-          this.dataExchangeService.pipedData.showDiagramExportButtons = false;
+          this.dataExchangeService.showDiagramExportButtons = false;
         }
         // special case for georesource export buttons
         if(! hasAllowedGroup && element.id === "georesourceExportButtons"){
-          this.dataExchangeService.pipedData.showGeoresourceExportButtons = false;
+          this.dataExchangeService.showGeoresourceExportButtons = false;
         }
 
         if (! hasAllowedGroup){
@@ -132,11 +132,11 @@ export class ElementVisibilityHelperService implements OnInit {
 
           // special case for diagram export buttons
           if(element.id === "diagramExportButtons"){
-            this.dataExchangeService.pipedData.showDiagramExportButtons = false;
+            this.dataExchangeService.showDiagramExportButtons = false;
           }
           // special case for georesource export buttons
           if(element.id === "georesourceExportButtons"){
-            this.dataExchangeService.pipedData.showGeoresourceExportButtons = false;
+            this.dataExchangeService.showGeoresourceExportButtons = false;
           }
 
           var domElement = document.getElementById(id);

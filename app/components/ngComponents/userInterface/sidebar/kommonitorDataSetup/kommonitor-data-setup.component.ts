@@ -117,7 +117,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
 
     this.adminTopicsManagementService.getOrderMode("indicator").subscribe((res) => this.topicSorting = res);
 
@@ -263,10 +263,10 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.showFavSelection = true;
     },1000)
 
-    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined);
+    this.indicatorFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.topicIndicatorHierarchy,0,undefined);
     this.indicatorFavTopicsTreePimped = {
       topicName: 'Test',
-      subTopics: this.prepTopicsTree(this.dataExchangeService.pipedData.topicIndicatorHierarchy,0,undefined)
+      subTopics: this.prepTopicsTree(this.dataExchangeService.topicIndicatorHierarchy,0,undefined)
     };
     this.addClickListenerToEachCollapseTrigger();
   }
@@ -1226,7 +1226,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
 
   checkBaseIndicatorFavItems(id, selected) {
-    this.dataExchangeService.pipedData.headlineIndicatorHierarchy.forEach(entry => {
+    this.dataExchangeService.headlineIndicatorHierarchy.forEach(entry => {
       if(entry.headlineIndicator.indicatorId==id) {
 
         entry.baseIndicators.forEach(base => {
@@ -1243,9 +1243,9 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onIndicatorTopicFavClick(topicId, favTab = false) {
     if(!this.indicatorTopicFavItems.includes(topicId))
-      this.searchIndicatorTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicIndicatorHierarchy, topicId, true);
+      this.searchIndicatorTopicFavItemsRecursive(this.dataExchangeService.topicIndicatorHierarchy, topicId, true);
     else
-      this.searchIndicatorTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicIndicatorHierarchy, topicId, false);
+      this.searchIndicatorTopicFavItemsRecursive(this.dataExchangeService.topicIndicatorHierarchy, topicId, false);
 
     this.onHandleFavSelection(favTab);
   }

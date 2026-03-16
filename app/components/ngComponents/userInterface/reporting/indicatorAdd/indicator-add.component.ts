@@ -195,7 +195,7 @@ export class IndicatorAddComponent implements OnInit {
     // originally called by "reportingConfigureNewIndicatorShown" when +Indicator clicked
     this.initialize();
 
-    //this.baseMapSelect = new FormControl(this.dataExchangeService.pipedData.baseLayerDefinitionsArray[0]);
+    //this.baseMapSelect = new FormControl(this.dataExchangeService.baseLayerDefinitionsArray[0]);
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -261,13 +261,13 @@ export class IndicatorAddComponent implements OnInit {
 
     this.initializeDualLists();
 
-    this.availablePoiLayers = this.dataExchangeService.pipedData.availableGeoresources.filter(georesource => georesource.isPOI);
+    this.availablePoiLayers = this.dataExchangeService.availableGeoresources.filter(georesource => georesource.isPOI);
     this.filteredAvailablePoiLayers = this.availablePoiLayers.sort(this.sortByDatasetName);
 
-    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
-    this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByName = this.dataExchangeService.displayableIndicators.sort(this.sortByindicatorName);
 
-	  this.selectedBaseMap = this.dataExchangeService.pipedData.baseLayerDefinitionsArray[1];
+	  this.selectedBaseMap = this.dataExchangeService.baseLayerDefinitionsArray[1];
 
     this.loadingData = false;
   }
@@ -491,8 +491,8 @@ export class IndicatorAddComponent implements OnInit {
   onIndicatorNameFilterChange(event:any) {
 
     let value = event.target.value;
-    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
-    this.displayableIndicatorsByName = this.dataExchangeService.pipedData.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByName = this.dataExchangeService.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
 
   onBackToOverviewClicked() {
@@ -1584,13 +1584,13 @@ export class IndicatorAddComponent implements OnInit {
       // Indicator might not be selected at this point
       // We get information about all available spatial units (instead of applicable ones)
       // Then we select the highest one by default
-      let spatialUnits:any = this.dataExchangeService.pipedData.availableSpatialUnits;
+      let spatialUnits:any = this.dataExchangeService.availableSpatialUnits;
       this.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
       let highestSpatialUnit = spatialUnits.filter( unit => {
         return unit.nextUpperHierarchyLevel === null;
       });
       if(!this.selectedSpatialUnit) {
-        this.selectedSpatialUnit = this.dataExchangeService.pipedData.availableSpatialUnits[0];
+        this.selectedSpatialUnit = this.dataExchangeService.availableSpatialUnits[0];
         this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);
         await this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
       }
@@ -1899,7 +1899,7 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       
       // set spatial unit to highest available one
-      let spatialUnits = this.dataExchangeService.pipedData.availableSpatialUnits;
+      let spatialUnits = this.dataExchangeService.availableSpatialUnits;
 
       // go from highest to lowest spatial unit and check if it is available.
       for(let spatialUnit of spatialUnits) {
@@ -3016,7 +3016,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.showAverage) {
       options.series = options.series.filter( series => {
-        return series.name === this.dataExchangeService.pipedData.rankingChartAverageLabel || series.name === this.dataExchangeService.pipedData.rankingChartRegionalReferenceValueLabel 
+        return series.name === this.dataExchangeService.rankingChartAverageLabel || series.name === this.dataExchangeService.rankingChartRegionalReferenceValueLabel 
       });
 
       for(let i=0; i<timestampsToRemoveCounter; i++) {
@@ -3476,13 +3476,13 @@ export class IndicatorAddComponent implements OnInit {
 
     // set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
     // we need to undo these changes afterwards, so we store the current values in a backup first
-    const useOutlierDetectionOnIndicator_backup = this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator;
-    const classifyUsingWholeTimeseries_backup = this.dataExchangeService.pipedData.classifyUsingWholeTimeseries;
-    const classifyZeroSeparately_backup = this.dataExchangeService.pipedData.classifyZeroSeparately; 
-    this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator = false;
-    this.dataExchangeService.pipedData.classifyUsingWholeTimeseries = false;
+    const useOutlierDetectionOnIndicator_backup = this.dataExchangeService.useOutlierDetectionOnIndicator;
+    const classifyUsingWholeTimeseries_backup = this.dataExchangeService.classifyUsingWholeTimeseries;
+    const classifyZeroSeparately_backup = this.dataExchangeService.classifyZeroSeparately; 
+    this.dataExchangeService.useOutlierDetectionOnIndicator = false;
+    this.dataExchangeService.classifyUsingWholeTimeseries = false;
     if(classifyUsingWholeTimeseries) {
-      this.dataExchangeService.pipedData.classifyUsingWholeTimeseries = true;
+      this.dataExchangeService.classifyUsingWholeTimeseries = true;
     }
     
     let timestampPrefix = window.__env.indicatorDatePrefix + timestampName;
@@ -3505,9 +3505,9 @@ export class IndicatorAddComponent implements OnInit {
     // that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
 
     // set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values
-    this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
-    this.dataExchangeService.pipedData.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
-    this.dataExchangeService.pipedData.classifyZeroSeparately = classifyZeroSeparately_backup;
+    this.dataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+    this.dataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+    this.dataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
 
     // copy and save echarts options so we can re-use them later
     if(isTimeseries) {

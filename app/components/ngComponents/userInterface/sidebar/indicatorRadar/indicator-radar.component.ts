@@ -47,7 +47,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
   }
 
   ngOnInit(): void {

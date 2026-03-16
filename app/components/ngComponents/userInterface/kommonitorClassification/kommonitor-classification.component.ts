@@ -52,7 +52,7 @@ export class KommonitorClassificationComponent implements OnInit {
     protected visualStyleHelperService: VisualStyleHelperServiceNew,
     private broadcastService: BroadcastService
   ) {
-    this.exchangeData = dataExchangeService.pipedData;
+    this.exchangeData = dataExchangeService;
 
     // Add custom color themes from configuration properties
     if(this.customColorSchemes) {

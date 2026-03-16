@@ -52,7 +52,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     private broadcastService: BroadcastService
   ) {
     this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics = [];
-    this.availableIndicators = this.dataExchangeService.pipedData.displayableIndicators;
+    this.availableIndicators = this.dataExchangeService.displayableIndicators;
   }
 
 

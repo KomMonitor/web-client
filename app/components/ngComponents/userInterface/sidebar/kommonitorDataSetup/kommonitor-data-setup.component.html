@@ -512,7 +512,7 @@
                   <!--  | orderBy: 'indicatorName'  *ngIf="topic.indicatorData && favTabShowIndicator(data.indicatorId, topic)"  -->
                   <!-- indicators -->
                   <div *ngFor="let data of topic.indicatorData" class="indicator-element list-group-item-grid-layout favs" 
-                    [ngClass]="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': dataExchangeService.pipedData.selectedIndicator.indicatorId==data.indicatorId}">
+                    [ngClass]="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': dataExchangeService.selectedIndicator.indicatorId==data.indicatorId}">
                     <div (click)="onClickHierarchyIndicator(data)">
                       <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
                     </div>

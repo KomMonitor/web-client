@@ -86,7 +86,7 @@ export class PoiComponent implements OnInit {
     private favService: FavService,
     protected ogcService: OgcService
   ) {
-    this.exchangeData = dataExchangeService.pipedData;
+    this.exchangeData = dataExchangeService;
     this.selectedPoiSize = this.exchangeData.selectedPOISize.id;
   }
 
@@ -116,7 +116,7 @@ export class PoiComponent implements OnInit {
 
   init() {
     this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
-    this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.pipedData.topicGeoresourceHierarchy,0,undefined);
+    this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.topicGeoresourceHierarchy,0,undefined);
 
     if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
       this.showFavSelection = true;
@@ -1260,9 +1260,9 @@ export class PoiComponent implements OnInit {
 
   onGeoresourceTopicFavClick(topicId, favTab = false) {
     if(!this.georesourceTopicFavItems.includes(topicId))
-      this.searchGeoresourceTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicGeoresourceHierarchy, topicId, true);
+      this.searchGeoresourceTopicFavItemsRecursive(this.dataExchangeService.topicGeoresourceHierarchy, topicId, true);
     else
-      this.searchGeoresourceTopicFavItemsRecursive(this.dataExchangeService.pipedData.topicGeoresourceHierarchy, topicId, false);                  
+      this.searchGeoresourceTopicFavItemsRecursive(this.dataExchangeService.topicGeoresourceHierarchy, topicId, false);                  
 
     this.onHandleFavSelection(favTab);
   }

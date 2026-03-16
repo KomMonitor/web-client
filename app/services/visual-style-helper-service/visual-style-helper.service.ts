@@ -104,7 +104,7 @@ export class VisualStyleHelperServiceNew {
     y: 5,
     radius: 1,
     fill: true,
-    color: this.dataExchangeService.pipedData.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
+    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
   }); */
   noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
   //noDataFillPattern = [];
@@ -279,7 +279,7 @@ export class VisualStyleHelperServiceNew {
 
     var values = new Array();
 
-    if(this.dataExchangeService.pipedData.classifyUsingWholeTimeseries) {
+    if(this.dataExchangeService.classifyUsingWholeTimeseries) {
       values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values, forceProvidedIndicator, indicator);
     }
     else{
@@ -295,12 +295,12 @@ export class VisualStyleHelperServiceNew {
       if (this.dataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
         continue;
 
-      if(this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
+      if(this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
         continue;
       }  
 
       // check if is outlier, then do not use within classification, as it will be marked on map with special color
-      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator) {
+      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.useOutlierDetectionOnIndicator) {
         continue;
       }
 
@@ -317,7 +317,7 @@ export class VisualStyleHelperServiceNew {
     if(forceProvidedIndicator) {
       indicatorTimeSeriesDatesArray = indicator.applicableDates;
     } else {
-      indicatorTimeSeriesDatesArray = this.dataExchangeService.pipedData.selectedIndicator.applicableDates;
+      indicatorTimeSeriesDatesArray = this.dataExchangeService.selectedIndicator.applicableDates;
     }
 
     for (const date of indicatorTimeSeriesDatesArray) {
@@ -383,7 +383,7 @@ export class VisualStyleHelperServiceNew {
    this.greaterThanValues = [];
    this.lesserThanValues = [];
 
-    if(this.dataExchangeService.pipedData.classifyUsingWholeTimeseries){
+    if(this.dataExchangeService.classifyUsingWholeTimeseries){
       this.setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue);
     }
     else{
@@ -426,12 +426,12 @@ export class VisualStyleHelperServiceNew {
       if (this.dataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
         continue;
 
-      if(this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
+      if(this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
         continue;
       }
 
       // check if is outlier, then do not use within classification, as it will be marked on map with special color
-      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator) {
+      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.useOutlierDetectionOnIndicator) {
         continue;
       }
 
@@ -449,7 +449,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue){
-    var indicatorTimeSeriesDatesArray = this.dataExchangeService.pipedData.selectedIndicator.applicableDates;
+    var indicatorTimeSeriesDatesArray = this.dataExchangeService.selectedIndicator.applicableDates;
 
       for (const date of indicatorTimeSeriesDatesArray) {
         var propertyName = window.__env.indicatorDatePrefix + date;
@@ -575,7 +575,7 @@ export class VisualStyleHelperServiceNew {
     this.positiveValues = [];
     this.negativeValues = [];
    
-    if(this.dataExchangeService.pipedData.classifyUsingWholeTimeseries){
+    if(this.dataExchangeService.classifyUsingWholeTimeseries){
       this.setupDynamicBrewValues_wholeTimeseries(geoJSON);
     }
     else{
@@ -602,7 +602,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupDynamicBrewValues_wholeTimeseries(geoJSON){
-    var indicatorTimeSeriesDatesArray = this.dataExchangeService.pipedData.selectedIndicator.applicableDates;
+    var indicatorTimeSeriesDatesArray = this.dataExchangeService.selectedIndicator.applicableDates;
 
       for (const date of indicatorTimeSeriesDatesArray) {
         var propertyName = window.__env.indicatorDatePrefix + date;
@@ -615,12 +615,12 @@ export class VisualStyleHelperServiceNew {
       if (this.dataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
         continue;
 
-      if(this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
+      if(this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
         continue;
       }
 
       // check if is outlier, then do not use within classification, as it will be marked on map with special color
-      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator) {
+      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.useOutlierDetectionOnIndicator) {
         continue;
       }
 
@@ -701,7 +701,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     // check if feature is outlier
-    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator) {
+    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.useOutlierDetectionOnIndicator) {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
@@ -711,7 +711,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     var fillColor;
-    if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+    if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
       fillColor = this.getFillColorForZero(incrementFeatures);
       if (useTransparencyOnIndicator) {
         fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -721,7 +721,7 @@ export class VisualStyleHelperServiceNew {
     else {
       if (datasetContainsNegativeValues) {
         if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-          if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+          if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -743,7 +743,7 @@ export class VisualStyleHelperServiceNew {
         }
         else {
 
-          if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+          if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -823,7 +823,7 @@ export class VisualStyleHelperServiceNew {
   //   var color;
 
   //   for (var k = 0; k < colorBrewInstance.breaks.length; k++) {
-  //     if (this.dataExchangeService.pipedData.getIndicatorValue_asNumber(feature.properties[propertyName]) == this.dataExchangeService.pipedData.getIndicatorValue_asNumber(colorBrewInstance.breaks[k])) {
+  //     if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == this.dataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k])) {
   //       if (k < colorBrewInstance.breaks.length - 1) {
   //         // min value
   //         color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
@@ -841,7 +841,7 @@ export class VisualStyleHelperServiceNew {
   //       }
   //     }
   //     else {
-  //       if (this.dataExchangeService.pipedData.getIndicatorValue_asNumber(feature.properties[propertyName]) < this.dataExchangeService.pipedData.getIndicatorValue_asNumber(colorBrewInstance.breaks[k + 1])) {
+  //       if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < this.dataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k + 1])) {
   //         color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
   //         break;
   //       }
@@ -862,7 +862,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     // check if feature is outlier
-    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator) {
+    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.useOutlierDetectionOnIndicator) {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
@@ -872,9 +872,9 @@ export class VisualStyleHelperServiceNew {
     }
 
     var fillColor;
-    if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= this.dataExchangeService.pipedData.measureOfValue) {
+    if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= this.dataExchangeService.measureOfValue) {
 
-      if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -896,7 +896,7 @@ export class VisualStyleHelperServiceNew {
       };
     }
     else {
-      if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -930,7 +930,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     // check if feature is outlier
-    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.pipedData.useOutlierDetectionOnIndicator) {
+    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.useOutlierDetectionOnIndicator) {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
@@ -942,7 +942,7 @@ export class VisualStyleHelperServiceNew {
     var fillColor;
     if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
-      if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -963,7 +963,7 @@ export class VisualStyleHelperServiceNew {
       };
     }
     else {
-      if (this.dataExchangeService.pipedData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;

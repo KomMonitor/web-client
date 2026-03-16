@@ -305,7 +305,7 @@
                                                 Hintergrundkarte
                                                 <select [formControl]="baseMapSelect" [(ngModel)]="selectedBaseMap" class="form-control" (change)="onChangeSelectedBaseMap()" required>
                                                     <option disabled selected value> -- Hintergrundkarte w&auml;hlen --</option>
-                                                    <option *ngFor="let baseMap of dataExchangeService.pipedData.baseLayerDefinitionsArray | baseMapFilter" [ngValue]="baseMap">{{baseMap.layerConfig.name}}</option>
+                                                    <option *ngFor="let baseMap of dataExchangeService.baseLayerDefinitionsArray | baseMapFilter" [ngValue]="baseMap">{{baseMap.layerConfig.name}}</option>
                                                 </select>
                                             </div>
                                                 

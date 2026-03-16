@@ -41,7 +41,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   ngOnInit(): void {
     this.multiStepHelperService.registerClickHandler("reachabilityScenarioForm");
 
-    this.filteredDisplayableGeoresources = this.dataExchangeService.pipedData.displayableGeoresources.filter(e => e.isPOI);
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI);
   }
 
 		/* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {

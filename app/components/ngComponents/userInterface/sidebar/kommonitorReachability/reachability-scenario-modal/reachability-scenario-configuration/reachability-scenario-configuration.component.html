@@ -108,7 +108,7 @@
 					<hr>
 					<br />
 
-					<div *ngIf="dataExchangeService.pipedData.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+					<div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
 						<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer?.datasetName}}</i></label>
 					</div>
 
@@ -160,25 +160,25 @@
 								<!-- Legend -->
 								<div class="just-padding">									
 
-									<div [hidden]="!dataExchangeService.pipedData.isochroneLegend">
+									<div [hidden]="!dataExchangeService.isochroneLegend">
 										<div style="text-align:center">
 											<div class="legend" style="text-align:left">
 												<label>Punktdatenquelle:
 												</label>&nbsp;
-												{{dataExchangeService.pipedData.isochroneLegend.datasetName}}
+												{{dataExchangeService.isochroneLegend.datasetName}}
 												<br />
 												<label>Fortbewegungsart:
 												</label>&nbsp;
-												{{dataExchangeService.pipedData.isochroneLegend.transitMode}}
+												{{dataExchangeService.isochroneLegend.transitMode}}
 												<br />
 												<label>Abbruchkriterium: </label>&nbsp;
-												{{dataExchangeService.pipedData.isochroneLegend.reachMode}}
+												{{dataExchangeService.isochroneLegend.reachMode}}
 												<br />
 												<label>Einheit: </label>&nbsp;
-												{{dataExchangeService.pipedData.isochroneLegend.cutOffUnit}}
+												{{dataExchangeService.isochroneLegend.cutOffUnit}}
 												<br />
 												<div
-													*ngFor="let entry of dataExchangeService.pipedData.isochroneLegend.colorValueEntries">
+													*ngFor="let entry of dataExchangeService.isochroneLegend.colorValueEntries">
 													<i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
 													{{entry.value}}
 												</div>

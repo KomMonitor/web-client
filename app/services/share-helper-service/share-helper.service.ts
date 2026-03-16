@@ -136,14 +136,14 @@ export class ShareHelperService implements OnInit{
   };
 
   setShareLinkParam_currentIndicatorId(){
-    this.setShareLinkParam(this.paramName_indicatorId, this.dataExchangeService.pipedData.selectedIndicator.indicatorId);
+    this.setShareLinkParam(this.paramName_indicatorId, this.dataExchangeService.selectedIndicator.indicatorId);
 
-    if(this.dataExchangeService.pipedData.selectedIndicator.permissions.length > 0){
+    if(this.dataExchangeService.selectedIndicator.permissions.length > 0){
       this.setShareLinkParam(this.paramName_loginRequired, "true");
     }
     else{
-      for (const spatialUnit of this.dataExchangeService.pipedData.selectedIndicator.applicableSpatialUnits) {
-        if(spatialUnit.spatialUnitName == this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel){
+      for (const spatialUnit of this.dataExchangeService.selectedIndicator.applicableSpatialUnits) {
+        if(spatialUnit.spatialUnitName == this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel){
           if (spatialUnit.permissions.length > 0){
             this.setShareLinkParam(this.paramName_loginRequired, "true");
           }
@@ -154,8 +154,8 @@ export class ShareHelperService implements OnInit{
   };
 
   setShareLinkParam_currentSpatialUnitName(){
-    this.setShareLinkParam(this.paramName_spatialUnitName, this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel);
-    if(this.dataExchangeService.pipedData.selectedSpatialUnit.permissions.length > 0){
+    this.setShareLinkParam(this.paramName_spatialUnitName, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel);
+    if(this.dataExchangeService.selectedSpatialUnit.permissions.length > 0){
       this.setShareLinkParam(this.paramName_loginRequired, "true");
     }
   };

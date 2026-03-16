@@ -49,7 +49,7 @@ export class DiagramHelperServiceService {
     private filterHelperService: FilterHelperService,
     private http: HttpClient
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
   }
 
   setCustomFontFamily() {

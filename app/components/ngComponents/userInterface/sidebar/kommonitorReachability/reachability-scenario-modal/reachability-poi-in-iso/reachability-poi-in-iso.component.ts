@@ -40,7 +40,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
-    this.originGeoresources = this.dataExchangeService.pipedData.displayableGeoresources;
+    this.originGeoresources = this.dataExchangeService.displayableGeoresources;
     this.filteredDisplayableGeoresources = this.originGeoresources;
   }
 
@@ -68,7 +68,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     });
   }
 
-  //$('#manualDateDatepicker_reachabilityAnalysis').datepicker(this.dataExchangeService.pipedData.datePickerOptions);
+  //$('#manualDateDatepicker_reachabilityAnalysis').datepicker(this.dataExchangeService.datePickerOptions);
 
   init() {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
@@ -115,7 +115,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   resetPoisInIsochrone() {
     this.echartsInstances_reachabilityAnalysis = new Map();
     document.getElementById("reachability_diagrams_section")!.innerHTML = "";
-    for (var poi of this.dataExchangeService.pipedData.displayableGeoresources) {
+    for (var poi of this.dataExchangeService.displayableGeoresources) {
       if (poi.isSelected_reachabilityAnalysis) {
         poi.isSelected_reachabilityAnalysis = false;
         //remove POI layer from map
@@ -133,7 +133,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     }
 
     if (this.reachabilityHelperService.settings.dateSelectionType.selectedDateType === this.reachabilityHelperService.settings.dateSelectionType_valueIndicator) {
-      return this.dataExchangeService.pipedData.selectedDate;
+      return this.dataExchangeService.selectedDate;
     }
     else if (this.reachabilityHelperService.settings.dateSelectionType.selectedDateType === this.reachabilityHelperService.settings.dateSelectionType_valueManual) {
       return this.reachabilityHelperService.settings.selectedDate_manual;
@@ -142,14 +142,14 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       return resource.selectedDate.startDate;
     }
     else {
-      return this.dataExchangeService.pipedData.selectedDate;
+      return this.dataExchangeService.selectedDate;
     }
   };
 
   // async
   async handlePoiForAnalysis(poi) {
 
-    this.dataExchangeService.pipedData.displayableGeoresources = this.filteredDisplayableGeoresources;
+    this.dataExchangeService.displayableGeoresources = this.filteredDisplayableGeoresources;
 
     this.reachabilityHelperService.settings.loadingData = true;
     
@@ -345,13 +345,13 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       else {
         var reachabilityDiagramsSectionNode:any = document.getElementById("reachability_diagrams_section");
         var newChartNode = document.createElement("div");
-        newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + this.dataExchangeService.pipedData.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
+        newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + this.dataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
         reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
         // init new echarts instance
         var echartsInstance:any = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
         // use configuration item and data specified to show chart
-        var echartsOptions:any = this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + this.dataExchangeService.pipedData.isochroneLegend.cutOffUnit, date);
+        var echartsOptions:any = this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + this.dataExchangeService.isochroneLegend.cutOffUnit, date);
         echartsInstance.setOption(echartsOptions);
 
         echartsInstance.hideLoading();
@@ -421,7 +421,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   //async
   async refreshPoiLayers() {
-    for (var poi of this.dataExchangeService.pipedData.displayableGeoresources) {
+    for (var poi of this.dataExchangeService.displayableGeoresources) {
       if (poi.isSelected_reachabilityAnalysis) {
         //remove POI layer from map
         this.removePoiLayerFromMap(poi);
@@ -549,7 +549,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   //async
   async refreshSelectedGeoresources() {
-    for (const georesource of this.dataExchangeService.pipedData.displayableGeoresources) {
+    for (const georesource of this.dataExchangeService.displayableGeoresources) {
       if (georesource.isSelected_reachabilityAnalysis) {
 
         if (georesource.isPOI) {

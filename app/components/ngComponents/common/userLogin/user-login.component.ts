@@ -68,7 +68,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   isUserLoginGroupesCollapse = true;
 
   get loginInfoText(): string {
-    return this.dataExchangeService.pipedData.loginInfoText;
+    return this.dataExchangeService.loginInfoText;
   }
 
   // Check if we're in admin context by looking at the current URL

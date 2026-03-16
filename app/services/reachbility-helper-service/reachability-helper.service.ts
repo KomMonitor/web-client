@@ -210,7 +210,7 @@ export class ReachabilityHelperService {
       date = this.settings.isochroneConfig.selectedDate_manual;
     }
     else {
-      date = this.dataExchangeService.pipedData.selectedDate;
+      date = this.dataExchangeService.selectedDate;
     }
 
     if (!date) {

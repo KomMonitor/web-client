@@ -76,7 +76,7 @@
 			<div class="row">
 				<div class="col-md-4">
 					<button type="button"  class="btn btn-danger "
-					[disabled]="dataExchangeService.pipedData.reachabilityScenarioOnMainMap"
+					[disabled]="dataExchangeService.reachabilityScenarioOnMainMap"
 					(click)="removeReachabilityScenarioFromMainMap()"
 					title="Entfernen eines Erreichbarkeits-Szenarios von der Hauptkarte"><i
 						class="fas fa-trash-can"></i>&nbsp;&nbsp;von Karte entfernen</button>	
@@ -129,7 +129,7 @@
 
 			</div>
 
-			<div class="row" [hidden]="!dataExchangeService.pipedData.reachabilityScenarioOnMainMap">
+			<div class="row" [hidden]="!dataExchangeService.reachabilityScenarioOnMainMap">
 
 				<div class="col-md-2"></div>
 
@@ -137,24 +137,24 @@
 					<!-- Legend -->
 					<div class="just-padding">									
 
-						<div [hidden]="!dataExchangeService.pipedData.isochroneLegend">
+						<div [hidden]="!dataExchangeService.isochroneLegend">
 							<div style="text-align: center">
 								<div class="legend" style="text-align: left">
 									<label>Punktdatenquelle:
 									</label>&nbsp;
-									{{dataExchangeService.pipedData.isochroneLegend.datasetName}}
+									{{dataExchangeService.isochroneLegend.datasetName}}
 									<br />
 									<label>Fortbewegungsart:
 									</label>&nbsp;
-									{{dataExchangeService.pipedData.isochroneLegend.transitMode}}
+									{{dataExchangeService.isochroneLegend.transitMode}}
 									<br />
 									<label>Abbruchkriterium: </label>&nbsp;
-									{{dataExchangeService.pipedData.isochroneLegend.reachMode}}
+									{{dataExchangeService.isochroneLegend.reachMode}}
 									<br />
 									<label>Einheit: </label>&nbsp;
-									{{dataExchangeService.pipedData.isochroneLegend.cutOffUnit}}
+									{{dataExchangeService.isochroneLegend.cutOffUnit}}
 									<br />
-								<!-- 	<div *ngFor="let entry in dataExchangeService.pipedData.isochroneLegend.colorValueEntries">
+								<!-- 	<div *ngFor="let entry in dataExchangeService.isochroneLegend.colorValueEntries">
 										<i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
 										{{entry.value}}
 									</div> -->

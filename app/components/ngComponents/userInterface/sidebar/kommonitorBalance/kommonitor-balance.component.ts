@@ -29,7 +29,7 @@ export class KommonitorBalanceComponent implements OnInit {
     private mapService: MapService,
     private diagramHelperService: DiagramHelperServiceService
   ) {
-    this.exchangeData = dataExchangeService.pipedData;
+    this.exchangeData = dataExchangeService;
   }
 
   ngOnInit(): void {

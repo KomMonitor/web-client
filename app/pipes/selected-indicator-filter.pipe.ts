@@ -16,6 +16,6 @@ export class SelectedIndicatorFilter implements PipeTransform {
       if (!items) {
           return items;
       }
-      return items.filter(item => item.indicatorMetadata.indicatorId==this.dataExchangeService.pipedData.selectedIndicator.indicatorId);
+      return items.filter(item => item.indicatorMetadata.indicatorId==this.dataExchangeService.selectedIndicator.indicatorId);
   }
 }

@@ -128,9 +128,6 @@ export interface SpatialUnit {
 })
 export class DataExchangeService {
 
-  // TODO: delete pipedData etc
-  pipedData = this;
-
   appTitle = window.__env.appTitle;
   loginInfoText = window.__env.loginInfoText;
   customLandingPage = window.__env.customLandingPage;

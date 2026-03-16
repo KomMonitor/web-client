@@ -45,10 +45,10 @@ export class InfoModal implements OnInit {
 
     ngOnInit(): void {
 
-      this.customGreetingsContact_name = this.exchangeService.pipedData.customGreetingsContact_name;
-      this.customGreetingsContact_organisation = this.exchangeService.pipedData.customGreetingsContact_organisation;
-      this.customGreetingsContact_mail = this.exchangeService.pipedData.customGreetingsContact_mail;
-      this.customGreetingsTextInfoMessage = this.exchangeService.pipedData.customGreetingsTextInfoMessage;
+      this.customGreetingsContact_name = this.exchangeService.customGreetingsContact_name;
+      this.customGreetingsContact_organisation = this.exchangeService.customGreetingsContact_organisation;
+      this.customGreetingsContact_mail = this.exchangeService.customGreetingsContact_mail;
+      this.customGreetingsTextInfoMessage = this.exchangeService.customGreetingsTextInfoMessage;
 
       this.tab1Title = window.__env.standardInfoModalTabTitle;      
 

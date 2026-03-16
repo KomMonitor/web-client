@@ -2131,7 +2131,7 @@
                             <th>Beschreibung</th>
                             <th>Legende</th>
                             <th *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Lebenszeit-Beginn</th>
-                            <th *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons">Export</th>
+                            <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                             <th></th>
                           </tr>
                         </thead>
@@ -2178,7 +2178,7 @@
                                 <option *ngFor="let date of poi.availablePeriodsOfValidity; let i = index" [value]="i" [attr.selected]="(date==poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]) ? 'selected' : null">{{date.startDate}}</option>
                               </select>
                             </td>
-                            <td *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons" class="text-center">
+                            <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                               <p (click)="getExportLinkForPoi(poi)"
                                 title="Download Features as GeoJSON"><i
                                   class="fas fa-file-download fa-lg"></i></p>
@@ -2222,7 +2222,7 @@
                                 <option *ngFor="let date of loi.availablePeriodsOfValidity; let i = index" [value]="i" [attr.selected]="(date==loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]) ? 'selected' : null">{{date.startDate}}</option>
                               </select>
                             </td>
-                            <td *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons" class="text-center">
+                            <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                               <p (click)="getExportLinkForLoi(loi)" title="Download Features as GeoJSON">
                                 <i class="fas fa-file-download fa-lg"></i>
                               </p>
@@ -2266,7 +2266,7 @@
                                 <option *ngFor="let date of aoi.availablePeriodsOfValidity; let i = index" [value]="i" [attr.selected]="(date==aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]) ? 'selected' : null">{{date.startDate}}</option>
                               </select>
                             </td>
-                            <td *ngIf="dataExchangeService.pipedData.showGeoresourceExportButtons" class="text-center">
+                            <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                               <p (click)="getExportLinkForLoi(aoi)" title="Download Features as GeoJSON">
                                 <i class="fas fa-file-download fa-lg"></i>
                               </p>

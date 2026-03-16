@@ -1173,7 +1173,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 		getIndicatorByName(indicatorName) {
 			let result;
-			for(let indicator of this.dataExchangeService.pipedData.availableIndicators) {
+			for(let indicator of this.dataExchangeService.availableIndicators) {
 				if(indicator.indicatorName === indicatorName) {
 					result = indicator;
 					break;

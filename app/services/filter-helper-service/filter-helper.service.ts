@@ -20,7 +20,7 @@ export class FilterHelperService {
     private mapService: MapService,
     private broadcastService: BroadcastService,
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData
+    this.exchangeData = this.dataExchangeService
   }
 
   applyRangeFilter(features, targetDateProperty, minFilterValue, maxFilterValue) {

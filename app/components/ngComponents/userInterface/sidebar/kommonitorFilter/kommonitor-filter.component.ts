@@ -142,7 +142,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     private globalFilterHelperService: GlobalFilterHelperService,
     private configStorageService:ConfigStorageService
   ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    this.exchangeData = this.dataExchangeService;
   }
 
 
