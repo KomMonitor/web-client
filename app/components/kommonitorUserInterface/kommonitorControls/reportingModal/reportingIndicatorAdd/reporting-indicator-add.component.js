@@ -2161,33 +2161,33 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				// add leaflet map to pageElement in case we need it again later
 				pageElement.leafletMap = leafletMap;
-
-				// can be used to check if positioning in echarts matches the one from leaflet
-				// let geoJsonLayer = L.geoJSON( $scope.geoJsonForReachability.features )
-				// geoJsonLayer.addTo(leafletMap)
-				// let isochronesLayer = L.geoJSON( $scope.isochrones.features )
-				// isochronesLayer.addTo(leafletMap);
-				// let poiMarkerLSource = {
-				// 	"type": "FeatureCollection",
-				// 	"features": []
-				// }
-				// for(let lonLatArr of centers) {
-				// 	poiMarkerLSource.features.push({
-				// 		"type": "Feature",
-				// 		"geometry": {
-				// 			"type": "Point",
-				// 			"coordinates": [
-				// 				lonLatArr[0],
-				// 				lonLatArr[1]
-				// 			]
-				// 		}
-				// 	})
-				// }
-				// poiMarkerLayer = L.geoJSON( poiMarkerLSource )
-				// poiMarkerLayer.addTo(leafletMap);
-
 				pageElement.leafletBbox = bounds;
 				pageElement.echartsOptions = echartsOptions;
+
+				let screenshotPromise = new Promise((resolve) => {
+					leafletLayer.on("load", async function() { 
+						// there are pages for two page orientations (landscape and portait)
+						// only trigger the screenshot for those pages, that are actually present
+						if(page.orientation == $scope.template.orientation){
+							let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedBaseMap.layerConfig.name, $scope.selectedSpatialUnit.spatialUnitId, 
+								page.spatialUnitFeatureId, page.orientation, domNode);
+							resolve(dataUrl);
+						} else {
+							resolve(undefined);
+						}
+					});	
+				});
+								
+				leafletLayer.addTo(leafletMap);		
+
+				let dataUrl = await screenshotPromise;
+
+				if (!isPreview) {
+					leafletMap.remove();
+					div.remove();
+				}
+
+				return dataUrl;
 		}
 
 		$scope.filterBaseMaps = function(){
