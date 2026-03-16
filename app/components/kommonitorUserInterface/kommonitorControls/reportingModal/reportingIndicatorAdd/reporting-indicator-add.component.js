@@ -1331,6 +1331,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onTriggerPreparationClicked = async function() {
 			$scope.loadingData = true;
+			$timeout( function() {
+				$scope.preparationNeeded = false;
+			});
+			
 			$timeout(async function() {
 				
 				// 1. Prepare ECharts Options based on current configuration
@@ -1361,9 +1365,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				// 2. Start the heavy async initialization
-				await $scope.initializeAllDiagrams();
-				
-				$scope.preparationNeeded = false;
+				await $scope.initializeAllDiagrams();				
 				$scope.loadingData = false;
 			});
 		}
