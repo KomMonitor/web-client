@@ -45,7 +45,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.echartsImgPixelRatio = 2;
 
 		$scope.pageToProcess = undefined;
-		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 5;
+		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
 
 		$scope.isPageInPreview = function(page, index) {
 			if(page.type !== 'area_specific') {
@@ -55,6 +55,21 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
 			let areaIdx = areaSpecificPages.indexOf(page);
 			return areaIdx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
+		};
+
+		$scope.isLastPreviewPage = function(page, index) {
+			if(page.type !== 'area_specific') {
+				return false;
+			}
+			let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
+			let areaIdx = areaSpecificPages.indexOf(page);
+			return areaIdx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
+		};
+
+		$scope.countBackgroundPages = function() {
+			if (!$scope.config) return 0;
+			let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
+			return Math.max(0, areaSpecificPages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
 		};
 
     $scope.customFontFamily = undefined;
@@ -455,6 +470,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 					$scope.lastPageOfAddedSectionPrepared = true;
+					$scope.pagePreparationIndex = $scope.pagePreparationSize; // ensure it reaches 100%
 					$scope.loadingData = false;
 					setTimeout(function(){
 						$scope.$digest();
