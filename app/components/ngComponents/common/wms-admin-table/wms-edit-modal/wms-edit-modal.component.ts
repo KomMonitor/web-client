@@ -7,6 +7,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
 import { CommonModule } from '@angular/common';
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 
 @Component({
   selector: 'app-wms-edit-modal',
@@ -63,7 +64,8 @@ export class WmsEditModalComponent {
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
     private ogcService: OgcService,
-    protected dataGridHelperService: OgcDataGridHelperService
+    protected dataGridHelperService: OgcDataGridHelperService,
+    private topicHierarchyService: TopicHierarchyService,
   ) {
     this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource=='georesource');
   }
@@ -84,7 +86,8 @@ export class WmsEditModalComponent {
     });
 
     // Set topic hierarchy
-    const topicHierarchy = this.dataExchangeService.getTopicHierarchyForTopicId(
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.dataExchangeService.availableTopics,
       this.currentGeoresourceDataset.topicReference
     );
 

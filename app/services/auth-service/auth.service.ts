@@ -1,5 +1,8 @@
 import { Injectable } from "@angular/core";
-import Keycloak, { KeycloakLoginOptions, KeycloakTokenParsed } from "keycloak-js";
+import Keycloak, {
+  KeycloakLoginOptions,
+  KeycloakTokenParsed,
+} from "keycloak-js";
 import { BehaviorSubject, Observable } from "rxjs";
 import { NotificationService } from "../../components/ngComponents/common/notification/notification.service";
 
@@ -84,13 +87,13 @@ export class AuthService {
 
   public getTokenParsed(): KeycloakTokenParsed | undefined {
     return this.auth?.tokenParsed;
-  } 
+  }
 
-  public login(options?: KeycloakLoginOptions) {  
+  public login(options?: KeycloakLoginOptions) {
     this.auth?.login(options);
   }
 
-  public logout() {  
+  public logout() {
     this.auth?.logout();
   }
 

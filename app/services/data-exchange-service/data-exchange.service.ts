@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { IndicatorsDataset, IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 import jsPDF from 'jspdf';
 import JSZip from 'jszip';
@@ -9,7 +9,7 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
@@ -128,7 +128,7 @@ export interface SpatialUnit {
 })
 export class DataExchangeService {
 
-  // todo delete pipedData etc
+  // TODO: delete pipedData etc
   pipedData = this;
 
   appTitle = window.__env.appTitle;
@@ -589,7 +589,7 @@ export class DataExchangeService {
   computationIndicatorHierarchy:any[] = [];
   topicIndicatorHierarchy:IndicatorsTopicsHierarchy[] = [];
 
-  topicGeoresourceHierarchy = [];
+  topicGeoresourceHierarchy: any[] = [];
   topicGeoresourceHierarchy_unmappedEntries:any = {};
   georesourceMapKey_forUnmappedTopicReferences = "unmapped";
 
@@ -609,7 +609,7 @@ export class DataExchangeService {
     private authService: AuthService,
     private cacheHelperService: CacheHelperServiceService,
     private broadcastService: BroadcastService,
-    private globalFilterService: GlobalFilterHelperService
+    private topicHierarchyService: TopicHierarchyService,
   ) {}
 
   hideErrorAlert(){
@@ -829,7 +829,7 @@ export class DataExchangeService {
     await this.fetchServices(this.currentKeycloakLoginRoles);
   }
 
-  setServices(servicesArray:WmsDataset[]) {
+  private setServices(servicesArray:WmsDataset[]) {
     this.availableWmsDatasets = servicesArray;
 
     this.wmsDatasets = servicesArray;
@@ -1000,33 +1000,6 @@ export class DataExchangeService {
     return permissions.join(", ");
   }
 
-  getTopicHierarchyDisplayString(topicReferenceId){
-    var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
-    
-    var topicsString = "";
-    for (let index = 0; index < topicHierarchyArray.length; index++) {
-      if (index === 0) {
-        // mainTopic --> first tier
-        topicsString += topicHierarchyArray[index].topicName;
-      }
-      else {
-        var numberOfWhitespaces = 2 * index;
-        var whitespaceString = "";
-        for (let k = 0; k < numberOfWhitespaces; k++) {
-          whitespaceString += "&nbsp;";
-        }
-        topicsString += whitespaceString + topicHierarchyArray[index].topicName;
-      }
-
-      if (index < topicHierarchyArray.length) {
-        topicsString += "<br/>";
-      }
-
-    }
-
-    return topicsString;
-  }
-
   getRoleTitle(organizationalUnitId){
     var roles = this.accessControl.filter(e => e.organizationalUnitId==organizationalUnitId);
     if(roles && roles.length > 0) {
@@ -1092,431 +1065,32 @@ export class DataExchangeService {
     }, 1000);
   }
 
-  buildTopicsMap_georesources(georesourceTopics){
-    var topicsMap = new Map();            
-
-    for (const topic of georesourceTopics) {
-      topicsMap.set(topic.topicId, {
-        poiDatasets: [],
-        loiDatasets: [],
-        aoiDatasets: [],
-        wmsDatasets: [],
-        wfsDatasets: []
-      });
-      if(topic.subTopics.length > 0){
-        topicsMap = this.addSubTopicsToMap_georesources(topic.subTopics, topicsMap);
-      }
-    }
-
-    topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, {
-      poiDatasets: [],
-      loiDatasets: [],
-      aoiDatasets: [],
-      wmsDatasets: [],
-      wfsDatasets: []
-    });
-
-    return topicsMap;
+  private buildTopicGeoresourceHierarchy(filter:any = undefined){
+    const result = this.topicHierarchyService.buildTopicGeoresourceHierarchy(
+      this.availableTopics,
+      this.displayableGeoresources_keywordFiltered,
+      this.wmsDatasets_keywordFiltered,
+      this.wfsDatasets_keywordFiltered,
+      this.georesourceMapKey_forUnmappedTopicReferences,
+      filter
+    );
+    this.topicGeoresourceHierarchy = result.hierarchy;
+    this.topicGeoresourceHierarchy_unmappedEntries = result.unmappedEntries;
   }
 
-  addSubTopicsToMap_georesources(subTopicsArray, topicsMap){
-
-    for (const subTopic of subTopicsArray) {
-      topicsMap.set(subTopic.topicId, {
-        poiDatasets: [],
-        loiDatasets: [],
-        aoiDatasets: [],
-        wmsDatasets: [],
-        wfsDatasets: []
-      });
-      if(subTopic.subTopics.length > 0){
-        topicsMap = this.addSubTopicsToMap_georesources(subTopic.subTopics, topicsMap);
-      } 
-    } 
-    
-    return topicsMap;
+  private buildComputationIndicatorHierarchy(){
+    this.computationIndicatorHierarchy = this.topicHierarchyService.buildComputationIndicatorHierarchy(
+      this.displayableIndicators_keywordFiltered,
+      this.availableProcessScripts
+    );
   }
 
-  buildTopicGeoresourceHierarchy(filter:any = undefined){
-
-    var georesourceTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "georesource");
-    /*
-    topicsMap.set(topic.topicId, {
-        poiDatasets: [],
-        loiDatasets: [],
-        aoiDatasets: [],
-        wmsDatasets: [],
-        wfsDatasets: []
-      })
-
-      + special entry with key "unmapped" for all datasets without valid topic reference
-    */
-    var topicsMap = this.buildTopicsMap_georesources(georesourceTopics);
-    
-
-    // PROCESS GEORESOURCES
-    var filteredGeoresources = this.displayableGeoresources_keywordFiltered;
-
-    for (const georesourceMetadata of filteredGeoresources) {
-      if (topicsMap.has(georesourceMetadata.topicReference)){
-        var georesourceDatasets = topicsMap.get(georesourceMetadata.topicReference);
-        
-        // catch any frehsly created reachability scenario data sources as they are handled differently (only for reachability analysis)
-        if(georesourceMetadata.isNewReachabilityDataSource){
-          continue;
-        }
-
-        else if(georesourceMetadata.isPOI){
-          georesourceDatasets.poiDatasets.push(georesourceMetadata);
-        }
-        else if(georesourceMetadata.isLOI){
-          georesourceDatasets.loiDatasets.push(georesourceMetadata);
-        }
-        else if(georesourceMetadata.isAOI){
-          georesourceDatasets.aoiDatasets.push(georesourceMetadata);
-        }                
-
-        topicsMap.set(georesourceMetadata.topicReference, georesourceDatasets);
-      }
-      else{
-        var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
-        
-        // catch any frehsly created reachability scenario data sources as they are handled differently (only for reachability analysis)
-        if(georesourceMetadata.isNewReachabilityDataSource){
-          continue;
-        }
-
-        else if(georesourceMetadata.isPOI){
-          georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
-        }
-        else if(georesourceMetadata.isLOI){
-          georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
-        }
-        else if(georesourceMetadata.isAOI){
-          georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
-        }                
-
-        topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
-      }
-    }
-
-    // PROCESS WMS and WFS
-    // hier
-    for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
-      if (topicsMap.has(wmsMetadata.topicReference)){
-        if(!filter || (filter && filter.georesourceTopics.includes(wmsMetadata.topicReference))) {
-          var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
-          georesourceDatasets.wmsDatasets.push(wmsMetadata);              
-
-          topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
-        }
-      }
-      else{
-        var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
-        
-        georesourceDatasets_unmapped.wmsDatasets.push(wmsMetadata);               
-
-        topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
-      }
-    }
-
-    // PROCESS WMS and WFS
-    for (const wfsMetadata of this.wfsDatasets_keywordFiltered) {
-      if (topicsMap.has(wfsMetadata.topicReference)){
-        if(!filter || (filter && filter.georesourceTopics.includes(wfsMetadata.topicReference))) {
-          var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
-          georesourceDatasets.wfsDatasets.push(wfsMetadata);              
-
-          topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
-        }
-      }
-      else{
-        var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
-        
-        georesourceDatasets_unmapped.wfsDatasets.push(wfsMetadata);               
-
-        topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
-      }
-    }
-
-    this.topicGeoresourceHierarchy = this.addGeoresourceDataToTopicHierarchy(georesourceTopics, topicsMap);
-  }
-
-  addGeoresourceDataToTopicHierarchy(topicsArray, topicsMap){
-
-    /*
-    topicsMap.set(topic.topicId, {
-        poiDatasets: [],
-        loiDatasets: [],
-        aoiDatasets: [],
-        wmsDatasets: [],
-        wfsDatasets: []
-      })
-
-      + special entry with key "unmapped" for all datasets without valid topic reference
-    */
-
-    for (var topic of topicsArray) {
-      var topicsDataEntry = topicsMap.get(topic.topicId);
-      topic.poiData = topicsDataEntry.poiDatasets;
-      topic.poiCount = topicsDataEntry.poiDatasets.length;
-
-      topic.loiData = topicsDataEntry.loiDatasets;
-      topic.loiCount = topicsDataEntry.loiDatasets.length;
-
-      topic.aoiData = topicsDataEntry.aoiDatasets;
-      topic.aoiCount = topicsDataEntry.aoiDatasets.length;
-
-      topic.wmsData = topicsDataEntry.wmsDatasets;
-      topic.wmsCount = topicsDataEntry.wmsDatasets.length;
-
-      topic.wfsData = topicsDataEntry.wfsDatasets;
-      topic.wfsCount = topicsDataEntry.wfsDatasets.length;
-
-      topic.totalCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
-      topic.ownCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
-
-      if(topic.subTopics.length > 0){
-        topic = this.addGeoresourceDataToSubTopics(topic, topicsMap);
-      }
-    }
-
-    // PROCESS UNMAPPED entries
-    this.topicGeoresourceHierarchy_unmappedEntries = {};
-    var topicsDataEntry_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
-    this.topicGeoresourceHierarchy_unmappedEntries.poiData = topicsDataEntry_unmapped.poiDatasets;
-    this.topicGeoresourceHierarchy_unmappedEntries.poiCount = topicsDataEntry_unmapped.poiDatasets.length;
-
-    this.topicGeoresourceHierarchy_unmappedEntries.loiData = topicsDataEntry_unmapped.loiDatasets;
-    this.topicGeoresourceHierarchy_unmappedEntries.loiCount = topicsDataEntry_unmapped.loiDatasets.length;
-
-    this.topicGeoresourceHierarchy_unmappedEntries.aoiData = topicsDataEntry_unmapped.aoiDatasets;
-    this.topicGeoresourceHierarchy_unmappedEntries.aoiCount = topicsDataEntry_unmapped.aoiDatasets.length;
-
-    this.topicGeoresourceHierarchy_unmappedEntries.wmsData = topicsDataEntry_unmapped.wmsDatasets;
-    this.topicGeoresourceHierarchy_unmappedEntries.wmsCount = topicsDataEntry_unmapped.wmsDatasets.length;
-
-    this.topicGeoresourceHierarchy_unmappedEntries.wfsData = topicsDataEntry_unmapped.wfsDatasets;
-    this.topicGeoresourceHierarchy_unmappedEntries.wfsCount = topicsDataEntry_unmapped.wfsDatasets.length;
-
-    this.topicGeoresourceHierarchy_unmappedEntries.totalCount = this.topicGeoresourceHierarchy_unmappedEntries.poiCount + 
-    this.topicGeoresourceHierarchy_unmappedEntries.loiCount + 
-    this.topicGeoresourceHierarchy_unmappedEntries.aoiCount + 
-    this.topicGeoresourceHierarchy_unmappedEntries.wmsCount + 
-    this.topicGeoresourceHierarchy_unmappedEntries.wfsCount;
-
-    return topicsArray;
-  }
-
-  addGeoresourceDataToSubTopics(topic, topicsMap){
-    for (var subTopic of topic.subTopics) { 
-      
-      var topicsDataEntry = topicsMap.get(subTopic.topicId);
-      subTopic.poiData = topicsDataEntry.poiDatasets;
-      subTopic.poiCount = topicsDataEntry.poiDatasets.length;
-
-      subTopic.loiData = topicsDataEntry.loiDatasets;
-      subTopic.loiCount = topicsDataEntry.loiDatasets.length;
-
-      subTopic.aoiData = topicsDataEntry.aoiDatasets;
-      subTopic.aoiCount = topicsDataEntry.aoiDatasets.length;
-
-      subTopic.wmsData = topicsDataEntry.wmsDatasets;
-      subTopic.wmsCount = topicsDataEntry.wmsDatasets.length;
-
-      subTopic.wfsData = topicsDataEntry.wfsDatasets;
-      subTopic.wfsCount = topicsDataEntry.wfsDatasets.length;
-
-      subTopic.totalCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
-      subTopic.ownCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
-
-      if(subTopic.subTopics.length > 0){
-        subTopic = this.addGeoresourceDataToSubTopics(subTopic, topicsMap);
-      }
-      topic.poiCount = topic.poiCount + subTopic.poiCount;
-      topic.loiCount = topic.loiCount + subTopic.loiCount;
-      topic.aoiCount = topic.aoiCount + subTopic.aoiCount;
-      topic.wmsCount = topic.wmsCount + subTopic.wmsCount;
-      topic.wfsCount = topic.wfsCount + subTopic.wfsCount;
-      topic.totalCount = topic.totalCount + subTopic.totalCount;
-    }
-
-    return topic;
-  }
-
-  buildComputationIndicatorHierarchy(){
-
-    var indicatorsMap = new Map();
-
-    var filteredIndicators = this.displayableIndicators_keywordFiltered;
-
-    for (const indicatorMetadata of filteredIndicators) {
-      indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
-    }
-    
-    var computationIndicatorsArray = filteredIndicators.filter(indicatorMetadata => indicatorMetadata.creationType == "COMPUTATION");
-
-    var computationIndicatorsIdArray = computationIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
-
-    var computationIndicatorsMap = new Map();
-
-    for (const indicatorMetadata of computationIndicatorsArray) {
-      computationIndicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
-    }
-
-    var computationIndicatorScriptsMap = new Map();
-    for (const scriptMetadata of this.availableProcessScripts) {
-      if(computationIndicatorsIdArray.includes(scriptMetadata.indicatorId)){                
-        computationIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
-      }
-    }
-
-    this.computationIndicatorHierarchy = [];
-
-    // var item = {
-    //   computationIndicator: {metadata}
-    //   baseIndicators: [{metadata}]
-    //   maybeSomeAnalysisItems?
-    // }
-
-    for (const computationIndicatorMetadata of computationIndicatorsArray) {
-      var item:any = {};
-      item.computationIndicator = computationIndicatorMetadata;
-      item.baseIndicators = [];
-
-      if(computationIndicatorScriptsMap.has(computationIndicatorMetadata.indicatorId)){
-        var targetScriptMetadata = computationIndicatorScriptsMap.get(computationIndicatorMetadata.indicatorId);
-        for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
-          if (indicatorsMap.has(requiredIndicatorId)){
-            item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
-          }                
-        }
-      }              
-
-      this.computationIndicatorHierarchy.push(item);
-    }            
-
-  }
-
-  buildTopicIndicatorHierarchy(){
-
-    var indicatorTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "indicator");
-    var topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
-
-    var filteredIndicators = this.displayableIndicators_keywordFiltered;
-
-    for (const indicatorMetadata of filteredIndicators) {
-      if (topicsMap.has(indicatorMetadata.topicReference)){
-        var indicatorArray = topicsMap.get(indicatorMetadata.topicReference);
-        indicatorArray.push(indicatorMetadata);
-        topicsMap.set(indicatorMetadata.topicReference, indicatorArray);
-      }
-    }
-
-    let tempTopicsData = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
-    this.topicIndicatorHierarchy = this.addWmsDataToTopicHierarchyRecursive(tempTopicsData);
-    this.addWmsCountRecursive(this.topicIndicatorHierarchy);
-  }
-
-  buildTopicsMap_indicators(indicatorTopics){
-    var topicsMap = new Map();            
-
-    for (const topic of indicatorTopics) {
-      topicsMap.set(topic.topicId, []);
-      if(topic.subTopics.length > 0){
-        topicsMap = this.addSubTopicsToMap_indicators(topic.subTopics, topicsMap);
-      }
-    }
-
-    return topicsMap;
-  }
-
-  addSubTopicsToMap_indicators(subTopicsArray, topicsMap){
-
-    for (const subTopic of subTopicsArray) {
-      topicsMap.set(subTopic.topicId, []);
-      if(subTopic.subTopics.length > 0){
-        topicsMap = this.addSubTopicsToMap_indicators(subTopic.subTopics, topicsMap);
-      } 
-    } 
-    
-    return topicsMap;
-  }
-
-  addWmsDataToTopicHierarchyRecursive(tempTopicsData:IndicatorsTopicsHierarchy[]):IndicatorsTopicsHierarchy[] {
-
-    tempTopicsData.forEach((topicData:IndicatorsTopicsHierarchy) => {
-      
-      let wmsDatasets = this.getAvailableIndiWmsDatasets().filter(e => e.topicReference==topicData.topicId);
-
-      if(wmsDatasets.length) {
-        topicData.wmsData = wmsDatasets;
-        topicData.wmsCount = topicData.wmsData.length;
-      } else {
-        topicData.wmsData = [];
-        topicData.wmsCount = 0;
-      }
-
-      if(topicData.subTopics.length) 
-        topicData.subTopics = this.addWmsDataToTopicHierarchyRecursive(topicData.subTopics);
-    });
-
-    return tempTopicsData;
-  }
-
-  addWmsCountRecursive(topicData:IndicatorsTopicsHierarchy[]):number {
-
-    let num = 0;
-
-    topicData.forEach((topic:IndicatorsTopicsHierarchy)=> {
-
-      num += topic.wmsCount;
-
-      if(topic.subTopics.length) {
-
-        num += this.addWmsCountRecursive(topic.subTopics);
-        topic.wmsCount += num; 
-      }
-    });
-
-    return num;
-  }
-
- /*  getWmsCountTopicsDownwards_Recursive(topicData:IndicatorsTopicsHierarchy[]):number {
-    
-    topicData.forEach((topic:IndicatorsTopicsHierarchy) => {
-      if(topic.subTopics.length)
-        topic.wmsCount = this.getWmsCountTopicsDownwards_Recursive(topic.subTopics);
-    });
-
-    return num;
-  } */
-
-  addIndicatorDataToTopicHierarchy(topicsArray, topicsMap){
-    for (var topic of topicsArray) {
-      topic.indicatorData = topicsMap.get(topic.topicId);
-      topic.indicatorData.sort((a,b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
-      topic.indicatorCount = topic.indicatorData.length;
-      if(topic.subTopics.length > 0){
-        topic = this.addIndicatorDataToSubTopics(topic, topicsMap);
-      }
-    }
-
-    return topicsArray;
-  }
-
-  addIndicatorDataToSubTopics(topic, topicsMap){
-    for (var subTopic of topic.subTopics) {
-      subTopic.indicatorData = topicsMap.get(subTopic.topicId);
-      subTopic.indicatorData.sort((a,b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
-      subTopic.indicatorCount = subTopic.indicatorData.length;              
-      if(subTopic.subTopics.length > 0){
-        subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);
-      }
-      topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
-    }
-
-    return topic;
+  private buildTopicIndicatorHierarchy(){
+    this.topicIndicatorHierarchy = this.topicHierarchyService.buildTopicIndicatorHierarchy(
+      this.availableTopics,
+      this.displayableIndicators_keywordFiltered,
+      this.getAvailableIndiWmsDatasets()
+    );
   }
 
   modifyIndicatorApplicableSpatialUnitsForLoginRoles(){
@@ -1578,59 +1152,12 @@ export class DataExchangeService {
       return true;
     }
 }
-
-  buildHeadlineIndicatorHierarchy(){
-
-    var indicatorsMap = new Map();
-
-    var filteredIndicators = this.displayableIndicators_keywordFiltered;
-
-    for (const indicatorMetadata of filteredIndicators) {
-      indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
-    }
-    
-    var headlineIndicatorsArray = filteredIndicators.filter(indicatorMetadata => indicatorMetadata.isHeadlineIndicator == true);
-
-    var headlineIndicatorsIdArray = headlineIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
-
-    var headlineIndicatorsMap = new Map();
-
-    for (const indicatorMetadata of headlineIndicatorsArray) {
-      headlineIndicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
-    }
-
-    var headlineIndicatorScriptsMap = new Map();
-    for (const scriptMetadata of this.availableProcessScripts) {
-      if(headlineIndicatorsIdArray.includes(scriptMetadata.indicatorId)){                
-        headlineIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
-      }
-    }
-
-    this.headlineIndicatorHierarchy = [];
-
-    // var item = {
-    //   headlineIndicator: {metadata}
-    //   baseIndicators: [{metadata}]
-    //   maybeSomeAnalysisItems?
-    // }
-
-    for (const headlineIndicatorMetadata of headlineIndicatorsArray) {
-      var item:any = {};
-      item.headlineIndicator = headlineIndicatorMetadata;
-      item.baseIndicators = [];
-
-      if(headlineIndicatorScriptsMap.has(headlineIndicatorMetadata.indicatorId)){
-        var targetScriptMetadata = headlineIndicatorScriptsMap.get(headlineIndicatorMetadata.indicatorId);
-        for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
-          if (indicatorsMap.has(requiredIndicatorId)){
-            item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
-          }                
-        }
-      }              
-
-      this.headlineIndicatorHierarchy.push(item);
-    }            
-
+  
+  private buildHeadlineIndicatorHierarchy(){
+    this.headlineIndicatorHierarchy = this.topicHierarchyService.buildHeadlineIndicatorHierarchy(
+      this.displayableIndicators_keywordFiltered,
+      this.availableProcessScripts
+    );
   }
 
   indicatorValueIsNoData(indicatorValue){
@@ -1675,7 +1202,7 @@ export class DataExchangeService {
     this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
   }
 
-  setAccessControl(input){
+  private setAccessControl(input){
     this.accessControl = input;
     this.accessControl_map = new Map();
     for (const entry of input) {
@@ -1685,7 +1212,7 @@ export class DataExchangeService {
     this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
   }
 
-  filterAllowedAccessControl(acArray) {
+  private filterAllowedAccessControl(acArray) {
 
     if (this.checkAdminPermission()) {
       return acArray;
@@ -2359,62 +1886,9 @@ export class DataExchangeService {
     } else
       return '';       
   }
-
-  getTopicHierarchyForTopicId(topicReferenceId){
-    // create an array respresenting the topic hierarchy
-    // i.e. [mainTopic_firstTier, subTopic_secondTier, subTopic_thirdTier, ...]
-    var topicHierarchyArray:any[] = [];
-
-    for (var i = 0; i < this.availableTopics.length; i++) {
-
-      var mainTopicCandidate = this.availableTopics[i];
-
-      if(mainTopicCandidate.topicId === topicReferenceId){
-        topicHierarchyArray.push(mainTopicCandidate);
-        break;
-      }
-
-      else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, mainTopicCandidate.subTopics)){
-        topicHierarchyArray.push(mainTopicCandidate);
-        topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, mainTopicCandidate.subTopics);
-      }
-    }
-
-    return topicHierarchyArray;
-  }
-
-  addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, subTopicsArray){
-    for (let index = 0; index < subTopicsArray.length; index++) {
-      const subTopicCandidate = subTopicsArray[index];
-
-      if(subTopicCandidate.topicId === topicReferenceId){
-        topicHierarchyArray.push(subTopicCandidate);
-        break;
-      }
-
-      else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)){
-        topicHierarchyArray.push(subTopicCandidate);
-        topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, subTopicCandidate.subTopics);
-      }
-    }
-
-    return topicHierarchyArray;
-  }
-
-  findIdInAnySubTopicHierarchy(topicReferenceId, subTopicsArray){
-    for (let index = 0; index < subTopicsArray.length; index++) {
-      const subTopicCandidate = subTopicsArray[index];
-
-      if(subTopicCandidate.topicId === topicReferenceId){
-        return true;
-      }
-
-      else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)){
-        return true;
-      }
-    }
-
-    return false;
+  
+  private getTopicHierarchyForTopicId(topicReferenceId){
+    return this.topicHierarchyService.getTopicHierarchyForTopicId(this.availableTopics, topicReferenceId);
   }
 
   async generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions){
@@ -2656,59 +2130,14 @@ export class DataExchangeService {
 
     return wmsDatasets;
   }
-
-  topicHierarchyContainsGeoresource(topic, georesourceMetadata){
-    // luckily, the topicReference is defined exactly like for indicators
-    // hence we can simply refer to that method
-
-    return this.topicHierarchyContainsIndicator(topic, georesourceMetadata);
+  
+  private topicHierarchyContainsGeoresource(topic, georesourceMetadata){
+    return this.topicHierarchyService.topicHierarchyContainsGeoresource(this.availableTopics, topic, georesourceMetadata);
   };
-
-  topicHierarchyContainsWms(topic, wmsMetadata){
-    // luckily, the topicReference is defined exactly like for indicators
-    // hence we can simply refer to that method
-
-    return this.topicHierarchyContainsIndicator(topic, wmsMetadata);
+  
+  private topicHierarchyContainsWms(topic, wmsMetadata){
+    return this.topicHierarchyService.topicHierarchyContainsWms(this.availableTopics, topic, wmsMetadata);
   };
-
-  topicHierarchyContainsWfs(topic, wfsMetadata){
-    // luckily, the topicReference is defined exactly like for indicators
-    // hence we can simply refer to that method
-
-    return this.topicHierarchyContainsIndicator(topic, wfsMetadata);
-  }
-
-  topicHierarchyContainsIndicator(topic, indicatorMetadata){
-    if(topic === null || topic === ""){
-      if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === "" || ! this.referencedTopicIdExists(indicatorMetadata.topicReference)){
-        return true;
-      }
-      else{
-        return false;
-      }
-    }
-
-    if (topic.topicId === indicatorMetadata.topicReference){
-      return true;
-    }
-    else{
-      return this.anySubTopicContainsIndicator(topic, indicatorMetadata);
-    }
-  };
-
-  anySubTopicContainsIndicator(topic, indicatorMetadata){
-    var isContained = false;
-
-    for (const subTopic of topic.subTopics) {
-      isContained = this.topicHierarchyContainsIndicator(subTopic, indicatorMetadata);
-
-      if(isContained){
-        break;
-      }
-    }
-
-    return isContained;
-  }
 
   filterByGeoresourceNamesToHide(filteredGeoresources){
 
@@ -2775,18 +2204,7 @@ export class DataExchangeService {
       }
     });
   }
-
-  referencedTopicIdExists(topicId){
-    var topicHierarchy = this.getTopicHierarchyForTopicId(topicId);
-
-    if(topicHierarchy.length === 0){
-      return false;
-    }
-    else{
-      return true;
-    }
-  }
-
+  
   removeAoiGeoresource(aoiGeoresource) {
     //return this.ajskommonitorDataExchangeServiceeProvider.removeAoiGeoresource(aoiGeoresource);
   }

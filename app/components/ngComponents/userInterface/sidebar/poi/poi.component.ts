@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { IconTranslate } from 'pipes/icon-translate.pipe';
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 
 
 @Component({
@@ -81,6 +82,7 @@ export class PoiComponent implements OnInit {
     private broadcastService: BroadcastService,
     private http: HttpClient,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
+    private topicHierarchyService: TopicHierarchyService,
     private favService: FavService,
     protected ogcService: OgcService
   ) {
@@ -383,7 +385,7 @@ export class PoiComponent implements OnInit {
         if (! item.topicReference || item.topicReference === ""){
           return true;
         }
-        if(!this.dataExchangeService.referencedTopicIdExists(item.topicReference)){
+        if(!this.topicHierarchyService.referencedTopicIdExists(this.dataExchangeService.availableTopics, item.topicReference)){
           return true;
         }
         return false;

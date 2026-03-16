@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class KommonitorGeoresourceDataExchangeService {
   public georesources$ = this.georesourcesSubject.asObservable();
 
   constructor(
-    private angularJsDataExchangeService: DataExchangeService
+    private angularJsDataExchangeService: DataExchangeService,
+    private topicHierarchyService: TopicHierarchyService,
   ) {}
 
   /**
@@ -102,7 +104,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get topic hierarchy display string - delegates to AngularJS service
    */
   getTopicHierarchyDisplayString(topicReference: any): string {
-    return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(topicReference);
+    return this.topicHierarchyService.getTopicHierarchyDisplayString(this.angularJsDataExchangeService.availableTopics, topicReference);
   }
 
   /**

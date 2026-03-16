@@ -9,6 +9,7 @@ import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommo
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 
 @Component({
   selector: 'georesource-edit-metadata-modal',
@@ -93,6 +94,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     public kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
     public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private broadcastService: BroadcastService,
+    private topicHierarchyService: TopicHierarchyService,
     private http: HttpClient
   ) {
     this.initializeDefaultValues();
@@ -245,9 +247,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.selectedPoiIconName = this.currentGeoresourceDataset.poiSymbolBootstrap3Name;
 
     // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-      this.currentGeoresourceDataset.topicReference
-    );
+    const topicHierarchy =
+      this.topicHierarchyService.getTopicHierarchyForTopicId(
+        this.kommonitorDataExchangeService.availableTopics,
+        this.currentGeoresourceDataset.topicReference,
+      );
 
     if (topicHierarchy && topicHierarchy[0]) {
       this.georesourceTopic_mainTopic = topicHierarchy[0];
@@ -513,8 +517,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }, 200);
 
     // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-      this.metadataImportSettings.topicReference
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.kommonitorDataExchangeService.availableTopics,
+      this.metadataImportSettings.topicReference,
     );
 
     if (topicHierarchy && topicHierarchy[0]) {

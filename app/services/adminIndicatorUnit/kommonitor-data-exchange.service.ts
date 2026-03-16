@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class KommonitorIndicatorDataExchangeService {
   public indicators$ = this.indicatorsSubject.asObservable();
 
   constructor(
-    private angularJsDataExchangeService: DataExchangeService
+    private angularJsDataExchangeService: DataExchangeService,
+    private topicHierarchyService: TopicHierarchyService,
   ) {}
 
   /**
@@ -168,7 +170,7 @@ export class KommonitorIndicatorDataExchangeService {
    * Gets topic hierarchy for topic ID - delegates to AngularJS service
    */
   getTopicHierarchyForTopicId(topicId: string): any {
-    return this.angularJsDataExchangeService.getTopicHierarchyForTopicId(topicId);
+    return this.topicHierarchyService.getTopicHierarchyForTopicId(this.angularJsDataExchangeService.availableTopics, topicId);
   }
 
   /**
@@ -238,7 +240,7 @@ export class KommonitorIndicatorDataExchangeService {
    * Get topic hierarchy display string - delegates to AngularJS service
    */
   getTopicHierarchyDisplayString(topicReference: any): string {
-    return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(topicReference);
+    return this.topicHierarchyService.getTopicHierarchyDisplayString(this.angularJsDataExchangeService.availableTopics, topicReference);
   }
 
   /**
