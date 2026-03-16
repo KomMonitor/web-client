@@ -1,208 +1,88 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-import { AuthService } from 'services/auth-service/auth.service';
-import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
+import { AuthService } from "services/auth-service/auth.service";
+import { KeycloakHelperService } from "services/keycloak-helper-service/keycloak-helper.service";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class StartupService {
-
-  private env: any = {};
-
   constructor(
     private authService: AuthService,
-    private keycloakHelperService: KeycloakHelperService
-  ) { }
-  
-  async initApp():Promise<void> {
+    private keycloakHelperService: KeycloakHelperService,
+  ) {}
 
-    this.env = window.__env || {};
-
+  async initApp(): Promise<void> {
     console.log("start loading required config files");
-    return new Promise(async (resolve) => {
-        await this.ajaxCall_configServerFile();
-        
-        // todo, wait for config, then keycloak
-        setTimeout(async () => {
-          await this.authService.initKeycloak();
-          this.keycloakHelperService.init();
-          resolve();
-        },1000);
-    });
-  }
-    
-  /*
- LOAD CONFIG FILES FROM CONFIG STORAGE SERVER
-*/
-  private ajaxCall_keycloakConfig(configStorageServerConfig: any): JQuery.jqXHR<any> {
-    console.log("try to fetch keycloak config file");
-    return $.ajax({
-      url: configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
-      success: function (result) {
-        console.log("keycloak config file fetched");
-        window.__env.keycloakConfig = result;
-        return;
-      },
-      error: function (XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Use keycloak.json local backup default values");
-      }
-    });
+    await this.loadAllConfigs();
+    await this.authService.initKeycloak();
+    this.keycloakHelperService.init();
   }
 
-  private ajaxCall_appConfig(configStorageServerConfig: any): JQuery.jqXHR<any> {
-    console.log("try to fetch app config file");
-    return $.ajax({
-      url: configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
-      success: function (result) {
-        console.log("app config file fetched");
-        window.__env.appConfig = result;
-        return;
-      },
-      error: function (XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Use env.js local backup default values");
-      }
-    });
+  private async loadAllConfigs(): Promise<void> {
+    const response = await fetch("./config/config-storage-server.json");
+    const configStorageServerConfig = await response.json();
+    window.__env = window.__env || {};
+    window.__env.configStorageServerConfig = configStorageServerConfig;
+
+    console.log("dynamically load env.js");
+    await Promise.allSettled([
+      this.loadAppConfigScript(
+        configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
+      ),
+      this.fetchJsonConfig(
+        configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
+        "keycloakConfig",
+      ),
+      this.fetchJsonConfig(
+        configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
+        "controlsConfig",
+      ),
+      this.fetchJsonConfig(
+        configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
+        "filterConfig",
+      ),
+    ]);
+
+    console.log("all configs have been loaded");
+    this.initEnvVariables();
   }
 
-  private ajaxCall_controlsConfig(configStorageServerConfig: any): JQuery.jqXHR<any> {
-    console.log("try to fetch controls config file");
-    return $.ajax({
-      url: configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
-      success: function (result) {
-        console.log("controls config file fetched");
-        window.__env.controlsConfig = result;
-        return;
-      },
-      error: function (XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Use controls-config.json local backup default values that has no widget restrictions.");
-      }
-    });
+  private async fetchJsonConfig(url: string, envKey: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      window.__env[envKey] = await response.json();
+      console.log(`${envKey} config file fetched`);
+    } catch {
+      console.log(
+        `Could not fetch ${envKey} from server. Using local backup defaults.`,
+      );
+    }
   }
 
-  private ajaxCall_filterConfig(configStorageServerConfig:any): JQuery.jqXHR<any> {
-    console.log("try to fetch filter config file");
-    return  $.ajax({
-        url: configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
-        success: function(result){
-          console.log("filter config file fetched");
-          window.__env.filterConfig = result;
-          return; 
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) { 
-          console.log("Use filter-config.json local backup default values that has no widget restrictions.");
-        }
-    });
-  } 
-
-  /*
-   LOAD CONFIG FILES FROM LOCAL BACKUP FILES
-  */
-  private ajaxCall_keycloakConfig_localBackup(configStorageServerConfig: any): JQuery.jqXHR<any> {
-    return $.ajax({
-      url: "./config/keycloak_backup.json",
-      success: function (result) {
-        console.log("local keycloak config file with default values fetched");
-        window.__env.keycloakConfig = result;
-        return;
-      },
-      error: function (XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Error parsing local keycloak.json backup file");
-      }
-    });
-  }
-
-  private ajaxCall_controlsConfig_localBackup(configStorageServerConfig: any): JQuery.jqXHR<any> {
-    return $.ajax({
-      url: "./config/controls-config_backup.json",
-      success: function (result) {
-        console.log("local controls-config file with default values fetched");
-        window.__env.controlsConfig = result;
-        return;
-      },
-      error: function (XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Error parsing local controlsConfig.json backup file");
-      }
-    });
-  }
-
-  private ajaxCall_filterConfig_localBackup(configStorageServerConfig: any): JQuery.jqXHR<any> {
-    return  $.ajax({
-      url: "./config/filter-config_backup.json",
-      success: function(result){
-        console.log("local filter-config file with default values fetched");
-        window.__env.filterConfig = result;
-        return;
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) { 
-        console.log("Error parsing local filterConfig.json backup file");
-      }
-  });
-  }
-
-
-  private loadAppConfigScriptDynamically(scriptUrl: string): Promise<unknown> {
-    return new Promise(function (res, rej) {
-      let script = document.createElement('script');
+  private loadAppConfigScript(scriptUrl: string): Promise<void> {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
       script.src = scriptUrl;
-      script.type = 'text/javascript';
-      script.onerror = rej;
+      script.type = "text/javascript";
       script.async = true;
-      script.onload = res;
-      script.addEventListener('error', rej);
-      script.addEventListener('load', res);
+      script.onload = () => {
+        console.log("env.js loaded");
+        resolve();
+      };
+      script.onerror = () => {
+        console.log(
+          "Error while loading app config from client config storage server. Will use defaults instead.",
+        );
+        resolve();
+      };
       document.head.appendChild(script);
     });
   }
 
   private initEnvVariables(): void {
-    // Import variables if present (from env.js)
-    if (window) {
-      Object.assign(this.env, window.__env);
+    if (!window.__env?.enableDebug) {
+      window.console.log = function () {};
     }
-
-    if (!this.env.enableDebug) {
-      if (window) {
-        window.console.log = function () { };
-      }
-    }
-
-  }
-
-  private ajaxCall_configServerFile(): Promise<any> {
-
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        url: "./config/config-storage-server.json",
-        success: (result) => {
-          window.__env = window.__env || {};
-          window.__env.configStorageServerConfig = result;
-
-          // inject script tag dynamically to DOM to load ENV variables
-          console.log("dynamically load env.js");
-          const event = this.loadAppConfigScriptDynamically(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig)
-            .then(() => { console.log("loaded"); })
-            .catch(() => {
-              console.log("Error while loading app config from client config storage server. Will use defaults instead");
-              alert("Error while loading app config from client config storage server. Will use defaults instead.");
-            });
-
-
-          $.when(this.ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), this.ajaxCall_controlsConfig(window.__env.configStorageServerConfig), this.ajaxCall_appConfig(window.__env.configStorageServerConfig), this.ajaxCall_filterConfig(window.__env.configStorageServerConfig)).then((ajax1Results, ajax2Results, ajax3Results) => {
-            console.log("all configs have been loaded");
-
-            this.initEnvVariables();
-
-          }, () => {
-            // on fail
-            console.log("all configs have been loaded - at least some from local backup values. See console log for details");
-
-            this.initEnvVariables();
-
-          });
-          resolve('');
-        }
-      });
-    });
   }
 }
