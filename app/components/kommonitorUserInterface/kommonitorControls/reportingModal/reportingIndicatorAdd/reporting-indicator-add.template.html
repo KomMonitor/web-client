@@ -433,6 +433,21 @@
                         </div>
                     </div>
 
+                    <div style="margin-bottom: 15px; margin-top: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #fcfcfc;">
+                        <div ng-if="preparationNeeded && validateConfiguration()" class="text-center">
+                            <p class="text-info"><i class="fa fa-info-circle"></i> <b>Nächster Schritt:</b> Sie haben die Konfiguration angepasst. Sie können nun bei Bedarf weitere Einstellungen vornehmen. Klicken Sie anschließend auf die Schaltfläche unten, um die Vorschau und den Berichtsabschnitt zu generieren.</p>
+                            <button class="btn btn-primary btn-lg" ng-click="onTriggerPreparationClicked()" style="box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                <i class="fa fa-gears"></i> &nbsp; Vorschau & Report-Seiten generieren
+                            </button>
+                        </div>
+                        <div ng-if="!preparationNeeded && validateConfiguration() && lastPageOfAddedSectionPrepared" class="text-center text-success">
+                            <p><i class="fa fa-check-circle"></i> Die Aufbereitung ist abgeschlossen. Sie können den Indikator nun zum Gesamtbericht hinzufügen.</p>
+                        </div>
+                        <div ng-if="!validateConfiguration()" class="text-center text-warning">
+                            <p><i class="fa fa-exclamation-triangle"></i> Bitte wählen Sie zuerst einen Indikator, die gewünschte Raumebene und mindestens einen Zeitpunkt aus.</p>
+                        </div>
+                    </div>
+
                     <!-- not affected by tab changes -->
                     <div id="reporting-add-indicator-preview-area">
 
@@ -602,14 +617,14 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12">                
                 <div>
                     <button class="btn btn-warning" ng-click='onBackToOverviewClicked()'>
                         <i class="fa fa-arrow-left"></i>
                         &nbsp;&nbsp;Zurück zur Übersicht
                     </button>                    
                     
-                    <button ng-disabled="!validateConfiguration() || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
+                    <button ng-disabled="!validateConfiguration() || preparationNeeded || ! lastPageOfAddedSectionPrepared || ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate" type="button" class="btn btn-success pull-right" ng-click='onAddBtnClicked()'>
                         <i class="fa fa-plus"></i>
                         <span ng-show="template.name.includes('-reachability')">POI-Layer hinzufügen</span>
                         <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
