@@ -2540,6 +2540,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let barChart = echarts.init( wrapper );
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.bar[timestamp] ));
 
+			options.animation = false;
+
 			// default changes
 			options.xAxis.name = "";
 			options.title.textStyle.fontSize = 12;
