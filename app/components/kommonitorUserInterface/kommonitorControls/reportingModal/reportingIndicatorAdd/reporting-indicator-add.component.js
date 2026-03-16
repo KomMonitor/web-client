@@ -49,6 +49,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.pagePreparationIndex = 0;
 		$scope.pagePreparationSize = 0;
 
+		$scope.preparationNeeded = true; // NEW: track if config changed and preparation is required
+
 		$scope.pageToProcess = undefined;
 		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
 
@@ -265,10 +267,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// reinitiate page building from the scratch as easiest solution
 			$timeout(function(){
 				$scope.loadingData = true; 
+				$scope.preparationNeeded = true;
 			})
 
 			kommonitorLeafletScreenshotCacheHelperService.resetCounter_keepingCurrentTargetFeatures(false);
-			await $scope.initializeAllDiagrams();			
+			// await $scope.initializeAllDiagrams();	// new user workflow: onTriggerPreparationClicked method is the only place to start page generation
 
 			$timeout(function(){
 				$scope.loadingData = false; 
@@ -291,6 +294,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.onSelectedAreasChanged = function(newVal) {
 			if( typeof($scope.template) === "undefined") return;
 			$scope.loadingData = true;
+			$scope.preparationNeeded = true; // Mark that config changed
 			// to make things easier we remove all area-specific pages and recreate them using newVal
 			// this approach is not optimized for performance and might have to change in the future
 
@@ -316,37 +320,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name.includes("reachability"))
 				$scope.updateAreasForReachabilityTemplates(newVal)
 
-			let updateDiagramsInterval_areas;
-
-			async function updateDiagrams() {
-
-				if($scope.diagramsPrepared) {
-					$interval.cancel(updateDiagramsInterval_areas); // code below still executes once
-				} else {
-					return;
-				}
-	
-				// diagrams are prepared, but dom has to be updated first, too
-					// we could filter the geoJson here to only include selected areas
-					// but for now we get all areas and filter them out after
-					let justChanged = false;
-					if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-						// Skip the update but set variable to false, so diagrams get updated on time update
-						// (relevant for indicator selection only)
-						$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-						justChanged = true;
-					} 
-					if($scope.template.name.includes("reachability") || ($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
-						await $scope.initializeAllDiagrams();
-						// if(!$scope.template.name.includes("reachability")) {
-						// 	// in reachability template we have to update leaflet maps, too
-						// 	$scope.loadingData = false;
-						// }
-						$scope.loadingData = false;
-					}
-			}
-				updateDiagramsInterval_areas = $interval(updateDiagrams, 0, 100)
-			
+			// skip automatic diagram update
+			$scope.loadingData = false;
 		}
 
 		function removeCircularReferences(pages){			
@@ -574,6 +549,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if( typeof($scope.template) === "undefined") return;
 			$scope.loadingData = true;
+			$scope.preparationNeeded = true;
 
 			// get difference between old and new value (the timestamps selected / deselected)
 			let difference = oldVal
@@ -740,42 +716,44 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			function updateDiagrams() {
-				if($scope.diagramsPrepared) {
-					$interval.cancel(updateDiagramsInterval); // code below still executes once
-				} else {
-					return;
-				}
+			$scope.loadingData = false;
 
-				$timeout(async function() {
-					if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
-						// Skip the update but set variable to false, so diagrams get updated on time update
-						// (relevant for indicator selection only)
-						$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-					} else {
-						// indicator selection is optional in reachability template only
-						if($scope.selectedIndicator) {
-							for(let timestamp of $scope.selectedTimestamps) {
-								let classifyUsingWholeTimeseries = false;
-								let isTimeseries = false;
-								$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
-							}
-						} else {
-							$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
-						}
+			// function updateDiagrams() {
+			// 	if($scope.diagramsPrepared) {
+			// 		$interval.cancel(updateDiagramsInterval); // code below still executes once
+			// 	} else {
+			// 		return;
+			// 	}
 
-						await $scope.initializeAllDiagrams();
-						// if(!$scope.template.name.includes("reachability")) {
-						// 	// in reachability template we have to update leaflet maps, too
-						// 	$scope.loadingData = false;
-						// }
-						$scope.loadingData = false;
-					}
-				});
+			// 	$timeout(async function() {
+			// 		if($scope.isFirstUpdateOnIndicatorOrPoiLayerSelection) {
+			// 			// Skip the update but set variable to false, so diagrams get updated on time update
+			// 			// (relevant for indicator selection only)
+			// 			$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+			// 		} else {
+			// 			// indicator selection is optional in reachability template only
+			// 			if($scope.selectedIndicator) {
+			// 				for(let timestamp of $scope.selectedTimestamps) {
+			// 					let classifyUsingWholeTimeseries = false;
+			// 					let isTimeseries = false;
+			// 					$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+			// 				}
+			// 			} else {
+			// 				$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+			// 			}
+
+			// 			await $scope.initializeAllDiagrams();
+			// 			// if(!$scope.template.name.includes("reachability")) {
+			// 			// 	// in reachability template we have to update leaflet maps, too
+			// 			// 	$scope.loadingData = false;
+			// 			// }
+			// 			$scope.loadingData = false;
+			// 		}
+			// 	});
 				
-			}
+			// }
 
-			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
+			// let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
 		});
 
 		$scope.$on("reportingConfigureNewIndicatorShown", function(event, data) {
@@ -888,7 +866,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
-			$scope.loadingData = true;			
+			$scope.loadingData = true;		
+			$scope.preparationNeeded = true;	
 
 			$("#reporting-spatialUnitChangeWarning").hide();
 			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
@@ -1022,7 +1001,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
 				}
 
-				await $scope.initializeAllDiagrams();
+				// await $scope.initializeAllDiagrams();  // new user workflow: onTriggerPreparationClicked method is the only place to start page generation
 				// if(!$scope.template.name.includes("reachability")) {
 				// 	// in reachability template we have to update leaflet maps, too
 				// 	$scope.loadingData = false;
@@ -1350,9 +1329,50 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.$broadcast("switchReportingMode", false);
 		})
 
+		$scope.onTriggerPreparationClicked = async function() {
+			$scope.loadingData = true;
+			$timeout(async function() {
+				
+				// 1. Prepare ECharts Options based on current configuration
+				if($scope.selectedIndicator) {
+					if($scope.template.name.includes("reachability")) {
+						$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+					} else if ($scope.template.name.includes("timeseries")) {
+						let values = $scope.getFormattedDateSliderValues(true);
+						let classifyUsingWholeTimeseries = false;
+						let isTimeseries = true;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
+						// prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
+						classifyUsingWholeTimeseries = true;
+						isTimeseries = false;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+					} else {
+						// reset echarts options to avoid mixing old and new timestamps
+						$scope.echartsOptions.map = {};
+						$scope.echartsOptions.bar = {};
+						for(let timestamp of $scope.selectedTimestamps) {
+							let classifyUsingWholeTimeseries = false;
+							let isTimeseries = false;
+							$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+						}	
+					}
+				} else {
+					$scope.reachabilityTemplateGeoMapOptions = $scope.prepareReachabilityEchartsMap();
+				}
+
+				// 2. Start the heavy async initialization
+				await $scope.initializeAllDiagrams();
+				
+				$scope.preparationNeeded = false;
+				$scope.loadingData = false;
+			});
+		}
+
 		$scope.onPoiLayerSelected = async function(poiLayer) {
 
 			try {
+				$scope.loadingData = true;
+				$scope.preparationNeeded = true; // Mark that preparation is required
 				$scope.absoluteLabelPositions = [];
 				$scope.diagramsPrepared = false;
 				$scope.isFirstUpdateOnIndicatorOrPoiLayerSelection = true;
@@ -1446,6 +1466,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let tab of allTabs) {
 					$scope.enableTab(tab);
 				}
+				$scope.loadingData = false;
 			} catch (error) {
 				console.error(error);
 				kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -1723,6 +1744,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let tab of allTabs) {
 					$scope.enableTab(tab);
 				}
+				$scope.preparationNeeded = true; // Mark that preparation is required
+				$scope.loadingData = false;
 			} catch (error) {
 				console.error(error);
 				kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -3769,6 +3792,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.onChangeDateSliderInterval = function() {
+			$scope.preparationNeeded = true;
 			$scope.loadingData = true;
 			// needed to tell angular something has changed
 			setTimeout(function(){
@@ -3798,21 +3822,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			function updateDiagrams() {
-				if($scope.diagramsPrepared) {
-					$interval.cancel(updateDiagramsInterval); // code below still executes once
-				} else {
-					return;
-				}
-				// diagrams are prepared, but dom has to be updated first, too
-				$timeout(async function() {
-					await $scope.initializeAllDiagrams();
-					$scope.loadingData = false;
-				})
+			$scope.loadingData = false;
+
+			// function updateDiagrams() {
+			// 	if($scope.diagramsPrepared) {
+			// 		$interval.cancel(updateDiagramsInterval); // code below still executes once
+			// 	} else {
+			// 		return;
+			// 	}
+			// 	// diagrams are prepared, but dom has to be updated first, too
+			// 	$timeout(async function() {
+			// 		await $scope.initializeAllDiagrams();
+			// 		$scope.loadingData = false;
+			// 	})
 				
-			}
+			// }
 	
-			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
+			// let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
 		}
 
 		$scope.getFormattedDateSliderValues = function(includeInBetweenValues) {
