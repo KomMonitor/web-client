@@ -2969,13 +2969,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// the length of rowsData is the number of rows we have to add
 				// IMPORTANT: we only want to add pages if they don't exist yet for this specific datatable section
 				// Since this method might be called multiple times during config, we check if we actually need to add pages.
+				
+				// FIRST: cleanup any existing additional datatable pages to avoid duplicates
+				$scope.template.pages = $scope.template.pages.filter(p => !p.isAdditionalDatatablePage);
+
 				let totalPagesNeeded = Math.ceil(rowsData.length / maxRows);
 
 				// add additional pages if needed (starting from the second page of data)
-				for(let p=1; p<totalPagesNeeded; p++) {
+				// only if this is the first datatable page of the section
+				if (! page.isAdditionalDatatablePage){
+					for(let p=1; p<totalPagesNeeded; p++) {
 					// add a new page
 					let newPage = angular.fromJson($scope.untouchedTemplateAsString).pages.at(-1);
 					newPage.id = $scope.templatePageIdCounter++;
+					newPage.isAdditionalDatatablePage = true; // MARKER to avoid duplicates on re-run
 					// setup new page
 					for(let pageElement of newPage.pageElements) {
 
@@ -3422,7 +3429,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// We want to show preview pages (General info, first 5 area pages, ALL datatable pages) as early as possible.
 			// The rest of the area pages will be processed in the background afterwards.
 			
-			let processedPageIndices = new Set();
+			let processedPageIds = new Set();
 			let totalPreparedCount = 0;
 
 			// Phase 1: Process all Preview Pages (includes datatables which are at the end)
@@ -3435,7 +3442,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let page = $scope.template.pages[i];
 				if ($scope.isPageInPreview(page, i)) {
 					await $scope.preparePageForIndicatorAdd(i, page);
-					processedPageIndices.add(i);
+					processedPageIds.add(page.id);
 					totalPreparedCount++;
 					
 					$scope.pagePreparationIndex = i; // show current index for UI feedback
@@ -3453,10 +3460,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					return;
 				}
 
-				if (!processedPageIndices.has(i)) {
-					let page = $scope.template.pages[i];
+				let page = $scope.template.pages[i];
+				if (!processedPageIds.has(page.id)) {
 					await $scope.preparePageForIndicatorAdd(i, page);
-					processedPageIndices.add(i);
+					processedPageIds.add(page.id);
 					totalPreparedCount++;
 
 					$scope.pagePreparationIndex = i;
