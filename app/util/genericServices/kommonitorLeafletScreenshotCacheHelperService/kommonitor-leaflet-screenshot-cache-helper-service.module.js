@@ -101,7 +101,7 @@ angular
                   console.error('oops, something went wrong!', error);
                   reject(error);
                 });
-            }, 150);
+            }, 500);
           });
         }
         else{
