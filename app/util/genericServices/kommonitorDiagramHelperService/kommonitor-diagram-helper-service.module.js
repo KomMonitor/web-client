@@ -2154,7 +2154,7 @@ angular
           }
   
           if(series.name.includes("isochrones")) {
-  
+
             if(!isochronesHeadingAdded) { // add heading above first isochrone entry
               legendEntries.push({
                 label: "Erreichbarkeit",
@@ -2162,33 +2162,40 @@ angular
               })
               isochronesHeadingAdded = true;
             }
-  
-            let value = series.data[0].value;
-            legendEntries.push({
-              label: value,
-              iconColor: series.data[0].itemStyle.areaColor,
-              iconOpacity: series.data[0].itemStyle.opacity,
-              iconHeight: 12,
-              isGroupHeading: false,
-              isIsochroneEntry: true
-            })
-          }
-        }
 
-        let canvas = document.createElement("canvas")
-        canvas.width = 800;
-        canvas.height = 800;
-        let ctx = canvas.getContext('2d', {
+            if(series.data && series.data.length > 0) {
+              let value = series.data[0].value;
+              legendEntries.push({
+                label: value,
+                iconColor: series.data[0].itemStyle.areaColor,
+                iconOpacity: series.data[0].itemStyle.opacity,
+                iconHeight: 12,
+                isGroupHeading: false,
+                isIsochroneEntry: true
+              })
+            }
+          }
+          }
+
+          let canvas = document.createElement("canvas")
+          canvas.width = 800;
+          canvas.height = 800;
+          let ctx = canvas.getContext('2d', {
           willReadFrequently: true
           })
-        let fontStyle = "8pt Arial"
-        ctx.font = fontStyle
-        let xPos = 5
-        let yPos = 5
-        let rowHeight = 20
-        let iconWidth = 30
-        
-        for(let entry of legendEntries) {
+          let fontStyle = "8pt Arial"
+          ctx.font = fontStyle
+          let xPos = 5
+          let yPos = 5
+          let rowHeight = 20
+          let iconWidth = 30
+
+          let isochroneEntries = legendEntries.filter( entry => {
+          return entry.isIsochroneEntry
+          });
+          isochroneEntries.reverse();
+
+          for(let entry of legendEntries) {
           if(entry.isGroupHeading) {
             let isochronesRangeTypeMapping = {
               "time": "Zeit",
@@ -2198,17 +2205,15 @@ angular
             ctx.font = "bold " + fontStyle;
             ctx.fillStyle = "black";
             ctx.textBaseline = "top";
-            let text = entry.label + " [" + isochronesRangeTypeMapping[isochronesRangeType] + "]"
+            let typeLabel = isochronesRangeTypeMapping[isochronesRangeType] || isochronesRangeType;
+            let text = entry.label + " [" + typeLabel + "]"
             ctx.fillText(text , xPos, yPos);
             yPos += rowHeight
           } else {
             // icon
             if(entry.isIsochroneEntry) {
-              let isochroneEntries = legendEntries.filter( entry => {
-                return entry.isIsochroneEntry
-              });
               // layer isochrone icons on top of each other unitl we reach the current one
-              for(let isochroneEntry of isochroneEntries.reverse()) {
+              for(let isochroneEntry of isochroneEntries) {
                 if(isochroneEntry === entry) {
                   break;
                 }
@@ -2218,7 +2223,6 @@ angular
                 ctx.globalAlpha = 1;
               }
             }
-
             ctx.fillStyle = entry.iconColor;
             ctx.globalAlpha = entry.iconOpacity ? entry.iconOpacity : 1;
             ctx.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, entry.iconHeight)
