@@ -3,6 +3,7 @@ import { ColDef } from "ag-grid-community";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import * as agGrid from "ag-grid-community";
 import { TopicHierarchyService } from "../topic-hierarchy-service/topic-hierarchy.service";
+import { EnvConfigService } from '../env-config-service/env-config.service';
 
 declare const $: any;
 declare const MathJax: any;
@@ -14,6 +15,7 @@ export class KommonitorIndicatorDataGridHelperService {
   constructor(
     private angularJsDataExchangeService: DataExchangeService,
     private topicHierarchyService: TopicHierarchyService,
+    private envConfigService: EnvConfigService,
   ) {}
 
   /**
@@ -308,7 +310,7 @@ export class KommonitorIndicatorDataGridHelperService {
       html = html.replaceAll("disabled", ""); // enabled
     }
 
-    if (this.angularJsDataExchangeService.enableKeycloakSecurity) {
+    if (this.envConfigService.enableKeycloakSecurity) {
       let disabled = !(
         params.data.userPermissions &&
         Array.isArray(params.data.userPermissions) &&

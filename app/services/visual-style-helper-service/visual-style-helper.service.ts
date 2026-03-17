@@ -1,9 +1,10 @@
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as classyBrew from '../../../customizedExternalLibs/classyBrew.js';
 import L from 'leaflet';
 import 'leaflet.pattern';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,6 @@ import 'leaflet.pattern';
 export class VisualStyleHelperServiceNew {
 
   colorbrewer = colorbrewer;
-
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
 
   defaultBrew:any = undefined;
   measureOfValueBrew:any = undefined;
@@ -49,42 +48,41 @@ export class VisualStyleHelperServiceNew {
   dynamicBrew_backup;
   manualBrew_backup;
 
-  classifyMethod = window.__env.defaultClassifyMethod || "jenks";
+  classifyMethod = this.envConfigService.defaultClassifyMethod || 'jenks';
 
   isCustomComputation = false;
 
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
-  defaultBorderColorForFilteredValues = window.__env.defaultBorderColorForFilteredValues;
-  defaultBorderColor = window.__env.defaultBorderColor;
-  defaultFillOpacity = window.__env.defaultFillOpacity;
-  defaultFillOpacityForFilteredFeatures = window.__env.defaultFillOpacityForFilteredFeatures;
-  defaultFillOpacityForHighlightedFeatures = window.__env.defaultFillOpacityForHighlightedFeatures;
-  defaultFillOpacityForZeroFeatures = window.__env.defaultFillOpacityForZeroFeatures;
-  defaultColorBrewerPaletteForBalanceIncreasingValues = window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues;
-  defaultColorBrewerPaletteForBalanceDecreasingValues = window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues;
-  defaultColorBrewerPaletteForGtMovValues = window.__env.defaultColorBrewerPaletteForGtMovValues;
-  defaultColorBrewerPaletteForLtMovValues = window.__env.defaultColorBrewerPaletteForLtMovValues;
-  defaultColorForHoveredFeatures = window.__env.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env.defaultColorForClickedFeatures;
-  defaultBorderColorForNoDataValues = window.__env.defaultBorderColorForNoDataValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultFillOpacityForNoDataValues = window.__env.defaultFillOpacityForNoDataValues;
+  private numberOfDecimals = this.envConfigService.numberOfDecimals;
+  private defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
+  private defaultBorderColorForFilteredValues = this.envConfigService.defaultBorderColorForFilteredValues;
+  private defaultBorderColor = this.envConfigService.defaultBorderColor;
+  private defaultFillOpacity = this.envConfigService.defaultFillOpacity;
+  private defaultFillOpacityForFilteredFeatures = this.envConfigService.defaultFillOpacityForFilteredFeatures;
+  private defaultFillOpacityForHighlightedFeatures = this.envConfigService.defaultFillOpacityForHighlightedFeatures;
+  private defaultFillOpacityForZeroFeatures = this.envConfigService.defaultFillOpacityForZeroFeatures;
+  private defaultColorBrewerPaletteForBalanceIncreasingValues = this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
+  private defaultColorBrewerPaletteForBalanceDecreasingValues = this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
+  private defaultColorBrewerPaletteForGtMovValues = this.envConfigService.defaultColorBrewerPaletteForGtMovValues;
+  private defaultColorBrewerPaletteForLtMovValues = this.envConfigService.defaultColorBrewerPaletteForLtMovValues;
+  private defaultColorForHoveredFeatures = this.envConfigService.defaultColorForHoveredFeatures;
+  private defaultColorForClickedFeatures = this.envConfigService.defaultColorForClickedFeatures;
+  private defaultBorderColorForNoDataValues = this.envConfigService.defaultBorderColorForNoDataValues;
+  private defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
+  private defaultFillOpacityForNoDataValues = this.envConfigService.defaultFillOpacityForNoDataValues;
 
-  indicatorTransparency = 1 - window.__env.defaultFillOpacity;
-  currentIndicatorOpacity = window.__env.defaultFillOpacity;
-
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
+  private indicatorTransparency = 1 - this.envConfigService.defaultFillOpacity;
+  currentIndicatorOpacity = this.envConfigService.defaultFillOpacity;
 
 
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low;
-  useOutlierDetectionOnIndicator = window.__env.useOutlierDetectionOnIndicator;
-  customColorSchemes = window.__env.customColorSchemes;
+  private defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
+  private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
+  private defaultBorderColorForOutliers_high = this.envConfigService.defaultBorderColorForOutliers_high;
+  private defaultFillOpacityForOutliers_high = this.envConfigService.defaultFillOpacityForOutliers_high;
+  private defaultColorForOutliers_low = this.envConfigService.defaultColorForOutliers_low;
+  private defaultBorderColorForOutliers_low = this.envConfigService.defaultBorderColorForOutliers_low;
+  private defaultFillOpacityForOutliers_low = this.envConfigService.defaultFillOpacityForOutliers_low;
+  private useOutlierDetectionOnIndicator = this.envConfigService.useOutlierDetectionOnIndicator;
+  private customColorSchemes = this.envConfigService.customColorSchemes;
 
   outlierPropertyName = "outlier";
   outlierPropertyValue_high_soft = "high-soft";
@@ -116,40 +114,40 @@ export class VisualStyleHelperServiceNew {
   outlierStyle_high = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.defaultBorderColorForOutliers_high,
+    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.envConfigService.defaultBorderColorForOutliers_high,
     dashArray: '',
-    fillOpacity: this.defaultFillOpacityForOutliers_high,
-    fillColor: this.defaultColorForOutliers_high,
+    fillOpacity: this.envConfigService.defaultFillOpacityForOutliers_high,
+    fillColor: this.envConfigService.defaultColorForOutliers_high,
     fillPattern: this.outlierFillPattern_high
   };
 
   outlierStyle_low = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.defaultBorderColorForOutliers_low,
+    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.envConfigService.defaultBorderColorForOutliers_low,
     dashArray: '',
-    fillOpacity: this.defaultFillOpacityForOutliers_low,
-    fillColor: this.defaultColorForOutliers_low,
+    fillOpacity: this.envConfigService.defaultFillOpacityForOutliers_low,
+    fillColor: this.envConfigService.defaultColorForOutliers_low,
     fillPattern: this.outlierFillPattern_low
   };
 
   noDataStyle = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.defaultBorderColorForNoDataValues,
+    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.envConfigService.defaultBorderColorForNoDataValues,
     dashArray: '',
-    fillOpacity: this.defaultFillOpacityForNoDataValues,
-    fillColor: this.defaultColorForNoDataValues,
+    fillOpacity: this.envConfigService.defaultFillOpacityForNoDataValues,
+    fillColor: this.envConfigService.defaultColorForNoDataValues,
     // fillPattern: this.noDataFillPattern
   };
 
   filteredStyle = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.defaultBorderColorForFilteredValues,
+    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : this.envConfigService.defaultBorderColorForFilteredValues,
     dashArray: '',
-    fillOpacity: this.defaultFillOpacityForFilteredFeatures,
-    fillColor: this.defaultColorForFilteredValues
+    fillOpacity: this.envConfigService.defaultFillOpacityForFilteredFeatures,
+    fillColor: this.envConfigService.defaultColorForFilteredValues
   };
 
   featuresPerColorMap = new Map();
@@ -162,8 +160,10 @@ export class VisualStyleHelperServiceNew {
   numClasses;
 
   public constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private envConfigService: EnvConfigService,
   ) {
+
   }
 /* 
   setOpacity(opacity) {
@@ -279,7 +279,7 @@ export class VisualStyleHelperServiceNew {
 
     var values = new Array();
 
-    if(this.dataExchangeService.classifyUsingWholeTimeseries) {
+    if(this.envConfigService.classifyUsingWholeTimeseries) {
       values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values, forceProvidedIndicator, indicator);
     }
     else{
@@ -295,7 +295,7 @@ export class VisualStyleHelperServiceNew {
       if (this.dataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
         continue;
 
-      if(this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
+      if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
         continue;
       }  
 
@@ -321,7 +321,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     for (const date of indicatorTimeSeriesDatesArray) {
-      var propertyName = window.__env.indicatorDatePrefix + date;
+      var propertyName = this.envConfigService.indicatorDatePrefix + date;
       values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
     }          
 
@@ -383,7 +383,7 @@ export class VisualStyleHelperServiceNew {
    this.greaterThanValues = [];
    this.lesserThanValues = [];
 
-    if(this.dataExchangeService.classifyUsingWholeTimeseries){
+    if(this.envConfigService.classifyUsingWholeTimeseries){
       this.setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue);
     }
     else{
@@ -426,7 +426,7 @@ export class VisualStyleHelperServiceNew {
       if (this.dataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
         continue;
 
-      if(this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
+      if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
         continue;
       }
 
@@ -452,7 +452,7 @@ export class VisualStyleHelperServiceNew {
     var indicatorTimeSeriesDatesArray = this.dataExchangeService.selectedIndicator.applicableDates;
 
       for (const date of indicatorTimeSeriesDatesArray) {
-        var propertyName = window.__env.indicatorDatePrefix + date;
+        var propertyName = this.envConfigService.indicatorDatePrefix + date;
         this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
       }    
   }
@@ -575,7 +575,7 @@ export class VisualStyleHelperServiceNew {
     this.positiveValues = [];
     this.negativeValues = [];
    
-    if(this.dataExchangeService.classifyUsingWholeTimeseries){
+    if(this.envConfigService.classifyUsingWholeTimeseries){
       this.setupDynamicBrewValues_wholeTimeseries(geoJSON);
     }
     else{
@@ -605,7 +605,7 @@ export class VisualStyleHelperServiceNew {
     var indicatorTimeSeriesDatesArray = this.dataExchangeService.selectedIndicator.applicableDates;
 
       for (const date of indicatorTimeSeriesDatesArray) {
-        var propertyName = window.__env.indicatorDatePrefix + date;
+        var propertyName = this.envConfigService.indicatorDatePrefix + date;
         this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
       }    
   }
@@ -615,7 +615,7 @@ export class VisualStyleHelperServiceNew {
       if (this.dataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
         continue;
 
-      if(this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
+      if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) == 0)){
         continue;
       }
 
@@ -711,7 +711,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     var fillColor;
-    if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+    if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
       fillColor = this.getFillColorForZero(incrementFeatures);
       if (useTransparencyOnIndicator) {
         fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -721,7 +721,7 @@ export class VisualStyleHelperServiceNew {
     else {
       if (datasetContainsNegativeValues) {
         if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-          if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+          if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -743,7 +743,7 @@ export class VisualStyleHelperServiceNew {
         }
         else {
 
-          if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+          if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
               fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -874,7 +874,7 @@ export class VisualStyleHelperServiceNew {
     var fillColor;
     if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= this.dataExchangeService.measureOfValue) {
 
-      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -896,7 +896,7 @@ export class VisualStyleHelperServiceNew {
       };
     }
     else {
-      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -942,7 +942,7 @@ export class VisualStyleHelperServiceNew {
     var fillColor;
     if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
-      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;
@@ -963,7 +963,7 @@ export class VisualStyleHelperServiceNew {
       };
     }
     else {
-      if (this.dataExchangeService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
+      if (this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0)) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
           fillOpacity = this.defaultFillOpacityForZeroFeatures;

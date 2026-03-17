@@ -110,7 +110,7 @@
               </div>
               <div *ngIf="containsNoData">
                 <div class="row" style="margin-right: 0px;">
-                  <div class="col-md-3"><i [ngStyle]="{background: env.efaultColorForNoDataValues, border: '2px solid '+env.defaultBorderColorForNoDataValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
+                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForNoDataValues, border: '2px solid '+ defaultBorderColorForNoDataValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                   <div class="col-md-6">Leerwert</div>
                   <div class="col-md-3">{{visualStyleService.featuresPerNoData}}</div><br>
                 </div>				
@@ -131,7 +131,7 @@
               </div>
               <div *ngIf="(filterHelperService.filteredIndicatorFeatureIds.size > 0) && (!filterHelperService.completelyRemoveFilteredFeaturesFromDisplay)">
                 <div class="row" style="margin-right: 0px;">
-                  <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForFilteredValues, border: '2px solid '+env.defaultBorderColorForFilteredValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
+                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForFilteredValues, border: '2px solid '+ defaultBorderColorForFilteredValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                   <div class="col-md-6">gefilterte Raumeinheiten</div>
                   <div class="col-md-3">{{filterHelperService.filteredIndicatorFeatureIds.size}}</div><br>
                 </div>				
@@ -140,8 +140,8 @@
               <!-- Measure of Value legend items -->
               <div *ngIf="dataExchangeService.isMeasureOfValueChecked">
                 <!-- zero -->
-                <div class="row" style="margin-right: 0px;" *ngIf="dataExchangeService.classifyZeroSeparately && containsZeroValues">
-                  <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
+                <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
+                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                   <div class="col-md-6">0</div>
                   <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
                 </div>	
@@ -182,8 +182,8 @@
                 <br/>
 
                 <!-- zero -->
-                <div class="row" style="margin-right: 0px;" *ngIf="dataExchangeService.classifyZeroSeparately && containsZeroValues">
-                  <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
+                <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
+                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                   <div class="col-md-6">0</div>
                   <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
                 </div>	
@@ -205,8 +205,8 @@
               <div *ngIf="(dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked">
         
                 <!-- zero -->
-                <div class="row" style="margin-right: 0px;" *ngIf="dataExchangeService.classifyZeroSeparately && containsZeroValues">
-                  <div class="col-md-3"><i [ngStyle]="{background: env.defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
+                <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
+                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
                   <div class="col-md-6">0</div>
                   <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
                 </div>	
@@ -244,11 +244,11 @@
               </div>
               <div>
                 <br/>
-                <div *ngIf="dataExchangeService.allFeaturesRegionalMean && dataExchangeService.enableMeanDataDisplayInLegend">
+                <div *ngIf="dataExchangeService.allFeaturesRegionalMean && envConfigService.enableMeanDataDisplayInLegend">
                   <b>{{labelService.labelMean_regional}}</b>
                   {{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}
                 </div>
-                <div *ngIf="dataExchangeService.allFeaturesMean && dataExchangeService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                <div *ngIf="dataExchangeService.allFeaturesMean && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
                   <b>{{labelService.labelMean}}</b>
                   {{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}
                 </div>

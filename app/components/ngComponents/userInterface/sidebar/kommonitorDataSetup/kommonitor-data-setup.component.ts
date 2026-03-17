@@ -18,6 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
 import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-kommonitor-data-setup',
@@ -43,7 +44,6 @@ export class KommonitorDataSetupComponent implements OnInit {
   datesAsMs;
   
   indicatorNameFilter = undefined;
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix
 
   selectedDate;		
   
@@ -113,8 +113,10 @@ export class KommonitorDataSetupComponent implements OnInit {
     private http: HttpClient,
     private favService: FavService,
     private adminTopicsManagementService: AdminTopicsManagementService,
-    protected ogcService: OgcService
-  ) {}
+    protected ogcService: OgcService,
+    private envConfigService: EnvConfigService
+  ) {
+  }
 
   ngOnInit(): void {
     this.exchangeData = this.dataExchangeService;
@@ -187,7 +189,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       var indicatorIndex:any = undefined;
 
       for (var index=0; index < this.exchangeData.displayableIndicators.length; index++){
-        if (this.exchangeData.displayableIndicators[index].indicatorId === window.__env.initialIndicatorId){
+        if (this.exchangeData.displayableIndicators[index].indicatorId === this.envConfigService.initialIndicatorId){
           if(this.exchangeData.displayableIndicators[index].applicableDates.length > 0){
             indicatorIndex = index;
             break;
@@ -216,7 +218,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       // set spatialUnit
       for (var spatialUnitEntry of this.exchangeData.availableSpatialUnits){
-        if(spatialUnitEntry.spatialUnitLevel === window.__env.initialSpatialUnitName){
+        if(spatialUnitEntry.spatialUnitLevel === this.envConfigService.initialSpatialUnitName){
           this.exchangeData.selectedSpatialUnit = spatialUnitEntry;
           break;
         }
@@ -225,7 +227,7 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.exchangeData.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
       }
 
-      if(! window.__env.centerMapInitially){
+      if(! this.envConfigService.centerMapInitially){
         this.onChangeSelectedIndicator(false);	
       }
       else{
@@ -790,7 +792,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.modifyExports(false);
 
-      if(this.exchangeData.useNoDataToggle)
+      if(this.envConfigService.useNoDataToggle)
         this.broadcastService.broadcast('applyNoDataDisplay')
 
       this.loadingData = false;
@@ -889,7 +891,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.modifyExports(false);
 
-      if(this.exchangeData.useNoDataToggle)
+      if(this.envConfigService.useNoDataToggle)
         this.broadcastService.broadcast('applyNoDataDisplay')	
 
       this.loadingData = false;
@@ -919,7 +921,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.modifyExports(false);
 
-      if(this.exchangeData.useNoDataToggle)
+      if(this.envConfigService.useNoDataToggle)
         this.broadcastService.broadcast('applyNoDataDisplay');
 
       this.loadingData = false;
@@ -976,7 +978,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.modifyExports(true);
 
-      if(this.exchangeData.useNoDataToggle) {
+      if(this.envConfigService.useNoDataToggle) {
         this.broadcastService.broadcast('applyNoDataDisplay');
       }
 

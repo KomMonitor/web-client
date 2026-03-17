@@ -11,6 +11,7 @@ import { GlobalFilterHelperService } from 'services/global-filter-helper-service
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { Router } from '@angular/router';
 import { ReportingModalComponent } from './reporting/reporting-modal.component';
+import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -42,7 +43,8 @@ export class UserInterfaceComponent implements OnInit {
     private favService: FavService,
     protected globalFilterHelperService: GlobalFilterHelperService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
-    private router: Router
+    private router: Router,
+    protected envConfigService: EnvConfigService
   ) {
     this.exchangeData = this.dataExchangeService;
   }

@@ -14,6 +14,7 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IconTranslate } from 'pipes/icon-translate.pipe';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 
@@ -84,7 +85,8 @@ export class PoiComponent implements OnInit {
     private elementVisibilityHelperService: ElementVisibilityHelperService,
     private topicHierarchyService: TopicHierarchyService,
     private favService: FavService,
-    protected ogcService: OgcService
+    protected ogcService: OgcService,
+    private envConfigService: EnvConfigService
   ) {
     this.exchangeData = dataExchangeService;
     this.selectedPoiSize = this.exchangeData.selectedPOISize.id;
@@ -230,8 +232,8 @@ export class PoiComponent implements OnInit {
   $('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
  */
   
-  enabledGeoresourcesInfrastructure = window.__env.enabledGeoresourcesInfrastructure;
-  enabledGeoresourcesGeoservices = window.__env.enabledGeoresourcesGeoservices;
+  protected enabledGeoresourcesInfrastructure = this.envConfigService.enabledGeoresourcesInfrastructure;
+  protected enabledGeoresourcesGeoservices = this.envConfigService.enabledGeoresourcesGeoservices;
 
 
   isGeoresourceInfrastructureEnabled(id) {
@@ -242,11 +244,11 @@ export class PoiComponent implements OnInit {
       return this.enabledGeoresourcesGeoservices.indexOf(id) !== -1;
   }
 
-  showPOI = this.isGeoresourceInfrastructureEnabled('poi');
-  showLOI = this.isGeoresourceInfrastructureEnabled('loi');
-  showAOI = this.isGeoresourceInfrastructureEnabled('aoi');
-  showWMS = this.isGeoresourceGeoserviceEnabled('wms');
-  showWFS = this.isGeoresourceGeoserviceEnabled('wfs');
+  protected showPOI = this.isGeoresourceInfrastructureEnabled('poi');
+  protected showLOI = this.isGeoresourceInfrastructureEnabled('loi');
+  protected showAOI = this.isGeoresourceInfrastructureEnabled('aoi');
+  protected showWMS = this.isGeoresourceGeoserviceEnabled('wms');
+  protected showWFS = this.isGeoresourceGeoserviceEnabled('wfs');
 
   showAllForTopic_null = false;
 
@@ -267,8 +269,6 @@ export class PoiComponent implements OnInit {
     $('.box').boxWidget();
   }, 750);
    */
-
-  DATE_PREFIX = window.__env.indicatorDatePrefix;
 
   //var numberOfDecimals = window.__env.numberOfDecimals;
 

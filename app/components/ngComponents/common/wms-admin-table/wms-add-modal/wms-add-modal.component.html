@@ -212,7 +212,7 @@
           <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
         </fieldset>
 
-        <fieldset *ngIf="currentStep === 4 && dataExchangeService.enableKeycloakSecurity">
+        <fieldset *ngIf="currentStep === 4 && envConfigService.enableKeycloakSecurity">
           <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
           <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
           <div class="row">
@@ -301,7 +301,7 @@
   <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
 
   <button type="button" class="btn btn-success" 
-    [disabled]="metadataForm.invalid || connectForm.invalid || (dataExchangeService.enableKeycloakSecurity && !ownerOrganization)" (click)="addWms()">
+    [disabled]="metadataForm.invalid || connectForm.invalid || (envConfigService.enableKeycloakSecurity && !ownerOrganization)" (click)="addWms()">
     WMS registrieren
   </button>
   <button type="button" class="btn btn-danger" (click)="resetWmsAddForm()">Zurücksetzen</button>

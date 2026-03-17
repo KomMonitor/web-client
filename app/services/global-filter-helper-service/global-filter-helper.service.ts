@@ -1,13 +1,11 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalFilterHelperService {
-
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
-
   queryParamMap = new Map();
   currentShareLink = "";
 
@@ -19,7 +17,8 @@ export class GlobalFilterHelperService {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private envConfigService: EnvConfigService,
   ) {}
 
   applyQueryParams(){
@@ -30,7 +29,7 @@ export class GlobalFilterHelperService {
       let urlParts = window.location.href.split(`${this.paramName_app}=`);
       this.applicationFilterId = urlParts[1];
 
-      window.__env.filterConfig.some((filterConfig) => {
+      this.envConfigService.filterConfig.some((filterConfig) => {
         if (filterConfig['name'] === this.applicationFilterId) {
           this.applicationFilter = filterConfig;
           return true;

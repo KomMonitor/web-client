@@ -13,6 +13,7 @@ import Papa from 'papaparse';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { MapService } from 'services/map-service/map.service';
 import { CommonModule } from '@angular/common';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FormsModule } from '@angular/forms';
 import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
@@ -38,7 +39,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   exchangeData!:DataExchange;
   elementVisibilityData: any;
   visualStyleData: any;
-  env!:any;
 
   dateAsDate!: Date;
   containsZeroValues!: any;
@@ -59,6 +59,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   globalFilterActivated = false;
   actualSelectedSpatialUnitId = undefined;
 
+  protected defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
+  protected defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
+  protected defaultBorderColorForFilteredValues = this.envConfigService.defaultBorderColorForFilteredValues;
+  protected defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
+  protected defaultBorderColorForNoDataValues = this.envConfigService.defaultBorderColorForNoDataValues;
+
   isDisabledDate;
   datePickerDate;
 
@@ -74,10 +80,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     private broadcastService: BroadcastService,
     private modalService: NgbModal,
     protected ogcService: OgcService,
-    private mapService: MapService
+    private mapService: MapService,
+    protected envConfigService: EnvConfigService
   ) {
     this.exchangeData = this.dataExchangeService;
-    this.env = window.__env;
   }
 
   ngOnChanges(changes: any): void {
@@ -203,10 +209,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         this.actualSelectedSpatialUnitId = this.dataExchangeService.selectedSpatialUnit.spatialUnitId;
         this.broadcastService.broadcast("changeSpatialUnit");
 
-        if(window.__env.enableSpatialUnitNotificationSelection) {
+        if(this.envConfigService.enableSpatialUnitNotificationSelection) {
           if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
             let selectedSpatialUnitName = this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
-            if(window.__env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
+            if(this.envConfigService.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
               this.openSpatialunitModal()
             }
           }
@@ -229,14 +235,14 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   spatialUnitNotificationModalEnabled() {
-    if(window.__env.enableSpatialUnitNotificationSelection)
+    if(this.envConfigService.enableSpatialUnitNotificationSelection)
       return true
     
     return false;
   }
 
   showSpatialUnitNotificationModalIfEnabled() {
-    if(window.__env.enableSpatialUnitNotificationSelection) {
+    if(this.envConfigService.enableSpatialUnitNotificationSelection) {
       this.openSpatialunitModal();
     }
   }

@@ -1,23 +1,20 @@
 import { AuthService } from 'services/auth-service/auth.service';
-import { Inject, Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SpatialDataProcessorHelperService implements OnInit {
+export class SpatialDataProcessorHelperService {
 
-  targetUrlToSpatialDataProcessorInstance = "";
-  targetProcessName_indicatorReachabilityStatistics = "";
-
-  ngOnInit(): void {
-    this.targetUrlToSpatialDataProcessorInstance = window.__env.targetUrlToSpatialDataProcessorInstance;
-    this.targetProcessName_indicatorReachabilityStatistics = window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics;
-  };
+  targetUrlToSpatialDataProcessorInstance = this.envConfigService.targetUrlToSpatialDataProcessorInstance;
+  targetProcessName_indicatorReachabilityStatistics = this.envConfigService.spatialDataProcessor_processName_indicatorReachabilityStatistics;
 
   constructor(
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private envConfigService: EnvConfigService
   ) { }
 
  async postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weighting) {

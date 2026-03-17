@@ -13,6 +13,7 @@ import { MultiStepHelperServiceService } from "services/multi-step-helper-servic
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { FilterPipe } from "../../../../../pipes/filter.pipe";
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 declare const $: any;
 
@@ -85,7 +86,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     @Inject('kommonitorMultiStepFormHelperService') private angularJsMultiStepFormHelperService: any,
     private dataExchangeService: DataExchangeService,
     private dataGridHelperService: KommonitorIndicatorDataGridHelperService,
-    private multiStepHelperService: MultiStepHelperServiceService
+    private multiStepHelperService: MultiStepHelperServiceService,
+    private envConfigService: EnvConfigService
   ) {}
 
   ngOnInit(): void {
@@ -215,7 +217,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       
       for (const property in this.indicatorFeaturesJSON[0]) {
         // Only show indicator date columns as editable fields
-        if (property.includes(window.__env.indicatorDatePrefix)) {
+        if (property.includes(this.envConfigService.indicatorDatePrefix)) {
           tmpRemainingHeaders.push(property);
         }
       }
@@ -363,8 +365,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   filterByKomMonitorProperties(): any {
     return (item: any) => {
       try {
-        if (item === window.__env.FEATURE_ID_PROPERTY_NAME || 
-            item === window.__env.FEATURE_NAME_PROPERTY_NAME || 
+        if (item === this.envConfigService.FEATURE_ID_PROPERTY_NAME || 
+            item === this.envConfigService.FEATURE_NAME_PROPERTY_NAME || 
             item === "validStartDate" || 
             item === "validEndDate") {
           return false;

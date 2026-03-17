@@ -4,6 +4,7 @@ import { DataExchange, DataExchangeService } from 'services/data-exchange-servic
 import { LabelService } from 'services/label-service/label.service';
 import { HttpClient } from '@angular/common/http';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import * as ecStat from 'echarts-stat';
@@ -17,21 +18,16 @@ export class DiagramHelperServiceService {
   indicatorPropertiesForCurrentSpatialUnitAndTime;
   filterSameUnitAndSameTime = false;
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
-  defaultColorForHoveredFeatures = window.__env.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env.defaultColorForClickedFeatures;
+  private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
+  private defaultColorForClickedFeatures = this.envConfigService.defaultColorForClickedFeatures;
 
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
+  private numberOfDecimals = this.envConfigService.numberOfDecimals;
+  private defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
+  private defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
+  private defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
 
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.window.__env.defaultFillOpacityForOutliers_low;
+  private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
+  private defaultColorForOutliers_low = this.envConfigService.defaultColorForOutliers_low;
 
   indicatorPropertyName = "";
 
@@ -49,7 +45,8 @@ export class DiagramHelperServiceService {
     private dataExchangeService: DataExchangeService,
     private filterHelperService: FilterHelperService,
     private http: HttpClient,
-    private labelService: LabelService
+    private labelService: LabelService,
+    private envConfigService: EnvConfigService
   ) {
     this.exchangeData = this.dataExchangeService;
   }
@@ -230,10 +227,10 @@ export class DiagramHelperServiceService {
     if(this.dataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])){
       color = this.defaultColorForNoDataValues;
     }
-    else if(this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])){
+    else if(this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])){
       color = this.defaultColorForFilteredValues;
     }
-    else if(this.exchangeData.classifyZeroSeparately && this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
+    else if(this.envConfigService.classifyZeroSeparately && this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
       color = this.defaultColorForZeroValues;
     }
     else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.exchangeData.useOutlierDetectionOnIndicator){
@@ -268,7 +265,7 @@ export class DiagramHelperServiceService {
 
         if(this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
           if(this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-            if(this.exchangeData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
+            if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
               //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
@@ -279,7 +276,7 @@ export class DiagramHelperServiceService {
             }
           }
           else{
-            if(this.exchangeData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
+            if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
               //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
@@ -405,7 +402,7 @@ export class DiagramHelperServiceService {
         indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
       }
 
-      var featureName = cartographicFeature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]
+      var featureName = cartographicFeature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]
       featureNamesArray.push(featureName);
       indicatorValueArray.push(indicatorValue);
 
@@ -742,7 +739,7 @@ export class DiagramHelperServiceService {
 
     // specify chart configuration item and data
     var labelOption_singleBars = {
-      show: this.exchangeData.showBarChartLabel,
+      show: this.envConfigService.showBarChartLabel,
         position: 'insideBottom',
         align: 'left',
         verticalAlign: 'middle',
@@ -1548,7 +1545,7 @@ export class DiagramHelperServiceService {
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
     for (var feature of this.exchangeData.selectedIndicator.geoJSON.features) {
-      if (feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
+      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
         return feature.properties;
       }
     }
@@ -1710,9 +1707,9 @@ export class DiagramHelperServiceService {
 
       // add markedAreas for periods out of scope
 
-      var fromDateString = fromDateAsPropertyString.split(window.__env.indicatorDatePrefix)[1];
+      var fromDateString = fromDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
       var fromDate_date = new Date(fromDateString);
-      var toDateString = toDateAsPropertyString.split(window.__env.indicatorDatePrefix)[1];
+      var toDateString = toDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
       var toDate_date = new Date(toDateString);
       
       if(showCompleteTimeseries){

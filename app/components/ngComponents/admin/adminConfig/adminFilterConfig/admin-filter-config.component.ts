@@ -22,8 +22,8 @@ import {
 } from "ag-grid-community";
 import { KommonitorFilterDataGridHelperService } from "services/adminFilterConfig/kommonitor-data-grid-helper.service";
 import { GlobalFilterEntry } from "components/ngComponents/models/globalFilters.models";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { CommonModule } from "@angular/common";
 import { AdminContentViewComponent } from "../../admin-content-view/admin-content-view.component";
 
@@ -78,7 +78,7 @@ export class AdminFilterConfigComponent implements OnInit {
     private kommonitorDataGridHelperService: KommonitorFilterDataGridHelperService,
     private httpClient: HttpClient,
     private broadcastService: BroadcastService,
-    private modalService: NgbModal,
+    private envConfigService: EnvConfigService,
   ) {}
 
   async ngOnInit() {
@@ -98,17 +98,17 @@ export class AdminFilterConfigComponent implements OnInit {
 
     // set in app.js
     this.filterConfigTmp = JSON.stringify(
-      window.__env.filterConfig,
+      this.envConfigService.filterConfig,
       null,
       "    ",
     );
     this.filterConfigCurrent = JSON.stringify(
-      window.__env.filterConfig,
+      this.envConfigService.filterConfig,
       null,
       "    ",
     );
     this.filterConfigNew = JSON.stringify(
-      window.__env.filterConfig,
+      this.envConfigService.filterConfig,
       null,
       "    ",
     );

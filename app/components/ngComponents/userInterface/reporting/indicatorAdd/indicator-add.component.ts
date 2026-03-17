@@ -18,6 +18,7 @@ import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { DualListBoxComponent } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { CustomSliderComponent, DisplayType, SliderType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
 
@@ -188,7 +189,8 @@ export class IndicatorAddComponent implements OnInit {
     private reachabilityHelperService: ReachabilityHelperService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
     protected reportingService: ReportingService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private envConfigService: EnvConfigService
   ) {
   }
 
@@ -2440,7 +2442,7 @@ export class IndicatorAddComponent implements OnInit {
 
       if(page.area && page.area.length){
         let feature = this.geoJsonForReachability_byFeatureName.get(page.area);
-        page.spatialUnitFeatureId = feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+        page.spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
       }
 
       // Add 2% space on all sides
@@ -3479,20 +3481,20 @@ export class IndicatorAddComponent implements OnInit {
     // set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
     // we need to undo these changes afterwards, so we store the current values in a backup first
     const useOutlierDetectionOnIndicator_backup = this.dataExchangeService.useOutlierDetectionOnIndicator;
-    const classifyUsingWholeTimeseries_backup = this.dataExchangeService.classifyUsingWholeTimeseries;
-    const classifyZeroSeparately_backup = this.dataExchangeService.classifyZeroSeparately; 
+    const classifyUsingWholeTimeseries_backup = this.envConfigService.classifyUsingWholeTimeseries;
+    const classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately; 
     this.dataExchangeService.useOutlierDetectionOnIndicator = false;
-    this.dataExchangeService.classifyUsingWholeTimeseries = false;
+    this.envConfigService.classifyUsingWholeTimeseries = false;
     if(classifyUsingWholeTimeseries) {
-      this.dataExchangeService.classifyUsingWholeTimeseries = true;
+      this.envConfigService.classifyUsingWholeTimeseries = true;
     }
     
-    let timestampPrefix = window.__env.indicatorDatePrefix + timestampName;
+    let timestampPrefix = this.envConfigService.indicatorDatePrefix + timestampName;
     let numClasses = indicator.defaultClassificationMapping.numClasses ? indicator.defaultClassificationMapping.numClasses : 5;
     let colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
-    let colorCodePositiveValues = window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues;
-    let colorCodeNegativeValues = window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues;
-    let classifyMethod = window.__env.defaultClassifyMethod;
+    let colorCodePositiveValues = this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
+    let colorCodeNegativeValues = this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
+    let classifyMethod = this.envConfigService.defaultClassifyMethod;
 
     // setup brew 
     let defaultBrew = this.visualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
@@ -3508,8 +3510,8 @@ export class IndicatorAddComponent implements OnInit {
 
     // set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values
     this.dataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
-    this.dataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
-    this.dataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
+    this.envConfigService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+    this.envConfigService.classifyZeroSeparately = classifyZeroSeparately_backup;
 
     // copy and save echarts options so we can re-use them later
     if(isTimeseries) {

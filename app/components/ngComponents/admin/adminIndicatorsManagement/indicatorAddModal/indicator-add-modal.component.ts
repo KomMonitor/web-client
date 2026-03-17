@@ -11,6 +11,7 @@ import { ConfigStorageService } from 'services/config-storage-service/config-sto
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
   selector: 'indicator-add-modal',
@@ -201,7 +202,8 @@ export class IndicatorAddModalComponent implements OnInit {
     private kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
-    private kommonitorConfigStorageService: ConfigStorageService
+    private kommonitorConfigStorageService: ConfigStorageService,
+    protected envConfigService: EnvConfigService
   ) {
     console.log('IndicatorAddModalComponent constructor initialized - Modal is being created');
   }
@@ -225,13 +227,13 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Load update interval options
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.updateIntervalOptions) {
-      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.envConfigService.updateIntervalOptions;
     }
 
     // Load indicator type options
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.indicatorTypeOptions) {
-      this.indicatorTypeOptions = this.kommonitorDataExchangeService.indicatorTypeOptions;
+    if (this.envConfigService && this.envConfigService.indicatorTypeOptions) {
+      this.indicatorTypeOptions = this.envConfigService.indicatorTypeOptions;
       this.indicatorType = this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
     }
 
@@ -272,7 +274,7 @@ export class IndicatorAddModalComponent implements OnInit {
 
   private initializeMultiStepForm() {
     // Initialize multi-step form based on security settings
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity) {
+    if (this.kommonitorDataExchangeService && this.envConfigService.enableKeycloakSecurity) {
       this.totalSteps = 7; // Include role management step
     } else {
       this.totalSteps = 6;
@@ -560,7 +562,7 @@ export class IndicatorAddModalComponent implements OnInit {
 
   // Multi-step navigation
   nextStep() {
-    const maxSteps = this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity ? 7 : 6;
+    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
     if (this.currentStep < maxSteps) {
       this.currentStep++;
     }
@@ -573,7 +575,7 @@ export class IndicatorAddModalComponent implements OnInit {
   }
 
   goToStep(step: number) {
-    const maxSteps = this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity ? 7 : 6;
+    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
     
     // Allow navigation to any step without validation (like old AngularJS counterpart)
     if (step >= 1 && step <= maxSteps) {
@@ -657,8 +659,8 @@ export class IndicatorAddModalComponent implements OnInit {
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
     
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.updateIntervalOptions) {
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
@@ -683,8 +685,8 @@ export class IndicatorAddModalComponent implements OnInit {
     this.isHeadlineIndicator = this.metadataImportSettings.isHeadlineIndicator || false;
 
     // Parse indicator type
-    if (this.metadataImportSettings.indicatorType && this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.indicatorTypeOptions) {
-      this.kommonitorDataExchangeService.indicatorTypeOptions.forEach((option: any) => {
+    if (this.metadataImportSettings.indicatorType && this.envConfigService && this.envConfigService.indicatorTypeOptions) {
+      this.envConfigService.indicatorTypeOptions.forEach((option: any) => {
         if (option.apiName === this.metadataImportSettings.indicatorType) {
           this.indicatorType = option;
         }

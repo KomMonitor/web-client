@@ -49,16 +49,12 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   appConfigCurrent: string = '';
   appConfigNew: string = '';
   errorMessagePart: string = '';
-  
-  customTabTitle = window.__env.customLandinPageTitle;
-  tab1Title = window.__env.standardInfoModalTabTitle
-
   configLoaded = false;
 
   constructor(
     private http: HttpClient,
     private kommonitorConfigStorageService: ConfigStorageService,
-    private ajskommonitorDataExchangeService: DataExchangeService
+    private ajskommonitorDataExchangeService: DataExchangeService,
   ) {}
 
 

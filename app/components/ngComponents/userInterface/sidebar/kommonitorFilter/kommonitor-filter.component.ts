@@ -11,6 +11,7 @@ import { ConfigStorageService } from 'services/config-storage-service/config-sto
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 
 @Component({
@@ -29,17 +30,17 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   spatialLevel;
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
+  private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
   /* kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
   kommonitorMapServiceInstance = kommonitorMapService;
   kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService; */
-  numberOfDecimals = window.__env.numberOfDecimals;
+  private numberOfDecimals = this.envConfigService.numberOfDecimals;
 
   // initialize any adminLTE box widgets
   // todo 
   // $('.box').boxWidget();
 
-  kommonitorFilterModes = window.window.__env.filterModes;
+  private kommonitorFilterModes = this.envConfigService.filterModes;
 
   considerAllowedSpatialUnitsOfCurrentIndicator = true;
   loadingData = true;
@@ -140,7 +141,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     private broadcastService: BroadcastService,
     private http: HttpClient,
     private globalFilterHelperService: GlobalFilterHelperService,
-    private configStorageService:ConfigStorageService
+    private configStorageService:ConfigStorageService,
+    private envConfigService: EnvConfigService
   ) {
     this.exchangeData = this.dataExchangeService;
   }
@@ -710,7 +712,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       next: response => {
         let areaNames:any[] = [];
         response['features'].forEach( (obj, id) => {
-          areaNames.push({name: obj.properties[window.__env.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[window.__env.FEATURE_ID_PROPERTY_NAME]});
+          areaNames.push({name: obj.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]});
         });
 
         if (selectionType === "manual") {
@@ -789,7 +791,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
     this.filterHelperService.clearFilteredFeatures();
     this.filterHelperService.filterAndReplaceDataset();
-    if(this.exchangeData.useNoDataToggle) {
+    if(this.envConfigService.useNoDataToggle) {
       // todo $rootScope.$broadcast('applyNoDataDisplay')	
     }
   };
@@ -810,7 +812,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
     this.filterHelperService.clearFilteredFeatures();
     this.filterHelperService.filterAndReplaceDataset();
-    if(this.exchangeData.useNoDataToggle) {
+    if(this.envConfigService.useNoDataToggle) {
       // todo $rootScope.$broadcast('applyNoDataDisplay')	
     }
   };
@@ -821,7 +823,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
     this.filterHelperService.clearFilteredFeatures();
     this.filterHelperService.filterAndReplaceDataset();
-    if(this.exchangeData.useNoDataToggle) {
+    if(this.envConfigService.useNoDataToggle) {
       // todo $rootScope.$broadcast('applyNoDataDisplay')	
     }
   };

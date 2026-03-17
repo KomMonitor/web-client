@@ -6,6 +6,7 @@ import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +50,8 @@ export class GenericMapHelperService {
   public constructor(
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
-    private iconTranslate: IconTranslateService
+    private iconTranslate: IconTranslateService,
+    private envConfigService: EnvConfigService,
   ) {
     this.exchangeData = this.dataExchangeService;
   }
@@ -157,8 +159,8 @@ export class GenericMapHelperService {
     else if (poiMarker.feature.properties.NAME) {
       poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
     }
-    else if (poiMarker.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
-      poiMarker.bindPopup(poiMarker.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
+    else if (poiMarker.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
+      poiMarker.bindPopup(poiMarker.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
     }
     else {
       // poiMarker.bindPopup(propertiesString);
@@ -208,8 +210,8 @@ export class GenericMapHelperService {
     backgroundLayer = this.generateBackgroundMap_cartoDbPositron();
 
     map = L.map(domId, {
-      center: [window.__env.initialLatitude, window.__env.initialLongitude],
-      zoom: window.__env.initialZoomLevel,
+      center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
+      zoom: this.envConfigService.initialZoomLevel,
       zoomDelta: 0.25,
       zoomSnap: 0.25,
       layers: [backgroundLayer]
@@ -249,7 +251,7 @@ export class GenericMapHelperService {
   }
 
   generateBackgroundMap_cartoDbPositron() {
-    return new L.TileLayer("https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", { minZoom: window.__env.minZoomLevel, maxZoom: window.__env.maxZoomLevel, attribution: "Map data © CartoDB Positron" });
+    return new L.TileLayer("https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", { minZoom: this.envConfigService.minZoomLevel, maxZoom: this.envConfigService.maxZoomLevel, attribution: "Map data \u00a9 CartoDB Positron" });
   }
 
   initLayerControl(map, backgroundLayer) {

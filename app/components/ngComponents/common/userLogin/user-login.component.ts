@@ -24,6 +24,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs/operators";
+import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
 
 interface UserRoleInformation {
   [key: string]: string[];
@@ -67,10 +68,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   isUserLoginRolesCollapse = true;
   isUserLoginGroupesCollapse = true;
 
-  get loginInfoText(): string {
-    return this.dataExchangeService.loginInfoText;
-  }
-
   // Check if we're in admin context by looking at the current URL
   get isAdminView(): boolean {
     return (
@@ -85,6 +82,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     private broadcastService: BroadcastService,
     private router: Router,
     private renderer: Renderer2,
+    protected envConfigService: EnvConfigService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -124,7 +122,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   checkAuthentication(): void {
     this.dataExchangeService.currentKeycloakLoginRoles = [];
     this.enableKeycloakSecurity =
-      this.dataExchangeService.enableKeycloakSecurity;
+      this.envConfigService.enableKeycloakSecurity;
 
     this.authenticated = this.authService.isAuthenticated();
     if (this.authenticated) {
@@ -169,7 +167,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   tryLoginUser(): void {
-    if (this.dataExchangeService.enableKeycloakSecurity) {
+    if (this.envConfigService.enableKeycloakSecurity) {
       this.authService.login();
     } else {
       this.tryLoginUser_withoutKeycloak();

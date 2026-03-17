@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { catchError, map, Observable, of } from 'rxjs';
-import { AuthService } from 'services/auth-service/auth.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 export interface WmsTestResult {
   success: boolean;
@@ -14,11 +14,11 @@ export interface WmsTestResult {
 })
 export class OgcService {
 
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
+  private baseUrlToKomMonitorDataAPI = this.envConfigService.apiUrl + this.envConfigService.basePath;
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private envConfigService: EnvConfigService
   ) {}
 
   testConnection(wmsUrl: string): Observable<WmsTestResult> {

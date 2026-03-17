@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
 import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 
@@ -11,17 +12,15 @@ import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 export class CacheHelperServiceService implements OnInit{
 
   lastDatabaseModificationInfo;
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
+  private baseUrlToKomMonitorDataAPI = this.envConfigService.apiUrl + this.envConfigService.basePath;
 
-  localStorageKey_prefix = window.__env.localStoragePrefix;
-
-  localStorageKey_accessControl = this.localStorageKey_prefix + "_lastModification_accessControl";
-  localStorageKey_topics = this.localStorageKey_prefix + "_lastModification_topics";
-  localStorageKey_spatialUnits = this.localStorageKey_prefix + "_lastModification_spatialUnits";
-  localStorageKey_georesources = this.localStorageKey_prefix + "_lastModification_georesources";
-  localStorageKey_indicators = this.localStorageKey_prefix + "_lastModification_indicators";
-  localStorageKey_processScripts = this.localStorageKey_prefix + "_lastModification_processScripts";
-  localStorageKey_services = this.localStorageKey_prefix + "_lastModification_services";
+  private localStorageKey_accessControl = this.envConfigService.localStoragePrefix + "_lastModification_accessControl";
+  private localStorageKey_topics = this.envConfigService.localStoragePrefix + "_lastModification_topics";
+  private localStorageKey_spatialUnits = this.envConfigService.localStoragePrefix + "_lastModification_spatialUnits";
+  private localStorageKey_georesources = this.envConfigService.localStoragePrefix + "_lastModification_georesources";
+  private localStorageKey_indicators = this.envConfigService.localStoragePrefix + "_lastModification_indicators";
+  private localStorageKey_processScripts = this.envConfigService.localStoragePrefix + "_lastModification_processScripts";
+  private localStorageKey_services = this.envConfigService.localStoragePrefix + "_lastModification_services";
 
   georesourcesPublicEndpoint = "/public/georesources";
   georesourcesProtectedEndpoint = "/georesources";
@@ -46,7 +45,8 @@ export class CacheHelperServiceService implements OnInit{
 
   constructor(
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private envConfigService: EnvConfigService
   ) {}
 
   ngOnInit(): void {
@@ -98,9 +98,9 @@ export class CacheHelperServiceService implements OnInit{
     
     if(keycloakRolesArray && keycloakRolesArray.length > 0){
       // admin role is kommonitor-creator
-      if(keycloakRolesArray.includes(window.__env.keycloakKomMonitorAdminRoleName)){
-        metadataKey += "_" + window.__env.keycloakKomMonitorAdminRoleName;
-        timestampKey += "_" + window.__env.keycloakKomMonitorAdminRoleName;
+      if(keycloakRolesArray.includes(this.envConfigService.keycloakKomMonitorAdminRoleName)){
+        metadataKey += "_" + this.envConfigService.keycloakKomMonitorAdminRoleName;
+        timestampKey += "_" + this.envConfigService.keycloakKomMonitorAdminRoleName;
       }
       else{
         metadataKey += "_" + JSON.stringify(keycloakRolesArray);

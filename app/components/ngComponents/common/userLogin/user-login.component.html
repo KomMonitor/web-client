@@ -153,8 +153,10 @@
         Login
       </button>
       <div>
-        <span *ngIf="loginInfoText">{{ loginInfoText }}</span>
-        <span *ngIf="!loginInfoText"
+        <span *ngIf="envConfigService.loginInfoText">
+          {{envConfigService.loginInfoText}}
+        </span>
+        <span *ngIf="!envConfigService.loginInfoText"
           >Melden Sie sich mit ihrem Konto an, um geschützte Daten
           abzurufen.</span
         >

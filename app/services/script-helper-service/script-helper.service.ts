@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 declare const MathJax: any;
 declare var PR: any;
@@ -15,7 +16,7 @@ export interface ScriptSelectItem {
 })
 export class ScriptHelperService {
 
-  targetUrlToManagementService = window.__env.apiUrl + window.__env.basePath + "/";
+  private targetUrlToManagementService = this.envConfigService.apiUrl + this.envConfigService.basePath + "/";
 
   availableScriptDataTypes: ScriptSelectItem[] = [
     {
@@ -147,8 +148,9 @@ export class ScriptHelperService {
   constructor(
     private httpClient: HttpClient,
     private kommonitorDataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
-  ) { }
+    private broadcastService: BroadcastService,
+    private envConfigService: EnvConfigService,
+  ) {}
 
   reset(){
     this.requiredIndicators_tmp = [];

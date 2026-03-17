@@ -2,9 +2,9 @@
 
     <div class="logoWrapper">
       <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
-      <div *ngIf="exchangeData.customLogoURL && exchangeData.customLogoWidth">
-        <a target="_blank" rel="noopener noreferrer" href="{{exchangeData.customLogo_onClickURL}}">
-          <img src="{{exchangeData.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': exchangeData.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
+      <div *ngIf="envConfigService.customLogoURL && envConfigService.customLogoWidth">
+        <a target="_blank" rel="noopener noreferrer" href="{{envConfigService.customLogo_onClickURL}}">
+          <img src="{{envConfigService.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': envConfigService.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
         </a>
       </div> 			  
     </div>
@@ -12,11 +12,11 @@
     <!-- <app-language-switcher></app-language-switcher> -->
 
     <div class="titleWrapper">
-      <h4>{{exchangeData.appTitle}}</h4>
+      <h4>{{envConfigService.appTitle}}</h4>
     </div>
 
     <div class="buttonWrapper">
-      <div id="switchAdvancedMode" class="switch" *ngIf="visibilityHelperService.showAdvancedModeSwitch" style="width:200px">
+      <div id="switchAdvancedMode" class="switch" *ngIf="envConfigService.showAdvancedModeSwitch" style="width:200px">
         <strong>Erweiterte Ansicht</strong>
         <label class="switch">
           <input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty"

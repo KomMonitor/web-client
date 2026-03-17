@@ -15,6 +15,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GenerateReportComponent } from '../generate-report/generate-report.component';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -59,7 +60,8 @@ export class ReportingOverviewComponent implements OnInit {
     private http: HttpClient,
     protected diagramHelperService: DiagramHelperServiceService,
     private modalService: NgbModal,
-    protected reportingService: ReportingService
+    protected reportingService: ReportingService,
+    private envConfigService: EnvConfigService
   ) {}
 
   ngOnInit(): void {
@@ -759,7 +761,7 @@ export class ReportingOverviewComponent implements OnInit {
 					page.spatialUnitId = spatialUnit.spatialUnitId;			
 					if(page.area){
 						let feature = this.geoJsonForReachability_byFeatureName.get(page.area);
-						let spatialUnitFeatureId = feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+						let spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
 						page.spatialUnitFeatureId = spatialUnitFeatureId;
 					}						
 					

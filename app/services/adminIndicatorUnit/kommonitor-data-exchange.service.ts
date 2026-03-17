@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
+import { EnvConfigService } from '../env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class KommonitorIndicatorDataExchangeService {
   constructor(
     private angularJsDataExchangeService: DataExchangeService,
     private topicHierarchyService: TopicHierarchyService,
+    private envConfigService: EnvConfigService
   ) {}
 
   /**
@@ -65,14 +67,14 @@ export class KommonitorIndicatorDataExchangeService {
    * Get update interval options - delegates to AngularJS service
    */
   get updateIntervalOptions(): any[] {
-    return this.angularJsDataExchangeService.updateIntervalOptions || [];
+    return this.envConfigService.updateIntervalOptions || [];
   }
 
   /**
    * Get indicator type options - delegates to AngularJS service
    */
   get indicatorTypeOptions(): any[] {
-    return this.angularJsDataExchangeService.indicatorTypeOptions || [];
+    return this.envConfigService.indicatorTypeOptions || [];
   }
 
   /**
@@ -86,14 +88,14 @@ export class KommonitorIndicatorDataExchangeService {
    * Get indicator creation type options - delegates to AngularJS service
    */
   get indicatorCreationTypeOptions(): any[] {
-    return this.angularJsDataExchangeService.indicatorCreationTypeOptions || [];
+    return this.envConfigService.indicatorCreationTypeOptions || [];
   }
 
   /**
    * Get enable Keycloak security flag - delegates to AngularJS service
    */
   get enableKeycloakSecurity(): boolean {
-    return this.angularJsDataExchangeService.enableKeycloakSecurity || false;
+    return this.envConfigService.enableKeycloakSecurity || false;
   }
 
   /**

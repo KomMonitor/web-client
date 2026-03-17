@@ -1,19 +1,22 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { UserFavourites } from 'components/ngComponents/models/favorites.models';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FavService {
 
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
+  private baseUrlToKomMonitorDataAPI  = this.envConfigService.apiUrl + this.envConfigService.basePath;
   userInfoExists = false;
   userInfoId = undefined;
 
   constructor(
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    private envConfigService: EnvConfigService,
+  ) {
+  }
 
   bodyTemplate: UserFavourites = {
     georesourceFavourites: [],

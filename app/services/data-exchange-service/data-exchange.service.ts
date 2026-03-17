@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IndicatorsDataset, IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import jsPDF from 'jspdf';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -16,10 +17,6 @@ import { AccessControlMetadata } from 'components/ngComponents/models/permission
 import { KeycloakProfile } from 'keycloak-js';
 
 export interface DataExchange {
-  customGreetingsContact_mail: string;
-  customGreetingsContact_name: string;
-  customGreetingsContact_organisation: string;
-  customGreetingsTextInfoMessage: string;
   selectedIndicator: IndicatorsDataset;
   availableSpatialUnits: SpatialUnit[];
   selectedDate: any;
@@ -31,9 +28,7 @@ export interface DataExchange {
   measureOfValue: any;
   isMeasureOfValueChecked: any;
   useOutlierDetectionOnIndicator: any;
-  classifyZeroSeparately: any;
   allFeaturesRegionalMean: any;
-  enableMeanDataDisplayInLegend: any;
   allFeaturesMean: any;
   configMeanDataDisplay: any;
   wmsDatasets_keywordFiltered: any;
@@ -48,8 +43,6 @@ export interface DataExchange {
   allFeaturesMax: any;
   selectedFeaturesMax: any;
   allFeaturesRegionalSpatiallyUnassignable: any;
-  classifyUsingWholeTimeseries: any;
-  useNoDataToggle: any;
   topicIndicatorHierarchy: IndicatorsTopicsHierarchy[];
   selectedIndicatorBackup: IndicatorsDataset;
   displayableIndicators: any;
@@ -70,15 +63,7 @@ export interface DataExchange {
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName:any;
   simplifyGeometries:any;
-  enableBilanceTrend: any;
-  showBarChartLabel:any;
-  showBarChartAverageLine:any; 
-  appTitle: string;
-  customLogo_onClickURL: any;
-  customLogoURL: any;
-  customLogoWidth: any;
   currentKeycloakUser: KeycloakProfile;
-  enableKeycloakSecurity: any;
   currentKomMonitorLoginRoleNames:any;
   currentKeycloakLoginGroups: any;
   currentKeycloakLoginRoles: any;
@@ -93,8 +78,6 @@ export interface DataExchange {
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
-  loginInfoText:any;
-  customLandingPage: boolean;
   wmsDatasets:any;
   rangeFilterIsApplied:any;
   baseLayerDefinitionsArray: any[];
@@ -114,42 +97,10 @@ export interface SpatialUnit {
   providedIn: 'root'
 })
 export class DataExchangeService {
-
-  appTitle = window.__env.appTitle;
-  loginInfoText = window.__env.loginInfoText;
-  customLandingPage = window.__env.customLandingPage;
-
-  customLogoURL = window.__env.customLogoURL;
-  customLogo_onClickURL = window.__env.customLogo_onClickURL;
-  customLogoWidth = window.__env.customLogoWidth; 
-  customGreetingsContact_name = window.__env.customGreetingsContact_name;
-  customGreetingsContact_organisation = window.__env.customGreetingsContact_organisation;
-  customGreetingsContact_mail = window.__env.customGreetingsContact_mail;
-  customGreetingsTextInfoMessage = window.__env.customGreetingsTextInfoMessage; // maybe undefined or empty string
-
   showDiagramExportButtons = true;
   showGeoresourceExportButtons = true;
-  showBarChartLabel = window.__env.showBarChartLabel;
-  showBarChartAverageLine = window.__env.showBarChartAverageLine;
-
-  customReportFontSize = window.__env.customReportFontSize;
-
-  enableMeanDataDisplayInLegend = window.__env.enableMeanDataDisplayInLegend;
-  configMeanDataDisplay = window.__env.configMeanDataDisplay || 'both';
+  configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
   
-  defaultNumberOfDecimals = window.__env.numberOfDecimals;
-  DATE_PREFIX = window.__env.indicatorDatePrefix;
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
-
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low; 
-
   selectedIndicator!: IndicatorsDataset;
   availableSpatialUnits!: SpatialUnit[];
   availableWmsDatasets: WmsDataset[] = [];
@@ -163,8 +114,6 @@ export class DataExchangeService {
   isMeasureOfValueChecked: boolean = false;
   allFeaturesRegionalMean: any;
   allFeaturesMean: any;
-
-
 
   allFeaturesNumberOfFeatures: any;
   selectedFeaturesNumberOfFeatures: any;
@@ -217,21 +166,26 @@ export class DataExchangeService {
     ["QUARTERLY", "vierteljährlich"]
   ]);
 
-  updateIntervalOptions = window.__env.updateIntervalOptions;
-  indicatorTypeOptions = window.__env.indicatorTypeOptions;
-  indicatorUnitOptions = window.__env.indicatorUnitOptions.sort();
-  indicatorCreationTypeOptions = window.__env.indicatorCreationTypeOptions;
-  geodataSourceFormats = window.__env.geodataSourceFormats;
+  // TODO: cleanup here
+  // updateIntervalOptions = this.envConfigService.updateIntervalOptions;
+  // indicatorTypeOptions = this.envConfigService.indicatorTypeOptions;
+  // TODO: cleanup here
+  indicatorUnitOptions = this.envConfigService.indicatorUnitOptions.sort();
+  // indicatorCreationTypeOptions = this.envConfigService.indicatorCreationTypeOptions;
+  // TODO: cleanup here
+  geodataSourceFormats = this.envConfigService.geodataSourceFormats;
 
   anySideBarIsShown = false;
 
   tmpIndicatorGeoJSON = undefined;
 
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
-  simplifyGeometriesOptions = window.__env.simplifyGeometriesOptions;
+  // TODO: cleanup here
+  baseUrlToKomMonitorDataAPI = this.envConfigService.apiUrl + this.envConfigService.basePath;
+  // TODO: cleanup here
+  simplifyGeometriesOptions = this.envConfigService.simplifyGeometriesOptions;
 
   wmsDatasets!:WmsDataset[];
-  wfsDatasets = window.__env.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
+  wfsDatasets = this.envConfigService.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
   wmsDatasets_keywordFiltered!:WmsDataset[];
   wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
@@ -254,10 +208,12 @@ export class DataExchangeService {
   allowedAccessControl = [];
   allowedAccessControl_map = new Map();
 
-  useOutlierDetectionOnIndicator = window.__env.useOutlierDetectionOnIndicator;
-  classifyZeroSeparately = window.__env.classifyZeroSeparately;
-  classifyUsingWholeTimeseries = window.__env.classifyUsingWholeTimeseries;
-  useNoDataToggle = window.__env.useNoDataToggle;
+  // TODO: cleanup here
+  useOutlierDetectionOnIndicator = this.envConfigService.useOutlierDetectionOnIndicator;
+  // TODO: cleanup here
+  // classifyZeroSeparately = this.envConfigService.classifyZeroSeparately;
+  // classifyUsingWholeTimeseries = this.envConfigService.classifyUsingWholeTimeseries;
+  // useNoDataToggle = this.envConfigService.useNoDataToggle;
   
   topicIndicatorHierarchy_forOrderView:any[] = [];
 
@@ -566,15 +522,11 @@ export class DataExchangeService {
   topicGeoresourceHierarchy_unmappedEntries:any = {};
   georesourceMapKey_forUnmappedTopicReferences = "unmapped";
 
-  enableKeycloakSecurity = window.__env.enableKeycloakSecurity;
   currentKeycloakLoginRoles:any[] = [];
   currentKomMonitorLoginRoleNames:any[] = [];
   currentKeycloakLoginGroups:any[] = [];
   currentKomMonitorLoginOrganizationalUnits:any[] = [];
   currentKeycloakUser!:KeycloakProfile;
-
-  enableScatterPlotRegression = window.__env.enableScatterPlotRegression;
-  enableBilanceTrend = window.__env.enableBilanceTrend;
 
   availableRoles:any[] = [];
 
@@ -583,6 +535,7 @@ export class DataExchangeService {
     private cacheHelperService: CacheHelperServiceService,
     private broadcastService: BroadcastService,
     private topicHierarchyService: TopicHierarchyService,
+    private envConfigService: EnvConfigService,
   ) {}
 
   hideErrorAlert(){
@@ -629,7 +582,7 @@ export class DataExchangeService {
         const tokenParsed = this.authService.getTokenParsed();
         if(tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles){
           this.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
-          if (this.currentKeycloakLoginRoles.includes(window.__env.keycloakKomMonitorAdminRoleName)) {
+          if (this.currentKeycloakLoginRoles.includes(this.envConfigService.keycloakKomMonitorAdminRoleName)) {
             this.isRealmAdmin = true;
             // this.currentKeycloakLoginRoles = this.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
           }
@@ -905,7 +858,7 @@ export class DataExchangeService {
                                     
       ggf in setServices auslagern, da beide requests parallel laufen und services evtl noch nicht verfügbar sind */
 
-    var enabledGeoresources = window.__env.enabledGeoresourcesInfrastructure.concat(window.__env.enabledGeoresourcesGeoservices);
+    var enabledGeoresources = this.envConfigService.enabledGeoresourcesInfrastructure.concat(this.envConfigService.enabledGeoresourcesGeoservices);
 
     var showPOI = enabledGeoresources.indexOf('poi') !== -1;
     var showLOI = enabledGeoresources.indexOf('loi') !== -1;
@@ -1012,8 +965,8 @@ export class DataExchangeService {
   modifyIndicators(indicators) {
 
     var decimalDefault = 2;
-    if(window.__env.numberOfDecimals !== undefined)
-      decimalDefault = window.__env.numberOfDecimals;
+    if(this.envConfigService.numberOfDecimals !== undefined)
+      decimalDefault = this.envConfigService.numberOfDecimals;
       
     indicators.forEach(elem => {
       if(elem.precision===null) {
@@ -1081,7 +1034,7 @@ export class DataExchangeService {
 
   isDisplayableIndicator(item){
     // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
-    var arrayOfNameSubstringsForHidingIndicators = window.__env.arrayOfNameSubstringsForHidingIndicators;
+    var arrayOfNameSubstringsForHidingIndicators = this.envConfigService.arrayOfNameSubstringsForHidingIndicators;
 
     // this is an item from i.e. indicatorRadar, that has a different structure
     if(item.indicatorMetadata){
@@ -1165,7 +1118,7 @@ export class DataExchangeService {
       window.__env.keycloakKomMonitorThemesEditRoleNames = ["client-themes-creator", "unit-themes-creator"];
       window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
     */
-    let roleSuffixes = window.__env.keycloakKomMonitorGroupsEditRoleNames.concat(window.__env.keycloakKomMonitorThemesEditRoleNames).concat(window.__env.keycloakKomMonitorGeodataEditRoleNames);
+    let roleSuffixes = this.envConfigService.keycloakKomMonitorGroupsEditRoleNames.concat(this.envConfigService.keycloakKomMonitorThemesEditRoleNames).concat(this.envConfigService.keycloakKomMonitorGeodataEditRoleNames);
     var possibleRoles = ["kommonitor-creator"];
     this.accessControl.forEach(organizationalUnit => {
       for (const roleSuffix of roleSuffixes) {
@@ -1225,7 +1178,7 @@ export class DataExchangeService {
   }
 
   checkAdminPermission(){
-    if(this.currentKeycloakLoginRoles.includes(window.__env.keycloakKomMonitorAdminRoleName)){
+    if(this.currentKeycloakLoginRoles.includes(this.envConfigService.keycloakKomMonitorAdminRoleName)){
       return true;
     }
     return false;
@@ -1779,7 +1732,7 @@ export class DataExchangeService {
   getIndicatorStringFromIndicatorType(indicatorType) {
     var indicatorTypeString;
 
-    for (const indicatorTypeOption of this.indicatorTypeOptions) {
+    for (const indicatorTypeOption of this.envConfigService.indicatorTypeOptions) {
       if (indicatorType.includes(indicatorTypeOption.apiName)) {
         indicatorTypeString = indicatorTypeOption.displayName;
         break;
@@ -1900,7 +1853,7 @@ export class DataExchangeService {
 
   getIndicatorValue_asFormattedText(indicatorValue, precision = undefined){
 
-    var maximumDecimals = this.defaultNumberOfDecimals;
+    var maximumDecimals = this.envConfigService.numberOfDecimals;
     var minimumDecimals = 0;
     if (precision !== undefined) {
       maximumDecimals = precision;
@@ -2184,7 +2137,7 @@ export class DataExchangeService {
 
   getIndicatorValue_asNumber(indicatorValue, precision = undefined){
 
-    var maximumDecimals = this.defaultNumberOfDecimals;
+    var maximumDecimals = this.envConfigService.numberOfDecimals;
     if (precision !== undefined) {
       maximumDecimals = precision
     } else {
@@ -2210,8 +2163,8 @@ export class DataExchangeService {
   }
 
   getIndicatorValueFromArray_asNumber(propertiesArray, targetDateString, precision = undefined){
-    if(!targetDateString.includes(this.DATE_PREFIX)){
-      targetDateString = this.DATE_PREFIX + targetDateString;
+    if(!targetDateString.includes(this.envConfigService.indicatorDatePrefix)){
+      targetDateString = this.envConfigService.indicatorDatePrefix + targetDateString;
     }
     var indicatorValue = propertiesArray[targetDateString];
     var value;
@@ -2356,7 +2309,7 @@ export class DataExchangeService {
   }
 
   buildIndicatorPropertyName() {
-    const INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
+    const INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
     let propertyName = INDICATOR_DATE_PREFIX + this.selectedDate;
     return propertyName;
   }
@@ -2391,7 +2344,7 @@ export class DataExchangeService {
   }
 
   isDisplayableGeoresource(item){
-    var arrayOfNameSubstringsForHidingGeoresources = window.__env.arrayOfNameSubstringsForHidingGeoresources;
+    var arrayOfNameSubstringsForHidingGeoresources = this.envConfigService.arrayOfNameSubstringsForHidingGeoresources;
 
     if(item.availablePeriodsOfValidity == undefined || item.availablePeriodsOfValidity.length === 0)
       return false;
@@ -2406,7 +2359,7 @@ export class DataExchangeService {
 
   getIndicatorValue_asFixedPrecisionNumber(indicatorValue, precision){
 
-    var maximumDecimals = this.defaultNumberOfDecimals;
+    var maximumDecimals = this.envConfigService.numberOfDecimals;
     var minimumDecimals = 0;
     if (precision !== undefined) {
       maximumDecimals = precision;
@@ -2488,7 +2441,7 @@ export class DataExchangeService {
       let splitRoles = this.getRoleTitles();
       let ret = false;
 
-      window.__env.keycloakKomMonitorGroupsEditRoleNames.forEach(targetRole => {
+      this.envConfigService.keycloakKomMonitorGroupsEditRoleNames.forEach(targetRole => {
         if(splitRoles.includes(targetRole))
           ret = true;
       });
@@ -2504,7 +2457,7 @@ export class DataExchangeService {
       let splitRoles = this.getRoleTitles();
       let ret = false;
 
-      window.__env.keycloakKomMonitorThemesEditRoleNames.forEach(targetRole => {
+      this.envConfigService.keycloakKomMonitorThemesEditRoleNames.forEach(targetRole => {
         if(splitRoles.includes(targetRole))
           ret = true;
       });
@@ -2520,7 +2473,7 @@ export class DataExchangeService {
       let splitRoles = this.getRoleTitles();
       let ret = false;
 
-      window.__env.keycloakKomMonitorGeodataEditRoleNames.forEach(targetRole => {
+      this.envConfigService.keycloakKomMonitorGeodataEditRoleNames.forEach(targetRole => {
         if(splitRoles.includes(targetRole))
           ret = true;
       });

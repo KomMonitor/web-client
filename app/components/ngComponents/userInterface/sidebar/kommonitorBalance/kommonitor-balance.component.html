@@ -2,8 +2,8 @@
 
   <expandable-box [title]="'Bilanzierung'" [collapsed]="false">
 	  <div style="text-align: center">
-      <p *ngIf="exchangeData.enableBilanceTrend">Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
-      <p *ngIf="!exchangeData.enableBilanceTrend">Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+      <p *ngIf="envConfigService.enableBilanceTrend">Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+      <p *ngIf="!envConfigService.enableBilanceTrend">Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
     </div>
 
     <br/>
@@ -30,7 +30,7 @@
     </div>	
   </expandable-box>
   
-  <expandable-box [hidden]="!exchangeData.isBalanceChecked" [collapsed]="false" [title]="exchangeData.enableBilanceTrend ? 'Trenddarstellung &uuml;ber alle Raumeinheiten' : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'">
+  <expandable-box [hidden]="!exchangeData.isBalanceChecked" [collapsed]="false" [title]="envConfigService.enableBilanceTrend ? 'Trenddarstellung &uuml;ber alle Raumeinheiten' : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'">
 
     <!-- CONFIG FOR TREND CALCULATION -->
     <div style="text-align: center">
@@ -47,7 +47,7 @@
           <th>
             <b>Zeige Trendlinie</b>
           </th>
-          <th class="text-center" *ngIf="exchangeData.enableBilanceTrend">
+          <th class="text-center" *ngIf="envConfigService.enableBilanceTrend">
             <b>Art der Trendberechnung</b>
           </th>
           
@@ -67,12 +67,12 @@
           </td>
           <td>				
             <label class="switch">
-              <input type="checkbox" [(ngModel)]="exchangeData.enableBilanceTrend" (change)="onChangeEnableBilanceTrend()"
+              <input type="checkbox" [ngModel]="envConfigService.enableBilanceTrend" (change)="onChangeEnableBilanceTrend()"
                 checked>
               <span class="switchslider round"></span>
             </label>
           </td>
-          <td *ngIf="exchangeData.enableBilanceTrend">
+          <td *ngIf="envConfigService.enableBilanceTrend">
             <select style="font-size: 12px;"
               [(ngModel)]="trendConfig_allFeatures.trendComputationType"
               (change)="onChangeTrendConfig()" class="form-control" required>
@@ -112,7 +112,7 @@
         <div class="col-md-3">
           <label>Bilanz: </label> <i>{{trendAnalysis_allFeatures?.balance}}</i>
         
-          <span *ngIf="exchangeData.enableBilanceTrend">
+          <span *ngIf="envConfigService.enableBilanceTrend">
             <br/>
             <label >Trend: </label> <i>{{trendAnalysis_allFeatures?.trend}}</i>
           </span>

@@ -7,6 +7,7 @@ import { SingleFeatureMapHelperService } from 'services/single-feature-map-helpe
 import * as uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { FormsModule } from '@angular/forms';
 import * as turf from '@turf/turf';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-single-feature-edit',
@@ -45,7 +46,8 @@ export class SingleFeatureEditComponent implements OnInit {
     private dataExchangeService: DataExchangeService,
     protected singleFeatureMapHelperService: SingleFeatureMapHelperService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private envConfigService: EnvConfigService,
   ) {}
 
   ngOnInit(): void {
@@ -122,16 +124,16 @@ export class SingleFeatureEditComponent implements OnInit {
   
   resetContentFromFeature(feature) {
     // variables for single feature import
-    this.featureIdValue = feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+    this.featureIdValue = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
     this.featureIdExampleString = undefined;
-    this.featureNameValue = feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME];
+    this.featureNameValue = feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
     this.featureGeometryValue = {
       "type": "FeatureCollection",
       "features": []
     }
     this.featureGeometryValue.features[0] = feature;
-    this.featureStartDateValue = feature.properties[window.__env.VALID_START_DATE_PROPERTY_NAME];
-    this.featureEndDateValue = feature.properties[window.__env.VALID_END_DATE_PROPERTY_NAME];;
+    this.featureStartDateValue = feature.properties[this.envConfigService.VALID_START_DATE_PROPERTY_NAME];
+    this.featureEndDateValue = feature.properties[this.envConfigService.VALID_END_DATE_PROPERTY_NAME];;
     // [{property: name, value: value}]
     let newFeatureSchemaProperties:any[] = [];
     for (const featureSchemaEntry of this.featureSchemaProperties) {
@@ -155,10 +157,10 @@ export class SingleFeatureEditComponent implements OnInit {
  
   initDefaultSchema() {
     let schemaObject = {};
-    schemaObject[window.__env.FEATURE_ID_PROPERTY_NAME] = "number";
-    schemaObject[window.__env.FEATURE_NAME_PROPERTY_NAME] = "string";
-    schemaObject[window.__env.VALID_START_DATE_PROPERTY_NAME] = "date";
-    schemaObject[window.__env.VALID_END_DATE_PROPERTY_NAME] = "date";
+    schemaObject[this.envConfigService.FEATURE_ID_PROPERTY_NAME] = "number";
+    schemaObject[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] = "string";
+    schemaObject[this.envConfigService.VALID_START_DATE_PROPERTY_NAME] = "date";
+    schemaObject[this.envConfigService.VALID_END_DATE_PROPERTY_NAME] = "date";
 
     return schemaObject;
   }
@@ -178,7 +180,7 @@ export class SingleFeatureEditComponent implements OnInit {
           this.schemaObject = response;
 
           for (var property in this.schemaObject) {
-            if (property != window.__env.FEATURE_ID_PROPERTY_NAME && property != window.__env.FEATURE_NAME_PROPERTY_NAME && property != window.__env.VALID_START_DATE_PROPERTY_NAME && property != window.__env.VALID_END_DATE_PROPERTY_NAME) {
+            if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
               this.featureSchemaProperties.push(
                 {
                   property: property,
@@ -202,7 +204,7 @@ export class SingleFeatureEditComponent implements OnInit {
         this.currentGeoresourceDataset.geoJSON.features && this.currentGeoresourceDataset.geoJSON.features[0] &&
         this.currentGeoresourceDataset.geoJSON.features[0].properties ){
         for (var property in this.currentGeoresourceDataset.geoJSON.features[0].properties) {
-          if (property != window.__env.FEATURE_ID_PROPERTY_NAME && property != window.__env.FEATURE_NAME_PROPERTY_NAME && property != window.__env.VALID_START_DATE_PROPERTY_NAME && property != window.__env.VALID_END_DATE_PROPERTY_NAME
+          if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME
             && property != "individualIsochrones" && property != "individualIsochronePruneResults") {
             this.featureSchemaProperties.push(
               {
@@ -279,12 +281,12 @@ export class SingleFeatureEditComponent implements OnInit {
       return 0;
     }
     // String or Integer
-    let idDataType = this.schemaObject[window.__env.FEATURE_ID_PROPERTY_NAME];
+    let idDataType = this.schemaObject[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
 
     // array of id values
     let existingFeatureIds = this.georesourceFeaturesGeoJSON.features.map(feature => {
-      if (feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
-        return feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME];
+      if (feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
+        return feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
       }
       else {
         return 0;
@@ -320,7 +322,7 @@ export class SingleFeatureEditComponent implements OnInit {
   validateSingleFeatureId  () {
     this.featureIdIsUnique = true;
     if (this.georesourceFeaturesGeoJSON && this.featureIdValue) {
-      let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
+      let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
 
       if (filteredFeatures.length == 0) {
         this.featureIdIsUnique = true;
@@ -355,10 +357,10 @@ export class SingleFeatureEditComponent implements OnInit {
   buildSingleFeature() {
     // build new feature object and add it to geoJSON
     // then broadcast updated resources
-    this.featureGeometryValue.features[0].properties[window.__env.FEATURE_ID_PROPERTY_NAME] = this.featureIdValue;
-    this.featureGeometryValue.features[0].properties[window.__env.FEATURE_NAME_PROPERTY_NAME] = this.featureNameValue;
-    this.featureGeometryValue.features[0].properties[window.__env.VALID_START_DATE_PROPERTY_NAME] = this.featureStartDateValue;
-    this.featureGeometryValue.features[0].properties[window.__env.VALID_END_DATE_PROPERTY_NAME] = this.featureEndDateValue;
+    this.featureGeometryValue.features[0].properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] = this.featureIdValue;
+    this.featureGeometryValue.features[0].properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] = this.featureNameValue;
+    this.featureGeometryValue.features[0].properties[this.envConfigService.VALID_START_DATE_PROPERTY_NAME] = this.featureStartDateValue;
+    this.featureGeometryValue.features[0].properties[this.envConfigService.VALID_END_DATE_PROPERTY_NAME] = this.featureEndDateValue;
 
     for (const element of this.featureSchemaProperties) {
       this.featureGeometryValue.features[0].properties[element.property] = element.value;
@@ -400,7 +402,7 @@ export class SingleFeatureEditComponent implements OnInit {
     // replace updated feature in geoJSON
     for (let index = 0; index < this.georesourceFeaturesGeoJSON.features.length; index++) {
       const feature = this.georesourceFeaturesGeoJSON.features[index];
-      if (feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] == this.featureGeometryValue.features[0].properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
+      if (feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureGeometryValue.features[0].properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
         this.georesourceFeaturesGeoJSON.features[index] = this.featureGeometryValue.features[0];
       }
     }
@@ -416,7 +418,7 @@ export class SingleFeatureEditComponent implements OnInit {
     // remove selected feature from geoJSON
     for (let index = 0; index < this.georesourceFeaturesGeoJSON.features.length; index++) {
       const feature = this.georesourceFeaturesGeoJSON.features[index];
-      if (feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] == this.featureGeometryValue.features[0].properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
+      if (feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureGeometryValue.features[0].properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
         this.georesourceFeaturesGeoJSON.features.splice(index, 1);
       }
     }

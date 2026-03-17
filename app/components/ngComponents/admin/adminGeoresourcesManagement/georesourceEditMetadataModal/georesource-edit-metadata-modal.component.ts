@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
   selector: 'georesource-edit-metadata-modal',
@@ -95,7 +96,8 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private broadcastService: BroadcastService,
     private topicHierarchyService: TopicHierarchyService,
-    private http: HttpClient
+    private http: HttpClient,
+    protected envConfigService: EnvConfigService
   ) {
     this.initializeDefaultValues();
   }
@@ -196,7 +198,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.currentGeoresourceDataset.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
@@ -455,7 +457,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }

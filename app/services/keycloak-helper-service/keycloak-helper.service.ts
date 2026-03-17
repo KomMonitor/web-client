@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class KeycloakHelperService implements OnInit {
 
   constructor(
     private httpClient: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private envConfigService: EnvConfigService
   ) {}
 
   ngOnInit(): void {
@@ -29,12 +31,12 @@ export class KeycloakHelperService implements OnInit {
 
   async init() {
 
-    this.adminRoleSuffixes  = window.__env.keycloakKomMonitorGroupsEditRoleNames.concat(window.__env.keycloakKomMonitorThemesEditRoleNames).concat(window.__env.keycloakKomMonitorGeodataEditRoleNames);
+    this.adminRoleSuffixes  = this.envConfigService.keycloakKomMonitorGroupsEditRoleNames.concat(this.envConfigService.keycloakKomMonitorThemesEditRoleNames).concat(this.envConfigService.keycloakKomMonitorGeodataEditRoleNames);
 
     console.log("KEYCLOAK INIT");
     try {
-      if (window.__env.keycloakConfig) {
-        this.configureKeycloakParameters(window.__env.keycloakConfig);
+      if (this.envConfigService.keycloakConfig) {
+        this.configureKeycloakParameters(this.envConfigService.keycloakConfig);
       }
       else {
         await this.httpClient.get('./config/keycloak_backup.json').subscribe({

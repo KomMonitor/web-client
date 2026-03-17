@@ -1,6 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 export interface ReportingData {
   workflowState: WorkflowState;
@@ -86,44 +87,7 @@ export class ReportingService {
     freeText: "Text",
   };
 
-  config: ConfigData = {
-    sectionContentControl: {
-      baseMapSelect: {
-        "layerConfig": {
-          name: "leere Karte", 
-          url: "",
-          layerType: "TILE_LAYER", 
-          layerName_WMS: "", 
-          attribution_html: "", 
-          minZoomLevel: window.__env.minZoomLevel, 
-          maxZoomLevel: window.__env.maxZoomLevel 
-        }
-      },
-      mapLegendBackgroundColor: 'rgba(255, 255, 255, 0.75)',
-      showMapLabels: true,
-      showRankingChartPerArea: true,
-      showLineChartPerArea: true,
-      showFreeText: true,
-      showRankingMeanLine: true,
-    },
-    headerFooterControl: {
-      showTitle: true,
-      showSubtitle: true,
-      showLogo: true,
-      showFooterCreationInfo: true,
-      showPageNumber: true,
-    },
-    sectionControl: {
-      showOverviewSection_unclassified: true,
-      showOverviewSection_classified: true,
-      showBarchartOverview: true,
-      showLinechartOverview: true,
-      showBoxplotchartOverview: true,
-      showAreaSpecific: true,
-      showOverviewSection_reachability: true,
-      showDatatable: true
-    }
-  }
+  config: ConfigData;
   
   availableTemplateCategories = [
     {
@@ -2968,8 +2932,46 @@ export class ReportingService {
   // nach außen NUR Observable
   reportingData$: Observable<ReportingData> = this._reportingData$.asObservable();
 
-  constructor() {
-    
+  constructor(private envConfigService: EnvConfigService) {
+    this.config = {
+      sectionContentControl: {
+        baseMapSelect: {
+          "layerConfig": {
+            name: "leere Karte", 
+            url: "",
+            layerType: "TILE_LAYER", 
+            layerName_WMS: "", 
+            attribution_html: "", 
+            minZoomLevel: this.envConfigService.minZoomLevel,
+            maxZoomLevel: this.envConfigService.maxZoomLevel
+          }
+        },
+        mapLegendBackgroundColor: 'rgba(255, 255, 255, 0.75)',
+        showMapLabels: true,
+        showRankingChartPerArea: true,
+        showLineChartPerArea: true,
+        showFreeText: true,
+        showRankingMeanLine: true,
+      },
+      headerFooterControl: {
+        showTitle: true,
+        showSubtitle: true,
+        showLogo: true,
+        showFooterCreationInfo: true,
+        showPageNumber: true,
+      },
+      sectionControl: {
+        showOverviewSection_unclassified: true,
+        showOverviewSection_classified: true,
+        showBarchartOverview: true,
+        showLinechartOverview: true,
+        showBoxplotchartOverview: true,
+        showAreaSpecific: true,
+        showOverviewSection_reachability: true,
+        showDatatable: true
+      }
+    };
+
     for(let template of this.availableTemplates) {
       this.iteratePageElements( template, function(page, pageElement) {
         pageElement.isPlaceholder = (

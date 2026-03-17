@@ -17,7 +17,7 @@
     <div class="col-md-12">
       <form class="multiStepForm form-group" id="indicatorAddForm" role="form" style="margin-bottom: 0px;">
         <!-- progressbar -->
-        <div *ngIf="kommonitorDataExchangeService && kommonitorDataExchangeService.enableKeycloakSecurity">
+        <div *ngIf="envConfigService.enableKeycloakSecurity">
           <ul id="progressbar">
             <li [style.width.%]="14.28" [class.active]="currentStep >= 1" [class.current]="currentStep === 1" 
                 (click)="goToStep(1)" style="cursor: pointer;">
@@ -202,7 +202,7 @@
                 <select [(ngModel)]="indicatorCreationType" name="indicatorCreationType" (ngModelChange)="onChangeCreationType()"
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Fortführungstyp wählen --</option>
-                  <option *ngFor="let type of kommonitorDataExchangeService?.indicatorCreationTypeOptions" [ngValue]="type">
+                  <option *ngFor="let type of envConfigService.indicatorCreationTypeOptions" [ngValue]="type">
                     {{type.displayName}}
                   </option>
                 </select>

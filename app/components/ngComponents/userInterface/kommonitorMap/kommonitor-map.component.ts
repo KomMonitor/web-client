@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, Inject, OnInit, Renderer2 } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -17,6 +17,7 @@ import 'leaflet-search';
 
 import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -29,42 +30,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   searchControl:any;
   geosearchControl:any;
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
-  defaultBorderColorForFilteredValues = window.__env.defaultBorderColorForFilteredValues;
-  defaultBorderColor = window.__env.defaultBorderColor;
-  defaultFillOpacity = window.__env?.defaultFillOpacity;
-  defaultFillOpacityForFilteredFeatures = window.__env?.defaultFillOpacityForFilteredFeatures;
-  defaultFillOpacityForHighlightedFeatures = window.__env?.defaultFillOpacityForHighlightedFeatures;
-  defaultFillOpacityForZeroFeatures = window.__env?.defaultFillOpacityForZeroFeatures;
-  defaultColorBrewerPaletteForBalanceIncreasingValues = window.__env?.defaultColorBrewerPaletteForBalanceIncreasingValues;
-  defaultColorBrewerPaletteForBalanceDecreasingValues = window.__env?.defaultColorBrewerPaletteForBalanceDecreasingValues;
-  defaultColorBrewerPaletteForGtMovValues = window.__env?.defaultColorBrewerPaletteForGtMovValues;
-  defaultColorBrewerPaletteForLtMovValues = window.__env?.defaultColorBrewerPaletteForLtMovValues;
-  defaultColorForHoveredFeatures = window.__env?.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env?.defaultColorForClickedFeatures;
-  defaultBorderColorForNoDataValues = window.__env?.defaultBorderColorForNoDataValues;
-  defaultColorForNoDataValues = window.__env?.defaultColorForNoDataValues;
-  defaultFillOpacityForNoDataValues = window.__env?.defaultFillOpacityForNoDataValues;
-  datasetContainsNegativeValues;
+  datasetContainsNegativeValues: any;
 
-  defaultColorForOutliers_high = window.__env?.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env?.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env?.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env?.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env?.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.__env?.defaultFillOpacityForOutliers_low;
-  useOutlierDetectionOnIndicator = window.__env?.useOutlierDetectionOnIndicator;
-
-  latCenter = window.__env?.initialLatitude;
-  lonCenter = window.__env?.initialLongitude;
-  zoomLevel = window.__env?.initialZoomLevel;
-  useTransparencyOnIndicator = window.__env?.useTransparencyOnIndicator;
-  defaultColorForZeroValues = window.__env?.defaultColorForZeroValues;
-
-  svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
-  svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
+  svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
+  svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + this.envConfigService.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + this.envConfigService.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + this.envConfigService.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
 
 
   outlierPropertyName = "outlier";
@@ -181,10 +150,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private filterHelperService: FilterHelperService,
     private genericMapHelperService: GenericMapHelperService,
-    private renderer: Renderer2
+    private envConfigService: EnvConfigService
   ) { 
     this.exchangeData = this.dataExchangeService;
-    this.exchangeData.useOutlierDetectionOnIndicator = this.useOutlierDetectionOnIndicator;
   }
 
   ngOnInit(): void {
@@ -365,8 +333,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     
     this.initMap();
 
-    if (window.__env.sortableLayers) {
-      this.sortableLayers = window.__env.sortableLayers;
+    if (this.envConfigService.sortableLayers) {
+      this.sortableLayers = this.envConfigService.sortableLayers;
     } else {
       this.sortableLayers = ["Web Map Services (WMS)"];
     }   
@@ -382,10 +350,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         'accept-language': 'de', // render results in Dutch
         countrycodes: 'de', // limit search results to the Netherlands
         addressdetails: 1, // include additional address detail parts  
-        viewbox: "" + (Number(window.__env.initialLongitude) - 0.001) + "," + (Number(window.__env.initialLatitude) - 0.001) + "," + (Number(window.__env.initialLongitude) + 0.001) + "," + (Number(window.__env.initialLatitude) + 0.001)             
+        viewbox: "" + (Number(this.envConfigService.initialLongitude) - 0.001) + "," + (Number(this.envConfigService.initialLatitude) - 0.001) + "," + (Number(this.envConfigService.initialLongitude) + 0.001) + "," + (Number(this.envConfigService.initialLatitude) + 0.001)             
       },
-      searchUrl: window.__env.targetUrlToGeocoderService + '/search',
-      reverseUrl: window.__env.targetUrlToGeocoderService + '/reverse'
+      searchUrl: this.envConfigService.targetUrlToGeocoderService + '/search',
+      reverseUrl: this.envConfigService.targetUrlToGeocoderService + '/reverse'
     });
 
     this.geosearchControl = SearchControl({
@@ -470,12 +438,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layerType: "TILE_LAYER", 
         layerName_WMS: "", 
         attribution_html: "", 
-        minZoomLevel: window.__env.minZoomLevel, 
-        maxZoomLevel: window.__env.maxZoomLevel 
+        minZoomLevel: this.envConfigService.minZoomLevel, 
+        maxZoomLevel: this.envConfigService.maxZoomLevel 
       }
     }];
 
-    for (let baseMapEntry of window.__env.baseLayers) {              
+    for (let baseMapEntry of this.envConfigService.baseLayers) {              
       
       if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE"){
         let grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
@@ -501,16 +469,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     this.map = L.map('ngMap', {
-      center: [this.latCenter, this.lonCenter],
-      zoom: this.zoomLevel,
+      center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
+      zoom: this.envConfigService.initialZoomLevel,
       zoomDelta: 0.5,
       zoomSnap: 0.5,
-      layers: [baseLayerDefinitionsMap.get(window.__env.baseLayers[0].name)]
+      layers: [baseLayerDefinitionsMap.get(this.envConfigService.baseLayers[0].name)]
     });
 
-    window.__env.currentLatitude = this.latCenter;
-    window.__env.currentLongitude = this.lonCenter;
-    window.__env.currentZoomLevel = this.zoomLevel;
+    this.envConfigService.currentLatitude = this.envConfigService.initialLatitude;
+    this.envConfigService.currentLongitude = this.envConfigService.initialLongitude;
+    this.envConfigService.currentZoomLevel = this.envConfigService.initialZoomLevel;
 
     // execute update search control on layer add and remove
  /*    this.map.on('overlayadd',(eo) => {
@@ -523,15 +491,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // update zoom and extent
     this.map.on('zoomend', (eo) => {
       let latLng = this.map.getCenter();
-      window.__env.currentLatitude = latLng.lat;
-      window.__env.currentLongitude = latLng.lng;
-      window.__env.currentZoomLevel = this.map.getZoom();
+      this.envConfigService.currentLatitude = latLng.lat;
+      this.envConfigService.currentLongitude = latLng.lng;
+      this.envConfigService.currentZoomLevel = this.map.getZoom();
     });
     this.map.on('moveend', (eo) => {
       let latLng = this.map.getCenter();
-      window.__env.currentLatitude = latLng.lat;
-      window.__env.currentLongitude = latLng.lng;
-      window.__env.currentZoomLevel = this.map.getZoom();
+      this.envConfigService.currentLatitude = latLng.lat;
+      this.envConfigService.currentLongitude = latLng.lng;
+      this.envConfigService.currentZoomLevel = this.map.getZoom();
     });
 
     this.baseMaps = [];   
@@ -645,10 +613,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.currentIndicatorContainsNoDataValues = false;
     this.svgString_noData = '<svg height="18" width="18">' +
-      '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="4" cy="4" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
-      '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="14" cy="4" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
-      '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="4" cy="14" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
-      '<circle style="stroke-opacity: '  + this.defaultFillOpacityForNoDataValues + ';" cx="14" cy="14" r="1.5" stroke="'  + this.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.defaultColorForNoDataValues + '" />' +
+      '<circle style="stroke-opacity: '  + this.envConfigService.defaultFillOpacityForNoDataValues + ';" cx="4" cy="4" r="1.5" stroke="'  + this.envConfigService.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.envConfigService.defaultColorForNoDataValues + '" />' +
+      '<circle style="stroke-opacity: '  + this.envConfigService.defaultFillOpacityForNoDataValues + ';" cx="14" cy="4" r="1.5" stroke="'  + this.envConfigService.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.envConfigService.defaultColorForNoDataValues + '" />' +
+      '<circle style="stroke-opacity: '  + this.envConfigService.defaultFillOpacityForNoDataValues + ';" cx="4" cy="14" r="1.5" stroke="'  + this.envConfigService.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.envConfigService.defaultColorForNoDataValues + '" />' +
+      '<circle style="stroke-opacity: '  + this.envConfigService.defaultFillOpacityForNoDataValues + ';" cx="14" cy="14" r="1.5" stroke="'  + this.envConfigService.defaultBorderColorForNoDataValues + '" stroke-width="2" fill="'  + this.envConfigService.defaultColorForNoDataValues + '" />' +
       'Sorry, your browser does not support inline SVG.</svg>';
 
     this.noDataStyle = this.visualStyleHelperService.noDataStyle;
@@ -662,8 +630,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.outlierMaxValue = undefined;
     this.showOutlierInfoAlert = false;
 
-    this.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:'  + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:'  + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:'  + this.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
-    this.svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:'  + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:'  + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:'  + this.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: '  + this.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
+    this.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:'  + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.envConfigService.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:'  + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.envConfigService.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:'  + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: '  + this.envConfigService.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
+    this.svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:'  + this.envConfigService.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: '  + this.envConfigService.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:'  + this.envConfigService.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: '  + this.envConfigService.defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:'  + this.envConfigService.defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: '  + this.envConfigService.defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
 
     // if (this.useTransparencyOnIndicator) {
     //   fillOpacity_high = defaultFillOpacityForOutliers_high;
@@ -749,16 +717,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     if(propertyKey == "outlier"){
       isKomMonitorSpecificProperty = true;
     }
-    else if(propertyKey == window.__env.VALID_START_DATE_PROPERTY_NAME){
+    else if(propertyKey == this.envConfigService.VALID_START_DATE_PROPERTY_NAME){
       isKomMonitorSpecificProperty = true;
     }
-    else if(propertyKey == window.__env.VALID_END_DATE_PROPERTY_NAME){
+    else if(propertyKey == this.envConfigService.VALID_END_DATE_PROPERTY_NAME){
       isKomMonitorSpecificProperty = true;
     }
     else if(propertyKey == "bbox"){
       isKomMonitorSpecificProperty = true;
     }
-    else if(propertyKey.includes(window.__env.indicatorDatePrefix)){
+    else if(propertyKey.includes(this.envConfigService.indicatorDatePrefix)){
       isKomMonitorSpecificProperty = true;
     }
 
@@ -872,22 +840,22 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   updateSearchControl() {
 
-    const isKomMonitorSpecificProperty = function(propertyKey) {
+    const isKomMonitorSpecificProperty = (propertyKey) => {
       let isKomMonitorSpecificProperty = false;
 
       if(propertyKey == "outlier"){
         isKomMonitorSpecificProperty = true;
       }
-      else if(propertyKey == window.__env.VALID_START_DATE_PROPERTY_NAME){
+      else if(propertyKey == this.envConfigService.VALID_START_DATE_PROPERTY_NAME){
         isKomMonitorSpecificProperty = true;
       }
-      else if(propertyKey == window.__env.VALID_END_DATE_PROPERTY_NAME){
+      else if(propertyKey == this.envConfigService.VALID_END_DATE_PROPERTY_NAME){
         isKomMonitorSpecificProperty = true;
       }
       else if(propertyKey == "bbox"){
         isKomMonitorSpecificProperty = true;
       }
-      else if(propertyKey.includes(window.__env.indicatorDatePrefix)){
+      else if(propertyKey.includes(this.envConfigService.indicatorDatePrefix)){
         isKomMonitorSpecificProperty = true;
       }
 
@@ -937,7 +905,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           position: "topleft",
           layer: layerGroup,
           initial: false,
-          propertyName: window.__env.FEATURE_NAME_PROPERTY_NAME,
+          propertyName: this.envConfigService.FEATURE_NAME_PROPERTY_NAME,
           textPlaceholder: "Layer-Objekte nach Name und/oder ID filtern",
           textCancel: "Abbrechen",
           textErr: "Position nicht gefunden",
@@ -1495,7 +1463,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     let indicatorValueText = feature.tempData.indicatorValueText;
   
-    let tooltipHtml = "<b>" + feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + feature.tempData.unitText + "]";
+    let tooltipHtml = "<b>" + feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + feature.tempData.unitText + "]";
     layer.bindTooltip(tooltipHtml, {
       sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
     });
@@ -1511,14 +1479,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     // add or remove feature within a list of "clicked features"
     // those shall be treated specially, i.e. keep being highlighted
-    if (!this.filterHelperService.featureIsCurrentlySelected(layer.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if (!this.filterHelperService.featureIsCurrentlySelected(layer.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       this.filterHelperService.addFeatureToSelection(layer.target.feature);
       this.highlightClickedFeature(layer.target);
     }
 
     else {
       //remove from array
-      this.filterHelperService.removeFeatureFromSelection(layer.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+      this.filterHelperService.removeFeatureFromSelection(layer.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]);
       this.resetHighlightClickedFeature(layer.target);
     }
   }
@@ -1812,8 +1780,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       layers: dataset.connectionDetails.layerName,
       transparent: true,
       format: 'image/png',
-      minZoom: window.__env.minZoomLevel,
-      maxZoom: window.__env.maxZoomLevel,
+      minZoom: this.envConfigService.minZoomLevel,
+      maxZoom: this.envConfigService.maxZoomLevel,
       opacity: opacity
     });
 
@@ -2281,13 +2249,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   setPermanentlyHighlightedStyle(layer) {
     let fillOpacity = 1;
-    if (this.useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacityForHighlightedFeatures;
+    if (this.envConfigService.useTransparencyOnIndicator) {
+      fillOpacity = this.envConfigService.defaultFillOpacityForHighlightedFeatures;
     }
 
     layer.setStyle({
       weight: 3,
-      color: this.defaultColorForClickedFeatures,
+      color: this.envConfigService.defaultColorForClickedFeatures,
       dashArray: '',
       fillOpacity: fillOpacity
     });
@@ -2304,13 +2272,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   
   setTemporarilyHighlightedStyle(layer) {
     let fillOpacity = 1;
-    if (this.useTransparencyOnIndicator) {
-      fillOpacity = this.defaultFillOpacity;
+    if (this.envConfigService.useTransparencyOnIndicator) {
+      fillOpacity = this.envConfigService.defaultFillOpacity;
     }
 
     layer.setStyle({
       weight: 3,
-      color: this.defaultColorForHoveredFeatures,
+      color: this.envConfigService.defaultColorForHoveredFeatures,
       dashArray: '',
       fillOpacity: fillOpacity
     });
@@ -2329,7 +2297,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   preserveHighlightedFeatures() {
     this.map.eachLayer((layer) => {
       if (layer.feature) {
-        if (this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+        if (this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
           this.setPermanentlyHighlightedStyle(layer);
           this.broadcastService.broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
         }
@@ -2342,7 +2310,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let layer = e.target;
     this.resetHighlightForLayer(layer);
 
-    if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       layer.bringToBack();
     }
     //layer.bringToBack();
@@ -2353,27 +2321,27 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let style;
 
     // only restyle feature when not in list of clicked features
-    if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-      if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
+      if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
         style = this.filteredStyle;
       }
       else if (!this.exchangeData.isMeasureOfValueChecked) {
         //this.currentIndicatorLayer.resetStyle(layer);
         if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-          style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, false);
+          style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, false);
         }
         else {
           if (this.visualStyleHelperService.classifyMethod == 'manual'){
-            style = this.visualStyleHelperService.styleDefault(layer.feature, this.manualBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
+            style = this.visualStyleHelperService.styleDefault(layer.feature, this.manualBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
           }
           else {
             // von hier, defaultBrew
-            style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
+            style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
           }
         }
       }
       else {
-        style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, false);
+        style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, false);
       }
       layer.setStyle(style);
     }
@@ -2388,24 +2356,24 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   resetHighlightClickedFeature(layer) {
     let style;
     //this.currentIndicatorLayer.resetStyle(layer);
-    if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       layer.setStyle(this.filteredStyle);
     }
     else if (!this.exchangeData.isMeasureOfValueChecked) {
       //this.currentIndicatorLayer.resetStyle(layer);
       if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-        style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, false);
+        style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, false);
 
         layer.setStyle(style);
       }
       else {
-        style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
+        style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, this.datasetContainsNegativeValues, false);
 
         layer.setStyle(style);
       }
     }
     else {
-      style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, false);
+      style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, false);
 
       layer.setStyle(style);
     }
@@ -2413,7 +2381,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 /*
   function resetHighlightCustom(e) {
     $scope.currentCustomIndicatorLayer.resetStyle(e.target);
-    if (!kommonitorFilterHelperService.featureIsCurrentlySelected(e.target.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if (!kommonitorFilterHelperService.featureIsCurrentlySelected(e.target.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       e.target.bringToBack();
     }
   }
@@ -2627,11 +2595,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
           let decreaseBrew:any = this.visualStyleHelperService.setupManualBrew(
             decreaseBreaks.length-1, 
-            this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+            this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues, 
             decreaseBreaks);
           let increaseBrew:any = this.visualStyleHelperService.setupManualBrew(
             increaseBreaks.length-1, 
-            this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+            this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues, 
             increaseBreaks);
 
           this.dynamicDecreaseBrew.breaks = decreaseBreaks;
@@ -2672,12 +2640,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   setClassifyZeroForClassifyMethod(){
     if(this.visualStyleHelperService.classifyMethod == "regional_default") {
       if (this.exchangeData.classifyZeroSeparately_backup == undefined) {
-        this.exchangeData.classifyZeroSeparately_backup = this.exchangeData.classifyZeroSeparately;
+        this.exchangeData.classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately;
       }
-      this.exchangeData.classifyZeroSeparately = false;
+      this.envConfigService.classifyZeroSeparately = false;
     }
     else {
-      this.exchangeData.classifyZeroSeparately = this.exchangeData.classifyZeroSeparately_backup != undefined ? this.exchangeData.classifyZeroSeparately_backup : this.exchangeData.classifyZeroSeparately;
+      this.envConfigService.classifyZeroSeparately = this.exchangeData.classifyZeroSeparately_backup != undefined ? this.exchangeData.classifyZeroSeparately_backup : this.envConfigService.classifyZeroSeparately;
       this.exchangeData.classifyZeroSeparately_backup = undefined;
     }
   }
@@ -2692,7 +2660,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     //reset opacity
-    this.visualStyleHelperService.setOpacity(window.__env.defaultFillOpacity);
+    this.visualStyleHelperService.setOpacity(this.envConfigService.defaultFillOpacity);
 
     this.refreshFilteredStyle();
     this.refreshOutliersStyle();
@@ -2734,7 +2702,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.date = date;
 
-    this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
+    this.indicatorPropertyName = this.envConfigService.indicatorDatePrefix + date;
     this.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
     this.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
     this.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
@@ -2795,8 +2763,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
         this.currentGeoJSONOfCurrentLayer, 
         this.indicatorPropertyName, 
-        this.defaultColorBrewerPaletteForGtMovValues, 
-        this.defaultColorBrewerPaletteForLtMovValues, 
+        this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
+        this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
         this.visualStyleHelperService.classifyMethod, 
         this.exchangeData.measureOfValue,
         this.visualStyleHelperService.manualMOVBreaks,
@@ -2811,17 +2779,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.visualStyleHelperService.manualMOVBreaks[1] = measureOfValueBrewArray[1] ? measureOfValueBrewArray[1].breaks : [];
       this.updateDefaultManualBreaksFromMOVManualBreaks();
 
-      this.propertyName = this.INDICATOR_DATE_PREFIX + date;
+      this.propertyName = this.envConfigService.indicatorDatePrefix + date;
 
       layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
         style: (feature) => {
           
           feature = this.prepFeatureModelForMapUse(feature);
 
-          if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
             return this.filteredStyle;
           }
-          return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
+          return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, true);
         },
         onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
       });
@@ -2832,8 +2800,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
           indicatorMetadataAndGeoJSON.geoJSON, 
           this.indicatorPropertyName, 
-          this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
-          this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+          this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+          this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues, 
           this.visualStyleHelperService.classifyMethod,
           this.visualStyleHelperService.numClasses,
           []);
@@ -2853,8 +2821,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
             indicatorMetadataAndGeoJSON.geoJSON, 
             this.indicatorPropertyName, 
-            this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
-            this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+            this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+            this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues, 
             this.visualStyleHelperService.classifyMethod,
             this.visualStyleHelperService.numClasses,
             this.visualStyleHelperService.dynamicBrewBreaks);
@@ -2869,18 +2837,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         }
         this.visualStyleHelperService.manualBrew = this.defaultBrew;
 
-        this.propertyName = this.INDICATOR_DATE_PREFIX + date;
+        this.propertyName = this.envConfigService.indicatorDatePrefix + date;
 
         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: (feature) => {
 
             feature = this.prepFeatureModelForMapUse(feature);
             
-            if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               return this.filteredStyle;
             }
             
-            return this.visualStyleHelperService.styleDefault(feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
+            return this.visualStyleHelperService.styleDefault(feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
           },
           onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l) }
         });
@@ -2890,25 +2858,25 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
           indicatorMetadataAndGeoJSON.geoJSON, 
           this.indicatorPropertyName, 
-          this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
-          this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+          this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+          this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues, 
           this.visualStyleHelperService.classifyMethod,
           this.visualStyleHelperService.numClasses,
           this.visualStyleHelperService.dynamicBrewBreaks);
         this.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
         this.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
-        this.propertyName = this.INDICATOR_DATE_PREFIX + date;
+        this.propertyName = this.envConfigService.indicatorDatePrefix + date;
 
         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
           style: (feature) => {
 
             feature = this.prepFeatureModelForMapUse(feature);
 
-            if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               return this.filteredStyle;
             }
-            return this.visualStyleHelperService.styleDynamicIndicator(feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, true);
+            return this.visualStyleHelperService.styleDynamicIndicator(feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, true);
           },
           onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
         });
@@ -2928,8 +2896,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
         this.currentGeoJSONOfCurrentLayer, 
         this.indicatorPropertyName, 
-        this.defaultColorBrewerPaletteForGtMovValues, 
-        this.defaultColorBrewerPaletteForLtMovValues, 
+        this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
+        this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
         this.visualStyleHelperService.classifyMethod, 
         this.exchangeData.measureOfValue,
         this.visualStyleHelperService.manualMOVBreaks,
@@ -2938,17 +2906,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       );
       this.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
       this.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
-      this.propertyName = this.INDICATOR_DATE_PREFIX + date;
+      this.propertyName = this.envConfigService.indicatorDatePrefix + date;
 
       layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
         style: (feature) => {
 
           feature = this.prepFeatureModelForMapUse(feature);
 
-          if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
             return this.filteredStyle;
           }
-          return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
+          return this.visualStyleHelperService.styleMeasureOfValue(feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, true);
         },
         onEachFeature: (e,l) => { this.onEachFeatureIndicator(e,l)}
       });
@@ -2996,7 +2964,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   prepFeatureModelForMapUse(feature) {
     feature.tempData = {};
-    let indicatorValue = feature.properties[this.INDICATOR_DATE_PREFIX + this.date];
+    let indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + this.date];
     if (this.dataExchangeService.indicatorValueIsNoData(indicatorValue)) {
       feature.tempData.indicatorValueText = "NoData";
     } else {
@@ -3080,8 +3048,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
           this.currentGeoJSONOfCurrentLayer, 
           this.indicatorPropertyName, 
-          this.defaultColorBrewerPaletteForGtMovValues, 
-          this.defaultColorBrewerPaletteForLtMovValues, 
+          this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
+          this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
           this.visualStyleHelperService.classifyMethod, 
           this.exchangeData.measureOfValue,
           this.visualStyleHelperService.manualMOVBreaks,
@@ -3096,11 +3064,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         }
 
         this.currentIndicatorLayer.eachLayer((layer) => {
-          if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
             layer.setStyle(this.filteredStyle);
           }
           else {
-            style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
+            style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, true);
 
             layer.setStyle(style);
           }
@@ -3115,8 +3083,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
             this.currentIndicatorMetadataAndGeoJSON.geoJSON, 
             this.indicatorPropertyName, 
-            this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
-            this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+            this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+            this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues, 
             this.visualStyleHelperService.classifyMethod,
             this.visualStyleHelperService.numClasses,
             this.visualStyleHelperService.dynamicBrewBreaks);
@@ -3128,11 +3096,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           }
 
           this.currentIndicatorLayer.eachLayer((layer) => {
-            if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               layer.setStyle(this.filteredStyle);
             }
             else {
-              style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, true);
+              style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, true);
 
               layer.setStyle(style);
             }
@@ -3146,8 +3114,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
             let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
               this.currentIndicatorMetadataAndGeoJSON.geoJSON, 
               this.indicatorPropertyName, 
-              this.defaultColorBrewerPaletteForBalanceIncreasingValues, 
-              this.defaultColorBrewerPaletteForBalanceDecreasingValues, 
+              this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues, 
+              this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues, 
               this.visualStyleHelperService.classifyMethod,
               this.visualStyleHelperService.numClasses,
               this.visualStyleHelperService.dynamicBrewBreaks);
@@ -3178,15 +3146,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
           this.currentIndicatorLayer.eachLayer((layer) => {
             let style;
-            if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+            if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               style = this.filteredStyle;
             }
             else {
               if (this.visualStyleHelperService.classifyMethod == 'manual') {
-                style = this.visualStyleHelperService.styleDefault(layer.feature, this.manualBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
+                style = this.visualStyleHelperService.styleDefault(layer.feature, this.manualBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
               }
               else {
-                style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
+                style = this.visualStyleHelperService.styleDefault(layer.feature, this.defaultBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, this.datasetContainsNegativeValues, true);
               }
             }
             layer.setStyle(style);
@@ -3215,8 +3183,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
           this.currentGeoJSONOfCurrentLayer, 
           this.indicatorPropertyName, 
-          this.defaultColorBrewerPaletteForGtMovValues, 
-          this.defaultColorBrewerPaletteForLtMovValues, 
+          this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
+          this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
           this.visualStyleHelperService.classifyMethod, 
           this.exchangeData.measureOfValue,
           this.visualStyleHelperService.manualMOVBreaks,
@@ -3227,11 +3195,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
         this.currentIndicatorLayer.eachLayer((layer) => {
-          if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
             layer.setStyle(this.filteredStyle);
           }
           else {
-            style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.useTransparencyOnIndicator, true);
+            style = this.visualStyleHelperService.styleMeasureOfValue(layer.feature, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, true);
 
             layer.setStyle(style);
           }
@@ -3333,7 +3301,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
-        if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
+        if (layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
           this.highlightFeatureForLayer(layer);
           done = true;
         }
@@ -3352,7 +3320,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
-        if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
+        if (layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
           this.resetHighlightForLayer(layer);
           done = true;
         }
@@ -3371,7 +3339,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.map.eachLayer((layer) => {
       if (!done && layer.feature) {
-        if (layer.feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
+        if (layer.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
           this.switchHighlightFeature(layer);
           done = true;
         }

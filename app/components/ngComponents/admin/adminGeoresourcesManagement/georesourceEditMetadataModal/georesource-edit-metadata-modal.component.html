@@ -260,7 +260,7 @@
                 <label>Aktualisierungszyklus*</label>
                 <select [(ngModel)]="metadata.updateInterval" class="form-control" required>
                   <option disabled selected value> -- Aktualisierungszyklus wählen -- </option>
-                  <option *ngFor="let option of kommonitorDataExchangeService.updateIntervalOptions" 
+                  <option *ngFor="let option of envConfigService.updateIntervalOptions" 
                     [ngValue]="option">{{option.displayName}}</option>
                 </select>
                 <div class="help-block with-errors"></div>

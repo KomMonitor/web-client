@@ -10,6 +10,7 @@ import * as noUiSlider from 'nouislider';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-kommonitor-balance',
@@ -27,7 +28,8 @@ export class KommonitorBalanceComponent implements OnInit {
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     private mapService: MapService,
-    private diagramHelperService: DiagramHelperServiceService
+    private diagramHelperService: DiagramHelperServiceService,
+    protected envConfigService: EnvConfigService
   ) {
     this.exchangeData = dataExchangeService;
   }
@@ -53,9 +55,9 @@ export class KommonitorBalanceComponent implements OnInit {
   }
 
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
+  INDICATOR_DATE_PREFIX  = this.envConfigService.indicatorDatePrefix;
 
-  numberOfDecimals = window.__env.numberOfDecimals;
+  numberOfDecimals = this.envConfigService.numberOfDecimals;
 
   targetDate;
   targetIndicatorProperty;
@@ -151,7 +153,7 @@ export class KommonitorBalanceComponent implements OnInit {
 
 							if(this.exchangeData.isBalanceChecked){
 								this.exchangeData.isMeasureOfValueChecked = false;
-								this.exchangeData.classifyUsingWholeTimeseries = false;
+								this.envConfigService.classifyUsingWholeTimeseries = false;
 								this.balanceSlider.noUiSlider.enable();
 
 								// disable DateSlider on map
@@ -264,7 +266,7 @@ export class KommonitorBalanceComponent implements OnInit {
 							}
 
 							// use configuration item and data specified to show chart
-							this.trendOption = this.diagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, this.trendConfig_allFeatures.showMinMax, this.trendConfig_allFeatures.showCompleteTimeseries, this.trendConfig_allFeatures.trendComputationType, this.exchangeData.enableBilanceTrend, true);
+							this.trendOption = this.diagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, this.trendConfig_allFeatures.showMinMax, this.trendConfig_allFeatures.showCompleteTimeseries, this.trendConfig_allFeatures.trendComputationType, this.envConfigService.enableBilanceTrend, true);
 							this.trendChart_allFeatures.setOption(this.trendOption);
 
 							this.trendChart_allFeatures.hideLoading();

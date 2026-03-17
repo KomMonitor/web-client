@@ -11,6 +11,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AgGridAngular } from "ag-grid-angular";
 import { CommonModule } from '@angular/common';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-wms-edit-user-roles-modal',
@@ -51,7 +52,8 @@ export class WmsEditUserRolesModalComponent {
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
     private ogcService: OgcService,
-    protected dataGridHelperService: OgcDataGridHelperService
+    protected dataGridHelperService: OgcDataGridHelperService,
+    protected envConfigService: EnvConfigService
   ) {}
 
   // Multi-step form navigation

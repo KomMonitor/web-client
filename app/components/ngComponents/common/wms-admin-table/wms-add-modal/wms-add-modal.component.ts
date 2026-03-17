@@ -12,6 +12,7 @@ import * as uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
 import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
 import { AgGridAngular } from "ag-grid-angular";
 import { CommonModule } from '@angular/common';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-wms-add-modal',
@@ -81,7 +82,8 @@ export class WmsAddModalComponent implements OnInit {
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
     private ogcService: OgcService,
-    protected dataGridHelperService: OgcDataGridHelperService
+    protected dataGridHelperService: OgcDataGridHelperService,
+    protected envConfigService: EnvConfigService
   ) {}
 
   ngOnInit(): void {

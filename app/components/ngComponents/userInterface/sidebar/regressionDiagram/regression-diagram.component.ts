@@ -12,6 +12,7 @@ import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
 import { SelectedIndicatorFilter } from 'pipes/selected-indicator-filter.pipe';
 import { BaseIndicatorOfComputedIndicatorFilter } from 'pipes/base-indicator-of-computed-indicator-filter.pipe';
 import { BaseIndicatorOfHeadlineIndicatorFilter } from 'pipes/base-indicator-of-headline-indicator-filter.pipe';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-regression-diagram',
@@ -44,20 +45,8 @@ export class RegressionDiagramComponent implements OnInit {
     selectedIndicatorForYAxis_backup: undefined,
   };
 
-  DATE_PREFIX = window.__env.indicatorDatePrefix;
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultColorForHoveredFeatures = window.__env.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env.defaultColorForClickedFeatures;
-
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low;
+  private DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
+  private defaultColorForClickedFeatures = this.envConfigService.defaultColorForClickedFeatures;
 
   temp;
 
@@ -95,7 +84,8 @@ export class RegressionDiagramComponent implements OnInit {
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
-    private filterHelperService: FilterHelperService
+    private filterHelperService: FilterHelperService,
+    private envConfigService: EnvConfigService,
   ) {
     this.exchangeData = this.dataExchangeService;
   }
@@ -299,7 +289,7 @@ export class RegressionDiagramComponent implements OnInit {
 
     var index = -1;
     for(var i=0; i<this.regressionOption.series[0].data.length; i++){
-      if(this.regressionOption.series[0].data[i].name == featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]){
+      if(this.regressionOption.series[0].data[i].name == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]){
         index = i;
         break;
       }
@@ -326,11 +316,11 @@ export class RegressionDiagramComponent implements OnInit {
       return;
     }
 
-    if(! this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])){
+    if(! this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])){
       // highlight the corresponding bar diagram item
       var index = -1;
       for(var i=0; i<this.regressionOption.series[0].data.length; i++){
-        if(this.regressionOption.series[0].data[i].name == featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]){
+        if(this.regressionOption.series[0].data[i].name == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]){
           index = i;
           break;
         }
@@ -357,11 +347,10 @@ export class RegressionDiagramComponent implements OnInit {
   getAllIndicatorPropertiesSortedBySpatialUnitFeatureName(){
     for(var i=0; i<this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
         // make object to hold indicatorName, max value and average value
-        this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort(function(a, b) {
+        this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort((a, b) => {
           // a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
-
-            var nameA = a[window.__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
-            var nameB = b[window.__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+            var nameA = a[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+            var nameB = b[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
             if (nameA < nameB) {
               return -1;
             }
@@ -392,7 +381,7 @@ export class RegressionDiagramComponent implements OnInit {
 
     for (let index=0; index<this.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
       let feature = this.indicatorMetadataAndGeoJSON.geoJSON.features[index];
-      if (feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == featureName){
+      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureName){
         color = this.diagramHelperService.getColorForFeature(feature, this.indicatorMetadataAndGeoJSON, this.indicatorPropertyName, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.isMeasureOfValueChecked, this.measureOfValue);
         break;
       }
@@ -404,7 +393,7 @@ export class RegressionDiagramComponent implements OnInit {
   mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName, axisPrecision){
 
     for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
-      let featureName = indicatorPropertiesEntry[window.__env.FEATURE_NAME_PROPERTY_NAME];
+      let featureName = indicatorPropertiesEntry[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       let indicatorValue;
 
       if (this.dataExchangeService.indicatorValueIsNoData(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp])){
@@ -459,8 +448,8 @@ export class RegressionDiagramComponent implements OnInit {
       // hier indicatorPropertiesArrayForXAxis and ...YAxis undefined, look getPropertiesForIndicatorName
 
       if(this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0){
-        indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME]));
-        indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME]));						
+        indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));
+        indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));						
       }
 
       var timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;

@@ -11,8 +11,6 @@ import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak
 })
 export class MainComponent implements OnInit {
 
-  private env: any = {};
-
   constructor(
   ) {}
 
@@ -21,7 +19,7 @@ export class MainComponent implements OnInit {
     this.checkBrowser();
 
     // instantiate env variable 
-    this.env = window.__env || {};
+    // this.env = this.envConfigService;
 
     // Initialize TranslateService
     //this.initializeTranslateService();

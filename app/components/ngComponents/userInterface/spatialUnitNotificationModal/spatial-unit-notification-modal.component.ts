@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'spatial-unit-notification-modal',
@@ -13,13 +14,12 @@ import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 export class SpatialUnitNotificationModalComponent implements OnInit {
 
   activeModal = inject(NgbActiveModal);
+  envConfigService = inject(EnvConfigService);
   isHideNotification = false;
-  spatialUnitNotificationModalTitle;
-  spatialUnitNotificationModalMessage
+  protected spatialUnitNotificationModalTitle = this.envConfigService.spatialUnitNotificationTitle;
+  protected spatialUnitNotificationModalMessage = this.envConfigService.spatialUnitNotificationMessage;
 
   ngOnInit(): void {
-    this.spatialUnitNotificationModalTitle = window.__env.spatialUnitNotificationTitle;
-    this.spatialUnitNotificationModalMessage = window.__env.spatialUnitNotificationMessage;
     if (!(localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
       this.isHideNotification = false;
     }

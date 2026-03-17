@@ -5,6 +5,7 @@ import Keycloak, {
 } from "keycloak-js";
 import { BehaviorSubject, Observable } from "rxjs";
 import { NotificationService } from "../../components/ngComponents/common/notification/notification.service";
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 const ADMIN_ROLE_SUFFIXES = ["-creator", "-publisher", "-editor"] as const;
 @Injectable({
@@ -19,12 +20,15 @@ export class AuthService {
   readonly tokenExpirationMs$: Observable<number> =
     this._tokenExpirationMs$.asObservable();
 
-  constructor(private notificationSrvc: NotificationService) {}
+  constructor(
+    private notificationSrvc: NotificationService,
+    private envConfigService: EnvConfigService,
+  ) {}
 
   async initKeycloak(): Promise<void> {
-    if (window.__env.enableKeycloakSecurity) {
+    if (this.envConfigService.enableKeycloakSecurity) {
       const keycloakAdapter = new Keycloak(
-        window.__env.configStorageServerConfig
+        this.envConfigService.configStorageServerConfig
           .targetUrlToConfigStorageServer_keycloakConfig,
       );
 

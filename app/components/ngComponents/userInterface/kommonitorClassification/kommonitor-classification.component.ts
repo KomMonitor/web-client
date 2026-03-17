@@ -6,6 +6,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 
 
@@ -45,12 +46,13 @@ export class KommonitorClassificationComponent implements OnInit {
 
   selectedColorBrewerPaletteEntry!:any;
 
-  customColorSchemes = window.__env.customColorSchemes;
+  private customColorSchemes = this.envConfigService.customColorSchemes;
 
   constructor(
     private dataExchangeService: DataExchangeService,
     protected visualStyleHelperService: VisualStyleHelperServiceNew,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    protected envConfigService: EnvConfigService
   ) {
     this.exchangeData = dataExchangeService;
 
@@ -83,7 +85,7 @@ export class KommonitorClassificationComponent implements OnInit {
       }
     });
 
-    if(window.__env.disableManualClassification) {
+    if(this.envConfigService.disableManualClassification) {
       this.hideManualClassification();
     }
   }

@@ -2,6 +2,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as turf from '@turf/turf';
 
 @Injectable({
@@ -19,7 +20,8 @@ export class ReachabilityHelperService {
   public constructor(
     private broadcastService: BroadcastService,
     private http: HttpClient,
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private envConfigService: EnvConfigService
   ) {
 
     this.settings.pointSourceConfigured = false;
@@ -184,7 +186,7 @@ export class ReachabilityHelperService {
 
     //console.log(getRequest);
 
-    var getRequest = window.__env.targetUrlToReachabilityService_ORS
+    var getRequest = this.envConfigService.targetUrlToReachabilityService_ORS
       + '/v2/directions/' + transitMode + '?'
       + 'start=' + routingStartPointInput
       + '&end=' + routingEndPointInput;
@@ -407,7 +409,7 @@ export class ReachabilityHelperService {
   }
 
   sortBuffers(a, b){
-    if (a.properties[window.__env.FEATURE_ID_PROPERTY_NAME] == b.properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
+    if (a.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == b.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
       // sort by ascending range
       if (a.properties["value"] < b.properties["value"]) {
         return -1;
@@ -419,10 +421,10 @@ export class ReachabilityHelperService {
         return 0;
       }
       } 
-    if (a.properties[window.__env.FEATURE_ID_PROPERTY_NAME] < b.properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
+    if (a.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] < b.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
       return -1;
       } 
-    else if (a.properties[window.__env.FEATURE_ID_PROPERTY_NAME] < b.properties[window.__env.FEATURE_ID_PROPERTY_NAME]) {
+    else if (a.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] < b.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
       return 1;
       }
       // a must be equal to b
@@ -438,14 +440,14 @@ export class ReachabilityHelperService {
       // establish from drawn points
       this.settings.manualStartPoints.features.forEach( (feature) => {
         this.settings.locationsArray.push(feature.geometry.coordinates);
-        this.settings.locationsArrayIdArray.push(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+        this.settings.locationsArrayIdArray.push(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]);
       });
     }
     else {
       // establish from chosen layer
       this.settings.selectedStartPointLayer.geoJSON_reachability.features.forEach( (feature) => {
         this.settings.locationsArray.push(feature.geometry.coordinates);
-        this.settings.locationsArrayIdArray.push(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+        this.settings.locationsArrayIdArray.push(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]);
       });
     }
 
@@ -528,7 +530,7 @@ export class ReachabilityHelperService {
       tempStartPointsArray,
       this.settings.rangeArray);
 
-    let url = window.__env.targetUrlToReachabilityService_ORS +
+    let url = this.envConfigService.targetUrlToReachabilityService_ORS +
     '/v2/isochrones/' + this.settings.transitMode;	
 
     var req = {

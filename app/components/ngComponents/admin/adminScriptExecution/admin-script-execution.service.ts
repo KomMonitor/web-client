@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { timeout } from "rxjs";
+import { EnvConfigService } from "services/env-config-service/env-config.service";
 
 export interface IndicatorJobHealth {
   activeJobs: number;
@@ -27,29 +28,28 @@ export interface IndicatorJob {
   providedIn: "root",
 })
 export class AdminScriptExecutionService {
-  // TODO: remove use of __env
-  private processEngineBaseUrl: string =
-    window.__env.targetUrlToProcessingEngine;
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private envConfigService: EnvConfigService,
+  ) {}
 
   getDefaultIndicatorJobs() {
-    const url = `${this.processEngineBaseUrl}/script-engine/defaultIndicatorComputation`;
+    const url = `${this.envConfigService.targetUrlToProcessingEngine}/script-engine/defaultIndicatorComputation`;
     return this.http.get<IndicatorJob[]>(url).pipe(timeout(5000));
   }
 
   getCustomizedIndicatorJobs() {
-    const url = `${this.processEngineBaseUrl}/script-engine/customizableIndicatorComputation`;
+    const url = `${this.envConfigService.targetUrlToProcessingEngine}/script-engine/customizableIndicatorComputation`;
     return this.http.get<IndicatorJob[]>(url).pipe(timeout(5000));
   }
 
   getDefaultIndicatorJobHealth() {
-    const url = `${this.processEngineBaseUrl}/script-engine/defaultIndicatorComputation/health`;
+    const url = `${this.envConfigService.targetUrlToProcessingEngine}/script-engine/defaultIndicatorComputation/health`;
     return this.http.get<IndicatorJobHealth>(url).pipe(timeout(5000));
   }
 
   getCustomizedIndicatorJobHealth() {
-    const url = `${this.processEngineBaseUrl}/script-engine/customizableIndicatorComputation/health`;
+    const url = `${this.envConfigService.targetUrlToProcessingEngine}/script-engine/customizableIndicatorComputation/health`;
     return this.http.get<IndicatorJobHealth>(url).pipe(timeout(5000));
   }
 }

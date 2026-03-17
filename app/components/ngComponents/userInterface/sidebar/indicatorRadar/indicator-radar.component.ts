@@ -3,6 +3,7 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import * as echarts from 'echarts';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -26,10 +27,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   date;
   spatialUnitName;
   radarChart;
-  DATE_PREFIX = window.window.__env.indicatorDatePrefix;
+  private DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
   indicatorNameFilter = undefined;
   eventsRegistered = false;
-  numberOfDecimals = window.window.__env.numberOfDecimals;
+  private numberOfDecimals = this.envConfigService.numberOfDecimals;
   setupCompleted = true;
   radarOption:any;
 
@@ -45,7 +46,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
     private filterHelperService: FilterHelperService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private envConfigService: EnvConfigService
   ) {
     this.exchangeData = this.dataExchangeService;
   }
@@ -210,7 +212,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               // make object to hold indicatorName, max value and average value
               let indicatorProperties = indicatorsForRadar[i].indicatorProperties;
               if (this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0) {
-                  indicatorProperties = indicatorProperties.filter(featureProperties => !this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.window.__env.FEATURE_ID_PROPERTY_NAME]));
+                  indicatorProperties = indicatorProperties.filter(featureProperties => !this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));
               }
               sampleProperties = indicatorsForRadar[i].indicatorProperties;
               // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], this.date);
@@ -428,7 +430,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   appendSelectedFeaturesIfNecessary(sampleProperties) {
       for (var propertiesInstance of sampleProperties) {
-          if (this.filterHelperService.featureIsCurrentlySelected(propertiesInstance[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (this.filterHelperService.featureIsCurrentlySelected(propertiesInstance[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               this.appendSeriesToRadarChart(propertiesInstance);
           }
       }
@@ -470,9 +472,9 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           return;
       }
 
-      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       if (legendIndex === -1) {
-        if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+        if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
             console.log("Feature append");
             this.appendSeriesToRadarChart(featureProperties);
         }
@@ -482,10 +484,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   appendSeriesToRadarChart(featureProperties) {
       // append feature name to legend
-      this.radarOption.legend.data.push(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      this.radarOption.legend.data.push(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       // create feature data series
       var featureSeries:any = {};
-      featureSeries.name = featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME];
+      featureSeries.name = featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       featureSeries.value = new Array();
       featureSeries.emphasis = {
           lineStyle: {
@@ -507,7 +509,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               var indicatorProperties = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
               var date = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
               for (var indicatorPropertyInstance of indicatorProperties) {
-                  if (indicatorPropertyInstance[window.__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+                  if (indicatorPropertyInstance[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
                       if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
                           featureSeries.value.push(this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
                       }
@@ -530,7 +532,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   highlightFeatureInRadarChart(featureProperties) {
       // highlight the corresponding bar diagram item
       // get series index of series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       if (dataIndex > -1) {
           this.radarChart.dispatchAction({
               type: 'highlight',
@@ -545,7 +547,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           return;
       }
       this.unhighlightFeatureInRadarChart(featureProperties);
-      if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+      if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
           this.removeSeriesFromRadarChart(featureProperties);
       }
   }
@@ -563,7 +565,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       // remove feature from legend
       var targetIndices: number[] = [];  
       this.radarOption.legend.data.forEach((val: any, index: number) => {
-        if (val === featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+        if (val === featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
             targetIndices.push(index);
         }
       });
@@ -572,7 +574,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
             this.radarOption.legend.data.splice(legendIndex, 1);
         }
         // remove feature data series
-        var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+        var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
         if (dataIndex > -1) {
             this.radarOption.series[0].data.splice(dataIndex, 1);
         }
@@ -589,7 +591,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   unhighlightFeatureInRadarChart(featureProperties) {
       // highlight the corresponding bar diagram item
       // get series index of series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       if (dataIndex > -1) {
           this.radarChart.dispatchAction({
               type: 'downplay',

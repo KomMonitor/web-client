@@ -1,24 +1,25 @@
 import { Injectable } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class KommonitorElementVisibilityHelperService {
   elementVisibility: any = {};
-  isAdvancedMode = window.__env.isAdvancedMode;
-  showAdvancedModeSwitch = window.__env.showAdvancedModeSwitch;
+  private isAdvancedMode = this.envConfigService.isAdvancedMode;
   advancedModeRoleName = 'fakeAdvancedModeRole';
   diagramExportButtonsVisible = true;
   georesourceExportButtonsVisible = true;
 
   constructor(
+    private envConfigService: EnvConfigService,
   ) {
     this.initElementVisibility();
   }
 
   private checkElementVisibility(id: string): boolean {
     // const element = this.controlsConfigService.getControlsConfig().find((element) => element.id === id);
-    const element = window.__env.config.find((element) => element.id === id);
+    const element = this.envConfigService.config.find((element) => element.id === id);
 
     if (!element.roles || element.roles.length === 0) {
       return true;
@@ -36,7 +37,7 @@ export class KommonitorElementVisibilityHelperService {
     this.diagramExportButtonsVisible = true;
     this.georesourceExportButtonsVisible = true;
 
-    window.__env.config.forEach((element) => {
+    this.envConfigService.config.forEach((element) => {
       this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
   }

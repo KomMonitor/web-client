@@ -3,13 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'services/auth-service/auth.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { Location } from '@angular/common';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShareHelperService implements OnInit{
-
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
 
   queryParamMap = new Map();
   currentShareLink = "";
@@ -29,8 +28,9 @@ export class ShareHelperService implements OnInit{
     private route: ActivatedRoute,
     private authService: AuthService,
     private dataExchangeService: DataExchangeService,
-    private location: Location
-  ) {}
+    private location: Location,
+    private envConfigService: EnvConfigService,
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -53,19 +53,19 @@ export class ShareHelperService implements OnInit{
 
   applyQueryParams(){
     if (this.$routeParams[this.paramName_indicatorId]){
-      window.__env.initialIndicatorId = this.$routeParams[this.paramName_indicatorId];
+      this.envConfigService.initialIndicatorId = this.$routeParams[this.paramName_indicatorId];
     }
     if (this.$routeParams[this.paramName_spatialUnitName]){
-      window.__env.initialSpatialUnitName = this.$routeParams[this.paramName_spatialUnitName];
+      this.envConfigService.initialSpatialUnitName = this.$routeParams[this.paramName_spatialUnitName];
     }
     if (this.$routeParams[this.paramName_latitude]){
-      window.__env.initialLatitude = this.$routeParams[this.paramName_latitude];
+      this.envConfigService.initialLatitude = this.$routeParams[this.paramName_latitude];
     }
     if (this.$routeParams[this.paramName_longitude]){
-      window.__env.initialLongitude = this.$routeParams[this.paramName_longitude];
+      this.envConfigService.initialLongitude = this.$routeParams[this.paramName_longitude];
     }
     if (this.$routeParams[this.paramName_zoomLevel]){
-      window.__env.initialZoomLevel = this.$routeParams[this.paramName_zoomLevel];
+      this.envConfigService.initialZoomLevel = this.$routeParams[this.paramName_zoomLevel];
     }
   };
 
@@ -79,7 +79,7 @@ export class ShareHelperService implements OnInit{
       // if login required then route to login page with same link as redirect URL
       if (this.$routeParams[this.paramName_loginRequired] && JSON.parse(this.$routeParams[this.paramName_loginRequired])){
         // login required
-        if(window.window.__env.enableKeycloakSecurity){
+        if(this.envConfigService.enableKeycloakSecurity){
           if (this.authService.isAuthenticated()) {
             // if (Auth.keycloak.showAdminView) {
             //   return true;
@@ -161,9 +161,9 @@ export class ShareHelperService implements OnInit{
   };
 
   setShareLinkParam_mapExtent(){
-    this.setShareLinkParam(this.paramName_latitude, window.__env.currentLatitude);
-    this.setShareLinkParam(this.paramName_longitude, window.__env.currentLongitude);
-    this.setShareLinkParam(this.paramName_zoomLevel, window.__env.currentZoomLevel);
-    window.__env.centerMapInitially = false;
+    this.setShareLinkParam(this.paramName_latitude, this.envConfigService.currentLatitude);
+    this.setShareLinkParam(this.paramName_longitude, this.envConfigService.currentLongitude);
+    this.setShareLinkParam(this.paramName_zoomLevel, this.envConfigService.currentZoomLevel);
+    this.envConfigService.centerMapInitially = false;
   };
 }
