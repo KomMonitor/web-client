@@ -506,7 +506,7 @@
 															<div><input type="radio" ng-model="cronInputMode" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern" name="mode" value="interval" ng-change="updateCron()" checked/></div>
 															<div>Alle</div>
 															<div>
-																<input ng-model="intervalValue" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" class="form-control" type="number" id="intervalValue" min="1" max="30" />
+																<input ng-model="intervalValue" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" class="form-control" type="number" id="intervalValue" min="1" max="60" />
 															</div>
 															<div>
 																<select class="form-control" ng-disabled="$ctrl.kommonitorScriptHelperServiceInstance.useManualCronPattern || cronInputMode != 'interval'" ng-change="updateCron()" ng-model="intervalUnit" id="intervalUnit">
@@ -514,7 +514,6 @@
 																	<option value="hour">Stunden</option>
 																	<option value="day">Tage</option>
 																	<option value="month" selected>Monate</option>
-																	<option value="year">Jahre</option>
 																</select>
 															</div>
 														</label>

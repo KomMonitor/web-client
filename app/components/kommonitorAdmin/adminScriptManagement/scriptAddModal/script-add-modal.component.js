@@ -357,10 +357,12 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				let cron = "";
 				let min = "*", hour = "*", day = "*", month = "*", weekday = "*";
 
-				if($scope.intervalUnit == "week" && $scope.cronInputMode == "interval") {
+				// switch to unit 'month' if unavailable unit for interval is selected
+				if(["week", "year"].includes($scope.intervalUnit) && $scope.cronInputMode == "interval") {
 					$scope.intervalUnit = "month";
 				}
 
+				// only set the relevant positions for cron expression
 				if (["hour", "day", "week", "month", "year"].includes($scope.intervalUnit)) {
 					min = $scope.selectedMinute;
 				}
@@ -376,7 +378,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				if ($scope.intervalUnit === "year") {
 					month = $scope.selectedMonth;
 				}
-				else if ($scope.cronInputMode == "once") {
+				
+				// create cron expression depending on input mode
+				if ($scope.cronInputMode == "once") {
 					cron = `${min} ${hour} ${day} ${month} ${weekday}`;
 				} 
 				else if ($scope.cronInputMode == "interval"){
@@ -385,7 +389,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 						case "hour":   cron = `${min} */${$scope.intervalValue} * * *`; break;
 						case "day":    cron = `${min} ${hour} */${$scope.intervalValue} * *`; break;
 						case "month":  cron = `${min} ${hour} ${day} */${$scope.intervalValue} *`; break;
-						case "year":   cron = `${min} ${hour} ${day} ${month} */${$scope.intervalValue}`; break;
 					}
 				}
 				else if ($scope.cronInputMode == "everyFirst") {
