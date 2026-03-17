@@ -22,10 +22,10 @@
       <div class="row">
         <div class="col-md-6" style="text-align: left;">
           <div *ngIf="exchangeData.allFeaturesRegionalSum">
-            <b>{{exchangeData.labelSum_regional}}</b> {{exchangeData.allFeaturesRegionalSum}}								
+            <b>{{labelService.labelSum_regional}}</b> {{exchangeData.allFeaturesRegionalSum}}								
           </div>
           <div *ngIf="exchangeData.allFeaturesRegionalSpatiallyUnassignable">
-            <b>{{exchangeData.labelSpatiallyUnassignable_regional}}</b> {{exchangeData.allFeaturesRegionalSpatiallyUnassignable || 0}}								
+            <b>{{labelService.labelSpatiallyUnassignable_regional}}</b> {{exchangeData.allFeaturesRegionalSpatiallyUnassignable || 0}}								
           </div>
         </div>
         <div class="col-md-6" style="text-align: right;">

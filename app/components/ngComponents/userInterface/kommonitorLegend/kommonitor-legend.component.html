@@ -245,11 +245,11 @@
               <div>
                 <br/>
                 <div *ngIf="dataExchangeService.allFeaturesRegionalMean && dataExchangeService.enableMeanDataDisplayInLegend">
-                  <b>{{dataExchangeService.labelMean_regional}}</b>
+                  <b>{{labelService.labelMean_regional}}</b>
                   {{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}
                 </div>
                 <div *ngIf="dataExchangeService.allFeaturesMean && dataExchangeService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
-                  <b>{{dataExchangeService.labelMean}}</b>
+                  <b>{{labelService.labelMean}}</b>
                   {{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}
                 </div>
               </div>
@@ -477,49 +477,49 @@
         <thead>
           <tr>
             <th></th>
-            <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size == 0">{{dataExchangeService.labelAllFeatures}}</th>
-            <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size > 0">{{dataExchangeService.labelFilteredFeatures}}</th>
-            <th>{{dataExchangeService.labelSelectedFeatures}}</th>
+            <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size == 0">{{labelService.labelAllFeatures}}</th>
+            <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size > 0">{{labelService.labelFilteredFeatures}}</th>
+            <th>{{labelService.labelSelectedFeatures}}</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>{{dataExchangeService.labelNumberOfFeatures}}</td>
+            <td>{{labelService.labelNumberOfFeatures}}</td>
             <td>{{dataExchangeService.allFeaturesNumberOfFeatures}}</td>
             <td>{{dataExchangeService.selectedFeaturesNumberOfFeatures}}</td>
           </tr>
           <tr *ngIf="! dataExchangeService.allFeaturesRegionalSum">
-            <td>{{dataExchangeService.labelSum}}</td>
+            <td>{{labelService.labelSum}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesSum)}}</td>
             <td>{{dataExchangeService.selectedFeaturesSum}}</td>
           </tr>
           <tr *ngIf="dataExchangeService.allFeaturesRegionalSum">
-            <td>{{dataExchangeService.labelSum_regional}}</td>
+            <td>{{labelService.labelSum_regional}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalSum)}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesSum)}}</td>
           </tr>
           <tr *ngIf="dataExchangeService.allFeaturesRegionalMean">
-            <td>{{dataExchangeService.labelMean_regional}}</td>
+            <td>{{labelService.labelMean_regional}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMean)}}</td>
           </tr>
           <tr *ngIf="dataExchangeService.allFeaturesMean && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
-            <td>{{dataExchangeService.labelMean}}</td>
+            <td>{{labelService.labelMean}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}</td>
             <td>{{dataExchangeService.selectedFeaturesMean}}</td>
           </tr>
           <tr>
-            <td>{{dataExchangeService.labelMin}}</td>
+            <td>{{labelService.labelMin}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMin)}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMin)}}</td>
           </tr>
           <tr>
-            <td>{{dataExchangeService.labelMax}}</td>
+            <td>{{labelService.labelMax}}</td>
                 <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMax)}}</td>
             <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMax)}}</td>
           </tr>
           <tr>
-            <td>{{dataExchangeService.labelSpatiallyUnassignable_regional}}</td>
+            <td>{{labelService.labelSpatiallyUnassignable_regional}}</td>
                 <td>{{dataExchangeService.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
             <td>-</td>
           </tr>

@@ -1,6 +1,7 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Inject, Injectable } from '@angular/core';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { LabelService } from 'services/label-service/label.service';
 import { HttpClient } from '@angular/common/http';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import * as echarts from 'echarts';
@@ -47,7 +48,8 @@ export class DiagramHelperServiceService {
     private broadcastService: BroadcastService,
     private dataExchangeService: DataExchangeService,
     private filterHelperService: FilterHelperService,
-    private http: HttpClient
+    private http: HttpClient,
+    private labelService: LabelService
   ) {
     this.exchangeData = this.dataExchangeService;
   }
@@ -1074,7 +1076,7 @@ export class DiagramHelperServiceService {
 
 
     let meanLine = {
-      name: this.exchangeData.rankingChartAverageLabel,
+      name: this.labelService.rankingChartAverageLabel,
       type: 'line',
       data: indicatorTimeSeriesAverageArray,
       symbolSize: 6,
@@ -1095,7 +1097,7 @@ export class DiagramHelperServiceService {
     };
 
     let regionalMeanLine = {
-      name: this.exchangeData.rankingChartRegionalReferenceValueLabel,
+      name: this.labelService.rankingChartRegionalReferenceValueLabel,
       type: 'line',
       symbolSize: 8,
       symbol: "circle",
@@ -1120,13 +1122,13 @@ export class DiagramHelperServiceService {
     // only add regional mean line if it contains at least one meaningful entry
     if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
       lineOption.series.push(regionalMeanLine);
-      lineOption.legend.data.push(this.exchangeData.rankingChartRegionalReferenceValueLabel);
+      lineOption.legend.data.push(this.labelService.rankingChartRegionalReferenceValueLabel);
       regionalMeanUsed = true;
     }
 
     if(this.exchangeData.configMeanDataDisplay == "both" || (regionalMeanUsed == false && this.exchangeData.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
       lineOption.series.push(meanLine);
-      lineOption.legend.data.push(this.exchangeData.rankingChartAverageLabel);
+      lineOption.legend.data.push(this.labelService.rankingChartAverageLabel);
     }     
 
     // SETTING FOR MIN AND MAX STACK

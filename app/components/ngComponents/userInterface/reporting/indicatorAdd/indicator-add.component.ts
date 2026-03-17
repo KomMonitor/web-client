@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { fromJson, toJson } from 'angular';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
@@ -178,6 +179,7 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected labelService: LabelService,
     private broadcastSerice: BroadcastService,
     private diagramHelperService: DiagramHelperServiceService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
@@ -3016,7 +3018,7 @@ export class IndicatorAddComponent implements OnInit {
 
     if(pageElement.showAverage) {
       options.series = options.series.filter( series => {
-        return series.name === this.dataExchangeService.rankingChartAverageLabel || series.name === this.dataExchangeService.rankingChartRegionalReferenceValueLabel 
+        return series.name === this.labelService.rankingChartAverageLabel || series.name === this.labelService.rankingChartRegionalReferenceValueLabel 
       });
 
       for(let i=0; i<timestampsToRemoveCounter; i++) {

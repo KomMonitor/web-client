@@ -34,30 +34,19 @@ export interface DataExchange {
   classifyZeroSeparately: any;
   allFeaturesRegionalMean: any;
   enableMeanDataDisplayInLegend: any;
-  labelMean_regional: any;
-  labelMean: any;
   allFeaturesMean: any;
   configMeanDataDisplay: any;
   wmsDatasets_keywordFiltered: any;
-  labelAllFeatures: any;
-  labelFilteredFeatures: any;
-  labelSelectedFeatures: any;
-  labelNumberOfFeatures: any;
   allFeaturesNumberOfFeatures: any;
   selectedFeaturesNumberOfFeatures: any;
-  labelSum: any;
   allFeaturesSum: any;
-  labelSum_regional: any;
   allFeaturesRegionalSum: any;
   selectedFeaturesSum: any;
   selectedFeaturesMean: any;
-  labelMin: any;
-  labelMax: any;
   allFeaturesMin: any;
   selectedFeaturesMin: any;
   allFeaturesMax: any;
   selectedFeaturesMax: any;
-  labelSpatiallyUnassignable_regional: any;
   allFeaturesRegionalSpatiallyUnassignable: any;
   classifyUsingWholeTimeseries: any;
   useNoDataToggle: any;
@@ -95,8 +84,6 @@ export interface DataExchange {
   currentKeycloakLoginRoles: any;
   showDiagramExportButtons:any;
   computationIndicatorHierarchy:any[];
-  rankingChartAverageLabel:any;
-  rankingChartRegionalReferenceValueLabel:any;
   FEATURE_NAME_PROPERTY_NAME:any;
   availableGeoresources:any;
   availableIndicators:any;
@@ -177,17 +164,7 @@ export class DataExchangeService {
   allFeaturesRegionalMean: any;
   allFeaturesMean: any;
 
-  labelAllFeatures = "alle Raumeinheiten";
-  labelFilteredFeatures = "gefilterte Raumeinheiten";
-  labelSelectedFeatures = "selektierte Raumeinheiten";
-  labelNumberOfFeatures = "Anzahl:"
-  labelSum = "rechnerische Summe:"
-  labelMean = "rechnerisches arith. Mittel:"
-  labelSum_regional = "gesamtregionale Vergleichssumme:"
-  labelSpatiallyUnassignable_regional = "räumlich nicht zuordenbare:"
-  labelMean_regional = "gesamtregionaler Vergleichsmittelwert:"
-  labelMin = "Minimalwert:"
-  labelMax = "Maximalwert"
+
 
   allFeaturesNumberOfFeatures: any;
   selectedFeaturesNumberOfFeatures: any;
@@ -579,8 +556,7 @@ export class DataExchangeService {
     format: 'yyyy-mm-dd'
   };
 
-  rankingChartAverageLabel = "rechnerisches arithmetisches Mittel";
-  rankingChartRegionalReferenceValueLabel = "gesamtregionaler Vergleichsdurchschnitt";
+
 
   headlineIndicatorHierarchy:any[] = [];
   computationIndicatorHierarchy:any[] = [];

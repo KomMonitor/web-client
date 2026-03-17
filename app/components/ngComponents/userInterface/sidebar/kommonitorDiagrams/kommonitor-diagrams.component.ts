@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -33,6 +34,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    protected labelService: LabelService,
     private diagramHelperService: DiagramHelperServiceService,
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService
