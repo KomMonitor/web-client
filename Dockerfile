@@ -15,7 +15,8 @@ ADD . /kommonitor-webclient
 WORKDIR /kommonitor-webclient
 
 # Run the build
-RUN npm run build
+RUN npm install --force
+RUN npx webpack --mode production
 
 # actual image
 FROM nginx:alpine
