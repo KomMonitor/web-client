@@ -2066,10 +2066,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
             		zoomAnimation: false,
 				});
 
-				// force leaflet to recognize its container size immediately
-				setTimeout(() => {
-					leafletMap.invalidateSize();
-				}, 10);
+				
 				// manually create a field for attribution so we can control the z-index.
 				let prevAttributionDiv = pageDom.querySelector(".map-attribution")
 				if(prevAttributionDiv) prevAttributionDiv.remove();
@@ -2970,43 +2967,44 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				// the length of rowsData is the number of rows we have to add
-				for(let i=0;i<rowsData.length;i++) {
-					// each time we hit the page breakpoint we add a new page
-					// at this point we are not actually adding any rows to the table
-					if(i > 0 && i % maxRows == 0) {
-						// add a new page
-						let newPage = angular.fromJson($scope.untouchedTemplateAsString).pages.at(-1);
-						newPage.id = $scope.templatePageIdCounter++;
-						// setup new page
-						for(let pageElement of newPage.pageElements) {
+				// IMPORTANT: we only want to add pages if they don't exist yet for this specific datatable section
+				// Since this method might be called multiple times during config, we check if we actually need to add pages.
+				let totalPagesNeeded = Math.ceil(rowsData.length / maxRows);
 
-							if(pageElement.type.includes("indicatorTitle-")) {
-								pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
-								pageElement.isPlaceholder = false;
-							}
+				// add additional pages if needed (starting from the second page of data)
+				for(let p=1; p<totalPagesNeeded; p++) {
+					// add a new page
+					let newPage = angular.fromJson($scope.untouchedTemplateAsString).pages.at(-1);
+					newPage.id = $scope.templatePageIdCounter++;
+					// setup new page
+					for(let pageElement of newPage.pageElements) {
 
-							if(pageElement.type.includes("dataTimestamp-")) {
-								pageElement.text = timestamp;
-								pageElement.isPlaceholder = false;
-							}
-
-							// exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
-							if(pageElement.type.includes("dataTimeseries-")) {
-								pageElement.text = timeseries.from + " - " + timeseries.to;
-								pageElement.isPlaceholder = false;
-							}
-
-							if(pageElement.type === "datatable") {
-								pageElement.isPlaceholder = false;
-							}
+						if(pageElement.type.includes("indicatorTitle-")) {
+							pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
+							pageElement.isPlaceholder = false;
 						}
 
-						// insert after current one
-						let currentPageIndex = $scope.template.pages.indexOf(page)
-						$scope.template.pages.splice(currentPageIndex + 1, 0, newPage);
-					}
-				}
+						if(pageElement.type.includes("dataTimestamp-")) {
+							pageElement.text = timestamp;
+							pageElement.isPlaceholder = false;
+						}
 
+						// exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
+						if(pageElement.type.includes("dataTimeseries-")) {
+							pageElement.text = timeseries.from + " - " + timeseries.to;
+							pageElement.isPlaceholder = false;
+						}
+
+						if(pageElement.type === "datatable") {
+							pageElement.isPlaceholder = false;
+						}
+					}
+
+					// insert after current one
+					let currentPageIndex = $scope.template.pages.indexOf(page)
+					// we insert at currentPageIndex + p to keep them together
+					$scope.template.pages.splice(currentPageIndex + p, 0, newPage);
+				}
 
 				// create table rows once the pages exist
 				function insertDatatableRows(rowsData, page, maxRows) {
@@ -3643,7 +3641,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.pageContainsDatatable = function(pageID) {
+			if(!$scope.template || !$scope.template.pages) return false;
 			let page = $scope.template.pages[pageID];
+			if(!page) return false;
 			let pageContainsDatatable = false;
 			for(let pageElement of page.pageElements) {
 				if(pageElement.type == "datatable") {
@@ -3654,6 +3654,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.getPageNumber = function(index) {
+			if(!$scope.template || !$scope.template.pages) return 1;
 			let pageNumber = 1;
 			for(let i = 0; i < index; i ++) {
 				if ($scope.showThisPage($scope.template.pages[i])) {

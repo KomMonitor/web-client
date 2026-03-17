@@ -286,13 +286,30 @@ angular.module('reportingOverview').component('reportingOverview', {
 				page.templateSection = templateSection;
 			}
 			// remove the placeholder template if this is the first section that gets added)
+			// ALSO remove any existing pages for THIS indicator to prevent duplicates when re-adding
 			$scope.config.pages = $scope.config.pages.filter( page => {
 				if(page.hasOwnProperty("templateSection")) {
-					return page.templateSection.hasOwnProperty("indicatorName");
+					if (!page.templateSection.hasOwnProperty("indicatorName")) return false; // remove placeholder
+					
+					// remove pages for SAME indicator and SAME spatial unit
+					if (page.templateSection.indicatorId === templateSection.indicatorId && 
+						page.templateSection.spatialUnitName === templateSection.spatialUnitName && 
+						!page.templateSection.poiLayerName) {
+						return false;
+					}
+					return true;
 				} else {
 					return false;
 				}
 			});
+
+			// also remove existing templateSection for same indicator
+			$scope.config.templateSections = $scope.config.templateSections.filter(section => {
+				return section.indicatorId !== templateSection.indicatorId || 
+					   section.spatialUnitName !== templateSection.spatialUnitName ||
+					   section.poiLayerName !== templateSection.poiLayerName;
+			});
+
 			// append to array
 			$scope.config.pages.push(...template.pages);
 			
@@ -325,13 +342,29 @@ angular.module('reportingOverview').component('reportingOverview', {
 				page.templateSection = templateSection;
 			}
 			// remove all pages without property poiLayerName (clean template)
+			// ALSO remove any existing pages for THIS poi layer to prevent duplicates when re-adding
 			$scope.config.pages = $scope.config.pages.filter( page => {
 				if(page.hasOwnProperty("templateSection")) {
-					return page.templateSection.hasOwnProperty("poiLayerName");
+					if (!page.templateSection.hasOwnProperty("poiLayerName")) return false; // remove placeholder
+					
+					// remove pages for SAME poi layer and SAME spatial unit
+					if (page.templateSection.poiLayerName === templateSection.poiLayerName && 
+						page.templateSection.spatialUnitName === templateSection.spatialUnitName) {
+						return false;
+					}
+					return true;
 				} else {
 					return false;
 				}
 			});
+
+			// also remove existing templateSection for same poi layer
+			$scope.config.templateSections = $scope.config.templateSections.filter(section => {
+				return section.indicatorId !== templateSection.indicatorId || 
+					   section.spatialUnitName !== templateSection.spatialUnitName ||
+					   section.poiLayerName !== templateSection.poiLayerName;
+			});
+
 			// append to array
 			$scope.config.pages.push(...template.pages);
 			$scope.config.templateSections.push(templateSection);
@@ -786,8 +819,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 						legendDiv.style.zIndex = 800;
 						let isochronesRangeType = page.templateSection.isochronesRangeType;
 						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-						let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
-						legendDiv.appendChild(legendImg);
+						$scope.legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						page.templateSection.legendImg = $scope.legendImg; // cache for export
+						legendDiv.appendChild($scope.legendImg);
 						pageElementDom.appendChild(legendDiv)
 					}
 
@@ -1408,6 +1442,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 
       // Pages
 
+
+
       for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(!$scope.showThisPage(page)) {
@@ -1823,9 +1859,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 		}
 
-		let sections = []; // one section per page for now, since this is an easy way to create page breaks
-
 		$scope.generateWordReport = async function() {
+			let sections = []; // one section per page for now, since this is an easy way to create page breaks
 			let font = "Calibri";
       if($scope.customFontFamily!=undefined) {
         font = $scope.customFontFamily.replace(/['"]+/g,'');
@@ -2067,12 +2102,21 @@ angular.module('reportingOverview').component('reportingOverview', {
 							}
 
 							let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? "_perc" : "");
-							let imageDataUrl = page.generatedData.echarts[key];
+							let imageDataUrl = page.generatedData && page.generatedData.echarts ? page.generatedData.echarts[key] : undefined;
 
 							if(pageElement.type === "map"){
-								imageDataUrl = await $scope.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl)
+								try {
+									imageDataUrl = await $scope.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl)
+								} catch (e) {
+									console.error("Error creating map image", e);
+								}
 							}
 							
+							if (!imageDataUrl || !imageDataUrl.includes("data:image")) {
+								console.warn("Skipping image page element because imageDataUrl is invalid", pageElement, "on page", idx);
+								continue;
+							}
+
 							let blob = dataURItoBlob(imageDataUrl);
 
 							let paragraph = new docx.Paragraph({
@@ -2229,7 +2273,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 					children: [...paragraphs],
 				}
 
-				sections.push(section)
+				try {
+					sections.push(section)
+				} catch (error) {
+					console.error("Error occurred while pushing section:", error);
+				}
+				
 			}
 
 			let docxConfig = {
@@ -2276,7 +2325,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
 					resolve();
 				}
-				leafletMapImg.onerror = reject;
+				leafletMapImg.onerror = function(e) {
+					console.error("Error loading leaflet map image for page " + page.indexInConfigPages, e);
+					reject(new Error("Leaflet map image load error"));
+				};
 			})
 			leafletMapImg.src = leafletMapScreenshot;
 			await leafletMapImgDrawn
@@ -2287,7 +2339,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
 					resolve();
 				}
-				echartsImg.onerror = reject;
+				echartsImg.onerror = function(e) {
+					console.error("Error loading echarts image for page " + page.indexInConfigPages, e);
+					reject(new Error("ECharts image load error"));
+				};
 			});
 			echartsImg.src = echartsImgSrc;
 			await echartsImgDrawn
@@ -2305,9 +2360,24 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let echartsOptions = pageElement.echartsOptions;
 				let isochronesRangeType = page.templateSection.isochronesRangeType;
 				let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-				let spatialUnit = await $scope.getSpatialUnitByIndicator(page.templateSection.indicatorId, page.templateSection.spatialUnitName);
-				let legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+
+				let legendImg = page.templateSection.legendImg;
+				if (!legendImg) {
+					// generate on the fly if not cached
+					let spatialUnit = await $scope.getSpatialUnitByName(page.templateSection.spatialUnitName);
+					legendImg = await kommonitorDiagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+					page.templateSection.legendImg = legendImg;
+				}
+
 				if(legendImg){
+					// ensure image is loaded (it should be, but let's be safe)
+					if (!legendImg.complete) {
+						await new Promise((resolve) => {
+							legendImg.onload = resolve;
+							legendImg.onerror = resolve; // continue anyway
+						});
+					}
+					ctx.fillStyle = "white";
 					ctx.fillRect(canvas.width - legendImg.width, canvas.height - legendImg.height, legendImg.width, legendImg.height)
 					ctx.drawImage(legendImg, canvas.width - legendImg.width, canvas.height - legendImg.height);
 				}
