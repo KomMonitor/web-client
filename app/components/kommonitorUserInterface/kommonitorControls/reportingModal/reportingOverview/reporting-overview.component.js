@@ -395,10 +395,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 					else{
 						// poi case
-						keepItem = item.templateSection.poiLayer != indicatorIdOrPoiName
+						keepItem = item.templateSection.poiLayerName != indicatorIdOrPoiName
 					}
 
-					return keepItem;
+					if(keepItem){
+						return true;
+					}
+
+					// if we are here, we want to remove the item
+					// we only remove it if the spatial unit also matches
+					return item.templateSection.spatialUnitName != targetTemplateSection.spatialUnitName;
 				} )
 			}
 		}
@@ -418,7 +424,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					if(!page.hasOwnProperty("templateSection")) return true; // for placeholder
 					
 					return page.templateSection.indicatorId !== removedSection.indicatorId ||
-						page.templateSection.spatialUnitId !== removedSection.spatialUnitId ||
+						page.templateSection.spatialUnitName !== removedSection.spatialUnitName ||
 						page.templateSection.poiLayerName !== removedSection.poiLayerName
 				});
 			}
@@ -428,7 +434,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				for(let section of newVal) {
 					for(let page of $scope.config.pages) {
 						if(page.templateSection.indicatorId === section.indicatorId &&
-							page.templateSection.spatialUnitId === section.spatialUnitId &&
+							page.templateSection.spatialUnitName === section.spatialUnitName &&
 							page.templateSection.poiLayerName === section.poiLayerName) {
 
 							sorted.push(page);
