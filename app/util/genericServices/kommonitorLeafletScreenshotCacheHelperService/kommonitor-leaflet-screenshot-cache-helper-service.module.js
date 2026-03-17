@@ -12,6 +12,7 @@ angular
       const CacheKey_prefix = __env.localStoragePrefix;
 
       self.cacheMap = new Map();
+      self.pendingPromises = new Map();
 
       // Initialize IndexedDB
       const dbName = 'leafletScreenshotCache';
@@ -86,23 +87,33 @@ angular
 
         let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
         if (!self.cacheMap.has(CacheKey)) {
+
+          if (self.pendingPromises.has(CacheKey)) {
+            return self.pendingPromises.get(CacheKey);
+          }
+
           // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
           // for now we try to only execute one screenshot process for each spatial unit
           // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item         
-          return new Promise((resolve, reject) => {
+          let promise = new Promise((resolve, reject) => {
             setTimeout(function () {
               domtoimage
                 .toJpeg(domElement, { quality: 1 })
                 .then(function (dataUrl) {
                   self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
+                  self.pendingPromises.delete(CacheKey);
                   resolve(dataUrl);
                 })
                 .catch(function (error) {
                   console.error('oops, something went wrong!', error);
+                  self.pendingPromises.delete(CacheKey);
                   reject(error);
                 });
             }, 500);
           });
+
+          self.pendingPromises.set(CacheKey, promise);
+          return promise;
         }
         else{
           // only increase executedCacheMap due to log progress
