@@ -97,18 +97,29 @@ angular
           // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item         
           let promise = new Promise((resolve, reject) => {
             setTimeout(function () {
-              domtoimage
-                .toJpeg(domElement, { quality: 1 })
-                .then(function (dataUrl) {
-                  self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
-                  self.pendingPromises.delete(CacheKey);
-                  resolve(dataUrl);
-                })
-                .catch(function (error) {
-                  console.error('oops, something went wrong!', error);
-                  self.pendingPromises.delete(CacheKey);
-                  reject(error);
-                });
+              // verify that there are actually tiles loaded/loading to avoid empty screenshots
+              let tiles = domElement.querySelectorAll('.leaflet-tile');
+              if (tiles.length === 0) {
+                console.warn("No Leaflet tiles found in DOM yet. Screenshot might be empty/black. Retrying once after short delay...");
+                setTimeout(() => capture(), 500);
+              } else {
+                capture();
+              }
+
+              function capture() {
+                domtoimage
+                  .toPng(domElement)
+                  .then(function (dataUrl) {
+                    self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
+                    self.pendingPromises.delete(CacheKey);
+                    resolve(dataUrl);
+                  })
+                  .catch(function (error) {
+                    console.error('oops, something went wrong!', error);
+                    self.pendingPromises.delete(CacheKey);
+                    reject(error);
+                  });
+              }
             }, 500);
           });
 
