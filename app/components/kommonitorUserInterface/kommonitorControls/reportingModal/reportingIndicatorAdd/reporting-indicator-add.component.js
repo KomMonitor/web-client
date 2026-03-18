@@ -1818,6 +1818,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.pagePreparationIndex = 0;
 			$scope.pagePreparationSize = 0;
 
+			// reset all variables to initial state to avoid conflicts when adding multiple indicators in a row
+			// or when going back to template selection
+			kommonitorLeafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate = false;
+			kommonitorLeafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures = 0;
+
 			$scope.template = undefined;
 			$scope.untouchedTemplateAsString = "";
 			$scope.indicatorNameFilter = "";
@@ -2628,6 +2633,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let barChart = echarts.init( wrapper );
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.bar[timestamp] ));
 
+			// disable animation, otherwise report screenshots might be taken before the animation is finished, which results in wrong diagrams in the report preview and final report
 			options.animation = false;
 
 			// default changes
@@ -2758,6 +2764,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let timeline = $scope.getFormattedDateSliderValues(true).dates;
 			// get standard options, create a copy of the options to not change anything in the service
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.line ));
+
+			// disable animation, otherwise report screenshots might be taken before the animation is finished, which results in wrong diagrams in the report preview and final report
+			options.animation = false;
+
 			options.title.textStyle.fontSize = 12;
 			options.title.text = "Zeitreihe";
 			options.yAxis.axisLabel = { "fontSize": 10 };
@@ -2925,6 +2935,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.createPageElement_Datatable = function(wrapper, page, isPreview) {
 
 			return new Promise((resolve) => {
+				// check if page is already an additional datatable page, if so we don't have to do anything
+				// because the first page already takes care of the others.
+				if (page.isAdditionalDatatablePage) {
+					resolve();
+					return;
+				}
+
 				// table looks different depending on template type
 				// for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
 				// for timeseries it is added once at the end of the template and contains an extra column for timestamps.
@@ -2964,6 +2981,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					if( !isSelected )
 						continue;
 
+					// if current page is specific for an area, only use this area
+					if(page.area && feature.properties.NAME !== page.area) {
+						continue;
+					}
+
 					if($scope.template.name.includes("timestamp")) {
 						// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 						let dateElement = page.pageElements.find( el => {
@@ -2999,7 +3021,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				rowsData.sort((a, b) => a.name.localeCompare(b.name))
 
 				// append average as last row if needed
-				if($scope.template.name.includes("timestamp")) {
+				if($scope.template.name.includes("timestamp") && !page.area) {
 					rowsData.push({
 						name: "Durchschnitt Selektion",
 						value: $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true)
@@ -3016,7 +3038,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// Since this method might be called multiple times during config, we check if we actually need to add pages.
 				
 				// FIRST: cleanup any existing additional datatable pages to avoid duplicates
-				$scope.template.pages = $scope.template.pages.filter(p => !p.isAdditionalDatatablePage);
+				// REMOVED because it causes problems when multiple datatables are in one template
+				// and cleanup is already handled by generatePages() locally for each datatable section
+				// $scope.template.pages = $scope.template.pages.filter(p => !p.isAdditionalDatatablePage);
 
 				let totalPagesNeeded = Math.ceil(rowsData.length / maxRows);
 
