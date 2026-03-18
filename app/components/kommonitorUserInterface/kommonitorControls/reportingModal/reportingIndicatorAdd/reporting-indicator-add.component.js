@@ -1520,7 +1520,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return seriesOptions;
 		}
 
-		$scope.resetOptionalIndicator = function() {
+		$scope.resetOptionalIndicator = async function() {
 			
 			if(!$scope.selectedIndicator) {
 				return;
@@ -1528,40 +1528,56 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.selectedIndicator = undefined;
 			// since we don't have an indicator selected anymore we reset the spatial unit
-			$scope.selectedSpatialUnit = $scope.allSpatialUnitsForReachability.filter( spatialUnit => {
+			$scope.selectedSpatialUnit = $scope.allSpatialUnitsForReachability.find( spatialUnit => {
 				return spatialUnit.spatialUnitLevel === $scope.selectedSpatialUnit.spatialUnitName;
-			})[0];
+			});
 			
-			
-			// let filter = $scope.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
-			// 	return spatialUnit.spatialUnitName === $scope.selectedSpatialUnit.spatialUnitLevel;
-			// })
-			// $scope.selectedSpatialUnit = filter[0];
-
-			for(let page of $scope.template.pages) {
-				for(let pageElement of page.pageElements) {
-					if(pageElement.type === "map") {
-						let domNode = document.querySelector("#reporting-addIndicator-page-" + $scope.template.pages.indexOf(page) + "-map")
-						let map = echarts.getInstanceByDom(domNode)
-						let options = map.getOption();
-						// remove indicator data
-						options.series[0].data = [];
-						options.series[0].label.formatter = '{b}';
-						map.setOption(options, {
-							replaceMerge: ['series']
-						});
-					}
-
-					if(pageElement.type.includes("reachability-subtitle-")) {
-						pageElement.text = $scope.selectedTimestamps[0].name;
-						if($scope.isochrones) {
-							pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+			if($scope.template) {
+				for(let i=0; i<$scope.template.pages.length; i++) {
+					let page = $scope.template.pages[i];
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "map") {
+							let domNode = document.querySelector("#reporting-addIndicator-page-" + i + "-map")
+							if (domNode) {
+								let map = echarts.getInstanceByDom(domNode)
+								if (map) {
+									let options = map.getOption();
+									// remove indicator data
+									options.series[0].data = [];
+									options.series[0].label.formatter = '{b}';
+									map.setOption(options, {
+										replaceMerge: ['series']
+									});
+									// also update stored options and image for export
+									pageElement.echartsOptions = options;
+									if (page.generatedData) {
+										page.generatedData.echarts[pageElement.type] = map.getDataURL({pixelRatio: 2});
+									}
+								}
+							} else {
+								// page not in preview DOM, maybe it's a background page or not yet prepared
+								// if it was already prepared (isComplete), we MUST re-prepare it to update the stored image
+								if (page.generatedData && page.generatedData.isComplete) {
+									await $scope.preparePageForIndicatorAdd(i, page);
+								}
+							}
 						}
-						
-						pageElement.isPlaceholder = false
+
+						if(pageElement.type.includes("reachability-subtitle-")) {
+							pageElement.text = $scope.selectedTimestamps[0].name;
+							if($scope.isochrones) {
+								pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+							}
+							
+							pageElement.isPlaceholder = false
+						}
 					}
 				}
 			}
+			
+			$timeout(function(){
+				$scope.$digest();
+			});
 		}
 
 		$scope.handleIndicatorSelectForReachability = async function(indicator) {
@@ -1581,35 +1597,59 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName] = featureCollection.features;
 			$scope.selectedIndicator.geoJSON = featureCollection;
 			$scope.selectedIndicator.geoJSON.features = $scope.createLowerCaseNameProperty($scope.selectedIndicator.geoJSON.features);
-			if($scope.selectedIndicator.geoJSON.features[0] && !$scope.selectedIndicator.geoJSON.features[0].properties.bbox){
-				for(let feature of $scope.selectedIndicator.geoJSON.features) {
-					let bbox = turf.bbox(feature); // calculate bbox for each feature
-					feature.properties.bbox = bbox;
-				}
+			
+			// ensure bboxes are there for all features (needed for e.g. fitBounds)
+			for(let feature of $scope.selectedIndicator.geoJSON.features) {
+				if(!feature.properties.bbox)
+					feature.properties.bbox = turf.bbox(feature); 
 			}
 			
+			// prepare O(1) map for features if it doesn't exist yet
+			$scope.geoJsonForSelectedIndicator_byFeatureName = new Map();
+			for(let feature of $scope.selectedIndicator.geoJSON.features) {
+				$scope.geoJsonForSelectedIndicator_byFeatureName.set(feature.properties.NAME, feature)
+			}
+			$scope.geoJsonForReachability_byFeatureName = $scope.geoJsonForSelectedIndicator_byFeatureName;
 			
-			for(let page of $scope.template.pages) {
-				for(let pageElement of page.pageElements) {
-					if(pageElement.type === "map") {
-						let domNode = document.querySelector("#reporting-addIndicator-page-" + $scope.template.pages.indexOf(page) + "-map")
-						let map = echarts.getInstanceByDom(domNode)
-						let options = map.getOption();
-						let seriesOptions = $scope.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
-						options.series[0] = seriesOptions;
-						options.series[0].label.formatter = '{b}\n{c}';
-						map.setOption(options, {
-							replaceMerge: ['series']
-						});
-					}
-
-					if(pageElement.type.includes("reachability-subtitle-")) {
-						pageElement.text = $scope.selectedTimestamps[0].name;
-						if($scope.isochrones) {
-							pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+			if($scope.template) {
+				for(let i=0; i<$scope.template.pages.length; i++) {
+					let page = $scope.template.pages[i];
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "map") {
+							let domNode = document.querySelector("#reporting-addIndicator-page-" + i + "-map")
+							if (domNode) {
+								let map = echarts.getInstanceByDom(domNode)
+								if (map) {
+									let options = map.getOption();
+									let seriesOptions = $scope.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
+									options.series[0] = seriesOptions;
+									options.series[0].label.formatter = '{b}\n{c}';
+									map.setOption(options, {
+										replaceMerge: ['series']
+									});
+									// also update stored options and image for export
+									pageElement.echartsOptions = options;
+									if (page.generatedData) {
+										page.generatedData.echarts[pageElement.type] = map.getDataURL({pixelRatio: 2});
+									}
+								}
+							} else {
+								// page not in preview DOM, maybe it's a background page or not yet prepared
+								// if it was already prepared (isComplete), we MUST re-prepare it to update the stored image
+								if (page.generatedData && page.generatedData.isComplete) {
+									await $scope.preparePageForIndicatorAdd(i, page);
+								}
+							}
 						}
-						pageElement.text += ", " + indicator.indicatorName;
-						pageElement.isPlaceholder = false;
+	
+						if(pageElement.type.includes("reachability-subtitle-")) {
+							pageElement.text = $scope.selectedTimestamps[0].name;
+							if($scope.isochrones) {
+								pageElement.text += ", " + $scope.isochronesTypeOfMovementMapping[$scope.typeOfMovement];
+							}
+							pageElement.text += ", " + indicator.indicatorName;
+							pageElement.isPlaceholder = false;
+						}
 					}
 				}
 			}
@@ -1622,9 +1662,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	
 		$scope.onIndicatorSelected = async function(indicator) {
 			try {
+				if (!$scope.template) {
+					console.warn("Reporting Template not yet initialized. Skipping indicator selection logic.");
+					return;
+				}
+
 				$scope.loadingData = true;
 				if($scope.template.name.includes("reachability")) {
-					$scope.handleIndicatorSelectForReachability(indicator);
+					await $scope.handleIndicatorSelectForReachability(indicator);
 					return;
 				}
 
@@ -3126,8 +3171,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					}
 				}
+				}
 
-				let insertDatatableRowsInterval = $interval(insertDatatableRows, 0, 100, true, rowsData, page, maxRows)
+				let insertDatatableRowsInterval = $interval(insertDatatableRows, 0, 100, true, rowsData, page, maxRows);
 			});
 		}
 
