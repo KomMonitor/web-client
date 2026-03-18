@@ -627,7 +627,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				
 				// recreate boxplots, itemNameFormatter did not get transferred
 				if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-					let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+					let xAxisLabels = pageElement.echartsOptions.xAxis.data;
 					pageElement.echartsOptions.dataset[1].transform.config = {
 						itemNameFormatter: function (params) {
 							return xAxisLabels[params.value];
