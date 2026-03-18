@@ -12,8 +12,8 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { GenerateReportComponent } from '../generate-report/generate-report.component';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
-import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ImportData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-reporting-overview',
@@ -63,35 +63,18 @@ export class ReportingOverviewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    
-    //if(this.data.templateData) {
-
-    /*   let configFileSelected = false;
-  
-      if(configFileSelected) {
-        //this.importConfig(data);
-      } else {
-
-        // pre-init pageConfig in template section as this is needed even before an indicator is selected. indicator/poi select may override this
-        let templateSection = {
-          pageConfig: jQuery.extend(true, {}, this.reportingService.config.pageConfig) // deep copy to preserve section specific settings
-        }
-        for(let page of this.reportingService.workingTemplate.pages) {
-          page.templateSection = templateSection;
-        }
-
-        this.reportingService.workingTemplate.pages = this.reportingService.workingTemplate.pages;
-      } */
-    //}
 
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 
-    this.setupPages();
+    if(!this.reportingService.configImportExists())
+      this.setupPages();
+    else
+      this.importConfig();
   }
 
   showReportLoading() {
-    return !(this.reportingService.currentWorkflowState==this.workflowState.formatSelect || this.reportingService.currentWorkflowState==this.workflowState.reportGeneration);
+    return (this.reportingService.currentWorkflowState==this.workflowState.formatSelect || this.reportingService.currentWorkflowState==this.workflowState.reportGeneration);
   }
 
   generateReport() {
@@ -373,6 +356,98 @@ export class ReportingOverviewComponent implements OnInit {
 			}
 		}
 
+    getNumberOfMapElements(config){
+      let firstSection = config.templateSections[0];
+
+      if (firstSection){
+        let numberOfMapItems = firstSection.echartsRegisteredMapNames.length;
+        // -1 because city overview map might occur twice with separate names
+        if (! config.template.name.includes("reachability")){
+          numberOfMapItems --;
+        }
+
+        return numberOfMapItems;
+      }
+      else{
+        return 0;
+      }
+    }
+
+    importConfig() {
+
+      try {
+
+        let config = this.reportingService.importConfig;
+        console.log(config)
+        let numberOfMapElements = this.getNumberOfMapElements(config);		
+				// reset leaflet screenshot helper service according to new  number of selected areas
+				//this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
+
+				// restore commune logo for every page, starting at the second
+				let communeLogoSrc = ""; // base64 string
+				for(let [idx, page] of config.pages.entries()) {
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type.includes("communeLogo-") && idx === 0) {
+							if(pageElement.src && pageElement.src.length) {
+								communeLogoSrc = pageElement.src;
+							} else {
+								break; // no logo was exported
+							}
+						}
+
+						if(pageElement.type.includes("communeLogo-") && idx > 0) {
+							pageElement.src = communeLogoSrc;
+						}
+					}
+				}
+
+				//this.reportingService.workingTemplate = config.template;
+				this.reportingService.workingTemplate.pages = config.pages;
+				this.reportingService.setTemplateSectionsFromConfig(config);
+
+				// register echarts maps
+				for(let section of this.reportingService.getSectionsAsArray()) {
+					for(let mapName of section.echartsRegisteredMapNames) {
+						if(this.reportingService.workingTemplate.name.includes("reachability")) {
+							if(!mapName.includes(section.spatialUnitName)) {
+								continue;
+							}
+							if(!mapName.includes("_isochrones")) {
+								let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
+								echarts.registerMap(mapName, geoJson)
+							} else {
+								let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
+								echarts.registerMap(mapName, geoJson)
+							}
+						} else {
+							if(!mapName.includes(section.spatialUnitName)) {
+								continue;
+							}
+							let geoJson = section.echartsMaps[0].geoJson
+							echarts.registerMap(mapName, geoJson)
+						}
+					}
+				}
+				for(let page of this.reportingService.workingTemplate.pages) {
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
+							for(let map of pageElement.echartsMaps) {
+								echarts.registerMap(map.name, map.geoJson)
+							}
+						}
+					}
+				}
+			
+
+				for(let section of this.reportingService.getSectionsAsArray()) {
+					this.setupPages();
+				}
+			} catch (error:any) {
+				console.error(error);
+				//this.dataExchangeService.displayMapApplicationError(error.message);
+			}
+    } 
+
     // new to cover added sections
     async setupPages() {
 
@@ -581,23 +656,6 @@ export class ReportingOverviewComponent implements OnInit {
 		});
 
  */
-
-    getNumberOfMapElements(config){
-			let firstSection = config.templateSections[0];
-
-			if (firstSection){
-				let numberOfMapItems = firstSection.echartsRegisteredMapNames.length;
-				// -1 because city overview map might occur twice with separate names
-				if (! config.template.name.includes("reachability")){
-					numberOfMapItems --;
-				}
-
-				return numberOfMapItems;
-			}
-			else{
-				return 0;
-			}
-		}
 
 		async initializeLeafletMap(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
 			try {
@@ -910,82 +968,6 @@ export class ReportingOverviewComponent implements OnInit {
 			pElementDom.appendChild(table);
 		}
 
-
-		importConfig(config) {
-		/* 	this.loadingData = true;
-
-			try {
-
-        let numberOfMapElements = this.getNumberOfMapElements(config);		
-				// reset leaflet screenshot helper service according to new  number of selected areas
-				//this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
-
-				// restore commune logo for every page, starting at the second
-				let communeLogoSrc = ""; // base64 string
-				for(let [idx, page] of config.pages.entries()) {
-					for(let pageElement of page.pageElements) {
-						if(pageElement.type.includes("communeLogo-") && idx === 0) {
-							if(pageElement.src && pageElement.src.length) {
-								communeLogoSrc = pageElement.src;
-							} else {
-								break; // no logo was exported
-							}
-						}
-
-						if(pageElement.type.includes("communeLogo-") && idx > 0) {
-							pageElement.src = communeLogoSrc;
-						}
-					}
-				}
-
-				//this.reportingService.workingTemplate = config.template;
-				this.reportingService.workingTemplate.pages = config.pages;
-				this.reportingService.config.templateSections = config.templateSections;
-
-				// register echarts maps
-				for(let section of this.reportingService.config.templateSections) {
-					for(let mapName of section.echartsRegisteredMapNames) {
-						if(this.reportingService.workingTemplate.name.includes("reachability")) {
-							if(!mapName.includes(section.spatialUnitName)) {
-								continue;
-							}
-							if(!mapName.includes("_isochrones")) {
-								let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
-								echarts.registerMap(mapName, geoJson)
-							} else {
-								let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
-								echarts.registerMap(mapName, geoJson)
-							}
-						} else {
-							if(!mapName.includes(section.spatialUnitName)) {
-								continue;
-							}
-							let geoJson = section.echartsMaps[0].geoJson
-							echarts.registerMap(mapName, geoJson)
-						}
-					}
-				}
-				for(let page of this.reportingService.workingTemplate.pages) {
-					for(let pageElement of page.pageElements) {
-						if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
-							for(let map of pageElement.echartsMaps) {
-								echarts.registerMap(map.name, map.geoJson)
-							}
-						}
-					}
-				}
-			
-
-				for(let section of this.reportingService.config.templateSections) {
-					this.setupNewPages(section);
-				}
-			} catch (error:any) {
-				console.error(error);
-				this.loadingData = false;
-				this.dataExchangeService.displayMapApplicationError(error.message);
-			} */
-		}
-
 		showThisPage(page) {
 
       /* if(page.hidden){
@@ -1063,7 +1045,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 				jsonToExport.pages = JSON.parse( temp )
 				jsonToExport.template = fromJson(toJson( this.reportingService.workingTemplate ));
-				//jsonToExport.templateSections = this.reportingService.config.templateSections;
+				jsonToExport.templateSections = this.reportingService.getSectionsAsArray();
 
 				// Only store commune logo once (in first page)
 				// It is base64 encoded and adds quite a bit to the file size

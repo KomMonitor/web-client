@@ -12,8 +12,8 @@
             <i class="fa fa-plus"></i>
             Neuen Report erstellen
         </button>
-        <button for="reporting-load-settings-button" class="btn btn-primary">
-            <input type="file" id="reporting-load-settings-button">
+        <button for="reporting-load-settings-button" class="btn btn-primary" (click)="fileInput.click()">
+            <input type="file" id="reporting-load-settings-button" #fileInput (change)="onConfigSelect($event)">
             <i class="fa fa-file-download"></i>
             &nbsp;&nbsp;Konfigurationsdatei importieren
         </button>

@@ -2108,6 +2108,8 @@ export class IndicatorAddComponent implements OnInit {
       isochronesRangeUnits: this.isochronesRangeUnits
     }
 
+    console.log(templateSection)
+
     // remove pages not visible
     this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter(e => e.hidden!==true);
 

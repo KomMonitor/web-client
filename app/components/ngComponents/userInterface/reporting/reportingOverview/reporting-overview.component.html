@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="loading-overlay-reporting" style="width:100%; height:100%; top: 0; left: 0" [hidden]="showReportLoading()">
+  <div class="loading-overlay-reporting" style="width:100%; height:100%; top: 0; left: 0" *ngIf="showReportLoading()">
     <span class="glyphicon glyphicon-refresh icon-spin"></span>
   </div>
   <div class="row row-no-gutters">

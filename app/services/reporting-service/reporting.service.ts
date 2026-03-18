@@ -2,6 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import * as echarts from 'echarts';
 
 export interface ReportingData {
   workflowState: WorkflowState;
@@ -67,13 +68,22 @@ export interface TemplateData {
   pages: any[]
 }
 
+export interface ImportData {
+  pages: any[];
+  template: TemplateData;
+  templateSections: SectionData[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ReportingService {
 
+  importConfig!: ImportData;
+  workflowStateOptions = WorkflowState;
+
   default:ReportingData = {
-    workflowState: WorkflowState.reportingOverview,
+    workflowState: WorkflowState.workflowSelect,
     selectedTemplateId: 0,
     sections: {
       indicators: [],
@@ -2999,6 +3009,18 @@ export class ReportingService {
     this.changeSelectedTemplate(this.default.selectedTemplateId);
   }
 
+  triggerConfigImport(config:ImportData) {
+    this.importConfig = config;
+    this.changeWorkflowState(this.workflowStateOptions.reportingOverview);
+  }
+
+  configImportExists():boolean {
+    if(this.importConfig)
+      return true;
+
+    return false;
+  }
+
   bakeInCustomInfo() {
 
     // update selected template with general settings
@@ -3017,6 +3039,10 @@ export class ReportingService {
         }
       }
     } 
+  }
+
+  setTemplateSectionsFromConfig(config:ImportData) {
+    this._reportingData$.value.sections.indicators = config.templateSections;  // todo, split into geo and indi
   }
   
   bakeInCustomInfoToClone() {
@@ -3037,6 +3063,10 @@ export class ReportingService {
         }
       }
     } 
+  }
+
+  getSectionsAsArray():any[] {
+    return [...this._reportingData$.value.sections.georesources,...this._reportingData$.value.sections.indicators];
   }
 
   bakeInCustomInfoToClonePage(page, index) {

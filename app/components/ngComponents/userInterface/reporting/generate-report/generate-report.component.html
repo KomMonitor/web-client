@@ -5,11 +5,14 @@
     <button type="button" class="close" data-dismiss="modal" (click)="activeModal.close('Close click')">&times;</button>
   </div>
   <div class="modal-body">
-    <div>
+    <div *ngIf="!loadingData">
       <button type="button" class="btn btn-primary" (click)="generateReport('pdf')" [disabled]="loadingData">PDF</button>
       <button type="button" class="btn btn-primary" (click)="generateReport('docx')" [disabled]="loadingData">DOCX</button>
       <button type="button" class="btn btn-primary" (click)="generateReport('zip')" [disabled]="loadingData">ZIP</button>
       <button type="button" class="btn btn-primary" (click)="generateReport('pptx')" [disabled]="loadingData">PPTX</button>
+    </div>
+    <div *ngIf="loadingData">
+      Report wird erzeugt, bitte warten...
     </div>
     <br>
     <br>

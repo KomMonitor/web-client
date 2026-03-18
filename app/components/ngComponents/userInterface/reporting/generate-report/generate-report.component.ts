@@ -12,12 +12,14 @@ import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { reportingData } from '../reporting-modal.component';
 import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-generate-report',
   standalone: true,
   templateUrl: './generate-report.component.html',
-  styleUrls: ['./generate-report.component.css']
+  styleUrls: ['./generate-report.component.css'],
+  imports: [CommonModule]
 })
 export class GenerateReportComponent implements OnInit {
 
