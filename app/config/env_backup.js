@@ -152,6 +152,9 @@ try {
   window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';
   window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics = "isochrone-prune";
 
+  // KomMonitor Timeseries API
+  window.__env.targetUrlToTimeseriesService = 'http://localhost:8086/timeseries-management';
+
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
   // allowed values and meaning:
