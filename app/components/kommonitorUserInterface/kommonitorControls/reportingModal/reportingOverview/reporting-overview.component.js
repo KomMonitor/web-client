@@ -1119,6 +1119,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 					$scope.$digest();
 				});
 
+				// reset isComplete flag for all pages to ensure that they are processed again in setupNewPages
+				// this ensures that the leaflet screenshots are checked against the cache or regenerated if missing
+				for(let page of $scope.config.pages) {
+					if(page.generatedData) {
+						page.generatedData.isComplete = false;
+					}
+				}
+
 				for(let section of $scope.config.templateSections) {
 					$scope.setupNewPages(section);
 				}
