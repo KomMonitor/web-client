@@ -81,7 +81,7 @@ export class KommonitorIndicatorDataExchangeService {
    * Get indicator unit options - delegates to AngularJS service
    */
   get indicatorUnitOptions(): any[] {
-    return this.angularJsDataExchangeService.indicatorUnitOptions || [];
+    return this.envConfigService.indicatorUnitOptions || [];
   }
 
   /**
@@ -109,7 +109,7 @@ export class KommonitorIndicatorDataExchangeService {
    * Get base URL to KomMonitor Data API - delegates to AngularJS service
    */
   get baseUrlToKomMonitorDataAPI(): string {
-    return this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI || '';
+    return this.envConfigService.baseUrlToKomMonitorDataAPI || '';
   }
 
   /**

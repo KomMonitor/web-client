@@ -319,7 +319,7 @@
 
   <div class="classificationBoxToogleSlidersWrapper" *ngIf="(containsOutliers_high || containsOutliers_low) && visualStyleHelperService.classifyMethod !== 'manual' && visualStyleHelperService.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
-    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" [(ngModel)]="exchangeData.useOutlierDetectionOnIndicator" [checked]="exchangeData.useOutlierDetectionOnIndicator" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
+    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" [(ngModel)]="envConfigService.useOutlierDetectionOnIndicator" [checked]="envConfigService.useOutlierDetectionOnIndicator" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
   <div class="classificationBoxToogleSlidersWrapper" *ngIf="containsNoData">
     <span class="classificationBoxToogleSlidersLbl">

@@ -115,14 +115,14 @@
                   <div class="col-md-3">{{visualStyleService.featuresPerNoData}}</div><br>
                 </div>				
               </div>
-              <div *ngIf="containsOutliers_low && dataExchangeService.useOutlierDetectionOnIndicator">
+              <div *ngIf="containsOutliers_low && envConfigService.useOutlierDetectionOnIndicator">
                 <div class="row" style="margin-right: 0px;">
                   <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
                   <div class="col-md-6">untere Ausrei&szlig;er {{makeOutliersLowLegendString(outliers_low)}}</div>
                   <div class="col-md-3">{{visualStyleService.featuresPerOutlierLow}}</div><br>
                 </div>				
               </div>
-              <div *ngIf="containsOutliers_high && dataExchangeService.useOutlierDetectionOnIndicator">
+              <div *ngIf="containsOutliers_high && envConfigService.useOutlierDetectionOnIndicator">
                 <div class="row" style="margin-right: 0px;">
                   <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
                   <div class="col-md-6">obere Ausrei&szlig;er {{makeOutliersHighLegendString(outliers_high)}}</div>

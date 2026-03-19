@@ -4,6 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { EnvConfigService } from "../../../../../services/env-config-service/env-config.service";
 
 @Component({
   selector: "app-script-delete-modal",
@@ -25,6 +26,7 @@ export class ScriptDeleteModalComponent implements OnInit {
     private http: HttpClient,
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
+    private envConfigService: EnvConfigService,
   ) {}
 
   ngOnInit(): void {
@@ -76,7 +78,7 @@ export class ScriptDeleteModalComponent implements OnInit {
     return new Promise((resolve) => {
       this.http
         .delete(
-          this.dataExchangeService.baseUrlToKomMonitorDataAPI +
+          this.envConfigService.baseUrlToKomMonitorDataAPI +
             "/process-scripts/" +
             dataset.scriptId,
         )

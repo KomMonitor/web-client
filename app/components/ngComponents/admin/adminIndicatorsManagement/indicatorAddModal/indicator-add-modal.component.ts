@@ -515,12 +515,12 @@ export class IndicatorAddModalComponent implements OnInit {
       this.postBody_indicators = this.buildPostBody_indicators();
 
       // Check if service is available
-      if (!this.kommonitorDataExchangeService || !this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI) {
+      if (!this.kommonitorDataExchangeService || !this.envConfigService.baseUrlToKomMonitorDataAPI) {
         throw new Error('Data exchange service not available');
       }
 
       const response = await this.http.post(
-        this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators",
+        this.envConfigService.baseUrlToKomMonitorDataAPI + "/indicators",
         this.postBody_indicators
       ).toPromise();
 

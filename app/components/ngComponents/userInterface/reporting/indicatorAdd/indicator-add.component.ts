@@ -3480,10 +3480,10 @@ export class IndicatorAddComponent implements OnInit {
 
     // set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
     // we need to undo these changes afterwards, so we store the current values in a backup first
-    const useOutlierDetectionOnIndicator_backup = this.dataExchangeService.useOutlierDetectionOnIndicator;
+    const useOutlierDetectionOnIndicator_backup = this.envConfigService.useOutlierDetectionOnIndicator;
     const classifyUsingWholeTimeseries_backup = this.envConfigService.classifyUsingWholeTimeseries;
     const classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately; 
-    this.dataExchangeService.useOutlierDetectionOnIndicator = false;
+    this.envConfigService.useOutlierDetectionOnIndicator = false;
     this.envConfigService.classifyUsingWholeTimeseries = false;
     if(classifyUsingWholeTimeseries) {
       this.envConfigService.classifyUsingWholeTimeseries = true;
@@ -3509,7 +3509,7 @@ export class IndicatorAddComponent implements OnInit {
     // that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
 
     // set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values
-    this.dataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+    this.envConfigService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
     this.envConfigService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
     this.envConfigService.classifyZeroSeparately = classifyZeroSeparately_backup;
 

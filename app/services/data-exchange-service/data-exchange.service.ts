@@ -27,7 +27,6 @@ export interface DataExchange {
   indicatorDatePrefix: string;
   measureOfValue: any;
   isMeasureOfValueChecked: any;
-  useOutlierDetectionOnIndicator: any;
   allFeaturesRegionalMean: any;
   allFeaturesMean: any;
   configMeanDataDisplay: any;
@@ -166,23 +165,9 @@ export class DataExchangeService {
     ["QUARTERLY", "vierteljährlich"]
   ]);
 
-  // TODO: cleanup here
-  // updateIntervalOptions = this.envConfigService.updateIntervalOptions;
-  // indicatorTypeOptions = this.envConfigService.indicatorTypeOptions;
-  // TODO: cleanup here
-  indicatorUnitOptions = this.envConfigService.indicatorUnitOptions.sort();
-  // indicatorCreationTypeOptions = this.envConfigService.indicatorCreationTypeOptions;
-  // TODO: cleanup here
-  geodataSourceFormats = this.envConfigService.geodataSourceFormats;
-
   anySideBarIsShown = false;
 
   tmpIndicatorGeoJSON = undefined;
-
-  // TODO: cleanup here
-  baseUrlToKomMonitorDataAPI = this.envConfigService.apiUrl + this.envConfigService.basePath;
-  // TODO: cleanup here
-  simplifyGeometriesOptions = this.envConfigService.simplifyGeometriesOptions;
 
   wmsDatasets!:WmsDataset[];
   wfsDatasets = this.envConfigService.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
@@ -208,13 +193,6 @@ export class DataExchangeService {
   allowedAccessControl = [];
   allowedAccessControl_map = new Map();
 
-  // TODO: cleanup here
-  useOutlierDetectionOnIndicator = this.envConfigService.useOutlierDetectionOnIndicator;
-  // TODO: cleanup here
-  // classifyZeroSeparately = this.envConfigService.classifyZeroSeparately;
-  // classifyUsingWholeTimeseries = this.envConfigService.classifyUsingWholeTimeseries;
-  // useNoDataToggle = this.envConfigService.useNoDataToggle;
-  
   topicIndicatorHierarchy_forOrderView:any[] = [];
 
   /* reportingDefaultTemplatePageElements = [
@@ -1930,7 +1908,7 @@ export class DataExchangeService {
   }
 
   getBaseUrlToKomMonitorDataAPI_spatialResource (){
-    return this.baseUrlToKomMonitorDataAPI + this.cacheHelperService.spatialResourceGETUrlPath_forAuthentication;
+    return this.envConfigService.baseUrlToKomMonitorDataAPI + this.cacheHelperService.spatialResourceGETUrlPath_forAuthentication;
   }    
 
   onChangeIndicatorKeywordFilter(indicatorNameFilter){

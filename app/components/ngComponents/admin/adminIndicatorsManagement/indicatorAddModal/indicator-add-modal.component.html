@@ -123,7 +123,7 @@
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Einheit wählen --</option>
                   <option value="-- Freitext --">-- Freitext --</option>
-                  <option *ngFor="let unit of kommonitorDataExchangeService?.indicatorUnitOptions" [value]="unit">{{unit}}</option>
+                  <option *ngFor="let unit of envConfigService.indicatorUnitOptions" [value]="unit">{{unit}}</option>
                 </select>
                 <div *ngIf="enableFreeTextUnit">
                   <label>Freitexteingabe*</label>

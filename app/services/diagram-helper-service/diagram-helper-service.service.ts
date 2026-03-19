@@ -233,10 +233,10 @@ export class DiagramHelperServiceService {
     else if(this.envConfigService.classifyZeroSeparately && this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
       color = this.defaultColorForZeroValues;
     }
-    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.exchangeData.useOutlierDetectionOnIndicator){
+    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.envConfigService.useOutlierDetectionOnIndicator){
       color = this.defaultColorForOutliers_low;
     }
-    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.exchangeData.useOutlierDetectionOnIndicator){
+    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.envConfigService.useOutlierDetectionOnIndicator){
       color = this.defaultColorForOutliers_high;
     }
     else if(isMeasureOfValueChecked){
@@ -1291,7 +1291,7 @@ export class DiagramHelperServiceService {
 
     let outliers = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => feature.properties["outlier"] !== undefined);
 
-    if (this.exchangeData.useOutlierDetectionOnIndicator && outliers.length > 0){
+    if (this.envConfigService.useOutlierDetectionOnIndicator && outliers.length > 0){
       outliers.sort((a,b) => this.compareFeaturesByIndicatorValue(a,b));
       let smallestValue = outliers[0].properties[this.indicatorPropertyName];
       let highestValue = outliers[outliers.length - 1].properties[this.indicatorPropertyName];

@@ -300,7 +300,7 @@ export class VisualStyleHelperServiceNew {
       }  
 
       // check if is outlier, then do not use within classification, as it will be marked on map with special color
-      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.useOutlierDetectionOnIndicator) {
+      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.envConfigService.useOutlierDetectionOnIndicator) {
         continue;
       }
 
@@ -431,7 +431,7 @@ export class VisualStyleHelperServiceNew {
       }
 
       // check if is outlier, then do not use within classification, as it will be marked on map with special color
-      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.useOutlierDetectionOnIndicator) {
+      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.envConfigService.useOutlierDetectionOnIndicator) {
         continue;
       }
 
@@ -620,7 +620,7 @@ export class VisualStyleHelperServiceNew {
       }
 
       // check if is outlier, then do not use within classification, as it will be marked on map with special color
-      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.dataExchangeService.useOutlierDetectionOnIndicator) {
+      if (geoJSON.features[i].properties[this.outlierPropertyName] && geoJSON.features[i].properties[this.outlierPropertyName] !== this.outlierPropertyValue_no && this.envConfigService.useOutlierDetectionOnIndicator) {
         continue;
       }
 
@@ -701,7 +701,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     // check if feature is outlier
-    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.useOutlierDetectionOnIndicator) {
+    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.envConfigService.useOutlierDetectionOnIndicator) {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
@@ -862,7 +862,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     // check if feature is outlier
-    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.useOutlierDetectionOnIndicator) {
+    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.envConfigService.useOutlierDetectionOnIndicator) {
       return this.styleOutlier(feature, incrementFeatures);
     }
 
@@ -930,7 +930,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     // check if feature is outlier
-    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.dataExchangeService.useOutlierDetectionOnIndicator) {
+    if ((feature.properties[this.outlierPropertyName] !== this.outlierPropertyValue_no) && this.envConfigService.useOutlierDetectionOnIndicator) {
       return this.styleOutlier(feature, incrementFeatures);
     }
 

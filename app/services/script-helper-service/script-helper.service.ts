@@ -328,7 +328,7 @@ export class ScriptHelperService {
 
     this.targetIndicatorOldProcessDescription = targetIndicatorMetadata.processDescription;
 
-    this.httpClient.patch(this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + targetIndicatorMetadata.indicatorId, patchBody).subscribe({
+    this.httpClient.patch(this.envConfigService.baseUrlToKomMonitorDataAPI + "/indicators/" + targetIndicatorMetadata.indicatorId, patchBody).subscribe({
       next: response => {
         this.broadcastService.broadcast("refreshIndicatorOverviewTable", ["edit", targetIndicatorMetadata.indicatorId])
       }

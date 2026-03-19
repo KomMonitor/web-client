@@ -698,7 +698,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.loadingData = true;
 
     this.http.patch(
-      this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
+      this.envConfigService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
       patchBody
     ).subscribe({
       next: (response: any) => {

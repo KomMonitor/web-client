@@ -73,6 +73,9 @@ export class EnvConfigService {
   get useOutlierDetectionOnIndicator(): any {
     return window.__env.useOutlierDetectionOnIndicator;
   }
+  set useOutlierDetectionOnIndicator(value: any) {
+    window.__env.useOutlierDetectionOnIndicator = value;
+  }
   get classifyZeroSeparately(): any {
     return window.__env.classifyZeroSeparately;
   }
@@ -180,7 +183,7 @@ export class EnvConfigService {
     return window.__env.indicatorTypeOptions;
   }
   get indicatorUnitOptions(): any {
-    return window.__env.indicatorUnitOptions;
+    return window.__env.indicatorUnitOptions.sort();
   }
   get indicatorCreationTypeOptions(): any {
     return window.__env.indicatorCreationTypeOptions;
