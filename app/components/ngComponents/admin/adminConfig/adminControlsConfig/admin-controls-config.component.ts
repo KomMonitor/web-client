@@ -16,7 +16,7 @@ import 'codemirror/mode/htmlmixed/htmlmixed.js';
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { CommonModule } from '@angular/common';
 
-import 'codemirror/addon/display/autoRefresh.js';
+// import 'codemirror/addon/display/autoRefresh.js';
 
 declare var PR: any;
 declare var $: any;

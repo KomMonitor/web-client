@@ -10,7 +10,7 @@ import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
 
-import 'codemirror/addon/display/autoRefresh.js';
+// import 'codemirror/addon/display/autoRefresh.js';
 import { HttpClient } from '@angular/common/http';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { AgGridAngular } from 'ag-grid-angular';
