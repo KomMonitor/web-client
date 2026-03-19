@@ -592,11 +592,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.preparePage = async function(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON) {
 			let isPreview = $scope.isPageInPreview(page, idx);
 			page.indexInConfigPages = idx; // help for page number generation
-			page.generatedData = {
-				echarts: {},
-				mapImage: undefined,
-				tableData: undefined
-			};
+			
+			if (!page.generatedData) {
+				page.generatedData = {
+					echarts: {},
+					mapImage: undefined,
+					tableData: undefined
+				};
+			}
 
 			if (!isPreview) {
 				$scope.pageToProcess = page;
