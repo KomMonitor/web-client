@@ -120,7 +120,7 @@ angular
                     reject(error);
                   });
               }
-            }, 150);
+            }, 500); // delay to ensure that the map is properly rendered, especially when many tiles are loaded
           });
 
           self.pendingPromises.set(CacheKey, promise);
