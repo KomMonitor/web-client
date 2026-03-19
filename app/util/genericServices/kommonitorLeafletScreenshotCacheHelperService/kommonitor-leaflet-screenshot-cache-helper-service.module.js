@@ -120,7 +120,7 @@ angular
                     reject(error);
                   });
               }
-            }, 500);
+            }, 150);
           });
 
           self.pendingPromises.set(CacheKey, promise);

@@ -1201,11 +1201,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			for(let feature of features) {
 				let props = Object.keys(feature.properties)
 				props = props.filter( prop => {
-					return prop.startsWith("DATE_");
+					return prop.startsWith(__env.indicatorDatePrefix);
 				})
 	
 				for(let prop of props) {
-					let timestamp = prop.replace("DATE_", "")
+					let timestamp = prop.replace(__env.indicatorDatePrefix, "")
 					if( !validTimestamps.includes(timestamp) ) {
 						validTimestamps.push(timestamp)
 					}
@@ -1509,7 +1509,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			let newSeriesData = features.map( feature => {
 				let name = feature.properties.NAME
-				let value = feature.properties["DATE_" + mostRecentTimestampName]
+				let value = feature.properties[__env.indicatorDatePrefix + mostRecentTimestampName]
 				value = Math.round(value * 100) / 100;
 				return {
 					name: name,
@@ -2833,7 +2833,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					});
 				
 					for(let timestamp of timeline) {
-						let value = filtered[0].properties["DATE_" + timestamp];
+						let value = filtered[0].properties[__env.indicatorDatePrefix + timestamp];
 						data.push(value)
 					}
 				
@@ -2885,7 +2885,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					});
 					// get values for each feature
 					for(let feature of selectedAreasFeatures) {
-						let value = feature.properties["DATE_" + timestamp]
+						let value = feature.properties[__env.indicatorDatePrefix + timestamp]
 						valuesForTimestamp.push(value);
 					}
 
@@ -2933,273 +2933,238 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.createPageElement_Datatable = function(wrapper, page, isPreview) {
+			return new Promise( async (resolve, reject) => {
+				let pageElement = page.pageElements.find( el => el.type === "datatable");
 
-			return new Promise((resolve) => {
-				// check if page is already an additional datatable page, if so we don't have to do anything
-				// because the first page already takes care of the others.
-				if (page.isAdditionalDatatablePage) {
+				if(!pageElement) {
 					resolve();
 					return;
 				}
 
-				// table looks different depending on template type
-				// for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
-				// for timeseries it is added once at the end of the template and contains an extra column for timestamps.
-				// Each area is inserted for multiple timestamps.
+				let idx = $scope.template.pages.indexOf(page);
+				let pDomId = isPreview ? "#reporting-addIndicator-page-" + idx : "#reporting-addIndicator-background-page";
+				
+				// Wait for wrapper to be available in DOM if not provided or if we are in background mode
+				// In background mode, the wrapper passed might be stale or we might need to re-query
+				if(!wrapper || !isPreview) {
+					let maxRetries = 20;
+					let retries = 0;
+					while(retries < maxRetries) {
+						wrapper = document.querySelector(pDomId + "-datatable");
+						if(wrapper) break;
+						await new Promise(r => setTimeout(r, 50));
+						retries++;
+					}
+				}
 
-				// our wrapper is 440px high.
-				// 440 - 25 (header) = 415
-				// we set each row to be 25px high, so we can fit 415 / 25 --> 16 rows on one page.
-				let wrapperHeight = parseInt(wrapper.style.height, 10);
+				if(!wrapper) {
+					console.error("Could not find datatable wrapper for page index " + idx);
+					resolve();
+					return;
+				}
+
+				let wrapperHeight = parseInt(wrapper.style.height, 10) || wrapper.offsetHeight;
 				let maxRows = Math.floor( (wrapperHeight - 25) / 25);
-				let rowsData = [];
-				let timestamp = undefined;
-				let timeseries = undefined;
+				if (maxRows <= 0) maxRows = 16; // Fallback
 
-				if($scope.template.name.includes("timestamp")) {
-					// get the timestamp from pageElement, not from dom because dom might not be up to date yet
-					let dateElement = page.pageElements.find( el => {
-						return el.type.includes("dataTimestamp-");
-					});
-					timestamp = dateElement.text;
-				}
-
+				let columnNames;
 				if($scope.template.name.includes("timeseries")) {
-					let inBetweenValues = true;
-					timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
+					columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
+				} else {
+					columnNames  = ["Bereich", "Wert"]
 				}
 
-				// see how many pages need to be added. Rows are added later
-				for(let feature of $scope.selectedIndicator.geoJSON.features) {
-					// don't add row if feature not selected
-					let isSelected = false;
-					for(let area of $scope.selectedAreas) {
-						if(area.name === feature.properties.NAME) {
-							isSelected = true;
-						}
-					}
-					if( !isSelected )
-						continue;
-
-					// if current page is specific for an area, only use this area
-					if(page.area && feature.properties.NAME !== page.area) {
-						continue;
-					}
+				// Section-wide initialization (only on the first page of a datatable section)
+				if (!page.isAdditionalDatatablePage) {
+					let rowsData = [];
+					let timestamp = undefined;
+					let timeseries = undefined;
 
 					if($scope.template.name.includes("timestamp")) {
-						// get the timestamp from pageElement, not from dom because dom might not be up to date yet
-						let dateElement = page.pageElements.find( el => {
-							return el.type.includes("dataTimestamp-");
-						});
-						let timestamp = dateElement.text;
-						// prepare data to insert later
-						let value = feature.properties["DATE_" + timestamp];
-						if(typeof(value) == 'number')
-							value = Math.round( value * 100) / 100;
-
-						rowsData.push( {
-							name: feature.properties.NAME,
-							value: value
-						});
+						let dateElement = page.pageElements.find( el => el.type.includes("dataTimestamp-"));
+						timestamp = dateElement.text;
 					}
 
 					if($scope.template.name.includes("timeseries")) {
-						for(let timestamp of timeseries.dates) {
-							let value = feature.properties["DATE_" + timestamp];
+						let inBetweenValues = true;
+						timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
+					}
+
+					let features = $scope.selectedIndicator.geoJSON.features.filter(feature => {
+						return $scope.selectedAreas.some(area => area.name === feature.properties.NAME || area.name === feature.properties.name);
+					});
+
+					for(let feature of features) {
+						// if current page is specific for an area, only use this area
+						if(page.area && (feature.properties.NAME !== page.area && feature.properties.name !== page.area)) {
+							continue;
+						}
+
+						if($scope.template.name.includes("timestamp")) {
+							let value = feature.properties[__env.indicatorDatePrefix + timestamp];
 							if(typeof(value) == 'number')
 								value = Math.round( value * 100) / 100;
-							rowsData.push( {
-								name: feature.properties.NAME,
-								timestamp: timestamp,
+							rowsData.push({
+								name: feature.properties.NAME || feature.properties.name,
 								value: value
 							});
 						}
+
+						if($scope.template.name.includes("timeseries")) {
+							for(let tsDate of timeseries.dates) {
+								let value = feature.properties[__env.indicatorDatePrefix + tsDate];
+								if(typeof(value) == 'number')
+									value = Math.round( value * 100) / 100;
+								rowsData.push({
+									name: feature.properties.NAME || feature.properties.name,
+									timestamp: tsDate,
+									value: value
+								});
+							}
+						}
 					}
-				}
 
-				// sort by area name
-				rowsData.sort((a, b) => a.name.localeCompare(b.name))
-
-				// append average as last row if needed
-				if($scope.template.name.includes("timestamp") && !page.area) {
-					rowsData.push({
-						name: "Durchschnitt Selektion",
-						value: $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true)
-					});
-					rowsData.push({
-						name: "Durchschnitt Gesamtstadt",
-						value:  $scope.getFormattedAvg($scope.selectedIndicator, timestamp, false)
+					// sort by area name and then by timestamp
+					rowsData.sort((a, b) => {
+						let nameCompare = a.name.localeCompare(b.name);
+						if (nameCompare !== 0) return nameCompare;
+						if (a.timestamp && b.timestamp) {
+							return a.timestamp.localeCompare(b.timestamp);
+						}
+						return 0;
 					});
 
-				}
+					// append average as last row if needed
+					if($scope.template.name.includes("timestamp") && !page.area) {
+						rowsData.push({
+							name: "Durchschnitt Selektion",
+							value: $scope.getFormattedAvg($scope.selectedIndicator, timestamp, true)
+						});
+						rowsData.push({
+							name: "Durchschnitt Gesamtstadt",
+							value:  $scope.getFormattedAvg($scope.selectedIndicator, timestamp, false)
+						});
+					}
 
-				// the length of rowsData is the number of rows we have to add
-				// IMPORTANT: we only want to add pages if they don't exist yet for this specific datatable section
-				// Since this method might be called multiple times during config, we check if we actually need to add pages.
-				
-				// FIRST: cleanup any existing additional datatable pages to avoid duplicates
-				// REMOVED because it causes problems when multiple datatables are in one template
-				// and cleanup is already handled by generatePages() locally for each datatable section
-				// $scope.template.pages = $scope.template.pages.filter(p => !p.isAdditionalDatatablePage);
+					if($scope.template.name.includes("timeseries") && !page.area) {
+						for(let tsDate of timeseries.dates) {
+							rowsData.push({
+								name: "Durchschnitt Selektion",
+								timestamp: tsDate,
+								value: $scope.getFormattedAvg($scope.selectedIndicator, tsDate, true)
+							});
+							rowsData.push({
+								name: "Durchschnitt Gesamtstadt",
+								timestamp: tsDate,
+								value:  $scope.getFormattedAvg($scope.selectedIndicator, tsDate, false)
+							});
+						}
+					}
 
-				let totalPagesNeeded = Math.ceil(rowsData.length / maxRows);
+					pageElement.rowsData = rowsData;
+					pageElement.columnNames = columnNames;
+					pageElement.sectionPageIndex = 0;
 
-				// add additional pages if needed (starting from the second page of data)
-				// only if this is the first datatable page of the section
-				if (! page.isAdditionalDatatablePage){
+					let totalPagesNeeded = Math.ceil(rowsData.length / maxRows);
+					
+					// Add additional pages
+					// find the datatable page with the same orientation as the current page
+					let untouchedPages = angular.fromJson($scope.untouchedTemplateAsString).pages;
+					let datatableTemplatePage = untouchedPages.find(p => p.type === "datatable" && p.orientation === page.orientation);
+					if (!datatableTemplatePage) {
+						// Fallback to last page if orientation match not found
+						datatableTemplatePage = untouchedPages.at(-1);
+					}
+
 					for(let p=1; p<totalPagesNeeded; p++) {
-					// add a new page
-					let newPage = angular.fromJson($scope.untouchedTemplateAsString).pages.at(-1);
-					newPage.id = $scope.templatePageIdCounter++;
-					newPage.isAdditionalDatatablePage = true; // MARKER to avoid duplicates on re-run
-					// setup new page
-					for(let pageElement of newPage.pageElements) {
-
-						if(pageElement.type.includes("indicatorTitle-")) {
-							pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
-							pageElement.isPlaceholder = false;
+						let newPage = JSON.parse(JSON.stringify(datatableTemplatePage));
+						newPage.id = $scope.templatePageIdCounter++;
+						newPage.isAdditionalDatatablePage = true;
+						
+						let newPageElement = newPage.pageElements.find(el => el.type === "datatable");
+						if (newPageElement) {
+							newPageElement.rowsData = rowsData;
+							newPageElement.columnNames = columnNames;
+							newPageElement.sectionPageIndex = p;
+							newPageElement.isPlaceholder = false;
 						}
 
-						if(pageElement.type.includes("dataTimestamp-")) {
-							pageElement.text = timestamp;
-							pageElement.isPlaceholder = false;
+						// Setup other placeholder elements on the new page
+						for(let el of newPage.pageElements) {
+							if(el.type.includes("indicatorTitle-")) {
+								el.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
+								el.isPlaceholder = false;
+							}
+							if(el.type.includes("dataTimestamp-")) {
+								el.text = timestamp;
+								el.isPlaceholder = false;
+							}
+							if(el.type.includes("dataTimeseries-")) {
+								el.text = (timeseries ? (timeseries.from + " - " + timeseries.to) : "");
+								el.isPlaceholder = false;
+							}
 						}
 
-						// exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
-						if(pageElement.type.includes("dataTimeseries-")) {
-							pageElement.text = timeseries.from + " - " + timeseries.to;
-							pageElement.isPlaceholder = false;
-						}
-
-						if(pageElement.type === "datatable") {
-							pageElement.isPlaceholder = false;
-						}
+						$scope.template.pages.splice(idx + p, 0, newPage);
 					}
-
-					// insert after current one
-					let currentPageIndex = $scope.template.pages.indexOf(page)
-					// we insert at currentPageIndex + p to keep them together
-					$scope.template.pages.splice(currentPageIndex + p, 0, newPage);
+					// update progress bar size as it might have increased
+					$scope.pagePreparationSize = $scope.template.pages.length;
 				}
 
-				// create table rows once the pages exist
-				function insertDatatableRows(rowsData, page, maxRows) {
-					// get current index of page (might have changed in the meantime)
-					let idx = $scope.template.pages.indexOf(page)
-					let pDomId = isPreview ? "#reporting-addIndicator-page-" + idx : "#reporting-addIndicator-background-page";
-					let wrapper = document.querySelector(pDomId + "-datatable");
-
-					if(wrapper) {
-						$interval.cancel(insertDatatableRowsInterval); // code below still executes once
-					} else {
-						return;
-					}
+				// Now fill the current page
+				if (pageElement.rowsData) {
+					let sectionIdx = pageElement.sectionPageIndex || 0;
+					let start = sectionIdx * maxRows;
+					let end = Math.min(start + maxRows, pageElement.rowsData.length);
+					let pageRows = pageElement.rowsData.slice(start, end);
 
 					wrapper.innerHTML = "";
-					wrapper.style.border = "none"; // hide dotted border from outer dom element
-					wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
+					wrapper.style.border = "none";
+					wrapper.style.justifyContent = "flex-start";
 
-					let columnNames;
-					if($scope.template.name.includes("timeseries")) {
-						columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
-					} else {
-						columnNames  = ["Bereich", "Wert"]
-					}
-
-					let table = $scope.createDatatableSkeleton(columnNames);
+					let table = $scope.createDatatableSkeleton(pageElement.columnNames);
 					wrapper.appendChild(table);
 					let tbody = table.querySelector("tbody");
-					let pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
+					
 					pageElement.isPlaceholder = false;
+					pageElement.tableData = [];
 
-					let totalPagesToFill = Math.ceil(rowsData.length / maxRows);
-					let pagesFilledCount = 0;
+					for(let rowData of pageRows) {
+						let row = document.createElement("tr");
+						row.style.height = "25px";
+						let rowDataForExport = [];
 
-					for(let i=0; i<rowsData.length; i+=maxRows) {
-						let currentPageIdx = idx + (i/maxRows);
-						const i_save = i;
-						const currentIdx_save = currentPageIdx;
-
-						let intervalArr = [];
-						intervalArr[currentIdx_save] = $interval(insertDatatableRowsPerPage, 0, 100, true, pageElement, currentIdx_save, columnNames, maxRows, rowsData, i_save)
-
-						function insertDatatableRowsPerPage(pageElement, localIdx, columnNames, maxRows, rowsData, localI) {
-							// check if page exists already in dom, if not try again later
-							let localPDomId = isPreview ? "#reporting-addIndicator-page-" + localIdx : "#reporting-addIndicator-background-page";
-							let localWrapper = document.querySelector(localPDomId + "-datatable");
-
-							if(localWrapper) {
-								$interval.cancel(intervalArr[localIdx]); // code below still executes once
-							} else {
-								return;
-							}
-							// page exists
-							localWrapper.innerHTML = "";
-							localWrapper.style.border = "none"; // hide dotted border from outer dom element
-							localWrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-							let localTable = $scope.createDatatableSkeleton(columnNames);
-							localWrapper.appendChild(localTable);
-							let localTbody = localTable.querySelector("tbody");
-							let localPageElement = $scope.template.pages[localIdx].pageElements.find( el => el.type === "datatable");
-							localPageElement.isPlaceholder = false;
-							localPageElement.tableData = [];
-							localPageElement.columnNames = columnNames;
-
-							for(let j=localI; j<(localI + maxRows); j++) {
-								if(!rowsData[j])
-									break; // on last page
-
-								let row = document.createElement("tr");
-								row.style.height = "25px";
-
-								let rowDataForExport = [];
-
-								for(let colName of columnNames) {
-									let td = document.createElement("td");
-									let cellValue = "";
-									if(colName === "Bereich") {
-										cellValue = rowsData[j].name;
-										td.innerText = cellValue;
-										td.classList.add("text-left");
-									}
-
-									if(colName === "Zeitpunkt") {
-										cellValue = rowsData[j].timestamp;
-										td.innerText = cellValue;
-									}
-
-									if(colName === "Wert") {
-										// Averge values have already been formatted
-										if (rowsData[j].name === "Durchschnitt Selektion" || rowsData[j].name === "Durchschnitt Gesamtstadt") {
-											cellValue = rowsData[j].value;
-										} else {
-											let precision = $scope.getPrecision();
-											cellValue = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(rowsData[j].value, precision);
-										}
-										td.innerText = cellValue;
-										td.classList.add("text-right");
-									}
-
-									row.appendChild(td);
-									rowDataForExport.push(cellValue);
+						for(let colName of pageElement.columnNames) {
+							let td = document.createElement("td");
+							let cellValue = "";
+							if(colName === "Bereich") {
+								cellValue = rowData.name;
+								td.innerText = cellValue;
+								td.classList.add("text-left");
+							} else if(colName === "Zeitpunkt") {
+								cellValue = rowData.timestamp;
+								td.innerText = cellValue;
+							} else if(colName === "Wert") {
+								if (rowData.name === "Durchschnitt Selektion" || rowData.name === "Durchschnitt Gesamtstadt") {
+									cellValue = rowData.value;
+								} else {
+									let precision = $scope.getPrecision();
+									cellValue = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(rowData.value, precision);
 								}
-
-								localTbody.appendChild(row)
-								localPageElement.tableData.push(rowDataForExport);
+								td.innerText = cellValue;
+								td.classList.add("text-right");
 							}
-
-							pagesFilledCount++;
-							if (pagesFilledCount === totalPagesToFill) {
-								resolve(); // All pages for this datatable section are done
-							}
+							row.appendChild(td);
+							rowDataForExport.push(cellValue);
 						}
+						tbody.appendChild(row);
+						pageElement.tableData.push(rowDataForExport);
 					}
 				}
-				}
 
-				let insertDatatableRowsInterval = $interval(insertDatatableRows, 0, 100, true, rowsData, page, maxRows);
+				resolve();
 			});
-		}
+		};
 
 
 
@@ -3236,7 +3201,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			let data = features.map( feature => {
-				return feature.properties["DATE_" + timestamp];
+				return feature.properties[__env.indicatorDatePrefix + timestamp];
 			})
 
 			let noDataCounter = 0
@@ -3654,16 +3619,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 					case "datatable": {
 						// remove all following datatable pages first so we don't add too many.
-						let nextPage = idx < $scope.template.pages.length-1 ? $scope.template.pages[idx+1] : undefined;
-						if(nextPage) {
-							let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
-							while(nextPageIncludesDatatable) {
-								$scope.template.pages.splice(idx+1, 1) //remove page
-								nextPage = idx < $scope.template.pages.length-1 ? $scope.template.pages[idx+1] : undefined;
-								nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
+						// only do this for the very first page of a datatable section!
+						if (!page.isAdditionalDatatablePage) {
+							let nextPage = idx < $scope.template.pages.length-1 ? $scope.template.pages[idx+1] : undefined;
+							if(nextPage) {
+								let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
+								while(nextPageIncludesDatatable) {
+									$scope.template.pages.splice(idx+1, 1) //remove page
+									nextPage = idx < $scope.template.pages.length-1 ? $scope.template.pages[idx+1] : undefined;
+									nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
+								}
 							}
 						}
 						await $scope.createPageElement_Datatable(pElementDom, page, isPreview);
+						
+						if(isPreview){
+							// give angular a chance to render the newly added pages
+							await $timeout(function(){}, 0);
+						}
+
 						// tableData is populated inside createPageElement_Datatable directly on pageElement
 						page.generatedData.tableData = pageElement.tableData;
 						break;
@@ -3754,9 +3728,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let dataEntry of seriesData) {
 					// just replace the value property
 					let feature = geoJsonFeatures.find( feature => {
-						return feature.properties.NAME === dataEntry.name;
+						return (feature.properties.NAME || feature.properties.name) === dataEntry.name;
 					});
-					dataEntry.value = feature.properties["DATE_" + timestamp]
+					dataEntry.value = feature.properties[__env.indicatorDatePrefix + timestamp]
 					if(typeof(dataEntry.value) == 'number') {
 						dataEntry.value = Math.round( dataEntry.value * 100) / 100;
 					}
@@ -3768,8 +3742,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let result = [];
 				for(let feature of geoJsonFeatures) {
 					let obj = {};
-					obj.name = feature.properties.NAME;
-					let value = feature.properties["DATE_" + timestamp]
+					obj.name = feature.properties.NAME || feature.properties.name;
+					let value = feature.properties[__env.indicatorDatePrefix + timestamp]
 					if(typeof(value) == 'number') {
 						value = Math.round( value * 100) / 100;
 					}
@@ -3784,11 +3758,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		function calculateAndSetSeriesDataForTimeseries(features, fromDate, toDate){
 
 			for(let feature of features) {
-				let value = feature.properties["DATE_" + toDate] - feature.properties["DATE_" + fromDate];
+				let value = feature.properties[__env.indicatorDatePrefix + toDate] - feature.properties[__env.indicatorDatePrefix + fromDate];
 				if(typeof(value) == 'number') {
 					value = Math.round( value * 100) / 100;
 				}
-				feature.properties["DATE_" + toDate] = value;
+				feature.properties[__env.indicatorDatePrefix + toDate] = value;
 			}
 
 			return features;
@@ -3801,8 +3775,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			for(let feature of features) {
 				let obj = {};
-				obj.name = feature.properties.name;
-				let value = feature.properties["DATE_" + mostRecentDate] - feature.properties["DATE_" + oldestDate];
+				obj.name = feature.properties.NAME || feature.properties.name;
+				let value = feature.properties[__env.indicatorDatePrefix + mostRecentDate] - feature.properties[__env.indicatorDatePrefix + oldestDate];
 				if(typeof(value) == 'number') {
 					value = Math.round( value * 100) / 100;
 				}
