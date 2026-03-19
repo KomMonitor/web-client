@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
@@ -21,18 +21,15 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 })
 export class KommonitorBalanceComponent implements OnInit {
 
-  exchangeData!: DataExchange;
 
   constructor(
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     private mapService: MapService,
     private diagramHelperService: DiagramHelperServiceService,
     protected envConfigService: EnvConfigService
-  ) {
-    this.exchangeData = dataExchangeService;
-  }
+  ) { }
 
   ngOnInit(): void {
 
@@ -130,7 +127,7 @@ export class KommonitorBalanceComponent implements OnInit {
   };
  
   disableBalance() {
-    this.exchangeData.isBalanceChecked = false;
+    this.dataExchangeService.isBalanceChecked = false;
     if(this.balanceSlider){
       this.createNewBalanceInstance();
     }
@@ -145,31 +142,31 @@ export class KommonitorBalanceComponent implements OnInit {
 */  
 						onChangeUseBalance(){
 
-							if(this.exchangeData.isMeasureOfValueChecked){
-								this.exchangeData.isMeasureOfValueChecked = false;
+							if(this.dataExchangeService.isMeasureOfValueChecked){
+								this.dataExchangeService.isMeasureOfValueChecked = false;
 							}
 
 							let indicatorMetadataAndGeoJSON;
 
-							if(this.exchangeData.isBalanceChecked){
-								this.exchangeData.isMeasureOfValueChecked = false;
+							if(this.dataExchangeService.isBalanceChecked){
+								this.dataExchangeService.isMeasureOfValueChecked = false;
 								this.envConfigService.classifyUsingWholeTimeseries = false;
 								this.balanceSlider.noUiSlider.enable();
 
 								// disable DateSlider on map
                 this.broadcastService.broadcast('DisableDateSlider')
-								if(!this.exchangeData.indicatorAndMetadataAsBalance){
-									this.exchangeData.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.exchangeData.selectedIndicator);
+								if(!this.dataExchangeService.indicatorAndMetadataAsBalance){
+									this.dataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator);
                   
-									var indicatorType = this.exchangeData.selectedIndicator.indicatorType;
+									var indicatorType = this.dataExchangeService.selectedIndicator.indicatorType;
 									if(indicatorType.includes("ABSOLUTE")){
-										this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
+										this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
 									}
 									else if(indicatorType.includes("RELATIVE")){
-										this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
+										this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
 									}
 									else if(indicatorType.includes("STANDARDIZED")){
-										this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
+										this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
 									}
 
 								}
@@ -177,9 +174,9 @@ export class KommonitorBalanceComponent implements OnInit {
 								this.computeAndSetBalance(data);
 								setTimeout(() => {
 								
-									this.updateTrendChart(this.exchangeData.selectedIndicator, data);	
+									this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
 								});
-								indicatorMetadataAndGeoJSON = this.exchangeData.indicatorAndMetadataAsBalance;
+								indicatorMetadataAndGeoJSON = this.dataExchangeService.indicatorAndMetadataAsBalance;
 								// kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
 							}
 							else{
@@ -188,7 +185,7 @@ export class KommonitorBalanceComponent implements OnInit {
                 
 								// reanebalbe DateSlider on map
                 this.broadcastService.broadcast('EnableDateSlider');
-								indicatorMetadataAndGeoJSON = this.exchangeData.selectedIndicator;
+								indicatorMetadataAndGeoJSON = this.dataExchangeService.selectedIndicator;
 								// kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
 							}
 							// $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.targetDate, indicatorMetadataAndGeoJSON);
@@ -209,8 +206,8 @@ export class KommonitorBalanceComponent implements OnInit {
 
 							var fromDateAsPropertyString = this.makePropertyString(fromDate);
 							var fromDateAsString = this.makeDateString(fromDate);
-							if(this.exchangeData.indicatorAndMetadataAsBalance && !this.exchangeData.indicatorAndMetadataAsBalance.applicableDates.includes(fromDateAsString)){
-								fromDateAsPropertyString = this.snapToNearestUpperDate(fromDate, this.exchangeData.indicatorAndMetadataAsBalance.applicableDates);
+							if(this.dataExchangeService.indicatorAndMetadataAsBalance && !this.dataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(fromDateAsString)){
+								fromDateAsPropertyString = this.snapToNearestUpperDate(fromDate, this.dataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
 
 							return fromDateAsPropertyString;
@@ -231,8 +228,8 @@ export class KommonitorBalanceComponent implements OnInit {
 
 							var toDateAsPropertyString = this.makePropertyString(toDate);
 							var toDateAsString = this.makeDateString(toDate);
-							if(this.exchangeData.indicatorAndMetadataAsBalance && !this.exchangeData.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)){
-								toDateAsPropertyString = this.snapToNearestLowerDate(toDate, this.exchangeData.indicatorAndMetadataAsBalance.applicableDates);
+							if(this.dataExchangeService.indicatorAndMetadataAsBalance && !this.dataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)){
+								toDateAsPropertyString = this.snapToNearestLowerDate(toDate, this.dataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
 
 							return toDateAsPropertyString;
@@ -395,7 +392,7 @@ export class KommonitorBalanceComponent implements OnInit {
         }
 
         createNewBalanceInstance(){
-          this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
+          this.datesAsMs = this.createDatesFromIndicatorDates(this.dataExchangeService.selectedIndicator.applicableDates);
 
           this.balanceSlider.noUiSlider.updateOptions({
             range: {
@@ -432,16 +429,16 @@ export class KommonitorBalanceComponent implements OnInit {
             this.onChangeBalanceRange(this.getFormatedSliderReturn());
           });
 
-          if (!this.exchangeData.isBalanceChecked){
+          if (!this.dataExchangeService.isBalanceChecked){
             // deactivate balance slider
             this.balanceSlider.noUiSlider.disable();
           }
         }
 
         removeOldInstance(){
-          this.exchangeData.rangeFilterData = undefined;
+          this.dataExchangeService.rangeFilterData = undefined;
           this.rangeSliderForBalance.destroy();
-          this.exchangeData.indicatorAndMetadataAsBalance = undefined;
+          this.dataExchangeService.indicatorAndMetadataAsBalance = undefined;
 
           var domNode = document.getElementById("rangeSliderForBalance");
 
@@ -461,8 +458,8 @@ export class KommonitorBalanceComponent implements OnInit {
             this.createNewBalanceInstance();
           } else {
 
-            if(this.exchangeData.indicatorAndMetadataAsBalance){
-              if (this.exchangeData.selectedIndicator.indicatorName != this.exchangeData.indicatorAndMetadataAsBalance.indicatorName){
+            if(this.dataExchangeService.indicatorAndMetadataAsBalance){
+              if (this.dataExchangeService.selectedIndicator.indicatorName != this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorName){
                 //this.removeOldInstance();
 
                 // create new instance
@@ -485,10 +482,10 @@ export class KommonitorBalanceComponent implements OnInit {
         
           setTimeout(() => {
             
-            this.updateTrendChart(this.exchangeData.selectedIndicator, data);	
+            this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
           });
           // we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
-          this.mapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
+          this.mapService.replaceIndicatorGeoJSON(this.dataExchangeService.indicatorAndMetadataAsBalance, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
         };
 
         computeAndSetBalance(data){
@@ -499,29 +496,29 @@ export class KommonitorBalanceComponent implements OnInit {
           var toDateAsDateString = this.getToDate_asDateString(data);
 
           // make another copy of selectedIndicator to ensure that feature order matches each other
-          this.exchangeData.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.exchangeData.selectedIndicator);
+          this.dataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator);
 // bis hier passt, wo aber replaceIndocatorASGeojson etc... wie in demo?
-          var indicatorType = this.exchangeData.selectedIndicator.indicatorType;
+          var indicatorType = this.dataExchangeService.selectedIndicator.indicatorType;
           if(indicatorType.includes("ABSOLUTE")){
-            this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
+            this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
           }
           else if(indicatorType.includes("RELATIVE")){
-            this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
+            this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
           }
           else if(indicatorType.includes("STANDARDIZED")){
-            this.exchangeData.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
+            this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
           }
 
           // set value of selected target property with the computed balance between toDate - FromDate
-          for (var index=0; index < this.exchangeData.selectedIndicator.geoJSON.features.length; index++){
+          for (var index=0; index < this.dataExchangeService.selectedIndicator.geoJSON.features.length; index++){
 
-            var toDateValue = this.dataExchangeService.getIndicatorValue_asNumber(this.exchangeData.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
-            var fromDateValue = this.dataExchangeService.getIndicatorValue_asNumber(this.exchangeData.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
+            var toDateValue = this.dataExchangeService.getIndicatorValue_asNumber(this.dataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
+            var fromDateValue = this.dataExchangeService.getIndicatorValue_asNumber(this.dataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
 
-            this.exchangeData.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[this.targetIndicatorProperty] = this.dataExchangeService.getIndicatorValue_asNumber(toDateValue - fromDateValue);
+            this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[this.targetIndicatorProperty] = this.dataExchangeService.getIndicatorValue_asNumber(toDateValue - fromDateValue);
           }
-          this.exchangeData.indicatorAndMetadataAsBalance['fromDate'] = this.dateToDateString(new Date(fromDateAsDateString));
-          this.exchangeData.indicatorAndMetadataAsBalance['toDate'] = this.dateToDateString(new Date(toDateAsDateString));
+          this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = this.dateToDateString(new Date(fromDateAsDateString));
+          this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'] = this.dateToDateString(new Date(toDateAsDateString));
         };
 
         snapToNearestLowerDate(toDate, applicableDates){
@@ -616,7 +613,7 @@ export class KommonitorBalanceComponent implements OnInit {
           var data = this.getFormatedSliderReturn();
             setTimeout(() => {
             
-              this.updateTrendChart(this.exchangeData.selectedIndicator, data);	
+              this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
             });
         };
 
@@ -624,7 +621,7 @@ export class KommonitorBalanceComponent implements OnInit {
           var data = this.getFormatedSliderReturn();
             setTimeout(() => {
             
-              this.updateTrendChart(this.exchangeData.selectedIndicator, data);	
+              this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
             });
         }
 

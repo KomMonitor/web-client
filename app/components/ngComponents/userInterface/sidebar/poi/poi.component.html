@@ -26,7 +26,7 @@
 					&nbsp;
 
           <select (change)="refreshPoiLayers()" [(ngModel)]="selectedPoiSize" class="form-control">
-            <option *ngFor="let item of exchangeData.POISizes" [value]="item.id">{{item.label}}</option>
+            <option *ngFor="let item of dataExchangeService.POISizes" [value]="item.id">{{item.label}}</option>
           </select>
 				</label>
 
@@ -182,7 +182,7 @@
 																<th
 																	*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																	Lebenszeit-Beginn</th>
-																<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+																<th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                                 <th></th>
 															</tr>
 														</thead>
@@ -237,7 +237,7 @@
 																		ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 																		ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 																</td>
-																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+																<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																	<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></p>
@@ -286,7 +286,7 @@
 																		class="form-control" required>
 																	</select>
 																</td>
-																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+																<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																	<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></p>
@@ -335,7 +335,7 @@
 																		class="form-control" required>
 																	</select>
 																</td>
-																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+																<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																	<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																		title="Download Features as GeoJSON"><i
 																			class="fas fa-file-download fa-lg"></i></p>
@@ -378,7 +378,7 @@
 																<td>
 																	-
 																</td>
-																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+																<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																	<div style="text-align: center">
 																		<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
 																			title="WMS GetCapabilities URL"
@@ -459,7 +459,7 @@
 																<td>
 																	-
 																</td>
-																<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+																<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																	<div style="text-align: center">
 																		<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																			title="WFS GetCapabilities URL"
@@ -494,7 +494,7 @@
 															<th
 																*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																Lebenszeit-Beginn</th>
-															<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+															<th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                               <th></th>
 														</tr>
 													</thead>
@@ -550,7 +550,7 @@
 																	ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 																	ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 															</td>
-															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+															<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></p>
@@ -600,7 +600,7 @@
 																	class="form-control" required>
 																</select>
 															</td>
-															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+															<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></p>
@@ -649,7 +649,7 @@
 																	class="form-control" required>
 																</select>
 															</td>
-															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+															<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																	title="Download Features as GeoJSON"><i
 																		class="fas fa-file-download fa-lg"></i></p>
@@ -692,7 +692,7 @@
 															<td>
 																-
 															</td>
-															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+															<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																<div style="text-align: center">
 																	<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
 																		title="WMS GetCapabilities URL"
@@ -771,7 +771,7 @@
 															<td>
 																-
 															</td>
-															<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+															<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 																<div style="text-align: center">
 																	<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																		title="WFS GetCapabilities URL"
@@ -808,7 +808,7 @@
 														<th
 															*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 															Lebenszeit-Beginn</th>
-														<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+														<th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                             <th></th>
 													</tr>
 												</thead>
@@ -861,7 +861,7 @@
 																ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 																ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+														<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 															<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></p>
@@ -908,7 +908,7 @@
 																class="form-control" required>
 															</select>
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 															<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></p>
@@ -954,7 +954,7 @@
 																class="form-control" required>
 															</select>
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+														<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 															<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 																title="Download Features as GeoJSON"><i
 																	class="fas fa-file-download fa-lg"></i></p>
@@ -997,7 +997,7 @@
 														<td>
 															-
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+														<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 															<div style="text-align: center">
 																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
 																	title="WMS GetCapabilities URL"
@@ -1077,7 +1077,7 @@
 														<td>
 															-
 														</td>
-														<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+														<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 															<div style="text-align: center">
 																<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																	title="WFS GetCapabilities URL"
@@ -1114,7 +1114,7 @@
 													<th
 														*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														Lebenszeit-Beginn</th>
-													<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+													<th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                           <th></th>
 												</tr>
 											</thead>
@@ -1168,7 +1168,7 @@
 															ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 															ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 														<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></p>
@@ -1215,7 +1215,7 @@
 															class="form-control" required>
 														</select>
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 														<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></p>
@@ -1262,7 +1262,7 @@
 															class="form-control" required>
 														</select>
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+													<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 														<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 															title="Download Features as GeoJSON"><i
 																class="fas fa-file-download fa-lg"></i></p>
@@ -1305,7 +1305,7 @@
 													<td>
 														-
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+													<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 														<div style="text-align: center">
 															<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
 																title="WMS GetCapabilities URL"
@@ -1383,7 +1383,7 @@
 													<td>
 														-
 													</td>
-													<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+													<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 														<div style="text-align: center">
 															<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 																title="WFS GetCapabilities URL"
@@ -1401,16 +1401,16 @@
 								</div>
 								</div>
 
-								<!-- <div *ngFor="let georesourceMetadata of exchangeData.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ">
+								<!-- <div *ngFor="let georesourceMetadata of dataExchangeService.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ">
 									</div> -->
 							</div>
 							<!-- end main Topics -->
 
-							<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" *ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
+							<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" *ngIf="dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
                   <i	class="fa-solid" [ngClass]="{'fa-chevron-right':isCollapsed_noTopic, 'fa-chevron-down':!isCollapsed_noTopic}"></i>
                   <p id="noHierarchyGeoresourceDatasets"
                     title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger" 
-                    (click)="toggleNoTopicHierarchy()">ohne Themenbezug ({{exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
+                    (click)="toggleNoTopicHierarchy()">ohne Themenbezug ({{dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.totalCount}})</p>
 								  <input type="checkbox" value="showAllForTopic_null"
 									  [(ngModel)]="showAllForTopic_null">
 							</div>
@@ -1419,7 +1419,7 @@
 							<div class="list-group collapse" [ngClass]="{'in': !isCollapsed_noTopic}"  uib-collapse="isCollapsed_noTopic">
 
 								<div class="georesourceInputForm"
-									*ngIf="exchangeData.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
+									*ngIf="dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 									
 									<table class="table table-condensed" style="margin-bottom:0px;">
 										<thead>
@@ -1431,7 +1431,7 @@
 												<th
 													*ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 													Lebenszeit-Beginn</th>
-												<th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+												<th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                         <th></th>
 											</tr>
 										</thead>
@@ -1440,7 +1440,7 @@
 
 											<!-- POIs -->
 											<tr
-												*ngFor='let poi of exchangeData.topicGeoresourceHierarchy_unmappedEntries.poiData'>
+												*ngFor='let poi of dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.poiData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<i class="fas fa-map-marker-alt"></i>
@@ -1486,7 +1486,7 @@
 														ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
 														ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+												<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 													<p class="poiList-downloadLink"  (click)="getExportLinkForPoi(poi)"
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></p>
@@ -1502,7 +1502,7 @@
 
 											<!-- LOIs -->
 											<tr
-												*ngFor='let loi of exchangeData.topicGeoresourceHierarchy_unmappedEntries.loiData'>
+												*ngFor='let loi of dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.loiData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<i class="fas fa-minus"></i>
@@ -1534,7 +1534,7 @@
 														class="form-control" required>
 													</select>
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+												<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 													<p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></p>
@@ -1550,7 +1550,7 @@
 
 											<!-- AOIs -->
 											<tr
-												*ngFor='let aoi of exchangeData.topicGeoresourceHierarchy_unmappedEntries.aoiData'>
+												*ngFor='let aoi of dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.aoiData'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<i class="far fa-square"></i>
@@ -1582,7 +1582,7 @@
 														class="form-control" required>
 													</select>
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+												<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
 													<p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
 														title="Download Features as GeoJSON"><i
 															class="fas fa-file-download fa-lg"></i></p>
@@ -1598,7 +1598,7 @@
 
 											<!-- WMS -->
 											<tr
-												*ngFor='let dataset of exchangeData.topicGeoresourceHierarchy_unmappedEntries.wmsData'>
+												*ngFor='let dataset of dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.wmsData'>
 												<td>
 													<b><i>WMS</i></b>
 												</td>
@@ -1626,7 +1626,7 @@
 												<td>
 													-
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+												<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 													<div style="text-align: center">
 														<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
 															title="WMS GetCapabilities URL" rel='noopener noreferrer'
@@ -1641,7 +1641,7 @@
 
 											<!-- WFS -->
 											<tr
-												*ngFor='let dataset of exchangeData.topicGeoresourceHierarchy_unmappedEntries.wfsData'>
+												*ngFor='let dataset of dataExchangeService.topicGeoresourceHierarchy_unmappedEntries.wfsData'>
 												<td>
 													<b><i>WFS</i></b>
 												</td>
@@ -1705,7 +1705,7 @@
 												<td>
 													-
 												</td>
-												<td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+												<td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
 													<div style="text-align: center">
 														<a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
 															title="WFS GetCapabilities URL" rel='noopener noreferrer'
@@ -1747,14 +1747,14 @@
                       <th
                         *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                         Lebenszeit-Beginn</th>
-                      <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                      <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                       <th></th>
                     </tr>
                   </thead>
 
                   <tbody>
 
-                    <tr *ngFor='let poi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.poiData'>
+                    <tr *ngFor='let poi of dataExchangeService.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.poiData'>
                       <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
                       <td>
                         <label class='checkbox-inline'><input type="checkbox"
@@ -1796,7 +1796,7 @@
                           ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
                           ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
                       </td>
-                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+                      <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
                         <p class="poiList-downloadLink" (click)="getExportLinkForPoi(poi)"
                           title="Download Features as GeoJSON"><i
                             class="fas fa-file-download fa-lg"></i></p>
@@ -1828,13 +1828,13 @@
                       <th
                         *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                         Lebenszeit-Beginn</th>
-                      <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                      <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                     </tr>
                   </thead>
 
                   <tbody>
 
-                    <tr *ngFor='let loi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.loiData'>
+                    <tr *ngFor='let loi of dataExchangeService.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.loiData'>
                       <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
                       <td>
                         <label class='checkbox-inline'><input type="checkbox"
@@ -1864,7 +1864,7 @@
                         <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
                           ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
                       </td>
-                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+                      <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
                         <p class="poiList-downloadLink"  (click)="getExportLinkForLoi(loi)"
                           title="Download Features as GeoJSON"><i
                             class="fas fa-file-download fa-lg"></i></p>
@@ -1893,13 +1893,13 @@
                       <th
                         *ngIf="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
                         Lebenszeit-Beginn</th>
-                      <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                      <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                     </tr>
                   </thead>
 
                   <tbody>
 
-                    <tr *ngFor='let aoi of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.aoiData'>
+                    <tr *ngFor='let aoi of dataExchangeService.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.aoiData'>
                       <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
                       <td>
                         <label class='checkbox-inline'><input type="checkbox"
@@ -1932,7 +1932,7 @@
                           ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
                           ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
                       </td>
-                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center export-column">
+                      <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center export-column">
                         <p class="poiList-downloadLink"  (click)="getExportLinkForAoi(aoi)"
                           title="Download Features as GeoJSON"><i
                             class="fas fa-file-download fa-lg"></i></p>
@@ -1964,7 +1964,7 @@
                   <tbody>
 
                     <tr
-                      *ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData'>
+                      *ngFor='let dataset of dataExchangeService.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData'>
                       <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
                       <td>
                         <label class='checkbox-inline'><input type="checkbox"
@@ -1977,7 +1977,7 @@
                       <td>
                         <p>{{dataset.description}}</p>
                       </td>
-                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                      <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                         <div style="text-align: center">
                           <a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
                             title="WMS GetCapabilities URL" rel='noopener noreferrer'
@@ -2025,7 +2025,7 @@
                   <tbody>
 
                     <tr
-                      *ngFor='let dataset of exchangeData.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData'>
+                      *ngFor='let dataset of dataExchangeService.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData'>
                       <td>
                         <label class='checkbox-inline'><input type="checkbox"
                             value="dataset.title" [(ngModel)]="dataset.isSelected"
@@ -2045,7 +2045,7 @@
                           <span class="switchslider round"></span>
                         </label>
                       </td>
-                      <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                      <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                         <div style="text-align: center">
                           <a [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
                             title="WFS GetCapabilities URL" rel='noopener noreferrer'
@@ -2309,7 +2309,7 @@
                             <td>
                               -
                             </td>
-                            <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                            <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                               <div style="text-align: center">
                                 <a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0"
                                   title="WMS GetCapabilities URL"

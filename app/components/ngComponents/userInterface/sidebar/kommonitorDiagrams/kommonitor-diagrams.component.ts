@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
@@ -22,7 +22,6 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 })
 export class KommonitorDiagramsComponent implements OnInit {
 
-  exchangeData!: DataExchange;
   
   resizeObservable$!: Observable<Event>;
   resizeSubscription$!: Subscription;
@@ -34,15 +33,13 @@ export class KommonitorDiagramsComponent implements OnInit {
   lineTitle!: string;
 
   constructor(
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     protected labelService: LabelService,
     private diagramHelperService: DiagramHelperServiceService,
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     protected envConfigService: EnvConfigService
-  ) {
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
   ngOnInit(): void {
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
@@ -353,7 +350,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   appendSeriesToLineChart(featureProperties) {
 
     // in case of activated balance mode, we must use the properties of this.exchangeData.selectedIndicator, to aquire the correct time series item!
-    if (this.exchangeData.isBalanceChecked) {
+    if (this.dataExchangeService.isBalanceChecked) {
       featureProperties = this.findPropertiesForTimeSeries(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     }
 
@@ -387,7 +384,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   };
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (let feature of this.exchangeData.selectedIndicator.geoJSON.features) {
+    for (let feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
       if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
         return feature.properties;
       }

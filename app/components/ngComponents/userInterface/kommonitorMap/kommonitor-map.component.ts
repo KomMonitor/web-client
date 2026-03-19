@@ -3,7 +3,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import jStat from 'jstat';
@@ -141,7 +141,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   sortableLayers = ["Web Map Services (WMS)"];
 
-  exchangeData:DataExchange;
 
   constructor(
     private dataExchangeService: DataExchangeService,
@@ -151,9 +150,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private filterHelperService: FilterHelperService,
     private genericMapHelperService: GenericMapHelperService,
     private envConfigService: EnvConfigService
-  ) { 
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
   ngOnInit(): void {
 
@@ -431,7 +428,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.loadingData = true;
 
     let baseLayerDefinitionsMap = new Map();
-    this.exchangeData.baseLayerDefinitionsArray = [{
+    this.dataExchangeService.baseLayerDefinitionsArray = [{
       "layerConfig": {
         name: "leere Karte", 
         url: "",
@@ -648,7 +645,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   initSpatialUnitOutlineLayer(){
 
-    for (let spatialUnit of this.exchangeData.availableSpatialUnits) {
+    for (let spatialUnit of this.dataExchangeService.availableSpatialUnits) {
       if(spatialUnit.isOutlineLayer){
 
         let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
@@ -1062,10 +1059,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let innerHTMLString = '<div class="row" style="margin-right: 0px;">';
     innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
     innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropdown'>";
-    innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.exchangeData.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
+    innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
     innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
-    for (let option of this.exchangeData.availableSpatialUnits) {
+    for (let option of this.dataExchangeService.availableSpatialUnits) {
 
       if (this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(option)) {
         innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
@@ -2325,7 +2322,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
         style = this.filteredStyle;
       }
-      else if (!this.exchangeData.isMeasureOfValueChecked) {
+      else if (!this.dataExchangeService.isMeasureOfValueChecked) {
         //this.currentIndicatorLayer.resetStyle(layer);
         if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
           style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, false);
@@ -2359,7 +2356,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     if (this.filterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       layer.setStyle(this.filteredStyle);
     }
-    else if (!this.exchangeData.isMeasureOfValueChecked) {
+    else if (!this.dataExchangeService.isMeasureOfValueChecked) {
       //this.currentIndicatorLayer.resetStyle(layer);
       if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
         style = this.visualStyleHelperService.styleDynamicIndicator(layer.feature, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.propertyName, this.envConfigService.useTransparencyOnIndicator, false);
@@ -2566,7 +2563,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
-      if(item.spatialUnitId == this.exchangeData.selectedSpatialUnit.spatialUnitId) {
+      if(item.spatialUnitId == this.dataExchangeService.selectedSpatialUnit.spatialUnitId) {
         let regionalDefaultBreaks = [...item.breaks];
         if(firstBreak < regionalDefaultBreaks[0]){
           regionalDefaultBreaks.unshift(firstBreak);
@@ -2615,17 +2612,17 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   checkAvailabilityOfRegionalDefault (indicatorMetadataAndGeoJSON) {
     let breaksAvailableForSelectedSpatialUnit = false;
     for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
-      if(item.spatialUnitId == this.exchangeData.selectedSpatialUnit.spatialUnitId) {
+      if(item.spatialUnitId == this.dataExchangeService.selectedSpatialUnit.spatialUnitId) {
         breaksAvailableForSelectedSpatialUnit = true;
       }
     }
     if(this.visualStyleHelperService.classifyMethod == "regional_default") {
-      if(!breaksAvailableForSelectedSpatialUnit || this.exchangeData.isBalanceChecked) {
+      if(!breaksAvailableForSelectedSpatialUnit || this.dataExchangeService.isBalanceChecked) {
         if (!breaksAvailableForSelectedSpatialUnit) {
           // todo
           // kommonitorToastHelperService.displayWarningToast("Für diese Raumebene ist kein regionaler Standard verfügbar", "Es wird zur Klassifizierungsmethode Gleiches Intervall gewechselt");
         }
-        else if (this.exchangeData.isBalanceChecked) {
+        else if (this.dataExchangeService.isBalanceChecked) {
           // todo
           // kommonitorToastHelperService.displayWarningToast("Für die Bilanzierung ist kein regionaler Standard verfügbar", "Es wird zur Klassifizierungsmethode Gleiches Intervall gewechselt");
         }
@@ -2639,14 +2636,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
  
   setClassifyZeroForClassifyMethod(){
     if(this.visualStyleHelperService.classifyMethod == "regional_default") {
-      if (this.exchangeData.classifyZeroSeparately_backup == undefined) {
-        this.exchangeData.classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately;
+      if (this.dataExchangeService.classifyZeroSeparately_backup == undefined) {
+        this.dataExchangeService.classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately;
       }
       this.envConfigService.classifyZeroSeparately = false;
     }
     else {
-      this.envConfigService.classifyZeroSeparately = this.exchangeData.classifyZeroSeparately_backup != undefined ? this.exchangeData.classifyZeroSeparately_backup : this.envConfigService.classifyZeroSeparately;
-      this.exchangeData.classifyZeroSeparately_backup = undefined;
+      this.envConfigService.classifyZeroSeparately = this.dataExchangeService.classifyZeroSeparately_backup != undefined ? this.dataExchangeService.classifyZeroSeparately_backup : this.envConfigService.classifyZeroSeparately;
+      this.dataExchangeService.classifyZeroSeparately_backup = undefined;
     }
   }
 
@@ -2759,14 +2756,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.setClassifyZeroForClassifyMethod();          
     
-    if (this.exchangeData.isMeasureOfValueChecked) {       
+    if (this.dataExchangeService.isMeasureOfValueChecked) {       
       let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
         this.currentGeoJSONOfCurrentLayer, 
         this.indicatorPropertyName, 
         this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
         this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
         this.visualStyleHelperService.classifyMethod, 
-        this.exchangeData.measureOfValue,
+        this.dataExchangeService.measureOfValue,
         this.visualStyleHelperService.manualMOVBreaks,
         this.visualStyleHelperService.regionalDefaultMOVBreaks,
         this.visualStyleHelperService.numClasses
@@ -2888,10 +2885,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     if(this.visualStyleHelperService.classifyMethod == "regional_default" 
-      && this.exchangeData.isMeasureOfValueChecked) {
+      && this.dataExchangeService.isMeasureOfValueChecked) {
       this.visualStyleHelperService.regionalDefaultMOVBreaks = this.calcMOVBreaks(
         this.visualStyleHelperService.regionalDefaultBreaks,
-        this.exchangeData.measureOfValue
+        this.dataExchangeService.measureOfValue
       )
       let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
         this.currentGeoJSONOfCurrentLayer, 
@@ -2899,7 +2896,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
         this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
         this.visualStyleHelperService.classifyMethod, 
-        this.exchangeData.measureOfValue,
+        this.dataExchangeService.measureOfValue,
         this.visualStyleHelperService.manualMOVBreaks,
         this.visualStyleHelperService.regionalDefaultMOVBreaks,
         this.visualStyleHelperService.numClasses
@@ -2924,7 +2921,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.currentIndicatorLayer = layer;
 
-    this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
+    this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
 
     // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
     //   layer.style.color = undefined;
@@ -2955,7 +2952,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.showOutlierInfoAlert = true;
     }
 
-    this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedSpatialUnit.spatialUnitId, date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.exchangeData.isMeasureOfValueChecked, this.exchangeData.measureOfValue, justRestyling]);          
+    this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedSpatialUnit.spatialUnitId, date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);          
     this.broadcastService.broadcast("indicatortMapDisplayFinished");
 
     this.map.invalidateSize(true);
@@ -2971,7 +2968,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       feature.tempData.indicatorValueText = this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
     }
 
-    feature.tempData.unitText = this.exchangeData.selectedIndicator.unit;
+    feature.tempData.unitText = this.dataExchangeService.selectedIndicator.unit;
 
     return feature;
   }
@@ -3044,14 +3041,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       this.checkAvailabilityOfRegionalDefault(this.currentIndicatorMetadataAndGeoJSON);
 
-      if (this.exchangeData.isMeasureOfValueChecked) {
+      if (this.dataExchangeService.isMeasureOfValueChecked) {
         let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
           this.currentGeoJSONOfCurrentLayer, 
           this.indicatorPropertyName, 
           this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
           this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
           this.visualStyleHelperService.classifyMethod, 
-          this.exchangeData.measureOfValue,
+          this.dataExchangeService.measureOfValue,
           this.visualStyleHelperService.manualMOVBreaks,
           this.visualStyleHelperService.regionalDefaultMOVBreaks,
           this.visualStyleHelperService.numClasses
@@ -3166,7 +3163,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
 
       if(this.visualStyleHelperService.classifyMethod == "regional_default" 
-        && this.exchangeData.isMeasureOfValueChecked) {
+        && this.dataExchangeService.isMeasureOfValueChecked) {
         if(this.visualStyleHelperService.regionalDefaultBreaks.length == 0) {
           this.defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
             this.currentGeoJSONOfCurrentLayer, 
@@ -3178,7 +3175,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         }
         this.visualStyleHelperService.regionalDefaultMOVBreaks = this.calcMOVBreaks(
           this.visualStyleHelperService.regionalDefaultBreaks,
-          this.exchangeData.measureOfValue
+          this.dataExchangeService.measureOfValue
         )
         let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
           this.currentGeoJSONOfCurrentLayer, 
@@ -3186,7 +3183,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.envConfigService.defaultColorBrewerPaletteForGtMovValues, 
           this.envConfigService.defaultColorBrewerPaletteForLtMovValues, 
           this.visualStyleHelperService.classifyMethod, 
-          this.exchangeData.measureOfValue,
+          this.dataExchangeService.measureOfValue,
           this.visualStyleHelperService.manualMOVBreaks,
           this.visualStyleHelperService.regionalDefaultMOVBreaks,
           this.visualStyleHelperService.numClasses
@@ -3207,16 +3204,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         });
       }
 
-      this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
+      this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
 
       if (!skipDiagramRefresh) {
         let justRestyling = true;
 
         if (this.visualStyleHelperService.classifyMethod == 'manual') {
-          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.exchangeData.isMeasureOfValueChecked, this.exchangeData.measureOfValue, justRestyling]);
+          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
         }
         else {
-          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.exchangeData.isMeasureOfValueChecked, this.exchangeData.measureOfValue, justRestyling]);
+          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
         }
         
       }
@@ -3276,15 +3273,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       breaks = this.visualStyleHelperService.manualBrew ? this.visualStyleHelperService.manualBrew.breaks : [];
     }
     breaks.forEach((br) => {
-      if (br < this.exchangeData.measureOfValue) {
+      if (br < this.dataExchangeService.measureOfValue) {
         gtBreaks.push(br);
       }
       else {
         ltBreaks.push(br);
       }
     });
-    gtBreaks.push(this.exchangeData.measureOfValue);
-    ltBreaks.unshift(this.exchangeData.measureOfValue);
+    gtBreaks.push(this.dataExchangeService.measureOfValue);
+    ltBreaks.unshift(this.dataExchangeService.measureOfValue);
     this.visualStyleHelperService.manualMOVBreaks = [];
     this.visualStyleHelperService.manualMOVBreaks[0] = ltBreaks;
     this.visualStyleHelperService.manualMOVBreaks[1] = gtBreaks;

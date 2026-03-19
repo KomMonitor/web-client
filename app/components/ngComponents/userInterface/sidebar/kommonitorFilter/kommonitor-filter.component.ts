@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
@@ -132,7 +132,6 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   inputNotValid = false;
 
-  exchangeData:DataExchange;
 
   constructor(
     protected dataExchangeService: DataExchangeService,
@@ -143,9 +142,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     private globalFilterHelperService: GlobalFilterHelperService,
     private configStorageService:ConfigStorageService,
     private envConfigService: EnvConfigService
-  ) {
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
 
   ngOnInit(): void {
@@ -245,7 +242,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       return spatialUnitEntry.spatialUnitId;									
     });
     
-    this.higherSpatialUnits = JSON.parse(JSON.stringify(this.exchangeData.availableSpatialUnits));
+    this.higherSpatialUnits = JSON.parse(JSON.stringify(this.dataExchangeService.availableSpatialUnits));
     
     // only show those spatial units that are actually visible according to keycloak role
     // and associated to the current indicator as well
@@ -305,10 +302,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
     if(! this.previouslySelectedIndicator){
-      this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
+      this.previouslySelectedIndicator = this.dataExchangeService.selectedIndicator;
     }
     if(! this.previouslySelectedSpatialUnit){
-      this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
+      this.previouslySelectedSpatialUnit = this.dataExchangeService.selectedSpatialUnit;
     }
 
     // if(this.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
@@ -324,8 +321,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
         this.filterHelperService.clearSelectedFeatures();
     }
 
-    this.previouslySelectedIndicator = this.exchangeData.selectedIndicator;
-    this.previouslySelectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
+    this.previouslySelectedIndicator = this.dataExchangeService.selectedIndicator;
+    this.previouslySelectedSpatialUnit = this.dataExchangeService.selectedSpatialUnit;
     
   }
 
@@ -342,7 +339,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     date = this.INDICATOR_DATE_PREFIX + date;
 
     if(this.rangeSliderForFilter){
-      this.exchangeData.rangeFilterData = undefined;
+      this.dataExchangeService.rangeFilterData = undefined;
       this.rangeSliderForFilter.destroy();
 
       var domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
@@ -472,7 +469,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   onChangeRangeFilter (data) {
     // Called every time handle position is changed
-    this.exchangeData.rangeFilterData = data;
+    this.dataExchangeService.rangeFilterData = data;
 
     this.lowerFilterInputNotValid = false;
     this.higherFilterInputNotValid = false;
@@ -497,7 +494,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
       this.dataExchangeService.rangeFilterIsApplied = true;
     }
 
-    var dateProperty = this.INDICATOR_DATE_PREFIX + this.exchangeData.selectedDate;
+    var dateProperty = this.INDICATOR_DATE_PREFIX + this.dataExchangeService.selectedDate;
 
     this.filterHelperService.applyRangeFilter(this.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, this.currentLowerFilterValue, this.currentHigherFilterValue);
   }
@@ -524,11 +521,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     this.measureSlider.noUiSlider.on('set', () => {
       let data = this.measureSlider.noUiSlider.get(true);
 
-      this.exchangeData.measureOfValue = data;
+      this.dataExchangeService.measureOfValue = data;
       this.onMeasureOfValueChangeByText();
     });
 
-    if(this.exchangeData.isBalanceChecked){
+    if(this.dataExchangeService.isBalanceChecked){
 
       // todo
     /* 	$rootScope.$broadcast("DisableBalance");
@@ -587,7 +584,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     // measureOfValueInput.setAttribute("movStep", this.movStep);
     // measureOfValueInput.setAttribute("value", this.movMiddleValue);
 
-    this.exchangeData.measureOfValue = this.movMiddleValue;
+    this.dataExchangeService.measureOfValue = this.movMiddleValue;
 
     var measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
     measureOfValueTextInput.setAttribute("min", this.movMinValue);
@@ -630,11 +627,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   onMeasureOfValueChange(data){
 
-    this.exchangeData.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
+    this.dataExchangeService.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
 
     // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
 
-    if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
+    if(this.dataExchangeService.measureOfValue >= this.movMinValue && this.dataExchangeService.measureOfValue <= this.movMaxValue){
       this.inputNotValid = false;
       // todo 
       // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
@@ -648,11 +645,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   onMeasureOfValueChangeByText(){
 
-    this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(this.numberOfDecimals);
+    this.dataExchangeService.measureOfValue = +Number(this.dataExchangeService.measureOfValue).toFixed(this.numberOfDecimals);
 
     // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
 
-    if(this.exchangeData.measureOfValue >= this.movMinValue && this.exchangeData.measureOfValue <= this.movMaxValue){
+    if(this.dataExchangeService.measureOfValue >= this.movMinValue && this.dataExchangeService.measureOfValue <= this.movMaxValue){
       this.inputNotValid = false;
       
       // todo 
@@ -672,7 +669,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
     this.loadingData = true;
     //send request to datamanagement API
-    let selectedSpatialUnit = this.exchangeData.selectedSpatialUnit;
+    let selectedSpatialUnit = this.dataExchangeService.selectedSpatialUnit;
     let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
     let upperSpatialUnitId = undefined;
 
@@ -685,10 +682,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
     if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
       upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
     }
-    let selectedIndicatorId = this.exchangeData.selectedIndicator.indicatorId;
+    let selectedIndicatorId = this.dataExchangeService.selectedIndicator.indicatorId;
 
     // example: 2020-12-31
-    let selectedDateComponents = this.exchangeData.selectedDate.split("-");
+    let selectedDateComponents = this.dataExchangeService.selectedDate.split("-");
 
     //build request
     let datePath = "";

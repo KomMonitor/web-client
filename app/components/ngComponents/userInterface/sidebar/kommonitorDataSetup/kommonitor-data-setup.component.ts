@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
@@ -29,7 +29,6 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 })
 export class KommonitorDataSetupComponent implements OnInit {
 
-  exchangeData!:DataExchange;
   topicsCollapsed:string[] = [];
   headlineTopicsCollapsed:string[] = [];
 
@@ -115,11 +114,9 @@ export class KommonitorDataSetupComponent implements OnInit {
     private adminTopicsManagementService: AdminTopicsManagementService,
     protected ogcService: OgcService,
     private envConfigService: EnvConfigService
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
-    this.exchangeData = this.dataExchangeService;
 
     this.adminTopicsManagementService.getOrderMode("indicator").subscribe((res) => this.topicSorting = res);
 
@@ -169,12 +166,12 @@ export class KommonitorDataSetupComponent implements OnInit {
   onInitialMetadataLoadingComplete() {
     console.log("Load an initial example indicator");
 
-    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
+    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.dataExchangeService.topicIndicatorHierarchy);
     this.preppedKeywordList = this.prepareKeywordFilteredList();
 
     this.prepareHeadlineIndicatorTopics();
 
-    if (this.exchangeData.displayableIndicators == null || this.exchangeData.displayableIndicators == undefined || this.exchangeData.displayableIndicators.length === 0){
+    if (this.dataExchangeService.displayableIndicators == null || this.dataExchangeService.displayableIndicators == undefined || this.dataExchangeService.displayableIndicators.length === 0){
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
 
       this.dataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
@@ -188,9 +185,9 @@ export class KommonitorDataSetupComponent implements OnInit {
     try{
       var indicatorIndex:any = undefined;
 
-      for (var index=0; index < this.exchangeData.displayableIndicators.length; index++){
-        if (this.exchangeData.displayableIndicators[index].indicatorId === this.envConfigService.initialIndicatorId){
-          if(this.exchangeData.displayableIndicators[index].applicableDates.length > 0){
+      for (var index=0; index < this.dataExchangeService.displayableIndicators.length; index++){
+        if (this.dataExchangeService.displayableIndicators[index].indicatorId === this.envConfigService.initialIndicatorId){
+          if(this.dataExchangeService.displayableIndicators[index].applicableDates.length > 0){
             indicatorIndex = index;
             break;
           }											
@@ -200,8 +197,8 @@ export class KommonitorDataSetupComponent implements OnInit {
       if( indicatorIndex === undefined){
           for(var t=0; t < 75; t++){
             
-            var randIndex = this.getRandomInt(0, this.exchangeData.displayableIndicators.length - 1);
-            if (this.exchangeData.displayableIndicators[randIndex].applicableDates.length > 0){
+            var randIndex = this.getRandomInt(0, this.dataExchangeService.displayableIndicators.length - 1);
+            if (this.dataExchangeService.displayableIndicators[randIndex].applicableDates.length > 0){
               indicatorIndex = randIndex;
               break;
             }													
@@ -212,19 +209,19 @@ export class KommonitorDataSetupComponent implements OnInit {
         throw Error();
       }
 
-      this.exchangeData.selectedIndicator = this.exchangeData.displayableIndicators[indicatorIndex];
+      this.dataExchangeService.selectedIndicator = this.dataExchangeService.displayableIndicators[indicatorIndex];
       // create Backup which is used when currently selected indicator is filtered out in select
-      this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
+      this.dataExchangeService.selectedIndicatorBackup = this.dataExchangeService.selectedIndicator;
 
       // set spatialUnit
-      for (var spatialUnitEntry of this.exchangeData.availableSpatialUnits){
+      for (var spatialUnitEntry of this.dataExchangeService.availableSpatialUnits){
         if(spatialUnitEntry.spatialUnitLevel === this.envConfigService.initialSpatialUnitName){
-          this.exchangeData.selectedSpatialUnit = spatialUnitEntry;
+          this.dataExchangeService.selectedSpatialUnit = spatialUnitEntry;
           break;
         }
       }
-      if(!this.exchangeData.selectedSpatialUnit){
-          this.exchangeData.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
+      if(!this.dataExchangeService.selectedSpatialUnit){
+          this.dataExchangeService.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
       }
 
       if(! this.envConfigService.centerMapInitially){
@@ -276,7 +273,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   prepareKeywordFilteredList() {
 
-    let indicators = this.exchangeData.displayableIndicators_keywordFiltered.map(item => ({
+    let indicators = this.dataExchangeService.displayableIndicators_keywordFiltered.map(item => ({
       ...item,
       listType: 'indicator'
     }));
@@ -299,7 +296,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
 
   prepareHeadlineIndicatorTopics() {
-    this.exchangeData.headlineIndicatorHierarchy.forEach( (elem:any) => {
+    this.dataExchangeService.headlineIndicatorHierarchy.forEach( (elem:any) => {
 
       if(!this.headlineTopicsCollapsed.includes(elem.headlineIndicator.indicatorId))
         this.headlineTopicsCollapsed.push(elem.headlineIndicator.indicatorId);
@@ -398,7 +395,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
   */
   onClickHierarchyIndicator(indicatorMetadata){
-    this.exchangeData.selectedIndicator = indicatorMetadata;
+    this.dataExchangeService.selectedIndicator = indicatorMetadata;
     this.onChangeSelectedIndicator(false);
   };
 
@@ -475,9 +472,9 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     var result:any = undefined;
 
-      var applicableSpatialUnits = this.exchangeData.selectedIndicator.applicableSpatialUnits;
+      var applicableSpatialUnits = this.dataExchangeService.selectedIndicator.applicableSpatialUnits;
 
-      for (const spatialUnitEntry of this.exchangeData.availableSpatialUnits){
+      for (const spatialUnitEntry of this.dataExchangeService.availableSpatialUnits){
         if(applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel)){
           result = spatialUnitEntry;
           break;
@@ -622,16 +619,16 @@ export class KommonitorDataSetupComponent implements OnInit {
     if(changeIndicator){
       //todo
       // $rootScope.$broadcast("DisableBalance");
-      this.mapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.selectedDate, false);
+      this.mapService.replaceIndicatorGeoJSON(this.dataExchangeService.selectedIndicator, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.selectedDate, false);
     }
     else {
       // check if balance mode is active
-      if (this.exchangeData.isBalanceChecked){
+      if (this.dataExchangeService.isBalanceChecked){
         //todo
         // $rootScope.$broadcast("replaceBalancedIndicator");
       }
       else {
-        this.mapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.selectedDate, false);
+        this.mapService.replaceIndicatorGeoJSON(this.dataExchangeService.selectedIndicator, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.selectedDate, false);
       }
     }
   };
@@ -654,12 +651,12 @@ export class KommonitorDataSetupComponent implements OnInit {
   
   setupDateSliderForIndicator(){
 
-    var availableDates = this.exchangeData.selectedIndicator.applicableDates;
+    var availableDates = this.dataExchangeService.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
     this.selectedDate = availableDates[availableDates.length - 1];
-    this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
+    this.dataExchangeService.selectedDate = availableDates[availableDates.length - 1];
 
-    this.datesAsMs = this.createDatesFromIndicatorDates(this.exchangeData.selectedIndicator.applicableDates);
+    this.datesAsMs = this.createDatesFromIndicatorDates(this.dataExchangeService.selectedIndicator.applicableDates);
 
     this.dateSlider.noUiSlider.updateOptions({
       range: {
@@ -703,7 +700,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   onChangeIndicatorFilter() {
     this.dataExchangeService.onChangeIndicatorKeywordFilter(this.indicatorNameFilter);
     
-    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.exchangeData.topicIndicatorHierarchy);
+    this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.dataExchangeService.topicIndicatorHierarchy);
     this.addClickListenerToEachCollapseTrigger();
   }
 
@@ -739,10 +736,10 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   setupDatePickerForIndicator(){
 
-    var availableDates = this.exchangeData.selectedIndicator.applicableDates;
+    var availableDates = this.dataExchangeService.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
     this.selectedDate = availableDates[availableDates.length - 1];
-    this.exchangeData.selectedDate = availableDates[availableDates.length - 1];
+    this.dataExchangeService.selectedDate = availableDates[availableDates.length - 1];
 
     let ngbDates = this.prepNgbDates(availableDates);
     this.broadcastService.broadcast('updateDatePickerAvailableDates',[ngbDates]);																
@@ -764,7 +761,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onChangeDateSliderItem(data){
 
-    if(!this.changeIndicatorWasClicked && this.exchangeData.selectedIndicator){
+    if(!this.changeIndicatorWasClicked && this.dataExchangeService.selectedIndicator){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
@@ -772,11 +769,11 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       //data.from is index of date!
 
-      this.selectedDate = this.exchangeData.selectedIndicator.applicableDates[data.from];
+      this.selectedDate = this.dataExchangeService.selectedIndicator.applicableDates[data.from];
       this.date = this.selectedDate;
-      this.exchangeData.selectedDate = this.selectedDate;
+      this.dataExchangeService.selectedDate = this.selectedDate;
 
-      let preppedDate = this.prepNgbDates([this.exchangeData.selectedDate])[0];
+      let preppedDate = this.prepNgbDates([this.dataExchangeService.selectedDate])[0];
       this.broadcastService.broadcast('updateDatePickerSelectedDate',[preppedDate]);
 
       try{
@@ -807,7 +804,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.dateSlider.noUiSlider.disable();
     }
 
-    this.exchangeData.disableIndicatorDatePicker = true;
+    this.dataExchangeService.disableIndicatorDatePicker = true;
   }
 
   EnableDateSlider() {
@@ -815,35 +812,35 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.dateSlider.noUiSlider.enable();
     }
 
-    this.exchangeData.disableIndicatorDatePicker = false;
+    this.dataExchangeService.disableIndicatorDatePicker = false;
   }
 
   tryUpdateMeasureOfValueBarForIndicator(){
-    var indicatorId = this.exchangeData.selectedIndicator.indicatorId;
+    var indicatorId = this.dataExchangeService.selectedIndicator.indicatorId;
 
-    if(! (this.date && this.exchangeData.selectedSpatialUnit && indicatorId)){
+    if(! (this.date && this.dataExchangeService.selectedSpatialUnit && indicatorId)){
       this.dataExchangeService.displayMapApplicationError("Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.");
       throw Error("Not all parameters have been set up yet.");
     }										
     //
     // $scope.selectedDate = $scope.selectedDate;
-    this.spatialUnitName = this.exchangeData.selectedSpatialUnit.spatialUnitLevel;
+    this.spatialUnitName = this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
     var dateComps = this.date.split("-");
     var year = dateComps[0];
     var month = dateComps[1];
     var day = dateComps[2];
 
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + this.exchangeData.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + this.exchangeData.simplifyGeometriesParameterName + "=" + this.exchangeData.simplifyGeometries;
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + this.dataExchangeService.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + this.dataExchangeService.simplifyGeometriesParameterName + "=" + this.dataExchangeService.simplifyGeometries;
     this.http.get(url).subscribe({
       next: (response:any) => {
         var geoJSON = response;
 
-        this.exchangeData.selectedIndicator.geoJSON = geoJSON;
+        this.dataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
-        this.broadcastService.broadcast('updateMeasureOfValueBar', [this.date, this.exchangeData.selectedIndicator]);
+        this.broadcastService.broadcast('updateMeasureOfValueBar', [this.date, this.dataExchangeService.selectedIndicator]);
 
-        return this.exchangeData.selectedIndicator;
+        return this.dataExchangeService.selectedIndicator;
       },
       error: (error) => {
         this.loadingData = false;
@@ -851,7 +848,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
         this.broadcastService.broadcast('hideLoadingIconOnMap');
 
-        return this.exchangeData.selectedIndicator;
+        return this.dataExchangeService.selectedIndicator;
       }
     });
 
@@ -864,7 +861,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   changeIndicatorDate([datePickerDate]){	
 
-    if(this.exchangeData.selectedIndicator && this.exchangeData.selectedDate){
+    if(this.dataExchangeService.selectedIndicator && this.dataExchangeService.selectedDate){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
@@ -875,8 +872,8 @@ export class KommonitorDataSetupComponent implements OnInit {
         start: [ this.datePickerToDateSlider(datePickerDate) ],
       }); */
 
-      this.date = this.exchangeData.selectedDate;
-      this.selectedDate = this.exchangeData.selectedDate;
+      this.date = this.dataExchangeService.selectedDate;
+      this.selectedDate = this.dataExchangeService.selectedDate;
 
       try{
         var selectedIndicator = this.tryUpdateMeasureOfValueBarForIndicator();
@@ -902,7 +899,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeSelectedSpatialUnit(){
-    if(!this.changeIndicatorWasClicked && this.exchangeData.selectedIndicator){
+    if(!this.changeIndicatorWasClicked && this.dataExchangeService.selectedIndicator){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
@@ -932,7 +929,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   onChangeSelectedIndicator_fromAlphabeticalList(dataset){
     
     if(dataset.listType=='indicator') {
-      this.exchangeData.selectedIndicator = dataset;
+      this.dataExchangeService.selectedIndicator = dataset;
       this.onChangeSelectedIndicator(false);
     } else {
     
@@ -946,20 +943,20 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.broadcastService.broadcast('onChangeSelectedIndicator');
     
-    if(this.exchangeData.selectedIndicator){
+    if(this.dataExchangeService.selectedIndicator){
 
       this.loadingData = true;
       this.broadcastService.broadcast('showLoadingIconOnMap');
 
       this.changeIndicatorWasClicked = true;
      
-      this.exchangeData.selectedIndicatorBackup = this.exchangeData.selectedIndicator;
+      this.dataExchangeService.selectedIndicatorBackup = this.dataExchangeService.selectedIndicator;
 
       this.setupDateSliderForIndicator();
       this.setupDatePickerForIndicator();
       
-      if(!this.exchangeData.selectedSpatialUnit || !this.exchangeData.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName === this.exchangeData.selectedSpatialUnit.spatialUnitLevel)){
-        this.exchangeData.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
+      if(!this.dataExchangeService.selectedSpatialUnit || !this.dataExchangeService.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName === this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
+        this.dataExchangeService.selectedSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
       }
 
       try{
@@ -993,8 +990,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     }
     else{
-      if (this.exchangeData.selectedIndicatorBackup){
-        this.exchangeData.selectedIndicator = this.exchangeData.selectedIndicatorBackup;
+      if (this.dataExchangeService.selectedIndicatorBackup){
+        this.dataExchangeService.selectedIndicator = this.dataExchangeService.selectedIndicatorBackup;
       }
     }
     this.broadcastService.broadcast('selectedIndicatorDateHasChanged');
@@ -1002,22 +999,22 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   modifyExports(changeIndicator){
 
-    this.exchangeData.wmsUrlForSelectedIndicator = undefined;
-    this.exchangeData.wfsUrlForSelectedIndicator = undefined;
+    this.dataExchangeService.wmsUrlForSelectedIndicator = undefined;
+    this.dataExchangeService.wfsUrlForSelectedIndicator = undefined;
     
-    var selectedSpatialUnitName = this.exchangeData.selectedSpatialUnit.spatialUnitLevel;
+    var selectedSpatialUnitName = this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
-    for(const ogcServiceEntry of this.exchangeData.selectedIndicator.ogcServices){
+    for(const ogcServiceEntry of this.dataExchangeService.selectedIndicator.ogcServices){
       if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
-        this.exchangeData.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
-        this.exchangeData.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
+        this.dataExchangeService.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
+        this.dataExchangeService.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
         break;
       }
     };
 
-    this.broadcastService.broadcast("updateBalanceSlider", [this.exchangeData.selectedDate]);
+    this.broadcastService.broadcast("updateBalanceSlider", [this.dataExchangeService.selectedDate]);
     setTimeout(() => {
-      this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.exchangeData.selectedDate, this.exchangeData.selectedIndicator]);
+      this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.dataExchangeService.selectedDate, this.dataExchangeService.selectedIndicator]);
     },1000); 
     // time here seems to be crucial, "500" does not work.. maybe fix, maybe leave it
 
@@ -1029,8 +1026,8 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     console.log('updateIndicatorOgcServices was called');
 
-    this.exchangeData.wmsUrlForSelectedIndicator = indicatorWmsUrl;
-    this.exchangeData.wfsUrlForSelectedIndicator = indicatorWfsUrl;
+    this.dataExchangeService.wmsUrlForSelectedIndicator = indicatorWmsUrl;
+    this.dataExchangeService.wfsUrlForSelectedIndicator = indicatorWfsUrl;
   }
 
   public favTabShowTopic(topic:IndicatorsTopicsHierarchy) {
@@ -1208,7 +1205,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   
       let match = false;
   
-      let indicatorMatch = topic.indicatorData.filter(e => e.indicatorId==this.exchangeData.selectedIndicator.indicatorId);
+      let indicatorMatch = topic.indicatorData.filter(e => e.indicatorId==this.dataExchangeService.selectedIndicator.indicatorId);
       let wmsMatch = topic.wmsData.filter(e => e.isSelected===true);
 
       if(indicatorMatch.length || wmsMatch.length) {
@@ -1334,7 +1331,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   handleWmsOnMap(dataset:WmsDataset){
-    this.exchangeData.wmsLegendImage = undefined;
+    this.dataExchangeService.wmsLegendImage = undefined;
     console.log("Toggle Indicator WMS: " + dataset.title);
 
     if(dataset.isSelected){

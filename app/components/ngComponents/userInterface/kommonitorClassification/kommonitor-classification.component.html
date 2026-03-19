@@ -3,7 +3,7 @@
   <div class="classification-container">
 
 
-    <div *ngIf="exchangeData.selectedIndicator.indicatorType.includes('STATUS') && !exchangeData.isMeasureOfValueChecked && !exchangeData.isBalanceChecked" class="row vertical-align">      
+    <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked" class="row vertical-align">      
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle btn-sm" type="button" (click)="clrSelectVisible=!clrSelectVisible">Farbpalettenwahl<span class="caret"></span></button>
@@ -62,7 +62,7 @@
 
     <!-- manual breaks -->
     <div *ngIf="visualStyleHelperService.classifyMethod=='manual'">
-      <div *ngIf="(exchangeData.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked && ! exchangeData.isBalanceChecked" 
+      <div *ngIf="(dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             (mouseover)="toggleAddBtn($event, 0)">
         <div class="breaksArea"
@@ -120,7 +120,7 @@
         </div>
       </div>
 
-      <div *ngIf="exchangeData.isMeasureOfValueChecked" 
+      <div *ngIf="dataExchangeService.isMeasureOfValueChecked" 
             class="histogramTabWrapper editableHistogram"
             (mousemove)="toggleAddBtn($event, 0)">
         <div class="breaksArea"
@@ -135,11 +135,11 @@
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
-                [ngStyle]="{top: getPercentage(exchangeData.measureOfValue, 0)+'%'}"
+                [ngStyle]="{top: getPercentage(dataExchangeService.measureOfValue, 0)+'%'}"
                 (mousedown)="onBreaksMouseMove($event, 0)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
-              <span>{{exchangeData.measureOfValue}}</span>
+              <span>{{dataExchangeService.measureOfValue}}</span>
             </div>
             <div class="line"></div>
           </div>
@@ -181,10 +181,10 @@
     </div>
 
     <!-- balance checked -- lower than values -->
-    <div *ngIf="((exchangeData.isBalanceChecked 
-        || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') 
+    <div *ngIf="((dataExchangeService.isBalanceChecked 
+        || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
-        && ! exchangeData.isMeasureOfValueChecked)
+        && ! dataExchangeService.isMeasureOfValueChecked)
         && visualStyleHelperService.dynamicBrew[1].breaks.length > 0"
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           (mousemove)="toggleAddBtn($event, 1)">
@@ -231,10 +231,10 @@
 
 
     <!-- balance checked -- higher than values -->
-    <div *ngIf="((exchangeData.isBalanceChecked 
-        || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') 
+    <div *ngIf="((dataExchangeService.isBalanceChecked 
+        || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
-        && ! exchangeData.isMeasureOfValueChecked)
+        && ! dataExchangeService.isMeasureOfValueChecked)
         && visualStyleHelperService.dynamicBrew[0].breaks.length > 0" 
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           (mousemove)="toggleAddBtn($event, 0)">
@@ -296,7 +296,7 @@
     </div>-->
 
   </div>
-  <div class="classificationBoxToogleSlidersWrapper" *ngIf="!exchangeData.isBalanceChecked">
+  <div class="classificationBoxToogleSlidersWrapper" *ngIf="!dataExchangeService.isBalanceChecked">
     <span class="classificationBoxToogleSlidersLbl">
       <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
     </span>

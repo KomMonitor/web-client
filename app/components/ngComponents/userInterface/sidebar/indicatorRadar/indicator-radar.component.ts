@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -34,8 +34,6 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   setupCompleted = true;
   radarOption:any;
 
-  exchangeData!: DataExchange;
-
   preppedIndicatorPropertiesForCurrentSpatialUnitAndTime!:any;
   propertiesForCurrentlySelectedIndicator!:any;
   propertiesForBaseIndicatorsOfCurrentHeadlineIndicator!: any;
@@ -44,23 +42,21 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService,
     private envConfigService: EnvConfigService
-  ) {
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
   ngOnInit(): void {
 
     setTimeout(() => {
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(true);
 
-      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.exchangeData.selectedIndicator.indicatorId);
+      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.dataExchangeService.selectedIndicator.indicatorId);
       this.propertiesForBaseIndicatorsOfCurrentHeadlineIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => {
 
-        var headlineIndicatorEntry = this.exchangeData.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.exchangeData.selectedIndicator.indicatorId)[0];
+        var headlineIndicatorEntry = this.dataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.dataExchangeService.selectedIndicator.indicatorId)[0];
 
         if(headlineIndicatorEntry){
           var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);
@@ -160,10 +156,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       this.radarChart.showLoading();
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
       this.activeTab = 0;
-      if (this.exchangeData.selectedIndicator.creationType == "COMPUTATION") {
+      if (this.dataExchangeService.selectedIndicator.creationType == "COMPUTATION") {
           this.activeTab = 1;
       }
-      if (this.exchangeData.selectedIndicator.isHeadlineIndicator) {
+      if (this.dataExchangeService.selectedIndicator.isHeadlineIndicator) {
           this.activeTab = 2;
       }
       this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
@@ -307,7 +303,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   feature: {
                       // mark : {show: true},
                       dataView: {
-                          show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+                          show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
                               // 	<table class="table table-condensed table-hover">
                               // 	<thead>
                               // 		<tr>

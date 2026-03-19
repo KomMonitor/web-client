@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
@@ -20,7 +20,6 @@ import { EnvConfigService } from '../../../services/env-config-service/env-confi
 })
 export class UserInterfaceComponent implements OnInit {
 
-  exchangeData!: DataExchange;
   userRoleInformation = {};
   userGroupInformation:any[] = [];
 
@@ -45,9 +44,7 @@ export class UserInterfaceComponent implements OnInit {
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private router: Router,
     protected envConfigService: EnvConfigService
-  ) {
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
   ngOnInit(): void {
 
@@ -118,8 +115,8 @@ export class UserInterfaceComponent implements OnInit {
 
 		prepUserInformation() {
 
-			if(this.exchangeData.currentKomMonitorLoginRoleNames.length>0) {
-			  this.exchangeData.currentKomMonitorLoginRoleNames.forEach(roles => {
+			if(this.dataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+			  this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
 				
 				let key = roles.split('.')[0];
 				let role = roles.split('.')[1];
@@ -133,8 +130,8 @@ export class UserInterfaceComponent implements OnInit {
 			  });
 			}
 
-			if(this.exchangeData.currentKeycloakLoginGroups.length>0) {
-			  this.exchangeData.currentKeycloakLoginGroups.forEach((group, index) => {
+			if(this.dataExchangeService.currentKeycloakLoginGroups.length>0) {
+			  this.dataExchangeService.currentKeycloakLoginGroups.forEach((group, index) => {
 
 				let parts = group.split('/');
 				this.userGroupInformation[index] = [];
@@ -167,10 +164,10 @@ export class UserInterfaceComponent implements OnInit {
 
 			// currently only simple ADMIN user login is possible
 			console.log("Check user login");
-			if (this.exchangeData.adminUserName === this.exchangeData.currentKeycloakUser && this.exchangeData.adminPassword === this.password){
+			if (this.dataExchangeService.adminUserName === this.dataExchangeService.currentKeycloakUser && this.dataExchangeService.adminPassword === this.password){
 				// success login --> currently switch to ADMIN page directly
 				console.log("User Login success - redirect to Admin Page");
-				this.exchangeData.adminIsLoggedIn = true;
+				this.dataExchangeService.adminIsLoggedIn = true;
 				location.href = '/administration';
 			}
 		}

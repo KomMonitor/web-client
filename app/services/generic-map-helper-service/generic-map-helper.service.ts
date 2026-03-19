@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
@@ -12,8 +12,6 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   providedIn: 'root'
 })
 export class GenericMapHelperService {
-
-  exchangeData:DataExchange;
 
   resourceType_point = "POINT";
   resourceType_line = "LINE";
@@ -52,9 +50,7 @@ export class GenericMapHelperService {
     private broadcastService: BroadcastService,
     private iconTranslate: IconTranslateService,
     private envConfigService: EnvConfigService,
-  ) {
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
   createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject) {
     
@@ -66,7 +62,7 @@ export class GenericMapHelperService {
         prefix: 'fa',
         markerColor: poiMarkerColor,
         iconColor: poiSymbolColor,
-        extraClasses: this.exchangeData.selectedPOISize.iconClassName
+        extraClasses: this.dataExchangeService.selectedPOISize.iconClassName
       });
 
     var newMarker;

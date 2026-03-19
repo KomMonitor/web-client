@@ -21,7 +21,7 @@
         <a class="nav-link active" id="dataCatalogueTab1" data-bs-toggle="tab" data-bs-target="#dataCatalogueTab1Content"
           role="tab" aria-controls="dataCatalogueTab1Content" aria-selected="true">Themenhierarchie</a>
       </li>
-      <li class="nav-item" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
+      <li class="nav-item" *ngIf="dataExchangeService.headlineIndicatorHierarchy && dataExchangeService.headlineIndicatorHierarchy.length>0">
         <a class="nav-link" id="dataCatalogueTab2" data-bs-toggle="tab" data-bs-target="#dataCatalogueTab2Content" role="tab"
           aria-controls="dataCatalogueTab2Content" aria-selected="false">Leitindikatoren-Hierarchie</a>
       </li>
@@ -41,7 +41,7 @@
           <div class="just-padding">
 
             <div id="indicatorHierarchySelection" class="list-group list-group-root well">
-              <div id="indicator-symbol-explanation" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
+              <div id="indicator-symbol-explanation" *ngIf="dataExchangeService.headlineIndicatorHierarchy && dataExchangeService.headlineIndicatorHierarchy.length>0">
               
             
                 <label>Erl&auml;uterungen zur Symbolik </label>
@@ -101,7 +101,7 @@
 
                               <div class="list-group collapse indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubsubTopic.topicId)}">
                                 <!-- indicatorData -->
-                                <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':exchangeData.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}" 
+                                <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}" 
                                   *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData" class="list-group-item list-group-item-default">
                                   <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
                                     <div>
@@ -131,7 +131,7 @@
                                         <th>Datensatz</th>
                                         <th>Beschreibung</th>
                                         <th>Legende</th>
-                                        <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                                        <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                                         <th></th>
                                       </tr>
                                     </thead>
@@ -159,7 +159,7 @@
                                             <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
                                           </div>
                                         </td>
-                                        <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                                        <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                                           <div style="text-align: center">
                                             <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
                                               title="WMS GetCapabilities URL"
@@ -178,7 +178,7 @@
                           </div>
                           <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
                             <!-- indicatorData -->
-                            <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':exchangeData.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}" 
+                            <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}" 
                               *ngFor="let indicatorMetadata of subsubTopic.indicatorData" class="list-group-item list-group-item-default">
                               <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
                                 <div>
@@ -208,7 +208,7 @@
                                     <th>Datensatz</th>
                                     <th>Beschreibung</th>
                                     <th>Legende</th>
-                                    <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                                    <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                                     <th></th>
                                   </tr>
                                 </thead>
@@ -236,7 +236,7 @@
                                         <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
                                       </div>
                                     </td>
-                                    <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                                    <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                                       <div style="text-align: center">
                                         <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
                                           title="WMS GetCapabilities URL"
@@ -257,7 +257,7 @@
                       </div>
                       <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
                         <!-- indicatorData -->
-                        <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':exchangeData.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}"
+                        <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}"
                           *ngFor="let indicatorMetadata of subTopic.indicatorData" class="list-group-item list-group-item-default">
                           <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
                             <div>
@@ -287,7 +287,7 @@
                                 <th>Datensatz</th>
                                 <th>Beschreibung</th>
                                 <th>Legende</th>
-                                <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                                <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                                 <th></th>
                               </tr>
                             </thead>
@@ -315,7 +315,7 @@
                                     <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
                                   </div>
                                 </td>
-                                <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                                <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                                   <div style="text-align: center">
                                     <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
                                       title="WMS GetCapabilities URL"
@@ -338,7 +338,7 @@
 
                   <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
                     <!-- indicatorData -->
-                    <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator, 'active':exchangeData.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}"
+                    <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}"
                       *ngFor="let indicatorMetadata of mainTopic.indicatorData" class="list-group-item list-group-item-default">
                       <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
                         <div>
@@ -368,7 +368,7 @@
                             <th>Datensatz</th>
                             <th>Beschreibung</th>
                             <th>Legende</th>
-                            <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                            <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                             <th></th>
                           </tr>
                         </thead>
@@ -399,7 +399,7 @@
                                 <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
                               </div>
                             </td>
-                            <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                            <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                               <div style="text-align: center">
                                 <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
                                   title="WMS GetCapabilities URL"
@@ -423,7 +423,7 @@
 
       </div>
       <div class="tab-pane" id="dataCatalogueTab2Content" role="tabpanel" 
-        aria-labelledby="dataCatalogueTab2" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
+        aria-labelledby="dataCatalogueTab2" *ngIf="dataExchangeService.headlineIndicatorHierarchy && dataExchangeService.headlineIndicatorHierarchy.length>0">
         <div class="just-padding">
 
           <div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
@@ -443,7 +443,7 @@
 
             <label> Leitindikatoren und ihre Basis-Indikatoren </label>
 
-            <div *ngFor="let headlineIndicatorHierarchyItem of exchangeData.headlineIndicatorHierarchy">
+            <div *ngFor="let headlineIndicatorHierarchyItem of dataExchangeService.headlineIndicatorHierarchy">
               <div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0">
                 <i class="fa-solid" [ngClass]="{'fa-chevron-right':headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'fa-chevron-down':!headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}"></i>
                 <p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" (click)="onHeadlineTopicClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)">{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
@@ -528,7 +528,7 @@
                           <th>Datensatz</th>
                           <th>Beschreibung</th>
                           <th>Legende</th>
-                          <th *ngIf="exchangeData.showGeoresourceExportButtons">Export</th>
+                          <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
                           <th></th>
                         </tr>
                       </thead>
@@ -556,7 +556,7 @@
                               <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
                             </div>
                           </td>
-                          <td *ngIf="exchangeData.showGeoresourceExportButtons" class="text-center">
+                          <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
                             <div style="text-align: center">
                               <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
                                 title="WMS GetCapabilities URL"

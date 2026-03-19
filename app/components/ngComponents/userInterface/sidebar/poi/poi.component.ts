@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { MapService } from 'services/map-service/map.service';
@@ -53,7 +53,6 @@ export class PoiComponent implements OnInit {
 
   timeout_manualdate;
 
-  exchangeData!: DataExchange;
   preppedTopicGeoresourceHierarchy!:any;
 
   georesourceFavTopicsTree = [];
@@ -88,8 +87,7 @@ export class PoiComponent implements OnInit {
     protected ogcService: OgcService,
     private envConfigService: EnvConfigService
   ) {
-    this.exchangeData = dataExchangeService;
-    this.selectedPoiSize = this.exchangeData.selectedPOISize.id;
+    this.selectedPoiSize = this.dataExchangeService.selectedPOISize.id;
   }
 
   ngOnInit(): void {
@@ -117,7 +115,7 @@ export class PoiComponent implements OnInit {
   }
 
   init() {
-    this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+    this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.dataExchangeService.topicGeoresourceHierarchy);
     this.georesourceFavTopicsTree = this.prepTopicsTree(this.dataExchangeService.topicGeoresourceHierarchy,0,undefined);
 
     if(this.elementVisibilityHelperService.elementVisibility.favSelection===true)
@@ -257,7 +255,7 @@ export class PoiComponent implements OnInit {
     this.dataExchangeService.onChangeGeoresourceKeywordFilter(this.georesourceNameFilter.value, this.showPOI, this.showLOI, this.showAOI, this.showWMS, this.showWFS);
 
     setTimeout(() => {
-      this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.exchangeData.topicGeoresourceHierarchy);
+      this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(this.dataExchangeService.topicGeoresourceHierarchy);
       this.addClickListenerToEachCollapseTrigger();
     },250);
   }						
@@ -655,7 +653,7 @@ export class PoiComponent implements OnInit {
   }
 
   refreshSelectedGeoresources(){
-    for (const georesource of this.exchangeData.displayableGeoresources_keywordFiltered) {
+    for (const georesource of this.dataExchangeService.displayableGeoresources_keywordFiltered) {
       if (georesource.isSelected){
 
         if(georesource.isPOI){
@@ -735,7 +733,7 @@ export class PoiComponent implements OnInit {
 
   getQueryDate(resource){
     if (this.dateSelectionType.selectedDateType === this.dateSelectionType_valueIndicator){
-      return this.exchangeData.selectedDate;
+      return this.dataExchangeService.selectedDate;
     }
     else if(this.dateSelectionType.selectedDateType === this.dateSelectionType_valueManual){
       return this.selectedDate_manual;
@@ -744,7 +742,7 @@ export class PoiComponent implements OnInit {
       return resource.selectedDate.startDate;
     }
     else{
-      return this.exchangeData.selectedDate;
+      return this.dataExchangeService.selectedDate;
     }
   };
   
@@ -758,9 +756,9 @@ export class PoiComponent implements OnInit {
     }
     else{
       // unselect topic
-      for (var i = 0; i < this.exchangeData.topicGeoresourceHierarchy.length; i++) {
-        if(this.exchangeData.topicGeoresourceHierarchy[i].topicId === poi.topicReference){
-          this.exchangeData.topicGeoresourceHierarchy[i].isSelected = false;
+      for (var i = 0; i < this.dataExchangeService.topicGeoresourceHierarchy.length; i++) {
+        if(this.dataExchangeService.topicGeoresourceHierarchy[i].topicId === poi.topicReference){
+          this.dataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
         }
       }
       //remove POI layer from map
@@ -863,9 +861,9 @@ export class PoiComponent implements OnInit {
 
   refreshPoiLayers(){
 
-    this.exchangeData.selectedPOISize = this.exchangeData.POISizes.filter(e => e.id==this.selectedPoiSize)[0];
+    this.dataExchangeService.selectedPOISize = this.dataExchangeService.POISizes.filter(e => e.id==this.selectedPoiSize)[0];
 
-    for (var poi of this.exchangeData.displayableGeoresources_keywordFiltered){
+    for (var poi of this.dataExchangeService.displayableGeoresources_keywordFiltered){
       if (poi.isSelected){
         //remove POI layer from map
         this.removePoiLayerFromMap(poi);
@@ -875,7 +873,7 @@ export class PoiComponent implements OnInit {
       }
     }
 
-    for (var wfs of this.exchangeData.wfsDatasets){
+    for (var wfs of this.dataExchangeService.wfsDatasets){
       if (wfs.geometryType == 'POI' && wfs.isSelected){
         //remove POI layer from map
         this.mapService.removeWfsLayerFromMap(wfs);
@@ -930,9 +928,9 @@ export class PoiComponent implements OnInit {
     }
     else{
       // unselect topic
-      for (var i = 0; i < this.exchangeData.topicGeoresourceHierarchy.length; i++) {
-        if(this.exchangeData.topicGeoresourceHierarchy[i].topicId === aoi.topicReference){
-          this.exchangeData.topicGeoresourceHierarchy[i].isSelected = false;
+      for (var i = 0; i < this.dataExchangeService.topicGeoresourceHierarchy.length; i++) {
+        if(this.dataExchangeService.topicGeoresourceHierarchy[i].topicId === aoi.topicReference){
+          this.dataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
         }
       }
       //remove POI layer from map
@@ -1040,9 +1038,9 @@ export class PoiComponent implements OnInit {
       }
       else{
         // unselect topic
-        for (var i = 0; i < this.exchangeData.topicGeoresourceHierarchy.length; i++) {
-          if(this.exchangeData.topicGeoresourceHierarchy[i].topicId === loi.topicReference){
-            this.exchangeData.topicGeoresourceHierarchy[i].isSelected = false;
+        for (var i = 0; i < this.dataExchangeService.topicGeoresourceHierarchy.length; i++) {
+          if(this.dataExchangeService.topicGeoresourceHierarchy[i].topicId === loi.topicReference){
+            this.dataExchangeService.topicGeoresourceHierarchy[i].isSelected = false;
           }
         }
         //remove POI layer from map
@@ -1137,7 +1135,7 @@ export class PoiComponent implements OnInit {
 
 
   handleWmsOnMap(dataset){
-    this.exchangeData.wmsLegendImage = undefined;
+    this.dataExchangeService.wmsLegendImage = undefined;
     console.log("Toggle WMS: " + dataset.title);
 
     if(dataset.isSelected){

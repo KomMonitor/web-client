@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { LabelService } from 'services/label-service/label.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -36,7 +36,6 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 })
 export class KommonitorLegendComponent implements OnInit, OnChanges {
 
-  exchangeData!:DataExchange;
   elementVisibilityData: any;
   visualStyleData: any;
 
@@ -71,7 +70,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   @Input() onupdatelegenddisplaydata!:any;
 
   constructor(
-    public dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     protected labelService: LabelService,
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,
@@ -82,9 +81,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     protected ogcService: OgcService,
     private mapService: MapService,
     protected envConfigService: EnvConfigService
-  ) {
-    this.exchangeData = this.dataExchangeService;
-  }
+  ) { }
 
   ngOnChanges(changes: any): void {
 
@@ -124,7 +121,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       
       // todo del timeout
       setTimeout(()=> {
-        var dateComponents = this.exchangeData.selectedDate.split("-");
+        var dateComponents = this.dataExchangeService.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
       },2500);
@@ -178,15 +175,15 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     var dateComponents = selectedDate.split("-");
     this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
     
-    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
+    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
   }
 
   filteredSpatialUnits() {
-    return this.exchangeData.availableSpatialUnits.filter(e => this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
+    return this.dataExchangeService.availableSpatialUnits.filter(e => this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
   }
 
   onChangeIndicatorDatepickerDate() {
-    this.exchangeData.selectedDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
+    this.dataExchangeService.selectedDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
     this.broadcastService.broadcast("changeIndicatorDate",[this.datePickerDate]);
   }
 
@@ -253,27 +250,27 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   async onClickDownloadMetadata() {
     // create PDF from currently selected/displayed indicator!
-    var indicatorMetadata = this.exchangeData.selectedIndicator;
+    var indicatorMetadata = this.dataExchangeService.selectedIndicator;
     var pdfName = indicatorMetadata.indicatorName + ".pdf";
     let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
     jspdf.save();
   }
   
   downloadIndicatorAsGeoJSON() {
-    var fileName = this.exchangeData.selectedIndicator.indicatorName + "_" + this.exchangeData.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 				  
     var geoJSON_string;
     var geoJSON;
 
-    if(this.exchangeData.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.exchangeData.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.exchangeData.indicatorAndMetadataAsBalance);							  
+    if(this.dataExchangeService.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.dataExchangeService.indicatorAndMetadataAsBalance);							  
       geoJSON_string = JSON.stringify(geoJSON);
-      fileName += "_Bilanz" + this.exchangeData.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.exchangeData.indicatorAndMetadataAsBalance['toDate'];
+      fileName += "_Bilanz" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
       geoJSON_string = JSON.stringify(this.dataExchangeService.selectedIndicator.geoJSON);
-      fileName += "_" + this.exchangeData.selectedDate;
+      fileName += "_" + this.dataExchangeService.selectedDate;
     }			
 
     this.dataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
@@ -455,12 +452,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
     var fromDate = indicatorMetadataAsBalance["fromDate"];
     var toDate = indicatorMetadataAsBalance["toDate"];
-    var targetDate = this.exchangeData.selectedDate;
+    var targetDate = this.dataExchangeService.selectedDate;
 
     for (var feature of geoJSON.features) {
       var properties = feature.properties;
 
-      var targetValue = properties[this.exchangeData.indicatorDatePrefix + targetDate];
+      var targetValue = properties[this.dataExchangeService.indicatorDatePrefix + targetDate];
       properties["balance"] = targetValue;
 
       // rename all properties due to char limit in shaoefiles
@@ -496,7 +493,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   };
 
   keywordFilteredWmsDataset() {
-    return this.exchangeData.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
+    return this.dataExchangeService.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
   }
 
   hasActiveWMSLayers(){
