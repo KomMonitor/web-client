@@ -8,4 +8,14 @@
   .hidden {
     visibility: hidden;
   }
+
+  .breakupWrapper {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin-left: 1em;
+
+    select:first-child {
+      width: min-content !important;
+    }
+  }
 }

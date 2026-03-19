@@ -22,9 +22,11 @@ export enum DisplayFormat {
 }
 
 export enum DisplayBreakup {
-  DAY = '1 day',
-  MONTH = '1 month',
-  YEAR = '1 year'
+  MINUTES = 'minutes',
+  HOUR = 'hour',
+  DAY = 'day',
+  MONTH = 'month',
+  YEAR = 'year'
 }
 
 @Component({
@@ -53,6 +55,9 @@ export class RtdDiagramsComponent implements OnInit {
 
   displayBreakup: DisplayBreakup = DisplayBreakup.DAY;
   displayBreakupOptions = DisplayBreakup;
+
+  displayBreakupValue = 1;
+  displayBreakupValueOptions = [1,2,3,4,5,6,7,8,9,10];
 
   parameter!:ParameterData;
 
@@ -125,7 +130,12 @@ export class RtdDiagramsComponent implements OnInit {
     if(this.displayFormat==this.displayFormatOptions.STD)
       this.displayBreakup = this.displayBreakupOptions.DAY;
 
-    this.rtdService.selectedData$.next({...this.rtdService.selectedData$.getValue(), displayFormat: this.displayFormat, displayBreakup: this.displayBreakup});
+    this.rtdService.selectedData$.next({
+      ...this.rtdService.selectedData$.getValue(), 
+      displayFormat: this.displayFormat, 
+      displayBreakup: this.displayBreakup,
+      displayBreakupValue: this.displayBreakupValue
+    });
   }
 
   onSliderChange(value: number | number[]) {

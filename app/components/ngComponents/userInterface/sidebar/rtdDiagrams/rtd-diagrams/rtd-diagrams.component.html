@@ -20,7 +20,7 @@
       <label>
         <b>Darstellungsform</b>
         <select [(ngModel)]="displayFormat" (change)="onChangeDisplayFormat()" class="form-control">
-          <option [value]="displayFormatOptions.AVG">Durchschnitt</option>
+          <option [value]="displayFormatOptions.AVG" selected>Durchschnitt</option>
           <option [value]="displayFormatOptions.MIN">Minimum</option>
           <option [value]="displayFormatOptions.MAX">Maximum</option>
           <option [value]="displayFormatOptions.SUM">Summe</option>
@@ -28,11 +28,18 @@
       </label>
       <label>
         <b>Aufl&ouml;sung</b>
-        <select [(ngModel)]="displayBreakup" (change)="onChangeDisplayFormat()" [disabled]="displayFormat==displayFormatOptions.STD" class="form-control">
-          <option [value]="displayBreakupOptions.DAY">Tage</option>
-          <option [value]="displayBreakupOptions.MONTH">Monate</option>
-          <option [value]="displayBreakupOptions.YEAR">Jahre</option>
-        </select>
+        <div class="breakupWrapper">
+          <select [(ngModel)]="displayBreakupValue" (change)="onChangeDisplayFormat()" [disabled]="displayFormat==displayFormatOptions.STD" class="form-control">
+            <option *ngFor="let i of displayBreakupValueOptions">{{i}}</option>
+          </select>
+          <select [(ngModel)]="displayBreakup" (change)="onChangeDisplayFormat()" [disabled]="displayFormat==displayFormatOptions.STD" class="form-control">
+            <option [value]="displayBreakupOptions.MINUTES">Minuten</option>
+            <option [value]="displayBreakupOptions.HOUR">Stunden</option>
+            <option [value]="displayBreakupOptions.DAY" selected>Tage</option>
+            <option [value]="displayBreakupOptions.MONTH">Monate</option>
+            <option [value]="displayBreakupOptions.YEAR">Jahre</option>
+          </select>
+        </div>
       </label>
     </div>
 
