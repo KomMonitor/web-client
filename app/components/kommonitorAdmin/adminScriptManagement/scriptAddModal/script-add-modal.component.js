@@ -118,7 +118,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				$scope.description = undefined;
 				kommonitorScriptHelperService.targetIndicator = undefined;
 
-				$scope.changeScriptTypeFilter('all');
+				document.getElementById('focus_indicator_label').classList.remove('active');
+				document.getElementById('focus_georesource_label').classList.remove('active');
+				document.getElementById('focus_all_label').classList.add('active');
 
 				var progressbar = document.getElementsByClassName('progressbar-script-add-modal');
 				progressbar[0].children[0].click();

@@ -286,19 +286,19 @@
 										<div class="form-group">
 											<label>Auswahl des Skript-Typen*</label>
 											<div class="btn-group btn-group-justified"  data-toggle="buttons">
-												<label class="btn btn-primary active">
+												<label id="focus_all_label" class="btn btn-primary active">
 													<input type="radio" name="options" id="focus_all" autocomplete="off" checked
 														ng-change="changeScriptTypeFilter('all')"
 														ng-model="$ctrl.focus"
 														value="all"> <i class="fas fa-globe-americas"></i> Alle
 												</label>
-												<label class="btn btn-primary">
+												<label id="focus_indicator_label" class="btn btn-primary">
 													<input type="radio" name="options" id="focus_indicator" autocomplete="off"
 														ng-change="changeScriptTypeFilter('indicator')"
 														ng-model="$ctrl.focus"
 														value="indicator"><i class="fas fa-sitemap"></i> Indikatoren-Skripts
 												</label>
-												<label class="btn btn-primary">
+												<label id="focus_georesource_label" class="btn btn-primary">
 													<input type="radio" name="options" id="focus_georesource" autocomplete="off"
 														ng-change="changeScriptTypeFilter('georesource')"
 														ng-model="$ctrl.focus"
