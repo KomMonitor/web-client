@@ -65,7 +65,11 @@ export interface TemplateData {
   displayName: string;
   categoryId: number,
   orientation: string;
-  pages: any[]
+  pages: any[];
+  echartsRegisteredMapNames?: any;
+  absoluteLabelPositions?: any;
+	isochronesRangeType?: any;
+	isochronesRangeUnits?: any;
 }
 
 export interface ImportData {

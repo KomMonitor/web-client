@@ -2101,14 +2101,12 @@ export class IndicatorAddComponent implements OnInit {
       georesourceId: this.selectedPoiLayer ? this.selectedPoiLayer.georesourceId : "",
       spatialUnitName: this.selectedSpatialUnit.spatialUnitName ?? this.selectedSpatialUnit.spatialUnitLevel,
       absoluteLabelPositions: this.reportingService.clonedTemplate.absoluteLabelPositions,
-      echartsRegisteredMapNames: this.reportingService.clonedTemplate.echartsRegisteredMapNames,
+      echartsRegisteredMapNames: this.echartsRegisteredMapNames,
       echartsMaps: [],
       pageConfig: jQuery.extend(true, {}, this.pageConfig),
       isochronesRangeType: this.isochronesRangeType,
       isochronesRangeUnits: this.isochronesRangeUnits
     }
-
-    console.log(templateSection)
 
     // remove pages not visible
     this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter(e => e.hidden!==true);
@@ -2164,6 +2162,11 @@ export class IndicatorAddComponent implements OnInit {
 
       page.templateSection = templateSection;
     }
+
+    this.reportingService.clonedTemplate.absoluteLabelPositions = this.absoluteLabelPositions;
+    this.reportingService.clonedTemplate.echartsRegisteredMapNames = [...new Set(this.echartsRegisteredMapNames)];
+    this.reportingService.clonedTemplate.isochronesRangeType = this.isochronesRangeType;
+    this.reportingService.clonedTemplate.isochronesRangeUnits = this.isochronesRangeUnits;
 
     if(!this.reportingService.clonedTemplate.name.includes("reachability"))
       this.reportingService.addIndicatorSection(templateSection);
