@@ -93,7 +93,7 @@ export class UserInterfaceComponent implements OnInit {
       }
     });
 
-    this.openReportingModal()
+    //this.openReportingModal()
   }
 
   isDiagramSidebarOpened() {

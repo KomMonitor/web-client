@@ -1332,7 +1332,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   handleWmsOnMap(dataset:WmsDataset){
     this.dataExchangeService.wmsLegendImage = undefined;
-    console.log("Toggle Indicator WMS: " + dataset.title);
 
     if(dataset.isSelected){
       //display on Map

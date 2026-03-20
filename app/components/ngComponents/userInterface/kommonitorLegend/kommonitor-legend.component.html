@@ -53,16 +53,16 @@
       <div class="boxedLegend">
 
         <ul class="nav nav-tabs" id="legendTabs" role="tablist">
-          <li class="nav-item" [ngClass]="{'active': !hasActiveWMSLayers()}">
-            <a class="nav-link active" id="legendTab1" data-bs-toggle="tab" data-bs-target="#legendTab1Content"
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{'active': !hasActiveWMSLayers()}" id="legendTab1" data-bs-toggle="tab" data-bs-target="#legendTab1Content"
               role="tab" aria-controls="legendTab1Content" aria-selected="true">Indikator</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" id="legendTab2" data-bs-toggle="tab" data-bs-target="#legendTab2Content" role="tab"
               aria-controls="legendTab2Content" aria-selected="false">Indikator-Metadaten</a>
           </li>
-          <li class="nav-item" [ngClass]="{'active': hasActiveWMSLayers()}" *ngIf="hasActiveWMSLayers()">
-            <a class="nav-link" id="legendTab3" data-bs-toggle="tab" data-bs-target="#legendTab3Content" role="tab"
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{'active': hasActiveWMSLayers()}" *ngIf="hasActiveWMSLayers()" id="legendTab3" data-bs-toggle="tab" data-bs-target="#legendTab3Content" role="tab"
               aria-controls="legendTab3Content" aria-selected="false">WMS-Dienste</a>
           </li>
         </ul>
