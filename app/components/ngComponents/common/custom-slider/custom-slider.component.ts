@@ -20,7 +20,7 @@ export enum SliderType {
   standalone: true,
   imports: [CommonModule]
 })
-export class CustomSliderComponent implements OnInit, AfterViewInit {
+export class CustomSliderComponent implements AfterViewInit {
 
   @ViewChild('sliderContainer') sliderContainer!: ElementRef;
 
@@ -35,7 +35,7 @@ export class CustomSliderComponent implements OnInit, AfterViewInit {
 
   errorMsg = '';
 
-  ngOnInit() {
+  ngAfterViewInit() {
 
     if(!this.data || this.data.length==0)
       this.errorMsg = 'Data not set or empty';
@@ -45,9 +45,7 @@ export class CustomSliderComponent implements OnInit, AfterViewInit {
 
     if(this.type==SliderType.NORMAL && this.markerPositions.length>1)
       this.errorMsg = 'Type normal needs one marker position only';
-  }
 
-  ngAfterViewInit(): void {
     if(this.errorMsg=='')
       this.initSlider();
   }
@@ -102,30 +100,89 @@ export class CustomSliderComponent implements OnInit, AfterViewInit {
   }
 
   defineMarkerPositions():number[] {
-    // getTime, weil "indexOf" bei Date nicht zuverlässig funktioniert
-    return this.markerPositions.map(m =>
-      this.data.findIndex(d => d.getTime() === m.getTime())
-    );
-  }
-  
-  getSliderValues() {
-    const values = this.sliderInstance.noUiSlider.get();
-    return Array.isArray(values) ? values : [values];
+
+    // findClosestIndex, cause range (start/end) works with precise ms values, whereas slider data is normalized to 00:00 and 23:59 range values
+    return [this.findClosestIndex(this.markerPositions[0]), this.findClosestIndex(this.markerPositions[1])];
   }
 
+  findClosestIndex(x:Date) {
+
+    const targetTime = new Date(x).getTime(); // Timestamp
+    let closestIndex = 0;
+    let minDiff = Math.abs(new Date(this.data[0]).getTime() - targetTime);
+
+    for (let i = 1; i < this.data.length; i++) {
+      const diff = Math.abs(new Date(this.data[i]).getTime() - targetTime);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIndex = i;
+      }
+    }
+
+    return closestIndex;
+  }
+
+  hasMultipleValuesPerDay() {
+    const seenDays = new Set();
+
+    for (const value of this.data) {
+      const d = new Date(value);
+
+      // UTC-Tag eindeutig machen (YYYY-MM-DD)
+      const dayKey =
+        d.getUTCFullYear() + '-' +
+        String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getUTCDate()).padStart(2, '0');
+
+      // wenn Tag schon gesehen → mehrere Werte an einem Tag
+      if (seenDays.has(dayKey)) {
+        return true;
+      }
+
+      seenDays.add(dayKey);
+    }
+
+    return false;
+  }
+
+  formatDateLocal(date) {
+    const d = new Date(date);
+
+    const day = d.getDate();      
+    const month = d.getMonth() + 1; 
+    const year = String(d.getFullYear()).slice(-2);
+
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
+  }
+  
   formatValue(value:number):any {
 
     value = Math.ceil(value);
+
+    let displayHours = this.hasMultipleValuesPerDay();
     
-    if(this.displayMode == DisplayType.YEAR)
+    if(this.displayMode == DisplayType.YEAR) 
       return new Date(this.data[value]).getFullYear();
 
     if(this.displayMode == DisplayType.DATE) {
+      
       var date = new Date(this.data[value]);
-      return date.toLocaleDateString('de-DE');
+      if(!displayHours) {
+        return date.toLocaleDateString('de-DE');
+      }
+
+      return this.formatDateLocal(date);
     }
       
     return this.data[value];
+  }
+
+  getSliderValues() {
+    const values = this.sliderInstance.noUiSlider.get();
+    return Array.isArray(values) ? values : [values];
   }
 
   reFormatValues(values:number[]):any[] {
