@@ -378,70 +378,72 @@ export class ReportingOverviewComponent implements OnInit {
       try {
 
         let config = this.reportingService.importConfig;
-        console.log(config)
-        let numberOfMapElements = this.getNumberOfMapElements(config);		
-				// reset leaflet screenshot helper service according to new  number of selected areas
-				//this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
 
-				// restore commune logo for every page, starting at the second
-				let communeLogoSrc = ""; // base64 string
-				for(let [idx, page] of config.pages.entries()) {
-					for(let pageElement of page.pageElements) {
-						if(pageElement.type.includes("communeLogo-") && idx === 0) {
-							if(pageElement.src && pageElement.src.length) {
-								communeLogoSrc = pageElement.src;
-							} else {
-								break; // no logo was exported
-							}
-						}
+        if(config) {
+          let numberOfMapElements = this.getNumberOfMapElements(config);		
+          // reset leaflet screenshot helper service according to new  number of selected areas
+          //this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
 
-						if(pageElement.type.includes("communeLogo-") && idx > 0) {
-							pageElement.src = communeLogoSrc;
-						}
-					}
-				}
+          // restore commune logo for every page, starting at the second
+          let communeLogoSrc = ""; // base64 string
+          for(let [idx, page] of config.pages.entries()) {
+            for(let pageElement of page.pageElements) {
+              if(pageElement.type.includes("communeLogo-") && idx === 0) {
+                if(pageElement.src && pageElement.src.length) {
+                  communeLogoSrc = pageElement.src;
+                } else {
+                  break; // no logo was exported
+                }
+              }
 
-				//this.reportingService.workingTemplate = config.template;
-				this.reportingService.workingTemplate.pages = config.pages;
-				this.reportingService.setTemplateSectionsFromConfig(config);
+              if(pageElement.type.includes("communeLogo-") && idx > 0) {
+                pageElement.src = communeLogoSrc;
+              }
+            }
+          }
 
-				// register echarts maps
-				for(let section of this.reportingService.getSectionsAsArray()) {
-					for(let mapName of section.echartsRegisteredMapNames) {
-						if(this.reportingService.workingTemplate.name.includes("reachability")) {
-							if(!mapName.includes(section.spatialUnitName)) {
-								continue;
-							}
-							if(!mapName.includes("_isochrones")) {
-								let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
-								echarts.registerMap(mapName, geoJson)
-							} else {
-								let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
-								echarts.registerMap(mapName, geoJson)
-							}
-						} else {
-							if(!mapName.includes(section.spatialUnitName)) {
-								continue;
-							}
-							let geoJson = section.echartsMaps[0].geoJson
-							echarts.registerMap(mapName, geoJson)
-						}
-					}
-				}
-				for(let page of this.reportingService.workingTemplate.pages) {
-					for(let pageElement of page.pageElements) {
-						if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
-							for(let map of pageElement.echartsMaps) {
-								echarts.registerMap(map.name, map.geoJson)
-							}
-						}
-					}
-				}
-			
+          //this.reportingService.workingTemplate = config.template;
+          this.reportingService.workingTemplate.pages = config.pages;
+          this.reportingService.setTemplateSectionsFromConfig(config);
 
-				for(let section of this.reportingService.getSectionsAsArray()) {
-					this.setupPages();
-				}
+          // register echarts maps
+          for(let section of this.reportingService.getSectionsAsArray()) {
+            for(let mapName of section.echartsRegisteredMapNames) {
+              if(this.reportingService.workingTemplate.name.includes("reachability")) {
+                if(!mapName.includes(section.spatialUnitName)) {
+                  continue;
+                }
+                if(!mapName.includes("_isochrones")) {
+                  let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
+                  echarts.registerMap(mapName, geoJson)
+                } else {
+                  let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
+                  echarts.registerMap(mapName, geoJson)
+                }
+              } else {
+                if(!mapName.includes(section.spatialUnitName)) {
+                  continue;
+                }
+                let geoJson = section.echartsMaps[0].geoJson
+                echarts.registerMap(mapName, geoJson)
+              }
+            }
+          }
+          for(let page of this.reportingService.workingTemplate.pages) {
+            for(let pageElement of page.pageElements) {
+              if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
+                for(let map of pageElement.echartsMaps) {
+                  echarts.registerMap(map.name, map.geoJson)
+                }
+              }
+            }
+          }
+        
+
+          for(let section of this.reportingService.getSectionsAsArray()) {
+            this.setupPages();
+          }
+        }
 			} catch (error:any) {
 				console.error(error);
 				//this.dataExchangeService.displayMapApplicationError(error.message);

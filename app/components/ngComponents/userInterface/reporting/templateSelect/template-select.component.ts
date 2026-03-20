@@ -24,22 +24,8 @@ export class TemplateSelectComponent implements OnInit {
     protected reportingService: ReportingService
   ) {}
 
-  //prevent bootrap modals tabs opened by a tag with href elements from adding their anchor location to 
-  // URL
- /*  $("a[href^='#']").click(function(e) {
-          e.preventDefault();
-          
-  }) */
-
   ngOnInit(): void {
-
-       // todo
-  /*   this.datePicker = $('#reporting-general-settings-datefield').datepicker({
-      autoclose: true,
-      language: 'de',
-      format: 'yyyy-mm-dd'
-    });
-    document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false); */   
+    this.reportingService.resetAll();
   }
 
   onChangeDatepickerDate() {

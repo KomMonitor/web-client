@@ -83,7 +83,7 @@ export interface ImportData {
 })
 export class ReportingService {
 
-  importConfig!: ImportData;
+  importConfig!: ImportData | undefined;
   workflowStateOptions = WorkflowState;
 
   default:ReportingData = {
@@ -3235,6 +3235,20 @@ export class ReportingService {
   changeSelectedTemplate(templateId: number) {
     this.setValue({...this._reportingData$.value, selectedTemplateId: templateId});
     this.selectedTemplate = structuredClone(this.availableTemplates[this._reportingData$.value.selectedTemplateId]);
+  }
+
+  resetAll() {
+    this.setValue({
+      ...this._reportingData$.value, 
+      selectedTemplateId: 0,
+      sections: {
+        indicators: [],
+        georesources: []
+      }
+    });
+
+    this.resetTemplateClone();
+    this.importConfig = undefined;
   }
 
   resetTemplateClone() {
