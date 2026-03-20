@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
 import { Subscription } from "rxjs";
-import { KommonitorIndicatorDataExchangeService } from "../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
 
 export interface Topic {
   topicDescription: string;
@@ -28,6 +27,7 @@ import { TopicOrderSelectionComponent } from "./topicOrderSelection/topic-order-
 import { TopicListComponent } from "./topicList/topicList.component";
 import { AddTopicComponent } from "./add-topic/add-topic.component";
 import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {
@@ -59,20 +59,20 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   private subscription: Subscription | undefined;
 
   constructor(
-    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     protected errorHandlingService: AdminTopicsManagementErrorHandlingService,
     private topicSrvc: AdminTopicsManagementService,
     private broadcastService: BroadcastService,
+    private dataExchangeService: DataExchangeService,
   ) {}
 
   get filteredIndicatorTopics(): Topic[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter(
+    return this.dataExchangeService.availableTopics.filter(
       (t) => t.topicType === "main" && t.topicResource === "indicator",
     );
   }
 
   get filteredGeoRessourceTopics(): Topic[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter(
+    return this.dataExchangeService.availableTopics.filter(
       (t) => t.topicType === "main" && t.topicResource === "georesource",
     );
   }

@@ -35,7 +35,7 @@ export class DataExchangeService {
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
   
   selectedIndicator!: IndicatorsDataset;
-  availableSpatialUnits!: SpatialUnit[];
+  availableSpatialUnits: SpatialUnit[] = [];
   availableWmsDatasets: WmsDataset[] = [];
   selectedDate: any;
   selectedSpatialUnit!: SpatialUnit;
@@ -72,8 +72,8 @@ export class DataExchangeService {
   simplifyGeometriesParameterName:any;
   simplifyGeometries:any;
   FEATURE_NAME_PROPERTY_NAME:any;
-  availableGeoresources!:GeoresourcesDataset[];
-  availableIndicators:any;
+  availableGeoresources:GeoresourcesDataset[] = [];
+  availableIndicators:any = [];
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any = false;
   displayableGeoresources:any;
@@ -651,7 +651,7 @@ export class DataExchangeService {
     this.setGeoresources(await this.cacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter));
   }
 
-  async fetchIndicatorsMetadata(keycloakRolesArray, filter){
+  async fetchIndicatorsMetadata(keycloakRolesArray, filter: any = undefined){
     this.setIndicators(await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter));
   }
 

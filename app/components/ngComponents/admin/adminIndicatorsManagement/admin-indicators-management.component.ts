@@ -21,7 +21,6 @@ import {
   RowNode,
   SelectionChangedEvent,
 } from "ag-grid-community";
-import { KommonitorIndicatorDataExchangeService } from "services/adminIndicatorUnit/kommonitor-data-exchange.service";
 import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
 import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
 import { IndicatorAddModalComponent } from "./indicatorAddModal/indicator-add-modal.component";
@@ -33,6 +32,8 @@ import { ExpandableBoxComponent } from "components/ngComponents/common/expandabl
 import { WmsAdminTableComponent } from "components/ngComponents/common/wms-admin-table/wms-admin-table.component";
 import { FormsModule } from "@angular/forms";
 import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
+import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
 
 declare const $: any;
 declare const __env: any;
@@ -92,7 +93,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
       this.http
         .patch(
-          this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
+          this.envConfigService.baseUrlToKomMonitorDataAPI +
             "/indicators/display-order",
           patchBody,
         )
@@ -101,7 +102,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             // Success - no action needed
           },
           error: (error: any) => {
-            this.kommonitorDataExchangeService.displayMapApplicationError(
+            this.dataExchangeService.displayMapApplicationError(
               error,
             );
           },
@@ -118,10 +119,11 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private http: HttpClient,
-    public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
     private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
     protected wmsSharedComponentsService: WmsSharedComponentsService,
+    private envConfigService: EnvConfigService,
+    private dataExchangeService: DataExchangeService
   ) {}
 
   ngOnInit(): void {
@@ -159,12 +161,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private async ensureDataLoaded(): Promise<void> {
     // If no indicators are available, try to fetch them
     if (
-      !this.kommonitorDataExchangeService.availableIndicators ||
-      this.kommonitorDataExchangeService.availableIndicators.length === 0
+      !this.dataExchangeService.availableIndicators ||
+      this.dataExchangeService.availableIndicators.length === 0
     ) {
       try {
-        await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+        await this.dataExchangeService.fetchIndicatorsMetadata(
+          this.dataExchangeService.currentKeycloakLoginRoles
         );
         // Force refresh the table after data is loaded
         setTimeout(() => {
@@ -425,8 +427,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     } else {
       // If no data is available, try to load it
       if (
-        !this.kommonitorDataExchangeService.availableIndicators ||
-        this.kommonitorDataExchangeService.availableIndicators.length === 0
+        !this.dataExchangeService.availableIndicators ||
+        this.dataExchangeService.availableIndicators.length === 0
       ) {
         this.ensureDataLoaded();
       } else {
@@ -467,7 +469,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   private getFilteredIndicators(): any[] {
     const allIndicators =
-      this.kommonitorDataExchangeService.availableIndicators;
+      this.dataExchangeService.availableIndicators;
 
     if (this.tableViewSwitcher) {
       // Filter out indicators where user only has viewer permission
@@ -711,9 +713,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   ): void {
     if (!crudType || !targetIndicatorId) {
       // refetch all metadata from indicators to update table
-      this.kommonitorDataExchangeService
+      this.dataExchangeService
         .fetchIndicatorsMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+          this.dataExchangeService.currentKeycloakLoginRoles,
         )
         .then((response: any) => {
           this.initializeOrRefreshOverviewTable();
@@ -733,10 +735,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.kommonitorCacheHelperService
           .fetchSingleIndicatorMetadata(
             targetIndicatorId,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+            this.dataExchangeService.currentKeycloakLoginRoles,
           )
           .then((data: any) => {
-            this.kommonitorDataExchangeService.addSingleIndicatorMetadata(data);
+            this.dataExchangeService.addSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
             this.broadcastService.broadcast(
               "refreshIndicatorOverviewTableCompleted",
@@ -753,10 +755,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.kommonitorCacheHelperService
           .fetchSingleIndicatorMetadata(
             targetIndicatorId,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+            this.dataExchangeService.currentKeycloakLoginRoles,
           )
           .then((data: any) => {
-            this.kommonitorDataExchangeService.replaceSingleIndicatorMetadata(
+            this.dataExchangeService.replaceSingleIndicatorMetadata(
               data,
             );
             this.initializeOrRefreshOverviewTable();
@@ -772,7 +774,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             );
           });
       } else if (crudType === "delete") {
-        this.kommonitorDataExchangeService.deleteSingleIndicatorMetadata(
+        this.dataExchangeService.deleteSingleIndicatorMetadata(
           targetIndicatorId,
         );
         this.initializeOrRefreshOverviewTable();
@@ -786,15 +788,15 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Utility methods
   checkCreatePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkCreatePermission();
+    return this.dataExchangeService.checkCreatePermission();
   }
 
   checkEditorPermission(): boolean {
-    return this.kommonitorDataExchangeService.checkEditorPermission();
+    return this.dataExchangeService.checkEditorPermission();
   }
 
   checkDeletePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkDeletePermission();
+    return this.dataExchangeService.checkDeletePermission();
   }
 
   private startDataPolling(): void {
@@ -826,8 +828,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   // Getter to check if we have topic hierarchy data
   get hasTopicData(): boolean {
     return (
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView &&
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView &&
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView
         .length > 0
     );
   }
@@ -839,11 +841,11 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     // Initialize all topics as collapsed by default
     if (
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView &&
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView &&
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView
         .length > 0
     ) {
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.forEach(
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView.forEach(
         (mainTopic: any) => {
           this.collapsedTopics.add(mainTopic.topicId);
 
@@ -885,9 +887,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   isTopicCollapsed(topicId: string): boolean {
     // If topic hierarchy is not loaded yet, assume collapsed
     if (
-      !this.kommonitorDataExchangeService
-        .topicIndicatorHierarchy_forOrderView ||
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView
+      !this.dataExchangeService.topicIndicatorHierarchy_forOrderView ||
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView
         .length === 0
     ) {
       return true;
@@ -926,7 +927,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // Send API request to persist new sort order
     this.http
       .patch(
-        this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
           "/indicators/display-order",
         patchBody,
       )
@@ -935,7 +936,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           // Display order updated successfully
         },
         error: (error: any) => {
-          this.kommonitorDataExchangeService.displayMapApplicationError(error);
+          this.dataExchangeService.displayMapApplicationError(error);
         },
       });
   }

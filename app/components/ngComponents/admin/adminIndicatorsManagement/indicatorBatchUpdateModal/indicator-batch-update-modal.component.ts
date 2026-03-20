@@ -6,14 +6,12 @@ import {
   ElementRef,
   Input,
 } from "@angular/core";
-import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { HttpClient } from "@angular/common/http";
+import { NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { Subscription } from "rxjs";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { KommonitorIndicatorDataExchangeService } from "services/adminIndicatorUnit/kommonitor-data-exchange.service";
-import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
+import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 declare const $: any;
 declare const __env: any;
@@ -64,11 +62,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private keyDownHandler: (event: KeyboardEvent) => void;
 
   constructor(
-    private modalService: NgbModal,
-    private http: HttpClient,
     private broadcastService: BroadcastService,
-    public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
-    private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService
+    protected dataExchangeService: DataExchangeService,
   ) {
     this.keyDownHandler = this.handleKeyDown.bind(this);
   }
@@ -116,9 +111,9 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     }
 
     // Set initial selected value if available
-    if (this.kommonitorDataExchangeService.availableIndicators && 
-        this.kommonitorDataExchangeService.availableIndicators.length > 0) {
-      this.selected.value = this.kommonitorDataExchangeService.availableIndicators[0];
+    if (this.dataExchangeService.availableIndicators && 
+        this.dataExchangeService.availableIndicators.length > 0) {
+      this.selected.value = this.dataExchangeService.availableIndicators[0];
     }
   }
 
@@ -211,7 +206,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       
       // Set indicator by ID
       const indicatorId = item.name;
-      const indicatorObj = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
+      const indicatorObj = this.dataExchangeService.getIndicatorMetadataById(indicatorId);
       row.name = indicatorObj;
 
       row.mappingTableName = item.mappingTableName;
@@ -392,27 +387,27 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private getConverterObjectByName(name: string): any {
     // Implementation to get converter object by name
     // Access through AngularJS service for now
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    if (angularJsService && angularJsService.availableConverters) {
-      return angularJsService.availableConverters.find((c: any) => c.name === name);
-    }
+    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
+    // if (angularJsService && angularJsService.availableConverters) {
+    //   return angularJsService.availableConverters.find((c: any) => c.name === name);
+    // }
     return null;
   }
 
   private getDatasourceTypeObjectByType(type: string): any {
     // Implementation to get datasource type object by type
     // Access through AngularJS service for now
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    if (angularJsService && angularJsService.availableDatasourceTypes) {
-      return angularJsService.availableDatasourceTypes.find((d: any) => d.type === type);
-    }
+    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
+    // if (angularJsService && angularJsService.availableDatasourceTypes) {
+    //   return angularJsService.availableDatasourceTypes.find((d: any) => d.type === type);
+    // }
     return null;
   }
 
   private getSpatialUnitObjectByName(name: string): any {
     // Implementation to get spatial unit object by name
-    if (this.kommonitorDataExchangeService.availableSpatialUnits) {
-      return this.kommonitorDataExchangeService.availableSpatialUnits.find(s => s.spatialUnitLevel === name);
+    if (this.dataExchangeService.availableSpatialUnits) {
+      return this.dataExchangeService.availableSpatialUnits.find(s => s.spatialUnitLevel === name);
     }
     return null;
   }
@@ -451,13 +446,15 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   // Helper methods to get available options
   public getAvailableConverters(): any[] {
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    return angularJsService?.availableConverters || [];
+    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
+    // return angularJsService?.availableConverters || [];
+    return [];
   }
 
   public getAvailableDatasourceTypes(): any[] {
-    const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
-    return angularJsService?.availableDatasourceTypes || [];
+    // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
+    // return angularJsService?.availableDatasourceTypes || [];
+    return [];
   }
 
   // Default value function properties

@@ -7,7 +7,8 @@ import {
 import { HttpClient } from "@angular/common/http";
 import { map, tap, timeout } from "rxjs";
 import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
-import { KommonitorIndicatorDataExchangeService } from "../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
+import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
 
 export interface TopicOrderResponseEntry {
   topicResource: TopicResourceType;
@@ -18,9 +19,10 @@ export interface TopicOrderResponseEntry {
 })
 export class AdminTopicsManagementService {
   constructor(
-    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private envConfigService: EnvConfigService,
+    private dataExchangeService: DataExchangeService
   ) {}
 
   addTopic(
@@ -39,7 +41,7 @@ export class AdminTopicsManagementService {
     };
 
     if (topicType === "main") {
-      const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics`;
+      const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics`;
 
       return this.http.post(url, newTopic).pipe(
         tap(() => this.reloadTopics()),
@@ -67,7 +69,7 @@ export class AdminTopicsManagementService {
         subTopics: this.prepareSubTopcis(parentTopic.subTopics),
       };
 
-      const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}`;
+      const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}`;
 
       return this.http.put(url, putBody).pipe(
         tap(() => this.reloadTopics()),
@@ -77,7 +79,7 @@ export class AdminTopicsManagementService {
   }
 
   deleteTopic(topicId: string) {
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topicId}`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${topicId}`;
     return this.http.delete(url).pipe(
       tap(() => this.reloadTopics()),
       timeout(5000)
@@ -90,7 +92,7 @@ export class AdminTopicsManagementService {
       topicName,
       topicDescription,
     });
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topic.topicId}`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${topic.topicId}`;
     return this.http.put(url, putBody).pipe(
       tap(() => this.reloadTopics()),
       timeout(5000)
@@ -102,7 +104,7 @@ export class AdminTopicsManagementService {
       topicId: t.topicId,
       displayOrder: index,
     }));
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}/display-order`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${parentTopic.topicId}/display-order`;
     return this.http.patch(url, patchBody).pipe(
       tap(() => this.reloadTopics()),
       timeout(5000)
@@ -117,7 +119,7 @@ export class AdminTopicsManagementService {
       topicId: t.topicId,
       displayOrder: index,
     }));
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topicResourceType}s/display-order`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${topicResourceType}s/display-order`;
     return this.http.post(url, postBody).pipe(
       tap(() => this.reloadTopics()),
       timeout(5000)
@@ -131,12 +133,12 @@ export class AdminTopicsManagementService {
     const postBody = {
       orderMode: orderMode,
     };
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/topics/${topicResourceType}s/display-order/mode`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics/${topicResourceType}s/display-order/mode`;
     return this.http.post(url, postBody).pipe(timeout(5000));
   }
 
   getOrderModes() {
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/public/topics/display-order/mode`;
+    const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/public/topics/display-order/mode`;
     return this.http.get<TopicOrderResponseEntry[]>(url).pipe(timeout(5000));
   }
 
@@ -173,9 +175,9 @@ export class AdminTopicsManagementService {
   }
 
   private reloadTopics() {
-    this.kommonitorDataExchangeService
+    this.dataExchangeService
       .fetchTopicsMetadata(
-        this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        this.dataExchangeService.currentKeycloakLoginRoles
       )
       .then(() => {
         this.broadcastService.broadcast("refreshTopicsOverview");

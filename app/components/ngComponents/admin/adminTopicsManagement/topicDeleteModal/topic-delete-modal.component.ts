@@ -2,11 +2,11 @@ import { Component, OnInit, Input } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 import { Topic } from "../admin-topics-management.component";
-import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
 import { CommonModule } from "@angular/common";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { finalize } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 @Component({
   selector: "topic-delete-modal",
@@ -24,14 +24,14 @@ export class TopicDeleteModalComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
+    private dataExchangeService: DataExchangeService,
     private srvc: AdminTopicsManagementService,
     private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit() {
     if (this.currentTopic) {
-      const html = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+      const html = this.dataExchangeService.syntaxHighlightJSON(
         this.currentTopic,
       );
       this.topicToDeletePrettyPrint =
@@ -70,8 +70,8 @@ export class TopicDeleteModalComponent implements OnInit {
         },
         error: (error: any) => {
           const html = error.data
-            ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data)
-            : this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+            ? this.dataExchangeService.syntaxHighlightJSON(error.data)
+            : this.dataExchangeService.syntaxHighlightJSON(error);
           this.errorMessagePart = this.sanitizer.bypassSecurityTrustHtml(html);
         },
       });

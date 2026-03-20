@@ -67,7 +67,7 @@
                   <select class="form-control batch-list-table-name-field" 
                           [(ngModel)]="indicator.name" required>
                     <option [ngValue]="null">-- Indikator wählen --</option>
-                    <option *ngFor="let avIndicator of kommonitorDataExchangeService.availableIndicators" 
+                    <option *ngFor="let avIndicator of dataExchangeService.availableIndicators" 
                             [ngValue]="avIndicator">
                       {{avIndicator.indicatorName}}
                     </option>
@@ -214,7 +214,7 @@
                   <select [(ngModel)]="indicator.selectedTargetSpatialUnit"
                           class="form-control" required>
                     <option [ngValue]="null">-- Raumebene wählen --</option>
-                    <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
+                    <option *ngFor="let spatialUnit of dataExchangeService.availableSpatialUnits" 
                             [ngValue]="spatialUnit">
                       {{spatialUnit.spatialUnitLevel}}
                     </option>

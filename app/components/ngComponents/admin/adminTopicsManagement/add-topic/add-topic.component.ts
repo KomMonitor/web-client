@@ -5,9 +5,9 @@ import {
   Topic,
   TopicResourceType,
 } from "../admin-topics-management.component";
-import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
 import { take } from 'rxjs/operators';
 import { FormsModule } from "@angular/forms";
+import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 @Component({
   selector: "admin-add-topic",
@@ -26,8 +26,8 @@ export class AddTopicComponent {
 
   constructor(
     private srvc: AdminTopicsManagementService,
-    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
-    private errorHandlingService: AdminTopicsManagementErrorHandlingService
+    private errorHandlingService: AdminTopicsManagementErrorHandlingService,
+    private dataExchangeService: DataExchangeService
   ) {}
 
   onAddTopic() {
@@ -47,7 +47,7 @@ export class AddTopicComponent {
         },
         error: (error) => {
           this.errorHandlingService.errorMessagePart =
-            this.kommonitorDataExchangeService.syntaxHighlightJSON(
+            this.dataExchangeService.syntaxHighlightJSON(
               error?.data || error
             );
         },

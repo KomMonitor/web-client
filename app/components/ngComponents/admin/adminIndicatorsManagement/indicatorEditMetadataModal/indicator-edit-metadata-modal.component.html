@@ -76,7 +76,7 @@
                 [(ngModel)]="indicatorType"
                 required>
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let option of kommonitorDataExchangeService.indicatorTypeOptions" 
+          <option *ngFor="let option of envConfigService.indicatorTypeOptions" 
                   [value]="option">
             {{option.displayName}}
           </option>
@@ -105,7 +105,7 @@
                 (change)="onChangeIndicatorUnit()"
                 required>
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let unit of kommonitorDataExchangeService.indicatorUnitOptions" 
+          <option *ngFor="let unit of envConfigService.indicatorUnitOptions" 
                   [value]="unit">
             {{unit}}
           </option>
@@ -178,7 +178,7 @@
                 (change)="onChangeCreationType()"
                 required>
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let option of kommonitorDataExchangeService.indicatorCreationTypeOptions" 
+          <option *ngFor="let option of envConfigService.indicatorCreationTypeOptions" 
                   [value]="option">
             {{option.displayName}}
           </option>
@@ -192,9 +192,9 @@
                 name="indicatorLowestSpatialUnitMetadataObjectForComputation"
                 [(ngModel)]="indicatorLowestSpatialUnitMetadataObjectForComputation">
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
+          <option *ngFor="let spatialUnit of dataExchangeService.availableSpatialUnits" 
                   [value]="spatialUnit">
-            {{spatialUnit.spatialUnitName}}
+            {{spatialUnit.spatialUnitLevel}}
           </option>
         </select>
       </div>
@@ -246,7 +246,7 @@
                 name="metadata.updateInterval"
                 [(ngModel)]="metadata.updateInterval">
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let option of kommonitorDataExchangeService.updateIntervalOptions" 
+          <option *ngFor="let option of envConfigService.updateIntervalOptions" 
                   [value]="option">
             {{option.displayName}}
           </option>
@@ -317,7 +317,7 @@
                 name="indicatorTopic_mainTopic"
                 [(ngModel)]="indicatorTopic_mainTopic">
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let topic of kommonitorDataExchangeService.availableTopics | filter:'topicResource':'indicator'" 
+          <option *ngFor="let topic of dataExchangeService.availableTopics | filter:'topicResource':'indicator'" 
                   [value]="topic">
             {{topic.topicName}}
           </option>
@@ -386,7 +386,7 @@
                 name="tmpIndicatorReference_selectedIndicatorMetadata"
                 [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata">
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let indicator of kommonitorDataExchangeService.availableIndicators | filter:'indicatorName':indicatorNameFilter" 
+          <option *ngFor="let indicator of dataExchangeService.availableIndicators | filter:'indicatorName':indicatorNameFilter" 
                   [value]="indicator">
             {{indicator.indicatorName}}
           </option>
@@ -461,7 +461,7 @@
                 name="tmpGeoresourceReference_selectedGeoresourceMetadata"
                 [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata">
           <option value="">Bitte wählen...</option>
-          <option *ngFor="let georesource of kommonitorDataExchangeService.availableGeoresources | filter:'datasetName':georesourceNameFilter" 
+          <option *ngFor="let georesource of dataExchangeService.availableGeoresources | filter:'datasetName':georesourceNameFilter" 
                   [value]="georesource">
             {{georesource.datasetName}}
           </option>
@@ -574,7 +574,7 @@
                [class.tab-error]="tabClasses[i] === 'tab-error'"
                href="#tab-{{i}}"
                data-toggle="tab">
-              {{kommonitorDataExchangeService.getSpatialUnitMetadataById(classification.spatialUnitId)?.spatialUnitName}}
+              {{dataExchangeService.getSpatialUnitMetadataById(classification.spatialUnitId)?.spatialUnitName}}
             </a>
           </li>
         </ul>
