@@ -26,7 +26,7 @@
 					&nbsp;
 
           <select (change)="refreshPoiLayers()" [(ngModel)]="selectedPoiSize" class="form-control">
-            <option *ngFor="let item of dataExchangeService.POISizes" [value]="item.id">{{item.label}}</option>
+            <option *ngFor="let item of poiSizes" [value]="item.id">{{item.label}}</option>
           </select>
 				</label>
 

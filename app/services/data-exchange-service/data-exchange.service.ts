@@ -1,5 +1,9 @@
 import { Injectable } from "@angular/core";
 import {
+  LOI_DASH_ARRAY_OBJECTS,
+  UPDATE_INTERVAL_LABELS,
+} from './data-exchange.constants';
+import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
 } from "components/ngComponents/models/indicators.models";
@@ -95,14 +99,6 @@ export class DataExchangeService {
 
   // todo topics hirarchy interface ?!
   availableTopics: any[] = [];
-
-  updateInterval = new Map([
-    ["ARBITRARY", "beliebig"],
-    ["YEARLY", "jährlich"],
-    ["HALF_YEARLY", "halbjährig"],
-    ["MONTHLY", "monatlich"],
-    ["QUARTERLY", "vierteljährlich"],
-  ]);
 
   anySideBarIsShown = false;
 
@@ -334,111 +330,6 @@ export class DataExchangeService {
     "css": "text-align: right; padding-right: 5px;"
   },
 ]; */
-
-  POISizes = [
-    {
-      id: 0,
-      label: "sehr klein",
-      iconClassName: "vector-marker-icon-extra-small",
-      scaleFactor: 0.4,
-    },
-    {
-      id: 1,
-      label: "klein",
-      iconClassName: "vector-marker-icon-small",
-      scaleFactor: 0.6,
-    },
-    {
-      id: 2,
-      label: "mittel",
-      iconClassName: "vector-marker-icon-middlesized",
-      scaleFactor: 0.75,
-    },
-    {
-      id: 3,
-      label: "groß",
-      iconClassName: "",
-      scaleFactor: 1,
-    },
-  ];
-
-  availableLoiDashArrayObjects = [
-    {
-      svgString:
-        '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
-      dashArrayValue: "",
-    },
-    {
-      svgString:
-        '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
-      dashArrayValue: "20",
-    },
-    {
-      svgString:
-        '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
-      dashArrayValue: "20 10",
-    },
-    {
-      svgString:
-        '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
-      dashArrayValue: "20 10 5 10",
-    },
-    {
-      svgString:
-        '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
-      dashArrayValue: "5",
-    },
-  ];
-
-  availablePoiMarkerColors = [
-    {
-      colorName: "red",
-      colorValue: "rgb(205,59,40)",
-    },
-    {
-      colorName: "white",
-      colorValue: "rgb(255,255,255)",
-    },
-    {
-      colorName: "orange",
-      colorValue: "rgb(235,144,46)",
-    },
-    {
-      colorName: "beige",
-      colorValue: "rgb(255,198,138)",
-    },
-    {
-      colorName: "green",
-      colorValue: "rgb(108,166,36)",
-    },
-    {
-      colorName: "blue",
-      colorValue: "rgb(53,161,209)",
-    },
-    {
-      colorName: "purple",
-      colorValue: "rgb(198,77,175)",
-    },
-    {
-      colorName: "pink",
-      colorValue: "rgb(255,138,232)",
-    },
-    {
-      colorName: "gray",
-      colorValue: "rgb(163,163,163)",
-    },
-    {
-      colorName: "black",
-      colorValue: "rgb(47,47,47)",
-    },
-  ];
-  selectedPOISize = this.POISizes[2];
-
-  datePickerOptions = {
-    autoclose: true,
-    language: "de",
-    format: "yyyy-mm-dd",
-  };
 
   headlineIndicatorHierarchy: any[] = [];
   computationIndicatorHierarchy: any[] = [];
@@ -767,7 +658,7 @@ export class DataExchangeService {
   }
 
   getLoiDashSvgFromStringValue(loiDashArrayString) {
-    for (const loiDashArrayObject of this.availableLoiDashArrayObjects) {
+    for (const loiDashArrayObject of LOI_DASH_ARRAY_OBJECTS) {
       if (loiDashArrayObject.dashArrayValue == loiDashArrayString) {
         return loiDashArrayObject.svgString;
       }
@@ -1486,7 +1377,7 @@ export class DataExchangeService {
         // $scope.updateInteval is a map mapping the english KEYs to german expressions
         [
           "Zeitbezug / Fortführungsintervall",
-          this.updateInterval.get(
+          UPDATE_INTERVAL_LABELS.get(
             georesource.metadata.updateInterval.toUpperCase(),
           ),
         ],
@@ -1890,7 +1781,7 @@ export class DataExchangeService {
         // $scope.updateInteval is a map mapping the english KEYs to german expressions
         [
           "Zeitbezug / Fortführungsintervall",
-          this.updateInterval.get(
+          UPDATE_INTERVAL_LABELS.get(
             indicator.metadata.updateInterval.toUpperCase(),
           ),
         ],

@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { DATE_PICKER_OPTIONS, LOI_DASH_ARRAY_OBJECTS, POI_MARKER_COLORS } from '../../../../../services/data-exchange-service/data-exchange.constants';
 
 @Component({
   selector: 'georesource-edit-metadata-modal',
@@ -89,6 +90,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
+  readonly loiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS;
+  readonly poiMarkerColors = POI_MARKER_COLORS;
+
   constructor(
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: DataExchangeService,
@@ -112,9 +116,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   private initializeDefaultValues(): void {
-    this.selectedPoiMarkerColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[0];
-    this.selectedPoiSymbolColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[1];
-    this.selectedLoiDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+    this.selectedPoiMarkerColor = POI_MARKER_COLORS[0];
+    this.selectedPoiSymbolColor = POI_MARKER_COLORS[1];
+    this.selectedLoiDashArrayObject = LOI_DASH_ARRAY_OBJECTS[0];
   }
 
   private initializeMetadataStructure(): void {
@@ -226,7 +230,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Set POI colors
-    this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
+    POI_MARKER_COLORS.forEach((option: any) => {
       if (option.colorName === this.currentGeoresourceDataset.poiMarkerColor) {
         this.selectedPoiMarkerColor = option;
       }
@@ -236,7 +240,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set LOI properties
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
+    LOI_DASH_ARRAY_OBJECTS.forEach((option: any) => {
       if (option.dashArrayValue === this.currentGeoresourceDataset.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
         this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
@@ -282,9 +286,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     try {
       const datePicker = document.getElementById('georesourceEditLastUpdateDatepicker');
       if (datePicker && (window as any).$) {
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(
-          this.kommonitorDataExchangeService.datePickerOptions
-        );
+        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(DATE_PICKER_OPTIONS);
         (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
       }
 
@@ -334,10 +336,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
       // Initialize LOI dash array dropdown
       setTimeout(() => {
-        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
+        for (let i = 0; i < LOI_DASH_ARRAY_OBJECTS.length; i++) {
           const element = document.getElementById('loiDashArrayEditDropdownItem-' + i);
           if (element) {
-            element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
+            element.innerHTML = LOI_DASH_ARRAY_OBJECTS[i].svgString;
           }
         }
 
@@ -487,7 +489,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Set POI colors
-    this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
+    POI_MARKER_COLORS.forEach((option: any) => {
       if (option.colorName === this.metadataImportSettings.poiMarkerColor) {
         this.selectedPoiMarkerColor = option;
       }
@@ -497,7 +499,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set LOI properties
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
+    LOI_DASH_ARRAY_OBJECTS.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
         this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);

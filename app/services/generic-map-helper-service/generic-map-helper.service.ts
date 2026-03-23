@@ -7,6 +7,7 @@ import 'leaflet.awesome-markers';
 import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { DEFAULT_POI_SIZE } from '../data-exchange-service/data-exchange.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -62,7 +63,7 @@ export class GenericMapHelperService {
         prefix: 'fa',
         markerColor: poiMarkerColor,
         iconColor: poiSymbolColor,
-        extraClasses: this.dataExchangeService.selectedPOISize.iconClassName
+        extraClasses: DEFAULT_POI_SIZE.iconClassName
       });
 
     var newMarker;
@@ -101,25 +102,25 @@ export class GenericMapHelperService {
     let fontSize = "13px;"
     let offset = [0, -25];
 
-    if (this.dataExchangeService.selectedPOISize.label == "sehr klein") {
+    if (DEFAULT_POI_SIZE.label == "sehr klein") {
       offset = [0, -12];
       if(poiText.length == 1) { fontSize = "9px"; }
       else if(poiText.length == 2) { fontSize = "6px"; }
       else if(poiText.length == 3) { fontSize = "4px"; }
     }
-    else if (this.dataExchangeService.selectedPOISize.label == "klein") {
+    else if (DEFAULT_POI_SIZE.label == "klein") {
       offset = [0, -20];
       if(poiText.length == 1) { fontSize = "11px"; }
       else if(poiText.length == 2) { fontSize = "8px"; }
       else if(poiText.length == 3) { fontSize = "5px"; }
     }
-    else if (this.dataExchangeService.selectedPOISize.label == "mittel") {
+    else if (DEFAULT_POI_SIZE.label == "mittel") {
       offset = [0, -25];
       if(poiText.length == 1) { fontSize = "13px"; }
       else if(poiText.length == 2) { fontSize = "11px"; }
       else if(poiText.length == 3) { fontSize = "9px"; }
     }
-    else if (this.dataExchangeService.selectedPOISize.label == "groß") {
+    else if (DEFAULT_POI_SIZE.label == "groß") {
       offset = [0, -32];
       if(poiText.length == 1) { fontSize = "20px"; }
       else if(poiText.length == 2) { fontSize = "15px"; }

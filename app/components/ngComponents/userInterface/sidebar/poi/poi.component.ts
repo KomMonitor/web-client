@@ -17,6 +17,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IconTranslate } from 'pipes/icon-translate.pipe';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import { DEFAULT_POI_SIZE, POI_SIZES } from '../../../../../services/data-exchange-service/data-exchange.constants';
 
 
 @Component({
@@ -76,6 +77,8 @@ export class PoiComponent implements OnInit {
   isPoiSelectCollapsed = false;
   poiAlphListCollapse:any[] = [true,true,true,true,true];
 
+  readonly poiSizes = POI_SIZES;
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     private mapService: MapService,
@@ -87,7 +90,7 @@ export class PoiComponent implements OnInit {
     protected ogcService: OgcService,
     private envConfigService: EnvConfigService
   ) {
-    this.selectedPoiSize = this.dataExchangeService.selectedPOISize.id;
+    this.selectedPoiSize = DEFAULT_POI_SIZE.id;
   }
 
   ngOnInit(): void {
@@ -860,8 +863,6 @@ export class PoiComponent implements OnInit {
   };
 
   refreshPoiLayers(){
-
-    this.dataExchangeService.selectedPOISize = this.dataExchangeService.POISizes.filter(e => e.id==this.selectedPoiSize)[0];
 
     for (var poi of this.dataExchangeService.displayableGeoresources_keywordFiltered){
       if (poi.isSelected){

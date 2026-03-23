@@ -73,7 +73,7 @@
                     {{selectedPoiMarkerColor?.colorName}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let markerColor of kommonitorDataExchangeService.availablePoiMarkerColors"
+                    <li *ngFor="let markerColor of poiMarkerColors"
                       (click)="onChangeMarkerColor(markerColor)">
                       <a href=""><i [style.background]="markerColor.colorValue"></i>{{markerColor.colorName}}</a>
                     </li>
@@ -133,7 +133,7 @@
                     {{selectedPoiSymbolColor?.colorName}} <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let symbolColor of kommonitorDataExchangeService.availablePoiMarkerColors"
+                    <li *ngFor="let symbolColor of poiMarkerColors"
                       (click)="onChangeSymbolColor(symbolColor)">
                       <a href=""><i [style.background]="symbolColor.colorValue"></i>
                         {{symbolColor.colorName}}</a>
@@ -178,7 +178,7 @@
                     </div> <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let loiDashArrayObject of kommonitorDataExchangeService.availableLoiDashArrayObjects; let i = index"
+                    <li *ngFor="let loiDashArrayObject of loiDashArrayObjects; let i = index"
                       (click)="onChangeLoiDashArray(loiDashArrayObject)">
                       <a href="">
                         <div [id]="'loiDashArrayEditDropdownItem-' + i">
