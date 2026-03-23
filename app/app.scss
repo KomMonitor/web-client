@@ -3888,6 +3888,12 @@ select {
   flex-grow: 1;
 }
 
+
+h4 {
+  margin: 0 0 5px;
+  font: 16px/18px Arial, Helvetica, sans-serif !important;
+}
+
 .boxedLegend {	
   font: 12px/14px Arial, Helvetica, sans-serif;
   background: white;
@@ -3906,7 +3912,7 @@ select {
 
   h4 {
     margin: 0 0 5px;
-    font: 16px/18px Arial, Helvetica, sans-serif;
+    font: 16px/18px Arial, Helvetica, sans-serif !important;
     color: #777;
   }
   
@@ -3949,4 +3955,9 @@ label {
   grid-template-columns: min-content auto auto;
   gap: .5em;
   align-items: start;
+}
+
+.input-group {
+  align-items: last baseline !important;
+  gap: 1em;
 }

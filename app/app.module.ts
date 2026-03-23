@@ -38,7 +38,6 @@ import { KommonitorLegendComponent } from 'components/ngComponents/userInterface
 import { SidebarComponent } from 'components/ngComponents/userInterface/sidebar/sidebar.component';
 import { UserLoginComponent } from './components/ngComponents/common/userLogin/user-login.component';
 
-
 export function initializeApp(startupService: StartupService) {
   return () => startupService.initApp(); 
 }

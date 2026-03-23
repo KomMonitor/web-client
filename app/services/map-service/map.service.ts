@@ -101,4 +101,20 @@ export class MapService {
     //this.ajskommonitorMapServiceProvider.removeReachabilityScenarioFromMainMap();
     this.broadcastService.broadcast("removeReachabilityScenarioFromMainMap");
   }
+
+  addFileLayerToMap(dataset, opacity) {
+    this.broadcastService.broadcast("addFileLayerToMap",[dataset]);
+  }
+
+  removeFileLayerFromMap(dataset) {
+    this.broadcastService.broadcast("removeFileLayerFromMap", [dataset]);
+  }
+
+  adjustOpacityForFileLayer(dataset, opacity) {
+    this.broadcastService.broadcast("adjustOpacityForFileLayer",[dataset, opacity]);
+  }
+
+  adjustColorForFileLayer(dataset, color) {
+    this.broadcastService.broadcast("adjustColorForFileLayer",[dataset, color]);
+  }
 }

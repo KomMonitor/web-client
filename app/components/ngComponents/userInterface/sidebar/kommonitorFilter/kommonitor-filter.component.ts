@@ -207,8 +207,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
     this.broadcastService.broadcast("onGlobalFilterChange");
     setTimeout(() => {
-      console.log('LIKEinitialMetadataLoadingCompleted broadcasted')
       this.broadcastService.broadcast("LIKEinitialMetadataLoadingCompleted");
+      this.loadingData = false;
     },1000)
   }
 
