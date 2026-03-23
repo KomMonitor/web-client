@@ -102,7 +102,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   featuresWithValues = [];
   featuresWithoutValues = [];
 
-  
 
   inputLayerCounter = 0;
 
@@ -140,6 +139,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   propertyName;
 
   sortableLayers = ["Web Map Services (WMS)"];
+
+  highlightTimeout;
 
 
   constructor(
@@ -2257,14 +2258,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       fillOpacity: fillOpacity
     });
 
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-      layer.bringToFront();
-      // also bring possible isochrone layer to front
-      // so it will not disapper behing indicator layer
-      if (this.isochronesLayer) {
-        this.isochronesLayer.bringToFront();
+    clearTimeout(this.highlightTimeout);
+
+    this.highlightTimeout = setTimeout(() => {
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        if (layer._map) {
+          layer.bringToFront();
+          // also bring possible isochrone layer to front
+          // so it will not disapper behing indicator layer
+          if (this.isochronesLayer) {
+            this.isochronesLayer.bringToFront();
+          }
+        }
       }
-    }
+    }, 150);
   }
   
   setTemporarilyHighlightedStyle(layer) {
@@ -2280,15 +2287,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       fillOpacity: fillOpacity
     });
 
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-      layer.bringToFront();
-      // also bring possible isochrone layer to front
-      // so it will not disapper behing indicator layer
-      if (this.isochronesLayer) {
-        // todo
-        this.isochronesLayer.bringToFront();
+    clearTimeout(this.highlightTimeout);
+
+    this.highlightTimeout = setTimeout(() => {
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        if (layer._map) {
+          layer.bringToFront();
+          // also bring possible isochrone layer to front
+          // so it will not disapper behing indicator layer
+          if (this.isochronesLayer) {
+            this.isochronesLayer.bringToFront();
+          }
+        }
       }
-    }
+    }, 150);
   }
 
   preserveHighlightedFeatures() {
