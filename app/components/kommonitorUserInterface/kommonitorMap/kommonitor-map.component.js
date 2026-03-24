@@ -56,6 +56,8 @@ angular.module('kommonitorMap').component(
         var defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
         var useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
 
+        var highlightTimeout;
+
         const outlierPropertyName = "outlier";
         const outlierPropertyValue_high_soft = "high-soft";
         const outlierPropertyValue_low_soft = "low-soft";
@@ -2163,14 +2165,20 @@ angular.module('kommonitorMap').component(
             fillOpacity: fillOpacity
           });
 
-          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-            layer.bringToFront();
-            // also bring possible isochrone layer to front
-            // so it will not disapper behing indicator layer
-            if ($scope.isochronesLayer) {
-              $scope.isochronesLayer.bringToFront();
+          clearTimeout(highlightTimeout);
+
+          highlightTimeout = setTimeout(function() {
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+              if (layer._map) {
+                layer.bringToFront();
+                // also bring possible isochrone layer to front
+                // so it will not disapper behing indicator layer
+                if ($scope.isochronesLayer) {
+                  $scope.isochronesLayer.bringToFront();
+                }
+              }
             }
-          }
+          }, 150);
         }
 
         function setTemporarilyHighlightedStyle(layer) {
@@ -2186,14 +2194,19 @@ angular.module('kommonitorMap').component(
             fillOpacity: fillOpacity
           });
 
-          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-            layer.bringToFront();
-            // also bring possible isochrone layer to front
-            // so it will not disapper behing indicator layer
-            if ($scope.isochronesLayer) {
-              $scope.isochronesLayer.bringToFront();
+          clearTimeout(highlightTimeout);
+          highlightTimeout = setTimeout(function() {
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+              if (layer._map) {
+                layer.bringToFront();
+                // also bring possible isochrone layer to front
+                // so it will not disapper behing indicator layer
+                if ($scope.isochronesLayer) {
+                  $scope.isochronesLayer.bringToFront();
+                }
+              }
             }
-          }
+          }, 150);
         }
 
         function preserveHighlightedFeatures() {
