@@ -1191,12 +1191,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 					skipNextPage = false;
 				}
 				else {
-					if(skipNextPage == false) {
+					if($scope.config.template.isSingleOrientation) {
 						pagesToShow.push(page);
-						skipNextPage = true;
-					}
-					else {
-						skipNextPage = false;
+					} else {
+						if(skipNextPage == false) {
+							pagesToShow.push(page);
+							skipNextPage = true;
+						}
+						else {
+							skipNextPage = false;
+						}
 					}
 				}
 			}
