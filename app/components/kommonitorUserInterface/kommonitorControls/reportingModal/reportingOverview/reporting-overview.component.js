@@ -47,6 +47,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.pageToProcess = undefined;
 		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
 
+		$scope.featureLookupCache = new Map();
+
+		$scope.getFeatureLookupKey = function(templateSection) {
+			return templateSection.indicatorId ? (templateSection.indicatorId + "_" + templateSection.spatialUnitName) : (templateSection.poiLayerName + "_" + templateSection.spatialUnitName);
+		};
+
 		$scope.isPageInPreview = function(page, index) {
 			if(page.type !== 'area_specific') {
 				return true;
@@ -474,6 +480,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 					$scope.geoJsonForReachability_byFeatureName.set("undefined", features);
+					
+					// cache features for this section
+					let cacheKey = $scope.getFeatureLookupKey(templateSection);
+					$scope.featureLookupCache.set(cacheKey, $scope.geoJsonForReachability_byFeatureName);
+
 
 					$scope.lastPageOfAddedSectionPrepared = false;
 					$scope.pagePreparationIndex = 0;
@@ -753,7 +764,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
 					page.spatialUnitId = spatialUnit.spatialUnitId;			
 					if(page.area){
-						let feature = $scope.geoJsonForReachability_byFeatureName.get(page.area);
+						let cacheKey = $scope.getFeatureLookupKey(page.templateSection);
+						let featureMap = $scope.featureLookupCache.get(cacheKey);
+
+						if(!featureMap) featureMap = $scope.geoJsonForReachability_byFeatureName;
+
+						let feature = featureMap.get(page.area);
 						let spatialUnitFeatureId = feature.properties[__env.FEATURE_ID_PROPERTY_NAME];
 						page.spatialUnitFeatureId = spatialUnitFeatureId;
 					}
@@ -768,7 +784,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 					if (cachedScreenshot && !isPreview) {
-						return cachedScreenshot;
+						// still we must increase the counter for page generation
+						let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
+								page.spatialUnitFeatureId, page.orientation, null);
+						return dataUrl;
 					}
 
 
@@ -1036,7 +1055,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let firstSection = config.templateSections[0];
 
 			if (firstSection){
-				let numberOfMapItems = firstSection.echartsMaps.length;
+				let numberOfMapItems = firstSection.echartsRegisteredMapNames.length;
 				// -1 because city overview map might occur twice with separate names
 				if (! config.template.name.includes("reachability")){
 					numberOfMapItems --;
@@ -1049,7 +1068,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		};
 
-		$scope.importConfig = function(config) {
+		$scope.importConfig = async function(config) {
 			$scope.loadingData = true;
 			setTimeout(function(){
 				$scope.$digest();
@@ -1146,7 +1165,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				}
 
 				for(let section of $scope.config.templateSections) {
-					$scope.setupNewPages(section);
+					await $scope.setupNewPages(section);
 				}
 
 			} catch (error) {
