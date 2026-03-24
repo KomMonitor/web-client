@@ -2232,17 +2232,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
 				// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
 				// for all spatial unit features		
-				let domNode = leafletMap["_container"];	
-				leafletLayer.on("load", function() { 
-					// there are pages for two page orientations (landscape and portait)
-					// only trigger the screenshot for those pages, that are actually present
-					if(page.orientation == $scope.template.orientation){
-						kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedBaseMap.layerConfig.name, $scope.selectedSpatialUnit.spatialUnitId, 
-							page.spatialUnitFeatureId, page.orientation, domNode);
-					}
-									
-				});					
-				leafletLayer.addTo(leafletMap);		
+				let domNode = leafletMap["_container"];		
 				
 				// set selected base map in order to make it available in reporting overview
 				pageElement.selectedBaseMap = $scope.selectedBaseMap;
