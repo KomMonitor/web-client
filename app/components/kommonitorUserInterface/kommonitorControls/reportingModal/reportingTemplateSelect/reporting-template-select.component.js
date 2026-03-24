@@ -2891,7 +2891,13 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}
 				}
 			}
-			$scope.$emit('reportingTemplateSelected', $scope.selectedTemplate)
+
+			// filter pages to only include those with the correct orientation
+			let templateToSend = JSON.parse(JSON.stringify($scope.selectedTemplate));
+			templateToSend.pages = templateToSend.pages.filter( page => page.orientation === templateToSend.orientation);
+			templateToSend.isSingleOrientation = true;
+
+			$scope.$emit('reportingTemplateSelected', templateToSend)
 		}
 
 		$scope.onBackToWorkflowSelectionClicked = function() {

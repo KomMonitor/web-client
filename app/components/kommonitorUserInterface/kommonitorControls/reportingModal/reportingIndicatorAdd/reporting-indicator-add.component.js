@@ -338,17 +338,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.updateAreasForTimestampTemplates = function(newVal) {
 			let pagesToInsertPerTimestamp = [];
-			for(let area of newVal) {
-				// get page to insert from untouched template
-				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-				pageToInsert.area = area.name;
-				pageToInsert.id = $scope.templatePageIdCounter++;
-				pagesToInsertPerTimestamp.push(pageToInsert);
+			// Find placeholder pages in untouched template
+			let untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+			let placeholderPages = untouchedTemplate.pages.filter(p => p.type === 'area_specific' && !p.area);
 
-				pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1];
-				pageToInsert.area = area.name;
-				pageToInsert.id = $scope.templatePageIdCounter++;
-				pagesToInsertPerTimestamp.push(pageToInsert);
+			for(let area of newVal) {
+				for(let placeholderPage of placeholderPages) {
+					// get page to insert from untouched template
+					let pageToInsert = angular.copy(placeholderPage);
+					pageToInsert.area = area.name;
+					pageToInsert.id = $scope.templatePageIdCounter++;
+					pagesToInsertPerTimestamp.push(pageToInsert);
+				}
 			}
 
 			// sort alphabetically by area name
@@ -427,17 +428,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.updateAreasForTimeseriesTemplates = function(newVal) {
 			let pagesToInsert = [];
-			for(let area of newVal) {
-				// get pages to insert from untouched template
-				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-				pageToInsert.area = area.name;
-				pageToInsert.id = $scope.templatePageIdCounter++;
-				pagesToInsert.push(pageToInsert);
+			// Find placeholder pages in untouched template
+			let untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+			let placeholderPages = untouchedTemplate.pages.filter(p => p.type === 'area_specific' && !p.area);
 
-				pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1 ];
-				pageToInsert.area = area.name;
-				pageToInsert.id = $scope.templatePageIdCounter++;
-				pagesToInsert.push(pageToInsert);
+			for(let area of newVal) {
+				for(let placeholderPage of placeholderPages) {
+					// get pages to insert from untouched template
+					let pageToInsert = angular.copy(placeholderPage);
+					pageToInsert.area = area.name;
+					pageToInsert.id = $scope.templatePageIdCounter++;
+					pagesToInsert.push(pageToInsert);
+				}
 			}
 
 			// sort alphabetically by area name
@@ -483,17 +485,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.updateAreasForReachabilityTemplates = function(newVal) {
 			// we only have one timestamp here (the most recent one)
 			let pagesToInsert = [];
-			for(let area of newVal) {
-				// get pages to insert from untouched template
-				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-				pageToInsert.area = area.name;
-				pageToInsert.id = $scope.templatePageIdCounter++;
-				pagesToInsert.push(pageToInsert);
+			// Find placeholder pages in untouched template
+			let untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+			let placeholderPages = untouchedTemplate.pages.filter(p => p.type === 'area_specific' && !p.area);
 
-				pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1 ];
-				pageToInsert.area = area.name;
-				pageToInsert.id = $scope.templatePageIdCounter++;
-				pagesToInsert.push(pageToInsert);
+			for(let area of newVal) {
+				for(let placeholderPage of placeholderPages) {
+					// get pages to insert from untouched template
+					let pageToInsert = angular.copy(placeholderPage);
+					pageToInsert.area = area.name;
+					pageToInsert.id = $scope.templatePageIdCounter++;
+					pagesToInsert.push(pageToInsert);
+				}
 			}
 
 			// sort alphabetically by area name
@@ -581,18 +584,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 						// insert additional page for each selected area, replace the placeholder page
 						let areaSpecificPages = [];
+						// Find placeholder pages in untouched template
+						let untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+						let placeholderPages = untouchedTemplate.pages.filter(p => p.type === 'area_specific' && !p.area);
+
 						// copy placeholder page for each selected area
 						for(let area of $scope.selectedAreas) {
-							let page = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-							page.area = area.name;
-							page.id = $scope.templatePageIdCounter++;
-							areaSpecificPages.push(page);
-
-							// repeat for the same area page with other orientation
-							let page_otherOrientation = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage + 1];
-							page_otherOrientation.area = area.name;
-							page_otherOrientation.id = $scope.templatePageIdCounter++;
-							areaSpecificPages.push(page_otherOrientation);
+							for(let placeholderPage of placeholderPages) {
+								let page = angular.copy(placeholderPage);
+								page.area = area.name;
+								page.id = $scope.templatePageIdCounter++;
+								areaSpecificPages.push(page);
+							}
 						}
 
 						// sort alphabetically by area name
@@ -602,8 +605,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 						})
 
-						// remove two placeholders due to 2 orientations
-						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 2, ...areaSpecificPages)
+						// remove placeholders
+						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, placeholderPages.length, ...areaSpecificPages)
 
 						// setup pages before inserting them
 						for(let pageToInsert of pagesToInsert) {
@@ -776,12 +779,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			$scope.template = template;
 
-			if($scope.template.name.includes("timestamp"))
-				$scope.indexOfFirstAreaSpecificPage = 6;
-			if($scope.template.name.includes("timeseries"))
-				$scope.indexOfFirstAreaSpecificPage = 8;
-			if($scope.template.name.includes("reachability"))
-				$scope.indexOfFirstAreaSpecificPage = 2;
+			// determine index dynamically, because it changes when we filter for orientation
+			$scope.indexOfFirstAreaSpecificPage = $scope.template.pages.findIndex(p => p.type === 'area_specific');
 
 			// disable tabs to force user to pick a poi-layer / indicator first
 			let tabList = document.querySelector("#reporting-add-indicator-tab-list");
@@ -3675,12 +3674,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					skipNextPage = false;
 				}
 				else {
-					if(skipNextPage == false) {
+					if($scope.template.isSingleOrientation) {
 						pagesToShow.push(page);
-						skipNextPage = true;
-					}
-					else {
-						skipNextPage = false;
+					} else {
+						if(skipNextPage == false) {
+							pagesToShow.push(page);
+							skipNextPage = true;
+						}
+						else {
+							skipNextPage = false;
+						}
 					}
 				}
 			}

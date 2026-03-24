@@ -60,7 +60,7 @@
                             ng-attr-class="reporting-page reporting-page-{{page.orientation}} reporting-custom-css"
                             ng-attr-id="reporting-overview-page-{{$index}}">
                             <button class="orientationChangeBtn" 
-                                ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability')"
+                                ng-if="!pageContainsDatatable($index) && !config.template.name.includes('-reachability') && !config.template.isSingleOrientation"
                                 ng-click="onPageTurnClicked(page.orientation, $index)">
                                 <img src="icons/swap.png" width="100%" height="100%"></img>
                             </button>
