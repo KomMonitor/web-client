@@ -1036,7 +1036,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let firstSection = config.templateSections[0];
 
 			if (firstSection){
-				let numberOfMapItems = firstSection.echartsRegisteredMapNames.length;
+				let numberOfMapItems = firstSection.echartsMaps.length;
 				// -1 because city overview map might occur twice with separate names
 				if (! config.template.name.includes("reachability")){
 					numberOfMapItems --;
@@ -1084,24 +1084,42 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				// register echarts maps
 				for(let section of $scope.config.templateSections) {
+					if(!section.echartsMaps || section.echartsMaps.length === 0){
+						continue;
+					}
 					for(let mapName of section.echartsRegisteredMapNames) {
 						if($scope.config.template.name.includes("reachability")) {
 							if(!mapName.includes(section.spatialUnitName)) {
 								continue;
 							}
 							if(!mapName.includes("_isochrones")) {
-								let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
-								echarts.registerMap(mapName, geoJson)
+								let filteredMaps = section.echartsMaps.filter( map => map.name === section.poiLayerName);
+								if(filteredMaps && filteredMaps.length > 0){
+									let geoJson = filteredMaps[0].geoJson;
+									echarts.registerMap(mapName, geoJson);
+								}
 							} else {
-								let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
-								echarts.registerMap(mapName, geoJson)
+								let filteredMaps = section.echartsMaps.filter( map => map.name === mapName);
+								if(filteredMaps && filteredMaps.length > 0){
+									let geoJson = filteredMaps[0].geoJson;
+									echarts.registerMap(mapName, geoJson);
+								}
 							}
 						} else {
 							if(!mapName.includes(section.spatialUnitName)) {
 								continue;
 							}
-							let geoJson = section.echartsMaps[0].geoJson
-							echarts.registerMap(mapName, geoJson)
+							// standard template only stores one map (the first one) or multiple.
+							// we try to find by name, if not possible we take the first one as fallback (legacy support or if only one is stored)
+							let filteredMaps = section.echartsMaps.filter( map => map.name === mapName);
+							if(filteredMaps && filteredMaps.length > 0){
+								echarts.registerMap(mapName, filteredMaps[0].geoJson);
+							} else {
+								// fallback to first element
+								if(section.echartsMaps.length > 0){
+									echarts.registerMap(mapName, section.echartsMaps[0].geoJson);
+								}
+							}
 						}
 					}
 				}
@@ -1214,7 +1232,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				jsonToExport.pages = JSON.parse( temp )
 				jsonToExport.template = angular.fromJson(angular.toJson( $scope.config.template ));
-				jsonToExport.templateSections = $scope.config.templateSections;
+				// deep copy templateSections to avoid modifying the scope object and to start clean
+				jsonToExport.templateSections = angular.fromJson(angular.toJson($scope.config.templateSections));
 
 				// Only store commune logo once (in first page)
 				// It is base64 encoded and adds quite a bit to the file size
@@ -1227,6 +1246,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				}
 				
 				for(let section of jsonToExport.templateSections) {
+					section.echartsMaps = [];
 					let mapNames = [...new Set(section.echartsRegisteredMapNames)]
 					if($scope.config.template.name.includes("reachability")) {
 						let mapAdded = false;
@@ -1237,20 +1257,24 @@ angular.module('reportingOverview').component('reportingOverview', {
 							// store all isochrones
 							if(name.includes("_isochrones")) {
 								let map = echarts.getMap(name)
-								section.echartsMaps.push({
-									name: name,
-									geoJson: map.geoJson
-								})
+								if(map){
+									section.echartsMaps.push({
+										name: name,
+										geoJson: map.geoJson
+									})
+								}
 							}
 							// First map with the correct spatial unit
 							// All other maps have the same geojson, so we only store them once
 							if(!mapAdded && name.includes(section.poiLayerName)) {
 								let map = echarts.getMap(mapNames[idx])
-								section.echartsMaps.push({
-									name: section.poiLayerName,
-									geoJson: map.geoJson
-								})
-								mapAdded = true;
+								if(map){
+									section.echartsMaps.push({
+										name: section.poiLayerName,
+										geoJson: map.geoJson
+									})
+									mapAdded = true;
+								}
 							}
 
 						}
@@ -1261,10 +1285,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 							} else {
 								// First map with the correct spatial unit
 								let map = echarts.getMap(mapNames[idx])
-								section.echartsMaps.push({
-									name: mapNames[idx],
-									geoJson: map.geoJson
-								});
+								if(map){
+									section.echartsMaps.push({
+										name: mapNames[idx],
+										geoJson: map.geoJson
+									});
+								}
 							}
 						}
 					}
