@@ -109,7 +109,25 @@ angular
               function capture() {
                 domtoimage
                   .toPng(domElement)
-                  .then(function (dataUrl) {
+                  .then(async function (dataUrl) {
+
+                    // Convert blob: to data: to ensure persistence in exports
+                    if (dataUrl.startsWith("blob:")) {
+                      try {
+                        const response = await fetch(dataUrl);
+                        const blob = await response.blob();
+                        dataUrl = await new Promise((resolve, reject) => {
+                          const reader = new FileReader();
+                          reader.onloadend = () => resolve(reader.result);
+                          reader.onerror = reject;
+                          reader.readAsDataURL(blob);
+                        });
+                      } catch (e) {
+                        console.error("Failed to convert blob URL to data URL for page " + pageIdx, e);
+                        // continue with blob URL as fallback for current session, but warn
+                      }
+                    }
+                    
                     self.storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, dataUrl);
                     self.pendingPromises.delete(CacheKey);
                     resolve(dataUrl);
