@@ -851,6 +851,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 						page.templateSection.legendImg = $scope.legendImg; // cache for export
 						legendDiv.appendChild($scope.legendImg);
 						pageElementDom.appendChild(legendDiv)
+
+						// Use a unique feature ID for reachability maps to avoid cache collisions if bounds differ
+						// using page index ensures uniqueness within the report
+						if(!page.spatialUnitFeatureId) {
+							page.spatialUnitFeatureId = "reachability-page-" + pageIdx;
+						}
 					}
 
 					let boundingCoords = echartsOptions.series[0].boundingCoords;
@@ -923,6 +929,15 @@ angular.module('reportingOverview').component('reportingOverview', {
 					pageElement.echartsOptions = echartsOptions;
 
 					let dataUrl = await screenshotPromise;
+
+					if (!dataUrl || (!dataUrl.startsWith("data:image") && !dataUrl.startsWith("blob:")) || dataUrl.length < 10) {
+						console.warn("Invalid leaflet map screenshot generated for page " + pageIdx + ". DataUrl: " + (dataUrl ? dataUrl.substring(0, 50) + "..." : "null"));
+						if (!isPreview) {
+							leafletMap.remove();
+							div.remove();
+						}
+						return undefined;
+					}
 
 					if (!isPreview) {
 						leafletMap.remove();
@@ -2392,8 +2407,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 					resolve();
 				}
 				leafletMapImg.onerror = function(e) {
-					console.error("Error loading leaflet map image for page " + page.indexInConfigPages, e);
-					reject(new Error("Leaflet map image load error"));
+					console.warn("Error loading leaflet map image for page " + page.indexInConfigPages + ". Src start: " + (leafletMapScreenshot ? leafletMapScreenshot.substring(0, 50) : "null"), e);
+					resolve();
 				};
 			})
 			leafletMapImg.src = leafletMapScreenshot;
@@ -2406,8 +2421,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 					resolve();
 				}
 				echartsImg.onerror = function(e) {
-					console.error("Error loading echarts image for page " + page.indexInConfigPages, e);
-					reject(new Error("ECharts image load error"));
+					console.warn("Error loading echarts image for page " + page.indexInConfigPages + ". Src start: " + (echartsImgSrc ? echartsImgSrc.substring(0, 50) : "null"), e);
+					resolve();
 				};
 			});
 			echartsImg.src = echartsImgSrc;
