@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="alert alert-info" ng-show="config.pages.length > 10">
-                    <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Die Vorschau zeigt nur die ersten raumeinheitsspezifischen Seiten exemplarisch an. Der vollständige Report wird im Hintergrund vorbereitet und wird alle Seiten enthalten.
+                    <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Die Vorschau zeigt nur die ersten raumeinheitsspezifischen Seiten und Datentabellenseiten exemplarisch an. Der vollständige Report wird im Hintergrund vorbereitet und wird alle Seiten enthalten.
                 </div>
 
                 <div class="row" style="margin:0">
@@ -122,15 +122,16 @@
                             </div>
 
                             <!-- Visual Placeholder for background processed pages -->
-                            <div ng-if="isLastPreviewPage(page, $index) && countBackgroundPages() > 0" 
+                            <div ng-if="isLastPreviewPage(page, $index) && countBackgroundPages(page) > 0" 
                                  class="reporting-page-placeholder"
                                  style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 60%; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; padding: 20px; color: #666; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                                 
                                 <!-- Loading State -->
                                 <div ng-if="!lastPageOfAddedSectionPrepared" style="width: 100%;">
                                     <i class="fa fa-clone" style="font-size: 4em; margin-bottom: 20px; color: #337ab7;"></i>
-                                    <h3 style="margin-top: 0;">{{countBackgroundPages()}} weitere Seiten</h3>
-                                    <p>Für jede Raumeinheit werden sowohl <b>Hoch- als auch Querformat-Seiten</b> im Hintergrund aufbereitet.</p>
+                                    <h3 style="margin-top: 0;">{{countBackgroundPages(page)}} weitere Seiten</h3>
+                                    <p ng-if="page.type === 'area_specific'">Für jede Raumeinheit werden <b>weitere Report-Seiten</b> im Hintergrund aufbereitet.</p>
+                                    <p ng-if="page.type === 'datatable'">Die <b>restlichen Seiten der Datentabelle</b> werden im Hintergrund aufbereitet.</p>
                                     <p>Diese Optimierung hält die Anwendung performant. Ihr fertiger Report wird alle Seiten im gewählten Format enthalten.</p>
                                     <div class="progress" style="width: 100%; margin-top: 20px; height: 25px;">
                                         <div class="progress-bar progress-bar-striped active" role="progressbar" 
@@ -145,7 +146,7 @@
                                 <div ng-if="lastPageOfAddedSectionPrepared" style="width: 100%; animation: fadeIn 0.5s;">
                                     <i class="fa fa-check-circle" style="font-size: 5em; margin-bottom: 20px; color: #5cb85c;"></i>
                                     <h3 style="margin-top: 0; color: #5cb85c;">Aufbereitung abgeschlossen</h3>
-                                    <p>Alle <b>{{countBackgroundPages()}} Hintergrundseiten</b> wurden erfolgreich erstellt und sind bereit für den Report.</p>
+                                    <p>Alle <b>{{countBackgroundPages(page)}} Hintergrundseiten</b> wurden erfolgreich erstellt und sind bereit für den Report.</p>
                                     <p>Sie können den fertigen Report nun über die Buttons am rechten Rand herunterladen.</p>
                                 </div>
                             </div>
