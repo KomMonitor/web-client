@@ -723,11 +723,22 @@ angular.module('reportingOverview').component('reportingOverview', {
 						continue;
 					}
 
+					// disable animation to get screenshot directly
+					pageElement.echartsOptions.animation = false;
 					instance.setOption(pageElement.echartsOptions)
 
 					if(pageElement.type === "map") {
 						page.generatedData.mapImage = await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false, isPreview);
 					}
+
+					// Wait for ECharts to be finished rendering (including loading external images like markers)
+					await new Promise(resolve => {
+						let timeout = setTimeout(resolve, 500); // safety fallback
+						instance.on('finished', () => {
+							clearTimeout(timeout);
+							resolve();
+						});
+					});
 
 					// store ECharts image
 					page.generatedData.echarts[pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? "_perc" : "")] = instance.getDataURL({pixelRatio: $scope.echartsImgPixelRatio});

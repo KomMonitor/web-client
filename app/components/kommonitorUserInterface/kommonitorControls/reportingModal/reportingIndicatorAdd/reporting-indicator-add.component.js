@@ -2043,11 +2043,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// label positioning
 			options = enableManualLabelPositioningAcrossPages(page, options, map)
 
+			options.animation = false; // disable animation for better performance and to avoid issues with screenshots of different states of the map			
+
 			map.setOption( options, {
 				replaceMerge: ['series', 'geo']
 			})
 
 			pageElement.echartsOptions = options;
+
+			// Wait for ECharts to be finished rendering (including loading external images like markers)
+					await new Promise(resolve => {
+						let timeout = setTimeout(resolve, 500); // safety fallback
+						map.on('finished', () => {
+							clearTimeout(timeout);
+							resolve();
+						});
+					});
 
 			// await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map);
 
