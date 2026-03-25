@@ -90,6 +90,19 @@
                                 <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
                                     ng-model="indicatorNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
                             </div>
+                            <div ng-if="template.name.includes('-reachability')">
+                                <!-- make sure that displayed indicators support current spatial unit -->
+                                <div id="reporting-indicator-select-box">
+                                    <div class="alert alert-info" ng-if="selectedSpatialUnit && ($ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | filter: filterReachabilityIndicator).length === 0">
+                                        <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Es sind keine passenden Indikatoren f&uuml;r die ausgew&auml;hlte Raumebene verf&uuml;gbar. 
+                                    </div>
+                                    <select size="10" class="form-control" required>
+                                        <option disabled selected value> -- Indikator w&auml;hlen -- </option>
+                                        <option style="white-space: pre !important;" ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter: indicatorNameFilter | filter: filterReachabilityIndicator  | orderBy: 'indicatorName'"
+                                            ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div ng-if="template.name.includes('-timeseries')">
                                 <div id="reporting-indicator-select-box">
                                     <select size="10" class="form-control" required>
@@ -99,7 +112,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div ng-if="!template.name.includes('-timeseries')">
+                            <div ng-if="template.name.includes('-timestamp')">
                                 <div id="reporting-indicator-select-box">
                                     <select size="10" class="form-control" required>
                                         <option disabled selected value> -- Indikator w&auml;hlen -- </option>
@@ -451,7 +464,7 @@
                     <!-- not affected by tab changes -->
                     <div id="reporting-add-indicator-preview-area" ng-show="! preparationNeeded">
 
-                        <div class="alert alert-info" ng-show="template.pages.length > 10">
+                        <div class="alert alert-info">
                             <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Die Vorschau zeigt nur die ersten raumeinheitsspezifischen Seiten exemplarisch an. Der vollständige Berichtsabschnitt wird im Hintergrund vorbereitet und wird alle Seiten enthalten.
                         </div>
 
