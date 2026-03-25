@@ -3583,8 +3583,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							} else {
 								$scope.filterMapByAreaName(map, page.area, $scope.geoJsonForReachability_byFeatureName.get(page.area));
 							}
-							
+							// here we should wait a bit until the map has re-rendered after filtering, otherwise the generated image will still contain all areas 
+							// and the leaflet screenshot will be incorrect.
+							await new Promise(r => setTimeout(r, 250));
 						}
+
+						
+
 						page.generatedData.mapImage = await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map, isPreview);
 
 						pageElement.isPlaceholder = false;
