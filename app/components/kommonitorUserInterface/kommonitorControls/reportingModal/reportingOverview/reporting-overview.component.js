@@ -46,6 +46,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.pageToProcess = undefined;
 		$scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
+		$scope.MAX_PREVIEW_DATATABLE_PAGES = 3;
 
 		$scope.featureLookupCache = new Map();
 
@@ -54,28 +55,50 @@ angular.module('reportingOverview').component('reportingOverview', {
 		};
 
 		$scope.isPageInPreview = function(page, index) {
-			if(page.type !== 'area_specific') {
+			if(page.type !== 'area_specific' && page.type !== 'datatable') {
 				return true;
 			}
-			// find index of this page among area_specific pages
-			let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
-			let areaIdx = areaSpecificPages.indexOf(page);
-			return areaIdx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
+
+			if (page.type === 'area_specific') {
+				// find index of this page among area_specific pages
+				let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
+				let areaIdx = areaSpecificPages.indexOf(page);
+				return areaIdx < $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
+			}
+
+			if (page.type === 'datatable') {
+				// find index of this page among datatable pages
+				let datatablePages = $scope.config.pages.filter(p => p.type === 'datatable');
+				let datatableIdx = datatablePages.indexOf(page);
+				return datatableIdx < $scope.MAX_PREVIEW_DATATABLE_PAGES;
+			}
 		};
 
 		$scope.isLastPreviewPage = function(page, index) {
-			if(page.type !== 'area_specific') {
-				return false;
+			if (page.type === 'area_specific') {
+				let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
+				let areaIdx = areaSpecificPages.indexOf(page);
+				return areaIdx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
 			}
-			let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
-			let areaIdx = areaSpecificPages.indexOf(page);
-			return areaIdx === ($scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1);
+			if (page.type === 'datatable') {
+				let datatablePages = $scope.config.pages.filter(p => p.type === 'datatable');
+				let datatableIdx = datatablePages.indexOf(page);
+				return datatableIdx === ($scope.MAX_PREVIEW_DATATABLE_PAGES - 1);
+			}
+			return false;
 		};
 
-		$scope.countBackgroundPages = function() {
-			if (!$scope.config) return 0;
-			let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
-			return Math.max(0, areaSpecificPages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
+		$scope.countBackgroundPages = function(page) {
+			if (!$scope.config || !page) return 0;
+			if (page.type === 'area_specific') {
+				let areaSpecificPages = $scope.config.pages.filter(p => p.type === 'area_specific');
+				return Math.max(0, areaSpecificPages.length - $scope.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
+			}
+			if (page.type === 'datatable') {
+				let datatablePages = $scope.config.pages.filter(p => p.type === 'datatable');
+				return Math.max(0, datatablePages.length - $scope.MAX_PREVIEW_DATATABLE_PAGES);
+			}
+			return 0;
 		};
 
     $scope.customFontFamily = undefined;
