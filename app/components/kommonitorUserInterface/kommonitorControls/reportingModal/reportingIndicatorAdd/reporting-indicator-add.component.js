@@ -285,6 +285,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// must have more than one applicable date
 			return indicator.applicableDates && indicator.applicableDates.length > 1;
 		  };
+
+		$scope.filterReachabilityIndicator = function(indicator) {
+			// filter for indicators that actually support the current spatial unit 			
+			let supportsCurrentSpatialUnit = false;
+
+			if(indicator.applicableSpatialUnits && indicator.applicableSpatialUnits.length > 0 && $scope.selectedSpatialUnit) {
+				supportsCurrentSpatialUnit = indicator.applicableSpatialUnits.some( su => su.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId);
+			}
+
+			return supportsCurrentSpatialUnit
+		  };
 		
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedAreas', function(newVal) {
