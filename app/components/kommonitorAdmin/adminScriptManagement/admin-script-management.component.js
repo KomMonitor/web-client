@@ -39,6 +39,12 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			$scope.availableScriptDatasets = $scope.availableScriptDatasets.filter(
 				script => kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(script.inputs.target_indicator_id)
 			);
+			//filter out scripts on unaccessible spatial units
+			$scope.availableScriptDatasets = $scope.availableScriptDatasets.filter(
+				script => script.inputs.target_spatial_units.every(
+					spatial_unit => kommonitorDataExchangeService.getSpatialUnitMetadataById(spatial_unit)
+				)
+			);
 
 			kommonitorDataGridHelperService.buildDataGrid_scripts($scope.availableScriptDatasets, $scope.showScriptIds, $scope.showProcessDescription);
 
