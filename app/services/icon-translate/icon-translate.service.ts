@@ -220,7 +220,9 @@ export class IconTranslateService {
     { glyphicon: 'cloud-upload', fontAwesome: null },
     { glyphicon: 'tree-conifer', fontAwesome: null },
     { glyphicon: 'tree-deciduous', fontAwesome: null },
-    { glyphicon: 'education', fontAwesome: 'graduation-cap' }
+    { glyphicon: 'education', fontAwesome: 'graduation-cap' },
+    { glyphicon: 'thumbtack', fontAwesome: 'thumbtack' }
+    
   ];
 
   translate(glyphicon: string): string {

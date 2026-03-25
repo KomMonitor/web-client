@@ -114,7 +114,7 @@ export class MapService {
     this.broadcastService.broadcast("adjustOpacityForFileLayer",[dataset, opacity]);
   }
 
-  adjustColorForFileLayer(dataset, color) {
-    this.broadcastService.broadcast("adjustColorForFileLayer",[dataset, color]);
+  adjustColorForFileLayer(dataset) {
+    this.broadcastService.broadcast("adjustColorForFileLayer",dataset);
   }
 }

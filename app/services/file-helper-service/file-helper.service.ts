@@ -3,15 +3,38 @@ import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 import shp from 'shpjs';
 import Papa from 'papaparse';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BehaviorSubject } from 'rxjs';
+import { GeoresourcesDataset, GeoresourcesMetadata } from 'components/ngComponents/models/georesources.models.js';
+
+
+export interface FileUploadSubject {
+  state: FileUploadState;
+  value: any | undefined;
+}
+
+export enum FileUploadState {
+  NONE,
+  GEOJSON,
+  CSV,
+  SUCCESS,
+  ERROR
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileHelperService {
 
+  private fileImportSubject = new BehaviorSubject<FileUploadSubject>({state: FileUploadState.NONE, value: undefined});
+  fileImport$ = this.fileImportSubject.asObservable();
+
   constructor(
     private broadcastService: BroadcastService
   ) { }
+
+  setValue(state: FileUploadState, value: any) {
+    this.fileImportSubject.next({state: state, value: value});
+  }
 
   getFeatureSchema_fromGeoJSON(geoJSON) {
     // if there are any existing properties, then use the first entry
@@ -68,54 +91,60 @@ export class FileHelperService {
     return tmpKommonitorGeoresource;
   }
 
-  makeGeoresourceMetadata(file, customColor, customMarkerColor, type, geoJSON) {
-    let tmpKommonitorGeoresource:any = {
-      "permissions": [
+  makeGeoresourceMetadata(file, customColor, customMarkerColor, type, geoJSON):GeoresourcesDataset {
+    let tmpKommonitorGeoresource:GeoresourcesDataset = {
+      permissions: [
 
       ],
-      "aoiColor": customColor,
-      "availablePeriodsOfValidity": [
+      aoiColor: customColor,
+      availablePeriodsOfValidity: [
         {
-          "endDate": undefined,
-          "startDate": undefined
+          endDate: undefined,
+          startDate: undefined
         }
       ],
-      "datasetName": file.name,
-      "georesourceId": uuidv4(),
-      "isAOI": false,
-      "isLOI": false,
-      "isPOI": false,
-      "loiColor": customColor,
-      "loiDashArrayString": "10",
-      "loiWidth": 1,
-      "metadata": {
-        "contact": "",
-        "databasis": "",
-        "datasource": "",
-        "description": "",
-        "lastUpdate": "",
-        "literature": "",
-        "note": "",
-        "sridEPSG": 0,
-        "updateInterval": "ARBITRARY"
+      datasetName: file.name,
+      georesourceId: uuidv4(),
+      georesourceName: undefined,
+      isAOI: false,
+      isLOI: false,
+      isPOI: false,
+      loiColor: customColor,
+      loiDashArrayString: "10",
+      loiWidth: 1,
+      metadata: {
+        contact: "",
+        databasis: "",
+        datasource: "",
+        description: "",
+        lastUpdate: "",
+        literature: "",
+        note: "",
+        sridEPSG: 0,
+        updateInterval: "ARBITRARY"
       },
-      "poiMarkerColor": customMarkerColor.colorName,
-      "poiSymbolBootstrap3Name": "pushpin",
-      "poiSymbolColor": "white",
-      "topicReference": "",
-      "userPermissions": [
+      poiMarkerColor: customMarkerColor.colorName,
+      poiSymbolBootstrap3Name: "thumbtack",
+      poiSymbolColor: "white",
+      topicReference: "",
+      userPermissions: [
 
       ],
-      "wfsUrl": "",
-      "wmsUrl": ""
+      wfsUrl: "",
+      wmsUrl: "",
+      geoJSON: geoJSON,
+      isTmpDataLayer: true,
+      isSelected: true,
+      displayColor: customColor,
+      type: type,
+      transparency: 0,
+      isPublic: false,
+      ownerId: undefined,
+      poiMarkerStyle: undefined,
+      poiMarkerText: undefined,
+      selectedDate: undefined
     }
 
-    tmpKommonitorGeoresource.isTmpDataLayer = true;
-    tmpKommonitorGeoresource.isSelected = true;
-    tmpKommonitorGeoresource.displayColor = customColor;
-    tmpKommonitorGeoresource.type = type;
-    tmpKommonitorGeoresource.geoJSON = geoJSON;
-    tmpKommonitorGeoresource.transparency = 0;
 
     tmpKommonitorGeoresource.featureSchema = this.getFeatureSchema_fromGeoJSON(geoJSON);
 
@@ -212,10 +241,8 @@ export class FileHelperService {
 
     fileReader.onload = (event:any) => {
       var geoJSON = JSON.parse(event.target.result);
-
       let tmpKommonitorGeoresource = this.makeGeoresourceMetadata(file, customColor, customMarkerColor, "GeoJSON", geoJSON);
-
-      this.broadcastService.broadcast("GeoJSONFromFileFinished", tmpKommonitorGeoresource);
+      this.setValue(FileUploadState.GEOJSON, tmpKommonitorGeoresource);
     };
 
     fileReader.readAsText(file);
@@ -248,7 +275,7 @@ export class FileHelperService {
       let geoJSON = await this.getGeoJSON_fromShape(arrayBuffer);
 
       let tmpKommonitorGeoresource = this.makeGeoresourceMetadata(file, customColor, customMarkerColor, "GeoJSON", geoJSON);
-      this.broadcastService.broadcast("GeoJSONFromFileFinished", tmpKommonitorGeoresource);
+      this.setValue(FileUploadState.GEOJSON, tmpKommonitorGeoresource);
     };
 
     fileReader.readAsArrayBuffer(file);
@@ -265,8 +292,7 @@ export class FileHelperService {
       });
 
       let tmpKommonitorGeoresource = this.makeGeoresourceMetadata_fromCsvRows(file, customColor, customMarkerColor, "CSV", results.data);
-
-      this.broadcastService.broadcast("CSVFromFileFinished", tmpKommonitorGeoresource);
+      this.setValue(FileUploadState.CSV, tmpKommonitorGeoresource);
     };
 
     fileReader.readAsText(file);

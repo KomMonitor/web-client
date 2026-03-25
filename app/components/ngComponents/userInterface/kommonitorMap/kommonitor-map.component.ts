@@ -18,6 +18,7 @@ import 'leaflet-search';
 import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -150,7 +151,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private filterHelperService: FilterHelperService,
     private genericMapHelperService: GenericMapHelperService,
-    private envConfigService: EnvConfigService
+    private envConfigService: EnvConfigService,
+    private fileHelperService: FileHelperService
   ) { }
 
   ngOnInit(): void {
@@ -323,6 +325,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'toggleExpertControl': {
           this.toggleExpertControl();
         } break;
+        case 'addFileLayerToMap': {
+          this.addFileLayerToMap(values);
+        } break;
+        case 'adjustOpacityForFileLayer': {
+          this.adjustOpacityForFileLayer(values);
+        } break;
+        case 'adjustColorForFileLayer': {
+          this.adjustColorForFileLayer(values);
+        }
       }
     });
   }
@@ -2098,27 +2109,27 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
     this.hideLoadingIconOnMap();
   }
-/*
-  $scope.$on("addFileLayerToMap", function (event, dataset, opacity) {
+
+  addFileLayerToMap([dataset, opacity]) {
     try {
-      fileLayer;
+      let fileLayer;
 
       if (dataset.isPOI){
         fileLayer = L.featureGroup();
 
-        dataset.geoJSON.features.forEach(function (poiFeature) {
+        dataset.geoJSON.features.forEach((poiFeature) => {
           // index 0 should be longitude and index 1 should be latitude
           //.bindPopup( poiFeature.properties.name )
-          newMarker = kommonitorGenericMapHelperService.createCustomMarker(poiFeature, dataset.poiMarkerStyle, dataset.poiMarkerText, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);            
+          let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, dataset.poiMarkerStyle, dataset.poiMarkerText, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);            
           
-          fileLayer = kommonitorGenericMapHelperService.addPoiMarker(fileLayer, newMarker);
+          fileLayer = this.genericMapHelperService.addPoiMarker(fileLayer, newMarker);
         });
       }
       else{
-        style = {
+        let style = {
           weight: 1,
           opacity: opacity,
-          color: defaultBorderColor,
+          color: this.envConfigService.defaultBorderColor,
           dashArray: '',
           fillOpacity: 1,
           fillColor: dataset.displayColor
@@ -2126,14 +2137,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
         fileLayer = L.geoJSON(dataset.geoJSON, {
           style: style,
-          onEachFeature: function (feature, layer) {
+          onEachFeature: (feature, layer) => {
             layer.on({
-              click: function () {
+              click:  () => {
 
                 // propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-                popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                for (p in feature.properties) {
+                let popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                for (let p in feature.properties) {
                     popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
                 }
                 popupContent += '</table></div>';
@@ -2146,39 +2157,39 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         });
       }
 
-      $scope.showFileLayer(fileLayer, dataset); 
+      this.showFileLayer(fileLayer, dataset); 
     } catch (error) {
       console.error(error);
-      $rootScope.$broadcast("FileLayerError", error, dataset);
+      this.broadcastService.broadcast("FileLayerError", [error, dataset]);
     }          
-  });
+  }
 
-  $scope.showFileLayer (fileLayer, dataset) {
+  showFileLayer(fileLayer, dataset) {
     try {
-      $scope.layerControl.addOverlay(fileLayer, dataset.datasetName, fileLayerGroupName);
-      fileLayer.addTo($scope.map);
+      this.layerControl.addOverlay(fileLayer, dataset.datasetName, this.fileLayerGroupName);
+      fileLayer.addTo(this.map);
 
-      $scope.map.fitBounds(fileLayer.getBounds());
+      this.map.fitBounds(fileLayer.getBounds());
 
-      $rootScope.$broadcast("FileLayerSuccess", dataset);
+      this.fileHelperService.setValue(FileUploadState.SUCCESS, dataset);
 
-      $scope.updateSearchControl();
+      this.updateSearchControl();
 
-      $scope.map.invalidateSize(true);
+      this.map.invalidateSize(true);
     } catch (error) {
-      $rootScope.$broadcast("FileLayerError", error, dataset);
+      this.fileHelperService.setValue(FileUploadState.ERROR, [error, dataset]);
     }          
   };
 
-  $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
-    layerName = dataset.datasetName;
+  adjustOpacityForFileLayer([dataset, opacity]) {
+    let layerName = dataset.datasetName;
 
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
-        newStyle = {
+    this.layerControl._layers.forEach((layer) => {
+      if (layer.group.name === this.fileLayerGroupName && layer.name.includes(layerName)) {
+        let newStyle = {
           weight: 1,
           opacity: opacity,
-          color: defaultBorderColor,
+          color: this.envConfigService.defaultBorderColor,
           dashArray: '',
           fillOpacity: opacity,
           fillColor: dataset.displayColor
@@ -2188,17 +2199,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         layer.layer.setStyle(newStyle);
       }
     });
-  });
+  }
 
-  $scope.$on("adjustColorForFileLayer", function (event, dataset) {
-    layerName = dataset.datasetName;
+  adjustColorForFileLayer(dataset) {
+    let layerName = dataset.datasetName;
+    this.layerControl._layers.forEach((layer) => {
+      if (layer.group.name === this.fileLayerGroupName && layer.name.includes(layerName)) {
 
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
-
-          newStyle = {
+          let newStyle = {
             weight: 1,
-            color: defaultBorderColor,
+            color: this.envConfigService.defaultBorderColor,
             dashArray: '',
             fillColor: dataset.displayColor
           };
@@ -2207,20 +2217,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
                       
       }
     });
-  });
+  }
 
-  $scope.$on("removeFileLayerFromMap", function (event, dataset) {
+  removeFileLayerFromMap(dataset) {
 
-    layerName = dataset.datasetName;
+    let layerName = dataset.datasetName;
 
-    $scope.layerControl._layers.forEach(function (layer) {
-      if (layer.group.name === fileLayerGroupName && layer.name.includes(layerName)) {
-        $scope.layerControl.removeLayer(layer.layer);
-        $scope.map.removeLayer(layer.layer);
+    this.layerControl._layers.forEach((layer) => {
+      if (layer.group.name === this.fileLayerGroupName && layer.name.includes(layerName)) {
+        this.layerControl.removeLayer(layer.layer);
+        this.map.removeLayer(layer.layer);
       }
     });
-  });
-  */
+  }
+ 
   highlightFeature(e) {
 
     let layer = e.target;

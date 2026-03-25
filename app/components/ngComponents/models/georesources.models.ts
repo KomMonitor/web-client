@@ -36,8 +36,8 @@ export interface GeoresourcesDataset {
   isPublic: boolean;
   isSelected: boolean;
   loiColor: null | undefined;
-  loiDashArrayString: null | undefined;
-  loiWidth: 3 | null | undefined;
+  loiDashArrayString: string | null | undefined;
+  loiWidth: number | null | undefined;
   metadata: GeoresourcesMetadata;
   ownerId: string | null | undefined;
   permissions: string[];
@@ -48,9 +48,14 @@ export interface GeoresourcesDataset {
   poiSymbolColor: string | null | undefined;
   selectedDate: GeoresourcesDateFormat | null | undefined;
   topicReference: string;
-  userPermissions: null | undefined;
+  userPermissions: any | null | undefined;
   wfsUrl: string | null | undefined;
   wmsUrl: string | null | undefined;
+  isTmpDataLayer?: boolean;
+  displayColor?: string | undefined;
+  type?: string | undefined;
+  transparency?: any | undefined;
+  featureSchema?: any | undefined;
 }
 
 export interface GeoresourcesMetadata {
@@ -66,6 +71,6 @@ export interface GeoresourcesMetadata {
 }
 
 export interface GeoresourcesDateFormat {
-  endData: string;
-  startDate: string;
+  endDate: string | undefined;
+  startDate: string | undefined;
 }

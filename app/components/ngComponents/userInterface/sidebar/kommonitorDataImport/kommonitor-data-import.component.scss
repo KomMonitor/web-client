@@ -15,18 +15,11 @@
     .btn::after {
       color: #fff !important;
     }
+  }
 
-    .dropdown-menu {
-      button {
-        border: none !important;
-        margin: .2em !important;
-      }
-    }
-
-    .colorPickerSelection {
-      width: 30px !important;
-      border: none;
-      caret-color: transparent !important;
-    }
+  .colorPickerSelection {
+    width: 30px !important;
+    border: none;
+    caret-color: transparent !important;
   }
 }

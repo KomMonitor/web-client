@@ -35,10 +35,23 @@
       <div>
         <div class="form-group">
           <!-- DRAG/DROP Area to insert features from file  -->
-          <div class="drop_zone" droppable (click)="openFileDialog()" (drop)="dropHandler($event);">
-            <input type="file" id="fileUploadInput" style="display: none"
+
+          <div class="drop_zone"
+            (click)="fileInput.click()"
+            [class.dragover]="isDragging"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
+            <input type="file" id="fileUploadInput" type="file" 
+              (change)="onFileSelected($event)" 
+              hidden 
               accept=".json, .geojson, .zip, .csv" />
-            <i style="font-size:4em; margin:5px; " class="fas fa-file-upload"></i>
+             <input 
+              type="file" 
+              (change)="onFileSelected($event)" 
+              hidden 
+              #fileInput
+            />
             <h4 style="vertical-align: middle;  margin-bottom:10px;">GeoJSON (.json
               oder .geojson) <br>Shapefile (ZIP-Archiv mit .shp, .dbf, ggf. .prj) <br>CSV (lat,
               lon oder Adressbasiert)</h4>
@@ -71,17 +84,8 @@
         <div class="form-group">
           <div class="form-group" style="text-align:center">
             <label>Linien- oder Fl&auml;chen-Farbe</label>
-            <input class="colorPickerSelection" [(colorPicker)]="color" [style.background]="color" [cpPosition]="'bottom-left'" />
-           <!--  <div id="customFileInputColorDiv" class="input-group colorpicker-component">
-              <label>Darstellungsfarbe festlegen</label>
-              <input type="text" style="display:none;" class="form-control input-sm"
-                ng-model="customFileInputColor" value="#00AABB" placeholder="Darstellungsfarbe"
-                required />
-              <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;"
-                class="input-group-addon"><i></i></span>
-            </div> -->
+            <input class="colorPickerSelection" [(colorPicker)]="customFileInputColor" [style.background]="customFileInputColor" [cpPosition]="'bottom-left'" />
           </div>
-
         </div>
       </div>
     </div>
@@ -97,66 +101,66 @@
 
       <div class="row vertical-align">
         <div class="col-xs-3">
-          <label>Import als</label>
-          <select style="font-size: 11px;" ng-model="tableProcessType"
-            ng-options="tableProcessType as tableProcessType.displayName for tableProcessType in tableProcessTypes"
+          <label>Import als</label><!-- [(ngModel)]="tableProcessType"  unten-->
+          <select style="font-size: 11px;" 
+            *ngFor="let tableProcessType of tableProcessTypes"
             ng-init="tableProcessType = tableProcessTypes[0]" class="form-control" required>
           </select>
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'latLon'">
 
           <label>Spaltenname Longitude</label>
-          <select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.LON_ATTRIBUTE"
-            ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+          <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.LON_ATTRIBUTE"
+            *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
           </select>
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'latLon'">
 
           <label>Spaltenname Latitude</label>
-          <select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE"
-            ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+          <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE"
+            *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
           </select>
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'latLon'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'latLon'">
 
-          <button type="button" class="btn btn-success" ng-click="loadCSV_latLon()"><i
+          <button type="button" class="btn btn-success" (click)="loadCSV_latLon()"><i
               class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
           </button>
 
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
 
           <label>Spaltenname Stadt</label>
-          <select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
-            ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+          <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
+            *ngFor="let property as property for property in tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
           </select>
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
 
           <label>Spaltenname Postleitzahl</label>
           <select style="font-size: 11px; "
-            ng-model="tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE"
-            ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+            [(ngModel)]="tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE"
+            *ngFor="let property as property for property in tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
           </select>
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
 
           <label>Spaltenname Strasse</label>
-          <select style="font-size: 11px; " ng-model="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
-            ng-options="property as property for property in tmpKommonitorGeoresource_table.featureSchema"
+          <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
+            *ngFor="let property as property for property in tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
           </select>
         </div>
-        <div class="col-xs-3" ng-show="tableProcessType.apiName == 'address'">
+        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
 
           <button type="button" class="btn btn-success"
-            ng-click="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">
+            (click)="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">
             <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
-            <span class="glyphicon glyphicon-refresh icon-spin" ng-show="loadingData"></span>
+            <span class="glyphicon glyphicon-refresh icon-spin" *ngIf="loadingData"></span>
           </button>
 
         </div>
@@ -174,7 +178,7 @@
       <div class="input-group">
         <span class="input-group-addon"><i class="fas fa-filter"></i></span>
         <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
-          ng-model="fileNameFilter" ng-model-options="{debounce: 500, blur: 0}">
+          ><!-- [(ngModel)]="fileNameFilter" -->
       </div>
 
       <br />
@@ -197,103 +201,82 @@
             <tr *ngFor="let dataset of kommonitorDataExchangeService.fileDatasets">
               <td>
                 <label class='checkbox-inline'><input type="checkbox"
-                    value="dataset.datasetName" ng-model="dataset.isSelected"
-                    ng-change="toggleDataLayer(dataset)">
+                    value="dataset.datasetName"[(ngModel)]="dataset.isSelected"
+                    (change)="toggleDataLayer(dataset)">
 
-                  <b ng-bind-html="dataset.datasetName"></b>
+                  <b [innerHTML]="dataset.datasetName"></b>
                 </label>
                 <br>
                 <div class="datasetButtonForm">
                   <i class="fa-solid fa-trash-can" style="cursor: pointer;" title="Entfernen"
-                    ng-click="removeDataLayer(dataset)"></i>
+                    (click)="removeDataLayer(dataset)"></i>
                   &nbsp;&nbsp;
                   <i class="fa-solid fa-file-export" style="cursor: pointer;"
-                    title="Download als GeoJSON" ng-click="downloadDataLayer(dataset)"></i>
+                    title="Download als GeoJSON" (click)="downloadDataLayer(dataset)"></i>
                   &nbsp;&nbsp;
                   <i class="fa-solid fa-file-circle-check" style="cursor: pointer;"
                     title="Download nur der genauen geokodierten Daten als CSV"
-                    ng-show="dataset.isGeocodedDataset"
-                    ng-click="downloadGeocodedDataRowsAsGeoJSON_highAccuracy(dataset)"></i>
+                    *ngIf="dataset.isGeocodedDataset"
+                    (click)="downloadGeocodedDataRowsAsGeoJSON_highAccuracy(dataset)"></i>
                   &nbsp;&nbsp;
                   <i class="fa-solid fa-file-circle-xmark" style="cursor: pointer;"
                     title="Download nicht geokodierter Datenzeilen als CSV"
-                    ng-show="dataset.dataRows_notGeocoded.length > 0"
-                    ng-click="downloadNonGeocodedDataRowsAsCSV(dataset)"></i>
+                    *ngIf="dataset.dataRows_notGeocoded && dataset.dataRows_notGeocoded.length > 0"
+                    (click)="downloadNonGeocodedDataRowsAsCSV(dataset)"></i>
                 </div>
               </td>
               <td>
                 <div>
                   <select style="font-size: 11px; width:135px; padding: 0px;"
-                    ng-model="dataset.ID_ATTRIBUTE" ng-change="onChangeIdProperty(dataset)"
-                    ng-options="property as property for property in dataset.featureSchema"
+                    [(ngModel)]="dataset.ID_ATTRIBUTE" (change)="onChangeIdProperty(dataset)"
                     class="form-control" required>
+                    <option *ngFor="let property of dataset.featureSchema">{{property}}</option>
                   </select>
                 </div>
               </td>
               <td>
                 <div>
                   <select style="font-size: 11px; width:135px; padding: 0px;"
-                    ng-model="dataset.NAME_ATTRIBUTE"
-                    ng-change="onChangeNameProperty(dataset)"
-                    ng-options="property as property for property in dataset.featureSchema"
+                    [(ngModel)]="dataset.NAME_ATTRIBUTE"
+                    (change)="onChangeNameProperty(dataset)"
                     class="form-control" required>
+                    <option *ngFor="let property of dataset.featureSchema">{{property}}</option>
                   </select>
                 </div>
               </td>
               <td>
-                <div ng-show="! dataset.isPOI">
-                  <div class="input-group colorpicker-component">
+                <div *ngIf="!dataset.isPOI">
+                                                                                                                            <!-- don´t user 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is -->
+                  <input *ngIf="dataset.displayColor" class="colorPickerSelection" (colorPickerChange)="adjustFileLayerColor($event, dataset)" [colorPicker]="dataset.displayColor" [style.background]="dataset.displayColor" [cpPosition]="'bottom-left'" />
+                 
+                <!--   <div class="input-group colorpicker-component">
                     <input type="text" style="display:none;" class="input-sm"
-                      ng-model="dataset.displayColor"
-                      ng-change="adjustFileLayerColor(dataset)"
+                      [(ngModel)]="dataset.displayColor"
+                      (change)="adjustFileLayerColor(dataset)"
                       placeholder="Darstellungsfarbe" required />
                     <span title="Klicken, um die Farbe anzupassen"
                       style="border: 1px solid #ccc;"
                       class="input-group-addon"><i></i></span>
-                  </div>
+                  </div> -->
                   <!-- value="{{dataset.displayColor}}" -->
                   <!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
                 </div>
-                <div ng-show="dataset.isPOI">
-                  <div style="text-align:center" ng-show="! dataset.isGeocodedDataset">
-                    <!-- <div
-                      class="awesome-marker-legend awesome-marker-legend-icon-{{::dataset.poiMarkerColor}}">
-                      <span
-                        style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{::dataset.poiSymbolColor}};"
-                        class="glyphicon glyphicon-{{::dataset.poiSymbolBootstrap3Name}}"
-                        aria-hidden="true"></span>
-                    </div> -->
-                    <div class="dropdown customColorPicker">
-
-                      <button type="button" class="btn btn-info dropdown-toggle"
-                        data-toggle="dropdown">
-                        <div
-                          class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-                          <span
-                            style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
-                            class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}"
-                            aria-hidden="true"></span>
-                          <span class="caret"></span>
-                        </div>
-
+                <div *ngIf="dataset.isPOI">
+                  <div style="text-align:center" *ngIf="! dataset.isGeocodedDataset">
+                
+                    <div ngbDropdown class="d-inline-block" #poiColorDropdown="ngbDropdown" container="body">
+                      <button type="button" class="btn btn-outline-primary" [ngStyle]="{background: translateColorName(dataset.poiMarkerColor)}" id="poiColorDropdown" ngbDropdownToggle>
+                        <i class="fa-solid fa-thumbtack" style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"></i>
+                        <span class="caret"></span>
                       </button>
-                      <ul class="dropdown-menu dropdown-menu-center">
-                        <!--  | filter:{colorName:'!white'} -->
-                        <li *ngFor="let markerColor of kommonitorDataExchangeService.availablePoiMarkerColors"
-                          ng-click="adjustFileLayerMarkerColor(dataset, markerColor)">
-                          <a href="">
-                            <div
-                              class="awesome-marker-legend awesome-marker-legend-icon-{{markerColor.colorName}}">
-                              <span
-                                style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"
-                                class="glyphicon glyphicon-pushpin"></span>
-                            </div>
-                          </a>
-
-                        </li>
-                      </ul>
-                      <div class="help-block with-errors"></div>
+                      <div ngbDropdownMenu aria-labelledby="poiColorDropdown">
+                        <button *ngFor="let markerColor of filteredPoiMarkerColors" [ngStyle]="{background: markerColor.colorValue}"
+                          (click)="adjustFileLayerMarkerColor(dataset, markerColor)">
+                          <i class="fa-solid fa-thumbtack" style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:white;"></i>
+                        </button>
+                      </div>
                     </div>
+                    
                   </div>
                   <div style="text-align:center" *ngIf="dataset.isGeocodedDataset">
                     hohe Genauigkeit

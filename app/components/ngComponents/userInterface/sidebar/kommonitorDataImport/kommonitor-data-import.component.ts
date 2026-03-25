@@ -1,12 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgbDropdown,NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { FileHelperService } from 'services/file-helper-service/file-helper.service';
+import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { GeocoderHelperService } from 'services/geocoder-helper-service/geocoder-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import { ColorPickerDirective } from 'ngx-color-picker';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+
+export interface GeoresourcesImportDataset extends GeoresourcesDataset {
+   ID_ATTRIBUTE: any;
+  NAME_ATTRIBUTE: any;
+  LON_ATTRIBUTE: any;
+  LAT_ATTRIBUTE: any;
+  CITY_ATTRIBUTE: any;
+  POSTCODE_ATTRIBUTE: any;
+  STREET_ATTRIBUTE: any;
+  isGeocodedDataset: boolean;
+  dataRows_notGeocoded: any[] | undefined;
+}
 
 @Component({
   standalone: true,
@@ -19,20 +34,23 @@ import { ColorPickerDirective } from 'ngx-color-picker';
     NgbDropdown, 
     NgbDropdownToggle, 
     NgbDropdownMenu,
-    ColorPickerDirective
+    ColorPickerDirective,
+    FormsModule
   ]
 })
-export class KommonitorDataImportComponent {
-
-  /*
-    * reference to this.kommonitorDataExchangeService instances
-    */
+export class KommonitorDataImportComponent implements OnInit {
 
   @ViewChild('poiColorDropdown') poiColorDropdown!: NgbDropdown;
+  private readonly destroyRef = inject(DestroyRef);
+
+  fileUploadStateOptions = FileUploadState;
 
   filteredPoiMarkerColors;
 
   color = 'red';
+
+  isDragging = false;
+  file: File | null = null;
 
   constructor(
     protected kommonitorDataExchangeService: DataExchangeService,
@@ -88,6 +106,26 @@ export class KommonitorDataImportComponent {
 
   numberOfDecimals = window.__env.numberOfDecimals;
 
+  ngOnInit(): void {
+    
+    this.kommonitorFileHelperService.fileImport$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if(value.state==FileUploadState.GEOJSON) 
+          this.GeoJSONFromFileFinished(value.value);
+        
+        if(value.state==FileUploadState.CSV) 
+          this.CSVFromFileFinished(value.value);
+        
+        if(value.state==FileUploadState.SUCCESS)
+          this.FileLayerSuccess(value.value);
+        
+        if(value.state==FileUploadState.ERROR)
+          this.FileLayerError(value.value);
+      })
+  }
+
   onChangeCustomMarkerColor(markerColor){
     this.customFileInputMarkerColor = markerColor;
 
@@ -128,6 +166,7 @@ export class KommonitorDataImportComponent {
   }
 
   toggleDataLayer(dataset) {
+    
     if (dataset.isSelected) {
       //display on Map
       var opacity = 1 - dataset.transparency;
@@ -148,7 +187,7 @@ export class KommonitorDataImportComponent {
     }
   }
 
- /*  this.$on("GeoJSONFromFileFinished", function (event, tmpKommonitorGeoresource) {
+  GeoJSONFromFileFinished(tmpKommonitorGeoresource:GeoresourcesDataset) {
 
     try {
       // init feature NAME and ID fields
@@ -163,9 +202,12 @@ export class KommonitorDataImportComponent {
       this.loadingData = false;
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
     }						
-  }); */
+  }
 
-  initSpecialFields(tmpKommonitorGeoresource) {
+  initSpecialFields(dataset:GeoresourcesDataset):GeoresourcesImportDataset {
+
+    let tmpKommonitorGeoresource = dataset as GeoresourcesImportDataset;
+
     // init feature NAME and ID fields
     tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
     tmpKommonitorGeoresource.NAME_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
@@ -202,7 +244,7 @@ export class KommonitorDataImportComponent {
     return tmpKommonitorGeoresource;
   }
 
-  /* $on("CSVFromFileFinished", function (event, tmpKommonitorGeoresource) {
+  CSVFromFileFinished(tmpKommonitorGeoresource) {
     try {
       tmpKommonitorGeoresource = this.initSpecialFields(tmpKommonitorGeoresource)
 
@@ -210,13 +252,12 @@ export class KommonitorDataImportComponent {
 
       //kommonitorToastHelperService.displayInfoToast_upperLeft("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
 
-      this.$digest();
     } catch (error) {
       console.error(error);
       this.loadingData = false;
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
     }						
-  }); */
+  }
 
   loadCSV_latLon() {
     try {
@@ -348,6 +389,37 @@ export class KommonitorDataImportComponent {
     return geoJSON;
   }
 
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+
+    if (event.dataTransfer?.files.length) {
+      this.dropHandler(event);
+    }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files?.length) {
+
+      for (var i = 0; i < input.files.length; i++) {
+        var file = input.files[i];
+        this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, this.customFileInputColor, this.customFileInputMarkerColor);
+      }
+    }
+  }
+
   dropHandler(ev) {
     this.fileLayerError = undefined;
 
@@ -389,11 +461,11 @@ export class KommonitorDataImportComponent {
     this.kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
   };
 
-  adjustFileLayerColor(dataset) {
+  adjustFileLayerColor(color, dataset) {
+    /* don´t user 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is */
+    dataset.displayColor = color;
 
-    var color = dataset.displayColor;
-
-    this.kommonitorMapService.adjustColorForFileLayer(dataset, color);
+    this.kommonitorMapService.adjustColorForFileLayer(dataset);
   };
 
   adjustFileLayerMarkerColor(dataset, markerColor){
@@ -402,34 +474,11 @@ export class KommonitorDataImportComponent {
     this.refreshDataLayer(dataset);
   }
 
- /*  $.$on("onDropFile", function (ev, dropEvent) {
-    this.dropHandler(dropEvent);
-  }); */
+  translateColorName(colorName):string | undefined {
+    return this.kommonitorDataExchangeService.availablePoiMarkerColors.find(e => e.colorName==colorName)?.colorValue;
+  }
 
-  // this.dragOverHandler = function(ev) {
-  //   console.log('File(s) in drop zone');
-  //
-  //   // Prevent default behavior (Prevent file from being opened)
-  //   ev.preventDefault();
-  // };
-
-  openFileDialog() {
-    // $("#fileUploadInput").trigger("click");
-    document.getElementById("fileUploadInput")?.click();
-  };
-
-  /* $(document).on('change', '#fileUploadInput', function () {
-
-    // get the file
-    var files = document.getElementById('fileUploadInput').files;
-
-    for (var i = 0; i < files.length; i++) {
-      var file = files[i];
-      this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, this.customFileInputColor, this.customFileInputMarkerColor);
-    }
-  });
-
-  this.$on("FileLayerError", function (event, errorMsg, dataset) {
+  FileLayerError([errorMsg, dataset]) {
     this.fileLayerError = errorMsg;
     this.loadingData = false;
     //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", this.fileLayerError);
@@ -441,9 +490,9 @@ export class KommonitorDataImportComponent {
         break;
       }
     }
-  });
+  }
 
-  this.$on("FileLayerSuccess", function (event, dataset) {
+  FileLayerSuccess(dataset) {
     this.fileLayerError = undefined;
     this.loadingData = false;						
     
@@ -453,15 +502,14 @@ export class KommonitorDataImportComponent {
     this.kommonitorDataExchangeService.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
     this.kommonitorDataExchangeService.displayableGeoresources.push(dataset);
 
-    setTimeout(function () {
-      this.$digest();
+    setTimeout( () => {
 
-      setTimeout(function () {
+      setTimeout(() => {
         // initialize colorpicker
-        $('.input-group.colorpicker-component').colorpicker();
+        //$('.input-group.colorpicker-component').colorpicker();
       }, 350);
     }, 350);
-  }); */
+  }
 
   removeDataLayer(dataset) {
 

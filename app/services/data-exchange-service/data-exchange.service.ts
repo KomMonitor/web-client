@@ -18,6 +18,7 @@ import {
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
 import { AccessControlMetadata } from "components/ngComponents/models/permissions.models";
 import { KeycloakProfile } from "keycloak-js";
+import { GeoresourcesImportDataset } from "components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component";
 
 export interface SpatialUnit {
   spatialUnitLevel: string;
@@ -107,7 +108,7 @@ export class DataExchangeService {
 
   allFeaturesPropertyUnit;
 
-  fileDatasets: any[] = [];
+  fileDatasets: GeoresourcesImportDataset[] = [];
 
   availablePermissions: any[] = [];
   availableUsers: any[] = [];
@@ -124,6 +125,49 @@ export class DataExchangeService {
   allowedAccessControl = [];
 
   topicIndicatorHierarchy_forOrderView: any[] = [];
+
+  availablePoiMarkerColors = [
+    {
+      "colorName" : "red",
+      "colorValue" : "rgb(205,59,40)"
+    },
+    {
+      "colorName" : "white",
+      "colorValue" : "rgb(255,255,255)"
+    },
+    {
+      "colorName" : "orange",
+      "colorValue" : "rgb(235,144,46)"
+    },
+    {
+      "colorName" : "beige",
+      "colorValue" : "rgb(255,198,138)"
+    },
+    {
+      "colorName" : "green",
+      "colorValue" : "rgb(108,166,36)"
+    },
+    {
+      "colorName" : "blue",
+      "colorValue" : "rgb(53,161,209)"
+    },
+    {
+      "colorName" : "purple",
+      "colorValue" : "rgb(198,77,175)"
+    },
+    {
+      "colorName" : "pink",
+      "colorValue" : "rgb(255,138,232)"
+    },
+    {
+      "colorName" : "gray",
+      "colorValue" : "rgb(163,163,163)"
+    },
+    {
+      "colorName" : "black",
+      "colorValue" : "rgb(47,47,47)"
+    }
+  ];
 
   /* reportingDefaultTemplatePageElements = [
   {
