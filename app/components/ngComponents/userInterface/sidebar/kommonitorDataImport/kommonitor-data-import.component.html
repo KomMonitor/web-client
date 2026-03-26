@@ -95,67 +95,64 @@
     <div *ngIf="tmpKommonitorGeoresource_table?.type == 'CSV'">
 
       <hr>
-
-
       <h4>CSV Datenquelle als Layer laden: <i>{{tmpKommonitorGeoresource_table.datasetName}}</i></h4>
 
-      <div class="row vertical-align">
-        <div class="col-xs-3">
+      <div class="csv-import-wrapper">
+        <div>
           <label>Import als</label><!-- [(ngModel)]="tableProcessType"  unten-->
-          <select style="font-size: 11px;" 
-            *ngFor="let tableProcessType of tableProcessTypes"
-            ng-init="tableProcessType = tableProcessTypes[0]" class="form-control" required>
+          <select style="font-size: 11px;" class="form-control" required [(ngModel)]="tableProcessType">
+            <option *ngFor="let elem of tableProcessTypes" [ngValue]="elem.apiName">{{elem.displayName}}</option>
           </select>
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'latLon'">
+        <div *ngIf="tableProcessType == 'latLon'">
 
           <label>Spaltenname Longitude</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.LON_ATTRIBUTE"
-            *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
+            <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'latLon'">
+        <div *ngIf="tableProcessType == 'latLon'">
 
           <label>Spaltenname Latitude</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE"
-            *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
+            <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'latLon'">
+        <div *ngIf="tableProcessType == 'latLon'">
 
           <button type="button" class="btn btn-success" (click)="loadCSV_latLon()"><i
               class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
           </button>
 
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
+        <div *ngIf="tableProcessType == 'address'">
 
           <label>Spaltenname Stadt</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
-            *ngFor="let property as property for property in tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
+            <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
+        <div *ngIf="tableProcessType == 'address'">
 
           <label>Spaltenname Postleitzahl</label>
           <select style="font-size: 11px; "
             [(ngModel)]="tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE"
-            *ngFor="let property as property for property in tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
+            <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
+        <div *ngIf="tableProcessType == 'address'">
 
           <label>Spaltenname Strasse</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
-            *ngFor="let property as property for property in tmpKommonitorGeoresource_table.featureSchema"
             class="form-control" required>
+            <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div class="col-xs-3" *ngIf="tableProcessType.apiName == 'address'">
+        <div *ngIf="tableProcessType == 'address'">
 
           <button type="button" class="btn btn-success"
             (click)="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">
@@ -248,18 +245,6 @@
                 <div *ngIf="!dataset.isPOI">
                                                                                                                             <!-- don´t user 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is -->
                   <input *ngIf="dataset.displayColor" class="colorPickerSelection" (colorPickerChange)="adjustFileLayerColor($event, dataset)" [colorPicker]="dataset.displayColor" [style.background]="dataset.displayColor" [cpPosition]="'bottom-left'" />
-                 
-                <!--   <div class="input-group colorpicker-component">
-                    <input type="text" style="display:none;" class="input-sm"
-                      [(ngModel)]="dataset.displayColor"
-                      (change)="adjustFileLayerColor(dataset)"
-                      placeholder="Darstellungsfarbe" required />
-                    <span title="Klicken, um die Farbe anzupassen"
-                      style="border: 1px solid #ccc;"
-                      class="input-group-addon"><i></i></span>
-                  </div> -->
-                  <!-- value="{{dataset.displayColor}}" -->
-                  <!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
                 </div>
                 <div *ngIf="dataset.isPOI">
                   <div style="text-align:center" *ngIf="! dataset.isGeocodedDataset">

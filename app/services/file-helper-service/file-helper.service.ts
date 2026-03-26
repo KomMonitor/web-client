@@ -168,56 +168,61 @@ export class FileHelperService {
     return tmpKommonitorGeoresource;
   }
 
-  makeGeoresourceMetadata_fromCsvRows(file, customColor, customMarkerColor, type, rows) {
-    let tmpKommonitorGeoresource:any = {
-      "permissions": [
+  makeGeoresourceMetadata_fromCsvRows(file, customColor, customMarkerColor, type, rows):GeoresourcesDataset {
+    let tmpKommonitorGeoresource:GeoresourcesDataset = {
+      permissions: [
 
       ],
-      "aoiColor": customColor,
-      "availablePeriodsOfValidity": [
+      aoiColor: customColor,
+      availablePeriodsOfValidity: [
         {
-          "endDate": undefined,
-          "startDate": undefined
+          endDate: undefined,
+          startDate: undefined
         }
       ],
-      "datasetName": file.name,
-      "georesourceId": uuidv4(),
-      "isAOI": false,
-      "isLOI": false,
-      "isPOI": true,
-      "loiColor": customColor,
-      "loiDashArrayString": "10",
-      "loiWidth": 1,
-      "metadata": {
-        "contact": "",
-        "databasis": "",
-        "datasource": "",
-        "description": "",
-        "lastUpdate": "",
-        "literature": "",
-        "note": "",
-        "sridEPSG": 0,
-        "updateInterval": "ARBITRARY"
+      datasetName: file.name,
+      georesourceId: uuidv4(),
+      isAOI: false,
+      isLOI: false,
+      isPOI: true,
+      loiColor: customColor,
+      loiDashArrayString: "10",
+      loiWidth: 1,
+      metadata: {
+        contact: "",
+        databasis: "",
+        datasource: "",
+        description: "",
+        lastUpdate: "",
+        literature: "",
+        note: "",
+        sridEPSG: 0,
+        updateInterval: "ARBITRARY"
       },
-      "poiMarkerColor": customMarkerColor.colorName,
-      "poiSymbolBootstrap3Name": "pushpin",
-      "poiSymbolColor": "white",
-      "topicReference": "",
-      "userPermissions": [
+      poiMarkerColor: customMarkerColor.colorName,
+      poiSymbolBootstrap3Name: "thumbtack",
+      poiSymbolColor: "white",
+      topicReference: "",
+      userPermissions: [
 
       ],
-      "wfsUrl": "",
-      "wmsUrl": ""
+      wfsUrl: "",
+      wmsUrl: "",
+      georesourceName: undefined, 
+      geoJSON: undefined, 
+      isPublic: false, 
+      isTmpDataLayer: true,
+      isSelected: true,
+      displayColor: customColor,
+      type: type,
+      transparency:0,
+      dataRows: rows,
+      featureSchema: this.getFeatureSchema_fromCsvRows(rows),
+      ownerId: undefined, 
+      poiMarkerStyle: undefined, 
+      poiMarkerText: undefined, 
+      selectedDate: undefined
     }
-
-    tmpKommonitorGeoresource.isTmpDataLayer = true;
-    tmpKommonitorGeoresource.isSelected = true;
-    tmpKommonitorGeoresource.displayColor = customColor;
-    tmpKommonitorGeoresource.type = type;
-    tmpKommonitorGeoresource.dataRows = rows;
-    tmpKommonitorGeoresource.transparency = 0;
-
-    tmpKommonitorGeoresource.featureSchema = this.getFeatureSchema_fromCsvRows(rows);
 
     return tmpKommonitorGeoresource;
   }

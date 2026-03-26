@@ -23,6 +23,11 @@ export interface GeoresourcesImportDataset extends GeoresourcesDataset {
   dataRows_notGeocoded: any[] | undefined;
 }
 
+export interface CSVImportType {
+  displayName: string;
+  apiName: string;
+}
+
 @Component({
   standalone: true,
   selector: 'app-kommonitor-data-import',
@@ -72,8 +77,8 @@ export class KommonitorDataImportComponent implements OnInit {
   customFileInputMarkerColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[0];
 
   tmpKommonitorGeoresource_table;
-  tableProcessType;
-  tableProcessTypes = [
+  tableProcessType = 'latLon';
+  tableProcessTypes:CSVImportType[] = [
     {
       displayName: "Latitude und Longitude Spalten",
       apiName: "latLon"
@@ -137,7 +142,7 @@ export class KommonitorDataImportComponent implements OnInit {
 
     let clone = JSON.parse(JSON.stringify(dataset));	
     if(dataset.type == "CSV"){
-      clone.datasetName = clone.datasetName + "_" + this.tableProcessType.apiName;
+      clone.datasetName = clone.datasetName + "_" + this.tableProcessType;
     }
 
     if(this.fileWithSameNameAlreadyImported(clone)){

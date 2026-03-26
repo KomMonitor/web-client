@@ -56,6 +56,7 @@ export interface GeoresourcesDataset {
   type?: string | undefined;
   transparency?: any | undefined;
   featureSchema?: any | undefined;
+  dataRows?: any | undefined;
 }
 
 export interface GeoresourcesMetadata {

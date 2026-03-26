@@ -22,4 +22,16 @@
     border: none;
     caret-color: transparent !important;
   }
+
+  .csv-import-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1em;
+
+    div {
+      label {
+        height: 3.5em;
+      }
+    }
+  }
 }
