@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { DisplayType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { InfoModal } from './infoModal/info-modal.component';
@@ -13,16 +14,40 @@ import { Router } from '@angular/router';
 import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
 import { MapService } from 'services/map-service/map.service';
+import { CommonModule } from '@angular/common';
+import { KommonitorMapComponent } from './kommonitorMap/kommonitor-map.component';
+import { KommonitorLegendComponent } from './kommonitorLegend/kommonitor-legend.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { UserLoginComponent } from '../common/userLogin/user-login.component';
+import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'user-interface-new',
   templateUrl: './user-interface.component.html',
-  styleUrls: ['./user-interface.component.css']
+  styleUrls: ['./user-interface.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    KommonitorMapComponent,
+    KommonitorLegendComponent,
+    SidebarComponent,
+    UserLoginComponent,
+    CustomSliderComponent
+  ]
 })
 export class UserInterfaceComponent implements OnInit {
 
+  private readonly destroyRef = inject(DestroyRef);
+
   userRoleInformation = {};
   userGroupInformation:any[] = [];
+
+  sliderDisplayMode = DisplayType;
+
+  sliderData!:Date[];
+  markerPosition!:Date[];
+  sliderDisabled: boolean = false;
 
   expertToolbarVisible = false;
   diagramSubMenuOpen: boolean = false;
@@ -49,6 +74,20 @@ export class UserInterfaceComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
+    this.mapService.dateSlider$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if(value.data)
+          this.sliderData = value.data;
+
+        if(value.selected)
+          this.markerPosition = [value.selected];
+
+        if(value.disabled)
+          this.sliderDisabled = value.disabled;
+      });
 
     // load all app configs
     this.configStorageService.getConfigs();
@@ -96,6 +135,10 @@ export class UserInterfaceComponent implements OnInit {
     });
 
     //this.openReportingModal()
+  }
+
+  onDateSliderChange(data:any) {
+    this.mapService.setDateSliderValues({selected: data[0]});
   }
 
   isDiagramSidebarOpened() {

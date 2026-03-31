@@ -21,6 +21,12 @@ export interface MapRecenterObject {
   recenter: boolean;
 }
 
+export interface DateSliderObject {
+  data: Date[] | undefined;
+  selected: Date | undefined;
+  disabled: boolean | undefined;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -41,10 +47,24 @@ export class MapService {
    recenter: false
   });
   mapRecenter$ = this.mapRecenterSubject.asObservable();
+
+  private dateSliderSubject = new BehaviorSubject<DateSliderObject>({
+    data: undefined,
+    selected: undefined,
+    disabled: undefined
+  });
+  dateSlider$ = this.dateSliderSubject.asObservable();
   
   public constructor(
       private broadcastService: BroadcastService
   ) { }
+
+  setDateSliderValues(patch: Partial<DateSliderObject>) {
+    this.dateSliderSubject.next({
+      ...this.dateSliderSubject.value,
+      ...patch
+    });
+  }
 
   setMapRecenterState(patch: Partial<MapRecenterObject>) {
     this.mapRecenterSubject.next({

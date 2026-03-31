@@ -20,13 +20,14 @@ export enum SliderType {
   standalone: true,
   imports: [CommonModule]
 })
-export class CustomSliderComponent implements AfterViewInit {
+export class CustomSliderComponent implements AfterViewInit, OnChanges {
 
   @ViewChild('sliderContainer') sliderContainer!: ElementRef;
 
   @Input() data:any[] = [];
   @Input() type: SliderType = SliderType.NORMAL;
   @Input() markerPositions: any[] = [0];
+  @Input() disabled: boolean = false;
   @Input() displayMode: DisplayType = DisplayType.NORMAL
 
   @Output() valueChange = new EventEmitter<number | number[]>();
@@ -50,6 +51,17 @@ export class CustomSliderComponent implements AfterViewInit {
       this.initSlider();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if(changes['disabled']) {
+      if(changes['disabled'].currentValue===true) 
+        this.sliderInstance.disable();
+      else
+        this.sliderInstance.enable();
+    } else 
+      this.sliderInstance.enable();
+  }
+
   createPipValues(values: number[], maxPips = 5) {
     const step = Math.ceil(values.length / maxPips);
 
@@ -57,11 +69,9 @@ export class CustomSliderComponent implements AfterViewInit {
   }
 
   private initSlider() {
-    this.sliderInstance = this.sliderContainer.nativeElement;
-
     var pips = this.data.map((_, index) => index);   
 
-    noUiSlider.create(this.sliderInstance, {
+    this.sliderInstance = noUiSlider.create(this.sliderContainer.nativeElement, {
       behaviour: 'drag',
       range: {
         min: 0,
@@ -94,14 +104,17 @@ export class CustomSliderComponent implements AfterViewInit {
       }
     });
 
-    this.sliderInstance.noUiSlider.on('set', (values, handle, unencoded) => {
+    this.sliderInstance.on('set', (values, handle, unencoded) => {
       this.valueChange.emit(this.reFormatValues(unencoded));
     });
   }
 
   defineMarkerPositions():number[] {
-
     // findClosestIndex, cause range (start/end) works with precise ms values, whereas slider data is normalized to 00:00 and 23:59 range values
+    
+    if(this.type==SliderType.NORMAL)
+      return [this.findClosestIndex(this.markerPositions[0])];  
+
     return [this.findClosestIndex(this.markerPositions[0]), this.findClosestIndex(this.markerPositions[1])];
   }
 

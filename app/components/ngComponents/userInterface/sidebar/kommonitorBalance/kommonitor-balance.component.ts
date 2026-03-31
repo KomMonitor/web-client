@@ -145,8 +145,10 @@ export class KommonitorBalanceComponent implements OnInit {
       this.envConfigService.classifyUsingWholeTimeseries = false;
       this.balanceSlider.noUiSlider.enable();
 
-      // disable DateSlider on map
-      this.broadcastService.broadcast('DisableDateSlider')
+      // disable DateSlider / picker on map
+      this.mapService.setDateSliderValues({disabled: true});
+      this.dataExchangeService.disableIndicatorDatePicker = true;
+
       if(!this.dataExchangeService.indicatorAndMetadataAsBalance){
         this.dataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator);
         
@@ -176,7 +178,7 @@ export class KommonitorBalanceComponent implements OnInit {
       this.balanceSlider.noUiSlider.disable();
       
       // reanebalbe DateSlider on map
-      this.broadcastService.broadcast('EnableDateSlider');
+      this.mapService.setDateSliderValues({disabled: false});
       indicatorMetadataAndGeoJSON = this.dataExchangeService.selectedIndicator;
       // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
     }

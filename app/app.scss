@@ -3682,12 +3682,12 @@ kommonitor-user-interface .irs {
 }
 
 /* noUi dateslider, one slider */
-.custom-dateSlider .noUi-connects {
+.custom-dateSlider .noUi-connects, .noUi-connects {
   background-color: var(--kommonitor-primary-80);
 }
 
 /* noUi dateslider, draggable (two sliders) */
-.custom-dateSlider .noUi-connects:has(.noUi-draggable) {
+.custom-dateSlider .noUi-connects:has(.noUi-draggable), .noUi-connects:has(.noUi-draggable) {
   background-color: transparent !important;
 
   .noUi-draggable {
@@ -3695,7 +3695,7 @@ kommonitor-user-interface .irs {
   }
 }
 
-.custom-dateSlider.noUi-horizontal {
+.custom-dateSlider.noUi-horizontal, .noUi-horizontal {
   height: 12px !important;
 
   .noUi-handle {

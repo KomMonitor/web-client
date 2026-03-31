@@ -74,24 +74,6 @@ export class KommonitorDataSetupComponent implements OnInit {
   preppedIndicatorTopics: IndicatorsTopicsHierarchy[] = [];
   preppedKeywordList: any[] = [];
   topicSorting: TopicOrderMode | undefined;
-
-  dateSlider;
-  config: any  = {
-    behaviour: 'drag',
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 100
-    },
-    start: [0],
-    keyboard: true, 
-    pips: {
-      mode: 'range',
-      density: 2,
-      values: 4,
-      stepped: true
-    }
-  };
   
   months = [
     'Januar',
@@ -124,8 +106,6 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.adminTopicsManagementService.getOrderMode("indicator").subscribe((res) => this.topicSorting = res);
 
-    this.setupSlider();
-
     this.dataExchangeService.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
@@ -134,17 +114,19 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.onInitialMetadataLoadingComplete();
       });
 
+    this.mapService.dateSlider$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if(value.selected)
+          this.onChangeDateSliderItem(value.selected);
+      });
+
     this.broadcastService.currentBroadcastMsg.subscribe(res => {
       let msg = res.msg;
       let values:any = res.values;
 
       switch (msg) {
-        case 'DisableDateSlider' : {
-          this.DisableDateSlider();
-        } break;
-        case 'EnableDateSlider' : {
-          this.EnableDateSlider();
-        } break;
         case 'changeIndicatorDate': {
           this.changeIndicatorDate(values);
         } break;
@@ -166,13 +148,6 @@ export class KommonitorDataSetupComponent implements OnInit {
         } break; */
       }
     });
-  }
-  
-  setupSlider() {
-    this.dateSlider = document.getElementById('dateSlider');
-
-    noUiSlider.cssClasses.target += ' custom-dateSlider';
-    noUiSlider.create(this.dateSlider, this.config);
   }
 
   onInitialMetadataLoadingComplete() {
@@ -646,11 +621,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       }
     }
   }; */
-/*
-  prettifyDateSlidertopicNames (dateAsMs) {
-    return kommonitorDataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, kommonitorDataExchangeService.selectedIndicator.metadata.updateInterval);									
-  }
-*/
+
   createDatesFromIndicatorDates(indicatorDates) {
 
     this.datesAsMs = [];
@@ -666,49 +637,13 @@ export class KommonitorDataSetupComponent implements OnInit {
   setupDateSliderForIndicator(){
 
     var availableDates = this.dataExchangeService.selectedIndicator.applicableDates;
-    this.date = availableDates[availableDates.length - 1];
-    this.selectedDate = availableDates[availableDates.length - 1];
     this.dataExchangeService.selectedDate = availableDates[availableDates.length - 1];
+    let dates = this.dataExchangeService.selectedIndicator.applicableDates.map(e => new Date(e));
 
-    this.datesAsMs = this.createDatesFromIndicatorDates(this.dataExchangeService.selectedIndicator.applicableDates);
-
-    this.dateSlider.noUiSlider.updateOptions({
-      range: {
-          'min': 0, // index from
-          'max': this.datesAsMs.length-1 // index to
-      },
-      start: [this.datesAsMs.length-1 ], // index 
-      step: 1,
-      tooltips: true,
-      format: {
-        to: (value) => { // test
-          console.log("to",value)
-          if(value)
-            return this.tsToDateString(this.datesAsMs[Math.round(value)]);    
-          else
-            return;
-        },
-        from: (value) => { 
-          return this.datesAsMs[value];
-        }
-      },
-      pips: {
-        mode: 'range',
-        density: 25,
-        format: {
-          to: (value) => {
-            return this.tsToDateString(this.datesAsMs[Math.round(value)]);
-          },
-          from: (value) => {
-            return this.datesAsMs.indexOf(this.dateStringToMs(value));
-          }
-        }
-      }
+    this.mapService.setDateSliderValues({
+      data: dates,
+      selected: dates[dates.length-1]
     });
-  
-    this.dateSlider.noUiSlider.on('end', () => {
-      this.onChangeDateSliderItem(this.getFormatedSliderReturn());
-    })
   };
 
   onChangeIndicatorFilter() {
@@ -716,15 +651,6 @@ export class KommonitorDataSetupComponent implements OnInit {
     
     this.preppedIndicatorTopics = this.prepareIndicatorTopicsRecursive(this.dataExchangeService.topicIndicatorHierarchy);
     this.addClickListenerToEachCollapseTrigger();
-  }
-
-  getFormatedSliderReturn() {
-
-    let data = this.dateSlider.noUiSlider.get(true);
-    
-    return {
-      from: Math.round(data)
-    };
   }
 
   dateStringToMs(dateStr) {
@@ -773,7 +699,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     return retDates;
   }
 
-  onChangeDateSliderItem(data){
+  onChangeDateSliderItem(data:Date) {
 
     if(!this.changeIndicatorWasClicked && this.dataExchangeService.selectedIndicator){
       this.loadingData = true;
@@ -781,9 +707,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       console.log("Change selected date");
 
-      //data.from is index of date!
-
-      this.selectedDate = this.dataExchangeService.selectedIndicator.applicableDates[data.from];
+      this.selectedDate = data.toISOString().split('T')[0];
       this.date = this.selectedDate;
       this.dataExchangeService.selectedDate = this.selectedDate;
 
@@ -810,23 +734,6 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.broadcastService.broadcast("hideLoadingIconOnMap");
       this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
     }
-  };
-
-
-  DisableDateSlider() {
-    if(this.dateSlider){
-      this.dateSlider.noUiSlider.disable();
-    }
-
-    this.dataExchangeService.disableIndicatorDatePicker = true;
-  }
-
-  EnableDateSlider() {
-    if(this.dateSlider){
-      this.dateSlider.noUiSlider.enable();
-    }
-
-    this.dataExchangeService.disableIndicatorDatePicker = false;
   }
 
   tryUpdateMeasureOfValueBarForIndicator(){

@@ -188,6 +188,7 @@
 
     
     <div id="dateSliderWrapper">
+      <custom-slider *ngIf="sliderData" [data]="sliderData" [markerPositions]="markerPosition" [displayMode]="sliderDisplayMode.YEAR" [disabled]="sliderDisabled" (valueChange)="onDateSliderChange($event)"></custom-slider>
       <div id="dateSlider"></div>
     </div>
 

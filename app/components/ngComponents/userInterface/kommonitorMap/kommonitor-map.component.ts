@@ -21,11 +21,14 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-kommonitor-map',
   templateUrl: './kommonitor-map.component.html',
-  styleUrls: ['./kommonitor-map.component.css']
+  styleUrls: ['./kommonitor-map.component.css'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
@@ -2434,12 +2437,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   fitBounds() {
     if (this.map && this.currentIndicatorLayer) {
-
       this.map.invalidateSize(true);
       // this.map.setView(L.latLng(this.latCenter, this.lonCenter), this.zoomLevel);
       this.map.fitBounds(this.currentIndicatorLayer.getBounds());
     }
-
   }
 
   zoomToFeature(e) {

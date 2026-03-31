@@ -5,8 +5,6 @@ import { CommonModule } from '@angular/common';
 import { routes } from 'app.routes';
 import { RouterModule } from '@angular/router';
 
-import { UserInterfaceComponent } from 'components/ngComponents/userInterface/user-interface.component';
-import { KommonitorMapComponent } from 'components/ngComponents/userInterface/kommonitorMap/kommonitor-map.component';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -50,8 +48,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
   declarations: [
     MainComponent,
-    UserInterfaceComponent,
-    KommonitorMapComponent,
     OrderByPipe
   ],
   imports: [
