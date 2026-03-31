@@ -1037,7 +1037,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.loadingData = false;
 
       if(recenterMap){
-        this.broadcastService.broadcast('recenterMapContent');
+        this.mapService.setMapRecenterState({recenter: true});
       }
 
       //this.broadcastService.broadcast('hideLoadingIconOnMap');

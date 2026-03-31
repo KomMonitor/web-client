@@ -16,6 +16,11 @@ export interface MapRefreshValues {
   customComputation?: boolean | undefined,
 }
 
+export interface MapRecenterObject {
+  resize: boolean;
+  recenter: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -30,10 +35,23 @@ export class MapService {
     error: false
   });
   mapRefreshState$ = this.mapRefreshStateSubject.asObservable();
+
+  private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
+   resize: false,
+   recenter: false
+  });
+  mapRecenter$ = this.mapRecenterSubject.asObservable();
   
   public constructor(
       private broadcastService: BroadcastService
   ) { }
+
+  setMapRecenterState(patch: Partial<MapRecenterObject>) {
+    this.mapRecenterSubject.next({
+      ...this.mapRecenterSubject.value,
+      ...patch
+    });
+  }
 
   setMapRefreshValues(values:MapRefreshValues) {
     this.mapRefreshStateSubject.next({

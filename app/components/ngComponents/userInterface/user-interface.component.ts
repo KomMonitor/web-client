@@ -12,6 +12,7 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { Router } from '@angular/router';
 import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
+import { MapService } from 'services/map-service/map.service';
 
 @Component({
   selector: 'user-interface-new',
@@ -43,7 +44,8 @@ export class UserInterfaceComponent implements OnInit {
     protected globalFilterHelperService: GlobalFilterHelperService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
     private router: Router,
-    protected envConfigService: EnvConfigService
+    protected envConfigService: EnvConfigService,
+    private mapService: MapService
   ) { }
 
   ngOnInit(): void {
@@ -193,17 +195,12 @@ export class UserInterfaceComponent implements OnInit {
       else
         ident = event.srcElement.parentElement.id;
 
-      if(ident!=this.sidebarElement) {
-
-        if(this.sidebarElement=='')
-          this.broadcastService.broadcast("recenterMapOnSidebarAction",[true]);
-
+      if(ident!=this.sidebarElement)
         this.sidebarElement = ident;
-      }
-      else {
+      else 
         this.sidebarElement = '';
-        this.broadcastService.broadcast("recenterMapOnSidebarAction",[false]);
-      }
+
+      this.mapService.setMapRecenterState({recenter: true, resize: true});
     }
     
 /*
@@ -229,7 +226,7 @@ export class UserInterfaceComponent implements OnInit {
 
  */
 		onRecenterMapButtonClick(){
-			this.broadcastService.broadcast("recenterMapContent");
+			this.mapService.setMapRecenterState({recenter: true});
 		}
 
 		onExportMapButtonClick(){

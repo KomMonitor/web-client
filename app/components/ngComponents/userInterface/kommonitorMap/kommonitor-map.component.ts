@@ -147,7 +147,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   highlightTimeout;
 
-
   constructor(
     private dataExchangeService: DataExchangeService,
     private http: HttpClient,
@@ -226,6 +225,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.onReplaceIndicatorAsGeoJSON([value.values.indicator, value.values.spatialUnit, value.values.date, value.values.justRestyling, value.values.customComputation]);
       });
 
+    this.mapService.mapRecenter$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if(value.resize)
+          this.resizeMapOnly();
+
+        if(value.recenter)
+          this.recenterMapOnly();
+      });
+
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -243,9 +252,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         } break;
         case 'changeSpatialUnit': {
           this.onChangeSpatialUnit();
-        } break;
-        case 'recenterMapContent': {
-          this.recenterMap();
         } break;
         case 'showLoadingIconOnMap' : {
           this.showLoadingIconOnMap();
@@ -312,9 +318,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         } break;
         case 'changeBreaks' : {
           this.changeBreaks(values);
-        } break;
-        case 'recenterMapOnSidebarAction' : {
-          this.recenterMapOnSidebarAction(values);
         } break;
         case 'unselectAllFeatures': {
           this.unselectAllFeatures();
@@ -2419,40 +2422,15 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
  */
   wait = ms => new Promise((r, j) => setTimeout(r, ms))
 
-  recenterMap () {
-    this.map.invalidateSize(true);
-
-    this.fitBounds();
-
+  // dedicated functions
+  recenterMapOnly() {
+    setTimeout(() => this.fitBounds()); // mini timeout to cover css transition effects
   };
 
-
-/*
-  $scope.$on("invalidateMapSize", function (event) {
-    $timeout(function(){
-      $scope.map.invalidateSize(true);
-    }, 500);          
-  });
-
-  */
-
-  recenterMapOnSidebarAction([openState]) {
-
-    let waitForInMs = 100;
-    this.wait(waitForInMs);
-
-    let numPixels = 500
-    if(!openState)
-      numPixels = -500;
-      
-    if (this.map) {
-      this.map.invalidateSize(true);
-      this.map.panBy(L.point(numPixels, 0));
-
-      this.map.invalidateSize(true);
-    }
-  };
-
+  // dedicated functions
+  resizeMapOnly() {
+    setTimeout(() => this.map.invalidateSize(true)); // mini timeout to cover css transition effects
+  }
 
   fitBounds() {
     if (this.map && this.currentIndicatorLayer) {
