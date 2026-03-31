@@ -1,3 +1,10 @@
+export enum MetadataLoadingState {
+  NONE,
+  INPROGRESS,
+  COMPLETE,
+  ERROR
+}
+
 export interface PoiSize {
   id: number;
   label: string;

@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import { LOI_DASH_ARRAY_OBJECTS } from "./data-exchange.constants";
+import { LOI_DASH_ARRAY_OBJECTS, MetadataLoadingState } from "./data-exchange.constants";
 import { PdfExportService } from "services/pdf-export-service/pdf-export.service";
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
 } from "components/ngComponents/models/indicators.models";
 import { EnvConfigService } from "services/env-config-service/env-config.service";
-import { forkJoin } from "rxjs";
+import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
@@ -34,6 +34,10 @@ export interface SpatialUnit {
   providedIn: "root",
 })
 export class DataExchangeService {
+
+  private metadataLoadingSubject = new BehaviorSubject<MetadataLoadingState>(MetadataLoadingState.NONE);
+  metadataLoading$ = this.metadataLoadingSubject.asObservable();
+
   showDiagramExportButtons = true;
   showGeoresourceExportButtons = true;
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || "both";
@@ -394,6 +398,10 @@ export class DataExchangeService {
     private pdfExportService: PdfExportService,
   ) {}
 
+  setMetadataState(state: MetadataLoadingState) {
+    this.metadataLoadingSubject.next(state);
+  }
+
   hideErrorAlert() {
     $(".mapApplicationErrorAlert").hide();
   }
@@ -425,6 +433,9 @@ export class DataExchangeService {
   }
 
   async fetchAllMetadata(filter = undefined) {
+
+    this.setMetadataState(MetadataLoadingState.INPROGRESS);
+
     await this.cacheHelperService.init();
     console.log("fetching all metadata from management component");
 
@@ -508,20 +519,10 @@ export class DataExchangeService {
 
         this.buildTopicGeoresourceHierarchy(filter);
 
-        /*  this.mergeServices(); */
-
         console.log("Metadata fetched. Call initialize event.");
+
+        this.setMetadataState(MetadataLoadingState.COMPLETE);
         this.onMetadataLoadingCompleted();
-
-        // todo ?! nutzen?
-        /*  setTimeout((e) => {
-          $('.list-group-item > .collapseTrigger').on('click', function() {
-            $('.glyphicon', e)
-              .toggleClass('glyphicon-chevron-right')
-              .toggleClass('glyphicon-chevron-down');
-
-          });
-        }); */
       },
       error: (error) => {
         // todo error handling

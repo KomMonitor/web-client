@@ -636,7 +636,7 @@ export class PoiComponent implements OnInit {
 
   selectedIndicatorDateHasChanged() {
 
-    console.log("refresh selected georesource layers according to new date");
+    console.log("refresh selected georesource layers according to new date - poi");
 
     // only refresh georesources if sync with indicator timestamp is selected
     if(! this.dateSelectionType.selectedDateType.includes(this.dateSelectionType_valueIndicator)){

@@ -528,7 +528,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
 	selectedIndicatorDateHasChanged() {
 
-    console.log("refresh selected georesource layers according to new date");
+    console.log("refresh selected georesource layers according to new date - reachability poi");
 
     // only refresh georesources if sync with indicator timestamp is selected
     if (!this.reachabilityHelperService.settings.dateSelectionType.selectedDateType.includes(this.reachabilityHelperService.settings.dateSelectionType_valueIndicator)) {

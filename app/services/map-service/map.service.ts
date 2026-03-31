@@ -1,14 +1,68 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, ViewChild } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+
+export interface MapRefreshObject {
+  values: MapRefreshValues,
+  error: boolean;
+  errorMsg?: string[] | undefined;
+}
+
+export interface MapRefreshValues {
+  indicator: any | undefined, 
+  spatialUnit: any | undefined,
+  date: any | undefined,
+  justRestyling?: boolean | undefined,
+  customComputation?: boolean | undefined,
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class MapService {
 
+  private mapRefreshStateSubject = new BehaviorSubject<MapRefreshObject>({
+    values: {
+      indicator: undefined, 
+      spatialUnit: undefined,
+      date: undefined
+    },
+    error: false
+  });
+  mapRefreshState$ = this.mapRefreshStateSubject.asObservable();
+  
   public constructor(
       private broadcastService: BroadcastService
   ) { }
+
+  setMapRefreshValues(values:MapRefreshValues) {
+    this.mapRefreshStateSubject.next({
+      ...this.mapRefreshStateSubject.value, 
+      values: values
+    });
+  }
+
+  readyForRefresh():boolean {
+    if(this.mapRefreshStateSubject.value.values.indicator!==undefined && 
+        this.mapRefreshStateSubject.value.values.spatialUnit!==undefined && 
+        this.mapRefreshStateSubject.value.values.date!==undefined)
+      return true;
+
+    return false;
+  }
+
+  resetMapRefreshState() {
+    this.mapRefreshStateSubject.next({
+      values: {
+        indicator: undefined, 
+        spatialUnit: undefined,
+        date: undefined,
+        justRestyling: false,
+        customComputation: false,
+      },
+      error: false
+    });
+  }
 
   removePoiGeoresource(reference) {
     this.broadcastService.broadcast('removePoiGeoresource', [reference]);

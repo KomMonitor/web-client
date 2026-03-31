@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -19,6 +19,8 @@ import '../../../../../customizedExternalLibs/leaflet-groupedlayercontrol/leafle
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
+import { MapService } from 'services/map-service/map.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-kommonitor-map',
@@ -26,6 +28,8 @@ import { FileHelperService, FileUploadState } from 'services/file-helper-service
   styleUrls: ['./kommonitor-map.component.css']
 })
 export class KommonitorMapComponent implements OnInit, AfterViewInit {
+
+  private readonly destroyRef = inject(DestroyRef);
   
   private map;
   searchControl:any;
@@ -152,7 +156,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private filterHelperService: FilterHelperService,
     private genericMapHelperService: GenericMapHelperService,
     private envConfigService: EnvConfigService,
-    private fileHelperService: FileHelperService
+    private fileHelperService: FileHelperService,
+    private mapService: MapService
   ) { }
 
   ngOnInit(): void {
@@ -214,6 +219,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.initSpatialUnitOutlineLayer();
     },2000);
 
+    this.mapService.mapRefreshState$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if(this.mapService.readyForRefresh())
+          this.onReplaceIndicatorAsGeoJSON([value.values.indicator, value.values.spatialUnit, value.values.date, value.values.justRestyling, value.values.customComputation]);
+      });
+
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -226,8 +238,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case 'changeNumClasses' : {
           this.changeNumClasses(values);
         } break;
-        case 'replaceIndicatorAsGeoJSON': {
-          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 3000);
+        case 'replaceIndicatorAsGeoJSON': { // eigentlich alt, wird aber teilweise noch genutzt, todo
+          setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values),1000);
         } break;
         case 'changeSpatialUnit': {
           this.onChangeSpatialUnit();

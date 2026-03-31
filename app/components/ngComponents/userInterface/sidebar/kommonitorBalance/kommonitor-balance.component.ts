@@ -21,7 +21,6 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 })
 export class KommonitorBalanceComponent implements OnInit {
 
-
   constructor(
     protected dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
@@ -132,66 +131,59 @@ export class KommonitorBalanceComponent implements OnInit {
       this.createNewBalanceInstance();
     }
   }
+						
+  onChangeUseBalance(){
 
-/*
-						this.$on("replaceBalancedIndicator", function (event) {
-							if(this.exchangeData.isBalanceChecked){
-								this.onChangeUseBalance();
-							}
-						});
-*/  
-						onChangeUseBalance(){
+    if(this.dataExchangeService.isMeasureOfValueChecked){
+      this.dataExchangeService.isMeasureOfValueChecked = false;
+    }
 
-							if(this.dataExchangeService.isMeasureOfValueChecked){
-								this.dataExchangeService.isMeasureOfValueChecked = false;
-							}
+    let indicatorMetadataAndGeoJSON;
 
-							let indicatorMetadataAndGeoJSON;
+    if(this.dataExchangeService.isBalanceChecked){
+      this.dataExchangeService.isMeasureOfValueChecked = false;
+      this.envConfigService.classifyUsingWholeTimeseries = false;
+      this.balanceSlider.noUiSlider.enable();
 
-							if(this.dataExchangeService.isBalanceChecked){
-								this.dataExchangeService.isMeasureOfValueChecked = false;
-								this.envConfigService.classifyUsingWholeTimeseries = false;
-								this.balanceSlider.noUiSlider.enable();
+      // disable DateSlider on map
+      this.broadcastService.broadcast('DisableDateSlider')
+      if(!this.dataExchangeService.indicatorAndMetadataAsBalance){
+        this.dataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator);
+        
+        var indicatorType = this.dataExchangeService.selectedIndicator.indicatorType;
+        if(indicatorType.includes("ABSOLUTE")){
+          this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
+        }
+        else if(indicatorType.includes("RELATIVE")){
+          this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
+        }
+        else if(indicatorType.includes("STANDARDIZED")){
+          this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
+        }
 
-								// disable DateSlider on map
-                this.broadcastService.broadcast('DisableDateSlider')
-								if(!this.dataExchangeService.indicatorAndMetadataAsBalance){
-									this.dataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator);
-                  
-									var indicatorType = this.dataExchangeService.selectedIndicator.indicatorType;
-									if(indicatorType.includes("ABSOLUTE")){
-										this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
-									}
-									else if(indicatorType.includes("RELATIVE")){
-										this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
-									}
-									else if(indicatorType.includes("STANDARDIZED")){
-										this.dataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
-									}
-
-								}
-								var data = this.getFormatedSliderReturn();
-								this.computeAndSetBalance(data);
-								setTimeout(() => {
-								
-									this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
-								});
-								indicatorMetadataAndGeoJSON = this.dataExchangeService.indicatorAndMetadataAsBalance;
-								// kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
-							}
-							else{
-								
-								this.balanceSlider.noUiSlider.disable();
-                
-								// reanebalbe DateSlider on map
-                this.broadcastService.broadcast('EnableDateSlider');
-								indicatorMetadataAndGeoJSON = this.dataExchangeService.selectedIndicator;
-								// kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
-							}
-							// $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.targetDate, indicatorMetadataAndGeoJSON);
-							// do not replace dataset directly, but check if any filter can be applied when changing balance mode for the current dataset
-							this.filterHelperService.filterAndReplaceDataset();
-						};
+      }
+      var data = this.getFormatedSliderReturn();
+      this.computeAndSetBalance(data);
+      setTimeout(() => {
+      
+        this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
+      });
+      indicatorMetadataAndGeoJSON = this.dataExchangeService.indicatorAndMetadataAsBalance;
+      // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
+    }
+    else{
+      
+      this.balanceSlider.noUiSlider.disable();
+      
+      // reanebalbe DateSlider on map
+      this.broadcastService.broadcast('EnableDateSlider');
+      indicatorMetadataAndGeoJSON = this.dataExchangeService.selectedIndicator;
+      // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
+    }
+    // $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.targetDate, indicatorMetadataAndGeoJSON);
+    // do not replace dataset directly, but check if any filter can be applied when changing balance mode for the current dataset
+    this.filterHelperService.filterAndReplaceDataset();
+  }
 
             // hier onChangeUseBalance (1) -> filterAndReplaceDataset (2 new) -> replaceIndicatorGeoJSON -> replaceIndicatorAsGeoJSON (replaceIndi...) 
              // --> da wird dynamicBrew auf undefined gesetzt, und scheinbar nicht neu definiert
@@ -470,8 +462,8 @@ export class KommonitorBalanceComponent implements OnInit {
               //this.removeOldInstance();
               this.createNewBalanceInstance();
             }
-
           }
+
         };
 
         onChangeBalanceRange(data) {
@@ -484,7 +476,7 @@ export class KommonitorBalanceComponent implements OnInit {
             
             this.updateTrendChart(this.dataExchangeService.selectedIndicator, data);	
           });
-          // we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
+          // hier we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
           this.mapService.replaceIndicatorGeoJSON(this.dataExchangeService.indicatorAndMetadataAsBalance, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.targetDate, true);
         };
 
