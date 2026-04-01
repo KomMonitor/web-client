@@ -89,17 +89,15 @@ export class UserInterfaceComponent implements OnInit {
           this.sliderDisabled = value.disabled;
       });
 
+    this.dataExchangeService.selectedDate$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if(value)
+          this.markerPosition = [value];
+      });
+
     // load all app configs
     this.configStorageService.getConfigs();
-
-    /* todo
-    // initialize application
-    console.log("Initialize Application");
-    if ($scope.authenticated) {
-      console.log("Authetication successfull");
-    }			
-
-    await  */
 
     // todo
     //kommonitorShareHelperService.init();

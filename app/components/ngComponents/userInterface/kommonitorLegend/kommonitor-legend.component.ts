@@ -183,8 +183,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeIndicatorDatepickerDate() {
-    this.dataExchangeService.selectedDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
-    this.broadcastService.broadcast("changeIndicatorDate",[this.datePickerDate]);
+    let dateString = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
+    this.dataExchangeService.setSelectedDate(dateString);
   }
 
   onChangeSelectedSpatialUnit() {

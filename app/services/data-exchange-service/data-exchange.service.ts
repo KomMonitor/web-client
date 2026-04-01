@@ -38,6 +38,12 @@ export class DataExchangeService {
   private metadataLoadingSubject = new BehaviorSubject<MetadataLoadingState>(MetadataLoadingState.NONE);
   metadataLoading$ = this.metadataLoadingSubject.asObservable();
 
+  // object to share changes on selectedDate, still needs the "real" 'selectedDate' as numerous components use it
+  private selectedDateSubject = new BehaviorSubject<Date | undefined>(undefined);
+  selectedDate$ = this.selectedDateSubject.asObservable();
+
+  selectedDateInit = false;
+
   showDiagramExportButtons = true;
   showGeoresourceExportButtons = true;
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || "both";
@@ -397,6 +403,14 @@ export class DataExchangeService {
     private envConfigService: EnvConfigService,
     private pdfExportService: PdfExportService,
   ) {}
+
+  setSelectedDate(dateString:string | undefined) {
+    
+    if(dateString) {
+      this.selectedDate = dateString;
+      this.selectedDateSubject.next(new Date(dateString));
+    }
+  }
 
   setMetadataState(state: MetadataLoadingState) {
     this.metadataLoadingSubject.next(state);

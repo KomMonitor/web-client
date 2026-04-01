@@ -33,6 +33,7 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   @Output() valueChange = new EventEmitter<number | number[]>();
 
   private sliderInstance: any;
+  private manualChange = false;
 
   errorMsg = '';
 
@@ -60,10 +61,19 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
         this.sliderInstance.enable();
     } else 
       this.sliderInstance.enable();
+
+    if(changes['markerPositions']) {
+  
+      if(!this.manualChange) {
+        this.markerPositions = changes['markerPositions'].currentValue;
+        this.sliderInstance.set(this.defineMarkerPositions())
+      } else
+        this.manualChange = false;
+    }
   }
 
   createPipValues(values: number[], maxPips = 5) {
-    const step = Math.ceil(values.length / maxPips);
+    const step = Math.round(values.length / maxPips);
 
     return values.filter((_, i) => i % step === 0);
   }
@@ -104,7 +114,8 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
       }
     });
 
-    this.sliderInstance.on('set', (values, handle, unencoded) => {
+    this.sliderInstance.on('change', (values, handle, unencoded) => {
+      this.manualChange = true;
       this.valueChange.emit(this.reFormatValues(unencoded));
     });
   }
@@ -173,7 +184,7 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   
   formatValue(value:number):any {
 
-    value = Math.ceil(value);
+    value = Math.round(value);
 
     let displayHours = this.hasMultipleValuesPerDay();
     
@@ -199,6 +210,6 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   }
 
   reFormatValues(values:number[]):any[] {
-    return values.map(e => this.data[Math.ceil(e)]);
+    return values.map(e => this.data[Math.round(e)]);
   }
 }

@@ -122,14 +122,17 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.onChangeDateSliderItem(value.selected);
       });
 
+    this.dataExchangeService.selectedDate$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+          this.changeIndicatorDate();
+      });
+
     this.broadcastService.currentBroadcastMsg.subscribe(res => {
       let msg = res.msg;
       let values:any = res.values;
 
       switch (msg) {
-        case 'changeIndicatorDate': {
-          this.changeIndicatorDate(values);
-        } break;
         case 'changeSpatialUnit': {
           this.onChangeSelectedSpatialUnit();
         } break;
@@ -780,18 +783,13 @@ export class KommonitorDataSetupComponent implements OnInit {
     return `${datePickerDate.day}. ${this.months[datePickerDate.month-1]} ${datePickerDate.year}`;
   }
 
-  changeIndicatorDate([datePickerDate]){	
+  changeIndicatorDate(){	
 
     if(this.dataExchangeService.selectedIndicator && this.dataExchangeService.selectedDate){
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
       console.log("Change selected date");
-
-      // hier problem, wählt nicht das korrekte datum aus
-     /*  this.dateSlider.noUiSlider.updateOptions({
-        start: [ this.datePickerToDateSlider(datePickerDate) ],
-      }); */
 
       this.date = this.dataExchangeService.selectedDate;
       this.selectedDate = this.dataExchangeService.selectedDate;
@@ -910,6 +908,8 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.changeIndicatorWasClicked = true;
      
       this.dataExchangeService.selectedIndicatorBackup = this.dataExchangeService.selectedIndicator;
+
+      this.dataExchangeService.setSelectedDate(this.dataExchangeService.selectedIndicator.applicableDates.at(-1));
 
       this.setupDateSliderForIndicator();
       this.setupDatePickerForIndicator();
