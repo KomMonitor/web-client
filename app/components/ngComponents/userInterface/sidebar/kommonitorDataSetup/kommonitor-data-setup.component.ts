@@ -922,7 +922,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         this.getIndicatorFeatures();
         //this.tryUpdateMeasureOfValueBarForIndicator();
         
-        this.broadcastService.broadcast('updateMeasureOfValueBar', [this.date, this.dataExchangeService.selectedIndicator]);
+        //this.broadcastService.broadcast('updateMeasureOfValueBar', [this.date, this.dataExchangeService.selectedIndicator]);
       }
       catch(error){
         console.error(error);

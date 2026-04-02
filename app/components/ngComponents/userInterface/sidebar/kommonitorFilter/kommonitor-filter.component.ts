@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -12,6 +12,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -26,7 +27,9 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
     DualListBoxComponent,
     ExpandableBoxComponent]
 })
-export class KommonitorFilterComponent implements OnInit, AfterViewInit{
+export class KommonitorFilterComponent implements OnInit, AfterViewInit {
+  
+  private readonly destroyRef = inject(DestroyRef);
 
   spatialLevel;
 
@@ -43,7 +46,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
   private kommonitorFilterModes = this.envConfigService.filterModes;
 
   considerAllowedSpatialUnitsOfCurrentIndicator = true;
-  loadingData = true;
+  loadingData = false;
 
   rangeSliderForFilter;
   valueRangeMinValue;
@@ -146,6 +149,14 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
 
   ngOnInit(): void {
+
+    this.mapService.mapRefreshState$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if(this.mapService.readyForRefresh())
+          this.updateMeasureOfValueBar([value.values.date, value.values.indicator]);
+      });
+
       this.broadcastService.currentBroadcastMsg.subscribe(result => {
         let msg = result.msg;
         let val:any = result.values;
@@ -540,13 +551,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit{
 
   };
 
-  // todo
-/* 	this.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
-
-      this.updateMeasureOfValueBar(date, indicatorMetadataAndGeoJSON);
-
-  }); */
-
+  // hier
   updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]){
 
     //append date prefix to access correct property!

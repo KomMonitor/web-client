@@ -16,7 +16,9 @@ export class StartupService {
     console.log("start loading required config files");
     await this.loadAllConfigs();
     await this.authService.initKeycloak();
-    this.keycloakHelperService.init();
+
+    if(this.authService.isAuthenticated())
+      this.keycloakHelperService.init();
   }
 
   private async loadAllConfigs(): Promise<void> {

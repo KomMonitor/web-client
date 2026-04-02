@@ -38,7 +38,7 @@
 
 </header>
 <div id="userInterface-content">
-  <app-sidebar [element]="sidebarElement"></app-sidebar>
+  <app-sidebar [element]="sidebarElement" (sidebarClosed)="onSidebarClose($event)"></app-sidebar>
   <div id="mapWrapper">
     <div id="sideBarButtons">
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"

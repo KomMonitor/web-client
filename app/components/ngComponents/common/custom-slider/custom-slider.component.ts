@@ -56,17 +56,17 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
 
     if(changes['disabled']) {
       if(changes['disabled'].currentValue===true) 
-        this.sliderInstance.disable();
+        this.sliderInstance?.disable();
       else
-        this.sliderInstance.enable();
+        this.sliderInstance?.enable();
     } else 
-      this.sliderInstance.enable();
+      this.sliderInstance?.enable();
 
     if(changes['markerPositions']) {
   
       if(!this.manualChange) {
         this.markerPositions = changes['markerPositions'].currentValue;
-        this.sliderInstance.set(this.defineMarkerPositions())
+        this.sliderInstance?.set(this.defineMarkerPositions())
       } else
         this.manualChange = false;
     }
