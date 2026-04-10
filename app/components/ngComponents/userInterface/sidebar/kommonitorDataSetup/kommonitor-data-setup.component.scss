@@ -71,6 +71,22 @@
   background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-3) 12px) !important;
 }
 
+.style-fav-normal-indicator-0,
+.style-fav-normal-indicator-1,
+.style-fav-normal-indicator-2,
+.style-fav-normal-indicator-3,
+.style-fav-selected-indicator-0,
+.style-fav-selected-indicator-1,
+.style-fav-selected-indicator-2,
+.style-fav-selected-indicator-3 {
+
+  p {
+    i {
+      margin-right: .8em;
+    }
+  }
+} 
+
 .list-group-item p {
   margin: .5em 0;
 }

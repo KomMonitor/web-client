@@ -32,6 +32,9 @@ export class KommonitorDiagramsComponent implements OnInit {
   title!: string;
   lineTitle!: string;
 
+  showBarChartLabel:boolean = false;
+  showBarChartAverageLine: boolean = false;
+
   constructor(
     protected dataExchangeService: DataExchangeService,
     protected labelService: LabelService,
@@ -39,7 +42,10 @@ export class KommonitorDiagramsComponent implements OnInit {
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     protected envConfigService: EnvConfigService
-  ) { }
+  ) { 
+    this.showBarChartLabel = envConfigService.showBarChartLabel;
+    this.showBarChartAverageLine = envConfigService.showBarChartAverageLine;
+  }
 
   ngOnInit(): void {
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
@@ -48,9 +54,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
       switch (title) {
         case 'updateDiagrams': {
-          setTimeout(() => {
-            this.updateDiagrams(values);
-          },1000);
+          this.updateDiagrams(values);
         } break;
         case 'updateDiagramsForHoveredFeature': {
           this.updateDiagramsForHoveredFeature(values);
@@ -137,25 +141,6 @@ export class KommonitorDiagramsComponent implements OnInit {
 
     if (this.lineChart)
       this.lineChart.showLoading();
-  };
-
-  onChangeShowBarChartLabel(){
-    if (this.envConfigService.showBarChartLabel){
-      this.updateBarChart(true, this.envConfigService.showBarChartAverageLine);
-    }
-    else{
-      this.updateBarChart(false, this.envConfigService.showBarChartAverageLine);
-    }						
-  }
-
-  onChangeShowBarChartAverageLine(){
-
-    if (this.envConfigService.showBarChartAverageLine){
-      this.updateBarChart(this.envConfigService.showBarChartLabel, true);
-    }
-    else{
-      this.updateBarChart(this.envConfigService.showBarChartLabel, false);
-    }		
   }
 
   updateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
@@ -179,7 +164,7 @@ export class KommonitorDiagramsComponent implements OnInit {
     setTimeout(() => {
       this.updateLineChart();
 
-      this.updateBarChart(this.envConfigService.showBarChartLabel, this.envConfigService.showBarChartAverageLine);
+      this.updateBarChart();
       this.loadingData = false;
     },500);
   }
@@ -209,7 +194,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   // BAR CHART FUNCTION
 
-  updateBarChart(showBarChartLabel, showBarChartAverageLine) {
+  updateBarChart() {
     // based on prepared DOM, initialize echarts instance
     this.eventsRegistered = false;
 
@@ -224,13 +209,13 @@ export class KommonitorDiagramsComponent implements OnInit {
     // use configuration item and data specified to show chart
     // this.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
     this.barOption = this.diagramHelperService.getBarChartOptions(true);
-    if (showBarChartLabel){
+    if (this.showBarChartLabel){
       this.barOption.label.show = true;
     }
     else{
       this.barOption.label.show = false;
     }
-    if (showBarChartAverageLine){
+    if (this.showBarChartAverageLine) {
       // do nothing as we simply overtake the action
       if(this.barOption.series[0].markLine_backup){
         this.barOption.series[0].markLine = this.barOption.series[0].markLine_backup;
@@ -339,6 +324,9 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   updateDiagramsForHoveredFeature([featureProperties]) {
 
+    if(!this.lineOption)
+      return;
+
     if (!this.lineOption.legend.data.includes(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME])) {
       this.appendSeriesToLineChart(featureProperties);
     }
@@ -436,6 +424,9 @@ export class KommonitorDiagramsComponent implements OnInit {
   };
 
   updateDiagramsForUnhoveredFeature([featureProperties]) {
+
+    if(!this.lineChart)
+      return;
 
     if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       this.unhighlightFeatureInLineChart(featureProperties);

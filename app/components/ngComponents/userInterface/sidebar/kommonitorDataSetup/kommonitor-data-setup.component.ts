@@ -281,8 +281,6 @@ export class KommonitorDataSetupComponent implements OnInit {
       return aKey.localeCompare(bKey);
     });
 
-    console.log(mergedAndSorted)
-
     return mergedAndSorted;
   }
 

@@ -5,4 +5,9 @@
     text-align: left;
     gap: .5em;
   }
+
+  .hiddenTable {
+    display: block;
+    overflow: auto;
+  }
 }

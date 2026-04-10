@@ -1729,7 +1729,6 @@ export class DiagramHelperServiceService {
       }          
 
       // hide data points
-      console.log(timeseriesOptions);
       timeseriesOptions.series[0].itemStyle = {opacity: 0, width: 3, type: "solid"};  
       
       var trendData:any = [];

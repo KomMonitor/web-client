@@ -16,7 +16,7 @@
     </div>
 
     <div class="buttonWrapper">
-      <div id="switchAdvancedMode" class="switch" *ngIf="envConfigService.showAdvancedModeSwitch" style="width:200px">
+      <div id="switchAdvancedMode" class="switch" *ngIf="envConfigService.showAdvancedModeSwitch" style="width:250px">
         <strong>Erweiterte Ansicht</strong>
         <label class="switch">
           <input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty"
@@ -51,7 +51,7 @@
           <i class="fas fa-map-marker-alt"></i>
       </button>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse" *ngIf="userLoggedIn"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
           <i class="fas fa-file-import"></i>
       </button> 
@@ -91,7 +91,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper">
+          <div class="subMenuButtonWrapper" *ngIf="userLoggedIn">
             <button type="button" style="display: block; position: relative" id="sidebarRadarDiagramCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Indikatorenradar">
                 <img src="icons/radarMap.svg">
@@ -102,7 +102,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper">
+          <div class="subMenuButtonWrapper" *ngIf="userLoggedIn">
             <button type="button" style="display: block; position: relative" id="sidebarRegressionDiagramCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Regressionsdiagramm">
                 <img src="icons/scatterPlot.svg">
@@ -115,7 +115,7 @@
         </div>
       </div>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse" *ngIf="userLoggedIn"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
         <i class="fas fa-route"></i>
       </button>

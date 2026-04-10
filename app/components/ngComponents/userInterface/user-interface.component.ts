@@ -56,6 +56,8 @@ export class UserInterfaceComponent implements OnInit {
   password;
   showAdminLogin = false;
 
+  userLoggedIn: boolean = false;
+
   sidebarElement = "";
 
   constructor(
@@ -104,8 +106,10 @@ export class UserInterfaceComponent implements OnInit {
 
     this.globalFilterHelperService.init();
 
-    if(this.authService.isAuthenticated())
+    if(this.authService.isAuthenticated()) {
       this.favService.init();
+      this.userLoggedIn = true;
+    } 
 
     if(this.globalFilterHelperService.applicationFilter) {
       this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
