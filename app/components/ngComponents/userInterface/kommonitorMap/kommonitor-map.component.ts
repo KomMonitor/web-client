@@ -311,7 +311,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
         } break;
         case 'restyleCurrentLayer' : {
-          setTimeout(() => this.restyleCurrentLayer(values),3000);
+          this.restyleCurrentLayer(values);
         } break;
         case 'preserveHighlightedFeatures' : {
           this.preserveHighlightedFeatures();

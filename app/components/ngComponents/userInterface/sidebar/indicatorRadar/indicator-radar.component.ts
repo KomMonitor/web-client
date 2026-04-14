@@ -98,6 +98,9 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
         case 'updateDiagramsForUnhoveredFeature': {
           this.onUpdateDiagramsForUnhoveredFeature(val);
         } break;
+        case 'unselectAllFeatures': {
+
+        } break;
       }
     });
   }
@@ -597,35 +600,35 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   }
 
   highlightFeatureInRadarChart(featureProperties) {
-      // highlight the corresponding bar diagram item
-      // get series index of series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
-      if (dataIndex > -1) {
-          this.radarChart.dispatchAction({
-              type: 'highlight',
-              seriesIndex: 0,
-              dataIndex: dataIndex
-          });
-      }
+    // highlight the corresponding bar diagram item
+    // get series index of series
+    var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    if (dataIndex > -1) {
+        this.radarChart.dispatchAction({
+            type: 'highlight',
+            seriesIndex: 0,
+            dataIndex: dataIndex
+        });
+    }
   }
 
   onUpdateDiagramsForUnhoveredFeature([featureProperties]) {
-      if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
-          return;
-      }
-      this.unhighlightFeatureInRadarChart(featureProperties);
-      if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
-          this.removeSeriesFromRadarChart(featureProperties);
-      }
+    if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
+        return;
+    }
+    this.unhighlightFeatureInRadarChart(featureProperties);
+    if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
+        this.removeSeriesFromRadarChart(featureProperties);
+    }
   }
 
   getSeriesDataIndexByFeatureName(featureName) {
-      for (var index = 0; index < this.radarOption.series[0].data.length; index++) {
-          if (this.radarOption.series[0].data[index].name == featureName)
-              return index;
-      }
-      //return -1 if none was found
-      return -1;
+    for (var index = 0; index < this.radarOption.series[0].data.length; index++) {
+        if (this.radarOption.series[0].data[index].name == featureName)
+            return index;
+    }
+    //return -1 if none was found
+    return -1;
   }
 
   removeSeriesFromRadarChart(featureProperties) {
