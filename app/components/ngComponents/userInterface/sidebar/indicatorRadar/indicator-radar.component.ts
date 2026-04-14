@@ -40,6 +40,11 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   chartTitle!: string;
 
+  indicatorNames_shortVersion = false;
+  printLayout = false;
+  radarHeight = '60vh';
+  radarheight_defaultNum = 60;
+
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
     protected dataExchangeService: DataExchangeService,
@@ -237,8 +242,13 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               // IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
               // HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
               // if(valueSum != null){
+
+              var name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
+              if(this.indicatorNames_shortVersion && (indicatorsForRadar[i].indicatorMetadata.abbreviation!='' && indicatorsForRadar[i].indicatorMetadata.abbreviation!=null && indicatorsForRadar[i].indicatorMetadata.abbreviation!=undefined))
+                name = indicatorsForRadar[i].indicatorMetadata.abbreviation
+
               indicatorArrayForRadarChart.push({
-                  name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
+                  name: name + " - " + indicatorsForRadar[i].selectedDate,
                   unit: indicatorsForRadar[i].indicatorMetadata.unit,
 									precision: indicatorsForRadar[i].indicatorMetadata.precision,
                   max: maxValue,
@@ -276,7 +286,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   left: '4%',
                   top: 0,
                   right: '4%',
-                  bottom: 30,
+                  bottom: 50,
                   containLabel: true
               },
               title: {
@@ -350,14 +360,9 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                       saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
                   }
               },
-              legend: {
-                  type: "scroll",
-                  bottom: 0,
-                  align: 'left',
-                  left: 5,
-                  data: ['Arithmetisches Mittel']
-              },
               radar: {
+                radius: '55%',
+                center: ['50%', '45%'],
                   // shape: 'circle',
                   // name: {
                   //     textStyle: {
@@ -367,16 +372,16 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   //         padding: [3, 5]
                   //    }
                   // },
-                  name: {
-                      formatter: (value, indicator) => {
-                          return this.dataExchangeService.formatIndicatorNameForLabel(value, 15);
-                      },
-                      textStyle: {
-                          color: '#525252'
-                      },
-                      fontSize: 11
-                  },
-                  indicator: indicatorArrayForRadarChart
+                name: {
+                    formatter: (value, indicator) => {
+                        return this.dataExchangeService.formatIndicatorNameForLabel(value, 15);
+                    },
+                    textStyle: {
+                        color: '#525252'
+                    },
+                    fontSize: 11
+                },
+                indicator: indicatorArrayForRadarChart
               },
               series: [{
                       name: 'Indikatorvergleich',
@@ -407,6 +412,26 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                       ]
                   }]
           };
+
+          // set legend either in scroll or plain mode for print layout (scroll is not beeing displayed in print version)
+          if(this.printLayout)
+            this.radarOption.legend = {
+              orient: 'horizontal',
+              type: 'plain',
+              bottom: 0,
+              width: '80%',
+              align: 'left',
+              left: 5,
+              data: ['Arithmetisches Mittel']
+            }
+          else
+            this.radarOption.legend = {
+              type: "scroll",
+              bottom: 0,
+              align: 'left',
+              left: 5,
+              data: ['Arithmetisches Mittel']
+            }
 
           // check if any feature is still clicked/selected
           // then append those as series within radar chart
@@ -478,9 +503,55 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       this.highlightFeatureInRadarChart(featureProperties);
   }
 
+  onChangeIndicatorNames() {
+            
+    // indicator names changes to abbreviation
+    this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+  }
+
+  onChangePrintLayout() {
+
+    // layout change to legend in plain iso scroll mode
+    this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+
+    this.checkResizeRadarChart();
+
+    setTimeout(() => {
+      this.radarChart.resize();
+    }, 350);
+  }
+
+  checkResizeRadarChart() {
+
+    // only adjust if printLayout (e.g. legend fully visible)
+    if(this.printLayout) {
+
+      var strLengthTotal = this.radarOption.legend.data.reduce(function (sum, str) {
+                                                                    return sum + str.length;
+                                                                  }, 0);
+
+                                              // 6 pixel for each letter                      35 for each coloured rect
+      var legendLengthTotal = (strLengthTotal * 6) + (this.radarOption.legend.data.length * 40);
+      let elem = document.getElementById('radarDiagram');
+
+      if(elem) {
+        var boxWidthTotal = elem.clientWidth;
+        var numLines = Math.ceil( legendLengthTotal / boxWidthTotal );
+
+                                          // 5 vh for each line, rough estimate
+        this.radarHeight = (55 + (numLines * 8)) + 'vh';
+      }
+    } else
+      this.radarHeight = this.radarheight_defaultNum + 'vh';
+  }
+
   appendSeriesToRadarChart(featureProperties) {
       // append feature name to legend
       this.radarOption.legend.data.push(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+      
+      // check resize radar div based on legend entries (for printLayout)
+      this.checkResizeRadarChart();
+
       // create feature data series
       var featureSeries:any = {};
       featureSeries.name = featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
@@ -565,6 +636,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
             targetIndices.push(index);
         }
       });
+
+      // check resize radar div based on legend entries (for printLayout)
+      this.checkResizeRadarChart();
+      
       targetIndices.forEach(legendIndex => {
         if (legendIndex > -1) {
             this.radarOption.legend.data.splice(legendIndex, 1);
