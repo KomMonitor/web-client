@@ -164,13 +164,19 @@ angular
           
         for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {  
                               
+          let featureIsInHigherSpatialUnit = false;
           for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
-            if(! turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
-              this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
-              this.filteredIndicatorFeatureIds_spatialFilter.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+            if(turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
+              featureIsInHigherSpatialUnit = true;
               break;
             }
-          }          
+          }
+          
+          // if feature is not in any of the selected higher spatial unit features, it should be filtered out
+          if(!featureIsInHigherSpatialUnit){
+            this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+            this.filteredIndicatorFeatureIds_spatialFilter.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+          }
         }
 
         // apply filter
