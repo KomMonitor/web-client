@@ -1,4 +1,4 @@
-angular.module('kommonitorVisualStyleHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorVisualStyleHelper', ['kommonitorDataExchange', 'kommonitorToastHelper']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -13,8 +13,9 @@ angular
   .module('kommonitorVisualStyleHelper', [])
   .service(
     'kommonitorVisualStyleHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+      'kommonitorToastHelperService',
     function ($rootScope, $timeout,
-      kommonitorDataExchangeService, $http, __env) {
+      kommonitorDataExchangeService, $http, __env, kommonitorToastHelperService) {
 
       const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -22,6 +23,8 @@ angular
       this.measureOfValueBrew = undefined;
       this.dynamicBrew = undefined;
       this.manualBrew = undefined;
+
+      this.classificationImpossible = false;
 
       //allowesValues: equal_interval, quantile, jenks
       this.classifyMethods = [{
@@ -128,12 +131,21 @@ angular
       };
 
       this.filteredStyle = {
-        weight: 1,
+        weight: 2,
         opacity: 1,
         color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForFilteredValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForFilteredFeatures,
         fillColor: defaultColorForFilteredValues
+      };
+
+      this.filteredStyle_spatialFilter = {
+        weight: 2,
+        opacity: 1,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : __env.defaultBorderColorForSpatiallyFilteredValues,
+        dashArray: '',
+        fillOpacity: defaultFillOpacityForFilteredFeatures,
+        fillColor: __env.defaultColorForSpatiallyFilteredValues
       };
 
       this.featuresPerColorMap = new Map();
@@ -214,9 +226,10 @@ angular
             continue;
           }
 
-          if(! values.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-            values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          }
+          // if(! values.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+          //   values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          // }
+          values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
         }
 
         return values;
@@ -289,6 +302,10 @@ angular
         --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
         --> treat all other cases equally to measureOfValue
         */
+
+        if (numClasses < 6){
+          numClasses = 6;
+        }
 
        let manualMOVBreaks = manualBreaks ? [
         [kommonitorDataExchangeService.measureOfValue, ...manualBreaks.filter(val => val > kommonitorDataExchangeService.measureOfValue)],
@@ -367,14 +384,16 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue)){
-            if(! this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
           else{
-            if(! this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
         }
       };
@@ -396,8 +415,52 @@ angular
         var tempBrew = self.createNewClassyBrewInstance();
         var colorBrewerInstance = self.createNewClassyBrewInstance();
 
-        if (valuesArray.length >= 5) {
+        /*
+          2025-09-30
+          the valuesArray may have severeal duplicate indicatorValues. a classification algorithm should take this into account when computing class breaks
+
+          however, a classification is only valid and may produce reasonable class breaks, if the number of unique indicator values is higher than the number of classes
+          hence we should compute the number of unique indicator values and compare that to the number of classes (+ adjust number of classes if necessary) 
+
+          we must include a check for jenks and quantile method in cases where at least 5 different unique indicator values are provided:
+          check if the number of actual indicator values is smaller than specififed number of classes
+          otherwise the jenks algorithm of classybrew.js might fail with an error or quantile algorithm may produce nonsense-breaks
+          
+          solution: if jenks/quantile is selected then check maxNumberOfClasses and valuesArray.length
+          adjust maxNumberOfClasses and kommonitorVisualStyleHelperService.numClasses if necessary
+          inform users with a toast message
+        */
+       let uniqueValuesArray = [...new Set(valuesArray)];
+
+       if(!kommonitorDataExchangeService.isBalanceChecked && !kommonitorDataExchangeService.isMeasureOfValueChecked){
+          if((uniqueValuesArray.length >= 5) && (classifyMethod == "jenks" || classifyMethod == "quantile")){
+            if (uniqueValuesArray.length <= maxNumberOfClasses){
+              maxNumberOfClasses = uniqueValuesArray.length - 1;
+              self.numClasses = uniqueValuesArray.length - 1;
+              kommonitorToastHelperService.displayInfoToast_upperRight("Klassifikation Anzahl_Klassen angepasst", "Jenks/Quantile Methode nur sinnvoll berechenbar, wenn Anzahl_eindeutiger_Werte > Anzahl_Klassen");
+
+              $timeout(function(){
+                $rootScope.$apply();
+              }, 750)
+            }
+          }
+       }
+       
+       let containsNegativeValues = false;
+       for (const value of uniqueValuesArray) {
+        if (value < 0){
+          containsNegativeValues = true;
+        }
+       }
+
+       self.classificationImpossible = false;
+       if(uniqueValuesArray.length < 5 && !(kommonitorDataExchangeService.isBalanceChecked || kommonitorDataExchangeService.isMeasureOfValueChecked || containsNegativeValues || kommonitorDataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')) ){
+          self.classificationImpossible = true;
+       }
+
+        if (uniqueValuesArray.length >= 5) {
           // pass array to our classyBrew series
+          // use all indicator values, even duplicates as they might have an impact on classification breaks!
           tempBrew.setSeries(valuesArray);
           // define number of classes
           tempBrew.setNumClasses(maxNumberOfClasses);
@@ -421,32 +484,32 @@ angular
           }
         }
 
-        else if (valuesArray.length === 4) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 4) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['4'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
         }
 
-        else if (valuesArray.length === 3) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 3) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
         }
-        else if (valuesArray.length === 2) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 2) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
 
           colorBrewerInstance.colors.shift(); // remove first element of array
         }
-        else if (valuesArray.length === 1) {
-          valuesArray.sort((a, b) => a - b);
+        else if (uniqueValuesArray.length === 1) {
+          uniqueValuesArray.sort((a, b) => a - b);
 
           colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
-          colorBrewerInstance.breaks = valuesArray;
+          colorBrewerInstance.breaks = uniqueValuesArray;
 
           colorBrewerInstance.colors.shift(); // remove first element of array
           colorBrewerInstance.colors.shift(); // remove first element of array
@@ -505,6 +568,10 @@ angular
         --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
         --> treat all other cases equally to measureOfValue
         */
+
+        if (numClasses < 6){
+          numClasses = 6;
+        }
 
         let manualDynamicBreaks = manualBreaks ? [
           [...manualBreaks.filter(val => val >= 0)],
@@ -580,14 +647,16 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= 0){
-            if(! this.positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0){
-            if(! this.negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            }
+            // if(! this.negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            //   this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            // }
+            this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
           }
         }
       };

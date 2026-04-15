@@ -4,11 +4,14 @@ angular
 				'kommonitorAdmin',
 				{
 					templateUrl : "components/kommonitorAdmin/kommonitor-admin.template.html",
-					controller : ['kommonitorDataExchangeService', 'kommonitorGlobalFilterHelperService', '$location', "$rootScope", '$scope', function kommonitorAdminController(
-							kommonitorDataExchangeService, kommonitorGlobalFilterHelperService, $location, $rootScope, $scope) {
+					controller : ['kommonitorDataExchangeService', 'kommonitorGlobalFilterHelperService', 'kommonitorScriptHelperService', 
+						'$location', "$rootScope", '$scope', function kommonitorAdminController(
+							kommonitorDataExchangeService, kommonitorGlobalFilterHelperService, kommonitorScriptHelperService, 
+							$location, $rootScope, $scope) {
 
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorGlobalFilterHelperServiceInstance = kommonitorGlobalFilterHelperService;
+								this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
 
 								this.selectedResourceType = 'spatialUnits';
 

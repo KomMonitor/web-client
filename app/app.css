@@ -171,6 +171,10 @@ MULTI STEP FORM
 	overflow-y: auto;
 }
 
+.noHover{
+    pointer-events: none;
+}
+
 /*headings*/
 .fs-title {
     font-size: 18px;
@@ -3480,6 +3484,45 @@ input:checked + .switchslider:before {
 	vertical-align: middle;
 }
 
+.cronInputModeOptions div input[type="radio"]:checked{
+	background-color: #4CAF50;
+}
+
+.intervalDetailsContent {
+	display: flex;
+	justify-content: space-between;
+}
+
+.mode-option label {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: baseline;
+	gap: 15px;
+}
+
+.jobSummary {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.text-danger {
+	color: #dd4b39;
+}
+
+.text-success {
+	color: #00a65a;
+}
+
+.text-info {
+	color: #00c0ef;
+}
+
+.text-warning {
+	color:#f39c12;
+}
+
 .classificationBoxToogleSlidersWrapper {
 	display: table;
 }
@@ -3604,4 +3647,11 @@ kommonitor-user-interface .irs {
   display: none;
   font-family: var(--custom-font-family);
   content: var(--custom-font-file);
+}
+
+/* on firefox the height of the processes job stable must be set manually; otherwise the grid rows are missing */
+#jobExecutionTable_processJobs .ag-root-wrapper-body.ag-layout-normal {
+  flex: 1 1 auto;
+  height: 65vh !important;
+  min-height: 65vh !important;
 }

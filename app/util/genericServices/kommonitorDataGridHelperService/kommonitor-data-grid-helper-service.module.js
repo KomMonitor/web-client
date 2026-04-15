@@ -1,12 +1,14 @@
-angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange', 'kommonitorKeycloakHelper']);
+angular.module('kommonitorDataGridHelper', ['kommonitorDataExchange',  
+  'kommonitorScriptHelper', 'kommonitorToastHelper']);
 
 angular
   .module('kommonitorDataGridHelper', [])
   .service(
-    'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', '$rootScope', '$timeout', '$http', 
-    '$httpParamSerializerJQLike', '__env', 'kommonitorKeycloakHelperService', 
-    function (kommonitorDataExchangeService, $rootScope, $timeout,
-      $http, $httpParamSerializerJQLike, __env, kommonitorKeycloakHelperService) {
+    'kommonitorDataGridHelperService', ['kommonitorDataExchangeService', 'kommonitorScriptHelperService',
+      '$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env', 'kommonitorToastHelperService',      
+    function (kommonitorDataExchangeService, kommonitorScriptHelperService, $rootScope, $timeout,
+      $http, $httpParamSerializerJQLike, __env, kommonitorToastHelperService, 
+      ) {
 
       var self = this;
       this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -2405,22 +2407,245 @@ angular
 
       // SCRIPT OVERVIEW TABLE
 
-      this.buildDataGridColumnConfig_scripts = function(){
-        const columnDefs = [
-          { headerName: 'Id', field: "scriptId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true },
-          { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
-          { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125 },
-          { headerName: 'Ziel-Indikatoren-Name', minWidth: 200, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.indicatorId);
+      this.buildDataGridColumnConfig_scripts = function(showScriptIds, showProcessDescription){
+
+        let columnDefs = [];
+
+        columnDefs = columnDefs.concat([
+          
+          { headerName: 'Ziel-Indikatoren-Name', pinned: 'left', minWidth: 250, checkboxSelection: true, headerCheckboxSelection: true, 
+              headerCheckboxSelectionFilteredOnly: true, cellRenderer: function (params) {
+
+                let propertyNameForNewJobIdCheck = kommonitorScriptHelperService.PROPETRY_NAME_PREFIX_FOUND_NEW_JOB_ID + params.data.scheduleID;
+                let isWaitingForTriggeredJobToBeAvailable = kommonitorScriptHelperService[propertyNameForNewJobIdCheck] != undefined ? ! kommonitorScriptHelperService[propertyNameForNewJobIdCheck] : false; 
+
+                let html = "";
+
+                html += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
+
+                html += "<br> <br>"
+                  + "<button class='btn-sm executeScriptBtn' id='btnExecuteScript_" + params.data.scheduleID +"'";
+                  if(isWaitingForTriggeredJobToBeAvailable){
+                    html += " disabled";
+                  }
+                  
+                  html += "><i class='fa-solid fa-play'></i> Berechnung starten <span id='btnExecuteScript_" + params.data.scheduleID +"_span' style='"; 
+  
+                  if(! isWaitingForTriggeredJobToBeAvailable){
+                    html += "display:none;";
+                  }
+                  else{
+                    html += "display:inline-block;";
+                  }
+                  html += "' class='glyphicon glyphicon-refresh icon-spin'"
+                  html += "</button>";
+              return html;
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.indicatorId);
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.target_indicator_id);
             } 
-          },       
-          { headerName: 'Beschreibung', field: "description", minWidth: 300 },
-          { headerName: 'notwendige Basis-Indikatoren', minWidth: 300, cellRenderer: function (params) {
+          }
+        ]);
+
+        if(showScriptIds){
+          columnDefs = columnDefs.concat(
+            [
+              { headerName: 'Skript-Id', field: "scheduleID", pinned: 'left', maxWidth: 125, },
+              // { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
+              { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125, cellRenderer: function (params) {
+                  return params.data.inputs.target_indicator_id;
+                } 
+              }
+            ]);
+        }
+
+        columnDefs = columnDefs.concat([          
+          { headerName: 'Berechnungsart', maxWidth: 175, cellRenderer: function (params) {
+
+            for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                  if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                    return scriptType.title;
+                  }
+                }              
+              }
+            
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                  if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                    return scriptType.title;
+                  }
+                }              
+              }
+            } 
+          },
+        ]);
+
+        if(showProcessDescription){
+          columnDefs = columnDefs.concat(
+            [
+              { headerName: 'Methodik', minWidth: 300, cellRenderer: function (params) {
+
+                  return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                
+                },
+                filter: 'agTextColumnFilter', 
+                filterValueGetter: (params) => {
+                  return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.inputs.target_indicator_id).processDescription;
+                } 
+              },
+            ]);
+        }
+        columnDefs = columnDefs.concat([
+          { headerName: 'Letzte Job-Ausführung', maxWidth: 175, cellRenderer: function (params) {
+              let latestJobIndex = 0;
+              if (params.data.jobIDs && params.data.jobIDs[0] && params.data.jobIDs[0].length < 34){ // don't use first job if it has a short id
+                latestJobIndex = 1;
+              }
+
+              if (!params.data.jobIDs || !params.data.jobIDs[latestJobIndex]) {
+                return "<div id='latestJobSummary"+params.data.scheduleID+"' class='jobSummary'>Keine Jobs vorhanden</div>";
+              }
+
+              $http({
+                url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex],
+                method: "GET"
+              }).then(function successCallback(response) {
+                let jobDateTime = "";
+                if (response.data.job_end_datetime) {
+                  jobDateTime = "<i class='fa-regular fa-calendar'></i> " + (new Date(response.data.job_end_datetime)).toLocaleString("de-DE");
+                }
+                let jobStatus;
+                switch(response.data.status){
+                  case "successful": jobStatus = "<i class='text-success fa-solid fa-circle-check'></i> abgeschlossen<br>"; break;
+                  case "failed": jobStatus = "<i class='text-danger fa-solid fa-circle-xmark'></i> gescheitert<br>"; break;
+                  case "running": jobStatus = "<i class='text-info fa-solid fa-spinner'></i> laufend<br>"; break;
+                  case "accepted": jobStatus = "<i class='text-warning fa-solid fa-hourglass-start'></i> wartend<br>"; break;
+                  default: "Status unbekannt";
+                }
+
+                let innerHTMLContent = "<div>" + jobDateTime 
+                  + "<br>"
+                  + jobStatus 
+                  + "</div><button class='btn-sm jobTableButtonForSchedule' id='jobTableButtonForSchedule_" + params.data.scheduleID + "' style='cursor: pointer' data-toggle='modal' data-target='#modal-job-table' title='zur Berechnungs-Job-Übersicht'><i class='fas fa-table'></i></button>"
+                  
+
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = innerHTMLContent;
+                  
+
+                $http({
+                  url: __env.targetUrlToProcessesApi + "jobs/" + params.data.jobIDs[latestJobIndex] + "/results",
+                  method: "GET"
+                }).then(function successCallback(response) {
+                  for (let i = 0; i<params.data.inputs.target_spatial_units.length; i++) {
+                    let html = "";
+                    const spatialUnitId = params.data.inputs.target_spatial_units[i];
+                    html += "<div><b>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + ":</b></div>";
+                    if (response.data && response.data.jobSummary && response.data.jobSummary[i] && response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures) {
+                       html += response.data.jobSummary[i].numberOfIntegratedIndicatorFeatures + " Features integriert</br>";
+                    }
+                    else {
+                      html += "keine Features integriert</br>";
+                    }
+                    document.getElementById("latestJobResult"+params.data.scheduleID).innerHTML += html;
+                  }
+                });
+              }, function errorCallback(error) {
+                document.getElementById("latestJobSummary"+params.data.scheduleID).innerHTML = "Fehler beim Laden des letzten Jobs";
+                console.error("Error while fetching job result.");
+                throw error;
+              });
+
+              return "<div id='latestJobSummary"+params.data.scheduleID+"' class='jobSummary'>Job wird geladen...</div><div id='latestJobResult"+params.data.scheduleID+"'></div>";
+            }
+          },          
+          { headerName: 'Ausführungsintervall', maxWidth: 175, cellRenderer: function (params) {
+               let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+              
+              html += "<br><br>Nächste geplante Ausführung:<br>";
+              later.date.localTime();
+              var cronSched = later.parse.cron(params.data.scheduleCron);
+              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              let html = cronstrue.toString(params.data.scheduleCron, {locale: "de"});
+              
+              html += "<br><br>Nächste geplante Ausführung:<br>";
+              later.date.localTime();
+              var cronSched = later.parse.cron(params.data.scheduleCron);
+              html += "" + "<i class='fa-regular fa-calendar'></i> " + (new Date(later.schedule(cronSched).next(1))).toLocaleString("de-DE");
+              return html;
+            }
+          },
+          { headerName: 'Zielzeitpunkte', maxWidth: 150, cellRenderer: function (params) {
+              let html = "";
+              if (params.data.inputs.target_time.value.mode == "ALL") {
+                html += "Alle Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "MISSING") {
+                html += "Nur fehlende Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "DATES") {
+                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
+              }
+              
+              if (params.data.inputs.target_time.value.excludeDates.length) {
+                html += "<br>Nicht berechnen:<br>";
+                html += params.data.inputs.target_time.value.excludeDates;
+              }
+              
+              if(params.data.inputs.target_time.value.includeDates.length) {
+                html += "<br>";
+                if (params.data.inputs.target_time.value.mode == "DATES") {
+                  html += "Berechnen:<br>";
+                }
+                else {
+                  html += "Zusätzlich berechnen:<br>";
+                }
+                html += params.data.inputs.target_time.value.includeDates;
+              }
+            
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              let html = "";
+              if (params.data.inputs.target_time.value.mode == "ALL") {
+                html += "Alle Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "MISSING") {
+                html += "Nur fehlende Zeitpunkte berechnen<br>";
+              }
+              else if (params.data.inputs.target_time.value.mode == "DATES") {
+                html += "Nur ausgewählte Zeitpunkte berechnen<br>";
+              }
+              
+              if (params.data.inputs.target_time.value.excludeDates.length) {
+                html += "<br>Nicht berechnen:<br>";
+                html += params.data.inputs.target_time.value.excludeDates;
+              }
+              
+              if(params.data.inputs.target_time.value.includeDates.length) {
+                html += "<br>";
+                if (params.data.inputs.target_time.value.mode == "DATES") {
+                  html += "Berechnen:<br>";
+                }
+                else {
+                  html += "Zusätzlich berechnen:<br>";
+                }
+                html += params.data.inputs.target_time.value.includeDates;
+              }
+            
+              return html;
+            }
+          },
+          { headerName: 'Ziel Raumebenen', maxWidth: 150, cellRenderer: function (params) {
             
               /*
                 <table class="table table-condensed">
@@ -2431,22 +2656,127 @@ angular
                         </tr>
                       </thead>
                       <tbody>
-                        <tr ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
+                        <tr ng-repeat="spatialUnitId in scriptDataset.target_spatial_units">
+                        <td>{{::spatialUnitId}}</td>
+                        <td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(spatialUnitId)}}</td>
+                        </tr>
+                      </tbody>
+                    </table> 
+              */
+             if(showScriptIds){
+                if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
+                  let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+
+                  for (const spatialUnitId of params.data.inputs.target_spatial_units) {
+                    html += "<tr>";
+                    html += "<td>" + spatialUnitId + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + "</td>";
+                    html += "</tr>";
+                  }
+                  
+                  html += "</tbody></table>";
+                  return html;  
+                }
+                else{
+                  return "keine";
+                }
+             }
+             else{
+              // without IDs
+              if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
+                  let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                  for (const spatialUnitId of params.data.inputs.target_spatial_units) {
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel + "</td>";
+                    html += "</tr>";
+                  }
+                  
+                  html += "</tbody></table>";
+                  return html;  
+                }
+                else{
+                  return "keine";
+                }
+             }
+              
+              
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+
+              if(params.data && params.data.inputs.target_spatial_units && params.data.inputs.target_spatial_units.length > 0){
+                let string = JSON.stringify(params.data.inputs.target_spatial_units);
+
+                for (const spatialUnitId of params.data.inputs.target_spatial_units) {
+                  string += kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId).spatialUnitLevel;
+                }                              
+
+                return string;  
+              }
+              else{
+                return "keine";
+              }
+            }  
+          },
+          { headerName: 'notwendige Basis-Indikatoren',  cellRenderer: function (params) {
+            
+              /*
+                <table class="table table-condensed">
+                      <thead>
+                        <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="baseIndicatorId in scriptDataset.inputs.computation_ids">
                         <td>{{::baseIndicatorId}}</td>
                         <td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
                         </tr>
                       </tbody>
                     </table> 
               */
-              if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
+             if(showScriptIds){
+                if(params.data && (params.data.inputs.computation_ids_with_polarity || params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
-                for (const baseIndicatorId of params.data.requiredIndicatorIds) {
-                  html += "<tr>";
-                  html += "<td>" + baseIndicatorId + "</td>";
-                  html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
-                  html += "</tr>";
+                if(params.data.inputs.computation_ids_with_polarity && params.data.inputs.computation_ids_with_polarity.length > 0){
+                  for (const baseIndicatorWithPolarity of params.data.inputs.computation_ids_with_polarity) {
+                    let baseIndicatorId = baseIndicatorWithPolarity.value.ID; 
+                    html += "<tr>";
+                    html += "<td>" + baseIndicatorId + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
                 }
+
+                if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
+                  for (const baseIndicatorId of params.data.inputs.computation_ids) {
+                    html += "<tr>";
+                    html += "<td>" + baseIndicatorId + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
+                }
+                if(params.data.inputs.computation_id){
+                    html += "<tr>";
+                    html += "<td>" + params.data.inputs.computation_id + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_numerator){
+                    html += "<tr>";
+                    html += "<td>" + params.data.inputs.computation_id_numerator + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_numerator) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_denominator){
+                    html += "<tr>";
+                    html += "<td>" + params.data.inputs.computation_id_denominator + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_denominator) + "</td>";
+                    html += "</tr>";
+                }                
                 
                 html += "</tbody></table>";
                 return html;  
@@ -2454,35 +2784,110 @@ angular
               else{
                 return "keine";
               }
+             }
+             else{
+              //without IDs
+              if(params.data && (params.data.inputs.computation_ids_with_polarity || params.data.inputs.computation_ids || params.data.inputs.computation_id || params.data.inputs.computation_id_numerator || params.data.inputs.computation_id_denominator)){
+                let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                if(params.data.inputs.computation_ids_with_polarity && params.data.inputs.computation_ids_with_polarity.length > 0){
+                  for (const baseIndicatorWithPolarity of params.data.inputs.computation_ids_with_polarity) {
+                    let baseIndicatorId = baseIndicatorWithPolarity.value.ID; 
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
+                }
+
+                if(params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
+                  for (const baseIndicatorId of params.data.inputs.computation_ids) {
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                    html += "</tr>";
+                  }
+                }
+                if(params.data.inputs.computation_id){
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_numerator){
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_numerator) + "</td>";
+                    html += "</tr>";
+                }
+                if(params.data.inputs.computation_id_denominator){
+                    html += "<tr>";
+                    html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_denominator) + "</td>";
+                    html += "</tr>";
+                }                
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+             }
+              
               
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
 
-              if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
-                let string = JSON.stringify(params.data.requiredIndicatorIds);
+              let string = "";
+              if(params.data && params.data.inputs.computation_ids_with_polarity && params.data.inputs.computation_ids_with_polarity.length > 0){
 
-                for (const baseIndicatorId of params.data.requiredIndicatorIds) {
+                for (const baseIndicatorId of params.data.inputs.computation_ids_with_polarity.map(item => item.value.ID)) {
                   string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
                 }                              
-
-                return string;  
               }
-              else{
+              if(params.data && params.data.inputs.computation_ids && params.data.inputs.computation_ids.length > 0){
+
+                for (const baseIndicatorId of params.data.inputs.computation_ids) {
+                  string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
+                }                              
+              }
+              if(params.data.inputs.computation_id){
+                string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id)
+              }
+              if(params.data.inputs.computation_id_numerator){
+                string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_numerator)
+              }
+              if(params.data.inputs.computation_id_denominator){
+                string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.inputs.computation_id_denominator)
+              }              
+              
+              if(string == ""){
                 return "keine";
               }
+              else{
+                return string;
+              }
+              
             }  
           },
-          { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
-              if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
+          { headerName: 'notwendige Basis-Georessourcen',  cellRenderer: function (params) {
+
+            if(showScriptIds){
+              if(params.data && params.data.inputs.georesource_id ){
                 let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
-                for (const baseGeoresourceId of params.data.requiredGeoresourceIds) {
-                  html += "<tr>";
-                  html += "<td>" + baseGeoresourceId + "</td>";
-                  html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
-                  html += "</tr>";
-                }
+                // July 2025 processes api migration
+                // currently existing scripts only require one single georesource
+                // hence we only add one entry to datatable
+                // we might need this snippet in the future though 
+                // for (const baseGeoresourceId of params.data.inputs.georesource_id) {
+                //   html += "<tr>";
+                //   html += "<td>" + baseGeoresourceId + "</td>";
+                //   html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
+                //   html += "</tr>";
+                // }
+
+                html += "<tr>";
+                html += "<td>" + params.data.inputs.georesource_id + "</td>";
+                html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(params.data.inputs.georesource_id) + "</td>";
+                html += "</tr>";
                 
                 html += "</tbody></table>";
                 return html;  
@@ -2490,14 +2895,42 @@ angular
               else{
                 return "keine";
               }
+            }
+            else{
+              // without IDs
+              if(params.data && params.data.inputs.georesource_id ){
+                let html = '<table class="table table-condensed table-bordered table-striped"><tbody>';
+
+                // July 2025 processes api migration
+                // currently existing scripts only require one single georesource
+                // hence we only add one entry to datatable
+                // we might need this snippet in the future though 
+                // for (const baseGeoresourceId of params.data.inputs.georesource_id) {
+                //   html += "<tr>";
+                //   html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
+                //   html += "</tr>";
+                // }
+
+                html += "<tr>";
+                html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(params.data.inputs.georesource_id) + "</td>";
+                html += "</tr>";
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+            }
+
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
-                let string = JSON.stringify(params.data.requiredGeoresourceIds);
+              if(params.data && params.data.inputs.georesource_id && params.data.inputs.georesource_id.length > 0){
+                let string = JSON.stringify(params.data.inputs.georesource_id);
 
-                for (const baseIndicatorId of params.data.requiredGeoresourceIds) {
-                  string += kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseIndicatorId);
+                for (const georesourceId of params.data.inputs.georesource_id) {
+                  string += kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(georesourceId);
                 }                              
 
                 return string;  
@@ -2506,81 +2939,23 @@ angular
                 return "keine";
               }
             } 
-          },
-          { headerName: 'Prozessparameter', field: "", minWidth: 1000, cellRenderer: function (params) {
-              /*
-                <table class="table table-condensed">
-										<thead>
-										  <tr>
-											<th>Name</th>
-											<th>Beschreibung</th>
-											<th>Datentyp</th>
-											<th>Standard-Wert</th>
-											<th>erlaubter Wertebereich</th>
-										  </tr>
-										</thead>
-										<tbody>
-										  <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
-											<td>{{::processParameter.name}}</td>
-											<td>{{::processParameter.description}}</td>
-											<td>{{::processParameter.dataType}}</td>
-											<td>{{::processParameter.defaultValue}}</td>
-											<td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{::processParameter.minParameterValueForNumericInputs}} - {{::processParameter.maxParameterValueForNumericInputs}}</div></td>
-										  </tr>
-										 </tbody>
-									</table>
-              */
-                  if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
-                    let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Name</th><th>Beschreibung</th><th>Datentyp</th><th>Standard-Wert</th><th>erlaubter Wertebereich</th></tr></thead><tbody>';
-    
-                    for (const processParameter of params.data.variableProcessParameters) {
-                      html += "<tr>";
-                      html += "<td>" + processParameter.name + "</td>";
-                      html += "<td>" + processParameter.description + "</td>";
-                      html += "<td>" + processParameter.dataType + "</td>";
-                      html += "<td>" + processParameter.defaultValue + "</td>";
-                      html += "<td>" ;
-
-                      if(processParameter.dataType == "integer" || processParameter.dataType == "double"){
-                        html += "<b>erlaubter Wertebereich</b><br/><br/>";
-                        html += "" + processParameter.minParameterValueForNumericInputs + " &dash; " + processParameter.maxParameterValueForNumericInputs;
-                      }
-
-                      html += "</td>";
-                      html += "</tr>";
-                    }
+          }
+          
                     
-                    html += "</tbody></table>";
-                    return html;  
-                  }
-                  else{
-                    return "keine";
-                  }
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
-                return JSON.stringify(params.data.variableProcessParameters);
-              }
-              else{
-                return "keine";
-              }
-            } 
-         }          
-        ];
+        ]);
 
         return columnDefs;
       };
 
-      this.buildDataGridRowData_scripts = function(dataArray){
+      this.buildDataGridRowData_scripts = function(dataArray, showScriptIds, showProcessDescription){
         
         return dataArray;
       };
 
-      this.buildDataGridOptions_scripts = function(scriptsArray){
-          let columnDefs = this.buildDataGridColumnConfig_scripts();
-          let rowData = this.buildDataGridRowData_scripts(scriptsArray);
-  
+      this.buildDataGridOptions_scripts = function(scriptsArray, showScriptIds, showProcessDescription){
+          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds, showProcessDescription);
+          let rowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds, showProcessDescription);
+
           let gridOptions = {
             defaultColDef: {
               editable: false,
@@ -2625,324 +3000,432 @@ angular
             },
             onColumnResized: function () {
               headerHeightSetter(self.dataGridOptions_scripts);
+            },
+            onRowDataChanged: function () {
+              self.registerClickHandler_scripts(scriptsArray);
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                });
+              }, 500);
+            
+            },
+            onModelUpdated: function () {
+              self.registerClickHandler_scripts(scriptsArray);
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                });
+              }, 500);
+            },      
+            onViewportChanged: function () {
+              self.registerClickHandler_scripts(scriptsArray);  
+              
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                });
+              }, 500);
+            },
+            onStateUpdated: function () {
+              self.registerClickHandler_scripts(scriptsArray);
+              $timeout(function(){
+                MathJax.typesetPromise().then(function (){
+                }, 500); 
+              });
             }
-  
           };
   
           return gridOptions;        
       };
 
-      this.buildDataGrid_scripts = function (scriptsArray) {
+      this.buildDataGrid_scripts = function (scriptsArray, showScriptIds, showProcessDescription) {
         
         if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api && document.querySelector('#scriptOverviewTable').childElementCount > 0) {
 
           this.saveGridStore(this.dataGridOptions_scripts);
-          let newRowData = this.buildDataGridRowData_scripts(scriptsArray);
+          let newRowData = this.buildDataGridRowData_scripts(scriptsArray, showScriptIds, showProcessDescription);
           this.dataGridOptions_scripts.api.setRowData(newRowData);
+          let columnDefs = this.buildDataGridColumnConfig_scripts(showScriptIds, showProcessDescription);
+          this.dataGridOptions_scripts.api.setGridOption("columnDefs", columnDefs);
           this.restoreGridStore(this.dataGridOptions_scripts);
         }
         else {
-          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray);
+          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray, showScriptIds, showProcessDescription);
           let gridDiv = document.querySelector('#scriptOverviewTable');
           new agGrid.Grid(gridDiv, this.dataGridOptions_scripts);
         }
       };
 
-      // DEFAULT JOBS OVERVIEW TABLE
+      this.registerClickHandler_scripts = function (scriptArray) {
 
-      this.buildDataGridColumnConfig_defaultJobs = function(){
-        const columnDefs = [
-          { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true },
-          { headerName: 'Script-Id', field: "jobData.scriptId", pinned: 'left', maxWidth: 125 },
-          { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
-            if(params.data.jobData && params.data.jobData.targetIndicatorId){
-              let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
-              if (indicatorMetadata){
-                return indicatorMetadata.indicatorName;
-              }
-            }
-            return "";
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if(params.data.jobData && params.data.jobData.targetIndicatorId){
-                let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId); 
-                if (indicatorMetadata){
-                  return indicatorMetadata.indicatorName;
+        // execute script on demand button click
+        $(".executeScriptBtn").off();
+        $(".executeScriptBtn").on("click", async function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();          
+          
+          // ID of button is like "executeScriptBtn_<ID>"
+          let buttonID = this.id;
+          let scheduleId = this.id.split("_")[1];
+
+          // this triggers kind of watching for newest Job ID
+          // cause we trigger a new job - but it might take some time to have that job available
+          // and furthermore the new job has an internal prefect id for some moments before it then gets a persistant UUID used by KomMonitor
+          let scriptMetadata_old = jQuery.extend(true, {}, kommonitorDataExchangeService.getProcessScriptMetadataById(scheduleId));
+          $("#" + "btnExecuteScript_" + scheduleId).attr("disabled", "disabled");
+          $("#" + "btnExecuteScript_" + scheduleId  + "_span").css({'display': 'none'});
+          $("#" + "btnExecuteScript_" + scheduleId  + "_span").innerHTML = "Berechnung im Gange";
+          kommonitorToastHelperService.displayInfoToast_lowerLeft("Manuelle Indikatorenberechnung", "Neue Berechnung manuell angestoßen. KomMonitor wartet auf Fortschritt.");
+				
+          kommonitorScriptHelperService.initJobWatchingForSchedule(scheduleId, scriptMetadata_old);
+
+          let jobResponse = await kommonitorScriptHelperService.triggerJobForSchedule(scheduleId);
+          //fetchScheduleDetail to get newest job and to modify job table            
+					// $rootScope.$broadcast("refreshScriptOverviewTable", "edit", scheduleId);          
+        });
+
+        // TODO handle JobDetails table button click
+        $(".jobTableButtonForSchedule").off();
+        $(".jobTableButtonForSchedule").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+
+          kommonitorScriptHelperService.selectedStatus = "schedule";
+          
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
+          // has pattern jobTableButtonForSchedule_<scheduleId>
+          let scheduleId = this.id.split("_")[1];
+
+          $rootScope.$broadcast("onShowJobsForSchedule", scheduleId);
+        });
+
+      };
+
+            // Processes API JOBS OVERVIEW TABLE (NEW July 2025)
+
+            this.buildDataGridColumnConfig_processJobs = function(){
+              let getErrorTypeShortDescription = function(error){
+                switch(error.type) {
+                  case "missingTimestamp": return "Zeitstempel fehlt";
+                  case "missingDataset": return "Datensatz fehlt";
+                  case "missingSpatialUnit": return "Raumeinheit fehlt";
+                  case "missingSpatialUnitFeature": return "Raumeinheitsfeature fehlt";
+                  case "dataManagementApiError": return "Fehler beim Aufrufen der API";
+                  case "processingError": return "Fehler bei der Prozessierung";
+                  default: return error.type;
                 }
-              }
-              return "";
-            } 
-          },
-          { headerName: 'Job-Status', field: "status", maxWidth: 125 },
-          { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
-          { headerName: 'Job-Data', minWidth: 500, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return params.data.jobData;
-            } 
-          },
-          { headerName: 'Job-Logs', maxWidth: 150, cellRenderer: function (params) {
-            if(params.data.logs){
-
-              var logJSON = JSON.stringify(params.data.logs);
-
-              var blob = new Blob([logJSON], {type: "application/json"});
-              var data  = URL.createObjectURL(blob);
-
-              let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
-              return html;
-            }  
-            else{
-              return "Dieser Job umfasst keine Logs";
-            }
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return params.data.logs;
-            } 
-          },
-          { headerName: 'Job-Summary', minWidth: 1000, cellRenderer: function (params) {
-            
-            let html = "";
-                if(params.data.spatialUnitIntegrationSummary && params.data.spatialUnitIntegrationSummary.length > 0){
-                  html += '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumebenen-Id</th><th>Raumebenen-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
-
-                  for (const item of params.data.spatialUnitIntegrationSummary) {
-                    html += "<tr>";
-                    html += "<td>" + item.spatialUnitId + "</td>";
-                    html += "<td>" + item.spatialUnitName + "</td>";
-                    html += "<td>" + item.numberOfIntegratedIndicatorFeatures + "</td>";
-                    html += "<td>" + item.numberOfIntegratedTargetDates + "</td>";
-                    html += "<td>" + item.integratedTargetDates + "</td>";
-                    if(item.errorsOccurred && item.errorsOccurred.length > 0){
-                      html += "<td>" + kommonitorDataExchangeService.syntaxHighlightJSON(item.errorsOccurred) + "</td>";
+              };
+              let getErrorTypeLongDescription = function(error){
+                let datasetName = kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(error.affectedDatasetId);
+                let resourceType = (error.affectedResourceType.toLowerCase() == "indicator")? "Indikator" : "Georessource";
+                switch(error.type) {
+                  case "missingTimestamp": {
+                    let timestampList = "<ul>";
+                    for (const timestamp of error.affectedTimestamps) {
+                      timestampList += "<li>" + timestamp + "</li>"
                     }
-                    else{
-                      html += "<td>keine Fehlermeldungen vorhanden</td>";
-                    }
-                    
-                    html += "</tr>";
+                    timestampList += "</ul>";
+                    return "Zeitstempel fehlen für " + resourceType + " '" + datasetName + "'." + timestampList;
                   }
-                  html += "</tbody></table>";
+                  case "missingDataset": return "" + resourceType + " '" + datasetName + "' fehlt.";
+                  case "missingSpatialUnit": return "Die ausgewählte Raumeinheit fehlt für " + resourceType + " '" + datasetName + "'.";
+                  case "missingSpatialUnitFeature": {
+                    let featureList = "<ul>";
+                    for (const feature of error.affectedSpatialUnitFeatures) {
+                      featureList += "<li>" + feature + "</li>"
+                    }
+                    featureList += "</ul>";
+                    return "Raumeinheitsfeatures fehlen für " + resourceType + " '" + datasetName + "'." + featureList;
+                  } 
+                  case "dataManagementApiError": return "Fehler beim Aufrufen der API für " + resourceType + " '" + datasetName + "'.";
+                  case "processingError": return "Fehler beim Prozessieren von " + resourceType + " '" + datasetName + "'.";
+                  default: return "Fehlerbeschreibung";
                 }
-                else{
-                  html += "Dieser Job umfasst keine Informationen zur erfolgreichen/gescheiterten Datenintegration";
-                }
-                
-                return html; 
-          },
-          filter: 'agTextColumnFilter', 
-          filterValueGetter: (params) => {
-            return JSON.stringify(params.data.spatialUnitIntegrationSummary);
-          } 
-        }
+              };
+
+              const columnDefs = [
+                { headerName: 'Job', pinned: 'left', maxWidth: 200, checkboxSelection: false, headerCheckboxSelection: false, minWidth: 300, headerCheckboxSelectionFilteredOnly: true, cellRenderer: function (params) {
+                  for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                      if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                        if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                          let html = "";
+                          if (params.data.targetIndicatorId) {
+                            html += "<label>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.targetIndicatorId) + "</label><br><br>";
+                          }
+                          html += "<i>" + scriptType.title + "</i><br><br>";
+                          html += "<small>" + "Job-ID: " + params.data.jobID + "</small>";
+                          return html;
+                        }
+                      }              
+                    } 
+                  
+                  
+                  },
+                  filter: 'agTextColumnFilter', 
+                  filterValueGetter: (params) => {
+                    for (const scriptType of kommonitorScriptHelperService.availableScriptTypeOptions) {
+                      if(scriptType && scriptType.additional_parameters && scriptType.additional_parameters.parameters[0] && scriptType.additional_parameters.parameters[0].value[0]){
+                        if (scriptType.additional_parameters.parameters[0].value[0].apiName == params.data.processID){
+                          let html = "";
+                          if (params.data.targetIndicatorId) {
+                            html += "<label>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.targetIndicatorId) + "</label><br><br>";
+                          }
+                          html += "<i>" + scriptType.title + "</i><br><br>";
+                          html += "<small>" + "Job-ID: " + params.data.jobID + "</small>";
+                          return html;
+                        }
+                      }              
+                    }
+                  } 
+                },
+                //{ headerName: 'Job-Id', field: "jobID", pinned: 'left', maxWidth: 125, checkboxSelection: false, headerCheckboxSelection: false, 
+                //headerCheckboxSelectionFilteredOnly: true},
+                { headerName: 'Ausführung', maxWidth: 165, cellRenderer: function (params){
+                    let html = "<i class='fa-regular fa-calendar'></i> " + (new Date(params.data.job_end_datetime)).toLocaleString("de-DE");
+
+                    let jobStatus;
+                    switch(params.data.status){
+                      case "successful": jobStatus = "<i class='text-success fa-solid fa-circle-check'></i> abgeschlossen<br>"; break;
+                      case "failed": jobStatus = "<i class='text-danger fa-solid fa-circle-xmark'></i> gescheitert<br>"; break;
+                      case "running": jobStatus = "<i class='text-info fa-solid fa-spinner'></i> laufend<br>"; break;
+                      case "accepted": jobStatus = "<i class='text-warning fa-solid fa-hourglass-start'></i> wartend<br>"; break;
+                      default: "Status unbekannt";
+                    }
+
+                    html += "<br>";
+                    html += jobStatus;
+                    return html;
+                  },
+                  filter: 'agTextColumnFilter', 
+                  filterValueGetter: (params) => {
+                    let html = "<i class='fa-regular fa-calendar'></i> " + (new Date(params.data.job_end_datetime)).toLocaleString("de-DE");
+
+                    let jobStatus;
+                    switch(params.data.status){
+                      case "successful": jobStatus = "<i class='text-success fa-solid fa-circle-check'></i> abgeschlossen<br>"; break;
+                      case "failed": jobStatus = "<i class='text-danger fa-solid fa-circle-xmark'></i> gescheitert<br>"; break;
+                      case "running": jobStatus = "<i class='text-info fa-solid fa-spinner'></i> laufend<br>"; break;
+                      case "accepted": jobStatus = "<i class='text-warning fa-solid fa-hourglass-start'></i> wartend<br>"; break;
+                      default: "Status unbekannt";
+                    }
+
+                    html += "<br>";
+                    html += jobStatus;
+                    return html;
+                  }
+                },
+                //{ headerName: 'Job-Status', field: "status", maxWidth: 125 },
+                //{ headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
+                /*{ headerName: 'Job-Zusammenfassungen pro Raumeinheit', minWidth: 500, cellRenderer: function (params) {
+                  console.log(params);
+                  return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobSummary);
+                }, },*/
+                { headerName: 'Job-Zusammenfassungen nach Raumeinheit', minWidth: 1000, cellRenderer: function (params) {
+                      /*
+                        <table class="table table-condensed">
+                            <thead>
+                              <tr>
+                              <th>Name</th>
+                              <th>Beschreibung</th>
+                              <th>Datentyp</th>
+                              <th>Standard-Wert</th>
+                              <th>erlaubter Wertebereich</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
+                              <td>{{::processParameter.name}}</td>
+                              <td>{{::processParameter.description}}</td>
+                              <td>{{::processParameter.dataType}}</td>
+                              <td>{{::processParameter.defaultValue}}</td>
+                              <td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{::processParameter.minParameterValueForNumericInputs}} - {{::processParameter.maxParameterValueForNumericInputs}}</div></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                      */
+                          //console.log('job-data:');
+                          //console.log(params.data);
+                          if(params.data && params.data.jobSummary && params.data.jobSummary.length > 0){
+                            let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheit</th><th>Anzahl integrierter Indikator-Features</th><th>Integrierte Zielzeitpunkte</th><th>Fehler</th></tr></thead><tbody>';
+            
+                            for (const job of params.data.jobSummary) {
+                              html += "<tr>";
+                              //html += "<td>" + job.spatialUnitId + "</td>";
+                              html += "<td>" + kommonitorDataExchangeService.getSpatialUnitMetadataById(job.spatialUnitId).spatialUnitLevel + "</td>";
+                              //html += "<td>" + job.modifiedResource + "</td>";
+                              if (!job.numberOfIntegratedIndicatorFeatures) {
+                                html += "<td>keine</td>";
+                              }
+                              else {
+                              html += "<td>" + job.numberOfIntegratedIndicatorFeatures + "</td>";
+                              }
+                              //html += "<td>" + job.integratedTargetDates + "</td>";
                               
-        ];
+                              if (!job.integratedTargetDates || !job.integratedTargetDates.length) {
+                                html += "<td>keine</td>";
+                              }
+                              else {
+                                job.integratedTargetDates.sort();
+                                html += '<td><ul style="columns: 5; 	-webkit-columns: 5;	-moz-columns: 5; word-break: break-word !important;">';
+                                for (const timestamp of job.integratedTargetDates) {
+                                  html += '<li style="margin-right: 15px;">';
+                                  html += timestamp;
+                                  html += '</li>';
+                                }
+                                html += '</ul></td>';
+                              }
+                              
+                              if (!job.errorsOccurred || !job.errorsOccurred.length) {
+                                html += "<td>keine</td>";
+                              }
+                              else {
+                              html += "<td>";
+                              for (const error of job.errorsOccurred) {
+                                html += '<div class="box box-danger collapsed-box" style="width:200px;"><div class="box-header"><span class="box-title" style="font-size:12px">';
+                                //html += error.type;
+                                html += getErrorTypeShortDescription(error);
+                                html += '</span><div class="box-tools pull-right"><button type="button" class="btn btn-box-tool jobError" data-widget="collapse" onclick="handleChildCollapse(event)"><i class="fa fa-plus"></i></button></div></div><div class="box-body">';
+                                html += getErrorTypeLongDescription(error);
+                                //html += "</br></br>"
+                                //html += kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                html += '</div></div>'
+                              }
+                              html += "</td>";
+                              }
+                              html += "</tr>";
+                            }
+                            
+                            html += "</tbody></table>";
+                            return html;  
+                          }
+                          else{
+                            return "keine";
+                          }
+                    },
+                    filter: 'agTextColumnFilter', 
+                    filterValueGetter: (params) => {
+                      if(params.data && params.data.jobSummary && params.data.jobSummary.length > 0){
+                        return JSON.stringify(params.data.jobSummary);
+                      }
+                      else{
+                        return "keine";
+                      }
+                    } 
+                }
+                                
+              ];
+      
+              return columnDefs;
+            };
+      
+            this.buildDataGridRowData_processJobs = function(dataArray){
+              
+              dataArray.sort((a, b) => b.job_start_datetime - a.job_start_datetime);
 
-        return columnDefs;
-      };
+              for (const job of dataArray) {
+                // enrich job data with processID from schedule
+                let processScript = kommonitorScriptHelperService.jobDescriptionAndScheduleMap.get(job.jobID);
+                if (processScript && processScript.inputs && processScript.inputs.target_indicator_id) {
+                  let targetIndicatorId = processScript.inputs.target_indicator_id;
+                  job.targetIndicatorId = targetIndicatorId;
+                }
+              }
 
-      this.buildDataGridRowData_defaultJobs = function(dataArray){
+              return dataArray;
+            };
+      
+            this.buildDataGridOptions_processJobs = function(jobsArray){
 
-        dataArray.sort((a, b) => b.jobId - a.jobId);
+                let columnDefs = this.buildDataGridColumnConfig_processJobs();
+                let rowData = this.buildDataGridRowData_processJobs(jobsArray);
         
-        return dataArray;
-      };
+                let gridOptions = {
+                  defaultColDef: {
+                    editable: false,
+                    sortable: true,
+                    flex: 1,
+                    minWidth: 200,
+                    filter: true,
+                    floatingFilter: true,
+                    // filterParams: {
+                    //   newRowsAction: 'keep'
+                    // },
+                    resizable: true,
+                    wrapText: true,
+                    autoHeight: true,
+                    cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+                    headerComponentParams: {
+                      template:
+                        '<div class="ag-cell-label-container" role="presentation">' +
+                        '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                        '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                        '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                        '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                        '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                        '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                        '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                        '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                        '  </div>' +
+                        '</div>',
+                    },
+                  },
+                  columnDefs: columnDefs,
+                  rowHeight: 10,
+                  rowData: rowData,
+                  suppressRowClickSelection: true,
+                  enableCellTextSelection: false,
+                  ensureDomOrder: true,
+                  pagination: true,
+                  paginationPageSize: 10,
+                  suppressColumnVirtualisation: true,          
+                  onFirstDataRendered: function () {
+                    headerHeightSetter(self.dataGridOptions_processJobs);
+                  },
+                  onColumnResized: function () {
+                    headerHeightSetter(self.dataGridOptions_processJobs);                    
+                  },
+                  onViewportChanged: function () {   
+                    self.registerClickHandler_jobOverviewErrorBoxes();    
+                  },
+        
+                };
+        
+                return gridOptions;        
+            };
 
-      this.buildDataGridOptions_defaultJobs = function(jobsArray){
-          let columnDefs = this.buildDataGridColumnConfig_defaultJobs();
-          let rowData = this.buildDataGridRowData_defaultJobs(jobsArray);
-  
-          let gridOptions = {
-            defaultColDef: {
-              editable: false,
-              sortable: true,
-              flex: 1,
-              minWidth: 200,
-              filter: true,
-              floatingFilter: true,
-              // filterParams: {
-              //   newRowsAction: 'keep'
-              // },
-              resizable: true,
-              wrapText: true,
-              autoHeight: true,
-              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
-              headerComponentParams: {
-                template:
-                  '<div class="ag-cell-label-container" role="presentation">' +
-                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-                  '  </div>' +
-                  '</div>',
-              },
-            },
-            columnDefs: columnDefs,
-            rowData: rowData,
-            suppressRowClickSelection: true,
-            rowSelection: 'multiple',
-            enableCellTextSelection: true,
-            ensureDomOrder: true,
-            pagination: true,
-            paginationPageSize: 10,
-            suppressColumnVirtualisation: true,          
-            onFirstDataRendered: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            },
-            onColumnResized: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
+            this.registerClickHandler_jobOverviewErrorBoxes = function () {
+              // jobExecutionTable_processJobs 
+              $(".jobError").off();
+              $(".jobError").on("click", function (event) {
+                event.stopPropagation(); // Verhindert das Standardverhalten, aber propagiert das Event nicht weiter
+              const button = event.currentTarget;
+              const box = button.closest('.box');
+              $(box).boxWidget('toggle'); // Manuelles Triggern von AdminLTE's CardWidget
+              }); 
+
             }
-  
-          };
-  
-          return gridOptions;        
-      };
 
-      this.buildDataGrid_defaultJobs = function (jobsArray) {
-        
-        if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api && document.querySelector('#jobExecutionTable_defaultComputation').childElementCount > 0) {
 
-          this.saveGridStore(this.dataGridOptions_defaultJobs);
-          let newRowData = this.buildDataGridRowData_defaultJobs(jobsArray);
-          this.dataGridOptions_defaultJobs.api.setRowData(newRowData);
-          this.restoreGridStore(this.dataGridOptions_defaultJobs);
-        }
-        else {
-          this.dataGridOptions_defaultJobs = this.buildDataGridOptions_defaultJobs(jobsArray);
-          let gridDiv = document.querySelector('#jobExecutionTable_defaultComputation');
-          new agGrid.Grid(gridDiv, this.dataGridOptions_defaultJobs);
-        }
-      };
+      
+            this.buildDataGrid_processJobs = function (jobsArray) {
+              
+              if (this.dataGridOptions_processJobs && this.dataGridOptions_processJobs.api && document.querySelector('#jobExecutionTable_processJobs').childElementCount > 0) {
+                this.saveGridStore(this.dataGridOptions_processJobs);
+                let newRowData = this.buildDataGridRowData_processJobs(jobsArray);
+                this.dataGridOptions_processJobs.api.setRowData(newRowData);
+                this.restoreGridStore(this.dataGridOptions_processJobs);
+              }
+              else {
+                this.dataGridOptions_processJobs = this.buildDataGridOptions_processJobs(jobsArray);
+                let gridDiv = document.querySelector('#jobExecutionTable_processJobs');
+                new agGrid.Grid(gridDiv, this.dataGridOptions_processJobs);
+              }
 
-      // CUSTOMIZED JOBS OVERVIEW TABLE
-
-      this.buildDataGridColumnConfig_customizedJobs = function(){
-        const columnDefs = [
-          { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true},
-          { headerName: 'Job-Status', field: "status", maxWidth: 125 },
-          { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
-          { headerName: 'Job-Data', minWidth: 500, cellRenderer: function (params) {
-            return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
-          },
-          filter: 'agTextColumnFilter', 
-          filterValueGetter: (params) => {
-            return params.data.jobData;
-          } 
-          },
-          { headerName: 'Job-Logs', maxWidth: 150, cellRenderer: function (params) {
-            if(params.data.logs){
-
-              var logJSON = JSON.stringify(params.data.logs);
-
-              var blob = new Blob([logJSON], {type: "application/json"});
-              var data  = URL.createObjectURL(blob);
-
-              let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-individuell-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
-              return html;
-            } 
-            else{
-              return "Dieser Job umfasst keine Logs";
-            } 
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              return params.data.logs;
-            } 
-          }
-                          
-        ];
-
-        return columnDefs;
-      };
-
-      this.buildDataGridRowData_customizedJobs = function(dataArray){
-        
-        dataArray.sort((a, b) => b.jobId - a.jobId);
-
-        return dataArray;
-      };
-
-      this.buildDataGridOptions_customizedJobs = function(jobsArray){
-          let columnDefs = this.buildDataGridColumnConfig_customizedJobs();
-          let rowData = this.buildDataGridRowData_customizedJobs(jobsArray);
-  
-          let gridOptions = {
-            defaultColDef: {
-              editable: false,
-              sortable: true,
-              flex: 1,
-              minWidth: 200,
-              filter: true,
-              floatingFilter: true,
-              // filterParams: {
-              //   newRowsAction: 'keep'
-              // },
-              resizable: true,
-              wrapText: true,
-              autoHeight: true,
-              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
-              headerComponentParams: {
-                template:
-                  '<div class="ag-cell-label-container" role="presentation">' +
-                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
-                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-                  '  </div>' +
-                  '</div>',
-              },
-            },
-            columnDefs: columnDefs,
-            rowData: rowData,
-            suppressRowClickSelection: true,
-            rowSelection: 'multiple',
-            enableCellTextSelection: true,
-            ensureDomOrder: true,
-            pagination: true,
-            paginationPageSize: 10,
-            suppressColumnVirtualisation: true,          
-            onFirstDataRendered: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            },
-            onColumnResized: function () {
-              headerHeightSetter(self.dataGridOptions_scripts);
-            }
-  
-          };
-  
-          return gridOptions;        
-      };
-
-      this.buildDataGrid_customizedJobs = function (jobsArray) {
-        
-        if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api && document.querySelector('#jobExecutionTable_customizedComputation').childElementCount > 0) {
-
-          this.saveGridStore(this.dataGridOptions_customizedJobs);
-          let newRowData = this.buildDataGridRowData_customizedJobs(jobsArray);
-          this.dataGridOptions_customizedJobs.api.setRowData(newRowData);
-          this.restoreGridStore(this.dataGridOptions_customizedJobs);
-        }
-        else {
-          this.dataGridOptions_customizedJobs = this.buildDataGridOptions_customizedJobs(jobsArray);
-          let gridDiv = document.querySelector('#jobExecutionTable_customizedComputation');
-          new agGrid.Grid(gridDiv, this.dataGridOptions_customizedJobs);
-        }
-      };
+              // remove loading spinner icon from job table modal
+              document.getElementById("loading-overlay-job-table").style.display = "none";
+            };
 
       function anyHigherPermissionIsChecked(permissions, permissionSuffix){
         let filteresPermissions = [];

@@ -147,9 +147,10 @@
 								</div>				
 							</div>
 							<!-- case spatial filter is active and applied -->
-							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && ($ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied)">
+							 <!-- only show, if spatial units are not completely removed from dataset -->
+							<div ng-if="(! $ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && ($ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied)">
 								<div class="row" style="margin-right: 0px;">
-									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForSpatiallyFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">durch r&auml;umlichen Filter ausgeblendete Raumeinheiten</div>
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</div><br>
 								</div>				
@@ -158,15 +159,17 @@
 							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && (! $ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied)">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
-									<div class="col-md-6">durch Filter ausgeblendete Raumeinheiten</div>
+									<div class="col-md-6">durch Wertebereichsfilter ausgeblendete Raumeinheiten</div>
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size}}</div><br>
 								</div>				
 							</div>
 							<!-- case spatial filter and another display filter is active (i.e. spatial filter + range filter) -->
-							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && ($ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size > 0)">
+							 <!-- show only if the subtract between both is > 0 -->
+							 <!-- this must be displayed for all values of $ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay (true/false) because in any way, the subtract must be computed for correct numbers -->
+							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && ($ctrl.kommonitorDataExchangeServiceInstance.spatialFilterIsApplied) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size > 0) && ($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size - $ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size ) > 0">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
-									<div class="col-md-6">durch Filter ausgeblendete Raumeinheiten</div>
+									<div class="col-md-6">durch Wertebereichsfilter ausgeblendete Raumeinheiten</div>
 									<!-- only display the subtract of filtered features minus spatially filtered features -->
 									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size - $ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds_spatialFilter.size}}</div><br>
 								</div>				
