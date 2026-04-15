@@ -63,7 +63,7 @@ export class GenericMapHelperService {
         prefix: 'fa',
         markerColor: poiMarkerColor,
         iconColor: poiSymbolColor,
-        extraClasses: DEFAULT_POI_SIZE.iconClassName
+        extraClasses: `${this.dataExchangeService.selectedPoiSize.iconClassName} vector-marker-icon-color-${poiMarkerColor}`
       });
 
     var newMarker;

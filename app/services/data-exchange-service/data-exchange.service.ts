@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { LOI_DASH_ARRAY_OBJECTS, MetadataLoadingState } from "./data-exchange.constants";
+import { DEFAULT_POI_SIZE, LOI_DASH_ARRAY_OBJECTS, MetadataLoadingState, POI_SIZES, PoiSize } from "./data-exchange.constants";
 import { PdfExportService } from "services/pdf-export-service/pdf-export.service";
 import {
   IndicatorsDataset,
@@ -96,6 +96,8 @@ export class DataExchangeService {
   adminIsLoggedIn;
   rangeFilterIsApplied: any;
   baseLayerDefinitionsArray!: any[];
+
+  selectedPoiSize: PoiSize = DEFAULT_POI_SIZE;
 
   errorMessage = undefined;
 

@@ -50,7 +50,6 @@ export class PoiComponent implements OnInit {
   };
 
   selectedDate_manual = undefined;
-  selectedPoiSize;
 
   timeout_manualdate;
 
@@ -90,7 +89,6 @@ export class PoiComponent implements OnInit {
     protected ogcService: OgcService,
     private envConfigService: EnvConfigService
   ) {
-    this.selectedPoiSize = DEFAULT_POI_SIZE.id;
   }
 
   ngOnInit(): void {

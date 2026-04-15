@@ -26,7 +26,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-kommonitor-map',
   templateUrl: './kommonitor-map.component.html',
-  styleUrls: ['./kommonitor-map.component.css'],
+  styleUrls: ['./kommonitor-map.component.scss'],
   standalone: true,
   imports: [CommonModule]
 })
