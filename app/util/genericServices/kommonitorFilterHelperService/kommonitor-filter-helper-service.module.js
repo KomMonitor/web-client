@@ -55,6 +55,10 @@ angular
         return this.filteredIndicatorFeatureIds.has("" + featureId);
       };
 
+      this.featureIsCurrentlySpatiallyFiltered = function(featureId){
+        return this.filteredIndicatorFeatureIds_spatialFilter.has("" + featureId);
+      };
+
       this.clearFilteredFeatures = function(){
         this.filteredIndicatorFeatureIds = new Map();
         this.filteredIndicatorFeatureIds_spatialFilter = new Map();
@@ -102,7 +106,7 @@ angular
           }
         }        
         else{
-          this.filterAndReplaceDataset();          
+          this.filterAndReplaceDataset();
         }
 
         this.checkFeatureSelection();
@@ -127,7 +131,7 @@ angular
       this.filterAndReplaceDataset = function(){
         let indicatorMetadataAndGeoJSON;
         if(kommonitorDataExchangeService.isBalanceChecked){            
-          let filteredIndicatorFeatures = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+          let filteredIndicatorFeatures = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds_spatialFilter.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
     
           indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance));
           indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
@@ -135,7 +139,7 @@ angular
         
         }
         else{
-          let filteredIndicatorFeatures = kommonitorDataExchangeService.selectedIndicator.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+          let filteredIndicatorFeatures = kommonitorDataExchangeService.selectedIndicator.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds_spatialFilter.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
     
           indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator));
           indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;          

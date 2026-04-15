@@ -131,12 +131,21 @@ angular
       };
 
       this.filteredStyle = {
-        weight: 1,
+        weight: 2,
         opacity: 1,
         color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForFilteredValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForFilteredFeatures,
         fillColor: defaultColorForFilteredValues
+      };
+
+      this.filteredStyle_spatialFilter = {
+        weight: 2,
+        opacity: 1,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : __env.defaultBorderColorForSpatiallyFilteredValues,
+        dashArray: '',
+        fillOpacity: defaultFillOpacityForFilteredFeatures,
+        fillColor: __env.defaultColorForSpatiallyFilteredValues
       };
 
       this.featuresPerColorMap = new Map();
