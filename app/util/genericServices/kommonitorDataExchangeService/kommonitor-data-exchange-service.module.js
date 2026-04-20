@@ -37,6 +37,8 @@ angular
 
               this.customReportFontSize = __env.customReportFontSize;
 
+              this.reportGenerationInProgress = false;
+
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
