@@ -1,7 +1,7 @@
 angular.module('reportingModal').component('reportingModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.template.html",
-	controller : ['$scope', '__env', '$timeout', 'kommonitorDataExchangeService', '$rootScope',
-	function ReportingModalController($scope, __env, $timeout, kommonitorDataExchangeService, $rootScope) {
+	controller : ['$scope', '__env', '$timeout', 'kommonitorDataExchangeService', '$rootScope', 'kommonitorMapService',
+	function ReportingModalController($scope, __env, $timeout, kommonitorDataExchangeService, $rootScope, kommonitorMapService) {
 
 		$scope.workflowSelected = false;
 		$scope.templateSelected = false;
@@ -104,6 +104,10 @@ angular.module('reportingModal').component('reportingModal', {
 
 		$('#reporting-modal').on('hidden.bs.modal', function () {
 			kommonitorDataExchangeService.reportingModalOpen = false;
+			// after leaving reportinf modal we must make sure that indicator legend show correct numbers of colored features. 
+			// we, hence, call restyle of current map layer to update legend, as this will trigger restyle of all features and, thus, also update the number of colored features in legend
+			// kommonitorMapService.restyleCurrentLayer();
+			$rootScope.$broadcast("restyleCurrentLayer", false);
 			$timeout(function(){
 				$rootScope.$digest();				
 			});
