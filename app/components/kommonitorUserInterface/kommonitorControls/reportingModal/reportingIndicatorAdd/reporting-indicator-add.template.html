@@ -633,7 +633,7 @@
         <div class="row">
             <div class="col-sm-12">                
                 <div>
-                    <button class="btn btn-warning" ng-click='onBackToOverviewClicked()'>
+                    <button class="btn btn-warning" ng-disabled="$ctrl.kommonitorDataExchangeServiceInstance.reportGenerationInProgress"  ng-click='onBackToOverviewClicked()'>
                         <i class="fa fa-arrow-left"></i>
                         &nbsp;&nbsp;Zurück zur Übersicht
                     </button>                    
@@ -642,6 +642,12 @@
                         <i class="fa fa-plus"></i>
                         <span ng-show="template.name.includes('-reachability')">POI-Layer hinzufügen</span>
                         <span ng-show="!template.name.includes('-reachability')">Indikator hinzufügen</span>
+                    </button>
+
+                    <button ng-show="$ctrl.kommonitorDataExchangeServiceInstance.reportGenerationInProgress && !lastPageOfAddedSectionPrepared" 
+                            type="button" class="btn btn-danger pull-right" style="margin-right: 15px;" ng-click='onAbortPreparationClicked()'>
+                        <i class="fa fa-times"></i>
+                        &nbsp;&nbsp;Abbrechen
                     </button>
 
                     <button ng-disabled="true" style="margin-right: 15px;" ng-show="!preparationNeeded && ! $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.screenshotsForCurrentSpatialUnitUpdate && $ctrl.kommonitorLeafletScreenshotCacheHelperServiceInstance.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
