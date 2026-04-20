@@ -1,6 +1,13 @@
 <!-- <div class="container-fluid"> -->
   <p id="fontFamily-reference"></p>
-	<header id="header" class="main-header">
+
+  <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportGenerationInProgress" 
+  style="position: absolute; top: 55px; left: 50%; transform: translateX(-50%); z-index: 10000; width: 60%;"
+  class="alert alert-info alert-dismissable">
+  <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht generiert. Dies kann die Anwendung verlangsamen.
+  </div>
+
+  <header id="header" class="main-header">
 
 		<div  style="position:absolute; left:40%;  padding-top: 4px;">
 

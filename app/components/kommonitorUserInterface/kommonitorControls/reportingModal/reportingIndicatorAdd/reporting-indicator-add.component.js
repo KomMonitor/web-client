@@ -1364,6 +1364,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onTriggerPreparationClicked = async function() {
 			$scope.loadingData = true;
+			$scope.abortPreparation = false;
+			kommonitorDataExchangeService.reportGenerationInProgress = true;
 			$timeout( function() {
 				$scope.preparationNeeded = false;
 			});
@@ -1400,6 +1402,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// 2. Start the heavy async initialization
 				await $scope.initializeAllDiagrams();				
 				$scope.loadingData = false;
+			});
+		}
+
+		$scope.onAbortPreparationClicked = function() {
+			$scope.abortPreparation = true;
+			kommonitorDataExchangeService.reportGenerationInProgress = false;
+			// do not reset entirely because user might want to change some settings and then trigger preparation again
+			// $scope.reset();
+			// instead just mark preparation as needed again so that user can trigger it again after changing settings
+			$scope.preparationNeeded = true;
+			$timeout(function(){
+				$scope.$digest();
 			});
 		}
 
@@ -1871,6 +1885,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.templatePageIdCounter = 1;
 			$scope.dateSlider = undefined;
 			$scope.echartsRegisteredMapNames = [];
+
+			kommonitorDataExchangeService.reportGenerationInProgress = false;
 
 			for(let i=2;i<7;i++) {
 				let tab = document.querySelector("#reporting-add-indicator-tab" + i);
@@ -3497,10 +3513,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let processedPageIds = new Set();
 			let totalPreparedCount = 0;
 
+			if($scope.abortPreparation) {
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
+					return;
+			}
+
 			// Phase 1: Process all Preview Pages (includes datatables which are at the end)
 			// Note: template.pages.length might increase during loop if datatables add more pages
 			for(let i=0; i<$scope.template.pages.length; i++) {
+				if($scope.abortPreparation) {
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
+					return;
+				}
 				if(!$scope.template || (!$scope.selectedIndicator && !$scope.template.name.includes("reachability"))) {
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
 					return;
 				}
 
@@ -3519,9 +3545,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
+			if($scope.abortPreparation) {
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
+					return;
+			}
+
 			// Phase 2: Process all remaining Background Pages
 			for(let i=0; i<$scope.template.pages.length; i++) {
+				if($scope.abortPreparation) {
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
+					return;
+				}
 				if(!$scope.template || (!$scope.selectedIndicator && !$scope.template.name.includes("reachability"))) {
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
 					return;
 				}
 
@@ -3541,6 +3577,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			$scope.lastPageOfAddedSectionPrepared = true;
+			kommonitorDataExchangeService.reportGenerationInProgress = false;
 			$scope.pagePreparationIndex = $scope.pagePreparationSize; // ensure it reaches 100%
 			$timeout(function () {
 				$scope.$digest();
