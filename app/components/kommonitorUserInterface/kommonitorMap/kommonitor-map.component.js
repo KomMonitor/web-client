@@ -234,10 +234,12 @@ angular.module('kommonitorMap').component(
         $scope.useTransparencyOnIndicator = __env.useTransparencyOnIndicator;
 
         $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
+        $scope.filteredStyle_spatialFilter = kommonitorVisualStyleHelperService.filteredStyle_spatialFilter;
 
         var refreshFilteredStyle = function () {
 
           $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
+          $scope.filteredStyle_spatialFilter = kommonitorVisualStyleHelperService.filteredStyle_spatialFilter;
         };
 
         this.kommonitorMapServiceInstance = kommonitorMapService;
@@ -2253,7 +2255,10 @@ angular.module('kommonitorMap').component(
 
           // only restyle feature when not in list of clicked features
           if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
-            if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+            if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+              style = $scope.filteredStyle_spatialFilter;
+            }
+            else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
               style = $scope.filteredStyle;
             }
             else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
@@ -2286,7 +2291,10 @@ angular.module('kommonitorMap').component(
         function resetHighlightClickedFeature(layer) {
           var style;
           //$scope.currentIndicatorLayer.resetStyle(layer);
-          if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+              style = $scope.filteredStyle_spatialFilter;
+            }
+          else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
             layer.setStyle($scope.filteredStyle);
           }
           else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
@@ -2746,7 +2754,10 @@ angular.module('kommonitorMap').component(
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
               style: function (feature) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  return $scope.filteredStyle_spatialFilter;
+                }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   return $scope.filteredStyle;
                 }
                 return kommonitorVisualStyleHelperService.styleMeasureOfValue(feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
@@ -2800,7 +2811,10 @@ angular.module('kommonitorMap').component(
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                 style: function (feature) {
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    return $scope.filteredStyle_spatialFilter;
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     return $scope.filteredStyle;
                   }
                   return kommonitorVisualStyleHelperService.styleDefault(feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues, true);
@@ -2831,7 +2845,10 @@ angular.module('kommonitorMap').component(
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                 style: function(feature){
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    return $scope.filteredStyle_spatialFilter;
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     return $scope.filteredStyle;
                   }
                   return kommonitorVisualStyleHelperService.styleDynamicIndicator(feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
@@ -2867,7 +2884,10 @@ angular.module('kommonitorMap').component(
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
               style: function (feature) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  return $scope.filteredStyle_spatialFilter;
+                }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   return $scope.filteredStyle;
                 }
                 return kommonitorVisualStyleHelperService.styleMeasureOfValue(feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, true);
@@ -2994,7 +3014,10 @@ angular.module('kommonitorMap').component(
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  layer.setStyle($scope.filteredStyle_spatialFilter);
+                }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   layer.setStyle($scope.filteredStyle);
                 }
                 else {
@@ -3028,7 +3051,10 @@ angular.module('kommonitorMap').component(
                 }
                 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    layer.setStyle($scope.filteredStyle_spatialFilter);
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     layer.setStyle($scope.filteredStyle);
                   }
                   else {
@@ -3079,7 +3105,10 @@ angular.module('kommonitorMap').component(
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
                   let style;
-                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    style = $scope.filteredStyle_spatialFilter;
+                  }
+                  else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                     style = $scope.filteredStyle;
                   }
                   else {
@@ -3125,7 +3154,10 @@ angular.module('kommonitorMap').component(
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.featureIsCurrentlySpatiallyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    layer.setStyle($scope.filteredStyle_spatialFilter);
+                  }
+                else if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                   layer.setStyle($scope.filteredStyle);
                 }
                 else {

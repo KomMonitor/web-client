@@ -278,6 +278,8 @@ try {
   window.__env.defaultBorderColor = "black";
   window.__env.defaultColorForFilteredValues = "rgba(255,255,255,0)";
   window.__env.defaultBorderColorForFilteredValues = "black";
+  window.__env.defaultColorForSpatiallyFilteredValues = "rgba(247, 147, 30, 0)";
+  window.__env.defaultBorderColorForSpatiallyFilteredValues = "#F7931E";
   window.__env.defaultFillOpacity = "0.7";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
   window.__env.defaultFillOpacityForZeroFeatures = "0.7";
