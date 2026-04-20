@@ -801,6 +801,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.initialize(data);
 		});
 
+		$scope.$on("abortReportGeneration", function() {
+			$scope.onAbortPreparationClicked();
+		});
+
 		$scope.initialize = function(data) {
 			$scope.loadingData = true;
 			let template = data[0];
@@ -1366,6 +1370,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.loadingData = true;
 			$scope.abortPreparation = false;
 			kommonitorDataExchangeService.reportGenerationInProgress = true;
+			kommonitorDataExchangeService.reportStatus = 'preparing';
+			kommonitorDataExchangeService.reportProgress = 0;
 			$timeout( function() {
 				$scope.preparationNeeded = false;
 			});
@@ -3499,6 +3505,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.pagePreparationIndex = 0;
 			$scope.pagePreparationSize = $scope.template.pages.length; 
 			let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
+			if(logProgressIndexSeparator < 1) logProgressIndexSeparator = 1;
 
 			$scope.loadingData = false; // Turn off spinner before heavy async loop starts to avoid flickering
 
@@ -3512,11 +3519,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			let processedPageIds = new Set();
 			let totalPreparedCount = 0;
-
-			if($scope.abortPreparation) {
-					kommonitorDataExchangeService.reportGenerationInProgress = false;
-					return;
-			}
 
 			// Phase 1: Process all Preview Pages (includes datatables which are at the end)
 			// Note: template.pages.length might increase during loop if datatables add more pages
@@ -3537,17 +3539,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					totalPreparedCount++;
 					
 					$scope.pagePreparationIndex = i; // show current index for UI feedback
+					kommonitorDataExchangeService.reportProgress = (totalPreparedCount / $scope.pagePreparationSize) * 100;
+
 					if(totalPreparedCount % logProgressIndexSeparator === 0){
 						$timeout(function(){
 							$scope.$digest();
 						});
 					}
 				}
-			}
-
-			if($scope.abortPreparation) {
-					kommonitorDataExchangeService.reportGenerationInProgress = false;
-					return;
 			}
 
 			// Phase 2: Process all remaining Background Pages
@@ -3568,6 +3567,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					totalPreparedCount++;
 
 					$scope.pagePreparationIndex = i;
+					kommonitorDataExchangeService.reportProgress = (totalPreparedCount / $scope.pagePreparationSize) * 100;
+
 					if(totalPreparedCount % logProgressIndexSeparator === 0){
 						$timeout(function(){
 							$scope.$digest();
@@ -3577,7 +3578,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			$scope.lastPageOfAddedSectionPrepared = true;
-			kommonitorDataExchangeService.reportGenerationInProgress = false;
+			kommonitorDataExchangeService.reportStatus = "finished";
+			kommonitorDataExchangeService.reportProgress = 100;
+			kommonitorDataExchangeService.reportCountdown = 5;
+
+			let countdownInterval = $interval(function() {
+				kommonitorDataExchangeService.reportCountdown--;
+				if(kommonitorDataExchangeService.reportCountdown <= 0) {
+					$interval.cancel(countdownInterval);
+					kommonitorDataExchangeService.reportGenerationInProgress = false;
+				}
+			}, 1000);
+
 			$scope.pagePreparationIndex = $scope.pagePreparationSize; // ensure it reaches 100%
 			$timeout(function () {
 				$scope.$digest();

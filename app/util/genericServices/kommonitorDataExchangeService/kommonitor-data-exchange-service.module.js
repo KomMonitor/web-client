@@ -38,6 +38,9 @@ angular
               this.customReportFontSize = __env.customReportFontSize;
 
               this.reportGenerationInProgress = false;
+              this.reportStatus = 'preparing'; // 'preparing' or 'finished'
+              this.reportProgress = 0;
+              this.reportCountdown = 0;
 
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
