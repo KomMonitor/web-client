@@ -1,7 +1,7 @@
 angular.module('reportingModal').component('reportingModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.template.html",
-	controller : ['$scope', '__env', '$timeout', 
-	function ReportingModalController($scope, __env, $timeout) {
+	controller : ['$scope', '__env', '$timeout', 'kommonitorDataExchangeService', '$rootScope',
+	function ReportingModalController($scope, __env, $timeout, kommonitorDataExchangeService, $rootScope) {
 
 		$scope.workflowSelected = false;
 		$scope.templateSelected = false;
@@ -94,6 +94,20 @@ angular.module('reportingModal').component('reportingModal', {
 
 		// });
 		
+		// Track state of reporting modal
+		$('#reporting-modal').on('show.bs.modal', function () {
+			kommonitorDataExchangeService.reportingModalOpen = true;
+			$timeout(function(){
+				$rootScope.$digest();
+			});
+		});
+
+		$('#reporting-modal').on('hidden.bs.modal', function () {
+			kommonitorDataExchangeService.reportingModalOpen = false;
+			$timeout(function(){
+				$rootScope.$digest();				
+			});
+		});
 
 
 		$scope.makeIndicatorsDraggable = function() {

@@ -7,21 +7,39 @@
 		
 		<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'preparing'">
 			<i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht vorbereitet. Dies kann die Anwendung verlangsamen.
-			<div class="progress" style="margin-top: 10px; margin-bottom: 5px; height: 20px;">
-				<div class="progress-bar progress-bar-striped active" role="progressbar" 
-						 ng-style="{'width': $ctrl.kommonitorDataExchangeServiceInstance.reportProgress + '%'}"
-						 style="line-height: 20px; font-weight: bold;">
-					{{$ctrl.kommonitorDataExchangeServiceInstance.reportProgress | number:0}}%
+			
+			<div class="row vertical-align" style="margin-top: 10px; margin-bottom: 5px; margin-right: 0px;">
+				<div class="col-sm-10">
+					<div class="progress" style="margin-bottom: 0px; height: 20px;">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" 
+								 ng-style="{'width': $ctrl.kommonitorDataExchangeServiceInstance.reportProgress + '%'}"
+								 style="line-height: 20px; font-weight: bold;">
+							{{$ctrl.kommonitorDataExchangeServiceInstance.reportProgress | number:0}}%
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-2 text-right">
+					<button type="button" class="btn btn-danger btn-xs" ng-click="onAbortReportGeneration()">
+						<i class="fa fa-times"></i> Abbrechen
+					</button>
 				</div>
 			</div>
-			<button type="button" class="btn btn-danger btn-xs pull-right" ng-click="onAbortReportGeneration()" style="margin-top: -25px;">
-				<i class="fa fa-times"></i> Abbrechen
-			</button>
+			
+			<div ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.reportingModalOpen" style="margin-top: 5px;">
+				<button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#reporting-modal">
+					<i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
+				</button>
+			</div>
 		</div>
 
 		<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'finished'">
-			<i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun heruntergeladen werden. Kehren Sie dazu zum Berichtserstellungsdialog zurück.
-			<span class="pull-right">Banner schließt in {{$ctrl.kommonitorDataExchangeServiceInstance.reportCountdown}}s</span>
+			<i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun hinzugefügt werden. Kehren Sie dazu zum Berichtserstellungsdialog zurück.
+			<span class="pull-right">
+				<button ng-if="!$ctrl.kommonitorDataExchangeServiceInstance.reportingModalOpen" type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#reporting-modal" style="margin-top: -3px; margin-right: 15px;">
+					<i class="fas fa-file-alt"></i> &nbsp; Zum Berichtsmenü
+				</button>
+				Banner schließt in {{$ctrl.kommonitorDataExchangeServiceInstance.reportCountdown}}s
+			</span>
 		</div>
 	</div>
 

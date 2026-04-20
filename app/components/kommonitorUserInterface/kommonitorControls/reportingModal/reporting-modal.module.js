@@ -1,1 +1,2 @@
-angular.module('reportingModal', ['reportingWorkflowSelect', 'reportingTemplateSelect', 'reportingOverview', 'reportingIndicatorAdd']);
+angular.module('reportingModal', ['reportingWorkflowSelect', 'reportingTemplateSelect', 'reportingOverview', 
+    'reportingIndicatorAdd', 'kommonitorDataExchange']);
