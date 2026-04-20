@@ -2,10 +2,28 @@
   <p id="fontFamily-reference"></p>
 
   <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportGenerationInProgress" 
-  style="position: absolute; top: 55px; left: 50%; transform: translateX(-50%); z-index: 10000; width: 60%;"
-  class="alert alert-info alert-dismissable">
-  <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht generiert. Dies kann die Anwendung verlangsamen.
-  </div>
+		 style="position: absolute; top: 55px; left: 50%; transform: translateX(-50%); z-index: 10000; width: 60%;"
+		 ng-class="{'alert alert-info': $ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'preparing', 'alert alert-success': $ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'finished'}">
+		
+		<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'preparing'">
+			<i class="fa fa-info-circle"></i> <b>Hinweis:</b> Im Hintergrund wird ein Bericht vorbereitet. Dies kann die Anwendung verlangsamen.
+			<div class="progress" style="margin-top: 10px; margin-bottom: 5px; height: 20px;">
+				<div class="progress-bar progress-bar-striped active" role="progressbar" 
+						 ng-style="{'width': $ctrl.kommonitorDataExchangeServiceInstance.reportProgress + '%'}"
+						 style="line-height: 20px; font-weight: bold;">
+					{{$ctrl.kommonitorDataExchangeServiceInstance.reportProgress | number:0}}%
+				</div>
+			</div>
+			<button type="button" class="btn btn-danger btn-xs pull-right" ng-click="onAbortReportGeneration()" style="margin-top: -25px;">
+				<i class="fa fa-times"></i> Abbrechen
+			</button>
+		</div>
+
+		<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.reportStatus === 'finished'">
+			<i class="fa fa-check-circle"></i> <b>Erfolg:</b> Die Berichtgenerierung wurde abgeschlossen! Der im Hintergrund vorbereitete Bericht kann nun heruntergeladen werden. Kehren Sie dazu zum Berichtserstellungsdialog zurück.
+			<span class="pull-right">Banner schließt in {{$ctrl.kommonitorDataExchangeServiceInstance.reportCountdown}}s</span>
+		</div>
+	</div>
 
   <header id="header" class="main-header">
 

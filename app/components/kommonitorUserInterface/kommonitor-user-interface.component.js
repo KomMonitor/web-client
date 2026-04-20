@@ -22,6 +22,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.userRoleInformation = {};
 		$scope.userGroupInformation = [];
 
+		$scope.onAbortReportGeneration = function() {
+			$rootScope.$broadcast("abortReportGeneration");
+		};
+
 		$scope.init = async function () {
 			// initialize application
 			console.log("Initialize Application");
