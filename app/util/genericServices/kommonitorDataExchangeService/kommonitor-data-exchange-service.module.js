@@ -41,6 +41,7 @@ angular
               this.reportStatus = 'preparing'; // 'preparing' or 'finished'
               this.reportProgress = 0;
               this.reportCountdown = 0;
+              this.reportingModalOpen = false;
 
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
