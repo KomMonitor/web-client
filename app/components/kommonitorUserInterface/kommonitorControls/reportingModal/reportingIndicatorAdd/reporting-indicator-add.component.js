@@ -1902,9 +1902,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			kommonitorDataExchangeService.reportGenerationInProgress = false;
 
-			for(let i=2;i<7;i++) {
+			for(let i=1;i<8;i++) {
 				let tab = document.querySelector("#reporting-add-indicator-tab" + i);
-				$scope.disableTab(tab);
+				if (tab) {
+					$scope.disableTab(tab);
+				}
 			}
 		}
 
@@ -1934,13 +1936,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.enableTab = function(tab) {
+			if (!tab) return;
 			tab.classList.remove("tab-disabled")
-			tab.firstElementChild.removeAttribute("tabindex")
+			if (tab.firstElementChild) {
+				tab.firstElementChild.removeAttribute("tabindex")
+			}
 		}
 
 		$scope.disableTab = function(tab) {
+			if (!tab) return;
 			tab.classList.add("tab-disabled")
-			tab.firstElementChild.setAttribute("tabindex", "1")
+			if (tab.firstElementChild) {
+				tab.firstElementChild.setAttribute("tabindex", "1")
+			}
 		}
 
 		// creates and returns a series data array for each range threshold
@@ -3657,38 +3665,29 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				};
 			}
 
-			if (!isPreview) {
-				kommonitorDataExchangeService.reportingBackgroundState.pageToProcess_add = page;
-				await $timeout(function(){}, 150); // wait for DOM to render hidden page (increased for background maps)
-			}
+			// ALWAYS route through background processor for stable map capture
+			kommonitorDataExchangeService.reportingBackgroundState.pageToProcess_add = page;
+			await $timeout(function(){}, 150); // wait for DOM to render hidden page (increased for background maps)
 
-			let pageDomId = isPreview ? "#reporting-addIndicator-page-" + idx : "#reporting-addIndicator-background-page";
-			let pageDom = document.querySelector(pageDomId);
+			let pageDom = document.getElementById("reporting-addIndicator-background-page");
 
 			if(!pageDom) {
-				console.warn("Could find DOM for page " + idx + ". Retrying with global background container.");
-				pageDom = document.getElementById("reporting-addIndicator-background-page");
-			}
-
-			if(!pageDom) {
-				console.error("Could not find DOM for page " + idx);
+				console.error("Could not find background DOM for page " + idx);
 				return;
 			}
 
 			for(let pageElement of page.pageElements) {
-				let pElementDomId = isPreview ? "#reporting-addIndicator-page-" + idx + "-" + pageElement.type : "#reporting-addIndicator-background-page-" + pageElement.type;
-				let pElementDom = pageDom.querySelector(pElementDomId);
+				let pElementDom = pageDom.querySelector(".type-" + pageElement.type);
 				
-				if(!pElementDom && !isPreview) {
-					// fallback for background processor since it might not use the same nested ID structure
-					pElementDom = pageDom.querySelector(".type-" + pageElement.type);
+				if(!pElementDom) {
+					continue;
 				}
 				
 				switch(pageElement.type) {
 					case "map": {
 						// initialize with all areas
 						let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
-						if (!isPreview && map && pageElement.leafletMap) {
+						if (pageElement.leafletMap) {
 							// CRITICAL: Leaflet needs to recalculate dimensions in off-screen containers
 							pageElement.leafletMap.invalidateSize(false);
 						}
@@ -3706,14 +3705,32 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 						
 
-						page.generatedData.mapImage = await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map, isPreview);
+						page.generatedData.mapImage = await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map, false);
 
 						pageElement.isPlaceholder = false;
 
 						// store ECharts image
 						page.generatedData.echarts[pageElement.type] = map.getDataURL({pixelRatio: 2});
 
-						if (!isPreview) {
+						// if this is a preview page, we move the rendered result to the visible area
+						if(isPreview) {
+							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							if(previewPElementDom) {
+								previewPElementDom.innerHTML = "";
+								while (pElementDom.firstChild) {
+									previewPElementDom.appendChild(pElementDom.firstChild);
+								}
+
+								// set screenshot as background
+								if(page.generatedData.mapImage) {
+									previewPElementDom.style.backgroundImage = "url(" + page.generatedData.mapImage + ")";
+									previewPElementDom.style.backgroundSize = "100% 100%";
+									previewPElementDom.style.backgroundRepeat = "no-repeat";
+								}
+							}
+						}
+
+						if(!isPreview) {
 							map.dispose();
 						}
 						break;
@@ -3721,8 +3738,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					case "mapLegend": {
 						pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
 						if (isPreview) {
-							let legendDom = pageDom.querySelector(".type-mapLegend");
-							if(legendDom) legendDom.style.display = "none";
+							let previewPageDom = document.getElementById("reporting-addIndicator-page-" + idx);
+							if(previewPageDom) {
+								let legendDom = previewPageDom.querySelector(".type-mapLegend");
+								if(legendDom) legendDom.style.display = "none";
+							}
 						}
 						break;
 					}
@@ -3730,7 +3750,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						let instance = $scope.createPageElement_BarChartDiagram(pElementDom, page, pageElement);
 						pageElement.isPlaceholder = false;
 						page.generatedData.echarts[pageElement.type] = instance.getDataURL({pixelRatio: 2});
-						if (!isPreview) {
+						
+						// if this is a preview page, we move the rendered result to the visible area
+						if(isPreview) {
+							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							if(previewPElementDom) {
+								previewPElementDom.innerHTML = "";
+								while (pElementDom.firstChild) {
+									previewPElementDom.appendChild(pElementDom.firstChild);
+								}
+							}
+						}
+
+						if(!isPreview) {
 							instance.dispose();
 						}
 						break;
@@ -3740,7 +3772,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						pageElement.isPlaceholder = false;
 						let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? "_perc" : "");
 						page.generatedData.echarts[key] = instance.getDataURL({pixelRatio: 2});
-						if (!isPreview) {
+						
+						// if this is a preview page, we move the rendered result to the visible area
+						if(isPreview) {
+							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							if(previewPElementDom) {
+								previewPElementDom.innerHTML = "";
+								while (pElementDom.firstChild) {
+									previewPElementDom.appendChild(pElementDom.firstChild);
+								}
+							}
+						}
+
+						if(!isPreview) {
 							instance.dispose();
 						}
 						break;
@@ -3759,7 +3803,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 								}
 							}
 						}
-						await $scope.createPageElement_Datatable(pElementDom, page, isPreview);
+						
+						let targetDom = pElementDom;
+						if(isPreview) {
+							targetDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+						}
+						await $scope.createPageElement_Datatable(targetDom, page, isPreview);
 						
 						if(isPreview){
 							// give angular a chance to render the newly added pages
@@ -3775,10 +3824,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			page.generatedData.isComplete = true;
 
-			if (!isPreview) {
-				$scope.pageToProcess = undefined;
-				await $timeout(function(){}, 0);
-			}
+			$scope.pageToProcess = undefined;
+			await $timeout(function(){}, 0);
 		
 		}
 
