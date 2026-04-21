@@ -642,12 +642,17 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 
 			if (!isPreview) {
-				$scope.pageToProcess = page;
+				kommonitorDataExchangeService.reportingBackgroundState.pageToProcess_overview = page;
 				await $timeout(function(){}, 150); // wait for DOM to render hidden page
 			}
 
 			let pageDomId = isPreview ? "#reporting-overview-page-" + idx : "#reporting-background-page";
 			let pageDom = document.querySelector(pageDomId);
+
+			if(!pageDom) {
+				console.warn("Could find DOM for page " + idx + ". Retrying with global background container.");
+				pageDom = document.getElementById("reporting-background-page");
+			}
 
 			if(!pageDom) {
 				console.error("Could not find DOM for page " + idx);
@@ -656,16 +661,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 			for(let pageElement of page.pageElements) {
 				let pElementDomId = isPreview ? "#reporting-overview-page-" + idx + "-" + pageElement.type : "#reporting-background-page-" + pageElement.type;
-				let pElementDom;
-				if(pageElement.type === "linechart") {
-					let arr = pageDom.querySelectorAll(".type-linechart");
-					if(pageElement.showPercentageChangeToPrevTimestamp) {
-						pElementDom = arr[1];
-					} else {
-						pElementDom = arr[0];
-					}
-				} else {
-					pElementDom = pageDom.querySelector(pElementDomId);
+				let pElementDom = pageDom.querySelector(pElementDomId);
+				
+				if(!pElementDom && !isPreview) {
+					// fallback for background processor since it might not use the same nested ID structure
+					pElementDom = pageDom.querySelector(".type-" + pageElement.type);
 				}
 				
 				// recreate boxplots, itemNameFormatter did not get transferred
@@ -758,6 +758,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					if(pageElement.type === "map") {
 						page.generatedData.mapImage = await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false, isPreview);
+						if (!isPreview && pageElement.leafletMap) {
+							// CRITICAL: Leaflet needs to recalculate dimensions in off-screen containers
+							pageElement.leafletMap.invalidateSize(false);
+						}
 					}
 
 					// Wait for ECharts to be finished rendering (including loading external images like markers)
@@ -956,11 +960,22 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					let screenshotPromise = new Promise((resolve) => {
 						leafletLayer.on("load", async function() { 
+							// if users left reporting window we must wait longer
+							if(! kommonitorDataExchangeService.reportingModalOpen){
+								await new Promise(resolve => setTimeout(resolve, 750));
+							}
+							else{
+								// wait another moment to ensure all leaflet rendering is really finished and we get a proper screenshot (especially important for WMS layers, where "load" event is triggered for each tile and we want to wait until all tiles are loaded)
+								await new Promise(resolve => setTimeout(resolve, 500));
+							}
+							
 							let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
 								page.spatialUnitFeatureId, page.orientation, leafletMap["_container"]);
 							resolve(dataUrl);
 						});
 					});
+
+					leafletMap.invalidateSize(false);
 										
 					leafletLayer.addTo(leafletMap);		
 

@@ -350,5 +350,48 @@
         <script src="app.js" type="text/javascript"></script>
         <!-- end client script tags -->
         <!-- /build -->
+
+        <!-- Global hidden background processors for report generation (ensures dimensions when modal is closed) -->
+        <div id="reporting-background-containers" ng-controller="ReportingBackgroundController as bgCtrl">
+            <div id="reporting-addIndicator-background-processor" style="position: absolute; left: -10000px; top: -10000px; opacity: 0; width: 1000px; height: 1000px;">
+                <div ng-if="bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_add" 
+                    ng-attr-class="reporting-page reporting-page-{{bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_add.orientation}} reporting-custom-css"
+                    id="reporting-addIndicator-background-page">
+                    
+                    <div ng-repeat="pageElement in bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_add.pageElements"
+                        ng-attr-class="type-{{pageElement.type}}"
+                        ng-attr-id="reporting-addIndicator-background-page-{{pageElement.type}}"
+                        ng-attr-style="position: absolute;
+                            top: {{pageElement.dimensions.top}};
+                            left: {{pageElement.dimensions.left}};
+                            width: {{pageElement.dimensions.width}};
+                            height: {{pageElement.dimensions.height}};
+                            {{ !pageElement.type.includes('footerHorizontalSpacer-') ? 'border: dashed gray 1px;' : pageElement.css }}
+                            z-index: {{ pageElement.type == 'map' ? 20 : 1 }}">
+                        
+                        <!-- Simplified background elements -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="reporting-overview-background-processor" style="position: absolute; left: -10000px; top: -10000px; opacity: 0; width: 1000px; height: 1000px;">
+                <div ng-if="bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_overview" 
+                    ng-attr-class="reporting-page reporting-page-{{bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_overview.orientation}} reporting-custom-css"
+                    id="reporting-background-page">
+                    
+                    <div ng-repeat="pageElement in bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_overview.pageElements"
+                        ng-attr-class="type-{{pageElement.type}}"
+                        ng-attr-id="reporting-background-page-{{pageElement.type}}"
+                        ng-attr-style="position: absolute;
+                            top: {{pageElement.dimensions.top}};
+                            left: {{pageElement.dimensions.left}};
+                            width: {{pageElement.dimensions.width}};
+                            height: {{pageElement.dimensions.height}};
+                            {{ !pageElement.type.includes('footerHorizontalSpacer-') ? 'border: dashed gray 1px;' : pageElement.css }}
+                            z-index: {{ pageElement.type == 'map' ? 20 : 1 }}">
+                    </div>
+                </div>
+            </div>
+        </div>
   </body>
 </html>

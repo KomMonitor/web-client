@@ -2329,6 +2329,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						// there are pages for two page orientations (landscape and portait)
 						// only trigger the screenshot for those pages, that are actually present
 						if(page.orientation == $scope.template.orientation){
+							// if users left reporting window we must wait longer
+							if(! kommonitorDataExchangeService.reportingModalOpen){
+								await new Promise(resolve => setTimeout(resolve, 750));
+							}
+							else{
+								// wait another moment to ensure all leaflet rendering is really finished and we get a proper screenshot (especially important for WMS layers, where "load" event is triggered for each tile and we want to wait until all tiles are loaded)
+								await new Promise(resolve => setTimeout(resolve, 500));
+							}
 							let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedBaseMap.layerConfig.name, $scope.selectedSpatialUnit.spatialUnitId, 
 								page.spatialUnitFeatureId, page.orientation, domNode);
 							resolve(dataUrl);
@@ -2337,6 +2345,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					});	
 				});
+
+				leafletMap.invalidateSize(false);
 								
 				leafletLayer.addTo(leafletMap);		
 
@@ -3648,12 +3658,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			if (!isPreview) {
-				$scope.pageToProcess = page;
+				kommonitorDataExchangeService.reportingBackgroundState.pageToProcess_add = page;
 				await $timeout(function(){}, 150); // wait for DOM to render hidden page (increased for background maps)
 			}
 
 			let pageDomId = isPreview ? "#reporting-addIndicator-page-" + idx : "#reporting-addIndicator-background-page";
 			let pageDom = document.querySelector(pageDomId);
+
+			if(!pageDom) {
+				console.warn("Could find DOM for page " + idx + ". Retrying with global background container.");
+				pageDom = document.getElementById("reporting-addIndicator-background-page");
+			}
 
 			if(!pageDom) {
 				console.error("Could not find DOM for page " + idx);
@@ -3662,22 +3677,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			for(let pageElement of page.pageElements) {
 				let pElementDomId = isPreview ? "#reporting-addIndicator-page-" + idx + "-" + pageElement.type : "#reporting-addIndicator-background-page-" + pageElement.type;
-				let pElementDom;
-				if(pageElement.type === "linechart") {
-					let arr = pageDom.querySelectorAll(".type-linechart");
-					if(pageElement.showPercentageChangeToPrevTimestamp) {
-						pElementDom = arr[1];
-					} else {
-						pElementDom = arr[0];
-					}
-				} else {
-					pElementDom = pageDom.querySelector(pElementDomId);
+				let pElementDom = pageDom.querySelector(pElementDomId);
+				
+				if(!pElementDom && !isPreview) {
+					// fallback for background processor since it might not use the same nested ID structure
+					pElementDom = pageDom.querySelector(".type-" + pageElement.type);
 				}
 				
 				switch(pageElement.type) {
 					case "map": {
 						// initialize with all areas
 						let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
+						if (!isPreview && map && pageElement.leafletMap) {
+							// CRITICAL: Leaflet needs to recalculate dimensions in off-screen containers
+							pageElement.leafletMap.invalidateSize(false);
+						}
 						// filter visible areas if needed
 						if(page.area && page.area.length) {
 							if($scope.selectedIndicator) {
