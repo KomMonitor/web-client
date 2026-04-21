@@ -28,25 +28,37 @@
             <div class="col-sm-2"></div>
             <div class="col-sm-8">
                 <div class="row" style="margin:0">
-                    <ul class="nav nav-tabs" id="reporting-add-indicator-tab-list">
-                        <li id="reporting-add-indicator-tab1" role="presentation"
-                            ng-attr-class="{{template.name.includes('-reachability') ? 'active' : 'tab-disabled'}}"
-                            ng-show="template.name.includes('-reachability')">
+                    <!-- Reachability Tab List Order -->
+                    <ul class="nav nav-tabs" id="reporting-add-indicator-tab-list" ng-if="template.name.includes('-reachability')">
+                        <li id="reporting-add-indicator-tab1" role="presentation" class="active">
                             <a href="#pois" aria-controls="pois" role="tab" data-toggle="tab">POIs</a>
                         </li>
                         <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
                             <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
                         </li>
-                        <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled"
-                            ng-show="template.name.includes('-reachability')">
-                            <a href="#isochrones" aria-controls="isochrones" role="tab" data-toggle="tab">Erreichbarkeit</a>
+                        <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled">
+                            <a href="#isochrones" aria-controls="isochrones" role="tab" data-toggle="tab" tabindex="-1">Erreichbarkeit</a>
                         </li>
-                        <li id="reporting-add-indicator-tab3" role="presentation" 
-                            ng-attr-class="{{!template.name.includes('-reachability') ? 'active' : 'tab-disabled'}}">
+                        <li id="reporting-add-indicator-tab3" role="presentation" class="tab-disabled">
+                            <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab" tabindex="-1">Indikatoren</a>
+                        </li>
+                        <li id="reporting-add-indicator-tab6" role="presentation" class="tab-disabled">
+                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Konfiguration</a>
+                        </li>
+                        <li id="reporting-add-indicator-tab7" role="presentation" class="tab-disabled">
+                            <a href="#screenshotmanagement" aria-controls="screenshotmanagement" role="tab" data-toggle="tab" tabindex="-1">Kartenbild-Verwaltung</a>
+                        </li>
+                    </ul>
+
+                    <!-- Standard (Timestamp/Timeseries) Tab List Order -->
+                    <ul class="nav nav-tabs" id="reporting-add-indicator-tab-list" ng-if="!template.name.includes('-reachability')">
+                        <li id="reporting-add-indicator-tab3" role="presentation" class="active">
                             <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
                         </li>
-                        <li id="reporting-add-indicator-tab5" role="presentation" class="tab-disabled"
-                            ng-show="!template.name.includes('-reachability')">
+                        <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
+                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab" tabindex="-1">Bereich</a>
+                        </li>
+                        <li id="reporting-add-indicator-tab5" role="presentation" class="tab-disabled">
                             <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1"
                                 ng-bind-html="template.name.includes('-timeseries') ? 'Zeitserie' : 'Zeitpunkt'"></a>
                         </li>
