@@ -512,7 +512,7 @@
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-show="checkVisibility(pageElement, page)"
                                 ng-attr-class="type-{{pageElement.type}}"
-                                ng-attr-id="reporting-addIndicator-page-{{$parent.$index}}-{{pageElement.type}}"
+                                ng-attr-id="reporting-addIndicator-page-{{$parent.$index}}-{{pageElement.type}}-{{$index}}"
                                 ng-attr-style="position: absolute;
                                     top: {{pageElement.dimensions.top}};
                                     left: {{pageElement.dimensions.left}};

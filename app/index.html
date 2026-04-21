@@ -387,7 +387,7 @@
                     
                     <div ng-repeat="pageElement in bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_add.pageElements"
                         ng-attr-class="type-{{pageElement.type}}"
-                        ng-attr-id="reporting-addIndicator-background-page-{{pageElement.type}}"
+                        ng-attr-id="reporting-addIndicator-background-page-{{pageElement.type}}-{{$index}}"
                         ng-attr-style="position: absolute;
                             top: {{pageElement.dimensions.top}};
                             left: {{pageElement.dimensions.left}};
@@ -408,7 +408,7 @@
                     
                     <div ng-repeat="pageElement in bgCtrl.kommonitorDataExchangeServiceInstance.reportingBackgroundState.pageToProcess_overview.pageElements"
                         ng-attr-class="type-{{pageElement.type}}"
-                        ng-attr-id="reporting-background-page-{{pageElement.type}}"
+                        ng-attr-id="reporting-background-page-{{pageElement.type}}-{{$index}}"
                         ng-attr-style="position: absolute;
                             top: {{pageElement.dimensions.top}};
                             left: {{pageElement.dimensions.left}};
