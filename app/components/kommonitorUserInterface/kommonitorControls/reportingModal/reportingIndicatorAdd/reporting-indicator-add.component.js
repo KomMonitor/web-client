@@ -820,20 +820,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// determine index dynamically, because it changes when we filter for orientation
 			$scope.indexOfFirstAreaSpecificPage = $scope.template.pages.findIndex(p => p.type === 'area_specific');
 
-			// disable tabs to force user to pick a poi-layer / indicator first
-			let tabList = document.querySelector("#reporting-add-indicator-tab-list");
+			// activate correct starting tab and pane
+			let isReachability = $scope.template.name.includes("reachability");
+			let startTabId = isReachability ? "reporting-add-indicator-tab1" : "reporting-add-indicator-tab3";
+			let startPaneId = isReachability ? "pois" : "indicators";
+
+			let tabList = document.querySelectorAll("#reporting-add-indicator-tab-list li");
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane");
-			let tabChildren = Array.from(tabList.children)
-			for(let [idx, tab] of tabChildren.entries()) {
-				let id = tab.id.at(-1);
-				if( ($scope.template.name.includes("reachability") && id==1) || // pois
-						(!$scope.template.name.includes("reachability") && id==3) ) { // indicators
-					tab.classList.add("active");
-					tabPanes[idx].classList.add("active");
-				} else {
-					tab.classList.remove("active");
-					tabPanes[idx].classList.remove("active");
-				}
+			
+			for(let tab of tabList) {
+				if(tab.id === startTabId) tab.classList.add("active");
+				else tab.classList.remove("active");
+			}
+			for(let pane of tabPanes) {
+				if(pane.id === startPaneId) pane.classList.add("active");
+				else pane.classList.remove("active");
 			}
 
 			$scope.initializeDualLists();
