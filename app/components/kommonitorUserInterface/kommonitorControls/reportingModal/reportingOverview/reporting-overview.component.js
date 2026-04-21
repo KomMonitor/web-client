@@ -652,8 +652,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				return;
 			}
 
-			for(let pageElement of page.pageElements) {
-				let pElementDom = pageDom.querySelector(".type-" + pageElement.type);
+			for(let [elementIdx, pageElement] of page.pageElements.entries()) {
+				let pElementDom = pageDom.querySelector("#reporting-background-page-" + pageElement.type + "-" + elementIdx);
 				
 				if(!pElementDom) {
 					continue;
@@ -746,11 +746,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 					instance.setOption(pageElement.echartsOptions)
 
 					if(pageElement.type === "map") {
-						page.generatedData.mapImage = await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false, false); // pass false for isVisible as we use screenshot in preview
+						page.generatedData.mapImage = await $scope.initializeLeafletMap(page, pageElement, elementIdx, instance, spatialUnit, false, false); // pass false for isVisible as we use screenshot in preview
 
 						// if this is a preview page, we set the screenshot as background
 						if(isPreview) {
-							let previewPElementDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+							let previewPElementDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 							if(previewPElementDom && page.generatedData.mapImage) {
 								previewPElementDom.style.backgroundImage = "url(" + page.generatedData.mapImage + ")";
 								previewPElementDom.style.backgroundSize = "100% 100%";
@@ -773,7 +773,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					// if this is a preview page, we move the rendered result to the visible area
 					if(isPreview) {
-						let previewPElementDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+						let previewPElementDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 						if(previewPElementDom) {
 							previewPElementDom.innerHTML = "";
 							while (pElementDom.firstChild) {
@@ -801,7 +801,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				if(pageElement.type === "datatable") {
 					let targetDom = pElementDom;
 					if(isPreview) {
-						targetDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+						targetDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 					}
 					$scope.createDatatablePage(targetDom, pageElement);
 					page.generatedData.tableData = pageElement.tableData;
@@ -812,7 +812,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			await $timeout(function(){}, 0);
 		}
 
-		$scope.initializeLeafletMap = async function(page, pageElement, echartsMap, spatialUnit, forceScreenshot, isVisible) {
+		$scope.initializeLeafletMap = async function(page, pageElement, elementIdx, echartsMap, spatialUnit, forceScreenshot, isVisible) {
 				try {
 					// ALWAYS route through background container
 					let isPreviewVisible = isVisible; // original param, but we use false for IDs
@@ -849,9 +849,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 
-					let id = "reporting-background-leaflet-map-container";
+					let id = "reporting-background-leaflet-map-container-" + elementIdx;
 					let pageDom = document.getElementById("reporting-background-page");
-					let pageElementDom = document.getElementById("reporting-background-page-map");
+					let pageElementDomId = "reporting-background-page-map-" + elementIdx;
+					let pageElementDom = document.getElementById(pageElementDomId);
 					
 					let oldMapNode = document.getElementById(id);
 					if(oldMapNode) {

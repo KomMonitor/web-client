@@ -2139,13 +2139,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return map;
 		}
 
-		$scope.initLeafletMapBeneathEchartsMap = async function(page, pageElement, map, isVisible){
+		$scope.initLeafletMapBeneathEchartsMap = async function(page, pageElement, elementIdx, map, isVisible){
 			// initialize the leaflet map beneath the transparent-background echarts map
 				let isPreview = isVisible;
 				let pageIdx = $scope.template.pages.indexOf(page);
-				let id = isPreview ? "reporting-addPoiLayer-leaflet-map-container-" + pageIdx : "reporting-addIndicator-background-leaflet-map-container";
-				let pageDomId = isPreview ? "reporting-addIndicator-page-" + pageIdx : "reporting-addIndicator-background-page";
-				let pageElementDomId = isPreview ? "reporting-addIndicator-page-" + pageIdx + "-map" : "reporting-addIndicator-background-page-map";
+				let id = "reporting-addIndicator-background-leaflet-map-container-" + elementIdx;
+				let pageDomId = "reporting-addIndicator-background-page";
+				let pageElementDomId = "reporting-addIndicator-background-page-map-" + elementIdx;
 				
 				let pageDom = document.getElementById(pageDomId);
 				let pageElementDom = document.getElementById(pageElementDomId);
@@ -3676,8 +3676,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return;
 			}
 
-			for(let pageElement of page.pageElements) {
-				let pElementDom = pageDom.querySelector(".type-" + pageElement.type);
+			for(let [elementIdx, pageElement] of page.pageElements.entries()) {
+				let pElementDom = pageDom.querySelector("#reporting-addIndicator-background-page-" + pageElement.type + "-" + elementIdx);
 				
 				if(!pElementDom) {
 					continue;
@@ -3705,7 +3705,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 						
 
-						page.generatedData.mapImage = await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, map, false);
+						page.generatedData.mapImage = await $scope.initLeafletMapBeneathEchartsMap(page, pageElement, elementIdx, map, false);
 
 						pageElement.isPlaceholder = false;
 
@@ -3714,7 +3714,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 						// if this is a preview page, we move the rendered result to the visible area
 						if(isPreview) {
-							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 							if(previewPElementDom) {
 								previewPElementDom.innerHTML = "";
 								while (pElementDom.firstChild) {
@@ -3753,7 +3753,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						
 						// if this is a preview page, we move the rendered result to the visible area
 						if(isPreview) {
-							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 							if(previewPElementDom) {
 								previewPElementDom.innerHTML = "";
 								while (pElementDom.firstChild) {
@@ -3775,7 +3775,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						
 						// if this is a preview page, we move the rendered result to the visible area
 						if(isPreview) {
-							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							let previewPElementDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 							if(previewPElementDom) {
 								previewPElementDom.innerHTML = "";
 								while (pElementDom.firstChild) {
@@ -3806,7 +3806,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						
 						let targetDom = pElementDom;
 						if(isPreview) {
-							targetDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+							targetDom = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type + "-" + elementIdx);
 						}
 						await $scope.createPageElement_Datatable(targetDom, page, isPreview);
 						
