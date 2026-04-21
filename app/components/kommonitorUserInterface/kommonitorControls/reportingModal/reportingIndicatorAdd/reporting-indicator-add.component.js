@@ -1521,8 +1521,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let [idx, tab] of Array.from(allTabs).entries()) {
 					let id = idx + 1;
 					// Enable only essential tabs initially for reachability
-					// Tab 1: POIs, Tab 4: Area, Tab 6: Config, Tab 7: Screenshots
-					if([1, 4, 6, 7].includes(id)) {
+					// Tab 1: POIs, Tab 2: Bereich, Tab 6: Config, Tab 7: Screenshots
+					if([1, 2, 6, 7].includes(id)) {
 						$scope.enableTab(tab);
 					} else {
 						$scope.disableTab(tab);
