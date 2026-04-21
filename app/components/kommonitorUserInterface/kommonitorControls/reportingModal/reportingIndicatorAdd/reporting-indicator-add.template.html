@@ -6,6 +6,24 @@
         </div>
     </div>
     <div class="reporting-content-wrapper">
+
+        <!-- Reachability Workflow Info Box -->
+        <div ng-if="template.name.includes('-reachability')" class="row" style="margin-bottom: 15px;">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <div class="alert alert-info" style="border-left: 5px solid #31708f; background-color: #f4f8fb;">
+                    <h4><i class="fa fa-info-circle"></i> Reachability-Reporting Workflow</h4>
+                    <ol>
+                        <li>Wählen Sie einen <b>POI-Layer</b> aus (Tab 1).</li>
+                        <li>Passen Sie bei Bedarf die <b>Raumebene</b> und die zu exportierenden <b>Bereiche</b> an (Tab 4).</li>
+                        <li>Klicken Sie unten auf <b>"Vorschau & Report-Seiten generieren"</b>, um die Basiskonfiguration aufzubereiten.</li>
+                        <li>Anschließend werden die Tabs <b>"Erreichbarkeit"</b> (Isochronen) und <b>"Indikatoren"</b> (Werte-Overlays) freigeschaltet, um den Report optional zu verfeinern.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
         <div class="row">
             <div class="col-sm-2"></div>
             <div class="col-sm-8">
@@ -457,7 +475,13 @@
                             <p><i class="fa fa-check-circle"></i> Die Aufbereitung ist abgeschlossen. Sie können den Indikator nun zum Gesamtbericht hinzufügen.</p>
                         </div>
                         <div ng-if="!validateConfiguration()" class="text-center text-warning">
-                            <p><i class="fa fa-exclamation-triangle"></i> Bitte wählen Sie zuerst einen Indikator, die gewünschte Raumebene und mindestens einen Zeitpunkt aus.</p>
+                            <div ng-show="template.name.includes('-reachability')">
+                                <p><i class="fa fa-exclamation-triangle"></i> Bitte wählen Sie zuerst einen Punktdatensatz und eine Raumebene aus und generieren die Report-Vorschau inklusive der gewünschten Hintergrundkarte.</p>
+                            </div>
+                            <div ng-show="!template.name.includes('-reachability')">
+                                <p><i class="fa fa-exclamation-triangle"></i> Bitte wählen Sie zuerst einen Indikator, die gewünschte Raumebene und mindestens einen Zeitpunkt aus.</p>
+                            </div>
+                            
                         </div>
                     </div>
 
