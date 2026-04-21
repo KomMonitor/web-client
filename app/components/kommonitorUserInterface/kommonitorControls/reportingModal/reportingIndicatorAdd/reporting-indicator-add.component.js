@@ -3687,10 +3687,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					case "map": {
 						// initialize with all areas
 						let map = await $scope.createPageElement_Map(pElementDom, page, pageElement);
-						if (pageElement.leafletMap) {
-							// CRITICAL: Leaflet needs to recalculate dimensions in off-screen containers
-							pageElement.leafletMap.invalidateSize(false);
-						}
+						
 						// filter visible areas if needed
 						if(page.area && page.area.length) {
 							if($scope.selectedIndicator) {
