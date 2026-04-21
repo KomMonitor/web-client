@@ -128,4 +128,22 @@ angular.module('reportingModal').component('reportingModal', {
 	}
 ]});
 
+angular.module('reportingModal').controller('ReportingBackgroundController', ['$scope', 'kommonitorDataExchangeService', 
+	function ReportingBackgroundController($scope, kommonitorDataExchangeService) {
+		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		
+		// helper to determine visibility, similar to components
+		this.checkVisibility = function(pageElement, page) {
+			if (!page || !pageElement) return false;
+			// we can't easily access the component scopes here, so we use a simplified version
+			// or we just trust that the components provide the correct pageElements
+			return true; 
+		};
+
+		this.getPageNumber = function(index) {
+			return (index || 0) + 1;
+		};
+	}
+]);
+
 

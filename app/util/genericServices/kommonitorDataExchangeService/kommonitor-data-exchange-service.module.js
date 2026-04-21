@@ -43,6 +43,11 @@ angular
               this.reportCountdown = 0;
               this.reportingModalOpen = false;
 
+              this.reportingBackgroundState = {
+                pageToProcess_add: undefined,
+                pageToProcess_overview: undefined
+              };
+
               this.enableMeanDataDisplayInLegend = __env.enableMeanDataDisplayInLegend;
               this.configMeanDataDisplay = __env.configMeanDataDisplay;
              
