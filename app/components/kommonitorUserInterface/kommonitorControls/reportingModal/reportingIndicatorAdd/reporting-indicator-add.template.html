@@ -15,7 +15,7 @@
                     <h4><i class="fa fa-info-circle"></i> Reachability-Reporting Workflow</h4>
                     <ol>
                         <li>Wählen Sie einen <b>POI-Layer</b> aus (Tab 1).</li>
-                        <li>Passen Sie bei Bedarf die <b>Raumebene</b> und die zu exportierenden <b>Bereiche</b> an (Tab 4).</li>
+                        <li>Passen Sie bei Bedarf die <b>Raumebene</b> und die zu exportierenden <b>Bereiche</b> an (Tab 2).</li>
                         <li>Klicken Sie unten auf <b>"Vorschau & Report-Seiten generieren"</b>, um die Basiskonfiguration aufzubereiten.</li>
                         <li>Anschließend werden die Tabs <b>"Erreichbarkeit"</b> (Isochronen) und <b>"Indikatoren"</b> (Werte-Overlays) freigeschaltet, um den Report optional zu verfeinern.</li>
                     </ol>
@@ -34,6 +34,9 @@
                             ng-show="template.name.includes('-reachability')">
                             <a href="#pois" aria-controls="pois" role="tab" data-toggle="tab">POIs</a>
                         </li>
+                        <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
+                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
+                        </li>
                         <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled"
                             ng-show="template.name.includes('-reachability')">
                             <a href="#isochrones" aria-controls="isochrones" role="tab" data-toggle="tab">Erreichbarkeit</a>
@@ -41,9 +44,6 @@
                         <li id="reporting-add-indicator-tab3" role="presentation" 
                             ng-attr-class="{{!template.name.includes('-reachability') ? 'active' : 'tab-disabled'}}">
                             <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
-                        </li>
-                        <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
-                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
                         </li>
                         <li id="reporting-add-indicator-tab5" role="presentation" class="tab-disabled"
                             ng-show="!template.name.includes('-reachability')">
