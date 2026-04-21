@@ -2280,6 +2280,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// echartsMap.setOption(echartsOptions, {
 				// 	notMerge: true
 				// });
+
+				// due to strange leaflet screenshot issues when there are multiple echarts series we only set the first series here 
+				// // and make sure that after screenshot is taken, we update the rest of the series in order to have them included in the screenshot but not cause leaflet rendering issues beforehand 
+				let firstSeries_array = [echartsOptions.series[0]];
+				let allSeries_array = echartsOptions.series;
+
+				echartsOptions.series = firstSeries_array;
 				map.setOption(echartsOptions, {
 					notMerge: false
 				});				
@@ -2331,6 +2338,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					leafletMap.remove();
 					div.remove();
 				}
+
+				// now that the screenshot is taken and leaflet map is not needed anymore, we can update the echarts options with all series (in case there are more than one)
+				echartsOptions.series = allSeries_array;
+				map.setOption(echartsOptions, {
+					notMerge: false
+				});	
 
 				return dataUrl;
 		}
@@ -3512,6 +3525,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			setTimeout(function () {
 				$scope.$digest();
 			});
+			await $timeout(function(){}, 150); // wait for angular to render new pages in DOM
 
 			// PREPARATION STRATEGY:
 			// We want to show preview pages (General info, first 5 area pages, ALL datatable pages) as early as possible.
