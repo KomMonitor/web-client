@@ -518,6 +518,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 					setTimeout(function () {
 						$scope.$digest();
 					});
+					await $timeout(function(){}, 150); // wait for angular to render new pages in DOM
 
 					for(let [idx, page] of $scope.config.pages.entries()) {
 
@@ -595,6 +596,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 			let logProgressIndexSeparator = Math.round($scope.pagePreparationSize / 100 * 10);
 
+			setTimeout(function () {
+				$scope.$digest();
+			});
+			await $timeout(function(){}, 150); // wait for angular to render new pages in DOM
+
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				if(page.templateSection.poiLayerName !== poiLayerName) {
@@ -637,7 +643,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 			if (!isPreview) {
 				$scope.pageToProcess = page;
-				await $timeout(function(){}, 50); // wait for DOM to render hidden page
+				await $timeout(function(){}, 150); // wait for DOM to render hidden page
 			}
 
 			let pageDomId = isPreview ? "#reporting-overview-page-" + idx : "#reporting-background-page";
