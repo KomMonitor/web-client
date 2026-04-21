@@ -29,15 +29,15 @@ angular
       // i.e. "<CacheKey_prefix>__leaflet_screenshot_<spatialUnitID>_<featureID>"
       const CacheKey_leafletScreenshotPrefix = CacheKey_prefix + "_leaflet_screenshot_";
 
-      this.generateUniqueCacheKey = function (mapName, spatialUnitId, featureId, pageOrientation) {
+      this.generateUniqueCacheKey = function (mapName, spatialUnitId, featureId, pageOrientation, templateName) {
 
-        return CacheKey_leafletScreenshotPrefix  + "_" + mapName + "_" + spatialUnitId + "_" + featureId + "_" + pageOrientation
+        return CacheKey_leafletScreenshotPrefix  + "_" + mapName + "_" + spatialUnitId + "_" + featureId + "_" + pageOrientation + "_" + templateName
       };
 
-      this.storeResourceInCache = async function (mapName, spatialUnitId, featureId, pageOrientation, imageDataUrl) {
+      this.storeResourceInCache = async function (mapName, spatialUnitId, featureId, pageOrientation, templateName,imageDataUrl) {
         // let timestampInSeconds = Math.floor(Date.now() / 1000);
 
-        let CacheKey = self.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+        let CacheKey = self.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName);
 
         let item = {
           // "timestamp": timestampInSeconds,
@@ -72,8 +72,8 @@ angular
         }
       }
 
-      this.getResourceFromCache = function (mapName, spatialUnitId, featureId, pageOrientation) {
-        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+      this.getResourceFromCache = function (mapName, spatialUnitId, featureId, pageOrientation, templateName) {
+        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName);
 
         let item = self.cacheMap.get(CacheKey);
 
@@ -83,9 +83,9 @@ angular
         return undefined;
       }
 
-      this.checkForScreenshot = function (mapName, spatialUnitId, featureId, pageOrientation, domElement) {
+      this.checkForScreenshot = function (mapName, spatialUnitId, featureId, pageOrientation, domElement, templateName) {
 
-        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation);
+        let CacheKey = this.generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName);
         if (!self.cacheMap.has(CacheKey)) {
 
           if (self.pendingPromises.has(CacheKey)) {

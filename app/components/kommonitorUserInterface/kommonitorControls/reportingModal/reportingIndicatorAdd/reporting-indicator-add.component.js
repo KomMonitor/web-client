@@ -2346,7 +2346,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 								await new Promise(resolve => setTimeout(resolve, 500));
 							}
 							let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot($scope.selectedBaseMap.layerConfig.name, $scope.selectedSpatialUnit.spatialUnitId, 
-								page.spatialUnitFeatureId, page.orientation, domNode);
+								page.spatialUnitFeatureId, page.orientation, domNode, $scope.template.name);
 							resolve(dataUrl);
 						} else {
 							resolve(undefined);

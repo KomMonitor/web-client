@@ -815,7 +815,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.initializeLeafletMap = async function(page, pageElement, elementIdx, echartsMap, spatialUnit, forceScreenshot, isVisible) {
 				try {
 					// ALWAYS route through background container
-					let isPreviewVisible = isVisible; // original param, but we use false for IDs
+					let isPreviewVisible = isVisible; 
 					let pageIdx = $scope.config.pages.indexOf(page);
 					
 					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
@@ -832,19 +832,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 					// Check cache first
-					let cachedScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
+					let cachedScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation, $scope.config.template.name);
 
 					if (cachedScreenshot && isPreviewVisible) {
 						// still we must check for screenshot to ensure counter is correct
 						await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-							page.spatialUnitFeatureId, page.orientation, null);
+							page.spatialUnitFeatureId, page.orientation, null, $scope.config.template.name);
 						return cachedScreenshot;
 					}
 
 					if (cachedScreenshot && !isPreviewVisible) {
 						// still we must increase the counter for page generation
 						let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-								page.spatialUnitFeatureId, page.orientation, null);
+								page.spatialUnitFeatureId, page.orientation, null, $scope.config.template.name);
 						return dataUrl;
 					}
 
@@ -985,7 +985,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 							}
 							
 							let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-								page.spatialUnitFeatureId, page.orientation, leafletMap["_container"]);
+								page.spatialUnitFeatureId, page.orientation, leafletMap["_container"], $scope.config.template.name);
 							resolve(dataUrl);
 						});
 					});
@@ -1002,14 +1002,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					if (!dataUrl || (!dataUrl.startsWith("data:image") && !dataUrl.startsWith("blob:")) || dataUrl.length < 10) {
 						console.warn("Invalid leaflet map screenshot generated for page " + pageIdx + ". DataUrl: " + (dataUrl ? dataUrl.substring(0, 50) + "..." : "null"));
-						if (!isPreview) {
+						if (!isPreviewVisible) {
 							leafletMap.remove();
 							div.remove();
 						}
 						return undefined;
 					}
 
-					if (!isPreview) {
+					if (!isPreviewVisible) {
 						leafletMap.remove();
 						div.remove();
 					}
@@ -2466,7 +2466,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.createLeafletEChartsMapImage = async function(page, pageDom, pageElement, echartsImgSrc) {
 			let result;
 
-			let leafletMapScreenshot = page.generatedData.mapImage || kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
+			let leafletMapScreenshot = page.generatedData.mapImage || kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation, $scope.config.template.name);
 
 			if (!leafletMapScreenshot) {
 				console.warn("No leaflet screenshot found for page", page);
