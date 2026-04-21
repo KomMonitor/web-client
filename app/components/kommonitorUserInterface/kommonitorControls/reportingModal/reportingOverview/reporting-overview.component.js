@@ -1604,14 +1604,19 @@ angular.module('reportingOverview').component('reportingOverview', {
 								continue;
 							}
 							if(pageElement.src && pageElement.src.length) {
-
-								let img = new Image();
-								img.src = pageElement.src;
-								let imageWidth = img.width;
-								let imageHeight = img.height;
-
-								// create an image in width/size of the uploaded one (img object). Then shrink it down to pageElementDimensions, while containing imgRatio
-								slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: imageWidth, h: imageHeight, path: pageElement.src, sizing: { type: "contain", w: pageElementDimensions.width, h: pageElementDimensions.height}});
+								await getImageDimensions(pageElement.src);
+								
+								// create an image in width/size of the uploaded one. Then shrink it down to pageElementDimensions, while containing imgRatio
+								slide.addImage({ 
+									x: pageElementDimensions.left, 
+									y: pageElementDimensions.top, 
+									path: pageElement.src, 
+									sizing: { 
+										type: "contain", 
+										w: pageElementDimensions.width, 
+										h: pageElementDimensions.height
+									}
+								});
 							}
 							break;
 						}
@@ -1823,8 +1828,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 								continue;
 							}
 							if(pageElement.src && pageElement.src.length) {
-								doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left, pageElementDimensions.top,
-									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+								let imgDims = await getImageDimensions(pageElement.src);
+								let fit = calculateFitDimensions(imgDims.width, imgDims.height, pageElementDimensions.width, pageElementDimensions.height);
+
+								doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left + fit.offsetX, pageElementDimensions.top + fit.offsetY,
+									fit.width, fit.height, "", 'MEDIUM');
 							}
 							break;
 						}
@@ -2043,21 +2051,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 								continue;
 							}
 							if(pageElement.src && pageElement.src.length) {
+								let imgDims = await getImageDimensions(pageElement.src);
+								let fit = calculateFitDimensions(imgDims.width, imgDims.height, pageElementDimensionsPx.width, pageElementDimensionsPx.height);
+
+								let offsetXEmu = twipToEmus(docx.convertMillimetersToTwip(fit.offsetX / $scope.pxPerMilli));
+								let offsetYEmu = twipToEmus(docx.convertMillimetersToTwip(fit.offsetY / $scope.pxPerMilli));
+
 								let paragraph = new docx.Paragraph({
 									children: [
 										new docx.ImageRun({
 											data: dataURItoBlob(pageElement.src),
 											transformation: {
-												width: pageElementDimensionsPx.width,
-												height: pageElementDimensionsPx.height
+												width: fit.width,
+												height: fit.height
 											},
 											floating: {
 												horizontalPosition: {
-													offset: pageElementDimensionsEmu.left,
+													offset: pageElementDimensionsEmu.left + offsetXEmu,
 												},
 												verticalPosition: {
-													offset: pageElementDimensionsEmu.top,
-												}
+													offset: pageElementDimensionsEmu.top + offsetYEmu,
+												},
+												behindDocument: false
 											},
 										})
 									]
@@ -2506,6 +2521,31 @@ angular.module('reportingOverview').component('reportingOverview', {
 					
 			result = canvas.toDataURL();
 			return result;
+		}
+
+		async function getImageDimensions(base64) {
+			return new Promise((resolve, reject) => {
+				let img = new Image();
+				img.onload = () => {
+					resolve({width: img.width, height: img.height});
+				};
+				img.onerror = reject;
+				img.src = base64;
+			});
+		}
+
+		function calculateFitDimensions(imgWidth, imgHeight, containerWidth, containerHeight) {
+			let ratio = Math.min(containerWidth / imgWidth, containerHeight / imgHeight);
+			let newWidth = imgWidth * ratio;
+			let newHeight = imgHeight * ratio;
+			let offsetX = (containerWidth - newWidth) / 2;
+			let offsetY = (containerHeight - newHeight) / 2;
+			return {
+				width: newWidth,
+				height: newHeight,
+				offsetX: offsetX,
+				offsetY: offsetY
+			};
 		}
 
 		function pxToMilli(px) {
