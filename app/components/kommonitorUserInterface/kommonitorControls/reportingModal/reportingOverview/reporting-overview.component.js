@@ -641,31 +641,22 @@ angular.module('reportingOverview').component('reportingOverview', {
 				};
 			}
 
-			if (!isPreview) {
-				kommonitorDataExchangeService.reportingBackgroundState.pageToProcess_overview = page;
-				await $timeout(function(){}, 150); // wait for DOM to render hidden page
-			}
+			// ALWAYS route through background processor for stable map capture
+			kommonitorDataExchangeService.reportingBackgroundState.pageToProcess_overview = page;
+			await $timeout(function(){}, 150); // wait for DOM to render hidden page
 
-			let pageDomId = isPreview ? "#reporting-overview-page-" + idx : "#reporting-background-page";
-			let pageDom = document.querySelector(pageDomId);
+			let pageDom = document.getElementById("reporting-background-page");
 
 			if(!pageDom) {
-				console.warn("Could find DOM for page " + idx + ". Retrying with global background container.");
-				pageDom = document.getElementById("reporting-background-page");
-			}
-
-			if(!pageDom) {
-				console.error("Could not find DOM for page " + idx);
+				console.error("Could not find background DOM for page " + idx);
 				return;
 			}
 
 			for(let pageElement of page.pageElements) {
-				let pElementDomId = isPreview ? "#reporting-overview-page-" + idx + "-" + pageElement.type : "#reporting-background-page-" + pageElement.type;
-				let pElementDom = pageDom.querySelector(pElementDomId);
+				let pElementDom = pageDom.querySelector(".type-" + pageElement.type);
 				
-				if(!pElementDom && !isPreview) {
-					// fallback for background processor since it might not use the same nested ID structure
-					pElementDom = pageDom.querySelector(".type-" + pageElement.type);
+				if(!pElementDom) {
+					continue;
 				}
 				
 				// recreate boxplots, itemNameFormatter did not get transferred
@@ -746,9 +737,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					if(!pageElement.echartsOptions) {
 						console.warn("No echarts options found for page element", pageElement, "on page", idx);
-						if (!isPreview) {
-							instance.dispose();
-						}
+						instance.dispose();
 						continue;
 					}
 
@@ -757,10 +746,16 @@ angular.module('reportingOverview').component('reportingOverview', {
 					instance.setOption(pageElement.echartsOptions)
 
 					if(pageElement.type === "map") {
-						page.generatedData.mapImage = await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false, isPreview);
-						if (!isPreview && pageElement.leafletMap) {
-							// CRITICAL: Leaflet needs to recalculate dimensions in off-screen containers
-							pageElement.leafletMap.invalidateSize(false);
+						page.generatedData.mapImage = await $scope.initializeLeafletMap(page, pageElement, instance, spatialUnit, false, false); // pass false for isVisible as we use screenshot in preview
+
+						// if this is a preview page, we set the screenshot as background
+						if(isPreview) {
+							let previewPElementDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+							if(previewPElementDom && page.generatedData.mapImage) {
+								previewPElementDom.style.backgroundImage = "url(" + page.generatedData.mapImage + ")";
+								previewPElementDom.style.backgroundSize = "100% 100%";
+								previewPElementDom.style.backgroundRepeat = "no-repeat";
+							}
 						}
 					}
 
@@ -776,7 +771,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// store ECharts image
 					page.generatedData.echarts[pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? "_perc" : "")] = instance.getDataURL({pixelRatio: $scope.echartsImgPixelRatio});
 
-					if (!isPreview) {
+					// if this is a preview page, we move the rendered result to the visible area
+					if(isPreview) {
+						let previewPElementDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+						if(previewPElementDom) {
+							previewPElementDom.innerHTML = "";
+							while (pElementDom.firstChild) {
+								previewPElementDom.appendChild(pElementDom.firstChild);
+							}
+						}
+					}
+
+					if(!isPreview) {
 						instance.dispose();
 					}
 				}
@@ -784,25 +790,32 @@ angular.module('reportingOverview').component('reportingOverview', {
 				if(pageElement.type === "mapLegend") {
 					pageElement.isPlaceholder = false;
 					if (isPreview) {
-						pageDom.querySelector(".type-mapLegend").style.display = "none";
+						let previewPageDom = document.getElementById("reporting-overview-page-" + idx);
+						if(previewPageDom) {
+							let legendNode = previewPageDom.querySelector(".type-mapLegend");
+							if(legendNode) legendNode.style.display = "none";
+						}
 					}
 				}
 
 				if(pageElement.type === "datatable") {
-					$scope.createDatatablePage(pElementDom, pageElement);
+					let targetDom = pElementDom;
+					if(isPreview) {
+						targetDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+					}
+					$scope.createDatatablePage(targetDom, pageElement);
 					page.generatedData.tableData = pageElement.tableData;
 				}
 			}
 
-			if (!isPreview) {
-				$scope.pageToProcess = undefined;
-				await $timeout(function(){}, 0);
-			}
+			$scope.pageToProcess = undefined;
+			await $timeout(function(){}, 0);
 		}
 
 		$scope.initializeLeafletMap = async function(page, pageElement, echartsMap, spatialUnit, forceScreenshot, isVisible) {
 				try {
-					let isPreview = isVisible;
+					// ALWAYS route through background container
+					let isPreviewVisible = isVisible; // original param, but we use false for IDs
 					let pageIdx = $scope.config.pages.indexOf(page);
 					
 					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
@@ -821,13 +834,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 					// Check cache first
 					let cachedScreenshot = kommonitorLeafletScreenshotCacheHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
 
-					if (cachedScreenshot && isPreview) {
-						// if we are in preview and have a cached screenshot, we could just show it.
-						// but for now, we still init the leaflet map if it's in preview to allow some interaction if needed (though it's disabled)
-						// However, if it's NOT in preview, we definitely want to skip it.
+					if (cachedScreenshot && isPreviewVisible) {
+						// still we must check for screenshot to ensure counter is correct
+						await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
+							page.spatialUnitFeatureId, page.orientation, null);
+						return cachedScreenshot;
 					}
 
-					if (cachedScreenshot && !isPreview) {
+					if (cachedScreenshot && !isPreviewVisible) {
 						// still we must increase the counter for page generation
 						let dataUrl = await kommonitorLeafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
 								page.spatialUnitFeatureId, page.orientation, null);
@@ -835,9 +849,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 
 
-					let id = isPreview ? "reporting-overview-leaflet-map-container-" + pageIdx : "reporting-background-leaflet-map-container";
-					let pageDom = isPreview ? document.getElementById("reporting-overview-page-" + pageIdx) : document.getElementById("reporting-background-page");
-					let pageElementDom = isPreview ? document.getElementById("reporting-overview-page-" + pageIdx + "-map") : document.getElementById("reporting-background-page-map");
+					let id = "reporting-background-leaflet-map-container";
+					let pageDom = document.getElementById("reporting-background-page");
+					let pageElementDom = document.getElementById("reporting-background-page-map");
 					
 					let oldMapNode = document.getElementById(id);
 					if(oldMapNode) {
