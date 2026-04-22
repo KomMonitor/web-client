@@ -1757,11 +1757,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// set spatial unit to highest available one
 				let spatialUnits = kommonitorDataExchangeService.availableSpatialUnits;
 				// go from highest to lowest spatial unit and check if it is available.
-				let applicableSpatialUnitsFiltered = spatialUnits.filter( (unit) => {
+				/* let applicableSpatialUnitsFiltered = spatialUnits.filter( (unit) => {
 					return $scope.selectedIndicator.applicableSpatialUnits.some( (appUnit) => {
 						return appUnit.spatialUnitId === unit.spatialUnitId;
 					})
-				});
+				}); */
+        
+        // change: return based on selectedIndicator.applicableSpatialUnits iso kommonitorDataExchangeService.availableSpatialUnits
+        // objects differ of what is used in here
+        let applicableSpatialUnitsFiltered = $scope.selectedIndicator.applicableSpatialUnits
+          .filter(appUnit => {
+            return spatialUnits.some(unit => unit.spatialUnitId === appUnit.spatialUnitId);
+          });
 
 				if(! applicableSpatialUnitsFiltered || applicableSpatialUnitsFiltered.length === 0) {
 					throw new Error("No applicable spatial unit found.")
