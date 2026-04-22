@@ -1774,7 +1774,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(! applicableSpatialUnitsFiltered || applicableSpatialUnitsFiltered.length === 0) {
 					throw new Error("No applicable spatial unit found.")
 				}
-				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
+				$scope.selectedSpatialUnit = applicableSpatialUnitsFiltered[0];
 
 				await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
 
