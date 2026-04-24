@@ -407,12 +407,19 @@
 						<h4>Demonstrator OGITO-Gruppen-Beteiligungsdaten</h4>
 					</div>
 
+					<!--
 					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_quiet()">
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;ruhige Orte laden
 					</button>
 
 					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_noise()">
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;laute Orte laden
+					</button>-->
+
+					<input class="form-control ng-pristine ng-empty ng-invalid ng-invalid-required ng-touched" type="text" placeholder="Layer-Name" ng-model="layername" required="">
+
+					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadAllSketchData(layername)">
+						<i class="fas fa-plus"></i>&nbsp;&nbsp;Orte laden
 					</button>
 
 					<!-- <button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadSketchData_pois()">
@@ -427,9 +434,10 @@
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;Fl&auml;chensketches laden
 					</button> -->
 
+					<!--
 					<button class="btn btn-success btn-sm" type="button" ng-click="$ctrl.ogitoHelperServiceInstance.loadMeasures()">
 						<i class="fas fa-plus"></i>&nbsp;&nbsp;Ma&szlig;nahmen laden
-					</button>
+					</button>-->
 
 
 				</div>

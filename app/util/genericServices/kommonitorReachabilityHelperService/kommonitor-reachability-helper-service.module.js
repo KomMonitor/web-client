@@ -244,6 +244,10 @@ angular
 					});
 				}
 
+				if(self.settings.locationsArray[0].length == 1) {
+					self.settings.locationsArray = self.settings.locationsArray.flat();
+				}
+
 				return self.settings.locationsArray;
 			};
 
