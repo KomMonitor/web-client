@@ -4,12 +4,27 @@
   transform: none !important;
 }
 
+
 .modal-content {
   width: 25vw;
   min-width: 350px;
 
   &.content-small {
     width: 40vw;
+  }
+
+  .modal-header {
+
+    button {
+      border: none;
+      background-color: #fff;
+    }
+    
+    h4 {
+      margin: 0 0 5px;
+      font: 16px/18px Arial, Helvetica, sans-serif !important;
+      color: #777 !important;
+    }
   }
 
   .modal-body {

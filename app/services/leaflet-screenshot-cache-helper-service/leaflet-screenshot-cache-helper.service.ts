@@ -2,13 +2,12 @@ import { Inject, Injectable, OnInit } from '@angular/core';
 import pako from 'pako';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import domtoimage from 'dom-to-image-more';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeafletScreenshotCacheHelperService {
-
-  CacheKey_prefix = window.__env.localStoragePrefix;
 
   cacheMap = new Map();
 
@@ -27,12 +26,12 @@ export class LeafletScreenshotCacheHelperService {
 
   // we intend to make keys for every feature of every possible spatial unit
   // i.e. "<CacheKey_prefix>__leaflet_screenshot_<spatialUnitID>_<featureID>"
-  CacheKey_leafletScreenshotPrefix = this.CacheKey_prefix + "_leaflet_screenshot_";
+  CacheKey_leafletScreenshotPrefix = this.envConfigService.localStoragePrefix + "_leaflet_screenshot_";
 
   constructor(
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private envConfigService: EnvConfigService,
   ) {
-
     const request = indexedDB.open(this.dbName, 2);
     request.onupgradeneeded = (event: any) => {
       this.indexedDB = event.target.result;
@@ -156,6 +155,7 @@ export class LeafletScreenshotCacheHelperService {
           });
       }, 150);
     } else {
+      
       // only increase executedCacheMap due to log progress
       this.executedScreenshotMapKeys.set(CacheKey, CacheKey);
       // send UI update information

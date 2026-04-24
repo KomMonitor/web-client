@@ -1,0 +1,103 @@
+<div class="modal-header">
+  <h4 class="modal-title">Skripte löschen</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Schließen"
+    (click)="close()"
+  >
+    <!-- <span aria-hidden="true">&times;</span> -->
+  </button>
+</div>
+
+<div class="modal-body">
+  <!-- Loading Overlay -->
+  <div *ngIf="loadingData" class="loading-overlay-admin-panel text-center">
+    <i class="fas fa-spinner fa-spin fa-2x"></i>
+  </div>
+
+  <h4><b>Sollen die folgenden Skripte wirklich gelöscht werden?</b></h4>
+  <p>
+    Der jeweilige Ziel-Indikator kann dann nicht mehr automatisiert durch
+    KomMonitor berechnet werden.
+  </p>
+
+  <div *ngIf="datasetsToDelete.length > 0">
+    <ul>
+      <li *ngFor="let dataset of datasetsToDelete">{{ dataset.name }}</li>
+    </ul>
+  </div>
+
+  <div *ngIf="datasetsToDelete.length === 0">
+    <pre>
+Kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
+    >
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="showSuccessAlert" class="alert alert-success alert-dismissable">
+    <button
+      type="button"
+      class="btn-close"
+      (click)="hideSuccessAlert()"
+      aria-hidden="true"
+    >
+      &times;
+    </button>
+    <h4>
+      <i class="icon fa fa-check"></i> Folgende Skripte wurden erfolgreich
+      gelöscht
+    </h4>
+    <ul>
+      <li *ngFor="let dataset of successfullyDeletedDatasets">
+        {{ dataset.name }}
+      </li>
+    </ul>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="showErrorAlert" class="alert alert-danger alert-dismissable">
+    <button
+      type="button"
+      class="btn-close"
+      (click)="hideErrorAlert()"
+      aria-hidden="true"
+    >
+      &times;
+    </button>
+    <h4><i class="icon fa fa-ban"></i> Löschen gescheitert</h4>
+    <p>Folgende Datensätze konnten nicht gelöscht werden.</p>
+    <table
+      class="table table-bordered table-condensed"
+      style="width: 100%; overflow: auto; font-size: 11px"
+    >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Fehlermeldung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of failedDatasetsAndErrors">
+          <td>{{ entry[0].name }}</td>
+          <td [innerHTML]="entry[1]"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    Schließen
+  </button>
+  <div style="flex: 1"></div>
+  <button
+    type="button"
+    class="btn btn-danger"
+    [disabled]="datasetsToDelete.length === 0 || loadingData"
+    (click)="deleteScripts()"
+  >
+    Skripte unwiderruflich löschen
+  </button>
+</div>

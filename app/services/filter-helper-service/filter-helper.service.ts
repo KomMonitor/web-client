@@ -1,15 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MapService } from 'services/map-service/map.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as turf from '@turf/turf';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterHelperService {
-
-  exchangeData!: DataExchange; 
 
   filteredIndicatorFeatureIds = new Map();
   selectedIndicatorFeatureIds = new Map();
@@ -19,9 +18,8 @@ export class FilterHelperService {
     private dataExchangeService: DataExchangeService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
-  ) {
-    this.exchangeData = this.dataExchangeService.pipedData
-  }
+    private envConfigService: EnvConfigService
+  ) { }
 
   applyRangeFilter(features, targetDateProperty, minFilterValue, maxFilterValue) {
     //this.ajskommonitorFilterHelperServiceProvider.applyRangeFilter(features, dtargetDateProperty, minFilterValue, maxFilterValue);
@@ -29,17 +27,17 @@ export class FilterHelperService {
       this.filteredIndicatorFeatureIds = new Map();
     }
     for (const feature of features) {
-        var value = +Number(feature.properties[targetDateProperty]).toFixed(window.__env.numberOfDecimals);
+        var value = +Number(feature.properties[targetDateProperty]).toFixed(this.envConfigService.numberOfDecimals);
         if (value >= minFilterValue && value <= maxFilterValue) {
             // feature must not be filtered - make sure it is not marked as filtered
-            if (this.filteredIndicatorFeatureIds.has("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-                this.filteredIndicatorFeatureIds.delete("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+            if (this.filteredIndicatorFeatureIds.has("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
+                this.filteredIndicatorFeatureIds.delete("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]);
             }
         }
         else {
             // feature must be filtered
-            if (!this.filteredIndicatorFeatureIds.has("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-                this.filteredIndicatorFeatureIds.set("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
+            if (!this.filteredIndicatorFeatureIds.has("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
+                this.filteredIndicatorFeatureIds.set("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME], feature);
             }
         }
     }
@@ -53,20 +51,20 @@ export class FilterHelperService {
 
     // function already merged to new service due to issues on map
       let indicatorMetadataAndGeoJSON;
-      if (this.exchangeData.isBalanceChecked) {
-          let filteredIndicatorFeatures = this.exchangeData.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !this.filteredIndicatorFeatureIds.has("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]));
-          indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(this.exchangeData.indicatorAndMetadataAsBalance));
+      if (this.dataExchangeService.isBalanceChecked) {
+          let filteredIndicatorFeatures = this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !this.filteredIndicatorFeatureIds.has("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));
+          indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(this.dataExchangeService.indicatorAndMetadataAsBalance));
           indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
-          this.mapService.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, false);
+          this.mapService.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedDate, false);
       }
       else {
-          let filteredIndicatorFeatures = this.exchangeData.selectedIndicator.geoJSON.features.filter(feature => !this.filteredIndicatorFeatureIds.has("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]));
-          indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(this.exchangeData.selectedIndicator));
+          let filteredIndicatorFeatures = this.dataExchangeService.selectedIndicator.geoJSON.features.filter(feature => !this.filteredIndicatorFeatureIds.has("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));
+          indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(this.dataExchangeService.selectedIndicator));
           indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
-          this.mapService.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, false);
+          this.mapService.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedDate, false);
       }
-      this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.exchangeData.selectedDate, indicatorMetadataAndGeoJSON]);
-      this.broadcastService.broadcast("updateMeasureOfValueBar", [this.exchangeData.selectedDate, indicatorMetadataAndGeoJSON]);
+      this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [this.dataExchangeService.selectedDate, indicatorMetadataAndGeoJSON]);
+      this.broadcastService.broadcast("updateMeasureOfValueBar", [this.dataExchangeService.selectedDate, indicatorMetadataAndGeoJSON]);
   }
 
   applySpatialFilter_higherSpatialUnitFeatures(higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames) {
@@ -76,12 +74,12 @@ export class FilterHelperService {
       this.filteredIndicatorFeatureIds = new Map();
     }
     // manage map of filtered features
-    let targetHigherSpatialUnitFilterFeatures = higherSpatialUnitFilterFeatureGeoJSON.features.filter(feature => targetFeatureNames.includes(feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]));
-    for (const feature of this.exchangeData.selectedIndicator.geoJSON.features) {
-        this.filteredIndicatorFeatureIds.set("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
+    let targetHigherSpatialUnitFilterFeatures = higherSpatialUnitFilterFeatureGeoJSON.features.filter(feature => targetFeatureNames.includes(feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]));
+    for (const feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+        this.filteredIndicatorFeatureIds.set("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME], feature);
         for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
             if (turf.booleanPointInPolygon(turf.pointOnFeature(feature), higherSpatialUnitFeature)) {
-                this.filteredIndicatorFeatureIds.delete("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME]);
+                this.filteredIndicatorFeatureIds.delete("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]);
                 break;
             }
         }
@@ -93,11 +91,11 @@ export class FilterHelperService {
   performSpatialFilter() {
     if (!this.completelyRemoveFilteredFeaturesFromDisplay) {
         // kommonitorMapService.restyleCurrentLayer();
-        if (this.exchangeData.isBalanceChecked) {
-            this.mapService.replaceIndicatorGeoJSON(this.exchangeData.indicatorAndMetadataAsBalance, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, false);
+        if (this.dataExchangeService.isBalanceChecked) {
+            this.mapService.replaceIndicatorGeoJSON(this.dataExchangeService.indicatorAndMetadataAsBalance, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedDate, false);
         }
         else {
-            this.mapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, false);
+            this.mapService.replaceIndicatorGeoJSON(this.dataExchangeService.selectedIndicator, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedDate, false);
         }
     }
     else {
@@ -129,9 +127,9 @@ export class FilterHelperService {
     // }
     this.filteredIndicatorFeatureIds = new Map();
     // manage map of filtered features        
-    for (const feature of this.exchangeData.selectedIndicator.geoJSON.features) {
-        if (!targetFeatureNames.includes(feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME])) {
-            this.filteredIndicatorFeatureIds.set("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
+    for (const feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+        if (!targetFeatureNames.includes(feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME])) {
+            this.filteredIndicatorFeatureIds.set("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME], feature);
         }
     }
     // apply filter
@@ -152,10 +150,10 @@ export class FilterHelperService {
 
   addFeatureToSelection(feature) {
     if (feature.properties) {
-        this.selectedIndicatorFeatureIds.set("" + feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
+        this.selectedIndicatorFeatureIds.set("" + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME], feature);
     }
     else {
-        this.selectedIndicatorFeatureIds.set("" + feature[window.__env.FEATURE_ID_PROPERTY_NAME], feature);
+        this.selectedIndicatorFeatureIds.set("" + feature[this.envConfigService.FEATURE_ID_PROPERTY_NAME], feature);
     }
     this.broadcastService.broadcast("onAddedFeatureToSelection", [this.selectedIndicatorFeatureIds]);
   }

@@ -1,0 +1,143 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" (click)="close()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title">WMS bearbeiten</h4>
+</div>
+
+<div class="modal-body">
+  <div align="center">
+    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
+  <!-- MultiStep Form -->
+  <div class="row">
+    <div class="col-md-12">
+      <form class="multiStepForm form-group" #georesourceAddForm="ngForm" (ngSubmit)="editData()" 
+        data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+        
+        <!-- progressbar -->
+        <div>
+          <ul id="progressbar">
+            <li style="width: 50%;" [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)">Zugriffsschutz</li>
+            <li style="width: 50%;" [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)">Eigentümerschaft</li>
+          </ul>
+        </div>
+
+        <!-- fieldsets -->
+        <fieldset *ngIf="currentStep === 1 && envConfigService.enableKeycloakSecurity">
+          <h2 class="fs-title">Zugriffsschutz</h2>
+          <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
+
+          <div id="georesourceRoleForm">
+            <label>Datensatz-Freigaben</label>
+            
+            <div class="row vertical-align">
+              <div class="col-md-3">
+                <label>Öffentliche Lesefreigabe*</label>
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="isPublic" name="isPublic" (ngModelChange)="onChangeIsPublic($event)">
+                  <span class="switchslider round"></span>
+                </label>
+                <div class="help-block">
+                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6 col-xs-12">
+                <ag-grid-angular
+                  #roleManagementGrid
+                  class="ag-theme-alpine"
+                  style="height: 45vh; width: 100%;"
+                  [columnDefs]="roleManagementColumnDefs"
+                  [rowData]="roleManagementRowData"
+                  [defaultColDef]="roleManagementDefaultColDef"
+                  [gridOptions]="roleManagementGridOptions"
+                  [components]="dataGridHelperService.getRoleManagementComponents()"
+                  [suppressRowClickSelection]="true"
+                  [rowSelection]="'multiple'"
+                  [enableCellTextSelection]="true"
+                  [ensureDomOrder]="true"
+                  [pagination]="false"
+                  [suppressColumnVirtualisation]="true"
+                  (gridReady)="onRoleManagementGridReady($event)"
+                  (firstDataRendered)="onRoleManagementFirstDataRendered($event)"
+                  (columnResized)="onRoleManagementColumnResized($event)"
+                  (modelUpdated)="onRoleManagementModelUpdated()"
+                  (viewportChanged)="onRoleManagementViewportChanged()">
+                </ag-grid-angular>
+              </div>
+              <div class="col-md-3">
+                <div class="alert alert-info">
+                  Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
+                </div>
+                <br/>
+                <div class="alert alert-warning">
+                  Lese- und Editierrechte wurden für die von Ihnen selektierte Eigentümer-Organisationseinheit markiert.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
+          <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
+        </fieldset>
+
+        <fieldset *ngIf="currentStep === 2 && envConfigService.enableKeycloakSecurity">
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="alert alert-info">
+                Bitte wählen Sie die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten
+              </div>
+              <label for="addWmsUserRoleSelect">Eigentümer-Organisationseinheit*</label>
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
+              </div>
+              <select *ngIf="dataExchangeService.checkAdminPermission()" 
+                id="addWmsUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
+                class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
+                <option *ngFor="let org of dataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
+              </select>
+              <p></p>
+            </div>
+            <div class="col-md-3"></div>
+          </div>
+
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
+
+  <button type="button" class="btn btn-success" 
+    [disabled]="(envConfigService.enableKeycloakSecurity && !ownerOrganization)" (click)="editData()">
+    WMS editieren
+  </button>
+  <button type="button" class="btn btn-danger" (click)="resetWmsEditForm()">Zurücksetzen</button>
+</div>
+
+<!-- Success Alert -->
+<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  [hidden]="!successMessage" class="alert alert-success alert-dismissable">
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
+  <p>Zugrifssrechte für den Datensatz mit dem Namen {{successMessagePart}} wurde in KomMonitor editiert.</p>
+</div>
+
+<!-- Error Alert -->
+<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
+  [hidden]="!errorMessage" class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
+  <h4><i class="icon fa fa-ban"></i>Editierung gescheitert</h4>
+  Bei der Editierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+  <br />
+  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+  <br/>
+  <br/>
+</div> 

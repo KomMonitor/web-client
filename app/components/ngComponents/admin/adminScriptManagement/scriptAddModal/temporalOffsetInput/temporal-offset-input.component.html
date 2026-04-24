@@ -1,0 +1,35 @@
+<div class="card mb-3">
+  <div class="card-header">
+    <h5>Zeitlicher Versatz zum Referenz-Zeitpunkt</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="form-group">
+          <label>Anzahl*</label>
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            [ngModel]="offsetInt"
+            (ngModelChange)="offsetIntChange.emit($event)"
+            min="1"
+          />
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <label>Zeiteinheit*</label>
+          <select
+            class="form-control form-control-sm"
+            [ngModel]="offsetUnit"
+            (ngModelChange)="offsetUnitChange.emit($event)"
+          >
+            <option *ngFor="let unit of temporalOptions" [ngValue]="unit">
+              {{ unit.displayName }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,18 +1,34 @@
 import { Component, OnInit, Input } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 import { Topic } from "../admin-topics-management.component";
+import { CommonModule } from "@angular/common";
+
+const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
 
 @Component({
-  selector: "topic-edit-modal-new",
+  selector: "topic-edit-modal",
   templateUrl: "./topic-edit-modal.component.html",
   styleUrls: ["./topic-edit-modal.component.css"],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule],
+  standalone: true,
 })
 export class TopicEditModalComponent implements OnInit {
-  @Input() topic!: Topic;
+  @Input({ required: true }) topic!: Topic;
 
-  topicForm: FormGroup;
+  topicForm: FormGroup<{
+    name: FormControl<string | null>;
+    description: FormControl<string | null>;
+  }>;
   isSubmitting = false;
   errorMessage = "";
   successMessage = "";
@@ -20,7 +36,7 @@ export class TopicEditModalComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private srvc: AdminTopicsManagementService
+    private srvc: AdminTopicsManagementService,
   ) {
     this.topicForm = this.fb.group({
       name: ["", Validators.required],
@@ -29,45 +45,64 @@ export class TopicEditModalComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.topic) {
-      this.topicForm.patchValue({
-        name: this.topic.topicName,
-        description: this.topic.topicDescription,
-      });
-    } else {
-      console.warn("No topic data provided to modal");
+    if (!this.topic) {
+      console.error("No topic data provided to modal");
+      return;
     }
+    
+    this.topicForm.patchValue({
+      name: this.topic.topicName,
+      description: this.topic.topicDescription,
+    });
   }
 
   onSubmit() {
-    if (this.topicForm.valid) {
-      this.isSubmitting = true;
-      this.errorMessage = "";
-      this.successMessage = "";
-      this.srvc
-        .editTopic(
-          this.topic,
-          this.topicForm.value.name,
-          this.topicForm.value.description
-        )
-        .subscribe({
-          next: () => {
-            this.isSubmitting = false;
-            this.successMessage = "success";
-            setTimeout(() => {
-              this.activeModal.close();
-            }, 1500);
-          },
-          error: (error) => {
-            debugger;
-            this.isSubmitting = false;
-            this.errorMessage =
-              error.error || error.message || "Failed to update topic";
-          },
-        });
-    } else {
+    if (!this.topicForm.valid) {
       console.warn("Form is invalid:", this.topicForm.errors);
+      Object.keys(this.topicForm.controls).forEach(key => {
+        this.topicForm.get(key)?.markAsTouched();
+      });
+      return;
     }
+
+    const name = this.topicForm.value.name;
+    const description = this.topicForm.value.description;
+
+    if (!name || !description) {
+      this.errorMessage = "Name and description are required";
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.errorMessage = "";
+    this.successMessage = "";
+    
+    this.srvc
+      .editTopic(this.topic, name, description)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.successMessage = "success";
+          setTimeout(() => {
+            this.activeModal.close();
+          }, SUCCESS_MESSAGE_TIMEOUT_MS);
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          this.errorMessage = this.getErrorMessage(error);
+        },
+      });
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error?.error && typeof error.error === 'string') {
+      return error.error;
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    return "Failed to update topic";
   }
 
   hideSuccessAlert() {
@@ -79,7 +114,6 @@ export class TopicEditModalComponent implements OnInit {
   }
 
   cancel() {
-    console.log("Modal cancelled");
     this.activeModal.dismiss("cancel");
   }
 }

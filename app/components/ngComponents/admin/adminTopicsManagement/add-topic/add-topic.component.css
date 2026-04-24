@@ -1,0 +1,8 @@
+:host {
+  .row {
+    border-top: double;
+    background-color: #dff0d8;
+    padding: 10px 15px;
+    margin: 0;
+  }
+}

@@ -10,13 +10,16 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import pptxgen  from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { reportingData, sharedReportingData } from '../reporting-modal.component';
+import { reportingData } from '../reporting-modal.component';
+import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-generate-report',
   standalone: true,
   templateUrl: './generate-report.component.html',
-  styleUrls: ['./generate-report.component.css']
+  styleUrls: ['./generate-report.component.css'],
+  imports: [CommonModule]
 })
 export class GenerateReportComponent implements OnInit {
 
@@ -30,16 +33,21 @@ export class GenerateReportComponent implements OnInit {
   echartsImgPixelRatio = 2;
   pxPerMilli;
 
+  workflowState = WorkflowState;
+
   constructor(
     private dataExchangeService: DataExchangeService,
     private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    protected reportingService: ReportingService
   ) {}
 
   ngOnInit(): void {
 
     this.deviceScreenDpi = this.calculateScreenDpi();
     this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+
+    this.reportingService.changeWorkflowState(this.workflowState.formatSelect);
   }
 
   
@@ -59,29 +67,29 @@ export class GenerateReportComponent implements OnInit {
   //async
   async generateReport(format) {
 
-    this.setLoadingScreen();
+    this.reportingService.changeWorkflowState(this.workflowState.reportGeneration);
 
     try {
+
+      this.loadingData = true;
+
       format === "pdf" && await this.generatePdfReport();
       format === "docx" && await this.generateWordReport();
       format === "zip" && await this.generateZipFolder();
       format === "pptx" && await this.generatePptxReport();
+      
+      this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
+      
+      this.loadingData = false;
+      this.activeModal.close();
 
-      this.unsetLoadingScreen();
     } catch (error:any) {
       console.error(error);
       this.dataExchangeService.displayMapApplicationError(error.message);
-      this.unsetLoadingScreen();
+      this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
+      this.loadingData = false;
+      this.activeModal.close();
     }
-  }
-
-  setLoadingScreen() {
-    this.broadcastService.broadcast('reportGenerationInProgress');
-    this.activeModal.close();
-  }
-
-  unsetLoadingScreen() {
-    this.broadcastService.broadcast('reportGenerationCompleted');
   }
 
   async generatePptxReport() {
@@ -91,7 +99,7 @@ export class GenerateReportComponent implements OnInit {
     doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
     doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
 
-    doc.layout = 'A4-'+this.data.pages[0].orientation;
+    doc.layout = 'A4-'+this.reportingService.workingTemplate.pages[0].orientation;
 
     var fontSize = 42;
     var fontFace = "Source Sans Pro";
@@ -176,7 +184,7 @@ export class GenerateReportComponent implements OnInit {
 
     // Pages
 
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -186,6 +194,8 @@ export class GenerateReportComponent implements OnInit {
       let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
 
       let formatFactor = 3.4;
+
+      let pageConfig:ConfigData = page.templateSection.pageConfig;
 
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
@@ -213,7 +223,7 @@ export class GenerateReportComponent implements OnInit {
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
-            if (! page.templateSection.pageConfig.showTitle){
+            if (! pageConfig.headerFooterControl.showTitle){
               // skip
               continue;
             }
@@ -223,7 +233,7 @@ export class GenerateReportComponent implements OnInit {
 
           case "communeLogo-landscape":
           case "communeLogo-portrait": {
-            if (! page.templateSection.pageConfig.showLogo){
+            if (! pageConfig.headerFooterControl.showLogo){
               // skip
               continue;
             }
@@ -241,7 +251,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "dataTimestamp-landscape":
           case "dataTimestamp-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -250,7 +260,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "dataTimeseries-landscape":
           case "dataTimeseries-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -259,7 +269,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "reachability-subtitle-landscape":
           case "reachability-subtitle-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -268,7 +278,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "footerHorizontalSpacer-landscape":
           case "footerHorizontalSpacer-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -277,7 +287,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "footerCreationInfo-landscape":
           case "footerCreationInfo-portrait": {  
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;								
             }
@@ -286,7 +296,7 @@ export class GenerateReportComponent implements OnInit {
           } 
           case "pageNumber-landscape":
           case "pageNumber-portrait": {
-            if (! page.templateSection.pageConfig.showPageNumber){
+            if (! pageConfig.headerFooterControl.showPageNumber){
               // skip
               continue;
             }
@@ -326,7 +336,7 @@ export class GenerateReportComponent implements OnInit {
     // 				break;
     // 			}
           case "barchart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom);
@@ -336,7 +346,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "linechart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom);
@@ -346,7 +356,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "textInput": {
-            if (! page.templateSection.pageConfig.showFreeText){
+            if (! pageConfig.sectionContentControl.showFreeText){
               // skip
               continue;
             }
@@ -355,15 +365,15 @@ export class GenerateReportComponent implements OnInit {
           }
           case "datatable": {							
 
-            let table:any = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
+            let table = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table") as HTMLTableElement;;
 
             let data:any = [];
             if(table && table.rows.length>0) {
-              table.rows.forEach((row, rowIndex) => {
+              Array.from(table.rows).forEach((row, rowIndex) => {
 
                 let singleRowData:any[] = [];
                 if(row.cells && row.cells.length>0) {
-                  row.cells.forEach((cell, cellIndex) => {
+                  Array.from(row.cells).forEach((cell, cellIndex) => {
 
                     let fillColour = '#dedede';
                     if(rowIndex>0) {
@@ -406,8 +416,8 @@ export class GenerateReportComponent implements OnInit {
   filterPagesToShow() {
     let pagesToShow:any[] = [];
     let skipNextPage = false;
-    for (let i = 0; i < this.data.pages.length; i ++) {
-      let page = this.data.pages[i];
+    for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i ++) {
+      let page = this.reportingService.workingTemplate.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
@@ -426,7 +436,7 @@ export class GenerateReportComponent implements OnInit {
   }
 
   pageContainsDatatable(pageID) {
-    let page = this.data.pages[pageID];
+    let page = this.reportingService.workingTemplate.pages[pageID];
     let pageContainsDatatable = false;
     for(let pageElement of page.pageElements) {
       if(pageElement.type == "datatable") {
@@ -456,7 +466,7 @@ export class GenerateReportComponent implements OnInit {
     let doc:any = new jsPDF({
       unit: 'mm',
       format: 'a4',
-      orientation: this.data.pages[0].orientation
+      orientation: this.reportingService.workingTemplate.pages[0].orientation
     });
  
     let fontName = "Helvetica"; // standard
@@ -473,7 +483,7 @@ export class GenerateReportComponent implements OnInit {
     doc.setDrawColor(148, 148, 148);
     doc.setFont(fontName, "normal", "normal"); 
     
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -482,10 +492,11 @@ export class GenerateReportComponent implements OnInit {
       if(idx > 0) {
         doc.addPage(null, page.orientation);
       }
+
+      let pageConfig:ConfigData = page.templateSection.pageConfig;
       
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
       for(let pageElement of page.pageElements) {
-
         let pElementDom;
         if(pageElement.type === "linechart") {
           let arr = pageDom.querySelectorAll(".type-linechart");
@@ -506,12 +517,11 @@ export class GenerateReportComponent implements OnInit {
         pageElementDimensions.right = pageElement.dimensions.right && this.pxToMilli(pageElement.dimensions.right);
         pageElementDimensions.width = pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
         pageElementDimensions.height = pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
-        
         // TODO some cases could be merged, but it's better to do that later when stuff works
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
-            if (! page.templateSection.pageConfig.showTitle){
+            if (! pageConfig.headerFooterControl.showTitle){
               // skip
               continue;
             }
@@ -524,7 +534,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "communeLogo-landscape":
           case "communeLogo-portrait": {
-            if (! page.templateSection.pageConfig.showLogo){
+            if (! pageConfig.headerFooterControl.showLogo){
               // skip
               continue;
             }
@@ -537,7 +547,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "dataTimestamp-landscape":
           case "dataTimestamp-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -546,7 +556,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "dataTimeseries-landscape":
           case "dataTimeseries-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -555,7 +565,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "reachability-subtitle-landscape":
           case "reachability-subtitle-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -564,7 +574,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "footerHorizontalSpacer-landscape":
           case "footerHorizontalSpacer-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -578,7 +588,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "footerCreationInfo-landscape":
           case "footerCreationInfo-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -587,7 +597,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "pageNumber-landscape":
           case "pageNumber-portrait": {
-            if (! page.templateSection.pageConfig.showPageNumber){
+            if (! pageConfig.headerFooterControl.showPageNumber){
               // skip
               continue;
             }
@@ -635,7 +645,7 @@ export class GenerateReportComponent implements OnInit {
           // 	break;
           // }
           case "barchart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom)
@@ -645,7 +655,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "linechart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
             let instance:any = echarts.getInstanceByDom(pElementDom)
@@ -655,7 +665,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "textInput": {
-            if (! page.templateSection.pageConfig.showFreeText){
+            if (! pageConfig.sectionContentControl.showFreeText){
               // skip
               continue;
             }
@@ -780,7 +790,7 @@ export class GenerateReportComponent implements OnInit {
   getPageNumber(index) {
     let pageNumber = 1;
     for(let i = 0; i < index; i ++) {
-      if (this.showThisPage(this.data.template.pages[i])) {
+      if (this.showThisPage(this.reportingService.workingTemplate.pages[i])) {
         pageNumber ++;
       }
     }
@@ -847,7 +857,7 @@ export class GenerateReportComponent implements OnInit {
     let zip = new JSZip();
     
     // screenshot map attribution and legend only once per section
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
     
       if(!this.showThisPage(page)) {
         continue;
@@ -910,11 +920,13 @@ export class GenerateReportComponent implements OnInit {
     /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
     } */
-    for(let [idx, page] of this.data.pages.entries()) {
+    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
       }
+ 
+      let pageConfig:ConfigData = page.templateSection.pageConfig;
 
       let paragraphs:any = [];
       let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
@@ -927,7 +939,7 @@ export class GenerateReportComponent implements OnInit {
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
           case "indicatorTitle-portrait": {
-            if (! page.templateSection.pageConfig.showTitle){
+            if (! pageConfig.headerFooterControl.showTitle){
               // skip
               continue;
             }
@@ -963,7 +975,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "communeLogo-landscape":
           case "communeLogo-portrait": {
-            if (! page.templateSection.pageConfig.showLogo){
+            if (! pageConfig.headerFooterControl.showLogo){
               // skip
               continue;
             }
@@ -998,7 +1010,7 @@ export class GenerateReportComponent implements OnInit {
           case "dataTimestamp-portrait":
           case "dataTimeseries-portrait":
           case "reachability-subtitle-portrait": {
-            if (! page.templateSection.pageConfig.showSubtitle){
+            if (! pageConfig.headerFooterControl.showSubtitle){
               // skip
               continue;
             }
@@ -1034,7 +1046,7 @@ export class GenerateReportComponent implements OnInit {
           
           case "footerHorizontalSpacer-landscape":
           case "footerHorizontalSpacer-portrait":
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -1070,7 +1082,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           case "footerCreationInfo-landscape":
           case "footerCreationInfo-portrait": {
-            if (! page.templateSection.pageConfig.showFooterCreationInfo){
+            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
               // skip
               continue;
             }
@@ -1106,7 +1118,7 @@ export class GenerateReportComponent implements OnInit {
           }
           case "pageNumber-landscape":
           case "pageNumber-portrait": {
-            if (! page.templateSection.pageConfig.showPageNumber){
+            if (! pageConfig.headerFooterControl.showPageNumber){
               // skip
               continue;
             }
@@ -1144,10 +1156,10 @@ export class GenerateReportComponent implements OnInit {
           case "map":
           case "barchart":
           case "linechart": {
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showLineChartPerArea && pageElement.type === "linechart" ){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea && pageElement.type === "linechart" ){
               continue;
             }
-            if(page.type == 'area_specific' && ! page.templateSection.pageConfig.showRankingChartPerArea && pageElement.type === "barchart" ){
+            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea && pageElement.type === "barchart" ){
               continue;
             }
             let pElementDom;
@@ -1346,7 +1358,7 @@ export class GenerateReportComponent implements OnInit {
           // 	break;
           // }
           case "textInput": {
-            if (! page.templateSection.pageConfig.showFreeText){
+            if (! pageConfig.sectionContentControl.showFreeText){
               // skip
               continue;
             }

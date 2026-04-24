@@ -5,12 +5,16 @@ import {
   Topic,
   TopicResourceType,
 } from "../admin-topics-management.component";
-import { KommonitorIndicatorDataExchangeService } from "../../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
+import { take } from 'rxjs/operators';
+import { FormsModule } from "@angular/forms";
+import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 @Component({
   selector: "admin-add-topic",
   templateUrl: "./add-topic.component.html",
   styleUrls: ["./add-topic.component.css"],
+  imports: [FormsModule],
+  standalone: true,
 })
 export class AddTopicComponent {
   @Input({ required: true }) topicResourceType!: TopicResourceType;
@@ -22,8 +26,8 @@ export class AddTopicComponent {
 
   constructor(
     private srvc: AdminTopicsManagementService,
-    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
-    private errorHandlingService: AdminTopicsManagementErrorHandlingService
+    private errorHandlingService: AdminTopicsManagementErrorHandlingService,
+    private dataExchangeService: DataExchangeService
   ) {}
 
   onAddTopic() {
@@ -35,6 +39,7 @@ export class AddTopicComponent {
         this.newTopicDescription,
         this.parentTopic
       )
+      .pipe(take(1))
       .subscribe({
         next: () => {
           this.newTopicDescription = "";
@@ -42,8 +47,8 @@ export class AddTopicComponent {
         },
         error: (error) => {
           this.errorHandlingService.errorMessagePart =
-            this.kommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data || error
+            this.dataExchangeService.syntaxHighlightJSON(
+              error?.data || error
             );
         },
       });

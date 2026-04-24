@@ -8,7 +8,6 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
-import { SingleFeatureEditComponent } from "../../../../common/single-feature-edit/single-feature-edit.component";
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
 import { ReachabilityIndicatorStatisticsComponent } from "./reachability-indicator-statistics/reachability-indicator-statistics.component";
@@ -18,7 +17,7 @@ import { ReachabilityIndicatorStatisticsComponent } from "./reachability-indicat
   standalone: true,
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.css'],
-  imports: [CommonModule, FormsModule, SingleFeatureEditComponent, ReachabilityScenarioConfigurationComponent, ReachabilityPoiInIsoComponent, ReachabilityIndicatorStatisticsComponent]
+  imports: [CommonModule, FormsModule, ReachabilityScenarioConfigurationComponent, ReachabilityPoiInIsoComponent, ReachabilityIndicatorStatisticsComponent]
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -42,7 +41,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   ngOnInit(): void {
     this.multiStepHelperService.registerClickHandler("reachabilityScenarioForm");
 
-    this.filteredDisplayableGeoresources = this.dataExchangeService.pipedData.displayableGeoresources.filter(e => e.isPOI);
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI);
   }
 
 		/* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {

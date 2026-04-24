@@ -1,0 +1,13 @@
+:host {
+  .radioWrapper {
+    display: grid;
+    grid-template-columns: min-content auto;
+    text-align: left;
+    gap: .5em;
+  }
+
+  .hiddenTable {
+    display: block;
+    overflow: auto;
+  }
+}

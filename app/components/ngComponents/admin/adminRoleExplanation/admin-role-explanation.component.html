@@ -1,0 +1,30 @@
+<admin-content-view
+  [title]="'FAQ zu Mandantenkonzept und Zugriffsschutz auf Datensätze'"
+  [description]="
+    'Übersicht und Bedienhinweise der ab KomMonitor Version 4 eingeführten Zugriffskontrolle'
+  "
+  [contentTemplate]="content"
+>
+</admin-content-view>
+<ng-template #content>
+  <div class="row">
+    <div class="col-md-6" *ngFor="let item of items">
+      <div class="box-wrapper">
+        <expandable-box [title]="item.title" [collapsed]="!item.expanded">
+          <div class="box-content">
+            <div [innerHTML]="item.content"></div>
+            <div class="nested-accordion" *ngIf="item.nestedItems">
+              <expandable-box
+                *ngFor="let nestedItem of item.nestedItems"
+                [title]="nestedItem.title"
+                [collapsed]="!nestedItem.expanded"
+              >
+                <div [innerHTML]="nestedItem.content"></div>
+              </expandable-box>
+            </div>
+          </div>
+        </expandable-box>
+      </div>
+    </div>
+  </div>
+</ng-template>

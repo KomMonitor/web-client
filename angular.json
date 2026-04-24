@@ -25,14 +25,26 @@
               "app/assets/"
             ],
             "styles": [
-              "app/app.css",
+              "app/app.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/nouislider/dist/nouislider.css",
               "node_modules/ag-grid-community/styles/ag-grid.css",
               "node_modules/ag-grid-community/styles/ag-theme-alpine.css",
-              "node_modules/leaflet-geosearch/assets/css/leaflet.css"
+              "node_modules/leaflet-geosearch/assets/css/leaflet.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet-measure/dist/leaflet-measure.css",
+              "node_modules/leaflet-search/dist/leaflet-search.min.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css",
+              "node_modules/leaflet.awesome-markers/dist/leaflet.awesome-markers.css",
+              "node_modules/codemirror/lib/codemirror.css",
+              "node_modules/codemirror/theme/dracula.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -40,12 +52,12 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "6kb",
+                  "maximumError": "280kb"
                 }
               ],
               "outputHashing": "all"

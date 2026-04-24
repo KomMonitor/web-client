@@ -1,0 +1,166 @@
+<a
+  id="userLogin"
+  #userLoginPopover="ngbPopover"
+  [ngbPopover]="userLoginContent"
+  triggers="manual"
+  [autoClose]="false"
+  [disablePopover]="!enableKeycloakSecurity"
+  popoverTitle="User Login"
+  popoverClass="user-login-popover"
+  container="body"
+  (mouseenter)="onAnchorEnter()"
+  (mouseleave)="onAnchorLeave()"
+  (shown)="onPopoverShown()"
+  (hidden)="onPopoverHidden()"
+>
+  <i
+    class="fas fa-user-cog"
+    [style.color]="isAdminView ? 'white' : 'inherit'"
+  ></i>
+</a>
+
+<ng-template #userLoginContent>
+  <div *ngIf="authenticated">
+    <div>
+      <div>
+        <b>Nutzername: </b>
+        <i>{{ currentKeycloakUser.username }}</i>
+      </div>
+
+      <div
+        *ngIf="currentKeycloakUser.firstName && currentKeycloakUser.lastName"
+      >
+        <span class="word-break-all">
+          <b>Vor- und Nachname: </b>
+          <i>
+            {{ currentKeycloakUser.firstName }}
+            {{ currentKeycloakUser.lastName }}
+          </i>
+        </span>
+      </div>
+
+      <div
+        *ngIf="!currentKeycloakUser.firstName && currentKeycloakUser.lastName"
+      >
+        <span class="word-break-all"
+          ><b>Nachname: </b><i>{{ currentKeycloakUser.lastName }}</i></span
+        >
+      </div>
+
+      <div *ngIf="currentKeycloakUser.email">
+        <span class="word-break-all"
+          ><b>E-Mail: </b><i>{{ currentKeycloakUser.email }}</i></span
+        >
+      </div>
+    </div>
+
+    <div class="box box-simplified collapsed-box">
+      <div
+        class="box-header with-border"
+        (click)="userLoginRolesCollapse.toggle()"
+      >
+        <div class="box-title">Rollen</div>
+        <div class="box-tools">
+          <i
+            class="fa"
+            [ngClass]="{
+              'fa-plus': isUserLoginRolesCollapse,
+              'fa-minus': !isUserLoginRolesCollapse,
+            }"
+          ></i>
+        </div>
+      </div>
+      <div
+        class="box-body"
+        #userLoginRolesCollapse="ngbCollapse"
+        [(ngbCollapse)]="isUserLoginRolesCollapse"
+      >
+        <table>
+          <tr *ngFor="let item of userRoleInformation | keyvalue">
+            <td>
+              <table>
+                <tr>
+                  <th>{{ item.key }}</th>
+                </tr>
+                <tr>
+                  <td class="role-values-cell">
+                    <p *ngFor="let role of item.value">{{ role }}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="box box-simplified collapsed-box">
+      <div
+        class="box-header with-border"
+        (click)="userLoginGroupesCollapse.toggle()"
+      >
+        <div class="box-title">Gruppen (Hierarchie)</div>
+        <div class="box-tools">
+          <i
+            class="fa"
+            [ngClass]="{
+              'fa-plus': isUserLoginGroupesCollapse,
+              'fa-minus': !isUserLoginGroupesCollapse,
+            }"
+          ></i>
+        </div>
+      </div>
+      <div
+        class="box-body"
+        #userLoginGroupesCollapse="ngbCollapse"
+        [(ngbCollapse)]="isUserLoginGroupesCollapse"
+      >
+        <table>
+          <tr *ngFor="let entry of userGroupInformation">
+            <td>
+              <p
+                class="group-item"
+                [style.padding-left.em]="i"
+                *ngFor="let group of entry; let i = index"
+              >
+                {{ group }}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <app-session-validity></app-session-validity>
+
+    <div class="d-grid gap-2 controls">
+      <button class="btn btn-danger" (click)="tryLogoutUser()" type="button">
+        Logout
+      </button>
+      <button
+        type="button"
+        class="btn btn-warning"
+        (click)="extendKeycloakSession()"
+      >
+        Relogin
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!authenticated">
+    <div class="d-grid gap-2 controls">
+      <button class="btn btn-success" (click)="tryLoginUser()" type="button">
+        Login
+      </button>
+      <div>
+        <span *ngIf="envConfigService.loginInfoText">
+          {{envConfigService.loginInfoText}}
+        </span>
+        <span *ngIf="!envConfigService.loginInfoText"
+          >Melden Sie sich mit ihrem Konto an, um geschützte Daten
+          abzurufen.</span
+        >
+      </div>
+    </div>
+  </div>
+</ng-template>

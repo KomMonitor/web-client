@@ -3,7 +3,8 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 
 @Pipe({
     name: 'baseIndicatorOfHeadlineIndicatorFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class BaseIndicatorOfHeadlineIndicatorFilter implements PipeTransform {
 
@@ -16,7 +17,7 @@ export class BaseIndicatorOfHeadlineIndicatorFilter implements PipeTransform {
       return items;
     } 
     
-    var headlineIndicatorEntry = this.dataExchangeService.pipedData.headlineIndicatorHierarchy.filter(element => element.computationIndicator?.indicatorId == this.dataExchangeService.pipedData.selectedIndicator.indicatorId)[0];
+    var headlineIndicatorEntry = this.dataExchangeService.headlineIndicatorHierarchy.filter(element => element.computationIndicator?.indicatorId == this.dataExchangeService.selectedIndicator.indicatorId)[0];
 
     return items.filter(item => {
         

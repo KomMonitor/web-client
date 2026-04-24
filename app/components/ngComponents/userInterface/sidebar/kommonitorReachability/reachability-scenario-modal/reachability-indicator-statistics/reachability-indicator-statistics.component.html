@@ -20,7 +20,7 @@
 					(change)="onChangeSelectedIndicatorForStatistics()"
 					size="5" class="form-control" required>
 					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
-					<option [value]="indicatorMetadata.indicatorId" *ngFor="let indicatorMetadata of dataExchangeService.pipedData.displayableIndicators">
+					<option [value]="indicatorMetadata.indicatorId" *ngFor="let indicatorMetadata of dataExchangeService.displayableIndicators">
             <!--  | filter:indicatorNameFilter | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId -->
 						{{indicatorMetadata.indicatorName}} [{{indicatorMetadata.unit}}]
 					</option>
@@ -44,8 +44,8 @@
 				<div class="col-sm-3">
 					<div class="text-left"><label>Indikatoren-Zeitschnitt</label></div>
 					<!-- <input id="indicatorDate_reachabilityStatistic" type="text" placeholder="YYYY-MM-DD" 
-					[(ngModel)]="dataExchangeService.pipedData.selectedDate" (change)="onChangeIndicatorDatepickerDate()"
-					ng-disabled="dataExchangeService.pipedData.disableIndicatorDatePicker"> -->
+					[(ngModel)]="dataExchangeService.selectedDate" (change)="onChangeIndicatorDatepickerDate()"
+					ng-disabled="dataExchangeService.disableIndicatorDatePicker"> -->
 					<select id="indicatorDate_reachabilityStatistic"
 						style="font-size: 12px;" [(ngModel)]="selectedIndicatorDate"
 						class="form-control" required>
@@ -69,7 +69,7 @@
 
 			<div class="row" style="margin-right: 0px;">
 
-				<div *ngIf="dataExchangeService.pipedData.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+				<div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
 					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
 				</div>
 

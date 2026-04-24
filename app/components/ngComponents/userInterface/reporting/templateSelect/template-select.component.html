@@ -14,28 +14,24 @@
           <div class="col-sm-3">
               <div id="reporting-template-categories-wrapper">
                   <h3>Kategorien</h3>
-                  <!-- https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js -->
-                  <div class="panel-group" id="reporting-template-category-accordion">
-                      <div class="panel panel-default" *ngFor="let category of availableTemplateCategories; index as i">
-                          <div class="panel-heading">
-                              <h4 class="panel-title">
-                                  <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                      data-parent="#reporting-template-category-accordion" href="#collapse{{category.id}}">
-                                      {{category.displayName}}
-                                  </a>
-                              </h4>
-                          </div>
-                          <div id="collapse{{category.id}}" class="panel-collapse" [ngClass]="{'collapse': i!=0}">
-                              <div class="panel-body">
-                                  <div *ngFor="let template of availableTemplates | reportingTemplateFilter:category.id; index as ti"
-                                      class="reporting-selectable-template" [ngClass]="{'template-selected': (ti == 0 && i==0) }"
-                                      (click)="onTemplateElementClicked($event, template)"
-                                      id="collapse{{category.id}}-template{{i}}">
-                                          {{template.displayName}}
-                                  </div>
-                              </div>
-                          </div>
+
+                  <div ngbAccordion [closeOthers]="true">
+                    <div ngbAccordionItem [collapsed]="i>0" *ngFor="let category of reportingService.availableTemplateCategories; let i = index">
+                      <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton >{{category.displayName}}</button>
+                      </h2>
+                      <div ngbAccordionCollapse>
+                        <div ngbAccordionBody>
+                          <ul *ngIf="reportingService.availableTemplates">
+                            <li *ngFor="let template of reportingService.availableTemplates | reportingTemplateFilter:category.id"
+                              class="reporting-selectable-template" [ngClass]="{'template-selected': template.id==0 }"
+                              (click)="onTemplateElementClicked($event, template.id)">
+                              {{template.displayName}}
+                            </li>
+                          </ul>
+                        </div>
                       </div>
+                    </div>
                   </div>
               </div>
               
@@ -44,12 +40,12 @@
                   <form>
                       <label>
                           Bearbeiter:
-                         <input type="text" name="creator" [(ngModel)]="generalSettings.creator">
+                         <input type="text" name="creator" class="form-control" [(ngModel)]="reportingService.generalSettings.creator">
                       </label>
 
                       <label>
                           Kommune:
-                         <input type="text" name="commune" [(ngModel)]="generalSettings.commune">
+                         <input type="text" name="commune" class="form-control" [(ngModel)]="reportingService.generalSettings.commune">
                       </label>
 
                       <label>
@@ -68,7 +64,7 @@
                       </label>
 
                       <label for="reporting-load-commune-logo-button" class="btn btn-primary">
-                          <input type="file" (change)="readSingleFile($event)" id="reporting-load-commune-logo-button">
+                          <input type="file" (change)="reportingService.readSingleFile($event)" id="reporting-load-commune-logo-button">
                           <i class="fa fa-file-download"></i>
                           &nbsp;&nbsp;Logo der Kommune auswählen
                       </label>
@@ -76,9 +72,9 @@
                       <br />
                       <div [hidden]="!templateSupportsFreeText()">
                           <label for="reporting-general-settings-freetext">Freitext:</label>
-                          <textarea  id="reporting-general-settings-freetext"
+                          <textarea  id="reporting-general-settings-freetext" class="form-control"
                               name="general-settings-freetext" rows="4" cols="35"
-                              [(ngModel)]="generalSettings.freeText"></textarea>
+                              [(ngModel)]="reportingService.generalSettings.freeText"></textarea>
                       </div>
 
                       <!--
@@ -103,8 +99,8 @@
           <div class="col-sm-9">
               <div class="row" style="margin:0">
                   <div id="reporting-template-preview-area">
-                      <div *ngFor="let page of selectedTemplate?.pages; index as iPage" 
-                          [ngClass]="{'hiddenPage': !showThisPage(page)}"
+                      <div *ngFor="let page of reportingService.workingTemplate?.pages; index as iPage" 
+                          [ngClass]="{'hiddenPage': !reportingService.showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}">
                           <div *ngFor="let pageElement of page.pageElements"
                               [style]="{position: 'absolute',
@@ -123,17 +119,17 @@
                               <!-- special cases below -->
                               <span [hidden]="!(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
-                                  Erstellt am {{generalSettings.creationDate}} von {{generalSettings.creator}}, {{generalSettings.commune}}
+                                  Erstellt am {{reportingService.generalSettings.creationDate}} von {{reportingService.generalSettings.creator}}, {{reportingService.generalSettings.commune}}
                               </span>
 
                               <span [hidden]="!(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
-                                  Seite {{ getPageNumber(iPage) }}
+                                  Seite {{ reportingService.getPageNumber(iPage) }}
                               </span>
 
                               <span [hidden]="!(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
-                                  {{generalSettings.freeText}}
+                                  {{reportingService.generalSettings.freeText}}
                               </span>
 
                               <img [hidden]="!(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
@@ -145,15 +141,16 @@
               </div>
           </div>
       </div>
-      <div class="row">
-          <div class="col-sm-12">
-              <button class="btn btn-warning" (click)='onBackToWorkflowSelectionClicked()'>
-                  <i class="fa fa-arrow-left"></i>
-                  &nbsp;&nbsp;Zurück zur Workflow-Auswahl
-              </button>
-
-              <button id="reporting-templateSelectedBtn" class="btn btn-success pull-right" (click)='onTemplateSelected()' [disabled]='!selectedTemplate'>Template auswählen</button>
-          </div>
+      <div class="modal-custom-footer">
+        <div>
+          <button class="btn btn-warning" (click)='onBackToWorkflowSelectionClicked()'>
+              <i class="fa fa-arrow-left"></i>
+              &nbsp;&nbsp;Zurück zur Workflow-Auswahl
+          </button>
+        </div>
+        <div>
+          <button id="reporting-templateSelectedBtn" class="btn btn-success pull-right" (click)='onTemplateSelected()' [disabled]='!reportingService.workingTemplate'>Template auswählen</button>
+        </div>
       </div>
   </div>
 </div>

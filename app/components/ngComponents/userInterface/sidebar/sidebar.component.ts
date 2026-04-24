@@ -1,14 +1,36 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { KommonitorDataSetupComponent } from './kommonitorDataSetup/kommonitor-data-setup.component';
+import { PoiComponent } from './poi/poi.component';
+import { KommonitorFilterComponent } from './kommonitorFilter/kommonitor-filter.component';
+import { KommonitorBalanceComponent } from './kommonitorBalance/kommonitor-balance.component';
+import { KommonitorDiagramsComponent } from './kommonitorDiagrams/kommonitor-diagrams.component';
+import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.component';
+import { RegressionDiagramComponent } from './regressionDiagram/regression-diagram.component';
+import { KommonitorDataImportComponent } from './kommonitorDataImport/kommonitor-data-import.component';
+import { MapService } from 'services/map-service/map.service';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  styleUrls: ['./sidebar.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    KommonitorDataSetupComponent, 
+    PoiComponent,
+    KommonitorFilterComponent,
+    KommonitorBalanceComponent,
+    KommonitorDiagramsComponent,
+    IndicatorRadarComponent,
+    RegressionDiagramComponent,
+    KommonitorDataImportComponent]
 })
 export class SidebarComponent implements OnInit{
 
   @Input() element:any = undefined;
+  @Output() sidebarClosed = new EventEmitter<any>(undefined);
 
   expandedWidthElements = [
     'sidebarDiagramsCollapse',
@@ -17,16 +39,18 @@ export class SidebarComponent implements OnInit{
   ];
 
   constructor(
-    private broadcastService: BroadcastService 
+    private broadcastService: BroadcastService,
+    private mapService: MapService
   ) {}
 
   ngOnInit(): void {
     // default open
-    //this.element = 'sidebarDiagramsCollapse';
+    //this.element = 'sidebarDataImportCollapse';
   }
 
   closeSidebar() {
     this.element = undefined;
-    this.broadcastService.broadcast('sidebarClosed');
+    this.mapService.setMapRecenterState({recenter: true, resize: true});
+    this.sidebarClosed.emit(true);
   }
 }

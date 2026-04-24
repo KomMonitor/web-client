@@ -1,0 +1,74 @@
+<div class="modal-header">
+  <h4 class="modal-title">Organisationseinheiten löschen</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Schließen"
+    (click)="close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <app-loading-overlay [loading]="deletingInProgress" message="Lösche...">
+    <div
+      *ngIf="failedDatasetsAndErrors.length"
+      class="alert alert-danger"
+      role="alert"
+    >
+      <div *ngFor="let entry of failedDatasetsAndErrors">
+        <b>{{ entry[0].name }}</b
+        >: {{ entry[1] }}
+      </div>
+    </div>
+
+    <div *ngIf="hasChildrenConflict()" class="alert alert-danger">
+      Beachten Sie, dass mindestens eine der gewählten Organisationseinheiten
+      über Untergruppen verfügt. Bitte löschen Sie daher zuerst die
+      Untergruppen.
+    </div>
+
+    <h5>
+      <b
+        >Sollen die folgenden Organisationseinheiten wirklich gelöscht
+        werden?</b
+      >
+    </h5>
+
+    <div *ngIf="datasetsToDelete.length > 0">
+      <table
+        class="table table-bordered table-sm"
+        style="overflow: auto; font-size: 11px"
+      >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Organisations-ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dataset of datasetsToDelete">
+            <td>
+              <b>{{ dataset.name }}</b>
+            </td>
+            <td>{{ dataset.organizationalUnitId }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </app-loading-overlay>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    Schließen
+  </button>
+  <div style="flex: 1"></div>
+  <button
+    type="button"
+    class="btn btn-danger"
+    [disabled]="deletingInProgress || datasetsToDelete.length === 0"
+    (click)="deleteOrganizationalUnits()"
+  >
+    Unwiderruflich löschen
+  </button>
+</div>

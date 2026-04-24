@@ -7,9 +7,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'georesource-batch-update-modal-new',
+  selector: 'georesource-batch-update-modal',
   templateUrl: './georesource-batch-update-modal.component.html',
-  styleUrls: ['./georesource-batch-update-modal.component.css']
+  styleUrls: ['./georesource-batch-update-modal.component.css'],
+  imports: [FormsModule, CommonModule],
+  standalone: true,
 })
 export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   @ViewChild('batchListFile', { static: false }) batchListFile!: ElementRef;

@@ -69,54 +69,6 @@
   height: 0;
 }
 
-/* The slider */
-.switchslider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.switchslider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .switchslider {
-  background-color: var(--kommonitor-primary);
-}
-
-input:focus + .switchslider {
-  box-shadow: 0 0 1px var(--kommonitor-primary);
-}
-
-input:checked + .switchslider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.switchslider.round {
-  border-radius: 20px;
-}
-
-.switchslider.round:before {
-  border-radius: 50%;
-}
-
 /* AG Grid customizations */
 .ag-theme-alpine {
   --ag-header-height: 50px;
@@ -165,13 +117,6 @@ input:checked + .switchslider:before {
   background-color: #ccc;
   border-color: #ccc;
   cursor: not-allowed;
-}
-
-/* Content header styles */
-.content-header {
-  padding: 15px 0;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #ddd;
 }
 
 .content-header h1 {

@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
 import { Subscription } from "rxjs";
-import { KommonitorIndicatorDataExchangeService } from "../../../../services/adminIndicatorUnit/kommonitor-data-exchange.service";
 
 export interface Topic {
   topicDescription: string;
@@ -20,6 +19,14 @@ import { Injectable } from "@angular/core";
 import {
   AdminTopicsManagementService,
 } from "./admin-topics-management.service";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { TopicOrderSelectionComponent } from "./topicOrderSelection/topic-order-selection.component";
+import { TopicListComponent } from "./topicList/topicList.component";
+import { AddTopicComponent } from "./add-topic/add-topic.component";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {
@@ -31,6 +38,16 @@ export class AdminTopicsManagementErrorHandlingService {
   templateUrl: "./admin-topics-management.component.html",
   styleUrls: ["./admin-topics-management.component.css"],
   providers: [AdminTopicsManagementErrorHandlingService],
+  imports: [
+    ExpandableBoxComponent,
+    FormsModule,
+    CommonModule,
+    TopicOrderSelectionComponent,
+    TopicListComponent,
+    AddTopicComponent,
+    AdminContentViewComponent,
+  ],
+  standalone: true,
 })
 export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   showTopicIds = false;
@@ -42,21 +59,21 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   private subscription: Subscription | undefined;
 
   constructor(
-    private kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     protected errorHandlingService: AdminTopicsManagementErrorHandlingService,
     private topicSrvc: AdminTopicsManagementService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private dataExchangeService: DataExchangeService,
   ) {}
 
   get filteredIndicatorTopics(): Topic[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter(
-      (t) => t.topicType === "main" && t.topicResource === "indicator"
+    return this.dataExchangeService.availableTopics.filter(
+      (t) => t.topicType === "main" && t.topicResource === "indicator",
     );
   }
 
   get filteredGeoRessourceTopics(): Topic[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter(
-      (t) => t.topicType === "main" && t.topicResource === "georesource"
+    return this.dataExchangeService.availableTopics.filter(
+      (t) => t.topicType === "main" && t.topicResource === "georesource",
     );
   }
 
@@ -85,7 +102,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
         if (broadcastMsg.msg === "refreshTopicsOverview") {
           // this.refreshTopicsOverview();
         }
-      }
+      },
     );
 
     this.topicSrvc.getOrderModes().subscribe({

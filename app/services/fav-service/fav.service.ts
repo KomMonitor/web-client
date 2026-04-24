@@ -1,27 +1,31 @@
 import { HttpClient } from '@angular/common/http';
-import { ajskommonitorFavServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
+import { UserFavourites } from 'components/ngComponents/models/favorites.models';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FavService {
 
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
+  private baseUrlToKomMonitorDataAPI  = this.envConfigService.apiUrl + this.envConfigService.basePath;
   userInfoExists = false;
   userInfoId = undefined;
 
   constructor(
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    private envConfigService: EnvConfigService,
+  ) {
+  }
 
-  bodyTemplate = {
-    "georesourceFavourites": [],
-    "indicatorFavourites": [],
-    "georesourceTopicFavourites": [],
-    "indicatorTopicFavourites": []
+  bodyTemplate: UserFavourites = {
+    georesourceFavourites: [],
+    indicatorFavourites: [],
+    georesourceTopicFavourites: [],
+    indicatorTopicFavourites: [],
+    webServiceFavourites: []
   };
-  favObject:any = this.bodyTemplate;
+  favObject:UserFavourites = this.bodyTemplate;
 
   prepBody(favorites, fullBody = false) {
     
@@ -50,7 +54,7 @@ export class FavService {
       let url = `${this.baseUrlToKomMonitorDataAPI}/userInfos/${this.userInfoId}`;
 
       this.http.put(url, body).subscribe({
-        next: response => {
+        next: (response:any) => {
           console.log("userInfo data patched");
           this.favObject = response;
         },

@@ -1,20 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { fromEvent, Observable, Subscription } from "rxjs";
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 
 @Component({
   selector: 'app-kommonitor-diagrams',
   templateUrl: './kommonitor-diagrams.component.html',
-  styleUrls: ['./kommonitor-diagrams.component.css']
+  styleUrls: ['./kommonitor-diagrams.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgbCollapse, ExpandableBoxComponent]
 })
 export class KommonitorDiagramsComponent implements OnInit {
 
-  exchangeData!: DataExchange;
   
   resizeObservable$!: Observable<Event>;
   resizeSubscription$!: Subscription;
@@ -22,13 +29,22 @@ export class KommonitorDiagramsComponent implements OnInit {
   isBarchartCollapsed = false;
   isLinechartCollapsed = false;
 
+  title!: string;
+  lineTitle!: string;
+
+  showBarChartLabel:boolean = false;
+  showBarChartAverageLine: boolean = false;
+
   constructor(
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
+    protected labelService: LabelService,
     private diagramHelperService: DiagramHelperServiceService,
     private broadcastService: BroadcastService,
-    private filterHelperService: FilterHelperService
-  ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
+    private filterHelperService: FilterHelperService,
+    protected envConfigService: EnvConfigService
+  ) { 
+    this.showBarChartLabel = envConfigService.showBarChartLabel;
+    this.showBarChartAverageLine = envConfigService.showBarChartAverageLine;
   }
 
   ngOnInit(): void {
@@ -38,9 +54,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
       switch (title) {
         case 'updateDiagrams': {
-          setTimeout(() => {
-            this.updateDiagrams(values);
-          },500);
+          this.updateDiagrams(values);
         } break;
         case 'updateDiagramsForHoveredFeature': {
           this.updateDiagramsForHoveredFeature(values);
@@ -75,9 +89,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   loadingData = false;
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
-  defaultColorForHoveredFeatures = window.__env.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env.defaultColorForClickedFeatures;
+  private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
 
   // $scope.userHoveresOverBarItem = false;
   eventsRegistered = false;
@@ -85,17 +97,6 @@ export class KommonitorDiagramsComponent implements OnInit {
   histogramCanBeDisplayed = false;
   spatialUnitName;
   date;
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
-
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.__env.defaultFillOpacityForOutliers_low;
 
   indicatorPropertyName!:any;
   histogramChart!:any;
@@ -140,30 +141,14 @@ export class KommonitorDiagramsComponent implements OnInit {
 
     if (this.lineChart)
       this.lineChart.showLoading();
-  };
-
-  onChangeShowBarChartLabel(){
-    if (this.exchangeData.showBarChartLabel){
-      this.updateBarChart(true, this.exchangeData.showBarChartAverageLine);
-    }
-    else{
-      this.updateBarChart(false, this.exchangeData.showBarChartAverageLine);
-    }						
-  }
-
-  onChangeShowBarChartAverageLine(){
-
-    if (this.exchangeData.showBarChartAverageLine){
-      this.updateBarChart(this.exchangeData.showBarChartLabel, true);
-    }
-    else{
-      this.updateBarChart(this.exchangeData.showBarChartLabel, false);
-    }		
   }
 
   updateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
 
     console.log("Updating diagrams!");
+
+    this.title = `Raumeinheits-Vergleich - ${spatialUnitName} - ${date}`;
+    this.lineTitle = `Zeitreihe - ${spatialUnitName}`;
 
     this.loadingData = true;
 
@@ -179,7 +164,7 @@ export class KommonitorDiagramsComponent implements OnInit {
     setTimeout(() => {
       this.updateLineChart();
 
-      this.updateBarChart(this.exchangeData.showBarChartLabel, this.exchangeData.showBarChartAverageLine);
+      this.updateBarChart();
       this.loadingData = false;
     },500);
   }
@@ -209,7 +194,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   // BAR CHART FUNCTION
 
-  updateBarChart(showBarChartLabel, showBarChartAverageLine) {
+  updateBarChart() {
     // based on prepared DOM, initialize echarts instance
     this.eventsRegistered = false;
 
@@ -224,13 +209,13 @@ export class KommonitorDiagramsComponent implements OnInit {
     // use configuration item and data specified to show chart
     // this.barOption = JSON.parse(JSON.stringify(kommonitorDiagramHelperService.getBarChartOptions()));
     this.barOption = this.diagramHelperService.getBarChartOptions(true);
-    if (showBarChartLabel){
+    if (this.showBarChartLabel){
       this.barOption.label.show = true;
     }
     else{
       this.barOption.label.show = false;
     }
-    if (showBarChartAverageLine){
+    if (this.showBarChartAverageLine) {
       // do nothing as we simply overtake the action
       if(this.barOption.series[0].markLine_backup){
         this.barOption.series[0].markLine = this.barOption.series[0].markLine_backup;
@@ -339,7 +324,10 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   updateDiagramsForHoveredFeature([featureProperties]) {
 
-    if (!this.lineOption.legend.data.includes(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME])) {
+    if(!this.lineOption)
+      return;
+
+    if (!this.lineOption.legend.data.includes(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME])) {
       this.appendSeriesToLineChart(featureProperties);
     }
 
@@ -350,16 +338,16 @@ export class KommonitorDiagramsComponent implements OnInit {
   appendSeriesToLineChart(featureProperties) {
 
     // in case of activated balance mode, we must use the properties of this.exchangeData.selectedIndicator, to aquire the correct time series item!
-    if (this.exchangeData.isBalanceChecked) {
-      featureProperties = this.findPropertiesForTimeSeries(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+    if (this.dataExchangeService.isBalanceChecked) {
+      featureProperties = this.findPropertiesForTimeSeries(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     }
 
     // append feature name to legend
-    this.lineOption.legend.data.push(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+    this.lineOption.legend.data.push(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
 
     // create feature data series
     let featureSeries:any = {};
-    featureSeries.name = featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME];
+    featureSeries.name = featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
     featureSeries.type = 'line';
     featureSeries.data = new Array();
 
@@ -384,8 +372,8 @@ export class KommonitorDiagramsComponent implements OnInit {
   };
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (let feature of this.exchangeData.selectedIndicator.geoJSON.features) {
-      if (feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
+    for (let feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
         return feature.properties;
       }
     }
@@ -401,7 +389,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
     let index = -1;
     for (let i = 0; i < this.barOption.xAxis.data.length; i++) {
-      if (this.barOption.xAxis.data[i] === featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+      if (this.barOption.xAxis.data[i] === featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
         index = i;
         break;
       }
@@ -425,7 +413,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   highlightFeatureInLineChart(featureProperties) {
     // highlight the corresponding bar diagram item
     // get series index of series
-    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
 
     if (seriesIndex > -1) {
       this.lineChart.dispatchAction({
@@ -437,7 +425,10 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   updateDiagramsForUnhoveredFeature([featureProperties]) {
 
-    if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+    if(!this.lineChart)
+      return;
+
+    if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
       this.unhighlightFeatureInLineChart(featureProperties);
 
       this.removeSeriesFromLineChart(featureProperties);
@@ -458,13 +449,13 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   removeSeriesFromLineChart(featureProperties) {
     // remove feature from legend
-    let legendIndex = this.lineOption.legend.data.indexOf(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+    let legendIndex = this.lineOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     if (legendIndex > -1) {
       this.lineOption.legend.data.splice(legendIndex, 1);
     }
 
     // remove feature data series
-    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     if (seriesIndex > -1) {
       this.lineOption.series.splice(seriesIndex, 1);
     }
@@ -481,7 +472,7 @@ export class KommonitorDiagramsComponent implements OnInit {
     // get index of bar item
     let index = -1;
     for (let i = 0; i < this.barOption.xAxis.data.length; i++) {
-      if (this.barOption.xAxis.data[i] === featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+      if (this.barOption.xAxis.data[i] === featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
         index = i;
         break;
       }
@@ -505,7 +496,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   unhighlightFeatureInLineChart(featureProperties) {
     // highlight the corresponding bar diagram item
     // get series index of series
-    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
 
     if (seriesIndex > -1) {
       this.lineChart.dispatchAction({

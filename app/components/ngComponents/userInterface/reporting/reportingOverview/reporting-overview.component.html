@@ -1,4 +1,7 @@
 <div class="container-fluid">
+  <div class="loading-overlay-reporting" style="width:100%; height:100%; top: 0; left: 0" *ngIf="showReportLoading()">
+    <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  </div>
   <div class="row row-no-gutters">
       <div class="col-sm-12 text-center">
           <h2 class="fs-title">Übersicht</h2>
@@ -8,33 +11,44 @@
       <div class="row">
           <div class="col-sm-3" id="reporting-overview-sidebar">
               <div id="reporting-overwiew-indicators-wrapper">
-                  <button *ngIf="!data.reportingConfig.template.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
+                  <button *ngIf="!reportingService.workingTemplate.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
                        class="btn btn-success" (click)='onConfigureNewIndicatorClicked()'
                         (disabled)="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)">
                       <i class="fa fa-plus"></i>
                       <span >&nbsp;&nbsp;Indikator konfigurieren</span>
                   </button>
-                  <button *ngIf="data.reportingConfig.template.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
+                  <button *ngIf="reportingService.workingTemplate.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
                       class="btn btn-success" (click)='onConfigureNewPoiLayerClicked()'
                         (disabled)="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)">
                       <i class="fa fa-plus"></i>
                       <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
                   </button>
-                  <h3 [hidden]="data.reportingConfig.template.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
-                  <h3 [hidden]="!data.reportingConfig.template.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
+                  <h3 [hidden]="reportingService.workingTemplate.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
+                  <h3 [hidden]="!reportingService.workingTemplate.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
                   <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                   <div class="list-group" ng-sortable="sortableConfig">
 
-                      <div *ngFor="let section of data.reportingConfig.templateSections; let i = index">
+                      <div *ngFor="let section of reportingService.templateSections.indicators; let i = index">
                           <hr class="reporting-hr-divider">
                           <div class="row row-no-gutters reporting-added-templateSections-row">
                               <div class="col-sm-11">
-                                  <b [hidden]="data.reportingConfig.template.name.includes('-reachability')">{{section.indicatorName}}</b>
-                                  <b [hidden]="!data.reportingConfig.template.name.includes('-reachability')">{{section.poiLayerName}}</b>
+                                  <b>{{section.indicatorName}}</b>
                               </div>
                               <div class="col-sm-1 text-right" style="cursor: pointer;">
                                   <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
-                                    (click)="removeTemplateSection(i)"></i>
+                                    (click)="reportingService.removeIndicatorSection(section.indicatorId)"></i>
+                              </div>
+                          </div>
+                      </div>
+                      <div *ngFor="let section of reportingService.templateSections.georesources; let i = index">
+                          <hr class="reporting-hr-divider">
+                          <div class="row row-no-gutters reporting-added-templateSections-row">
+                              <div class="col-sm-11">
+                                  <b>{{section.poiLayerName}}</b>
+                              </div>
+                              <div class="col-sm-1 text-right" style="cursor: pointer;">
+                                  <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
+                                    (click)="reportingService.removeGeoresourcesSection(section.georesourceId)"></i>
                               </div>
                           </div>
                       </div>
@@ -49,12 +63,12 @@
               </div>
               <div class="row" style="margin:0">
                   <div id="reporting-overview-preview-area">
-                      <div *ngFor="let page of data.reportingConfig.pages; index as iPage"
+                      <div *ngFor="let page of reportingService.workingTemplate.pages; index as iPage"
                           [ngClass]="{'hiddenPage': !showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}"
                           id="reporting-overview-page-{{iPage}}">
                           <button class="orientationChangeBtn" 
-                              [hidden]="pageContainsDatatable(iPage) && data.reportingConfig.template.name.includes('-reachability')"
+                              [hidden]="pageContainsDatatable(iPage) && reportingService.workingTemplate.name.includes('-reachability')"
                               (click)="onPageTurnClicked(page.orientation, iPage)">
                               <img src="icons/swap.png" width="100%" height="100%">
                           </button>
@@ -77,40 +91,40 @@
                                   [innerHTML]="(pageElement.placeholderText ? pageElement.placeholderText : '') | safeHtml">
                               </span>
                               <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                              <span [hidden]="!page.templateSection.pageConfig.showPageNumber || !(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showPageNumber || !(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   Seite {{getPageNumber(iPage)}}
                               </span>
 
-                              <span [hidden]="!page.templateSection.pageConfig.showFooterCreationInfo || !(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showFooterCreationInfo || !(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!page.templateSection.pageConfig.showFreeText || !(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.sectionContentControl.showFreeText || !(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <img [hidden]="!page.templateSection.pageConfig.showLogo || !(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
+                              <img [hidden]="!reportingService.config.headerFooterControl.showLogo || !(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
                                   src="{{pageElement.src}}">
 
-                              <span [hidden]="!page.templateSection.pageConfig.showTitle || !(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showTitle || !(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!page.templateSection.pageConfig.showSubtitle || !(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!page.templateSection.pageConfig.showSubtitle || !(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!page.templateSection.pageConfig.showSubtitle || !(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>
@@ -165,33 +179,34 @@
               <hr>
           </div>
       </div>
-      <div class="row">
-          <div class="col-sm-12">
-              <div id="reporting-overview-bot-btn-row-2">
-                  <button class="btn btn-warning" (click)='onBackToTemplateSelectionClicked()'>
-                      <i class="fa fa-arrow-left"></i>
-                      &nbsp;&nbsp;Zurück zur Templateauswahl
-                  </button>
-                  <button type="button" class="btn btn-primary" (click)="exportConfig()">
-                      <i class="fa fa-save"></i>
-                      &nbsp;&nbsp;Einstellungen exportieren
-                  </button>
-                  <button type="button" class="btn btn-success pull-right" data-toggle="modal" (click)="generateReport()" [disabled]="loadingData || ! lastPageOfAddedSectionPrepared || ! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate">
-                      <i class="fa fa-copy"></i>
-                      &nbsp;&nbsp;Report erzeugen
-                  </button> 
-                  
-                  <button [disabled]="true" style="margin-right: 15px;" *ngIf="! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0" type="button" class="btn btn-info pull-right">
-                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-                      <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
-                  </button>
+      <div class="modal-custom-footer">
+        <div>
+          <button class="btn btn-warning" (click)='onBackToTemplateSelectionClicked()'>
+              <i class="fa fa-arrow-left"></i>
+              &nbsp;&nbsp;Zurück zur Templateauswahl
+          </button>
+          <button type="button" class="btn btn-primary" (click)="exportConfig()">
+              <i class="fa fa-save"></i>
+              &nbsp;&nbsp;Einstellungen exportieren
+          </button><!--  -->
 
-                  <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
-                      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-                      <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
-                  </button>
-              </div>
-          </div>
+          
+          <button [disabled]="true" type="button" class="btn btn-info pull-right" *ngIf="!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+              <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
+          </button>
+
+          <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
+              <span class="glyphicon glyphicon-refresh icon-spin"></span>
+              <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
+          </button>
+        </div>          
+        <div>
+          <button [disabled]="reportingService.templateSections.indicators.length==0 || loadingData || !lastPageOfAddedSectionPrepared || !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate" style="margin-right: 15px;" type="button" class="btn btn-success pull-right" data-toggle="modal" (click)="generateReport()" >
+              <i class="fa fa-copy"></i>
+              &nbsp;&nbsp;Report erzeugen
+          </button> 
+        </div>
       </div>
   </div>
 </div>

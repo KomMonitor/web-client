@@ -1,0 +1,15 @@
+<div class="script-definition-wrapper">
+  <div class="wrapper-header">
+    <h4 class="wrapper-title">{{ title }}</h4>
+    <p class="wrapper-description" *ngIf="description">{{ description }}</p>
+  </div>
+
+  <div class="wrapper-content">
+    <ng-container *ngIf="content; else defaultContent">
+      <ng-container *ngTemplateOutlet="content"></ng-container>
+    </ng-container>
+    <ng-template #defaultContent>
+      <ng-content></ng-content>
+    </ng-template>
+  </div>
+</div>

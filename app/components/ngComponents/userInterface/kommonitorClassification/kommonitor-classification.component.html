@@ -1,28 +1,28 @@
 <!-- classification  -->
-<div id="kommonitorClassification"
-  ng-mouseup="onClassificationMouseUp()">
+<div id="kommonitorClassification" (mouseup)="onClassificationMouseUp()">
   <div class="classification-container">
 
 
-    <div *ngIf="exchangeData.selectedIndicator.indicatorType.includes('STATUS') && !exchangeData.isMeasureOfValueChecked && !exchangeData.isBalanceChecked" class="row vertical-align">      
+    <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked" class="row vertical-align">      
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Farbpalettenwahl
-            <span class="caret"></span></button>
-            <ul class="dropdown-menu " style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
-            <li style="margin-right: 15px;" *ngFor="let colorPaletteEntry of colorbrewerPalettes">
-              <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
-                <div style="display: inline-block;">
-                  
-                  <svg width="100" height="20">
+            <button class="btn btn-primary dropdown-toggle btn-sm" type="button" (click)="clrSelectVisible=!clrSelectVisible">Farbpalettenwahl<span class="caret"></span></button>
+            <div id="clr_dropdown" [ngClass]="{'visible':clrSelectVisible}">
+              <ul class="dropdown-menu " style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+                <li style="margin-right: 15px;" *ngFor="let colorPaletteEntry of colorbrewerPalettes">
+                  <div (click)="onClickColorBrewerEntry(colorPaletteEntry)">
+                    <div style="display: inline-block;">
+                      
+                      <svg width="100" height="20">
 
-                      <rect *ngFor="let color of colorPaletteEntry.paletteArrayObject['5']; let i = index" [ngStyle]="{fill: color, x: (i * 20)+'px'}" width="20" height="20"></rect>
-                                            
-                  </svg>
-                </div>
-              </div>
-            </li>
-            </ul>
+                          <rect *ngFor="let color of colorPaletteEntry.paletteArrayObject['5']; let i = index" [ngStyle]="{fill: color, x: (i * 20)+'px'}" width="20" height="20"></rect>
+                                                
+                      </svg>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
           <div class="help-block with-errors"></div>
         </div>
@@ -42,12 +42,6 @@
     <div title="Hier können Sie die Klassifizierungsmethode ändern.">
       <div style="font-weight: bold;">Methode</div>
       <app-classification-method-select [defaultMethodId]="visualStyleHelperService.classifyMethod" [hiddenMethodIds]="hiddenMethodIds" (onMethodSelect)="onMethodSelected($event)"></app-classification-method-select>
-      <!-- todo  -->
-      <!-- <classification-method-select 
-        on-method-selected="onMethodSelected(method)"
-        default-method-id="{{visualStyleHelperService.classifyMethod}}"
-        hidden-method-ids="{{hiddenMethodIds}}">
-      </classification-method-select> -->
     </div>
 
     <!-- number of classes -->
@@ -68,7 +62,7 @@
 
     <!-- manual breaks -->
     <div *ngIf="visualStyleHelperService.classifyMethod=='manual'">
-      <div *ngIf="(exchangeData.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! exchangeData.isMeasureOfValueChecked && ! exchangeData.isBalanceChecked" 
+      <div *ngIf="(dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             (mouseover)="toggleAddBtn($event, 0)">
         <div class="breaksArea"
@@ -126,7 +120,7 @@
         </div>
       </div>
 
-      <div *ngIf="exchangeData.isMeasureOfValueChecked" 
+      <div *ngIf="dataExchangeService.isMeasureOfValueChecked" 
             class="histogramTabWrapper editableHistogram"
             (mousemove)="toggleAddBtn($event, 0)">
         <div class="breaksArea"
@@ -141,11 +135,11 @@
           </div>
           <!-- measure of Value -->
           <div class="breakWrapper measureOfValue"
-                [ngStyle]="{top: getPercentage(exchangeData.measureOfValue, 0)+'%'}"
+                [ngStyle]="{top: getPercentage(dataExchangeService.measureOfValue, 0)+'%'}"
                 (mousedown)="onBreaksMouseMove($event, 0)">
             <div class ="break fixed">
               <!--<div class="colorBox"></div>-->
-              <span>{{exchangeData.measureOfValue}}</span>
+              <span>{{dataExchangeService.measureOfValue}}</span>
             </div>
             <div class="line"></div>
           </div>
@@ -187,10 +181,10 @@
     </div>
 
     <!-- balance checked -- lower than values -->
-    <div *ngIf="((exchangeData.isBalanceChecked 
-        || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') 
+    <div *ngIf="((dataExchangeService.isBalanceChecked 
+        || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
-        && ! exchangeData.isMeasureOfValueChecked)
+        && ! dataExchangeService.isMeasureOfValueChecked)
         && visualStyleHelperService.dynamicBrew[1].breaks.length > 0"
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           (mousemove)="toggleAddBtn($event, 1)">
@@ -237,10 +231,10 @@
 
 
     <!-- balance checked -- higher than values -->
-    <div *ngIf="((exchangeData.isBalanceChecked 
-        || exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC') 
+    <div *ngIf="((dataExchangeService.isBalanceChecked 
+        || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
-        && ! exchangeData.isMeasureOfValueChecked)
+        && ! dataExchangeService.isMeasureOfValueChecked)
         && visualStyleHelperService.dynamicBrew[0].breaks.length > 0" 
           class="histogramTabWrapper editableHistogram editableHistogramDynamic"
           (mousemove)="toggleAddBtn($event, 0)">
@@ -302,7 +296,7 @@
     </div>-->
 
   </div>
-  <div class="classificationBoxToogleSlidersWrapper" *ngIf="!exchangeData.isBalanceChecked">
+  <div class="classificationBoxToogleSlidersWrapper" *ngIf="!dataExchangeService.isBalanceChecked">
     <span class="classificationBoxToogleSlidersLbl">
       <strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;
     </span>
@@ -312,26 +306,26 @@
         type="checkbox" 
         value="useWholeTimeseriesClassification"
         (change)="restyleCurrentLayer()"
-        [(ngModel)]="exchangeData.classifyUsingWholeTimeseries" 
-        [checked]="exchangeData.classifyUsingWholeTimeseries">
+        [(ngModel)]="envConfigService.classifyUsingWholeTimeseries" 
+        [checked]="envConfigService.classifyUsingWholeTimeseries">
         <span class="switchslider round"></span>
     </label>
   </div>
 
   <div class="classificationBoxToogleSlidersWrapper" *ngIf="containsZeroValues && visualStyleHelperService.classifyMethod !== 'manual' && visualStyleHelperService.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;</span>
-    <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" [(ngModel)]="exchangeData.classifyZeroSeparately" [checked]="exchangeData.classifyZeroSeparately" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
+    <label class="switch" title="0 als separate Klasse darstellen"><input id="controlIndicatorZeroClassifyOption" type="checkbox" value="useSeparateZeroClass" [(ngModel)]="envConfigService.classifyZeroSeparately" [checked]="envConfigService.classifyZeroSeparately" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
 
   <div class="classificationBoxToogleSlidersWrapper" *ngIf="(containsOutliers_high || containsOutliers_low) && visualStyleHelperService.classifyMethod !== 'manual' && visualStyleHelperService.classifyMethod !== 'regional_default'">
     <span class="classificationBoxToogleSlidersLbl"><strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;</span>
-    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" [(ngModel)]="exchangeData.useOutlierDetectionOnIndicator" [checked]="exchangeData.useOutlierDetectionOnIndicator" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
+    <label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" [(ngModel)]="envConfigService.useOutlierDetectionOnIndicator" [checked]="envConfigService.useOutlierDetectionOnIndicator" (change)="restyleCurrentLayer()"><span class="switchslider round"></span></label>
   </div>
   <div class="classificationBoxToogleSlidersWrapper" *ngIf="containsNoData">
     <span class="classificationBoxToogleSlidersLbl">
       <strong>NoData-Werte tempor&auml;r aus Datensatz entfernen</strong> &nbsp;</span>
     <label class="switch" title="NoData-Werte tempor&auml;r aus Datensatz entfernen">
-      <input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" [(ngModel)]="exchangeData.useNoDataToggle" [checked]="exchangeData.useNoDataToggle" (change)="restyleCurrentLayer()">
+      <input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" [ngModel]="envConfigService.useNoDataToggle" [checked]="envConfigService.useNoDataToggle" (change)="restyleCurrentLayer()">
       <span class="switchslider round"></span>
     </label>
   </div>

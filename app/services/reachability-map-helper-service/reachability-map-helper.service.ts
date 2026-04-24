@@ -1,4 +1,3 @@
-import { ajskommonitorReachabilityMapHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 
 @Injectable({

@@ -1,14 +1,11 @@
-import { ActivatedRoute } from '@angular/router';
-import { ajskommonitorGlobalFilterHelperServiceProvider } from './../../app-upgraded-providers';
-import { Inject, Injectable } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalFilterHelperService {
-
-  baseUrlToKomMonitorDataAPI = window.__env.apiUrl + window.__env.basePath;
-
   queryParamMap = new Map();
   currentShareLink = "";
 
@@ -16,9 +13,12 @@ export class GlobalFilterHelperService {
   applicationFilterId:any = "";
   applicationFilter:any;
   filterParamSet = false;
+  filterApplied: boolean = false;
 
   constructor(
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    private envConfigService: EnvConfigService,
   ) {}
 
   applyQueryParams(){
@@ -29,7 +29,7 @@ export class GlobalFilterHelperService {
       let urlParts = window.location.href.split(`${this.paramName_app}=`);
       this.applicationFilterId = urlParts[1];
 
-      window.__env.filterConfig.some((filterConfig) => {
+      this.envConfigService.filterConfig.some((filterConfig) => {
         if (filterConfig['name'] === this.applicationFilterId) {
           this.applicationFilter = filterConfig;
           return true;
@@ -47,18 +47,24 @@ export class GlobalFilterHelperService {
     // No need to parse sharing params if sharing is not true
     if (window.location.href.includes(this.paramName_app)) {
       this.filterParamSet = true;
+      this.filterApplied = true;
       // set config and data options from params
       this.applyQueryParams();
-    } else
+    } else {
       this.filterParamSet = false;
+      this.filterApplied = false;
+    }
   };
 
   applyFilterSelection(filterConfig) {
 
-    if(filterConfig.length) 
+    if(filterConfig.length) {
       this.applicationFilter = this.merge(filterConfig);
-    else
+      this.filterApplied = true;
+    } else {
       this.applicationFilter = undefined;
+      this.filterApplied = false;
+    }
   }
 
   merge(filterConfig) {
@@ -92,5 +98,20 @@ export class GlobalFilterHelperService {
 
   isFilterParamSet () {
     return this.filterParamSet;
+  }
+
+  globalFilterApplied():boolean {
+
+    return this.filterParamSet || this.filterApplied;
+  }
+
+  reset() {
+    if(this.filterParamSet) {
+      this.router.navigate(['/']);
+      this.filterParamSet = false;
+    }
+    
+    this.applicationFilter = undefined;
+    this.filterApplied = false;
   }
 }

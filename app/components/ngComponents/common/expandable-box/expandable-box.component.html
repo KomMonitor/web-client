@@ -1,0 +1,22 @@
+<div class="box-wrapper">
+  <div
+    class="box-header"
+    [class]="'top-border-' + borderColor"
+    (click)="onCollapseToggle()"
+    [class.collapsible]="isCollapsible"
+  >
+    <div class="box-title">{{ title }}</div>
+    <div class="box-tools">
+      <button type="button" *ngIf="isCollapsible" class="btn btn-box-tool">
+        <i
+          class="fa"
+          [class.fa-plus]="collapsed"
+          [class.fa-minus]="!collapsed"
+        ></i>
+      </button>
+    </div>
+  </div>
+  <div class="box-body" #collapse="ngbCollapse" [(ngbCollapse)]="collapsed">
+    <ng-content></ng-content>
+  </div>
+</div>

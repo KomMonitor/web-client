@@ -3,11 +3,23 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { DATE_PICKER_OPTIONS, LOI_DASH_ARRAY_OBJECTS, POI_MARKER_COLORS } from '../../../../../services/data-exchange-service/data-exchange.constants';
 
 @Component({
-  selector: 'georesource-edit-metadata-modal-new',
+  selector: 'georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
-  styleUrls: ['./georesource-edit-metadata-modal.component.css']
+  styleUrls: ['./georesource-edit-metadata-modal.component.css'],
+  imports: [FormsModule, CommonModule, AdminTopicsManagementComponent],
+  standalone: true
+
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
@@ -78,13 +90,18 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
+  readonly loiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS;
+  readonly poiMarkerColors = POI_MARKER_COLORS;
+
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
+    public kommonitorDataExchangeService: DataExchangeService,
+    public kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
+    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private topicHierarchyService: TopicHierarchyService,
+    private http: HttpClient,
+    protected envConfigService: EnvConfigService
   ) {
     this.initializeDefaultValues();
   }
@@ -99,9 +116,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   private initializeDefaultValues(): void {
-    this.selectedPoiMarkerColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[0];
-    this.selectedPoiSymbolColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[1];
-    this.selectedLoiDashArrayObject = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
+    this.selectedPoiMarkerColor = POI_MARKER_COLORS[0];
+    this.selectedPoiSymbolColor = POI_MARKER_COLORS[1];
+    this.selectedLoiDashArrayObject = LOI_DASH_ARRAY_OBJECTS[0];
   }
 
   private initializeMetadataStructure(): void {
@@ -140,7 +157,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       if (data.msg === 'onEditGeoresourceMetadata') {
         this.currentGeoresourceDataset = data.georesourceDataset;
         this.resetGeoresourceEditMetadataForm();
-        this.kommonitorMultiStepFormHelperService.registerClickHandler();
+        this.kommonitorMultiStepFormHelperService.registerClickHandler(undefined);
       }
     });
     this.subscriptions.push(editSub);
@@ -185,7 +202,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.currentGeoresourceDataset.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
@@ -213,7 +230,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Set POI colors
-    this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
+    POI_MARKER_COLORS.forEach((option: any) => {
       if (option.colorName === this.currentGeoresourceDataset.poiMarkerColor) {
         this.selectedPoiMarkerColor = option;
       }
@@ -223,7 +240,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set LOI properties
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
+    LOI_DASH_ARRAY_OBJECTS.forEach((option: any) => {
       if (option.dashArrayValue === this.currentGeoresourceDataset.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
         this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
@@ -236,9 +253,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.selectedPoiIconName = this.currentGeoresourceDataset.poiSymbolBootstrap3Name;
 
     // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-      this.currentGeoresourceDataset.topicReference
-    );
+    const topicHierarchy =
+      this.topicHierarchyService.getTopicHierarchyForTopicId(
+        this.kommonitorDataExchangeService.availableTopics,
+        this.currentGeoresourceDataset.topicReference,
+      );
 
     if (topicHierarchy && topicHierarchy[0]) {
       this.georesourceTopic_mainTopic = topicHierarchy[0];
@@ -267,9 +286,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     try {
       const datePicker = document.getElementById('georesourceEditLastUpdateDatepicker');
       if (datePicker && (window as any).$) {
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(
-          this.kommonitorDataExchangeService.datePickerOptions
-        );
+        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(DATE_PICKER_OPTIONS);
         (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
       }
 
@@ -319,10 +336,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
       // Initialize LOI dash array dropdown
       setTimeout(() => {
-        for (let i = 0; i < this.kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++) {
+        for (let i = 0; i < LOI_DASH_ARRAY_OBJECTS.length; i++) {
           const element = document.getElementById('loiDashArrayEditDropdownItem-' + i);
           if (element) {
-            element.innerHTML = this.kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString;
+            element.innerHTML = LOI_DASH_ARRAY_OBJECTS[i].svgString;
           }
         }
 
@@ -442,7 +459,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
@@ -472,7 +489,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }
 
     // Set POI colors
-    this.kommonitorDataExchangeService.availablePoiMarkerColors.forEach((option: any) => {
+    POI_MARKER_COLORS.forEach((option: any) => {
       if (option.colorName === this.metadataImportSettings.poiMarkerColor) {
         this.selectedPoiMarkerColor = option;
       }
@@ -482,7 +499,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set LOI properties
-    this.kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach((option: any) => {
+    LOI_DASH_ARRAY_OBJECTS.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
         this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
@@ -504,8 +521,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     }, 200);
 
     // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
-      this.metadataImportSettings.topicReference
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.kommonitorDataExchangeService.availableTopics,
+      this.metadataImportSettings.topicReference,
     );
 
     if (topicHierarchy && topicHierarchy[0]) {
@@ -682,7 +700,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.loadingData = true;
 
     this.http.patch(
-      this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
+      this.envConfigService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
       patchBody
     ).subscribe({
       next: (response: any) => {

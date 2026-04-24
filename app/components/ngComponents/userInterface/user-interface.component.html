@@ -1,79 +1,78 @@
-<p id="fontFamily-reference"></p>
 <header id="header" class="main-header">
 
-  <div  style="position:absolute; left:40%;  padding-top: 4px;">
-
-    <h4>{{exchangeData.appTitle}}</h4>
-  </div>
-
-  <div style="padding-left: 10px; padding-top: 4px;">
-
-     <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
-     <div ng-if="exchangeData.customLogoURL && exchangeData.customLogoWidth">
-      <a target="_blank" rel="noopener noreferrer" href="{{exchangeData.customLogo_onClickURL}}">
-        <img src="{{exchangeData.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': exchangeData.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
-      </a>
-      
-     </div> 			  
-
-    <app-user-login></app-user-login>
-    <p ng-if="showAdminLogin" (click)="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
-    <p (click)="openInfoModal()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
-    
-    <app-language-switcher></app-language-switcher>
-    <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
-    <a style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
-    		
-    <div id="switchAdvancedMode" *ngIf="visibilityHelperService.showAdvancedModeSwitch" 
-    style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
-      <strong>Erweiterte Ansicht</strong> &nbsp;
-      <label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 
-        ng-checked="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode"
-        ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label>
+    <div class="logoWrapper">
+      <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></a>
+      <div *ngIf="envConfigService.customLogoURL && envConfigService.customLogoWidth">
+        <a target="_blank" rel="noopener noreferrer" href="{{envConfigService.customLogo_onClickURL}}">
+          <img src="{{envConfigService.customLogoURL}}" [ngStyle]="{'float': 'left', 'width': envConfigService.customLogoWidth, 'height':' 35px', 'margin-right': '0.5%'}">
+        </a>
+      </div> 			  
     </div>
-    <p style="clear: both;"></p>
 
+    <!-- <app-language-switcher></app-language-switcher> -->
+
+    <div class="titleWrapper">
+      <h4>{{envConfigService.appTitle}}</h4>
+    </div>
+
+    <div class="buttonWrapper">
+      <div id="switchAdvancedMode" class="switch" *ngIf="envConfigService.showAdvancedModeSwitch" style="width:250px">
+        <strong>Erweiterte Ansicht</strong>
+        <label class="switch">
+          <input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty"
+              ng-change="onChangeUseTimeseriesAsProperty()">
+          <span class="switchslider round"></span>
+        </label>
+        <!-- <label class="switch" title="Ein- / Ausblenden von UI Elementen">
+          <input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 
+            ng-checked="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode"
+            ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label> -->
+      </div>
+      <p title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></p>
+      <p *ngIf="showAdminLogin" (click)="openAdminUI()" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></p>
+      <p (click)="openInfoModal()" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></p>
+      <app-user-login></app-user-login>
+    </div>
     
-
-  </div>
+    <!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 
 </header>
 <div id="userInterface-content">
-  <app-sidebar [element]="sidebarElement"></app-sidebar>
+  <app-sidebar [element]="sidebarElement" (sidebarClosed)="onSidebarClose($event)"></app-sidebar>
   <div id="mapWrapper">
     <div id="sideBarButtons">
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
-          <i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
+          <i class="fas fa-sitemap"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
-          <i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
+          <i class="fas fa-map-marker-alt"></i>
       </button>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
-          <i style="font-size:2.5vh;" class="fas fa-file-import"></i>
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse" *ngIf="userLoggedIn"
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
+          <i class="fas fa-file-import"></i>
       </button> 
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse')}" data-toggle="tooltip" title="Darstellungsfilter">
-          <i style="font-size:2.5vh;" class="fas fa-filter"></i>
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse'), 'filterActive':filterModusActive()}" data-toggle="tooltip" title="Darstellungsfilter">
+          <i class="fas fa-filter"></i>
       </button>
 
       <div>
         <button type="button" style="display: block; position: relative; margin-top: 5px;" 
-          (click)="onDiagramSubMenuClick()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened()}" data-toggle="tooltip" title="statistische Diagramme">
-            <i style="font-size:2.5vh;" class="fas fa-chart-simple"></i>
+          (mouseover)="onDiagramSubMenuOver()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened(), 'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="statistische Diagramme">
+            <i class="fas fa-chart-simple"></i>
         </button>
         
-        <div id="diagramSubMenu">
+        <div id="diagramSubMenu" [ngClass]="{'hidden':!diagramSubMenuOpen}">
 
           <div class="subMenuButtonWrapper">
             <button type="button" style="display: block; position: relative;" id="sidebarBalanceCollapse"
-              (click)="onDiagramSubMenuButtonClick($event)" [ngClass]="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
-                <i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
+              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="zeitliche Bilanzierung">
+                <i class="fas fa-chart-line"></i>
             </button>
             <div>
               <b>Bilanzierung</b>
@@ -84,7 +83,7 @@
           <div class="subMenuButtonWrapper">
             <button type="button" style="display: block; position: relative;" id="sidebarDiagramsCollapse" 
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="statistische Diagramme">
-                <i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
+                <i class="fas fa-chart-bar"></i>
             </button>
             <div>
               <b>Kennzahlen</b>
@@ -92,7 +91,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper">
+          <div class="subMenuButtonWrapper" *ngIf="userLoggedIn">
             <button type="button" style="display: block; position: relative" id="sidebarRadarDiagramCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Indikatorenradar">
                 <img src="icons/radarMap.svg">
@@ -103,7 +102,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper">
+          <div class="subMenuButtonWrapper" *ngIf="userLoggedIn">
             <button type="button" style="display: block; position: relative" id="sidebarRegressionDiagramCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Regressionsdiagramm">
                 <img src="icons/scatterPlot.svg">
@@ -116,14 +115,14 @@
         </div>
       </div>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
-        (click)="onSidebarButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
-        <i style="font-size:2.5vh;" class="fas fa-route"></i>
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse" *ngIf="userLoggedIn"
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+        <i class="fas fa-route"></i>
       </button>
 
       <button *ngIf="visibilityHelperService.elementVisibility.reportingButton" type="button" style="display: block; position: relative; margin-top: 5px;"
-        (click)="openReportingModal()" class="btn btn-custom btn-circle" data-toggle="modal" title="Report erstellen">
-        <i style="font-size:2.5vh;" class="fas fa-file-alt"></i>
+        (click)="openReportingModal()" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" data-toggle="modal" title="Report erstellen">
+        <i class="fas fa-file-alt"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;"
@@ -135,35 +134,70 @@
     <div id="mapUtilButtons">
       <button type="button" id="recenterMapButton"
         (click)="onRecenterMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Karte zentrieren">
-          <span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+          <i class="fas fa-earth-europe"></i>
       </button>
 
       <button type="button" id="unselectFeaturesButton"
         (click)="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Raumeinheits-Selektion aufheben">
-          <span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+          <i class="fas fa-ban"></i>
       </button>
 
       <button type="button" id="exportMapButton"
         (click)="onExportMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="aktuellen Kartenausschnitt exportieren">
-          <i style="font-size:1.5em;margin-left:-5px;" class="fas fa-download"></i>
+          <i class="fas fa-download"></i>
       </button>
 
       <button type="button" id="expertButton" data-toggle="button" 
         (click)="onExpertButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Experten-Werkzeuge anzeigen" >
-        <i style="font-size:1.5em;margin-left:-5px;" class="fa fa-screwdriver-wrench"></i>
+        <i class="fa fa-screwdriver-wrench"></i>
       </button>
 
       <button type="button" id="openLayerControlButton" data-toggle="button" [ngClass]="{'visible':expertToolbarVisible}"
         (click)="onOpenLayerControlButtonClick()" class="btn btn-leaflet-custom expertButton" data-toggle="tooltip" title="Layer Control anzeigen">
-          <i style="font-size:1.5em;margin-left:-5px;" class="fas fa-layer-group"></i>
+          <i class="fas fa-layer-group"></i>
       </button>
     </div>		
+
+
+    <div id="statusButtonContainer">
+      <div id="filterStatusButtonContainer"
+        *ngIf="globalFilterHelperService.globalFilterApplied() || dataExchangeService.isMeasureOfValueChecked || dataExchangeService.rangeFilterIsApplied">
+        <div *ngIf="globalFilterHelperService.globalFilterApplied()" 
+              id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
+          <i class="fas fa-filter"></i>
+          <span (click)="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
+          <i class="fas fa-close" (click)="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
+        </div>
+        <div *ngIf="dataExchangeService.isMeasureOfValueChecked" 
+              id="filterNoticeButton" class="btn btn-warning btn-xs" title="Schwellenwertklassifizierung aktiviert">
+          <i class="fas fa-filter"></i>
+          <span (click)="openFilterSidebar()" style="margin: 3px;">Schwellenwert aktiviert </span>
+          <i class="fas fa-close" (click)="onMOVCloseButtonClick()" title="Filter entfernen"></i>
+        </div>
+        <div *ngIf="dataExchangeService.rangeFilterIsApplied" 
+              id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
+          <i class="fas fa-filter"></i>
+          <span (click)="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
+          <i class="fas fa-close" (click)="onRangeFilterCloseButtonClick()" title="Filter entfernen"></i>
+        </div>
+      </div>
+      <div id="balanceStatusButton">
+        <span *ngIf="dataExchangeService.isBalanceChecked" 
+              id="balanceNoticeButton" class="btn btn-warning btn-xs" title="Bilanzierung aktiviert">
+          <i class ="fas fa-chart-line"></i>
+          <span (click)="openBalanceSidebar()" style="margin: 3px;">Bilanzierung aktiviert </span>
+          <i class="fas fa-close" (click)="onBalanceCloseButtonClick()" title="Bilanzierung entfernen"></i>
+        </span>
+      </div>
+    </div>
+
     
     <div id="dateSliderWrapper">
+      <custom-slider *ngIf="sliderData" [data]="sliderData" [markerPositions]="markerPosition" [displayMode]="sliderDisplayMode.YEAR" [disabled]="sliderDisabled" (valueChange)="onDateSliderChange($event)"></custom-slider>
       <div id="dateSlider"></div>
     </div>
 
-    <app-kommonitor-map></app-kommonitor-map>
+    <app-kommonitor-map (click)="closeDiagramSubmenu()"></app-kommonitor-map>
     
   </div>
 </div>

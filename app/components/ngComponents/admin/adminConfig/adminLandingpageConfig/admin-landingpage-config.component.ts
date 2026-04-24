@@ -3,13 +3,14 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { ConfigStorageService, LandingpageConfig } from '../../../../../services/config-storage-service/config-storage.service';
 import { firstValueFrom } from 'rxjs';
-import CodeMirror from 'codemirror';
+import * as CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files 
 import 'codemirror/mode/xml/xml.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
+import { PipesModule } from "../../../../../pipes.module";
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
@@ -32,7 +33,9 @@ interface LintingIssue {
 @Component({
   selector: 'app-admin-landingpage-config',
   templateUrl: './admin-landingpage-config.component.html',
-  styleUrls: ['./admin-landingpage-config.component.css']
+  styleUrls: ['./admin-landingpage-config.component.css'],
+  imports: [PipesModule],
+  standalone: true
 })
 export class AdminLandingpageConfigComponent implements AfterViewInit { 
 
@@ -46,16 +49,12 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   appConfigCurrent: string = '';
   appConfigNew: string = '';
   errorMessagePart: string = '';
-  
-  customTabTitle = window.__env.customLandinPageTitle;
-  tab1Title = window.__env.standardInfoModalTabTitle
-
   configLoaded = false;
 
   constructor(
     private http: HttpClient,
     private kommonitorConfigStorageService: ConfigStorageService,
-    @Inject('kommonitorDataExchangeService') private ajskommonitorDataExchangeService: any
+    private ajskommonitorDataExchangeService: DataExchangeService,
   ) {}
 
 

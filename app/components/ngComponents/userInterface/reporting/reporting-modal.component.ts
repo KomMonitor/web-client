@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 import { WorkflowSelectComponent } from './workflowSelect/workflow-select.component';
-import { TemplateSelectComponent } from "./templateSelect/template-select.component";
-import { IndicatorAddComponent } from "./indicatorAdd/indicator-add.component";
-import { ReportingOverviewComponent } from "./reportingOverview/reporting-overview.component";
+import { TemplateSelectComponent } from './templateSelect/template-select.component';
+import { ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
+import { ReportingOverviewComponent } from './reportingOverview/reporting-overview.component';
+import { IndicatorAddComponent } from './indicatorAdd/indicator-add.component';
 
-export interface sharedReportingData {
-  pageConfig: any;
-  reportingConfig: reportingData;
-}
 
 export interface reportingData { 
   templateSections:any[],
@@ -20,94 +18,39 @@ export interface reportingData {
 
 @Component({
   selector: 'app-reporting-modal',
-  standalone: true,
   templateUrl: './reporting-modal.component.html',
-  styleUrls: ['./reporting-modal.component.css'],
-  imports: [CommonModule, WorkflowSelectComponent, TemplateSelectComponent, IndicatorAddComponent, IndicatorAddComponent, ReportingOverviewComponent]
+  styleUrls: ['./reporting-modal.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    FormsModule,
+    WorkflowSelectComponent,
+    TemplateSelectComponent,
+    ReportingOverviewComponent,
+    IndicatorAddComponent
+  ]
 })
-export class ReportingModalComponent {
-
-  /* 
-    0 = workflow select
-    1 = template select
-    2 = overview page
-    3 = indicator add 
-  */
-  workflowStatus = 0;
-  data: sharedReportingData = {
-    pageConfig: {
-      mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-      showMapLabels: true,
-      showRankingChartPerArea: true,
-      showLineChartPerArea: true,
-      showFreeText: true,
-      showRankingMeanLine: true,
-      showTitle: true,
-      showSubtitle: true,
-      showLogo: true,
-      showFooterCreationInfo: true,
-      showPageNumber: true,
-      sections: {
-        showOverviewSection_unclassified: true,
-        showOverviewSection_classified: true,
-        showBarchartOverview: true,
-        showLinechartOverview: true,
-        showBoxplotchartOverview: true,
-        showAreaSpecific: true,
-        showOverviewSection_reachability: true,
-        showDatatable: true
-      }
-    },
-    reportingConfig: {
-      templateSections: [],
-      pages: [],
-      template: {},
-      backupTemplate: {}
-    }
-  }
+export class ReportingModalComponent implements OnInit {
 
   activeModal = inject(NgbActiveModal);
-/* 
-  pageConfig = {
-    mapLegendBackgroundColor: "rgba(255, 255, 255, 0.75)",
-    showMapLabels: true,
-    showRankingChartPerArea: true,
-    showLineChartPerArea: true,
-    showFreeText: true,
-    showRankingMeanLine: true,
-    showTitle: true,
-    showSubtitle: true,
-    showLogo: true,
-    showFooterCreationInfo: true,
-    showPageNumber: true,
-    sections: {
-      showOverviewSection_unclassified: true,
-      showOverviewSection_classified: true,
-      showBarchartOverview: true,
-      showLinechartOverview: true,
-      showBoxplotchartOverview: true,
-      showAreaSpecific: true,
-      showOverviewSection_reachability: true,
-      showDatatable: true
-    }
-  }
-          
-  config:any = {
-    templateSections: [
-      // {
-      // 	indicator: "",
-      // 	poiLayer: ""
-      // }
-    ],
-    pages: [],
-    template: {}
-  };
- */
-  onWorkflowDefined(workflow) {
-    this.workflowStatus = workflow[0];
 
-    // for workflow select and template select, don´t override initial this.data
-    if(workflow[0]>1)
-      this.data = workflow[1];
+  workflowState = WorkflowState;
+
+  constructor(
+    protected reportingService: ReportingService
+  ) {}
+
+  ngOnInit() {
+    this.reportingService.reportingData$.subscribe(val => {
+      console.log('Wert geändert:', val);
+    });
+  }
+
+  isWorkflowState(state:WorkflowState | WorkflowState[]) {
+
+    if(Array.isArray(state))
+      return state.includes(this.reportingService.currentWorkflowState);
+
+    return this.reportingService.currentWorkflowState==state;
   }
 }

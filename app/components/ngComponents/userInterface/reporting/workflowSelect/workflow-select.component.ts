@@ -1,38 +1,41 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
+import { ImportData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-workflow-select',
   standalone: true,
   templateUrl: './workflow-select.component.html',
-  styleUrls: ['./workflow-select.component.css']
+  styleUrls: ['./workflow-select.component.scss'],
+  imports: [CommonModule]
 })
 export class WorkflowSelectComponent {
 
-  @Output() selectedWorkflow = new EventEmitter<any[]>();
+  workflowState = WorkflowState;
 
-  onWorkflowSelect(value: any[]) {
-    this.selectedWorkflow.emit(value);
-  }
+  constructor(
+    protected reportingService: ReportingService
+  ) {}
+
 
   onConfigSelect(event:any) {
 
     let content = "";
     let file = event.target.files[0];
     if (!file)
-        return;
+      return;
     let reader = new FileReader();
     reader.onload = (e:any) => {
-        content = e.target.result;
-        let config:string = '';
-        try {
-            config = JSON.parse(content);
-            this.onWorkflowSelect([1,'existing',config]);
-        }
-        catch (e) {
-            console.error("Configuration is no valid JSON.");
-        }
-        //TODO check if json has correct structure, can be done once config structure is defined
-        //$scope.onWorkflowSelected("existing", config);
+      content = e.target.result;
+      try {
+        let config:ImportData = JSON.parse(content);
+        this.reportingService.triggerConfigImport(config);
+      }
+      catch (e) {
+        console.error("Configuration is no valid JSON.");
+      }
+      //TODO check if json has correct structure, can be done once config structure is defined
+      //$scope.onWorkflowSelected("existing", config);
     };
     reader.readAsText(file);
   }

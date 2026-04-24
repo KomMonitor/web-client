@@ -163,7 +163,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     timer(0, 1000) // Check every second
       .pipe(
         takeUntil(this.destroy$),
-        map(() => this.isAuthenticated()),
+        map(() => this.authService.isAuthenticated()),
         filter((isAuth, index) => {
           const currentState = this.authenticationStateSubject.value;
           return isAuth !== currentState; // Only emit when state changes
@@ -210,7 +210,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     timer(30000, 30000) // Check every 30 seconds
       .pipe(
         takeUntil(this.destroy$),
-        filter(() => this.isAuthenticated())
+        filter(() => this.authService.isAuthenticated())
       )
       .subscribe(() => {
         const currentRoles = this.currentRolesSubject.value;
@@ -228,17 +228,11 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   private extractRolesFromKeycloak(): string[] {
     try {
-      const keycloak = this.authService.Auth?.keycloak;
-      
-      if (!keycloak) {
+      if (!this.authService.isAuthenticated()) {
         return [];
       }
 
-      if (!keycloak.authenticated) {
-        return [];
-      }
-
-      const tokenParsed = keycloak.tokenParsed;
+      const tokenParsed = this.authService.getTokenParsed();
       if (!tokenParsed?.realm_access?.roles) {
         return [];
       }
@@ -288,18 +282,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const komMonitorRoles = allRoles.filter(role => possibleRoles.includes(role));
     
     return komMonitorRoles;
-  }
-
-  /**
-   * Check if user is authenticated
-   */
-  private isAuthenticated(): boolean {
-    try {
-      const keycloak = this.authService.Auth?.keycloak;
-      return keycloak?.authenticated || false;
-    } catch (error) {
-      return false;
-    }
   }
 
   /**
@@ -375,7 +357,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
     // For now, we'll use "/public" as the default path for spatial resources
     // This should be configurable based on authentication state
-    const spatialResourcePath = this.isAuthenticated() ? "" : "/public";
+    const spatialResourcePath = this.authService.isAuthenticated() ? "" : "/public";
     return this.baseUrl + spatialResourcePath;
   }
 
@@ -507,10 +489,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Fetches access control metadata
    */
-  fetchAccessControlMetadata(): Observable<AccessControlMetadata[]> {
-    
+  fetchAccessControlMetadata(useCache: boolean): Observable<AccessControlMetadata[]> {
     // Check cache first
-    if (this.isCacheValid(this.accessControlCache)) {
+    if (useCache && this.isCacheValid(this.accessControlCache)) {
       this.accessControlSubject.next(this.accessControlCache!.data);
       return of(this.accessControlCache!.data);
     }
@@ -851,8 +832,8 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Get access control metadata by organizational unit ID
    */
-  getAccessControlById(id: string): AccessControlMetadata | null {
-    return this.accessControl.find(unit => unit.organizationalUnitId === id) || null;
+  getAccessControlById(id: string): AccessControlMetadata | undefined {
+    return this.accessControl.find(unit => unit.organizationalUnitId === id);
   }
 
   /**

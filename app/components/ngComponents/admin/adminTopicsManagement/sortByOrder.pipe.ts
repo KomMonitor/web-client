@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from "@angular/core";
 import { Topic, TopicOrderMode } from "./admin-topics-management.component";
 
 @Pipe({
-  name: "sortByOrder",
+  name: 'sortByOrder',
+  standalone: true,
 })
 export class SortByOrderPipe implements PipeTransform {
   transform(items: Topic[], order: TopicOrderMode): Topic[] {

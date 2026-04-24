@@ -1,20 +1,32 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
+import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
+import { FilterPipe } from "../../../../../pipes/filter.pipe";
+import { EnvConfigService } from "../../../../../services/env-config-service/env-config.service";
+import { TopicHierarchyService } from "../../../../../services/topic-hierarchy-service/topic-hierarchy.service";
+import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 declare const $: any;
 declare const __env: any;
 declare const colorbrewer: any;
 
 @Component({
-  selector: 'indicator-edit-metadata-modal',
-  templateUrl: './indicator-edit-metadata-modal.component.html',
-  styleUrls: ['./indicator-edit-metadata-modal.component.css']
+  selector: "indicator-edit-metadata-modal",
+  templateUrl: "./indicator-edit-metadata-modal.component.html",
+  styleUrls: ["./indicator-edit-metadata-modal.component.css"],
+  imports: [FormsModule, CommonModule, FilterPipe],
+  standalone: true,
 })
 export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('modal') modal!: ElementRef;
@@ -171,18 +183,19 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   indicatorMetadataStructure_pretty = '';
 
   constructor(
-    public activeModal: NgbActiveModal,
+    protected activeModal: NgbActiveModal,
     private http: HttpClient,
-    public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
-    private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
     private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private topicHierarchyService: TopicHierarchyService,
+    protected envConfigService: EnvConfigService,
+    protected dataExchangeService: DataExchangeService
   ) {}
 
   ngOnInit(): void {
     this.setupEventListeners();
     this.instantiateColorBrewerPalettes();
-    this.indicatorMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.indicatorMetadataStructure);
+    this.indicatorMetadataStructure_pretty = this.dataExchangeService.syntaxHighlightJSON(this.indicatorMetadataStructure);
   }
 
   ngOnDestroy(): void {
@@ -242,8 +255,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   onNumClassesChanged(numClasses: number): void {
     this.numClassesPerSpatialUnit = numClasses;
-    for (let i = 0; i < this.kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
-      const spatialUnit = this.kommonitorDataExchangeService.availableSpatialUnits[i];
+    for (let i = 0; i < this.dataExchangeService.availableSpatialUnits.length; i++) {
+      const spatialUnit = this.dataExchangeService.availableSpatialUnits[i];
       this.spatialUnitClassification[i] = {
         spatialUnitId: spatialUnit.spatialUnitId,
         breaks: []
@@ -298,7 +311,9 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   refreshReferenceValuesManagementTable(): void {
     this.regionalReferenceValuesManagementTableOptions = this.kommonitorDataGridHelperService.buildReferenceValuesManagementGrid(
-      this.regionalReferenceValuesManagementTableOptions
+      this.regionalReferenceValuesManagementTableOptions,
+      this.currentIndicatorDataset.applicableDates,
+      this.currentIndicatorDataset.regionalReferenceValues
     );
   }
 
@@ -325,7 +340,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     };
 
     // Set update interval
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.currentIndicatorDataset.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
@@ -343,7 +358,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     }
 
     // Set indicator type
-    this.kommonitorDataExchangeService.indicatorTypeOptions.forEach((option: any) => {
+    this.envConfigService.indicatorTypeOptions.forEach((option: any) => {
       if (option.apiName === this.currentIndicatorDataset.indicatorType) {
         this.indicatorType = option;
       }
@@ -353,7 +368,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.indicatorUnit = this.currentIndicatorDataset.unit;
 
     this.enableFreeTextUnit = true;
-    this.kommonitorDataExchangeService.indicatorUnitOptions.forEach((option: any) => {
+    this.envConfigService.indicatorUnitOptions.forEach((option: any) => {
       if (option === this.currentIndicatorDataset.unit) {
         this.enableFreeTextUnit = false;
       }
@@ -376,7 +391,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.indicatorInterpretation = this.currentIndicatorDataset.interpretation;
 
     // Set creation type
-    this.kommonitorDataExchangeService.indicatorCreationTypeOptions.forEach((option: any) => {
+    this.envConfigService.indicatorCreationTypeOptions.forEach((option: any) => {
       if (option.apiName === this.currentIndicatorDataset.creationType) {
         this.indicatorCreationType = option;
       }
@@ -384,8 +399,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     this.indicatorLowestSpatialUnitMetadataObjectForComputation = null;
 
-    for (let i = 0; i < this.kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
-      const spatialUnitMetadata = this.kommonitorDataExchangeService.availableSpatialUnits[i];
+    for (let i = 0; i < this.dataExchangeService.availableSpatialUnits.length; i++) {
+      const spatialUnitMetadata = this.dataExchangeService.availableSpatialUnits[i];
       if (spatialUnitMetadata.spatialUnitLevel === this.currentIndicatorDataset.lowestSpatialUnitForComputation) {
         this.indicatorLowestSpatialUnitMetadataObjectForComputation = spatialUnitMetadata;
         break;
@@ -399,7 +414,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     }
 
     // Set topic hierarchy
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(this.currentIndicatorDataset.topicReference);
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(this.dataExchangeService.availableTopics, this.currentIndicatorDataset.topicReference);;
 
     if (topicHierarchy && topicHierarchy[0]) {
       this.indicatorTopic_mainTopic = topicHierarchy[0];
@@ -423,7 +438,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     if (this.currentIndicatorDataset.referencedIndicators && this.currentIndicatorDataset.referencedIndicators.length > 0) {
       for (const indicatorReference of this.currentIndicatorDataset.referencedIndicators.filter((item: any) => item != null && item != undefined)) {
-        const indicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference.referencedIndicatorId);
+        const indicatorMetadata = this.dataExchangeService.getIndicatorMetadataById(indicatorReference.referencedIndicatorId);
         const referenceEntry = {
           "referencedIndicatorName": indicatorMetadata.indicatorName,
           "referencedIndicatorId": indicatorMetadata.indicatorId,
@@ -442,7 +457,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     if (this.currentIndicatorDataset.referencedGeoresources && this.currentIndicatorDataset.referencedGeoresources.length > 0) {
       for (const georesourceReference of this.currentIndicatorDataset.referencedGeoresources) {
-        const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference.referencedGeoresourceId);
+        const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceReference.referencedGeoresourceId);
         const geo_referenceEntry = {
           "referencedGeoresourceName": georesourceMetadata.datasetName,
           "referencedGeoresourceId": georesourceMetadata.georesourceId,
@@ -526,7 +541,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onClickEditIndicatorReference(indicatorReference_adminView: any): void {
-    this.tmpIndicatorReference_selectedIndicatorMetadata = this.kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference_adminView.referencedIndicatorId);
+    this.tmpIndicatorReference_selectedIndicatorMetadata = this.dataExchangeService.getIndicatorMetadataById(indicatorReference_adminView.referencedIndicatorId);
     this.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
   }
 
@@ -570,7 +585,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onClickEditGeoresourceReference(georesourceReference_adminView: any): void {
-    this.tmpGeoresourceReference_selectedGeoresourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference_adminView.referencedGeoresourceId);
+    this.tmpGeoresourceReference_selectedGeoresourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceReference_adminView.referencedGeoresourceId);
     this.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
   }
 
@@ -602,7 +617,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   checkDatasetName(): void {
     this.datasetNameInvalid = false;
-    this.kommonitorDataExchangeService.availableIndicators.forEach((indicator: any) => {
+    this.dataExchangeService.availableIndicators.forEach((indicator: any) => {
       // show error only if indicator is renamed to another already existing indicator
       if (indicator.indicatorName === this.datasetName && 
           indicator.indicatorType === this.indicatorType?.apiName && 
@@ -712,7 +727,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.loadingData = true;
 
     this.http.patch(
-      this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId,
+      this.envConfigService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId,
       patchBody
     ).subscribe({
       next: (response: any) => {
@@ -723,11 +738,11 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error("Error while updating indicator metadata.");
         if (error.data?.message) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data.message);
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data.message);
         } else if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
         } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
         }
         this.loadingData = false;
       }

@@ -4,17 +4,17 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from "@angular/common";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
 import { VersionInfoComponent } from 'components/ngComponents/userInterface/versionInfo/version-info.component';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
 	selector: 'ngbd-modal-content',
 	standalone: true,
 	templateUrl: 'info-modal.component.html',
   styleUrls: ['info-modal.component.css'],
-  imports: [CommonModule, SafeHtmlPipe, VersionInfoComponent]
+  imports: [CommonModule, VersionInfoComponent, SafeHtmlPipe]
 })
 export class InfoModal implements OnInit {
     activeModal = inject(NgbActiveModal);
@@ -39,33 +39,33 @@ export class InfoModal implements OnInit {
     @Input() open!: any;
 
     constructor(
-      private exchangeService: DataExchangeService,
-      private configStorageService: ConfigStorageService
+      private configStorageService: ConfigStorageService,
+      private envConfigService: EnvConfigService
     ) {}
 
     ngOnInit(): void {
 
-      this.customGreetingsContact_name = this.exchangeService.pipedData.customGreetingsContact_name;
-      this.customGreetingsContact_organisation = this.exchangeService.pipedData.customGreetingsContact_organisation;
-      this.customGreetingsContact_mail = this.exchangeService.pipedData.customGreetingsContact_mail;
-      this.customGreetingsTextInfoMessage = this.exchangeService.pipedData.customGreetingsTextInfoMessage;
+      this.customGreetingsContact_name = this.envConfigService.customGreetingsContact_name;
+      this.customGreetingsContact_organisation = this.envConfigService.customGreetingsContact_organisation;
+      this.customGreetingsContact_mail = this.envConfigService.customGreetingsContact_mail;
+      this.customGreetingsTextInfoMessage = this.envConfigService.customGreetingsTextInfoMessage;
 
-      this.tab1Title = window.__env.standardInfoModalTabTitle;      
+      this.tab1Title = this.envConfigService.standardInfoModalTabTitle;      
 
-      if(window.__env.enableExtendedInfoModal) {				
+      if(this.envConfigService.enableExtendedInfoModal) {				
         this.tab3Active = true;				
-				this.tab3Title = window.__env.extendedInfoModalTabTitle;
-				this.tab3Content = window.__env.extendedInfoModalHTMLMessage;				
+				this.tab3Title = this.envConfigService.extendedInfoModalTabTitle;
+				this.tab3Content = this.envConfigService.extendedInfoModalHTMLMessage;				
 			}
 
-      if(window.__env.customLandinPage===true)
+      if(this.envConfigService.customLandinPage===true)
         this.initCustomLandingpage();
     }
 
     async initCustomLandingpage() {
 
       this.customLandingPage = true;
-      this.customTabTitle = window.__env.customLandinPageTitle;
+      this.customTabTitle = this.envConfigService.customLandinPageTitle;
       this.landingpageContent = await firstValueFrom(this.configStorageService.getLandingpageConfig());
     }
 

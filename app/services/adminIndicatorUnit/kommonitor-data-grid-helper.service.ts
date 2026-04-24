@@ -1,217 +1,270 @@
-import { Injectable, Inject } from '@angular/core';
-import { ColDef } from 'ag-grid-community';
-import { KommonitorIndicatorDataExchangeService } from './kommonitor-data-exchange.service';
+import { Injectable } from "@angular/core";
+import { ColDef } from "ag-grid-community";
+import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import * as agGrid from "ag-grid-community";
+import { TopicHierarchyService } from "../topic-hierarchy-service/topic-hierarchy.service";
+import { EnvConfigService } from '../env-config-service/env-config.service';
 
 declare const $: any;
 declare const MathJax: any;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class KommonitorIndicatorDataGridHelperService {
-
-
-
   constructor(
-    @Inject('kommonitorDataExchangeService') private angularJsDataExchangeService: any
+    private angularJsDataExchangeService: DataExchangeService,
+    private topicHierarchyService: TopicHierarchyService,
+    private envConfigService: EnvConfigService,
   ) {}
 
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
    */
-  buildDataGrid_indicators(indicatorMetadataArray: any[]): { columnDefs: ColDef[], rowData: any[] } {
-    const columnDefs = this.buildDataGridColumnConfig_indicators(indicatorMetadataArray);
-    const rowData = this.buildDataGridRowData_indicators(indicatorMetadataArray);
-    
+  buildDataGrid_indicators(indicatorMetadataArray: any[]): {
+    columnDefs: ColDef[];
+    rowData: any[];
+  } {
+    const columnDefs = this.buildDataGridColumnConfig_indicators(
+      indicatorMetadataArray,
+    );
+    const rowData = this.buildDataGridRowData_indicators(
+      indicatorMetadataArray,
+    );
+
     return { columnDefs, rowData };
   }
-
-
 
   /**
    * Builds column configuration for indicators
    */
   buildDataGridColumnConfig_indicators(indicatorMetadataArray: any[]): any[] {
     const columnDefs = [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 150, 
-        checkboxSelection: false, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: (params: any) => this.displayEditButtons_indicators(params)
-      },
-      { headerName: 'Id', field: "indicatorId", pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: "indicatorName", pinned: 'left', minWidth: 300 },
-      { headerName: 'Einheit', field: "unit", minWidth: 200 },
-      { 
-        headerName: 'Beschreibung', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.metadata.description; 
-        },
-        filter: 'agTextColumnFilter', 
-        filterValueGetter: (params: any) => {
-          return "" + params.data.metadata.description;
-        }
-      },
       {
-        headerName: 'Methodik', 
+        headerName: "Editierfunktionen",
+        pinned: "left",
+        maxWidth: 150,
+        checkboxSelection: false,
+        filter: false,
+        sortable: false,
+        cellRenderer: (params: any) =>
+          this.displayEditButtons_indicators(params),
+      },
+      { headerName: "Id", field: "indicatorId", pinned: "left", maxWidth: 125 },
+      {
+        headerName: "Name",
+        field: "indicatorName",
+        pinned: "left",
+        minWidth: 300,
+      },
+      { headerName: "Einheit", field: "unit", minWidth: 200 },
+      {
+        headerName: "Beschreibung",
         minWidth: 400,
         cellRenderer: (params: any) => {
-          if(params.data.processDescription && params.data.processDescription.includes("$$")){
+          return params.data.metadata.description;
+        },
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) => {
+          return "" + params.data.metadata.description;
+        },
+      },
+      {
+        headerName: "Methodik",
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          if (
+            params.data.processDescription &&
+            params.data.processDescription.includes("$$")
+          ) {
             let splitArray = params.data.processDescription.split("$$");
             for (let index = 0; index < splitArray.length; index++) {
-              if((index % 2) == 0){
+              if (index % 2 == 0) {
                 params.data.processDescription += "<br/>";
-              }                  
-            }                
+              }
+            }
           }
           return params.data.processDescription;
         },
-        filter: 'agTextColumnFilter', 
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
           return "" + params.data.processDescription;
-        }
+        },
       },
       {
-        headerName: 'Verfügbare Raumebenen', 
-        field: "applicableSpatialUnits", 
+        headerName: "Verfügbare Raumebenen",
+        field: "applicableSpatialUnits",
         minWidth: 400,
         cellRenderer: (params: any) => {
-          let html = '<ul style="columns: 2; -webkit-columns: 2; -moz-columns: 2; word-break: break-word !important;">';
-          for (const applicableSpatialUnit of params.data.applicableSpatialUnits) {
+          let html =
+            '<ul style="columns: 2; -webkit-columns: 2; -moz-columns: 2; word-break: break-word !important;">';
+          for (const applicableSpatialUnit of params.data
+            .applicableSpatialUnits) {
             html += '<li style="margin-right: 15px;">';
             html += applicableSpatialUnit.spatialUnitName;
-            html += '</li>';
+            html += "</li>";
           }
-          html += '</ul>';
+          html += "</ul>";
           return html;
         },
-        filter: 'agTextColumnFilter', 
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          if (params.data.applicableSpatialUnits && params.data.applicableSpatialUnits.length > 1){
+          if (
+            params.data.applicableSpatialUnits &&
+            params.data.applicableSpatialUnits.length > 1
+          ) {
             return "" + JSON.stringify(params.data.applicableSpatialUnits);
           }
           return params.data.applicableSpatialUnits;
-        }
+        },
       },
       {
-        headerName: 'Verfügbare Zeitschnitte', 
-        field: "applicableDates", 
+        headerName: "Verfügbare Zeitschnitte",
+        field: "applicableDates",
         minWidth: 400,
         cellRenderer: (params: any) => {
-          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          let html =
+            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
           for (const timestamp of params.data.applicableDates) {
             html += '<li style="margin-right: 15px;">';
             html += timestamp;
-            html += '</li>';
+            html += "</li>";
           }
-          html += '</ul>';
+          html += "</ul>";
           return html;
         },
-        filter: 'agTextColumnFilter', 
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          if (params.data.applicableDates && params.data.applicableDates.length > 1){
+          if (
+            params.data.applicableDates &&
+            params.data.applicableDates.length > 1
+          ) {
             return "" + JSON.stringify(params.data.applicableDates);
           }
           return params.data.applicableDates;
-        }
-      },
-      { headerName: 'Kürzel', field: "abbreviation" },
-      { headerName: 'Leitindikator', field: "isHeadlineIndicator" },
-      { 
-        headerName: 'Indikator-Typ', 
-        minWidth: 200, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType); 
         },
-        filter: 'agTextColumnFilter', 
+      },
+      { headerName: "Kürzel", field: "abbreviation" },
+      { headerName: "Leitindikator", field: "isHeadlineIndicator" },
+      {
+        headerName: "Indikator-Typ",
+        minWidth: 200,
+        cellRenderer: (params: any) => {
+          return this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(
+            params.data.indicatorType,
+          );
+        },
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType);
-        } 
-      },
-      { headerName: 'Merkmal', field: "characteristicValue", minWidth: 200 },
-      { headerName: 'Art der Fortführung', field: "creationType", minWidth: 200 },
-      { headerName: 'Tags/Stichworte', field: "tags", minWidth: 250 },
-      { 
-        headerName: 'Themenhierarchie', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference); 
+          return (
+            "" +
+            this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(
+              params.data.indicatorType,
+            )
+          );
         },
-        filter: 'agTextColumnFilter', 
-        filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
-        }
       },
-      { 
-        headerName: 'Datenquelle', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.metadata.datasource; 
+      { headerName: "Merkmal", field: "characteristicValue", minWidth: 200 },
+      {
+        headerName: "Art der Fortführung",
+        field: "creationType",
+        minWidth: 200,
+      },
+      { headerName: "Tags/Stichworte", field: "tags", minWidth: 250 },
+      {
+        headerName: "Themenhierarchie",
+        minWidth: 400,
+        cellRenderer: (params: any) =>
+          this.topicHierarchyService.getTopicHierarchyDisplayString(
+            this.angularJsDataExchangeService.availableTopics,
+            params.data.topicReference,
+          ),
+        filter: "agTextColumnFilter",
+        filterValueGetter: (params: any) =>
+          "" +
+          this.topicHierarchyService.getTopicHierarchyDisplayString(
+            this.angularJsDataExchangeService.availableTopics,
+            params.data.topicReference,
+          ),
+      },
+      {
+        headerName: "Datenquelle",
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          return params.data.metadata.datasource;
         },
-        filter: 'agTextColumnFilter', 
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
           return "" + params.data.metadata.datasource;
-        }
-      },
-      { 
-        headerName: 'Datenhalter und Kontakt', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.metadata.contact; 
         },
-        filter: 'agTextColumnFilter', 
+      },
+      {
+        headerName: "Datenhalter und Kontakt",
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          return params.data.metadata.contact;
+        },
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
           return "" + params.data.metadata.contact;
-        }
-      },
-      { 
-        headerName: 'Rollen', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getAllowedRolesString(params.data.permissions); 
         },
-        filter: 'agTextColumnFilter', 
+      },
+      {
+        headerName: "Rollen",
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          return this.angularJsDataExchangeService.getAllowedRolesString(
+            params.data.permissions,
+          );
+        },
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getAllowedRolesString(params.data.permissions);
-        } 
-      },
-      { 
-        headerName: 'Öffentlich sichtbar', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return params.data.isPublic ? 'ja' : 'nein'; 
+          return (
+            "" +
+            this.angularJsDataExchangeService.getAllowedRolesString(
+              params.data.permissions,
+            )
+          );
         },
-        filter: 'agTextColumnFilter', 
+      },
+      {
+        headerName: "Öffentlich sichtbar",
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          return params.data.isPublic ? "ja" : "nein";
+        },
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          return "" + (params.data.isPublic ? 'ja' : 'nein');
-        } 
-      },
-      { 
-        headerName: 'Eigentümer', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => { 
-          return this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId); 
+          return "" + (params.data.isPublic ? "ja" : "nein");
         },
-        filter: 'agTextColumnFilter', 
+      },
+      {
+        headerName: "Eigentümer",
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          return this.angularJsDataExchangeService.getRoleTitle(
+            params.data.ownerId,
+          );
+        },
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
-          return "" + this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId);
-        } 
-      },
-      { 
-        headerName: 'Nachkommastellen', 
-        minWidth: 200, 
-        cellRenderer: (params: any) => { 
-          return params.data.precision; 
+          return (
+            "" +
+            this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId)
+          );
         },
-        filter: 'agTextColumnFilter', 
+      },
+      {
+        headerName: "Nachkommastellen",
+        minWidth: 200,
+        cellRenderer: (params: any) => {
+          return params.data.precision;
+        },
+        filter: "agTextColumnFilter",
         filterValueGetter: (params: any) => {
           return "" + params.data.precision;
-        } 
-      }
+        },
+      },
     ];
 
     return columnDefs;
@@ -232,30 +285,50 @@ export class KommonitorIndicatorDataGridHelperService {
     if (!params.data || !params.data.indicatorId) {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
-    
-    let disabledEditButtons = !(params.data.userPermissions && Array.isArray(params.data.userPermissions) && params.data.userPermissions.includes("editor"));
-    let editMetadataButtonId = 'btn_indicator_editMetadata_' + params.data.indicatorId;
-    let editFeaturesButtonId = 'btn_indicator_editFeatures_' + params.data.indicatorId;
+
+    let disabledEditButtons = !(
+      params.data.userPermissions &&
+      Array.isArray(params.data.userPermissions) &&
+      params.data.userPermissions.includes("editor")
+    );
+    let editMetadataButtonId =
+      "btn_indicator_editMetadata_" + params.data.indicatorId;
+    let editFeaturesButtonId =
+      "btn_indicator_editFeatures_" + params.data.indicatorId;
 
     let html = '<div class="btn-group btn-group-sm">';
-    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
-    html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
-    
-    if(!disabledEditButtons){
+    html +=
+      '<button id="' +
+      editMetadataButtonId +
+      '" class="btn btn-warning btn-sm indicatorEditMetadataBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
+    html +=
+      '<button id="' +
+      editFeaturesButtonId +
+      '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn disabled" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+
+    if (!disabledEditButtons) {
       html = html.replaceAll("disabled", ""); // enabled
     }
-    
-    if (this.angularJsDataExchangeService.enableKeycloakSecurity) {
-      let disabled = !(params.data.userPermissions && Array.isArray(params.data.userPermissions) && params.data.userPermissions.includes("creator"));
-      html += '<button id="btn_indicator_editRoleBasedAccess_' + params.data.indicatorId + '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
+
+    if (this.envConfigService.enableKeycloakSecurity) {
+      let disabled = !(
+        params.data.userPermissions &&
+        Array.isArray(params.data.userPermissions) &&
+        params.data.userPermissions.includes("creator")
+      );
+      html +=
+        '<button id="btn_indicator_editRoleBasedAccess_' +
+        params.data.indicatorId +
+        '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
 
       if (disabled) {
         html += 'disabled" disabled';
       }
 
-      html += ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
+      html +=
+        ' type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Zugriffsschutz und Eigentümerschaft editieren"><i class="fas fa-user-lock"></i></button>';
     }
-    html += '</div>';
+    html += "</div>";
 
     return html;
   };
@@ -270,16 +343,19 @@ export class KommonitorIndicatorDataGridHelperService {
       // Ensure that only the target button gets clicked
       // Manually open modal
       event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
+      let modalId = document
+        .getElementById(event.target.id)
+        ?.getAttribute("data-target");
       if (modalId) {
-        $(modalId).modal('show');
+        $(modalId).modal("show");
       }
-      
+
       let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+      let indicatorMetadata =
+        this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
+      this.broadcastEvent("onEditIndicatorMetadata", indicatorMetadata);
     });
 
     // First unbind previous click events
@@ -288,16 +364,19 @@ export class KommonitorIndicatorDataGridHelperService {
       // Ensure that only the target button gets clicked
       // Manually open modal
       event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
+      let modalId = document
+        .getElementById(event.target.id)
+        ?.getAttribute("data-target");
       if (modalId) {
-        $(modalId).modal('show');
+        $(modalId).modal("show");
       }
-      
+
       let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+      let indicatorMetadata =
+        this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
+      this.broadcastEvent("onEditIndicatorFeatures", indicatorMetadata);
     });
 
     $(".indicatorEditRoleBasedAccessBtn").off();
@@ -305,16 +384,19 @@ export class KommonitorIndicatorDataGridHelperService {
       // Ensure that only the target button gets clicked
       // Manually open modal
       event.stopPropagation();
-      let modalId = document.getElementById(event.target.id)?.getAttribute("data-target");
+      let modalId = document
+        .getElementById(event.target.id)
+        ?.getAttribute("data-target");
       if (modalId) {
-        $(modalId).modal('show');
+        $(modalId).modal("show");
       }
-      
+
       let indicatorId = event.target.id.split("_")[3];
-      let indicatorMetadata = this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+      let indicatorMetadata =
+        this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
-      this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+      this.broadcastEvent("onEditIndicatorSpatialUnitRoles", indicatorMetadata);
     });
   }
 
@@ -322,9 +404,11 @@ export class KommonitorIndicatorDataGridHelperService {
    * Header height getter utility function
    */
   private headerHeightGetter(): number {
-    const columnHeaderTexts = Array.from(document.querySelectorAll('.ag-header-cell-text'));
+    const columnHeaderTexts = Array.from(
+      document.querySelectorAll(".ag-header-cell-text"),
+    );
     const clientHeights = columnHeaderTexts.map(
-      (headerText: any) => headerText.clientHeight
+      (headerText: any) => headerText.clientHeight,
     );
     const tallestHeaderTextHeight = Math.max(...clientHeights);
 
@@ -353,9 +437,9 @@ export class KommonitorIndicatorDataGridHelperService {
    */
   private restoreGridStore(gridOptions: any): void {
     if ((window as any).colState) {
-      gridOptions.columnApi.applyColumnState({ 
-        state: (window as any).colState, 
-        applyOrder: true 
+      gridOptions.columnApi.applyColumnState({
+        state: (window as any).colState,
+        applyOrder: true,
       });
     }
 
@@ -369,8 +453,8 @@ export class KommonitorIndicatorDataGridHelperService {
    */
   private broadcastEvent(eventName: string, data: any): void {
     // Create a custom event that the Angular component can listen to
-    const event = new CustomEvent(eventName, { 
-      detail: { values: data } 
+    const event = new CustomEvent(eventName, {
+      detail: { values: data },
     });
     document.dispatchEvent(event);
   }
@@ -386,14 +470,262 @@ export class KommonitorIndicatorDataGridHelperService {
   /**
    * Gets reference values from regional reference values management grid - delegates to AngularJS service
    */
-  getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions: any): any[] {
-    return this.angularJsDataExchangeService.getReferenceValues_regionalReferenceValuesManagementGrid(gridOptions);
+  getReferenceValues_regionalReferenceValuesManagementGrid(
+    regionalReferenceValuesManagementTableOptions,
+  ) {
+    let regionalReferenceValuesList: any[] = [];
+    if (
+      regionalReferenceValuesManagementTableOptions &&
+      regionalReferenceValuesManagementTableOptions.api
+    ) {
+      /*
+          regionalReferenceValuesList: 
+          [
+            {
+                "referenceDate": "2021-12-31",
+                "regionalSum": 3000,
+                "regionalAverage": 144
+                "spatiallyUnassignable": 0
+            },
+            {
+                "referenceDate": "2022-12-31",
+                "regionalSum": 3500,
+                "regionalAverage": 148,
+                "spatiallyUnassignable": 0
+            }
+          ]
+          
+      */
+      regionalReferenceValuesManagementTableOptions.api.forEachNode(
+        (node, index) => {
+          regionalReferenceValuesList.push(node.data);
+        },
+      );
+    }
+    return regionalReferenceValuesList;
   }
 
   /**
    * Builds reference values management grid - delegates to AngularJS service
    */
-  buildReferenceValuesManagementGrid(gridOptions: any): any {
-    return this.angularJsDataExchangeService.buildReferenceValuesManagementGrid(gridOptions);
+  buildReferenceValuesManagementGrid(
+    domElementId,
+    applicableDates,
+    regionalReferenceValuesList,
+  ) {
+    let dataGridOptions_regionalReferenceValues;
+
+    dataGridOptions_regionalReferenceValues =
+      this.buildDataGridOptions_regionalReferenceValues(
+        applicableDates,
+        regionalReferenceValuesList,
+      );
+
+    let gridDiv: any = document.querySelector("#" + domElementId);
+    if (gridDiv) {
+      while (gridDiv.firstChild) {
+        gridDiv.removeChild(gridDiv!.firstChild);
+      }
+      new agGrid.Grid(gridDiv, dataGridOptions_regionalReferenceValues);
+    }
+
+    return dataGridOptions_regionalReferenceValues;
   }
-} 
+
+  buildDataGridOptions_regionalReferenceValues(
+    applicableDates,
+    regionalReferenceValuesList,
+  ) {
+    let columnDefs = this.buildDataGridColumnConfig_regionalReferenceValues(
+      applicableDates,
+      regionalReferenceValuesList,
+    );
+    let rowData = this.buildDataGridRowData_regionalReferenceValues(
+      applicableDates,
+      regionalReferenceValuesList,
+    );
+
+    let gridOptions = {
+      defaultColDef: {
+        editable: true,
+        cellEditor: "agNumberCellEditor",
+        cellEditorParams: {
+          precision: 2,
+          step: 0.25,
+          showStepperButtons: true,
+        },
+        sortable: true,
+        flex: 1,
+        minWidth: 200,
+        filter: true,
+        floatingFilter: false,
+        // filterParams: {
+        //   newRowsAction: 'keep'
+        // },
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: {
+          "font-size": "12px;",
+          "white-space": "normal !important",
+          "line-height": "20px !important",
+          "word-break": "break-word !important",
+          "padding-top": "17px",
+          "padding-bottom": "17px",
+        },
+        headerComponentParams: {
+          template:
+            '<div class="ag-cell-label-container" role="presentation">' +
+            '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+            '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+            '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+            '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+            '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+            '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+            '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+            '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+            "  </div>" +
+            "</div>",
+        },
+      },
+      columnDefs: columnDefs,
+      rowData: rowData,
+      // enables undo / redo
+      undoRedoCellEditing: true,
+      // restricts the number of undo / redo steps to 10
+      undoRedoCellEditingLimit: 10,
+      // enables flashing to help see cell changes
+      enableCellChangeFlash: true,
+      suppressRowClickSelection: true,
+      // rowSelection: 'multiple',
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 10,
+      suppressColumnVirtualisation: true,
+      // onFirstDataRendered: function () {
+      //   headerHeightSetter(this);
+      // },
+      // onColumnResized: function () {
+      //   headerHeightSetter(this);
+      // }
+      onRowDataChanged: function () {},
+      onModelUpdated: function () {},
+      onViewportChanged: function () {},
+    };
+
+    return gridOptions;
+  }
+
+  buildDataGridColumnConfig_regionalReferenceValues(
+    applicableDates,
+    regionalReferenceValuesList,
+  ) {
+    const columnDefs = [
+      {
+        headerName: "Zeitpunkt",
+        field: "referenceDate",
+        pinned: "left",
+        cellDataType: "text",
+        editable: false,
+        cellClass: "grid-non-editable",
+        maxWidth: 150,
+      },
+      {
+        headerName: "regionale Gesamtsumme",
+        field: "regionalSum",
+        cellDataType: "number",
+        cellEditor: "agNumberCellEditor",
+        cellEditorParams: {
+          precision: 2,
+          step: 0.01,
+          showStepperButtons: true,
+        },
+        tooltipValueGetter: (p) => "mit Enter bestätigen",
+        maxWidth: 175,
+      },
+      {
+        headerName: "regionaler Mittelwert",
+        field: "regionalAverage",
+        cellDataType: "number",
+        cellEditor: "agNumberCellEditor",
+        cellEditorParams: {
+          precision: 2,
+          step: 0.01,
+          showStepperButtons: true,
+        },
+        tooltipValueGetter: (p) => "mit Enter bestätigen",
+        maxWidth: 175,
+      },
+      {
+        headerName: "räumlich nicht zuordenbar",
+        field: "spatiallyUnassignable",
+        cellDataType: "number",
+        cellEditor: "agNumberCellEditor",
+        cellEditorParams: {
+          precision: 2,
+          step: 0.01,
+          showStepperButtons: true,
+        },
+        tooltipValueGetter: (p) => "mit Enter bestätigen",
+        maxWidth: 175,
+      },
+    ];
+
+    return columnDefs;
+  }
+
+  buildDataGridRowData_regionalReferenceValues(
+    applicableDates,
+    regionalReferenceValuesList,
+  ) {
+    /*
+      regionalReferenceValuesList: 
+        [
+          {
+              "referenceDate": "2021-12-31",
+              "regionalSum": 3000,
+              "regionalAverage": 144,
+              "spatiallyUnassignable": 0
+          },
+          {
+              "referenceDate": "2022-12-31",
+              "regionalSum": 3500,
+              "regionalAverage": 148,
+              "spatiallyUnassignable", 0
+          }
+        ]
+    */
+
+    let dataArray: any[] = [];
+
+    if (applicableDates && applicableDates.length > 0) {
+      for (const availableDate of applicableDates) {
+        let item = {
+          referenceDate: availableDate,
+          regionalSum: undefined,
+          regionalAverage: undefined,
+          spatiallyUnassignable: undefined,
+        };
+
+        if (
+          regionalReferenceValuesList &&
+          regionalReferenceValuesList.length > 0
+        ) {
+          for (const regionalReferenceValuesListEntry of regionalReferenceValuesList) {
+            if (
+              regionalReferenceValuesListEntry.referenceDate == availableDate
+            ) {
+              item = regionalReferenceValuesListEntry;
+              break;
+            }
+          }
+        }
+
+        dataArray.push(item);
+      }
+    }
+
+    return dataArray;
+  }
+}

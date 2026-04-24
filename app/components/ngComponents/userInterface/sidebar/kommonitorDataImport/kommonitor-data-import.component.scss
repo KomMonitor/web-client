@@ -1,0 +1,37 @@
+:host {
+
+  font-size: 12px;
+
+  .import-wrapper {
+    display: grid;
+    grid-template-columns: 4fr 1fr 1fr;
+    gap: 1em;
+
+    .btn {
+      color: #fff !important;
+      border: none !important;
+    }
+
+    .btn::after {
+      color: #fff !important;
+    }
+  }
+
+  .colorPickerSelection {
+    width: 30px !important;
+    border: none;
+    caret-color: transparent !important;
+  }
+
+  .csv-import-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1em;
+
+    div {
+      label {
+        height: 3.5em;
+      }
+    }
+  }
+}

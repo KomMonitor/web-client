@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -6,7 +7,7 @@ import { Injectable, Inject } from '@angular/core';
 export class KommonitorGeoresourceCacheHelperService {
 
   constructor(
-    @Inject('kommonitorCacheHelperService') private angularJsCacheHelperService: any
+   private angularJsCacheHelperService: CacheHelperServiceService
   ) {}
 
   /**

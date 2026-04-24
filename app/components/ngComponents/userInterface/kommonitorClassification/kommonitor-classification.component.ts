@@ -1,17 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { colorbrewer } from './colors';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+
+
 
 @Component({
   selector: 'kommonitor-classification-component',
   templateUrl: './kommonitor-classification.component.html',
-  styleUrls: ['./kommonitor-classification.component.css']
+  styleUrls: ['./kommonitor-classification.component.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ClassificationMethodSelectComponent]
 })
 export class KommonitorClassificationComponent implements OnInit {
 
-  exchangeData: DataExchange;
+  clrSelectVisible:boolean = false;
 
   methodName = 'Klassifizierungsmethode auswählen';
   showMethodSelection = false;
@@ -36,15 +44,14 @@ export class KommonitorClassificationComponent implements OnInit {
 
   selectedColorBrewerPaletteEntry!:any;
 
-  customColorSchemes = window.__env.customColorSchemes;
+  private customColorSchemes = this.envConfigService.customColorSchemes;
 
   constructor(
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     protected visualStyleHelperService: VisualStyleHelperServiceNew,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    protected envConfigService: EnvConfigService
   ) {
-    this.exchangeData = dataExchangeService.pipedData;
-
     // Add custom color themes from configuration properties
     if(this.customColorSchemes) {
       var colorbrewer = Object.assign(this.customColorSchemes, colorbrewer);
@@ -74,7 +81,7 @@ export class KommonitorClassificationComponent implements OnInit {
       }
     });
 
-    if(window.__env.disableManualClassification) {
+    if(this.envConfigService.disableManualClassification) {
       this.hideManualClassification();
     }
   }
@@ -99,7 +106,7 @@ export class KommonitorClassificationComponent implements OnInit {
     this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13];
 
       for (const colorbrewerPalette of this.colorbrewerPalettes) {
-        if (colorbrewerPalette.paletteName === this.exchangeData.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
+        if (colorbrewerPalette.paletteName === this.dataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
         this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
           break;
         }
@@ -109,7 +116,7 @@ export class KommonitorClassificationComponent implements OnInit {
 
   onChangeSelectedIndicator() {
     for (const colorbrewerPalette of this.colorbrewerPalettes) {
-      if (colorbrewerPalette.paletteName === this.exchangeData.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
+      if (colorbrewerPalette.paletteName === this.dataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
        this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
         break;
       }
@@ -119,9 +126,9 @@ export class KommonitorClassificationComponent implements OnInit {
   onClickColorBrewerEntry(colorPaletteEntry) {
     this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
 
-    this.exchangeData.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName = this.selectedColorBrewerPaletteEntry.paletteName;
+    this.dataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName = this.selectedColorBrewerPaletteEntry.paletteName;
 
-    this.broadcastService.broadcast("changeColorScheme", [this.exchangeData.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName]);
+    this.broadcastService.broadcast("changeColorScheme", [this.dataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName]);
 
   };
 
@@ -157,6 +164,7 @@ export class KommonitorClassificationComponent implements OnInit {
     this.methodName = method.name;
     this.showMethodSelection = false;
     this.visualStyleHelperService.classifyMethod = method.id;
+    console.log(method)
     this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleHelperService.classifyMethod]);
   }
   
@@ -182,15 +190,15 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  addNewBreaks(site) {
-    if((!this.exchangeData.isBalanceChecked 
-      && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if((!this.dataExchangeService.isBalanceChecked 
+      && !this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues) 
-      || this.exchangeData.isMeasureOfValueChecked) {
+      || this.dataExchangeService.isMeasureOfValueChecked) {
      this.addNewBreak();
     }
     else {
      this.addNewBreakDynamic(site);
-      if(this.exchangeData.isMeasureOfValueChecked) {
+      if(this.dataExchangeService.isMeasureOfValueChecked) {
         this.addNewBreak();
       }
     }
@@ -211,10 +219,10 @@ export class KommonitorClassificationComponent implements OnInit {
           this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
         }
 
-        if((this.exchangeData.isBalanceChecked 
-          || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+        if((this.dataExchangeService.isBalanceChecked 
+          || this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
           ||this.containsNegativeValues)
-          && this.exchangeData.isMeasureOfValueChecked) {
+          && this.dataExchangeService.isMeasureOfValueChecked) {
          this.updateDynamicBreaksFromManualBreaks();
         }
       }
@@ -261,7 +269,7 @@ export class KommonitorClassificationComponent implements OnInit {
   }
  
  breakIsUnalterable(br) {
-    if(this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if(this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       ||this.containsNegativeValues){
       if(this.visualStyleHelperService.dynamicBrewBreaks) {
         if(this.visualStyleHelperService.dynamicBrewBreaks[1]) {
@@ -286,10 +294,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  deleteBreak(i, site) {
-    if((this.exchangeData.isBalanceChecked 
-      || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if((this.dataExchangeService.isBalanceChecked 
+      || this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       || this.containsNegativeValues)) {
-      if(this.exchangeData.isMeasureOfValueChecked) {
+      if(this.dataExchangeService.isMeasureOfValueChecked) {
         this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
         
         this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
@@ -333,10 +341,10 @@ export class KommonitorClassificationComponent implements OnInit {
       
       this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
       
-      if((this.exchangeData.isBalanceChecked 
-        || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+      if((this.dataExchangeService.isBalanceChecked 
+        || this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
         || this.containsNegativeValues)
-        && this.exchangeData.isMeasureOfValueChecked) {
+        && this.dataExchangeService.isMeasureOfValueChecked) {
        this.updateDynamicBreaksFromManualBreaks();
       }
     }
@@ -368,10 +376,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  onBreakDblClick(e, i, site) {
-    if((!this.exchangeData.isBalanceChecked 
-      && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if((!this.dataExchangeService.isBalanceChecked 
+      && !this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.exchangeData.isMeasureOfValueChecked) {
+      || this.dataExchangeService.isMeasureOfValueChecked) {
       if (i == 0 || i == this.visualStyleHelperService.manualBrew.breaks.length-1 || this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[i])) {
         return;
       }
@@ -454,10 +462,10 @@ export class KommonitorClassificationComponent implements OnInit {
   
  getMaxValue(site)  {
     let breaks = [];
-    if((!this.exchangeData.isBalanceChecked 
-      && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if((!this.dataExchangeService.isBalanceChecked 
+      && !this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.exchangeData.isMeasureOfValueChecked) {
+      || this.dataExchangeService.isMeasureOfValueChecked) {
       breaks = this.visualStyleHelperService.manualBrew.breaks;
     }
     else {
@@ -479,10 +487,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }  
  
  getMinValue(site) {
-    if((!this.exchangeData.isBalanceChecked 
-      && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if((!this.dataExchangeService.isBalanceChecked 
+      && !this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.exchangeData.isMeasureOfValueChecked) {
+      || this.dataExchangeService.isMeasureOfValueChecked) {
       return this.visualStyleHelperService.manualBrew.breaks[0];
     }
     if (!this.visualStyleHelperService.dynamicBrew) {
@@ -512,10 +520,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }
     
  onBreaksMouseMove(e, site) {
-    if((!this.exchangeData.isBalanceChecked 
-      && !this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+    if((!this.dataExchangeService.isBalanceChecked 
+      && !this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.exchangeData.isMeasureOfValueChecked) {
+      || this.dataExchangeService.isMeasureOfValueChecked) {
      this.onBreakMouseMove(e);
     }
     else {
@@ -546,10 +554,10 @@ export class KommonitorClassificationComponent implements OnInit {
             });
             
             this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
-            if((this.exchangeData.isBalanceChecked 
-              || this.exchangeData.selectedIndicator.indicatorType.includes('DYNAMIC')
+            if((this.dataExchangeService.isBalanceChecked 
+              || this.dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC')
               ||this.containsNegativeValues) 
-              && this.exchangeData.isMeasureOfValueChecked) {
+              && this.dataExchangeService.isMeasureOfValueChecked) {
              this.updateDynamicBreaksFromManualBreaks();
             }
           }

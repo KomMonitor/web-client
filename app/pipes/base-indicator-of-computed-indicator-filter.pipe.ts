@@ -3,7 +3,8 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 
 @Pipe({
     name: 'baseIndicatorOfComputedIndicatorFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class BaseIndicatorOfComputedIndicatorFilter implements PipeTransform {
 
@@ -17,7 +18,7 @@ export class BaseIndicatorOfComputedIndicatorFilter implements PipeTransform {
       return items;
     } 
     
-    var computationIndicatorEntry = this.dataExchangeService.pipedData.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == this.dataExchangeService.pipedData.selectedIndicator.indicatorId)[0];
+    var computationIndicatorEntry = this.dataExchangeService.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == this.dataExchangeService.selectedIndicator.indicatorId)[0];
 
     return items.filter(item => {
         

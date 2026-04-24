@@ -1,360 +1,604 @@
 <div id="indicatorSetup">
-	<!-- <h3 class="justify" align="center">Datenangebot</h3> -->
-
-	<!-- <p align="center">Bitte Layer gem&auml;&szlig; Kategorie zur Anzeige ausw&auml;hlen</p> -->
-
-	<div align="center">
+	<div style="text-align:center">
 		<div class="loading-overlay-sidebar-small ng-hide" *ngIf="loadingData">
 					<span class="glyphicon glyphicon-refresh icon-spin"></span>
 		</div>
 	</div>
 
-	<div class="box box-primary" id="box-indicators">
-            <div class="box-header with-border">
-              <h3 class="box-title">Indikatorenauswahl</h3>
+  <expandable-box [title]="'Indikatorenauswahl'" [collapsed]="false">
 
-							<div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-								</button>
-							</div>
-            </div>
-            <!-- /.box-header -->
-            <!-- form start -->
+    <div class="input-wrapper">
+      <span class="icon"><i class="fas fa-filter"></i></span>                                             
+      <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter" (keyup)="onChangeIndicatorFilter()">
+    </div>
 
-              <div class="box-body">	
+    <br/>
 
+    <label>Datenkataloge:</label>
 
-								<!-- <div>
-									<img style="display: block; margin-left: auto; margin-right: auto;" src="./logos/Indikatorenframework_transparent.png" alt="Indikatorenframework" height="257" width="400">
-								<div >
+    <ul class="nav nav-tabs" id="legendTabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link active" id="dataCatalogueTab1" data-bs-toggle="tab" data-bs-target="#dataCatalogueTab1Content"
+          role="tab" aria-controls="dataCatalogueTab1Content" aria-selected="true">Themenhierarchie</a>
+      </li>
+      <li class="nav-item" *ngIf="dataExchangeService.headlineIndicatorHierarchy && dataExchangeService.headlineIndicatorHierarchy.length>0">
+        <a class="nav-link" id="dataCatalogueTab2" data-bs-toggle="tab" data-bs-target="#dataCatalogueTab2Content" role="tab"
+          aria-controls="dataCatalogueTab2Content" aria-selected="false">Leitindikatoren-Hierarchie</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="dataCatalogueTab3" data-bs-toggle="tab" data-bs-target="#dataCatalogueTab3Content" role="tab"
+          aria-controls="dataCatalogueTab3Content" aria-selected="false">Alphabetische Liste</a>
+      </li>
+      <li class="nav-item" *ngIf="showFavSelection">
+        <a class="nav-link" id="dataCatalogueTab4" data-bs-toggle="tab" data-bs-target="#dataCatalogueTab4Content" role="tab"
+          aria-controls="dataCatalogueTab4Content" aria-selected="false">Favoriten</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="dataCatalogueTab1Content" role="tabpanel"
+        aria-labelledby="dataCatalogueTab1">
 
-								<br/> -->
+          <div class="just-padding">
 
+            <div id="indicatorHierarchySelection" class="list-group list-group-root well">
+              <div id="indicator-symbol-explanation" *ngIf="dataExchangeService.headlineIndicatorHierarchy && dataExchangeService.headlineIndicatorHierarchy.length>0">
+              
+            
+                <label>Erl&auml;uterungen zur Symbolik </label>
+                <div class="list-group-item list-group-item-default style-simple-indicator">
+                  <p style="cursor:pointer"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+                      [Einheitsbezeichnung]</p>
+                </div>
 
+                <div class="list-group-item list-group-item-default style-headline-indicator">
+                  <p style="cursor:pointer">
+                      <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+                      [Einheitsbezeichnung]</p>
+                </div>  
 
-											<div class="input-group">
-				                <span class="input-group-addon"><i class="fas fa-filter"></i></span>                                             
-				                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="indicatorNameFilter" (keyup)="onChangeIndicatorFilter()">
-				              </div>
+                <div class="list-group-item list-group-item-default style-hierarchy-selected-indicator-0">
+                  <p style="cursor:pointer">
+                      &nbsp;&nbsp;<b>Thema mit selektiertem Indikator</b></p>
+                </div>  
+              </div>
 
-										<br/>
+              <br/>
 
-										<label>Datenkataloge:</label>
+              <label> Themenorientierter Datenkatalog </label>
 
-                    <ul class="nav nav-tabs" id="legendTabs" role="tablist">
-                      <li class="nav-item active">
-                        <a class="nav-link active" id="dataCatalogueTab1" data-toggle="tab" href="#dataCatalogueTab1Content"
-                          role="tab" aria-controls="dataCatalogueTab1Content" aria-selected="true">Themenhierarchie</a>
-                      </li>
-                      <li class="nav-item" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
-                        <a class="nav-link" id="dataCatalogueTab2" data-toggle="tab" href="#dataCatalogueTab2Content" role="tab"
-                          aria-controls="dataCatalogueTab2Content" aria-selected="false">Leitindikatoren-Hierarchie</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" id="dataCatalogueTab3" data-toggle="tab" href="#dataCatalogueTab3Content" role="tab"
-                          aria-controls="dataCatalogueTab3Content" aria-selected="false">Alphabetische Liste</a>
-                      </li>
-                      <li class="nav-item" *ngIf="showFavSelection">
-                        <a class="nav-link" id="dataCatalogueTab4" data-toggle="tab" href="#dataCatalogueTab4Content" role="tab"
-                          aria-controls="dataCatalogueTab4Content" aria-selected="false">Favoriten</a>
-                      </li>
-                    </ul>
-                    <div class="tab-content">
-                      <div class="tab-pane active" id="dataCatalogueTab1Content" role="tabpanel"
-                        aria-labelledby="dataCatalogueTab1">
+              <div *ngFor="let mainTopic of preppedIndicatorTopics">
+                <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" [ngClass]="{'style-hierarchy-selected-indicator-0': checkHierarchyIndicatorSelected(mainTopic)}" id="{{mainTopic.topicId}}">
+                  <i class="fa-solid" (click)="onTopicClick(mainTopic.topicId)" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>
+                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)">{{mainTopic.topicName}}  ({{mainTopic.indicatorCount + mainTopic.wmsCount}})</p> 
+                  <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorTopicFavSelected(mainTopic.topicId), 'fa-regular':!indicatorTopicFavSelected(mainTopic.topicId)}" (click)="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
+                </div>
+                                                      
+                <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
+                  <div *ngFor="let subTopic of mainTopic.subTopics">
 
-                          <div class="just-padding">
-  
-                            <div id="indicatorHierarchySelection" class="list-group list-group-root well">
-                              <div id="indicator-symbol-explanation" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
-															
-                            
-                                <label>Erl&auml;uterungen zur Symbolik </label>
-                                <div class="list-group-item list-group-item-default style-simple-indicator">
-                                  <p style="cursor:pointer"> <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
-                                      [Einheitsbezeichnung]</p>
-                                </div>
-    
-                                <div class="list-group-item list-group-item-default style-headline-indicator">
-                                  <p style="cursor:pointer">
-                                      <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
-                                      [Einheitsbezeichnung]</p>
-                                </div>  
-    
-                                <div class="list-group-item list-group-item-default style-hierarchy-selected-indicator-0">
-                                  <p style="cursor:pointer">
-                                      &nbsp;&nbsp;<b>Thema mit selektiertem Indikator</b></p>
-                                </div>  
-                              </div>
-    
-                              <br/>
-  
-                              <label> Themenorientierter Datenkatalog </label>
-  
-                              <div *ngFor="let mainTopic of preppedIndicatorTopics">
-                                <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0" [ngClass]="{'style-hierarchy-selected-indicator-0': checkHierarchyIndicatorSelected(mainTopic)}" id="{{mainTopic.topicId}}">
-                                  <p title="{{mainTopic.topicDescription}}" class="collapseTrigger" (click)="onTopicClick(mainTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(mainTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(mainTopic.topicId)}"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</p> 
-                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(mainTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(mainTopic.topicId)}" (click)="onIndicatorTopicFavClick(mainTopic.topicId)"></i>
-                                </div>
-                                                                     
-                                <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
-                                  <div *ngFor="let subTopic of mainTopic.subTopics">
-  
-                                    <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-1" [ngClass]="{'style-hierarchy-selected-indicator-1': checkHierarchyIndicatorSelected(subTopic)}">
-                                      <p class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</p> 
-                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subTopic.topicId)}" (click)="onIndicatorTopicFavClick(subTopic.topicId)"></i>
-                                    </div>	
-                                    <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
-                                      <div *ngFor="let subsubTopic of subTopic.subTopics">
-                                        
-                                        <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-2" [ngClass]="{'style-hierarchy-selected-indicator-2': checkHierarchyIndicatorSelected(subsubTopic)}">
-                                          <p class="collapseTrigger" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</p> 
-                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubTopic.topicId)"></i>
-                                        </div>
-      
-                                        <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
-                                          <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
-      
-                                            <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-3" [ngClass]="{'style-hierarchy-selected-indicator-3': checkHierarchyIndicatorSelected(subsubsubTopic)}">
-                                              <p class="collapseTrigger" title="{{subsubsubTopic.topicDescription}}"  (click)="onTopicClick(subsubsubTopic.topicId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'glyphicon-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</p>
-                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(subsubsubTopic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(subsubsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubsubTopic.topicId)"></i>
-                                            </div>
-        
-                                              <div class="list-group collapse indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubsubTopic.topicId)}">
-                                                <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
-                                                  *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData" class="list-group-item list-group-item-default">
-                                                  <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                                    <div>
-                                                      <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
-                                                      <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                                    </div>
-                                                    <div>
-                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                                    </div>
-                                                  </div> 
-                                                  <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                                    <div>
-                                                      <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
-                                                      <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                                    </div>
-                                                    <div>
-                                                      <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </div>
-        
-        
-                                          </div>
-                                          <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
-                                            <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
-                                              *ngFor="let indicatorMetadata of subsubTopic.indicatorData" class="list-group-item list-group-item-default">
-                                              <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                                <div>
-                                                  <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
-                                                  <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                                </div>
-                                                <div>
-                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                                </div>
-                                              </div> 
-                                              <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                                <div>
-                                                  <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
-                                                  <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                                </div>
-                                                <div>
-                                                  <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-      
-                                      </div>
-                                      <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
-                                        <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
-                                          *ngFor="let indicatorMetadata of subTopic.indicatorData" class="list-group-item list-group-item-default">
-                                          <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                            <div>
-                                              <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
-                                              <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                            </div>
-                                            <div>
-                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                            </div>
-                                          </div> 
-                                          <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                            <div>
-                                              <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
-                                              <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                            </div>
-                                            <div>
-                                              <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>										
-    
-    
-                                  </div>
-  
-                                  <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
-                                    <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
-                                      *ngFor="let indicatorMetadata of mainTopic.indicatorData" class="list-group-item list-group-item-default">
-                                      <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                        <div>
-                                          <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
-                                          <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                        </div>
-                                        <div>
-                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                        </div>
-                                      </div> 
-                                      <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-grid-layout">
-                                        <div>
-                                          <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
-                                          <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
-                                        </div>
-                                        <div>
-                                          <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(indicatorMetadata.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
-                                        </div>
-                                      </div>
+                    <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-1" [ngClass]="{'style-hierarchy-selected-indicator-1': checkHierarchyIndicatorSelected(subTopic)}">
+                      <i class="fa-solid" (click)="onTopicClick(subTopic.topicId)" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(subTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(subTopic.topicId)}"></i>
+                      <p class="collapseTrigger" title="{{subTopic.topicDescription}}" (click)="onTopicClick(subTopic.topicId)">{{subTopic.topicName}}  ({{subTopic.indicatorCount + subTopic.wmsCount}})</p> 
+                      <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorTopicFavSelected(subTopic.topicId), 'fa-regular':!indicatorTopicFavSelected(subTopic.topicId)}" (click)="onIndicatorTopicFavClick(subTopic.topicId)"></i>
+                    </div>
+                    <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
+                      <div *ngFor="let subsubTopic of subTopic.subTopics">
+                        
+                        <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-2" [ngClass]="{'style-hierarchy-selected-indicator-2': checkHierarchyIndicatorSelected(subsubTopic)}">
+                          <i class="fa-solid" (click)="onTopicClick(subsubTopic.topicId)" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(subsubTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(subsubTopic.topicId)}"></i>
+                          <p class="collapseTrigger" title="{{subsubTopic.topicDescription}}"  (click)="onTopicClick(subsubTopic.topicId)">{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount + subsubTopic.wmsCount}})</p> 
+                          <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorTopicFavSelected(subsubTopic.topicId), 'fa-regular':!indicatorTopicFavSelected(subsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubTopic.topicId)"></i>
+                        </div>
+
+                        <div class="list-group collapse" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
+                          <div *ngFor="let subsubsubTopic of subsubTopic.subTopics">
+
+                            <div  class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-3" [ngClass]="{'style-hierarchy-selected-indicator-3': checkHierarchyIndicatorSelected(subsubsubTopic)}">
+                              <i class="fa-solid" (click)="onTopicClick(subsubsubTopic.topicId)" [ngClass]="{'fa-chevron-right':topicsCollapsed.includes(subsubsubTopic.topicId), 'fa-chevron-down':!topicsCollapsed.includes(subsubsubTopic.topicId)}"></i>
+                              <p class="collapseTrigger" title="{{subsubsubTopic.topicDescription}}" (click)="onTopicClick(subsubsubTopic.topicId)">{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount + subsubsubTopic.wmsCount}})</p>
+                              <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorTopicFavSelected(subsubsubTopic.topicId), 'fa-regular':!indicatorTopicFavSelected(subsubsubTopic.topicId)}" (click)="onIndicatorTopicFavClick(subsubsubTopic.topicId)"></i>
+                            </div>
+
+                              <div class="list-group collapse indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubsubTopic.topicId)}">
+                                <!-- indicatorData -->
+                                <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}" 
+                                  *ngFor="let indicatorMetadata of subsubsubTopic.indicatorData" class="list-group-item list-group-item-default">
+                                  <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                                    <div>
+                                      <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
+                                      <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                                    </div>
+                                    <div>
+                                      <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                    </div>
+                                  </div> 
+                                  <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                                    <div>
+                                      <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+                                      <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                                    </div>
+                                    <div>
+                                      <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                     </div>
                                   </div>
+                                </div>
+                                <!-- WmsData -->
+                                <div id="indicatorHierarchyElement-wms" class="list-group-item list-group-item-default" *ngIf="subTopic.wmsData.length">
+                                  <table class="table table-condensed " style="margin-bottom:0px;">
+                                    <thead>
+                                      <tr>
+                                        <th>Typ</th>
+                                        <th>Datensatz</th>
+                                        <th>Beschreibung</th>
+                                        <th>Legende</th>
+                                        <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+                                        <th></th>
+                                      </tr>
+                                    </thead>
+
+                                    <tbody>
+                                      <tr *ngFor="let wmsData of subTopic.wmsData">
+                                        <td>
+                                          <b><i>WMS</i></b>
+                                        </td>
+                                        <td>
+                                          <label class='checkbox-inline'><input type="checkbox"
+                                              value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                              (change)="handleWmsOnMap(wmsData)">
+
+                                            <b>{{wmsData.title}}</b>
+                                          </label>
+                                        </td>
+                                        <td [innerHTML]="wmsData.description"></td>
+                                        <td class="text-center">
+                                          <div *ngIf="!wmsData.showLegend">
+                                            <button class="btn btn-sm btn-primary"
+                                              (click)="wmsData.showLegend = true;">laden</button>
+                                          </div>
+                                          <div *ngIf="wmsData.showLegend">
+                                            <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
+                                          </div>
+                                        </td>
+                                        <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
+                                          <div style="text-align: center">
+                                            <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
+                                              title="WMS GetCapabilities URL"
+                                              rel='noopener noreferrer' target='_blank'><i
+                                                class="fas fa-cloud-download-alt"></i></a>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(wmsData.id), 'fa-regular':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                          </div>
+                          <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subsubTopic.topicId)}">
+                            <!-- indicatorData -->
+                            <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}" 
+                              *ngFor="let indicatorMetadata of subsubTopic.indicatorData" class="list-group-item list-group-item-default">
+                              <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                                <div>
+                                  <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
+                                  <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                                </div>
+                                <div>
+                                  <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                                </div>
+                              </div> 
+                              <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                                <div>
+                                  <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+                                  <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                                </div>
+                                <div>
+                                  <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
                                 </div>
                               </div>
                             </div>
-  
+                            <!-- WmsData -->
+                            <div id="indicatorHierarchyElement-wms" class="list-group-item list-group-item-default" *ngIf="subTopic.wmsData.length">
+                              <table class="table table-condensed " style="margin-bottom:0px;">
+                                <thead>
+                                  <tr>
+                                    <th>Typ</th>
+                                    <th>Datensatz</th>
+                                    <th>Beschreibung</th>
+                                    <th>Legende</th>
+                                    <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+                                    <th></th>
+                                  </tr>
+                                </thead>
+
+                                <tbody>
+                                  <tr *ngFor="let wmsData of subTopic.wmsData">
+                                    <td>
+                                      <b><i>WMS</i></b>
+                                    </td>
+                                    <td>
+                                      <label class='checkbox-inline'><input type="checkbox"
+                                          value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                          (change)="handleWmsOnMap(wmsData)">
+
+                                        <b>{{wmsData.title}}</b>
+                                      </label>
+                                    </td>
+                                    <td [innerHTML]="wmsData.description"></td>
+                                    <td class="text-center">
+                                      <div *ngIf="!wmsData.showLegend">
+                                        <button class="btn btn-sm btn-primary"
+                                          (click)="wmsData.showLegend = true;">laden</button>
+                                      </div>
+                                      <div *ngIf="wmsData.showLegend">
+                                        <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
+                                      </div>
+                                    </td>
+                                    <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
+                                      <div style="text-align: center">
+                                        <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
+                                          title="WMS GetCapabilities URL"
+                                          rel='noopener noreferrer' target='_blank'><i
+                                            class="fas fa-cloud-download-alt"></i></a>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(wmsData.id), 'fa-regular':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
                         </div>
 
                       </div>
-                      <div class="tab-pane" id="dataCatalogueTab2Content" role="tabpanel" 
-                        aria-labelledby="dataCatalogueTab2" *ngIf="exchangeData.headlineIndicatorHierarchy && exchangeData.headlineIndicatorHierarchy.length>0">
-                        <div class="just-padding">
-
-													<div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
-
-														<label>Erl&auml;uterungen zur Symbolik </label>														
-
-														<div class="list-group-item list-group-item-default style-headline-indicator">
-															<p style="cursor:pointer; color: white;"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
-																	[Einheitsbezeichnung]</p>
-														</div>
-														<div class="list-group-item list-group-item-default style-simple-indicator">
-															<p style="cursor:pointer; color: black;"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Basis-Indikator als Berechnungsgrundlage des Leitindikators</b>
-																	[Einheitsbezeichnung]</p>
-														</div>
-
-														<br/>
-
-														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
-
-														<div *ngFor="let headlineIndicatorHierarchyItem of exchangeData.headlineIndicatorHierarchy">
-															<div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0">
-																<p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" (click)="onHeadlineTopicClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"><i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-chevron-down':!headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}"></i>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
-														    <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-star-empty':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
-                              </div>
-
-															<div class="list-group collapse" [ngClass]="{'in': !headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}">
-																<div class="list-group-item list-group-item-default style-headline-indicator">
-																	<div class="list-group-item-grid-layout">
-                                    <div>
-                                      <p style="cursor:pointer; color: white;" title="<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" (click)="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
-                                      <app-indicator-metadata-tooltip [indicatorData]="{data:headlineIndicatorHierarchyItem.headlineIndicator,prefix:'headline'}"></app-indicator-metadata-tooltip>
-                                    </div>
-                                    <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'glyphicon-star-empty':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
-                                  </div> 
-																</div>
-
-																<div class="list-group-item list-group-item-default style-simple-indicator" *ngFor="let baseIndicatorMetadata of headlineIndicatorHierarchyItem.baseIndicators" >
-                                  <div class="list-group-item-grid-layout">
-																		<div>
-                                      <p style="cursor:pointer; color: black;" title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
-                                      <app-indicator-metadata-tooltip [indicatorData]="{data:baseIndicatorMetadata,prefix:'headline'}"></app-indicator-metadata-tooltip>
-                                    </div>
-                                    <i *ngIf="showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId), 'glyphicon-star-empty':!baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId)}" (click)="onBaseIndicatorFavClick(baseIndicatorMetadata.indicatorId)" style="color: black;"></i>
-                                  </div>
-																</div>
-															</div>
-
-														</div>
-													</div>
-
-												</div>
-
-                      </div>
-                      <div class="tab-pane" id="dataCatalogueTab3Content" role="tabpanel"
-                        aria-labelledby="dataCatalogueTab3">
-                        <div class="just-padding">
-													<select style="font-size: 12px;"
-														size="30" class="form-control" required>
-														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
-														<option *ngFor="let indicatorMetadata of exchangeData.displayableIndicators_keywordFiltered"
-														(click)="onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata)"> {{indicatorMetadata.indicatorName}} [{{indicatorMetadata.unit}}] </option>
-													</select>
-												</div>
-                      </div>
-                      <div *ngIf="showFavSelection" class="tab-pane" id="dataCatalogueTab4Content" role="tabpanel"
-                        aria-labelledby="dataCatalogueTab4">
-                        <div class="just-padding">
-													<div class="list-group list-group-root well" style="text-align: left">
-
-                            <ng-template #FavsRecursive let-list="list">
-                              <div *ngFor="let topic of list | indicatorFavFilter:indicatorFavItems"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
-                                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" [ngClass]="checkHierarchyIndicatorSelected(topic) ? 'style-fav-selected-indicator-' + topic.level : 'style-fav-normal-indicator-' + topic.level">
-                                  <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
-                                    class="indicatorFavCollapseTrigger">
-                                  <i class="glyphicon" [ngClass]="{'glyphicon-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'glyphicon-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
-                                  <p *ngIf="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
-                                  <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorTopicFavSelected(topic.topicId), 'glyphicon-star-empty':!indicatorTopicFavSelected(topic.topicId)}" (click)="onIndicatorTopicFavClick(topic.topicId,true)"></i>
-                                </div>
-                                <div [attr.id]="'indicatorFavSubTopic-'+topic.topicId" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
-                                  <div *ngIf="topic.subTopics">
-                                    <ng-container *ngTemplateOutlet="FavsRecursive; context:{ list: topic.subTopics }"></ng-container>
-                                  </div>
-                                  <!--  | orderBy: 'indicatorName'  *ngIf="topic.indicatorData && favTabShowIndicator(data.indicatorId, topic)"  -->
-                                  <div *ngFor="let data of topic.indicatorData" class="indicator-element list-group-item-grid-layout favs" 
-                                    [ngClass]="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': dataExchangeService.pipedData.selectedIndicator.indicatorId==data.indicatorId}">
-                                    <div (click)="onClickHierarchyIndicator(data)">
-                                      <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
-                                    </div>
-                                    <app-indicator-metadata-tooltip [indicatorData]="{data:data,prefix:'fav'}"></app-indicator-metadata-tooltip>
-                                    <i [hidden]="!showFavSelection" class="glyphicon glyphicon-custom" [ngClass]="{'glyphicon-star':indicatorFavSelected(data.indicatorId), 'glyphicon-star-empty':!indicatorFavSelected(data.indicatorId)}" (click)="onIndicatorFavClick(data.indicatorId,true)"></i>
-                                  </div>
-                                </div>
-                              </div>
-                            </ng-template>
-
-                            <ng-container *ngTemplateOutlet="FavsRecursive; context:{ list: indicatorFavTopicsTree}"></ng-container>
+                      <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(subTopic.topicId)}">
+                        <!-- indicatorData -->
+                        <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}"
+                          *ngFor="let indicatorMetadata of subTopic.indicatorData" class="list-group-item list-group-item-default">
+                          <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                            <div>
+                              <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
+                              <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                            </div>
+                            <div>
+                              <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                            </div>
+                          </div> 
+                          <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                            <div>
+                              <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+                              <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                            </div>
+                            <div>
+                              <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                            </div>
                           </div>
-												</div>
+                        </div>
+                        <!-- WmsData -->
+                        <div id="indicatorHierarchyElement-wms" class="list-group-item list-group-item-default" *ngIf="subTopic.wmsData.length">
+                          <table class="table table-condensed " style="margin-bottom:0px;">
+                            <thead>
+                              <tr>
+                                <th>Typ</th>
+                                <th>Datensatz</th>
+                                <th>Beschreibung</th>
+                                <th>Legende</th>
+                                <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr *ngFor="let wmsData of subTopic.wmsData">
+                                <td>
+                                  <b><i>WMS</i></b>
+                                </td>
+                                <td>
+                                  <label class='checkbox-inline'><input type="checkbox"
+                                      value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                      (change)="handleWmsOnMap(wmsData)">
+
+                                    <b>{{wmsData.title}}</b>
+                                  </label>
+                                </td>
+                                <td [innerHTML]="wmsData.description"></td>
+                                <td class="text-center">
+                                  <div *ngIf="!wmsData.showLegend">
+                                    <button class="btn btn-sm btn-primary"
+                                      (click)="wmsData.showLegend = true;">laden</button>
+                                  </div>
+                                  <div *ngIf="wmsData.showLegend">
+                                    <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
+                                  </div>
+                                </td>
+                                <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
+                                  <div style="text-align: center">
+                                    <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
+                                      title="WMS GetCapabilities URL"
+                                      rel='noopener noreferrer' target='_blank'><i
+                                        class="fas fa-cloud-download-alt"></i></a>
+                                  </div>
+                                </td>
+                                <td>
+                                  <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(wmsData.id), 'fa-regular':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>										
+
+
+                  </div>
+
+                  <div class="list-group indicatorInputForm" [ngClass]="{'in': !topicsCollapsed.includes(mainTopic.topicId)}">
+                    <!-- indicatorData -->
+                    <div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" [ngClass]="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator, 'active':dataExchangeService.selectedIndicator.indicatorId==indicatorMetadata.indicatorId}"
+                      *ngFor="let indicatorMetadata of mainTopic.indicatorData" class="list-group-item list-group-item-default">
+                      <div *ngIf="indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                        <div>
+                          <p style="cursor:pointer; color: white;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																													
+                          <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                        </div>
+                        <div>
+                          <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                        </div>
+                      </div> 
+                      <div *ngIf="! indicatorMetadata.isHeadlineIndicator" class="list-group-item-entry-grid-layout">
+                        <div>
+                          <p style="cursor:pointer;" title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+                          <app-indicator-metadata-tooltip [indicatorData]="{data:indicatorMetadata}"></app-indicator-metadata-tooltip>
+                        </div>
+                        <div>
+                          <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(indicatorMetadata.indicatorId), 'fa-regular':!indicatorFavSelected(indicatorMetadata.indicatorId)}" (click)="onIndicatorFavClick(indicatorMetadata.indicatorId)" style="color: black;"></i>
+                        </div>
                       </div>
                     </div>
-                    <div class="favoritesToast" id="favoritesToast" (click)="onSaveFavSelection([true])" [ngClass]="{'disabled': favSelectionToastStatus==0, 'notSaved': favSelectionToastStatus==1, 'saved': favSelectionToastStatus==2}" *ngIf="showFavSelection">{{favSelectionToastText[favSelectionToastStatus]}}</div>
+                    <!-- WmsData -->
+                    <div id="indicatorHierarchyElement-wms" class="list-group-item list-group-item-default" *ngIf="mainTopic.wmsData.length">
+                      <table class="table table-condensed " style="margin-bottom:0px;">
+                        <thead>
+                          <tr>
+                            <th>Typ</th>
+                            <th>Datensatz</th>
+                            <th>Beschreibung</th>
+                            <th>Legende</th>
+                            <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr *ngFor="let wmsData of mainTopic.wmsData">
+                            <td>
+                              <b><i>WMS</i></b>
+                            </td>
+                            <td>
+                              <label class='checkbox-inline'><input type="checkbox"
+                                  value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                  (change)="handleWmsOnMap(wmsData)">
+
+                                <b>{{wmsData.title}}</b>
+                              </label>
+                            </td>
+                            <td>
+                              <p>{{wmsData.description}}</p>
+                            </td>
+
+                            <td class="text-center">
+                              <div *ngIf="wmsData.showLegend">
+                                <button class="btn btn-sm btn-primary"
+                                  (click)="wmsData.showLegend = true;">laden</button>
+                              </div>
+                              <div *ngIf="wmsData.showLegend">
+                                <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
+                              </div>
+                            </td>
+                            <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
+                              <div style="text-align: center">
+                                <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
+                                  title="WMS GetCapabilities URL"
+                                  rel='noopener noreferrer' target='_blank'><i
+                                    class="fas fa-cloud-download-alt"></i></a>
+                              </div>
+                            </td>
+                            <td>
+                              <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(wmsData.id), 'fa-regular':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        </div>
+
+      </div>
+      <div class="tab-pane" id="dataCatalogueTab2Content" role="tabpanel" 
+        aria-labelledby="dataCatalogueTab2" *ngIf="dataExchangeService.headlineIndicatorHierarchy && dataExchangeService.headlineIndicatorHierarchy.length>0">
+        <div class="just-padding">
+
+          <div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
+
+            <label>Erl&auml;uterungen zur Symbolik </label>														
+
+            <div class="list-group-item list-group-item-default style-headline-indicator">
+              <p style="cursor:pointer; color: white;"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+                  [Einheitsbezeichnung]</p>
+            </div>
+            <div class="list-group-item list-group-item-default style-simple-indicator">
+              <p style="cursor:pointer; color: black;"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Basis-Indikator als Berechnungsgrundlage des Leitindikators</b>
+                  [Einheitsbezeichnung]</p>
+            </div>
+
+            <br/>
+
+            <label> Leitindikatoren und ihre Basis-Indikatoren </label>
+
+            <div *ngFor="let headlineIndicatorHierarchyItem of dataExchangeService.headlineIndicatorHierarchy">
+              <div class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0">
+                <i class="fa-solid" [ngClass]="{'fa-chevron-right':headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'fa-chevron-down':!headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}"></i>
+                <p title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" (click)="onHeadlineTopicClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)">{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </p>
+                <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'fa-regular':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
+              </div>
+
+              <div class="list-group collapse" [ngClass]="{'in': !headlineTopicsCollapsed.includes(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}">
+                <div class="list-group-item list-group-item-default style-headline-indicator">
+                  <div class="list-group-item-entry-grid-layout">
+                    <div>
+                      <p style="cursor:pointer; color: white;" title="<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" (click)="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
+                      <app-indicator-metadata-tooltip [indicatorData]="{data:headlineIndicatorHierarchyItem.headlineIndicator,prefix:'headline'}"></app-indicator-metadata-tooltip>
+                    </div>
+                    <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId), 'fa-regular':!headlineIndicatorFavSelected(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)}" (click)="onHeadlineIndicatorFavClick(headlineIndicatorHierarchyItem.headlineIndicator.indicatorId)"></i>
+                  </div> 
+                </div>
+
+                <div class="list-group-item list-group-item-default style-simple-indicator" *ngFor="let baseIndicatorMetadata of headlineIndicatorHierarchyItem.baseIndicators" >
+                  <div class="list-group-item-entry-grid-layout">
+                    <div>
+                      <p style="cursor:pointer; color: black;" title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" (click)="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
+                      <app-indicator-metadata-tooltip [indicatorData]="{data:baseIndicatorMetadata,prefix:'headline'}"></app-indicator-metadata-tooltip>
+                    </div>
+                    <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId), 'fa-regular':!baseIndicatorFavSelected(baseIndicatorMetadata.indicatorId)}" (click)="onBaseIndicatorFavClick(baseIndicatorMetadata.indicatorId)" style="color: black;"></i>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="tab-pane" id="dataCatalogueTab3Content" role="tabpanel"
+        aria-labelledby="dataCatalogueTab3">
+        <div class="just-padding">
+          <select style="font-size: 12px;"
+            size="30" class="form-control" required>
+            <option disabled selected value> -- Indikator w&auml;hlen -- </option>
+            <option *ngFor="let entry of preppedKeywordList" (click)="onChangeSelectedIndicator_fromAlphabeticalList(entry)">
+              <div *ngIf="entry.listType=='indicator'"> {{entry.indicatorName}} [{{entry.unit}}]</div>
+              <div *ngIf="entry.listType=='wms'"> {{entry.title}} [WMS]</div>
+            </option>
+          </select>
+        </div>
+      </div>
+      <div *ngIf="showFavSelection" class="tab-pane" id="dataCatalogueTab4Content" role="tabpanel"
+        aria-labelledby="dataCatalogueTab4">
+        <div class="just-padding">
+          <div class="list-group list-group-root well" style="text-align: left">
+
+            <ng-template #FavsRecursive let-list="list">
+              <div *ngFor="let topic of list | indicatorFavFilter"> <!--  *ngIf="favTabShowTopic(topic) | orderBy: 'topicName'  -->
+                <div class="list-group-item list-group-item-default list-group-item-grid-centered list-group-item-level-{{topic.level}}" [ngClass]="checkHierarchyIndicatorSelected(topic) ? 'style-fav-selected-indicator-' + topic.level : 'style-fav-normal-indicator-' + topic.level">
+                  <p *ngIf="topic.subTopics.length>0 || topic.indicatorData.length>0" [attr.id]="topic.topicId" href="" title="{{topic.topicDescription}}"
+                    class="indicatorFavCollapseTrigger">
+                  <i class="fa-solid" [ngClass]="{'fa-chevron-right':isFavSubTopicCollapsed(topic.topicId), 'fa-chevron-down':!isFavSubTopicCollapsed(topic.topicId)}"></i>{{topic.topicName}}</p>
+                  <p *ngIf="topic.subTopics.length==0 && topic.indicatorData.length==0">{{topic.topicName}}</p>
+                  <i [hidden]="!showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorTopicFavSelected(topic.topicId), 'fa-regular':!indicatorTopicFavSelected(topic.topicId)}" (click)="onIndicatorTopicFavClick(topic.topicId,true)"></i>
+                </div>
+                <div [attr.id]="'indicatorFavSubTopic-'+topic.topicId" class="subTopic-block sub-topic-wrapper-level-{{topic.level}}" style="display:none">
+                  <div *ngIf="topic.subTopics">
+                    <ng-container *ngTemplateOutlet="FavsRecursive; context:{ list: topic.subTopics }"></ng-container>
+                  </div>
+                  <!--  | orderBy: 'indicatorName'  *ngIf="topic.indicatorData && favTabShowIndicator(data.indicatorId, topic)"  -->
+                  <!-- indicators -->
+                  <div *ngFor="let data of topic.indicatorData" class="indicator-element list-group-item-grid-layout favs" 
+                    [ngClass]="{'style-headline-indicator': data.isHeadlineIndicator, 'selectedIndicator': dataExchangeService.selectedIndicator.indicatorId==data.indicatorId}">
+                    <div (click)="onClickHierarchyIndicator(data)">
+                      <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{data.indicatorName}}</b> [{{data.unit}}]
+                    </div>
+                    <app-indicator-metadata-tooltip [indicatorData]="{data:data,prefix:'fav'}"></app-indicator-metadata-tooltip>
+                    <i [hidden]="!showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':indicatorFavSelected(data.indicatorId), 'fa-regular':!indicatorFavSelected(data.indicatorId)}" (click)="onIndicatorFavClick(data.indicatorId,true)"></i>
+                  </div>
+                  <!-- WmsData -->
+                  <div id="indicatorHierarchyElement-wms" class="indicator-element favs" *ngIf="topic.wmsData.length">
+                    <table class="table table-condensed " style="margin-bottom:0px;">
+                      <thead>
+                        <tr>
+                          <th>Typ</th>
+                          <th>Datensatz</th>
+                          <th>Beschreibung</th>
+                          <th>Legende</th>
+                          <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr *ngFor="let wmsData of topic.wmsData">
+                          <td>
+                            <b><i>WMS</i></b>
+                          </td>
+                          <td>
+                            <label class='checkbox-inline'><input type="checkbox"
+                                value="dataset.title" [(ngModel)]="wmsData.isSelected"
+                                (change)="handleWmsOnMap(wmsData)">
+
+                              <b>{{wmsData.title}}</b>
+                            </label>
+                          </td>
+                          <td [innerHTML]="wmsData.description"></td>
+                          <td class="text-center">
+                            <div *ngIf="!wmsData.showLegend">
+                              <button class="btn btn-sm btn-primary"
+                                (click)="wmsData.showLegend = true;">laden</button>
+                            </div>
+                            <div *ngIf="wmsData.showLegend">
+                              <img [src]="ogcService.buildLegendUrl(wmsData.connectionDetails.baseUrl, wmsData.connectionDetails.layerName)">
+                            </div>
+                          </td>
+                          <td *ngIf="dataExchangeService.showGeoresourceExportButtons" class="text-center">
+                            <div style="text-align: center">
+                              <a [href]="ogcService.buildGetCapabilitiesUrl(wmsData.connectionDetails.baseUrl)"
+                                title="WMS GetCapabilities URL"
+                                rel='noopener noreferrer' target='_blank'><i
+                                  class="fas fa-cloud-download-alt"></i></a>
+                            </div>
+                          </td>
+                          <td>
+                            <i *ngIf="showFavSelection" class="fav-star fa-star" [ngClass]="{'fa-solid':wmsFavSelected(wmsData.id), 'fa-regular':!wmsFavSelected(wmsData.id)}" (click)="onWmsFavClick(wmsData.id)" style="color: black;"></i>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+
+            <ng-container *ngTemplateOutlet="FavsRecursive; context:{ list: indicatorFavTopicsTree}"></ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="favoritesToast" id="favoritesToast" (click)="onSaveFavSelection([true])" [ngClass]="{'disabled': favSelectionToastStatus==0, 'notSaved': favSelectionToastStatus==1, 'saved': favSelectionToastStatus==2}" *ngIf="showFavSelection">{{favSelectionToastText[favSelectionToastStatus]}}</div>
 
 
-									<!-- 	 <uib-tabset active="0">
-									   								    
-										
+  <!-- 	 <uib-tabset active="0">
+                        
+    
 
-											<uib-tab index="2" heading="Alphabetische Liste">
-												<div class="just-padding">
-													<select style="font-size: 12px;"
-														size="30" class="form-control" required>
-														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
-														<option ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId"
-														ng-click="onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata)"> {{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}] </option>
-													</select>
-												</div>
-											</uib-tab> -->
+      <uib-tab index="2" heading="Alphabetische Liste">
+        <div class="just-padding">
+          <select style="font-size: 12px;"
+            size="30" class="form-control" required>
+            <option disabled selected value> -- Indikator w&auml;hlen -- </option>
+            <option ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId"
+            ng-click="onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata)"> {{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}] </option>
+          </select>
+        </div>
+      </uib-tab> -->
 
-								</div>
-								<!-- /.box-body -->
-						</div>
-						  <!-- /.box -->
-								  
+  </expandable-box>	  
 </div>
 
 

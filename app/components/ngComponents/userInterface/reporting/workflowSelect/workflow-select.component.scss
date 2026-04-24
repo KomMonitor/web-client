@@ -1,0 +1,8 @@
+:host {
+  .select-wrapper {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2em;
+    text-align: center;
+  }
+}

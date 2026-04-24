@@ -1,0 +1,107 @@
+<admin-content-view
+  title="Mandanten- und Gruppenverwaltung"
+  description="Userverwaltung via Keycloak"
+  [controlsTemplate]="controls"
+  [contentTemplate]="content"
+>
+</admin-content-view>
+
+<ng-template #controls>
+  <ng-container *ngIf="kommonitorDataExchangeService.enableKeycloakSecurity">
+    <span>Nur editierbare Datensätze anzeigen</span>
+    <div>
+      <label class="switch">
+        <input
+          type="checkbox"
+          [(ngModel)]="tableViewSwitcher"
+          (ngModelChange)="onTableViewSwitch()"
+        />
+        <span class="switchslider round"></span>
+      </label>
+    </div>
+    <button
+      [disabled]="!kommonitorDataExchangeService.checkCreatePermission()"
+      class="btn btn-success btn-sm"
+      type="button"
+      (click)="openAddModal()"
+    >
+      <i class="fas fa-plus"></i> Erstellen
+    </button>
+    <button
+      [disabled]="
+        !kommonitorDataExchangeService.checkCreatePermission() ||
+        selectedRows.length === 0
+      "
+      class="btn btn-danger btn-sm"
+      type="button"
+      (click)="openDeleteModal()"
+    >
+      <i class="fas fa-trash"></i> Löschen
+    </button>
+  </ng-container>
+</ng-template>
+
+<ng-template #content>
+  <div *ngIf="!kommonitorDataExchangeService.enableKeycloakSecurity">
+    <expandable-box title="Zugriffskontrolle" [isCollapsible]="false">
+      <p>
+        KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer-
+        und Rechtenmanagement.
+      </p>
+      <h4>
+        In der Konfiguration ist der Zugriffsschutz jedoch deaktiviert. Es muss
+        zuerst aktiviert und mit einer validen Keycloak-Instanz konfiguriert
+        werden, bevor die Zugriffskontrolle verwaltet werden kann.
+      </h4>
+    </expandable-box>
+  </div>
+
+  <div *ngIf="kommonitorDataExchangeService.enableKeycloakSecurity">
+    <expandable-box
+      title="Mandantenspezifische Gruppenverwaltung"
+      [isCollapsible]="false"
+    >
+      <i
+        >Hinweise und Erläuterungen sind unter <b>Gruppen-/Rechtekonzept</b> zu
+        finden</i
+      >
+      <h5>
+        Zur
+        <a
+          class="kommonitor-theme"
+          [href]="keycloakHelperService.targetRealmUrlToKeycloakInstance"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Userverwaltung via Keycloak</a
+        >
+      </h5>
+      <p>
+        (Beim Neuanlegen von Usern müssen diese direkt einer oder mehrerer
+        Gruppen zugeteilt werden)
+      </p>
+
+      <app-loading-overlay [loading]="loadingData">
+        <ag-grid-angular
+          #roleOverviewTable
+          id="roleOverviewTable"
+          style="height: 70vh"
+          class="ag-theme-alpine"
+          [columnDefs]="columnDefs"
+          [rowData]="rowData"
+          [defaultColDef]="defaultColDef"
+          [gridOptions]="gridOptions"
+          [pagination]="true"
+          [paginationPageSize]="paginationPageSize"
+          [paginationPageSizeSelector]="paginationPageSizeSelector"
+          [rowSelection]="'multiple'"
+          (selectionChanged)="selectionChanged($event)"
+          [suppressRowClickSelection]="true"
+          [enableCellTextSelection]="true"
+          [ensureDomOrder]="true"
+          [suppressColumnVirtualisation]="true"
+        >
+        </ag-grid-angular>
+      </app-loading-overlay>
+    </expandable-box>
+  </div>
+</ng-template>

@@ -1,112 +1,73 @@
-<div id="adminTopicsContent">
-  <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+<admin-content-view
+  title="Themenverwaltung"
+  description="Management der Themenhierarchien für Indikatoren und Georessourcen"
+  [contentTemplate]="content"
+>
+</admin-content-view>
+<ng-template #content>
+  <b>Zeige IDs</b>
+  &nbsp;
+  <label class="switch">
+    <input type="checkbox" [(ngModel)]="showTopicIds" />
+    <span class="switchslider round"></span>
+  </label>
+
+  <br />
+
+  <expandable-box title="Themenhierarchie - Indikatoren" [collapsed]="false">
+    <div class="just-padding"*ngIf="indicatorOrder">
+      <div>
+        <div>Sortierung der Indikatoren:</div>
+        <topic-order-selection
+          [orderMode]="indicatorOrder"
+          (selectedOptionChange)="setIndicatorSorting($event)"
+        ></topic-order-selection>
+      </div>
+      <app-topic-list
+        [topics]="filteredIndicatorTopics"
+        [showTopicIds]="showTopicIds"
+        [levelLimit]="4"
+        [topicResourceType]="'indicator'"
+        [order]="indicatorOrder"
+      ></app-topic-list>
+      <admin-add-topic [topicResourceType]="'indicator'"></admin-add-topic>
     </div>
+  </expandable-box>
+
+  <expandable-box
+    title="Themenhierarchie - Georessourcen"
+    [collapsed]="false"
+    borderColor="red"
+  >
+    <div class="just-padding" *ngIf="geoRessourceOrder">
+      <div>
+        <div>Sortierung der Georessourcen:</div>
+        <topic-order-selection
+          [orderMode]="geoRessourceOrder"
+          (selectedOptionChange)="setGeoRessourceSorting($event)"
+        ></topic-order-selection>
+      </div>
+      <app-topic-list
+        [topics]="filteredGeoRessourceTopics"
+        [showTopicIds]="showTopicIds"
+        [levelLimit]="4"
+        [topicResourceType]="'georesource'"
+        [order]="geoRessourceOrder"
+      ></app-topic-list>
+      <admin-add-topic [topicResourceType]="'georesource'"></admin-add-topic>
+    </div>
+  </expandable-box>
+
+  <!-- Error Alert -->
+  <div
+    id="topicsErrorAlert"
+    class="alert alert-danger alert-dismissible"
+    *ngIf="errorHandlingService.errorMessagePart"
+  >
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+      ×
+    </button>
+    <h4><i class="icon fa fa-ban"></i> Fehler!</h4>
+    <div [innerHTML]="errorHandlingService.errorMessagePart"></div>
   </div>
-
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Themenverwaltung
-      <small
-        >Management der Themenhierarchien für Indikatoren und
-        Georessourcen</small
-      >
-    </h1>
-  </section>
-
-  <!-- Main content -->
-  <section class="content container-fluid">
-    <b>Zeige IDs</b>
-    &nbsp;
-    <label class="switch">
-      <input type="checkbox" [(ngModel)]="showTopicIds" />
-      <span class="switchslider round"></span>
-    </label>
-
-    <br />
-
-    <!-- Indicator Topics Section -->
-    <div class="box box-primary" id="indicatorTopicsManagement">
-      <div class="box-header with-border">
-        <h3 class="box-title">Themenhierarchie - Indikatoren</h3>
-        <div class="box-tools pull-right">
-          <button type="button" class="btn btn-box-tool" data-widget="collapse">
-            <i class="fa fa-minus"></i>
-          </button>
-        </div>
-      </div>
-      <div class="box-body">
-        <div class="just-padding">
-          <div *ngIf="indicatorOrder">
-            <div>Sortierung der Indikatoren:</div>
-            <topic-order-selection
-              [orderMode]="indicatorOrder"
-              (selectedOptionChange)="setIndicatorSorting($event)"
-            ></topic-order-selection>
-            <app-topic-list
-              [topics]="filteredIndicatorTopics"
-              [showTopicIds]="showTopicIds"
-              [levelLimit]="4"
-              [topicResourceType]="'indicator'"
-              [order]="indicatorOrder"
-            ></app-topic-list>
-          </div>
-          <admin-add-topic [topicResourceType]="'indicator'"></admin-add-topic>
-        </div>
-      </div>
-    </div>
-
-    <!-- Georesource Topics Section -->
-    <div class="box box-primary" id="georesourceTopicsManagement">
-      <div class="box-header with-border">
-        <h3 class="box-title">Themenhierarchie - Georessourcen</h3>
-        <div class="box-tools pull-right">
-          <button type="button" class="btn btn-box-tool" data-widget="collapse">
-            <i class="fa fa-minus"></i>
-          </button>
-        </div>
-      </div>
-      <div class="box-body">
-        <div class="just-padding">
-          <div *ngIf="geoRessourceOrder">
-            <div>Sortierung der Georessourcen:</div>
-            <topic-order-selection
-              [orderMode]="geoRessourceOrder"
-              (selectedOptionChange)="setGeoRessourceSorting($event)"
-            ></topic-order-selection>
-            <app-topic-list
-              [topics]="filteredGeoRessourceTopics"
-              [showTopicIds]="showTopicIds"
-              [levelLimit]="4"
-              [topicResourceType]="'georesource'"
-              [order]="geoRessourceOrder"
-            ></app-topic-list>
-          </div>
-          <admin-add-topic
-            [topicResourceType]="'georesource'"
-          ></admin-add-topic>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error Alert -->
-    <div
-      id="topicsErrorAlert"
-      class="alert alert-danger alert-dismissible"
-      *ngIf="errorHandlingService.errorMessagePart"
-    >
-      <button
-        type="button"
-        class="close"
-        data-dismiss="alert"
-        aria-hidden="true"
-      >
-        ×
-      </button>
-      <h4><i class="icon fa fa-ban"></i> Fehler!</h4>
-      <div [innerHTML]="errorHandlingService.errorMessagePart"></div>
-    </div>
-  </section>
-</div>
+</ng-template>

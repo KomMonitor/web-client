@@ -1,0 +1,224 @@
+<div class="d-flex flex-column flex-shrink-0 sidebar">
+  <header class="sidebar-header">
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      href="http://kommonitor.de"
+      class="logo"
+    >
+      <!-- <span class="logo-mini"><img src="logos/KM_Logo1.svg" /></span> -->
+      <img src="logos/KM_Logo1.svg" />
+      <b>KomMonitor</b>
+    </a>
+  </header>
+  <div class="sidebar-subheader">Administration</div>
+  <div
+    ngbNav
+    #nav="ngbNav"
+    [(activeId)]="active"
+    class="nav-pills flex-column"
+    orientation="vertical"
+  >
+    <ng-container [ngbNavItem]="AdminNavItem.Overview">
+      <button ngbNavLink>
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Übersicht</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-dashboard-management></admin-dashboard-management>
+      </ng-template>
+    </ng-container>
+
+    <ng-container [ngbNavItem]="AdminNavItem.GroupMgmt">
+      <button ngbNavLink>
+        <i class="fas fa-users"></i>
+        <span>Gruppenverwaltung</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-role-management></admin-role-management>
+      </ng-template>
+    </ng-container>
+
+    <ng-container [ngbNavItem]="AdminNavItem.GroupRights">
+      <button ngbNavLink>
+        <i class="fa-solid fa-user-lock"></i>
+        <span>Gruppen-/Rechtekonzept</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-role-explanation></admin-role-explanation>
+      </ng-template>
+    </ng-container>
+
+    <ng-container [ngbNavItem]="AdminNavItem.TopicMgmt">
+      <button ngbNavLink>
+        <i class="fas fa-book"></i>
+        <span>Themenverwaltung</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-topics-management></admin-topics-management>
+      </ng-template>
+    </ng-container>
+
+    <button
+      class="btn btn-link nav-link w-100 text-start"
+      (click)="isGeodataMgmtExpanded = !isGeodataMgmtExpanded"
+      [attr.aria-expanded]="isGeodataMgmtExpanded"
+    >
+      <i class="fas fa-globe-americas"></i>
+      <span class="label">Geodatenverwaltung</span>
+      <span
+        class="fa collapse-marker"
+        [class.fa-angle-down]="isGeodataMgmtExpanded"
+        [class.fa-angle-left]="!isGeodataMgmtExpanded"
+      ></span>
+    </button>
+
+    <div
+      [ngbNavItem]="AdminNavItem.RoomLevels"
+      [class.d-none]="!isGeodataMgmtExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-layer-group"></i>
+        <span>Raumebenen</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-spatial-units-management></admin-spatial-units-management>
+      </ng-template>
+    </div>
+
+    <div
+      [ngbNavItem]="AdminNavItem.Indicators"
+      [class.d-none]="!isGeodataMgmtExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-sitemap"></i>
+        <span>Indikatoren</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-indicators-management></admin-indicators-management>
+      </ng-template>
+    </div>
+
+    <div
+      [ngbNavItem]="AdminNavItem.Georesources"
+      [class.d-none]="!isGeodataMgmtExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-map-marked-alt"></i>
+        <span>Georessourcen</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-georesources-management></admin-georesources-management>
+      </ng-template>
+    </div>
+
+    <ng-container [ngbNavItem]="AdminNavItem.ScriptMgmt">
+      <button ngbNavLink>
+        <i class="far fa-file-code"></i>
+        <span>Skriptverwaltung</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-script-management></admin-script-management>
+      </ng-template>
+    </ng-container>
+
+    <ng-container [ngbNavItem]="AdminNavItem.IndicatorCalculation">
+      <button ngbNavLink>
+        <i class="far fa-file-code"></i>
+        <span>Indikatorenberechnung</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-script-execution></admin-script-execution>
+      </ng-template>
+    </ng-container>
+
+    <button
+      class="btn btn-link nav-link w-100 text-start"
+      (click)="isSettingsExpanded = !isSettingsExpanded"
+      [attr.aria-expanded]="isSettingsExpanded"
+    >
+      <i class="fas fa-tools"></i>
+      <span class="label">Einstellungen</span>
+      <span
+        class="fa collapse-marker"
+        [class.fa-angle-down]="isSettingsExpanded"
+        [class.fa-angle-left]="!isSettingsExpanded"
+      ></span>
+    </button>
+
+    <div
+      [ngbNavItem]="AdminNavItem.CommonSettings"
+      [class.d-none]="!isSettingsExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fas fa-cogs"></i>
+        <span>Allgemeine Einstellungen</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-app-config></admin-app-config>
+      </ng-template>
+    </div>
+
+    <div
+      [ngbNavItem]="AdminNavItem.WidgetConfig"
+      [class.d-none]="!isSettingsExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="far fa-eye-slash"></i>
+        <span>Widget-Konfiguration</span>
+      </button>
+      <ng-template ngbNavContent>
+        <admin-controls-config></admin-controls-config>
+      </ng-template>
+    </div>
+
+    <div
+      [ngbNavItem]="AdminNavItem.FilterConfig"
+      [class.d-none]="!isSettingsExpanded"
+      class="child"
+    >
+      <button ngbNavLink>
+        <i class="fa fa-filter"></i>
+        <span>Filter-Konfiguration</span>
+      </button>
+      <ng-template ngbNavContent>
+        <app-admin-filter-config></app-admin-filter-config>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<div class="content-wrapper">
+  <header>
+    <button
+      type="button"
+      class="btn btn-danger btn-sm"
+      (click)="switchToMapApplication()"
+    >
+      <i class="fas fa-user-cog"></i>
+      <span>Administration verlassen</span>
+    </button>
+    <div class="spacer"></div>
+    <div class="validity-info">
+      <app-session-validity></app-session-validity>
+    </div>
+    <app-user-login></app-user-login>
+  </header>
+
+  <div [ngbNavOutlet]="nav" class="flex-grow-1"></div>
+
+  <footer>
+    <strong
+      >Copyright &copy;
+      <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong
+    >
+    <div class="hidden-xs">Vielen Dank f&uuml;r die Nutzung von KomMonitor</div>
+  </footer>
+</div>
+
+<app-notification></app-notification>

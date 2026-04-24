@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ajskommonitorConfigStorageServiceProvider } from '../../app-upgraded-providers';
-import { Inject, Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 export interface LandingpageConfig {
   startPage: string;
@@ -13,16 +13,12 @@ export interface LandingpageConfig {
 })
 export class ConfigStorageService  {
 
-  pipedData!:any;
-
   controlsConfig:any;
   
   public constructor(
-      @Inject('kommonitorConfigStorageService') private ajskommonitorConfigStorageServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-      private httpClient: HttpClient
-  ) {
-    this.pipedData = this.ajskommonitorConfigStorageServiceProvider;
-  }
+      private httpClient: HttpClient,
+      private envConfigService: EnvConfigService,
+  ) {}
 
   getConfigs() {
     this.getControlsConfig();
@@ -37,7 +33,7 @@ export class ConfigStorageService  {
 
     let headers = new HttpHeaders({ "Content-Type": '*', "Accept": "text/plain" });
 
-    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig, formdata, {headers: headers});
+    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig, formdata, {headers: headers});
   }
 
   postControlsConfig(jsonString):Observable<any> {
@@ -47,7 +43,7 @@ export class ConfigStorageService  {
 
     let headers = new HttpHeaders({"Accept": "text/plain" });
 
-    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig, formdata, {headers: headers});
+    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig, formdata, {headers: headers});
   }
 
   postAppConfig(jsString):Observable<any> {
@@ -57,10 +53,10 @@ export class ConfigStorageService  {
 
     let headers = new HttpHeaders({"Accept": "text/plain" });
 
-    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig, formdata, {headers: headers});
+    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig, formdata, {headers: headers});
   }
 
-  postFilterConfig(jsonString){         
+  postFilterConfig(jsonString):Observable<any> {     
 
     console.log("Trying to POST to config storage service to upload new filter config.");
     var formdata = new FormData();
@@ -68,7 +64,7 @@ export class ConfigStorageService  {
     
     let headers = new HttpHeaders({"Accept": "text/plain" });
 
-    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig, formdata, {headers: headers});
+    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig, formdata, {headers: headers});
   }
 
   postLandingpageConfig(landingpageConfig: LandingpageConfig) {
@@ -81,20 +77,19 @@ export class ConfigStorageService  {
     
     let headers = new HttpHeaders({"Accept": "text/plain" });
 
-    return this.httpClient.post(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig, formdata, {headers: headers});
+    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig, formdata, {headers: headers});
   }
 
   getKeycloakConfig():Observable<any> {
 
-    return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
+    return this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
   }
 
   getControlsConfig() {
     
-    this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig).subscribe({
+    this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig).subscribe({
       next: response => {
         this.controlsConfig = response;
-        console.log(this.controlsConfig);
       },
       error: error => {
         console.error(error);
@@ -103,14 +98,14 @@ export class ConfigStorageService  {
   }
 
   getAppConfig():Observable<any> {
-    return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig);
+    return this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig);
   }
 
   getFilterConfig(){
-    return this.httpClient.get(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig);
+    return this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig);
   };
 
   getLandingpageConfig() {
-    return this.httpClient.get<any>(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig);
+    return this.httpClient.get<any>(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig);
   }
 }

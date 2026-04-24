@@ -1,16 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-indicator-radar',
   templateUrl: './indicator-radar.component.html',
-  styleUrls: ['./indicator-radar.component.css']
-})
-export class IndicatorRadarComponent implements OnInit {
+  styleUrls: ['./indicator-radar.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, IndicatorNameFilter, ExpandableBoxComponent]
+}) export class IndicatorRadarComponent implements OnInit {
 
   
   activeTab = 0;
@@ -21,37 +27,41 @@ export class IndicatorRadarComponent implements OnInit {
   date;
   spatialUnitName;
   radarChart;
-  DATE_PREFIX = window.window.__env.indicatorDatePrefix;
+  private DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
   indicatorNameFilter = undefined;
   eventsRegistered = false;
-  numberOfDecimals = window.window.__env.numberOfDecimals;
+  private numberOfDecimals = this.envConfigService.numberOfDecimals;
   setupCompleted = true;
   radarOption:any;
-
-  exchangeData!: DataExchange;
 
   preppedIndicatorPropertiesForCurrentSpatialUnitAndTime!:any;
   propertiesForCurrentlySelectedIndicator!:any;
   propertiesForBaseIndicatorsOfCurrentHeadlineIndicator!: any;
 
+  chartTitle!: string;
+
+  indicatorNames_shortVersion = false;
+  printLayout = false;
+  radarHeight = '60vh';
+  radarheight_defaultNum = 60;
+
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
-    private dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
     private filterHelperService: FilterHelperService,
-    private broadcastService: BroadcastService
-  ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
-  }
+    private broadcastService: BroadcastService,
+    private envConfigService: EnvConfigService
+  ) { }
 
   ngOnInit(): void {
 
     setTimeout(() => {
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(true);
 
-      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.exchangeData.selectedIndicator.indicatorId);
+      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.dataExchangeService.selectedIndicator.indicatorId);
       this.propertiesForBaseIndicatorsOfCurrentHeadlineIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => {
 
-        var headlineIndicatorEntry = this.exchangeData.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.exchangeData.selectedIndicator.indicatorId)[0];
+        var headlineIndicatorEntry = this.dataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.dataExchangeService.selectedIndicator.indicatorId)[0];
 
         if(headlineIndicatorEntry){
           var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);
@@ -61,6 +71,8 @@ export class IndicatorRadarComponent implements OnInit {
         }
         return false;
       });
+
+      this.chartTitle = `Indikatorenradar - ${this.spatialUnitName}`;
     },2000);
 
     this.broadcastService.currentBroadcastMsg.subscribe(result => {
@@ -85,6 +97,9 @@ export class IndicatorRadarComponent implements OnInit {
         } break;
         case 'updateDiagramsForUnhoveredFeature': {
           this.onUpdateDiagramsForUnhoveredFeature(val);
+        } break;
+        case 'unselectAllFeatures': {
+
         } break;
       }
     });
@@ -149,10 +164,10 @@ export class IndicatorRadarComponent implements OnInit {
       this.radarChart.showLoading();
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
       this.activeTab = 0;
-      if (this.exchangeData.selectedIndicator.creationType == "COMPUTATION") {
+      if (this.dataExchangeService.selectedIndicator.creationType == "COMPUTATION") {
           this.activeTab = 1;
       }
-      if (this.exchangeData.selectedIndicator.isHeadlineIndicator) {
+      if (this.dataExchangeService.selectedIndicator.isHeadlineIndicator) {
           this.activeTab = 2;
       }
       this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
@@ -201,7 +216,7 @@ export class IndicatorRadarComponent implements OnInit {
               // make object to hold indicatorName, max value and average value
               let indicatorProperties = indicatorsForRadar[i].indicatorProperties;
               if (this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0) {
-                  indicatorProperties = indicatorProperties.filter(featureProperties => !this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[window.window.__env.FEATURE_ID_PROPERTY_NAME]));
+                  indicatorProperties = indicatorProperties.filter(featureProperties => !this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));
               }
               sampleProperties = indicatorsForRadar[i].indicatorProperties;
               // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], this.date);
@@ -230,8 +245,13 @@ export class IndicatorRadarComponent implements OnInit {
               // IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
               // HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
               // if(valueSum != null){
+
+              var name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
+              if(this.indicatorNames_shortVersion && (indicatorsForRadar[i].indicatorMetadata.abbreviation!='' && indicatorsForRadar[i].indicatorMetadata.abbreviation!=null && indicatorsForRadar[i].indicatorMetadata.abbreviation!=undefined))
+                name = indicatorsForRadar[i].indicatorMetadata.abbreviation
+
               indicatorArrayForRadarChart.push({
-                  name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
+                  name: name + " - " + indicatorsForRadar[i].selectedDate,
                   unit: indicatorsForRadar[i].indicatorMetadata.unit,
 									precision: indicatorsForRadar[i].indicatorMetadata.precision,
                   max: maxValue,
@@ -269,7 +289,7 @@ export class IndicatorRadarComponent implements OnInit {
                   left: '4%',
                   top: 0,
                   right: '4%',
-                  bottom: 30,
+                  bottom: 50,
                   containLabel: true
               },
               title: {
@@ -296,7 +316,7 @@ export class IndicatorRadarComponent implements OnInit {
                   feature: {
                       // mark : {show: true},
                       dataView: {
-                          show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+                          show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
                               // 	<table class="table table-condensed table-hover">
                               // 	<thead>
                               // 		<tr>
@@ -343,14 +363,9 @@ export class IndicatorRadarComponent implements OnInit {
                       saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
                   }
               },
-              legend: {
-                  type: "scroll",
-                  bottom: 0,
-                  align: 'left',
-                  left: 5,
-                  data: ['Arithmetisches Mittel']
-              },
               radar: {
+                radius: '55%',
+                center: ['50%', '45%'],
                   // shape: 'circle',
                   // name: {
                   //     textStyle: {
@@ -360,16 +375,16 @@ export class IndicatorRadarComponent implements OnInit {
                   //         padding: [3, 5]
                   //    }
                   // },
-                  name: {
-                      formatter: (value, indicator) => {
-                          return this.dataExchangeService.formatIndicatorNameForLabel(value, 15);
-                      },
-                      textStyle: {
-                          color: '#525252'
-                      },
-                      fontSize: 11
-                  },
-                  indicator: indicatorArrayForRadarChart
+                name: {
+                    formatter: (value, indicator) => {
+                        return this.dataExchangeService.formatIndicatorNameForLabel(value, 15);
+                    },
+                    textStyle: {
+                        color: '#525252'
+                    },
+                    fontSize: 11
+                },
+                indicator: indicatorArrayForRadarChart
               },
               series: [{
                       name: 'Indikatorvergleich',
@@ -401,6 +416,26 @@ export class IndicatorRadarComponent implements OnInit {
                   }]
           };
 
+          // set legend either in scroll or plain mode for print layout (scroll is not beeing displayed in print version)
+          if(this.printLayout)
+            this.radarOption.legend = {
+              orient: 'horizontal',
+              type: 'plain',
+              bottom: 0,
+              width: '80%',
+              align: 'left',
+              left: 5,
+              data: ['Arithmetisches Mittel']
+            }
+          else
+            this.radarOption.legend = {
+              type: "scroll",
+              bottom: 0,
+              align: 'left',
+              left: 5,
+              data: ['Arithmetisches Mittel']
+            }
+
           // check if any feature is still clicked/selected
           // then append those as series within radar chart
           this.appendSelectedFeaturesIfNecessary(sampleProperties);
@@ -419,7 +454,7 @@ export class IndicatorRadarComponent implements OnInit {
 
   appendSelectedFeaturesIfNecessary(sampleProperties) {
       for (var propertiesInstance of sampleProperties) {
-          if (this.filterHelperService.featureIsCurrentlySelected(propertiesInstance[window.__env.FEATURE_ID_PROPERTY_NAME])) {
+          if (this.filterHelperService.featureIsCurrentlySelected(propertiesInstance[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               this.appendSeriesToRadarChart(propertiesInstance);
           }
       }
@@ -457,22 +492,72 @@ export class IndicatorRadarComponent implements OnInit {
   }
 
   onUpdateDiagramsForHoveredFeature([featureProperties]) {
-
       if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
           return;
       }
-      if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-          this.appendSeriesToRadarChart(featureProperties);
+
+      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+      if (legendIndex === -1) {
+        if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
+            console.log("Feature append");
+            this.appendSeriesToRadarChart(featureProperties);
+        }
       }
       this.highlightFeatureInRadarChart(featureProperties);
   }
 
+  onChangeIndicatorNames() {
+            
+    // indicator names changes to abbreviation
+    this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+  }
+
+  onChangePrintLayout() {
+
+    // layout change to legend in plain iso scroll mode
+    this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+
+    this.checkResizeRadarChart();
+
+    setTimeout(() => {
+      this.radarChart.resize();
+    }, 350);
+  }
+
+  checkResizeRadarChart() {
+
+    // only adjust if printLayout (e.g. legend fully visible)
+    if(this.printLayout) {
+
+      var strLengthTotal = this.radarOption.legend.data.reduce(function (sum, str) {
+                                                                    return sum + str.length;
+                                                                  }, 0);
+
+                                              // 6 pixel for each letter                      35 for each coloured rect
+      var legendLengthTotal = (strLengthTotal * 6) + (this.radarOption.legend.data.length * 40);
+      let elem = document.getElementById('radarDiagram');
+
+      if(elem) {
+        var boxWidthTotal = elem.clientWidth;
+        var numLines = Math.ceil( legendLengthTotal / boxWidthTotal );
+
+                                          // 5 vh for each line, rough estimate
+        this.radarHeight = (55 + (numLines * 8)) + 'vh';
+      }
+    } else
+      this.radarHeight = this.radarheight_defaultNum + 'vh';
+  }
+
   appendSeriesToRadarChart(featureProperties) {
       // append feature name to legend
-      this.radarOption.legend.data.push(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      this.radarOption.legend.data.push(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+      
+      // check resize radar div based on legend entries (for printLayout)
+      this.checkResizeRadarChart();
+
       // create feature data series
       var featureSeries:any = {};
-      featureSeries.name = featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME];
+      featureSeries.name = featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       featureSeries.value = new Array();
       featureSeries.emphasis = {
           lineStyle: {
@@ -494,7 +579,7 @@ export class IndicatorRadarComponent implements OnInit {
               var indicatorProperties = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
               var date = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
               for (var indicatorPropertyInstance of indicatorProperties) {
-                  if (indicatorPropertyInstance[window.__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]) {
+                  if (indicatorPropertyInstance[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
                       if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
                           featureSeries.value.push(this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
                       }
@@ -515,60 +600,72 @@ export class IndicatorRadarComponent implements OnInit {
   }
 
   highlightFeatureInRadarChart(featureProperties) {
-      // highlight the corresponding bar diagram item
-      // get series index of series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
-      if (dataIndex > -1) {
-          this.radarChart.dispatchAction({
-              type: 'highlight',
-              seriesIndex: 0,
-              dataIndex: dataIndex
-          });
-      }
+    // highlight the corresponding bar diagram item
+    // get series index of series
+    var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    if (dataIndex > -1) {
+        this.radarChart.dispatchAction({
+            type: 'highlight',
+            seriesIndex: 0,
+            dataIndex: dataIndex
+        });
+    }
   }
 
   onUpdateDiagramsForUnhoveredFeature([featureProperties]) {
-      if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
-          return;
-      }
-      this.unhighlightFeatureInRadarChart(featureProperties);
-      if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[window.__env.FEATURE_ID_PROPERTY_NAME])) {
-          this.removeSeriesFromRadarChart(featureProperties);
-      }
+    if (!this.radarChart || !this.radarOption || !this.radarOption.legend || !this.radarOption.series) {
+        return;
+    }
+    this.unhighlightFeatureInRadarChart(featureProperties);
+    if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
+        this.removeSeriesFromRadarChart(featureProperties);
+    }
   }
 
   getSeriesDataIndexByFeatureName(featureName) {
-      for (var index = 0; index < this.radarOption.series[0].data.length; index++) {
-          if (this.radarOption.series[0].data[index].name == featureName)
-              return index;
-      }
-      //return -1 if none was found
-      return -1;
+    for (var index = 0; index < this.radarOption.series[0].data.length; index++) {
+        if (this.radarOption.series[0].data[index].name == featureName)
+            return index;
+    }
+    //return -1 if none was found
+    return -1;
   }
 
   removeSeriesFromRadarChart(featureProperties) {
       // remove feature from legend
-      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
-      if (legendIndex > -1) {
-          this.radarOption.legend.data.splice(legendIndex, 1);
-      }
-      // remove feature data series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
-      if (dataIndex > -1) {
-          this.radarOption.series[0].data.splice(dataIndex, 1);
-      }
-      // second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
-      this.radarChart.setOption(this.radarOption, true);
-      setTimeout( () => {
-          this.radarChart.resize();
-      }, 350);
-      this.registerEventsIfNecessary();
+      var targetIndices: number[] = [];  
+      this.radarOption.legend.data.forEach((val: any, index: number) => {
+        if (val === featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
+            targetIndices.push(index);
+        }
+      });
+
+      // check resize radar div based on legend entries (for printLayout)
+      this.checkResizeRadarChart();
+      
+      targetIndices.forEach(legendIndex => {
+        if (legendIndex > -1) {
+            this.radarOption.legend.data.splice(legendIndex, 1);
+        }
+        // remove feature data series
+        var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+        if (dataIndex > -1) {
+            this.radarOption.series[0].data.splice(dataIndex, 1);
+        }
+        // second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
+        this.radarChart.setOption(this.radarOption, true);
+        setTimeout( () => {
+            this.radarChart.resize();
+        }, 350);
+        this.registerEventsIfNecessary();
+      });
+
   }
   
   unhighlightFeatureInRadarChart(featureProperties) {
       // highlight the corresponding bar diagram item
       // get series index of series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[window.__env.FEATURE_NAME_PROPERTY_NAME]);
+      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       if (dataIndex > -1) {
           this.radarChart.dispatchAction({
               type: 'downplay',

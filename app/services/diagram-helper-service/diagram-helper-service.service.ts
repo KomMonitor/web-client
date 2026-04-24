@@ -1,8 +1,10 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Inject, Injectable } from '@angular/core';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { LabelService } from 'services/label-service/label.service';
 import { HttpClient } from '@angular/common/http';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import * as ecStat from 'echarts-stat';
@@ -16,21 +18,16 @@ export class DiagramHelperServiceService {
   indicatorPropertiesForCurrentSpatialUnitAndTime;
   filterSameUnitAndSameTime = false;
 
-  INDICATOR_DATE_PREFIX = window.__env.indicatorDatePrefix;
-  defaultColorForHoveredFeatures = window.__env.defaultColorForHoveredFeatures;
-  defaultColorForClickedFeatures = window.__env.defaultColorForClickedFeatures;
+  private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
+  private defaultColorForClickedFeatures = this.envConfigService.defaultColorForClickedFeatures;
 
-  numberOfDecimals = window.__env.numberOfDecimals;
-  defaultColorForZeroValues = window.__env.defaultColorForZeroValues;
-  defaultColorForNoDataValues = window.__env.defaultColorForNoDataValues;
-  defaultColorForFilteredValues = window.__env.defaultColorForFilteredValues;
+  private numberOfDecimals = this.envConfigService.numberOfDecimals;
+  private defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
+  private defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
+  private defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
 
-  defaultColorForOutliers_high = window.__env.defaultColorForOutliers_high;
-  defaultBorderColorForOutliers_high = window.__env.defaultBorderColorForOutliers_high;
-  defaultFillOpacityForOutliers_high = window.__env.defaultFillOpacityForOutliers_high;
-  defaultColorForOutliers_low = window.__env.defaultColorForOutliers_low;
-  defaultBorderColorForOutliers_low = window.__env.defaultBorderColorForOutliers_low;
-  defaultFillOpacityForOutliers_low = window.window.__env.defaultFillOpacityForOutliers_low;
+  private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
+  private defaultColorForOutliers_low = this.envConfigService.defaultColorForOutliers_low;
 
   indicatorPropertyName = "";
 
@@ -41,16 +38,14 @@ export class DiagramHelperServiceService {
   regressionChartOptions = {};
   geoMapChartOptions = {};
 
-  exchangeData!: DataExchange;
-
   public constructor(
     private broadcastService: BroadcastService,
     private dataExchangeService: DataExchangeService,
     private filterHelperService: FilterHelperService,
-    private http: HttpClient
-  ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
-  }
+    private http: HttpClient,
+    private labelService: LabelService,
+    private envConfigService: EnvConfigService
+  ) { }
 
   setCustomFontFamily() {
   
@@ -135,8 +130,8 @@ export class DiagramHelperServiceService {
 
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
-    this.exchangeData.displayableIndicators.forEach(indicatorMetadata => {
-      let targetYear = this.exchangeData.selectedDate.split("-")[0];
+    this.dataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
+      let targetYear = this.dataExchangeService.selectedDate.split("-")[0];
       let indicatorCandidateYears:any = []
       indicatorMetadata.applicableDates.forEach((date, i) => {
         indicatorCandidateYears.push(date.split("-")[0]);
@@ -154,7 +149,7 @@ export class DiagramHelperServiceService {
       //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
       // }
       
-      if (indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName === this.exchangeData.selectedSpatialUnit.spatialUnitLevel)) {
+      if (indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName === this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
         var canBeAdded = true;
 
         if(filterBySameUnitAndSameTime){
@@ -195,7 +190,7 @@ export class DiagramHelperServiceService {
   }
 
   setIndicatorProperties(index) {
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId + "/" + this.exchangeData.selectedSpatialUnit.spatialUnitId + "/without-geometry";
+    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId + "/" + this.dataExchangeService.selectedSpatialUnit.spatialUnitId + "/without-geometry";
     return this.http.get(url).subscribe({
       next: (response:any) => {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = response;
@@ -228,16 +223,16 @@ export class DiagramHelperServiceService {
     if(this.dataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])){
       color = this.defaultColorForNoDataValues;
     }
-    else if(this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME])){
+    else if(this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])){
       color = this.defaultColorForFilteredValues;
     }
-    else if(this.exchangeData.classifyZeroSeparately && this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
+    else if(this.envConfigService.classifyZeroSeparately && this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
       color = this.defaultColorForZeroValues;
     }
-    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.exchangeData.useOutlierDetectionOnIndicator){
+    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.envConfigService.useOutlierDetectionOnIndicator){
       color = this.defaultColorForOutliers_low;
     }
-    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.exchangeData.useOutlierDetectionOnIndicator){
+    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.envConfigService.useOutlierDetectionOnIndicator){
       color = this.defaultColorForOutliers_high;
     }
     else if(isMeasureOfValueChecked){
@@ -266,7 +261,7 @@ export class DiagramHelperServiceService {
 
         if(this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
           if(this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-            if(this.exchangeData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
+            if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
               //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
@@ -277,7 +272,7 @@ export class DiagramHelperServiceService {
             }
           }
           else{
-            if(this.exchangeData.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
+            if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
               //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
@@ -301,8 +296,8 @@ export class DiagramHelperServiceService {
 
     var propertyName = date;
 
-    if(! propertyName.includes(this.exchangeData.indicatorDatePrefix)){
-      propertyName = this.exchangeData.indicatorDatePrefix + propertyName;
+    if(! propertyName.includes(this.dataExchangeService.indicatorDatePrefix)){
+      propertyName = this.dataExchangeService.indicatorDatePrefix + propertyName;
     }
 
     var containsNegativeValues = false;
@@ -403,7 +398,7 @@ export class DiagramHelperServiceService {
         indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
       }
 
-      var featureName = cartographicFeature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME]
+      var featureName = cartographicFeature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]
       featureNamesArray.push(featureName);
       indicatorValueArray.push(indicatorValue);
 
@@ -462,8 +457,8 @@ export class DiagramHelperServiceService {
   
     let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
-    if(!forceUseSubmittedIndicatorForTimeseries && this.exchangeData.isBalanceChecked){
-      indicatorMetadataForTimeseries = this.exchangeData.selectedIndicator;
+    if(!forceUseSubmittedIndicatorForTimeseries && this.dataExchangeService.isBalanceChecked){
+      indicatorMetadataForTimeseries = this.dataExchangeService.selectedIndicator;
     }
     // we must use the original selectedIndicator in case balance mode is active
     // otherwise balance timestamp will have balance values          
@@ -552,12 +547,11 @@ export class DiagramHelperServiceService {
       }
     }
 
-    if (! regionalMeanValueUsed && this.exchangeData.configMeanDataDisplay == 'regionalMeanOrNone'){
+    if (! regionalMeanValueUsed && this.dataExchangeService.configMeanDataDisplay == 'regionalMeanOrNone'){
       enableHorizontalMeanLine = false;
     }
 
     // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
-
     this.setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date);
 
     this.setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine);
@@ -570,7 +564,7 @@ export class DiagramHelperServiceService {
   setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach(feature => {
-      feature.properties.name= feature.properties[this.exchangeData.FEATURE_NAME_PROPERTY_NAME];
+      feature.properties.name= feature.properties[this.dataExchangeService.FEATURE_NAME_PROPERTY_NAME];
     });
 
     var uniqueMapRef = 'geoMapChart';
@@ -654,7 +648,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
 
               var dataTableId = "geoMapDataTable_" + Math.random();
               var tableExportName = indicatorMetadataAndGeoJSON.indicatorName + " - " + opt.title[0].text;
@@ -741,7 +735,7 @@ export class DiagramHelperServiceService {
 
     // specify chart configuration item and data
     var labelOption_singleBars = {
-      show: this.exchangeData.showBarChartLabel,
+      show: this.envConfigService.showBarChartLabel,
         position: 'insideBottom',
         align: 'left',
         verticalAlign: 'middle',
@@ -806,7 +800,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
 
               var barData = opt.series[0].data;
               var featureNames = opt.xAxis[0].data;
@@ -974,7 +968,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
 
               // 	<table class="table table-condensed table-hover">
               // 	<thead>
@@ -1075,7 +1069,7 @@ export class DiagramHelperServiceService {
 
 
     let meanLine = {
-      name: this.exchangeData.rankingChartAverageLabel,
+      name: this.labelService.rankingChartAverageLabel,
       type: 'line',
       data: indicatorTimeSeriesAverageArray,
       symbolSize: 6,
@@ -1096,7 +1090,7 @@ export class DiagramHelperServiceService {
     };
 
     let regionalMeanLine = {
-      name: this.exchangeData.rankingChartRegionalReferenceValueLabel,
+      name: this.labelService.rankingChartRegionalReferenceValueLabel,
       type: 'line',
       symbolSize: 8,
       symbol: "circle",
@@ -1121,13 +1115,13 @@ export class DiagramHelperServiceService {
     // only add regional mean line if it contains at least one meaningful entry
     if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
       lineOption.series.push(regionalMeanLine);
-      lineOption.legend.data.push(this.exchangeData.rankingChartRegionalReferenceValueLabel);
+      lineOption.legend.data.push(this.labelService.rankingChartRegionalReferenceValueLabel);
       regionalMeanUsed = true;
     }
 
-    if(this.exchangeData.configMeanDataDisplay == "both" || (regionalMeanUsed == false && this.exchangeData.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
+    if(this.dataExchangeService.configMeanDataDisplay == "both" || (regionalMeanUsed == false && this.dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
       lineOption.series.push(meanLine);
-      lineOption.legend.data.push(this.exchangeData.rankingChartAverageLabel);
+      lineOption.legend.data.push(this.labelService.rankingChartAverageLabel);
     }     
 
     // SETTING FOR MIN AND MAX STACK
@@ -1293,7 +1287,7 @@ export class DiagramHelperServiceService {
 
     let outliers = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => feature.properties["outlier"] !== undefined);
 
-    if (this.exchangeData.useOutlierDetectionOnIndicator && outliers.length > 0){
+    if (this.envConfigService.useOutlierDetectionOnIndicator && outliers.length > 0){
       outliers.sort((a,b) => this.compareFeaturesByIndicatorValue(a,b));
       let smallestValue = outliers[0].properties[this.indicatorPropertyName];
       let highestValue = outliers[outliers.length - 1].properties[this.indicatorPropertyName];
@@ -1518,8 +1512,8 @@ export class DiagramHelperServiceService {
 
     var propertyName = date;
 
-    if(! propertyName.includes(this.exchangeData.indicatorDatePrefix)){
-      propertyName = this.exchangeData.indicatorDatePrefix + propertyName;
+    if(! propertyName.includes(this.dataExchangeService.indicatorDatePrefix)){
+      propertyName = this.dataExchangeService.indicatorDatePrefix + propertyName;
     }
 
     var containsZeroValues = false;
@@ -1546,8 +1540,8 @@ export class DiagramHelperServiceService {
   };
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (var feature of this.exchangeData.selectedIndicator.geoJSON.features) {
-      if (feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
+    for (var feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
         return feature.properties;
       }
     }
@@ -1590,7 +1584,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet ' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet ' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
 
               var poiData = opt.series[0].data;
 
@@ -1709,9 +1703,9 @@ export class DiagramHelperServiceService {
 
       // add markedAreas for periods out of scope
 
-      var fromDateString = fromDateAsPropertyString.split(window.__env.indicatorDatePrefix)[1];
+      var fromDateString = fromDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
       var fromDate_date = new Date(fromDateString);
-      var toDateString = toDateAsPropertyString.split(window.__env.indicatorDatePrefix)[1];
+      var toDateString = toDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
       var toDate_date = new Date(toDateString);
       
       if(showCompleteTimeseries){
@@ -1735,9 +1729,7 @@ export class DiagramHelperServiceService {
       }          
 
       // hide data points
-      timeseriesOptions.series[0].itemStyle.normal.opacity = 0;
-      timeseriesOptions.series[0].lineStyle.normal.width = 3;
-      timeseriesOptions.series[0].lineStyle.normal.type = "solid";  
+      timeseriesOptions.series[0].itemStyle = {opacity: 0, width: 3, type: "solid"};  
       
       var trendData:any = [];
 

@@ -1,9 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { GeoresourcesTopicsHierarchy } from 'components/ngComponents/models/georesources.models';
 import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
 
 @Pipe({
     name: 'geoFavFilter',
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class GeoFavFilter implements PipeTransform {
 
@@ -11,7 +13,7 @@ export class GeoFavFilter implements PipeTransform {
     private poiComponent: PoiComponent
   ) {}
 
-  transform(topics:any, favItems: any): any {
+  transform(topics:GeoresourcesTopicsHierarchy[]): any {
     if (!topics) {
         return topics;
     }

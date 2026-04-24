@@ -1,74 +1,117 @@
-import { Component, Inject, OnInit, NgZone, OnDestroy, ViewChild } from '@angular/core';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DOCUMENT } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridReadyEvent, RowNode, SelectionChangedEvent } from 'ag-grid-community';
-import { KommonitorIndicatorDataExchangeService } from 'services/adminIndicatorUnit/kommonitor-data-exchange.service';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
-import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
-import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
-import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
-import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { WmsResourceType } from "./../../models/services.models";
+import { WmsSharedComponentsService } from "components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service";
+import {
+  Component,
+  Inject,
+  OnInit,
+  NgZone,
+  OnDestroy,
+  ViewChild,
+} from "@angular/core";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { CommonModule, DOCUMENT } from "@angular/common";
+import { Subscription } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { AgGridAngular } from "ag-grid-angular";
+import {
+  ColDef,
+  GridOptions,
+  GridReadyEvent,
+  RowNode,
+  SelectionChangedEvent,
+} from "ag-grid-community";
+import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
+import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
+import { IndicatorAddModalComponent } from "./indicatorAddModal/indicator-add-modal.component";
+import { IndicatorEditMetadataModalComponent } from "./indicatorEditMetadataModal/indicator-edit-metadata-modal.component";
+import { IndicatorEditFeaturesModalComponent } from "./indicatorEditFeaturesModal/indicator-edit-features-modal.component";
+import { IndicatorDeleteModalComponent } from "./indicatorDeleteModal/indicator-delete-modal.component";
+import { IndicatorBatchUpdateModalComponent } from "./indicatorBatchUpdateModal/indicator-batch-update-modal.component";
+import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { WmsAdminTableComponent } from "components/ngComponents/common/wms-admin-table/wms-admin-table.component";
+import { FormsModule } from "@angular/forms";
+import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
+import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
 
 declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'admin-indicators-management-new',
-  templateUrl: './admin-indicators-management.component.html',
-  styleUrls: ['./admin-indicators-management.component.css']
+  selector: "admin-indicators-management",
+  templateUrl: "./admin-indicators-management.component.html",
+  styleUrls: ["./admin-indicators-management.component.css"],
+  imports: [
+    ExpandableBoxComponent,
+    AgGridAngular,
+    WmsAdminTableComponent,
+    FormsModule,
+    CommonModule,
+    AdminContentViewComponent,
+    NgbDropdownModule,
+  ],
+  standalone: true,
 })
 export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
-
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
   public loadingData: boolean = true;
   public initializationCompleted: boolean = false;
   public tableViewSwitcher: boolean = false;
   public selectIndicatorEntriesInput: boolean = false;
-  
+
   // AG Grid properties
   public columnDefs: ColDef[] = [];
   public rowData: any[] = [];
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
 
+  resourceType: WmsResourceType = WmsResourceType.INDICATOR;
+
   // Drag & Drop properties
   public collapsedTopics: Set<string> = new Set();
   public sortableConfig: any = {
     onEnd: (evt: any) => {
       const updatedIndicatorMetadataEntries = evt.models;
-      
+
       // for those models send API request to persist new sort order
-      const patchBody: Array<{indicatorId: string, displayOrder: number}> = [];
-      for (let index = 0; index < updatedIndicatorMetadataEntries.length; index++) {
+      const patchBody: Array<{ indicatorId: string; displayOrder: number }> =
+        [];
+      for (
+        let index = 0;
+        index < updatedIndicatorMetadataEntries.length;
+        index++
+      ) {
         const indicatorMetadata = updatedIndicatorMetadataEntries[index];
-        
+
         patchBody.push({
-          "indicatorId": indicatorMetadata.indicatorId,
-          "displayOrder": index
+          indicatorId: indicatorMetadata.indicatorId,
+          displayOrder: index,
         });
       }
 
-      this.http.patch(
-        this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/display-order",
-        patchBody
-      ).subscribe({
-        next: (response: any) => {
-          // Success - no action needed
-        },
-        error: (error: any) => {
-          this.kommonitorDataExchangeService.displayMapApplicationError(error);
-        }
-      });
-    }
+      this.http
+        .patch(
+          this.envConfigService.baseUrlToKomMonitorDataAPI +
+            "/indicators/display-order",
+          patchBody,
+        )
+        .subscribe({
+          next: (response: any) => {
+            // Success - no action needed
+          },
+          error: (error: any) => {
+            this.dataExchangeService.displayMapApplicationError(
+              error,
+            );
+          },
+        });
+    },
   };
   private subscriptions: Subscription[] = [];
+
+  WmsResourceType = WmsResourceType;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -76,33 +119,35 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private http: HttpClient,
-    public kommonitorDataExchangeService: KommonitorIndicatorDataExchangeService,
     private kommonitorCacheHelperService: KommonitorIndicatorCacheHelperService,
-    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService
+    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
+    protected wmsSharedComponentsService: WmsSharedComponentsService,
+    private envConfigService: EnvConfigService,
+    private dataExchangeService: DataExchangeService
   ) {}
 
   ngOnInit(): void {
     // Initialize any adminLTE box widgets
-    (window as any).$('.box').boxWidget();
-    
+    //(window as any).$('.box').boxWidget();
+
     // Make component available globally for debugging
     (window as any).adminIndicatorsComponent = this;
-    
+
     // Try to load data if not already available
     this.ensureDataLoaded();
-    
+
     this.initializeOrRefreshOverviewTable();
     this.setupEventListeners();
-    
+
     // Add polling mechanism to check for data availability
     this.startDataPolling();
-    
+
     // Add a fallback timeout to prevent infinite loading
     setTimeout(() => {
       if (this.loadingData) {
         this.ensureDataLoaded();
         this.initializeOrRefreshOverviewTable();
-        
+
         // If still no data after fallback, stop loading anyway
         const filteredIndicators = this.getFilteredIndicators();
         if (!filteredIndicators || filteredIndicators.length === 0) {
@@ -115,29 +160,37 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   private async ensureDataLoaded(): Promise<void> {
     // If no indicators are available, try to fetch them
-    if (!this.kommonitorDataExchangeService.availableIndicators || 
-        this.kommonitorDataExchangeService.availableIndicators.length === 0) {
+    if (
+      !this.dataExchangeService.availableIndicators ||
+      this.dataExchangeService.availableIndicators.length === 0
+    ) {
       try {
-        await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles
+        await this.dataExchangeService.fetchIndicatorsMetadata(
+          this.dataExchangeService.currentKeycloakLoginRoles
         );
         // Force refresh the table after data is loaded
         setTimeout(() => {
           this.forceRefreshGrid();
         }, 100);
       } catch (error) {
-        console.error('Error fetching indicators:', error);
+        console.error("Error fetching indicators:", error);
       }
     }
   }
 
   private forceRefreshGrid(): void {
     const indicators = this.getFilteredIndicators();
-    
+
     if (indicators && indicators.length > 0) {
-      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
-      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
-      
+      this.columnDefs =
+        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(
+          indicators,
+        );
+      this.rowData =
+        this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(
+          indicators,
+        );
+
       // Update the grid if it's ready
       if (this.agGrid && this.agGrid.api) {
         this.agGrid.api.setRowData(this.rowData);
@@ -150,8 +203,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+
     // Clean up global reference
     if ((window as any).adminIndicatorsComponent === this) {
       delete (window as any).adminIndicatorsComponent;
@@ -160,8 +213,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   private setupEventListeners(): void {
     // Listen for the global metadata loading completion event
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe(data => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
+    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
+      if (data.msg === "initialMetadataLoadingCompleted") {
         this.zone.run(() => {
           setTimeout(() => {
             this.initializeOrRefreshOverviewTable();
@@ -169,13 +222,11 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.initializeCollapsedTopics();
           }, 250);
         });
-      }
-      else if (data.msg === 'initialMetadataLoadingFailed') {
+      } else if (data.msg === "initialMetadataLoadingFailed") {
         this.zone.run(() => {
           this.loadingData = false;
         });
-      }
-      else if (data.msg === 'refreshIndicatorOverviewTable') {
+      } else if (data.msg === "refreshIndicatorOverviewTable") {
         this.zone.run(() => {
           this.loadingData = true;
           // Extract crudType and targetIndicatorId from the broadcast data
@@ -185,25 +236,24 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         });
       }
       // Handle grid button click events
-      else if (data.msg === 'onEditIndicatorMetadata') {
+      else if (data.msg === "onEditIndicatorMetadata") {
         this.zone.run(() => {
           this.onClickEditMetadata(data.values);
         });
-      }
-      else if (data.msg === 'onEditIndicatorFeatures') {
+      } else if (data.msg === "onEditIndicatorFeatures") {
         this.zone.run(() => {
           this.onClickEditFeatures(data.values);
         });
-      }
-      else if (data.msg === 'onEditIndicatorSpatialUnitRoles') {
+      } else if (data.msg === "onEditIndicatorSpatialUnitRoles") {
         this.zone.run(() => {
           this.onClickEditIndicatorSpatialUnitRoles(data.values);
         });
-      }
-      else if (data.msg === 'onDeleteIndicators') {
+      } else if (data.msg === "onDeleteIndicators") {
         this.zone.run(() => {
           // Ensure data.values is an array for delete operation
-          const datasetsToDelete = Array.isArray(data.values) ? data.values : [data.values];
+          const datasetsToDelete = Array.isArray(data.values)
+            ? data.values
+            : [data.values];
           this.onClickDeleteIndicators(datasetsToDelete);
         });
       }
@@ -230,38 +280,62 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     };
 
     // Add event listeners
-    document.addEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
-    document.addEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
-    document.addEventListener('onEditIndicatorSpatialUnitRoles', handleEditUserRoles as EventListener);
+    document.addEventListener(
+      "onEditIndicatorMetadata",
+      handleEditMetadata as EventListener,
+    );
+    document.addEventListener(
+      "onEditIndicatorFeatures",
+      handleEditFeatures as EventListener,
+    );
+    document.addEventListener(
+      "onEditIndicatorSpatialUnitRoles",
+      handleEditUserRoles as EventListener,
+    );
 
     // Store references for cleanup
     const customEventSubscription = {
       unsubscribe: () => {
-        document.removeEventListener('onEditIndicatorMetadata', handleEditMetadata as EventListener);
-        document.removeEventListener('onEditIndicatorFeatures', handleEditFeatures as EventListener);
-        document.removeEventListener('onEditIndicatorSpatialUnitRoles', handleEditUserRoles as EventListener);
-      }
+        document.removeEventListener(
+          "onEditIndicatorMetadata",
+          handleEditMetadata as EventListener,
+        );
+        document.removeEventListener(
+          "onEditIndicatorFeatures",
+          handleEditFeatures as EventListener,
+        );
+        document.removeEventListener(
+          "onEditIndicatorSpatialUnitRoles",
+          handleEditUserRoles as EventListener,
+        );
+      },
     } as any;
     this.subscriptions.push(customEventSubscription);
   }
 
   public initializeOrRefreshOverviewTable(): void {
     const indicators = this.getFilteredIndicators();
-    
+
     if (indicators && indicators.length > 0) {
       this.loadingData = false;
       this.initializationCompleted = true;
-      
+
       // Initialize all topics as collapsed
       this.initializeCollapsedTopics();
-      
+
       // Set up grid options first
       this.setupGridOptions(indicators);
-      
+
       // Use the data grid helper service to build column definitions and row data
-      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(indicators);
-      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(indicators);
-      
+      this.columnDefs =
+        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_indicators(
+          indicators,
+        );
+      this.rowData =
+        this.kommonitorDataGridHelperService.buildDataGridRowData_indicators(
+          indicators,
+        );
+
       // Force change detection
       setTimeout(() => {
         if (this.agGrid && this.agGrid.api) {
@@ -289,13 +363,13 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         resizable: true,
         wrapText: true,
         autoHeight: true,
-        cellStyle: { 
-          'font-size': '12px;', 
-          'white-space': 'normal !important', 
-          "line-height": "20px !important", 
-          "word-break": "break-word !important", 
-          "padding-top": "17px", 
-          "padding-bottom": "17px" 
+        cellStyle: {
+          "font-size": "12px;",
+          "white-space": "normal !important",
+          "line-height": "20px !important",
+          "word-break": "break-word !important",
+          "padding-top": "17px",
+          "padding-bottom": "17px",
         },
         headerComponentParams: {
           template:
@@ -308,19 +382,20 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
             '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
             '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-            '  </div>' +
-            '</div>',
+            "  </div>" +
+            "</div>",
         },
       },
       components: {
-        displayEditButtons_indicators: this.kommonitorDataGridHelperService.displayEditButtons_indicators
+        displayEditButtons_indicators:
+          this.kommonitorDataGridHelperService.displayEditButtons_indicators,
       },
       enableCellTextSelection: true,
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
       suppressColumnVirtualisation: true,
-      rowSelection: 'multiple',
+      rowSelection: "multiple",
       suppressRowClickSelection: true,
       onGridReady: (params: GridReadyEvent) => {
         this.onGridReady(params);
@@ -339,7 +414,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       },
       onSelectionChanged: (event: SelectionChangedEvent) => {
         this.onSelectionChanged(event);
-      }
+      },
     };
   }
 
@@ -351,8 +426,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       params.api.setColumnDefs(this.columnDefs);
     } else {
       // If no data is available, try to load it
-      if (!this.kommonitorDataExchangeService.availableIndicators || 
-          this.kommonitorDataExchangeService.availableIndicators.length === 0) {
+      if (
+        !this.dataExchangeService.availableIndicators ||
+        this.dataExchangeService.availableIndicators.length === 0
+      ) {
         this.ensureDataLoaded();
       } else {
         this.forceRefreshGrid();
@@ -360,21 +437,22 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFirstDataRendered(): void {
-  }
+  onFirstDataRendered(): void {}
 
   onColumnResized(): void {
     // Column resized
   }
 
   onModelUpdated(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+    this.kommonitorDataGridHelperService.registerClickHandler_indicators(
+      indicatorMetadataArray,
+    );
   }
 
-
-
   onViewportChanged(indicatorMetadataArray: any[]): void {
-    this.kommonitorDataGridHelperService.registerClickHandler_indicators(indicatorMetadataArray);
+    this.kommonitorDataGridHelperService.registerClickHandler_indicators(
+      indicatorMetadataArray,
+    );
     setTimeout(() => {
       // MathJax rendering if available
       if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
@@ -390,11 +468,19 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private getFilteredIndicators(): any[] {
-    const allIndicators = this.kommonitorDataExchangeService.availableIndicators;
-    
+    const allIndicators =
+      this.dataExchangeService.availableIndicators;
+
     if (this.tableViewSwitcher) {
       // Filter out indicators where user only has viewer permission
-      const filtered = allIndicators.filter(e => !(e.userPermissions && e.userPermissions.length === 1 && e.userPermissions.includes('viewer')));
+      const filtered = allIndicators.filter(
+        (e) =>
+          !(
+            e.userPermissions &&
+            e.userPermissions.length === 1 &&
+            e.userPermissions.includes("viewer")
+          ),
+      );
       return filtered;
     } else {
       return allIndicators;
@@ -428,86 +514,107 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   onClickAddIndicator(): void {
     try {
       const modalRef = this.modalService.open(IndicatorAddModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
+        backdrop: true,
         keyboard: false,
-        container: 'body',
-        animation: false
+        container: "body",
+        animation: false,
+        modalDialogClass: "modal-large",
+        windowClass: "modal-large",
       });
 
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            // Modal was closed successfully, refresh the table
+            this.initializeOrRefreshOverviewTable();
+          }
+        })
+        .catch((error) => {
+          // Modal dismissed
+        });
     } catch (error) {
-      console.error('Error opening modal:', error);
+      console.error("Error opening modal:", error);
     }
   }
 
   onClickEditMetadata(indicatorMetadata: any): void {
     try {
-      const modalRef = this.modalService.open(IndicatorEditMetadataModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
+      const modalRef = this.modalService.open(
+        IndicatorEditMetadataModalComponent,
+        {
+          size: "lg",
+          backdrop: "static",
+          keyboard: false,
+          container: "body",
+          animation: false,
+        },
+      );
 
       // Set the current indicator dataset in the modal component
-      const modalComponent = modalRef.componentInstance as IndicatorEditMetadataModalComponent;
+      const modalComponent =
+        modalRef.componentInstance as IndicatorEditMetadataModalComponent;
       modalComponent.currentIndicatorDataset = indicatorMetadata;
       modalComponent.resetIndicatorEditMetadataForm();
 
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            // Modal was closed successfully, refresh the table
+            this.initializeOrRefreshOverviewTable();
+          }
+        })
+        .catch((error) => {
+          // Modal dismissed
+        });
     } catch (error) {
-      console.error('Error opening edit metadata modal:', error);
+      console.error("Error opening edit metadata modal:", error);
     }
   }
 
   onClickEditFeatures(indicatorMetadata: any): void {
     try {
-      const modalRef = this.modalService.open(IndicatorEditFeaturesModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
+      const modalRef = this.modalService.open(
+        IndicatorEditFeaturesModalComponent,
+        {
+          size: "lg",
+          backdrop: "static",
+          keyboard: false,
+          container: "body",
+          animation: false,
+        },
+      );
 
-      const modalComponent = modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
+      const modalComponent =
+        modalRef.componentInstance as IndicatorEditFeaturesModalComponent;
       modalComponent.openModal(indicatorMetadata);
 
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            // Modal was closed successfully, refresh the table
+            this.initializeOrRefreshOverviewTable();
+          }
+        })
+        .catch((error) => {
+          // Modal dismissed
+        });
     } catch (error) {
-      console.error('Error opening edit features modal:', error);
+      console.error("Error opening edit features modal:", error);
     }
   }
 
   onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
     try {
       // Broadcast the event to open the modal
-      this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+      this.broadcastService.broadcast(
+        "onEditIndicatorSpatialUnitRoles",
+        indicatorMetadata,
+      );
     } catch (error) {
-      console.error('Error opening edit indicator spatial unit roles modal:', error);
+      console.error(
+        "Error opening edit indicator spatial unit roles modal:",
+        error,
+      );
     }
   }
 
@@ -518,54 +625,62 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     } else {
       // For multiple indicators, we might need to handle differently
       // For now, just open the modal with the first indicator
-      console.log('Multiple indicators delete not yet supported');
+      console.log("Multiple indicators delete not yet supported");
     }
   }
 
   openDeleteIndicatorModal(indicatorDataset: any): void {
     const modalRef = this.modalService.open(IndicatorDeleteModalComponent, {
-      size: 'lg',
-      backdrop: 'static',
+      size: "lg",
+      backdrop: "static",
       keyboard: false,
-      container: 'body',
-      animation: false
+      container: "body",
+      animation: false,
     });
 
     // Set the selected indicator in the modal
     modalRef.componentInstance.selectedIndicatorDataset = indicatorDataset;
     modalRef.componentInstance.onChangeSelectedIndicator();
 
-    modalRef.result.then((result) => {
-      // Delete modal closed with result
-    }).catch((error) => {
-      // Delete modal dismissed
-    });
+    modalRef.result
+      .then((result) => {
+        // Delete modal closed with result
+      })
+      .catch((error) => {
+        // Delete modal dismissed
+      });
   }
 
   onClickBatchUpdate(): void {
     try {
-      const modalRef = this.modalService.open(IndicatorBatchUpdateModalComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        container: 'body',
-        animation: false
-      });
+      const modalRef = this.modalService.open(
+        IndicatorBatchUpdateModalComponent,
+        {
+          size: "lg",
+          backdrop: "static",
+          keyboard: false,
+          container: "body",
+          animation: false,
+        },
+      );
 
       // Pass the modal reference to the component
-      const modalComponent = modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
+      const modalComponent =
+        modalRef.componentInstance as IndicatorBatchUpdateModalComponent;
       modalComponent.modalRef = modalRef;
 
-      modalRef.result.then((result) => {
-        if (result) {
-          // Modal was closed successfully, refresh the table
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch((error) => {
-        // Modal dismissed
-      });
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            // Modal was closed successfully, refresh the table
+            this.initializeOrRefreshOverviewTable();
+          }
+        })
+        .catch((error) => {
+          // Modal dismissed
+        });
     } catch (error) {
-      console.error('Error opening batch update modal:', error);
+      console.error("Error opening batch update modal:", error);
     }
   }
 
@@ -592,51 +707,80 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  refreshIndicatorOverviewTable(crudType?: string, targetIndicatorId?: string): void {
+  refreshIndicatorOverviewTable(
+    crudType?: string,
+    targetIndicatorId?: string,
+  ): void {
     if (!crudType || !targetIndicatorId) {
       // refetch all metadata from indicators to update table
-      this.kommonitorDataExchangeService.fetchIndicatorsMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+      this.dataExchangeService
+        .fetchIndicatorsMetadata(
+          this.dataExchangeService.currentKeycloakLoginRoles,
+        )
         .then((response: any) => {
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+          this.broadcastService.broadcast(
+            "refreshIndicatorOverviewTableCompleted",
+          );
           this.loadingData = false;
         })
         .catch((response: any) => {
           this.loadingData = false;
-          this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+          this.broadcastService.broadcast(
+            "refreshIndicatorOverviewTableCompleted",
+          );
         });
-    }
-    else if (crudType && targetIndicatorId) {
-      if (crudType === 'add') {
-        this.kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId, this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+    } else if (crudType && targetIndicatorId) {
+      if (crudType === "add") {
+        this.kommonitorCacheHelperService
+          .fetchSingleIndicatorMetadata(
+            targetIndicatorId,
+            this.dataExchangeService.currentKeycloakLoginRoles,
+          )
           .then((data: any) => {
-            this.kommonitorDataExchangeService.addSingleIndicatorMetadata(data);
+            this.dataExchangeService.addSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(
+              "refreshIndicatorOverviewTableCompleted",
+            );
             this.loadingData = false;
           })
           .catch((response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(
+              "refreshIndicatorOverviewTableCompleted",
+            );
           });
-      }
-      else if (crudType === 'edit') {
-        this.kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId, this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
+      } else if (crudType === "edit") {
+        this.kommonitorCacheHelperService
+          .fetchSingleIndicatorMetadata(
+            targetIndicatorId,
+            this.dataExchangeService.currentKeycloakLoginRoles,
+          )
           .then((data: any) => {
-            this.kommonitorDataExchangeService.replaceSingleIndicatorMetadata(data);
+            this.dataExchangeService.replaceSingleIndicatorMetadata(
+              data,
+            );
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(
+              "refreshIndicatorOverviewTableCompleted",
+            );
             this.loadingData = false;
           })
           .catch((response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(
+              "refreshIndicatorOverviewTableCompleted",
+            );
           });
-      }
-      else if (crudType === 'delete') {
-        this.kommonitorDataExchangeService.deleteSingleIndicatorMetadata(targetIndicatorId);
+      } else if (crudType === "delete") {
+        this.dataExchangeService.deleteSingleIndicatorMetadata(
+          targetIndicatorId,
+        );
         this.initializeOrRefreshOverviewTable();
-        this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+        this.broadcastService.broadcast(
+          "refreshIndicatorOverviewTableCompleted",
+        );
         this.loadingData = false;
       }
     }
@@ -644,15 +788,15 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Utility methods
   checkCreatePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkCreatePermission();
+    return this.dataExchangeService.checkCreatePermission();
   }
 
   checkEditorPermission(): boolean {
-    return this.kommonitorDataExchangeService.checkEditorPermission();
+    return this.dataExchangeService.checkEditorPermission();
   }
 
   checkDeletePermission(): boolean {
-    return this.kommonitorDataExchangeService.checkDeletePermission();
+    return this.dataExchangeService.checkDeletePermission();
   }
 
   private startDataPolling(): void {
@@ -660,7 +804,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     const pollInterval = setInterval(() => {
       if (this.loadingData) {
         this.initializeOrRefreshOverviewTable();
-        
+
         // If data is found, stop polling
         if (!this.loadingData) {
           clearInterval(pollInterval);
@@ -670,7 +814,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         clearInterval(pollInterval);
       }
     }, 500);
-    
+
     // Stop polling after 10 seconds regardless
     setTimeout(() => {
       clearInterval(pollInterval);
@@ -683,41 +827,50 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Getter to check if we have topic hierarchy data
   get hasTopicData(): boolean {
-    return this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView && 
-           this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0;
+    return (
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView &&
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView
+        .length > 0
+    );
   }
 
   // Drag & Drop methods
   initializeCollapsedTopics(): void {
     // Clear existing collapsed topics
     this.collapsedTopics.clear();
-    
+
     // Initialize all topics as collapsed by default
-    if (this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView && 
-        this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0) {
-      
-      this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.forEach((mainTopic: any) => {
-        this.collapsedTopics.add(mainTopic.topicId);
-        
-        if (mainTopic.subTopics && mainTopic.subTopics.length > 0) {
-          mainTopic.subTopics.forEach((subTopic: any) => {
-            this.collapsedTopics.add(subTopic.topicId);
-            
-            if (subTopic.subTopics && subTopic.subTopics.length > 0) {
-              subTopic.subTopics.forEach((subsubTopic: any) => {
-                this.collapsedTopics.add(subsubTopic.topicId);
-                
-                if (subsubTopic.subTopics && subsubTopic.subTopics.length > 0) {
-                  subsubTopic.subTopics.forEach((subsubsubTopic: any) => {
-                    this.collapsedTopics.add(subsubsubTopic.topicId);
-                  });
-                }
-              });
-            }
-          });
-        }
-      });
-      
+    if (
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView &&
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView
+        .length > 0
+    ) {
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView.forEach(
+        (mainTopic: any) => {
+          this.collapsedTopics.add(mainTopic.topicId);
+
+          if (mainTopic.subTopics && mainTopic.subTopics.length > 0) {
+            mainTopic.subTopics.forEach((subTopic: any) => {
+              this.collapsedTopics.add(subTopic.topicId);
+
+              if (subTopic.subTopics && subTopic.subTopics.length > 0) {
+                subTopic.subTopics.forEach((subsubTopic: any) => {
+                  this.collapsedTopics.add(subsubTopic.topicId);
+
+                  if (
+                    subsubTopic.subTopics &&
+                    subsubTopic.subTopics.length > 0
+                  ) {
+                    subsubTopic.subTopics.forEach((subsubsubTopic: any) => {
+                      this.collapsedTopics.add(subsubsubTopic.topicId);
+                    });
+                  }
+                });
+              }
+            });
+          }
+        },
+      );
     } else {
       // No topic hierarchy data available yet
     }
@@ -733,23 +886,26 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   isTopicCollapsed(topicId: string): boolean {
     // If topic hierarchy is not loaded yet, assume collapsed
-    if (!this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView || 
-        this.kommonitorDataExchangeService.topicIndicatorHierarchy_forOrderView.length === 0) {
+    if (
+      !this.dataExchangeService.topicIndicatorHierarchy_forOrderView ||
+      this.dataExchangeService.topicIndicatorHierarchy_forOrderView
+        .length === 0
+    ) {
       return true;
     }
-    
+
     // If the collapsedTopics set is empty, initialize it and return true (collapsed by default)
     if (this.collapsedTopics.size === 0) {
       this.initializeCollapsedTopics();
       return true;
     }
-    
+
     return this.collapsedTopics.has(topicId);
   }
 
   onDragEnd(event: any, indicators: any[]): void {
     const { previousIndex, currentIndex } = event;
-    
+
     if (previousIndex === currentIndex) {
       return;
     }
@@ -759,26 +915,29 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     indicators.splice(currentIndex, 0, movedItem);
 
     // Update display order for all indicators in this group
-    const patchBody: Array<{indicatorId: string, displayOrder: number}> = [];
+    const patchBody: Array<{ indicatorId: string; displayOrder: number }> = [];
     for (let index = 0; index < indicators.length; index++) {
       const indicatorMetadata = indicators[index];
       patchBody.push({
-        "indicatorId": indicatorMetadata.indicatorId,
-        "displayOrder": index
+        indicatorId: indicatorMetadata.indicatorId,
+        displayOrder: index,
       });
     }
 
     // Send API request to persist new sort order
-    this.http.patch(
-      this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/display-order",
-      patchBody
-    ).subscribe({
-      next: (response: any) => {
-        // Display order updated successfully
-      },
-      error: (error: any) => {
-        this.kommonitorDataExchangeService.displayMapApplicationError(error);
-      }
-    });
+    this.http
+      .patch(
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
+          "/indicators/display-order",
+        patchBody,
+      )
+      .subscribe({
+        next: (response: any) => {
+          // Display order updated successfully
+        },
+        error: (error: any) => {
+          this.dataExchangeService.displayMapApplicationError(error);
+        },
+      });
   }
-} 
+}

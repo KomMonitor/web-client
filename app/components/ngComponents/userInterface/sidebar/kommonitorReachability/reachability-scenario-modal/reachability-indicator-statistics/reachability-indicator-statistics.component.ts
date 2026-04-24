@@ -1,5 +1,4 @@
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
-import { kommonitorReachabilityCoverageReportsHelper } from 'util/genericServices/kommonitorReachabilityCoverageReportsHelperService/kommonitor-reachability-coverage-reports-helper-service.module';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -53,7 +52,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     private broadcastService: BroadcastService
   ) {
     this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics = [];
-    this.availableIndicators = this.dataExchangeService.pipedData.displayableIndicators;
+    this.availableIndicators = this.dataExchangeService.displayableIndicators;
   }
 
 
@@ -122,7 +121,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
         // finished - Process execution has finished.
         // failed - The job failed due to an error during process execution.
       
-      let jobStatus = await this.spatialDataProcessorHelperService.getJobStatus(jobId);
+      let jobStatus:any = await this.spatialDataProcessorHelperService.getJobStatus(jobId);
       if (jobStatus == undefined || jobStatus.status == undefined || jobStatus.status == "failed") {
         jobCompletedOrFailed = true;
         this.modifyJobStatus(jobId, "failed");
@@ -159,7 +158,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   };
 
   async retrieveJobResult(jobId) {
-    let response = await this.spatialDataProcessorHelperService.getJobResult(jobId);
+    let response:any = await this.spatialDataProcessorHelperService.getJobResult(jobId);
 
     for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics) {
       indicatorStatisticsEntry.active = false;

@@ -1,0 +1,218 @@
+<div class="modal-header">
+  <h4 class="modal-title">Neue Organisationseinheit registrieren</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Schließen"
+    (click)="close()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <app-loading-overlay
+    [loading]="processCreation"
+    message="Erstelle Organisationseinheit..."
+  >
+    <div *ngIf="showErrorAlert" class="alert alert-danger" role="alert">
+      Fehler beim Erstellen der Organisationseinheit:
+      <span [innerHTML]="errorMessagePart"></span>
+    </div>
+    <div *ngIf="showKeycloakErrorAlert" class="alert alert-danger" role="alert">
+      Fehler beim Anlegen der Keycloak-Rollen:
+      <span [innerHTML]="keycloakErrorMessagePart"></span>
+    </div>
+
+    <div class="stepper-wrapper">
+      <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
+    </div>
+
+    <ng-container *ngIf="currentStep === 1">
+      <form (ngSubmit)="addOrganizationalUnit()">
+        <h2 class="fs-title text-center">Basisinformationen</h2>
+        <p class="help-block">Angaben über die neue Organisationseinheit</p>
+        <p class="text-center">
+          <b><i>* = Pflichtfeld</i></b>
+        </p>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Name*</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="z.B. Fachbereich 52"
+                [(ngModel)]="newOrganizationalUnit.name"
+                name="name"
+                (ngModelChange)="checkName()"
+                required
+              />
+              <div *ngIf="nameInvalid" class="text-danger">
+                Eingabe ungültig. Es existiert bereits eine andere
+                Organisationseinheit mit gleichem Namen.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Beschreibung*</label>
+              <textarea
+                class="form-control"
+                rows="4"
+                placeholder="z.B. Abteilung 52 von Musterstadt"
+                [(ngModel)]="newOrganizationalUnit.description"
+                name="description"
+                required
+              ></textarea>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Kontakt*</label>
+              <textarea
+                class="form-control"
+                rows="4"
+                placeholder="z.B. sekretariat@kommonitor.de"
+                [(ngModel)]="newOrganizationalUnit.contact"
+                name="contact"
+                required
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="row form-section-row vertical-align">
+          <div class="col-md-4" *ngIf="isRealmAdmin">
+            <div *ngIf="parentSelected" class="alert alert-info compact-alert">
+              Zum Anlegen eines Mandanten muss die übergeordnete
+              Organisationseinheit entfernt werden.
+            </div>
+
+            <div class="form-group" *ngIf="!parentSelected">
+              <div class="toggle-row">
+                <label class="toggle-label">Mandant*</label>
+
+                <label class="switch" for="mandant-toggle">
+                  <input
+                    id="mandant-toggle"
+                    type="checkbox"
+                    [(ngModel)]="newOrganizationalUnit.mandant"
+                    name="mandant"
+                    (ngModelChange)="onMandantChange()"
+                  />
+                  <span class="switchslider round"></span>
+                </label>
+              </div>
+
+              <p class="toggle-help-text">
+                Als Mandant markierte Organisationseinheiten können eigene
+                Untergruppenhierarchien, Themenbäume, Raumeinheiten und User
+                vollständig isoliert von weiteren Mandanten derselben
+                KomMonitor-Instanz verwalten.
+              </p>
+            </div>
+          </div>
+
+          <div [class]="isRealmAdmin ? 'col-md-4' : 'col-md-8'">
+            <label for="parentOrganizationalUnitSelect">
+              <b
+                >Hierarchische Einordnung - Angabe der übergeordneten
+                Organisationseinheit</b
+              >
+            </label>
+
+            <div
+              *ngIf="newOrganizationalUnit.mandant"
+              class="alert alert-info compact-alert"
+            >
+              Mandanten können keine übergeordnete Organisationseinheit haben.
+            </div>
+
+            <ng-container *ngIf="!newOrganizationalUnit.mandant">
+              <app-filterable-select
+                propertyKey="name"
+                filterPlaceholder="Stichwortfilter"
+                selectPlaceholder="keine - neuer Wurzelknoten"
+                [options]="accessControlOptions"
+                (selectedItemChange)="onParentOrganizationalUnitChange($event)"
+              ></app-filterable-select>
+
+              <p class="help-block hierarchy-help-block">
+                Wird keine übergeordnete Organisationseinheit festgelegt, wird
+                die neue Organisationseinheit auf oberster Ebene der Hierarchie
+                angelegt. Die Hierarchiebeziehung kann nachträglich angepasst
+                werden.
+              </p>
+            </ng-container>
+          </div>
+        </div>
+      </form>
+    </ng-container>
+
+    <ng-container *ngIf="currentStep === 2">
+      <h2 class="fs-title text-center">Delegierte administrative Rechte</h2>
+
+      <expandable-box title="Bedienhinweise" borderColor="cyan">
+        <div class="info-panel">
+          <p class="text-center">
+            Sollen bereits existierende Organisationseinheiten/Gruppen
+            administrative Aufgaben für die neu anzulegende Gruppe übernehmen?
+            Administrative Rechte können hier durch entsprechende Häkchen an
+            andere Gruppen übertragen werden.
+          </p>
+          <p class="text-center">
+            <i>
+              <b>Unterschied Diese Gruppe / Untergruppen</b>: Diese Angabe
+              kontrolliert, ob delegierte administrative Aufgaben nur für die
+              gewählte Gruppe explizit erlaubt werden, oder ob sich die
+              delegierte Administration auch auf die Untergruppen der gewählten
+              Gruppe erstreckt. Beispiel: eine neue Gruppe 'Amt Übergeordnet'
+              (inkl. weiterer Untergruppen) wird erstellt und soll von einer
+              bereits vorhandenen Gruppe 'Amt Globaladmin' verwaltet werden.
+              Wenn nun administrative Rechte an 'Amt Globaladmin' zugewiesen
+              werden, muss entschieden werden, ob 'Amt Globaladmin' nur die
+              explizite Gruppe ('Amt Übergeordnet') verwalten darf, oder auch
+              alle Ihre etwaigen Untergruppen.
+            </i>
+          </p>
+          <p class="text-center">
+            <i>
+              <b>
+                Achtung: Die Rechte der neu angelegten Organisationseinheit
+                können erst nach Erzeugung innerhalb des 'Rechte editieren'
+                Menüs gesetzt werden.
+              </b>
+            </i>
+          </p>
+        </div>
+      </expandable-box>
+
+      <div class="role-grid-wrapper ag-theme-alpine">
+        <ag-grid-angular
+          class="role-delegates-grid"
+          [gridOptions]="roleDelegatesGridOptions"
+          [columnDefs]="roleDelegatesColumnDefs"
+          [rowData]="roleDelegatesRowData"
+          [defaultColDef]="roleDelegatesDefaultColDef"
+        ></ag-grid-angular>
+      </div>
+    </ng-container>
+  </app-loading-overlay>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">
+    Schließen
+  </button>
+  <div style="flex: 1"></div>
+  <button
+    type="button"
+    class="btn btn-success"
+    [disabled]="!canSubmit"
+    (click)="addOrganizationalUnit()"
+  >
+    Gruppe registrieren
+  </button>
+  <button type="button" class="btn btn-danger" (click)="reset()">
+    Zurücksetzen
+  </button>
+</div>

@@ -3,6 +3,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +14,7 @@ export class ElementVisibilityHelperService implements OnInit {
 
   elementVisibility:any = {};
 
-  isAdvancedMode = window.__env.isAdvancedMode;
-  showAdvancedModeSwitch = window.__env.showAdvancedModeSwitch;
+  private isAdvancedMode = this.envConfigService.isAdvancedMode;
 
   advancedModeGroupName = "fakeAdvancedModeGroup"; 
   advancedModeRoleName = "fakeAdvancedModeRole";
@@ -25,7 +25,8 @@ export class ElementVisibilityHelperService implements OnInit {
     private dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
     private configStorageService: ConfigStorageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private envConfigService: EnvConfigService
   ) {
   }
 
@@ -34,15 +35,14 @@ export class ElementVisibilityHelperService implements OnInit {
   }
 
   initElementVisibility() {
-
-    this.dataExchangeService.pipedData.showDiagramExportButtons = true;
-    this.dataExchangeService.pipedData.showGeoresourceExportButtons = true;
+    this.dataExchangeService.showDiagramExportButtons = true;
+    this.dataExchangeService.showGeoresourceExportButtons = true;
     this.elementVisibility = {};
     this.configStorageService.controlsConfig.forEach(element => {
         this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
     });
 
-    if(this.authService.Auth.keycloak.authenticated && window.__env.showFavoriteSelection)
+    if(this.authService.isAuthenticated() && this.envConfigService.showFavoriteSelection)
       this.elementVisibility['favSelection'] = true;
     else
       this.elementVisibility['favSelection'] = false;
@@ -84,7 +84,7 @@ export class ElementVisibilityHelperService implements OnInit {
     } else {
 
       // authenticated access control
-      if (this.authService.Auth.keycloak.authenticated) {
+      if (this.authService.isAuthenticated()) {
         if (element.groups === undefined || element.groups.length === 0) {
             return true;
         }
@@ -93,14 +93,14 @@ export class ElementVisibilityHelperService implements OnInit {
         }
         // admin role user always sees all data and widgets
         // role kommonitor-creator still exists
-        if (this.authService.Auth.keycloak.tokenParsed.realm_access.roles.includes(window.__env.keycloakKomMonitorAdminRoleName)) {
+        if (this.authService.getTokenParsed()?.realm_access?.roles.includes(this.envConfigService.keycloakKomMonitorAdminRoleName)) {
           return true;
         }
         var hasAllowedGroup = false;          
         for (var i = 0; i < element.groups.length; i++) {
           // get groups and compare to each leaf node in group hierarchy.
           // get group name by identifying last '/' from group hierarchy
-          let groupNames = this.authService.Auth.keycloak.tokenParsed.groups.map(groupstring => groupstring.substring(groupstring.lastIndexOf("/") + 1));
+          let groupNames = this.authService.getTokenParsed()?.['groups'].map(groupstring => groupstring.substring(groupstring.lastIndexOf("/") + 1)) ?? [];
           if(groupNames.includes(element.groups[i])){
             hasAllowedGroup = true;
             return true;
@@ -109,11 +109,11 @@ export class ElementVisibilityHelperService implements OnInit {
 
         // special case for diagram export buttons
         if(! hasAllowedGroup && element.id === "diagramExportButtons"){
-          this.dataExchangeService.pipedData.showDiagramExportButtons = false;
+          this.dataExchangeService.showDiagramExportButtons = false;
         }
         // special case for georesource export buttons
         if(! hasAllowedGroup && element.id === "georesourceExportButtons"){
-          this.dataExchangeService.pipedData.showGeoresourceExportButtons = false;
+          this.dataExchangeService.showGeoresourceExportButtons = false;
         }
 
         if (! hasAllowedGroup){
@@ -129,11 +129,11 @@ export class ElementVisibilityHelperService implements OnInit {
 
           // special case for diagram export buttons
           if(element.id === "diagramExportButtons"){
-            this.dataExchangeService.pipedData.showDiagramExportButtons = false;
+            this.dataExchangeService.showDiagramExportButtons = false;
           }
           // special case for georesource export buttons
           if(element.id === "georesourceExportButtons"){
-            this.dataExchangeService.pipedData.showGeoresourceExportButtons = false;
+            this.dataExchangeService.showGeoresourceExportButtons = false;
           }
 
           var domElement = document.getElementById(id);

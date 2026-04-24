@@ -1,16 +1,28 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { GridOptions, GridReadyEvent, ColDef } from 'ag-grid-community';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
+import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { KommonitorDataExchangeService } from "services/adminSpatialUnit/kommonitor-data-exchange.service";
+import { KommonitorDataGridHelperService } from "services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { GridOptions, GridReadyEvent, ColDef } from "ag-grid-community";
+import { AgGridAngular } from "ag-grid-angular";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
-  selector: 'spatial-unit-edit-user-roles-modal',
-  templateUrl: './spatial-unit-edit-user-roles-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-user-roles-modal.component.css']
+  selector: "spatial-unit-edit-user-roles-modal",
+  templateUrl: "./spatial-unit-edit-user-roles-modal.component.html",
+  styleUrls: ["./spatial-unit-edit-user-roles-modal.component.css"],
+  imports: [AgGridAngular, CommonModule, FormsModule],
+  standalone: true,
 })
 export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('progressbar', { static: true }) progressBar!: ElementRef;
@@ -472,7 +484,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     } else {
       // Fetch access control data from server
-      this.kommonitorDataExchangeService.fetchAccessControlMetadata().subscribe({
+      this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
         next: (data) => {
           // If we have data and a spatial unit dataset, refresh the table
           if (this.currentSpatialUnitDataset) {

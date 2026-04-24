@@ -1,0 +1,65 @@
+:host {
+  right: 0;
+  position: fixed;
+  top: 70px;
+  z-index: 1001;
+  font-size: 11px;
+
+  max-width: 25vw;
+
+  #sidebarLegendCollapse {
+    position: absolute;
+    left:-32px;
+    background-color: #ecf0f5;
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+    padding: .7em 1.2em;
+    border: none;
+
+    i {
+      font-size: min(2.5vh,20px);
+    }
+  }
+
+  #legendWrapper {
+    background: rgb(236,240,245);
+    transition: opacity 0.3s;
+    overflow: auto;
+    padding: .5em;
+    max-height: 80vh;
+    overflow-y: auto;
+    min-width: 25vw;
+  }
+
+  .boxedLegend {	
+
+    #shareLinkButton {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    .box-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding: 10px;
+
+      .close {
+        border: none;
+        background: none;
+        font-size: 25px;
+        font-weight: 400;
+        color: #888;
+      }
+
+      .close:hover {
+        color:#444444;
+      }
+    }
+
+    .box-body {
+      padding: 10px;
+    }
+  }
+}

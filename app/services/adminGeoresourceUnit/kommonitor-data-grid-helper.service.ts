@@ -32,9 +32,6 @@ export class KommonitorGeoresourceDataGridHelperService {
     private kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService
   ) {}
 
-  /**
-   * Simple function-based cell renderer for edit buttons (like original)
-   */
   private displayEditButtons_georesources = (params: any) => {
     if (!params.data || !params.data.georesourceId) {
       return '<div class="btn-group btn-group-sm">No data</div>';
@@ -89,6 +86,7 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Update column definitions with the current component reference
    */
   private updateColumnDefinitions(): void {
+
     if (this.poiGrid && this.poiGrid.api) {
       const poiColumnDefs = this.getPoiColumnDefinitions();
       this.poiGrid.api.setColumnDefs(poiColumnDefs);
@@ -131,7 +129,6 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (!this.poiGrid) {
       return;
     }
-    
     const poiData = georesourcesArray.filter(item => item.isPOI);
     const columnDefs = this.getPoiColumnDefinitions();
     

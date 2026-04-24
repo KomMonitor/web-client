@@ -1,9 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Classification } from 'components/ngComponents/models/classification.models';
 
 @Component({
   selector: 'app-classification-method-select',
   templateUrl: './classification-method-select.component.html',
-  styleUrls: ['./classification-method-select.component.css']
+  styleUrls: ['./classification-method-select.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule]
 })
 export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
 
@@ -11,11 +16,12 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   @Input() hiddenMethodIds:any[] = [];
   @Output() onMethodSelect = new EventEmitter<any>();
 
-  selectedMethod;
-  showMethodSelection = false;
+  selectedMethod:Classification | undefined;
+  showMethodSelection:boolean = false;
+  preloadImgs:any[] = [];
 
-  preppedMethods:any[] = [];
-  methods = [
+  preppedMethods:Classification[] = [];
+  methods:Classification[] = [
     {
       name: 'Regionaler Standard', 
       id: 'regional_default', 
@@ -55,6 +61,19 @@ export class ClassificationMethodSelectComponent implements OnInit, OnChanges {
   prepVals() {
     this.selectedMethod = this.methods.filter(e => e.id==this.defaultMethodId)[0];
     this.preppedMethods = this.methods.filter(e => !this.hiddenMethodIds.includes(e.id));
+
+    this.preppedMethods.forEach(async element => {
+      await this.preloadImage(element.imgPath);
+      this.preloadImgs[element.name] = element.imgPath;
+    });
+  }
+
+  preloadImage(url: string): Promise<void> {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve();
+    });
   }
 
   methodSelected(method) {

@@ -1,18 +1,18 @@
-import { ajskommonitorGenericMapHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
+import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { DEFAULT_POI_SIZE } from '../data-exchange-service/data-exchange.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GenericMapHelperService {
-
-  pipedData: any;
-  exchangeData:DataExchange;
 
   resourceType_point = "POINT";
   resourceType_line = "LINE";
@@ -47,58 +47,30 @@ export class GenericMapHelperService {
   }
 
   public constructor(
-    @Inject('kommonitorGenericMapHelperService') private ajskommonitorGenericMapHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     private dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
-  ) {
-    this.pipedData = this.ajskommonitorGenericMapHelperServiceProvider;
-    this.exchangeData = this.dataExchangeService.pipedData;
-  }
+    private broadcastService: BroadcastService,
+    private iconTranslate: IconTranslateService,
+    private envConfigService: EnvConfigService,
+  ) { }
 
   createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject) {
-    //return this.ajskommonitorGenericMapHelperServiceProvider.createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
- 
-    var customMarker;
-    // todo VectorMarkers
-  /*  var customMarker = L.VectorMarkers.icon({
-      viewBox: '0 0 32 52',
-      iconSize: [30 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor],
-      iconAnchor: [ 15 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor ],
-      shadowSize: [0, 0], // ausgeschaltete Schatten
-      // um Schatten einzuschalten: //shadowSize:   [36 * this.exchangeData.selectedPOISize.scaleFactor, 16 * this.exchangeData.selectedPOISize.scaleFactor ],
-      // um Schatten einzuschalten: //shadowAnchor: [35 * this.exchangeData.selectedPOISize.scaleFactor, 10 * this.exchangeData.selectedPOISize.scaleFactor],
-      icon: poiSymbolBootstrap3Name,
-      prefix: 'glyphicon',
-      markerColor: poiMarkerColor,
-      iconColor: poiSymbolColor,
-      extraClasses: this.exchangeData.selectedPOISize.iconClassName
-    });
- 
-    // special treatment for geocoded results
-    if(metadataObject.isGeocodedDataset){
-      if (poiFeature.properties["geocoder_geocoderank"] == 2){
-        customMarker = L.VectorMarkers.icon({
-          markerColor: "green",
-          viewBox: '0 0 32 52',
-          iconSize: [30 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor],
-          iconAnchor: [ 15 * this.exchangeData.selectedPOISize.scaleFactor, 50 * this.exchangeData.selectedPOISize.scaleFactor ],
-          shadowSize: [0, 0], // ausgeschaltete Schatten
-          // um Schatten einzuschalten: //shadowSize:   [36 * this.exchangeData.selectedPOISize.scaleFactor, 16 * this.exchangeData.selectedPOISize.scaleFactor ],
-          // um Schatten einzuschalten: //shadowAnchor: [35 * this.exchangeData.selectedPOISize.scaleFactor, 10 * this.exchangeData.selectedPOISize.scaleFactor],
-          icon: poiSymbolBootstrap3Name,
-          prefix: 'glyphicon',
-          iconColor: poiSymbolColor,
-          extraClasses: this.exchangeData.selectedPOISize.iconClassName
-        });
-      }          
-    } */
+    
+    if (poiFeature.properties["geocoder_geocoderank"] == 2)
+      poiMarkerColor = 'green';
+
+    var customMarker = L.AwesomeMarkers.icon({
+        icon: this.iconTranslate.translate(poiSymbolBootstrap3Name),
+        prefix: 'fa',
+        markerColor: poiMarkerColor,
+        iconColor: poiSymbolColor,
+        extraClasses: DEFAULT_POI_SIZE.iconClassName
+      });
 
     var newMarker;
 
     if(poiFeature.geometry.type === "Point"){              
       // LAT LON order
-      //newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
-      newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])]);
+      newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
 
       //populate the original geoJSOn feature to the marker layer!
       newMarker.feature = poiFeature;
@@ -108,8 +80,7 @@ export class GenericMapHelperService {
 
       // simply take the first point as feature reference POI
       // LAT LON order
-      //newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
-      newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])]);
+      newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
 
       //populate the original geoJSOn feature to the marker layer!
       newMarker.feature = poiFeature;
@@ -120,18 +91,98 @@ export class GenericMapHelperService {
     }
 
     if(poiMarkerStyle == "text" && poiMarkerText) {
-      newMarker = this.ajskommonitorGenericMapHelperServiceProvider.bindPOITextStyleTooltip(newMarker, poiMarkerText, poiSymbolColor);
+      newMarker = this.bindPOITextStyleTooltip(newMarker, poiMarkerText, poiSymbolColor);
     }
     
     return newMarker;
   }
+
+  bindPOITextStyleTooltip(marker, poiText, poiSymbolColor) {
+    marker.options.icon.options.icon = "";
+    let fontSize = "13px;"
+    let offset = [0, -25];
+
+    if (DEFAULT_POI_SIZE.label == "sehr klein") {
+      offset = [0, -12];
+      if(poiText.length == 1) { fontSize = "9px"; }
+      else if(poiText.length == 2) { fontSize = "6px"; }
+      else if(poiText.length == 3) { fontSize = "4px"; }
+    }
+    else if (DEFAULT_POI_SIZE.label == "klein") {
+      offset = [0, -20];
+      if(poiText.length == 1) { fontSize = "11px"; }
+      else if(poiText.length == 2) { fontSize = "8px"; }
+      else if(poiText.length == 3) { fontSize = "5px"; }
+    }
+    else if (DEFAULT_POI_SIZE.label == "mittel") {
+      offset = [0, -25];
+      if(poiText.length == 1) { fontSize = "13px"; }
+      else if(poiText.length == 2) { fontSize = "11px"; }
+      else if(poiText.length == 3) { fontSize = "9px"; }
+    }
+    else if (DEFAULT_POI_SIZE.label == "groß") {
+      offset = [0, -32];
+      if(poiText.length == 1) { fontSize = "20px"; }
+      else if(poiText.length == 2) { fontSize = "15px"; }
+      else if(poiText.length == 3) { fontSize = "10px"; }
+    }
   
-  addPoiMarker(markers, newMarker) {
-    return this.ajskommonitorGenericMapHelperServiceProvider.addPoiMarker(markers, newMarker);
+    marker.bindTooltip(
+      "<div style='color:" + poiSymbolColor 
+      +"; font-size: " + fontSize + "'>" 
+      + poiText + "</div>", {
+      permanent: true,
+      direction: 'center',
+      className: "poi-text-tooltip",
+      offset: offset
+    });
+
+    return marker;
+  }
+  
+  addPoiMarker(markers, poiMarker) {
+            
+    // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+    var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+      for (var p in poiMarker.feature.properties) {
+          popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
+      }
+      popupContent += '</table></div>';
+
+    if (poiMarker.feature.properties.name) {
+      poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
+    }
+    else if (poiMarker.feature.properties.NAME) {
+      poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
+    }
+    else if (poiMarker.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
+      poiMarker.bindPopup(poiMarker.feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
+    }
+    else {
+      // poiMarker.bindPopup(propertiesString);
+      poiMarker.bindPopup(popupContent);
+    }
+    markers.addLayer(poiMarker);
+
+    return markers;
   }
 
-  createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset) {
-    return ajskommonitorGenericMapHelperServiceProvider.createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+  createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset){
+    for (var layerPropName in wfsLayer._layers){
+      var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
+      var latlng = wfsLayer._layers[layerPropName]._latlng;
+
+      geoJSONFeature.geometry = {
+        type: "Point",
+        coordinates: [latlng.lng, latlng.lat]
+      };
+
+      var customMarker = this.createCustomMarker(geoJSONFeature, dataset.poiMarkerStyle, dataset.poiMarkerText, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+      poiMarkerLayer = this.addPoiMarker(poiMarkerLayer, customMarker);
+    }
+
+    return poiMarkerLayer;
   }
 
   clearMap(map){
@@ -156,8 +207,8 @@ export class GenericMapHelperService {
     backgroundLayer = this.generateBackgroundMap_cartoDbPositron();
 
     map = L.map(domId, {
-      center: [window.__env.initialLatitude, window.__env.initialLongitude],
-      zoom: window.__env.initialZoomLevel,
+      center: [this.envConfigService.initialLatitude, this.envConfigService.initialLongitude],
+      zoom: this.envConfigService.initialZoomLevel,
       zoomDelta: 0.25,
       zoomSnap: 0.25,
       layers: [backgroundLayer]
@@ -197,7 +248,7 @@ export class GenericMapHelperService {
   }
 
   generateBackgroundMap_cartoDbPositron() {
-    return new L.TileLayer("https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", { minZoom: window.__env.minZoomLevel, maxZoom: window.__env.maxZoomLevel, attribution: "Map data © CartoDB Positron" });
+    return new L.TileLayer("https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", { minZoom: this.envConfigService.minZoomLevel, maxZoom: this.envConfigService.maxZoomLevel, attribution: "Map data \u00a9 CartoDB Positron" });
   }
 
   initLayerControl(map, backgroundLayer) {
@@ -375,11 +426,18 @@ export class GenericMapHelperService {
     return geojsonLayer;
   }
 
-  zoomToLayer(map, dataLayer) {
-    this.ajskommonitorGenericMapHelperServiceProvider.zoomToLayer(map, dataLayer);
+  zoomToLayer(map, layer) {
+    if (map && layer && layer.getBounds()) {
+      // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
+      setTimeout(function () {
+        map.fitBounds(layer.getBounds());
+      }, 750);
+    }
   }
 
   changeEditableFeature(feature, featureLayer) {
-    this.ajskommonitorGenericMapHelperServiceProvider.changeEditableFeature(feature, featureLayer);
+    let singlePointLayer = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
+    featureLayer.clearLayers();
+    featureLayer.addLayer(singlePointLayer);
   }
 }

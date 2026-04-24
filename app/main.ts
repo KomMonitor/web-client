@@ -1,15 +1,9 @@
-// <reference types="@angular/localize" />
-
-
-// Import these globally to make teh typescript compiler happy by bringing in their @types
-import 'angular';
-import 'angular-resource';
-import 'angular-route';
 
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app.module';
 
-// Need to import NG 1.x module
-//import './app-ajs';
+import * as jQuery from 'jquery';
+(window as any).$ = jQuery;
+(window as any).jQuery = jQuery;
 
 platformBrowserDynamic().bootstrapModule(AppModule);

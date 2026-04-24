@@ -1,0 +1,23 @@
+<div class="form-group">
+  <label *ngIf="label">{{ label }}</label>
+  <div class="input-group mb-2">
+    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+    <input
+      type="text"
+      class="form-control form-control-sm"
+      [placeholder]="filterPlaceholder"
+      [(ngModel)]="filterText"
+    />
+  </div>
+  <select
+    [size]="selectionSize"
+    class="form-control"
+    [(ngModel)]="selectedItem"
+    (ngModelChange)="onSelectionChange($event)"
+  >
+    <option class="placeholder-option" [ngValue]="null">{{ selectPlaceholder }}</option>
+    <option *ngFor="let option of filteredOptions" [ngValue]="option">
+      {{ option[propertyKey] }}
+    </option>
+  </select>
+</div>

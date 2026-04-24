@@ -1,4 +1,3 @@
-import { ajskommonitorSingleFeatureMapHelperServiceProvider } from './../../app-upgraded-providers';
 import { Inject, Injectable, OnInit } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';

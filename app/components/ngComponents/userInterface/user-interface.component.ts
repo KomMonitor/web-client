@@ -1,50 +1,63 @@
-import { Component, OnInit } from '@angular/core';
+import { DisplayType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { ReportingModalComponent } from './reporting/reporting-modal.component';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { AuthService } from 'services/auth-service/auth.service';
 import { FavService } from 'services/fav-service/fav.service';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
+import { Router } from '@angular/router';
+import { ReportingModalComponent } from './reporting/reporting-modal.component';
+import { EnvConfigService } from '../../../services/env-config-service/env-config.service';
+import { MapService } from 'services/map-service/map.service';
+import { CommonModule } from '@angular/common';
+import { KommonitorMapComponent } from './kommonitorMap/kommonitor-map.component';
+import { KommonitorLegendComponent } from './kommonitorLegend/kommonitor-legend.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { UserLoginComponent } from '../common/userLogin/user-login.component';
+import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DownloadModalComponent } from './exporting/download-modal/download-modal.component';
 
 @Component({
   selector: 'user-interface-new',
   templateUrl: './user-interface.component.html',
-  styleUrls: ['./user-interface.component.css']
+  styleUrls: ['./user-interface.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    KommonitorMapComponent,
+    KommonitorLegendComponent,
+    SidebarComponent,
+    UserLoginComponent,
+    CustomSliderComponent
+  ]
 })
 export class UserInterfaceComponent implements OnInit {
 
-  exchangeData!: DataExchange;
+  private readonly destroyRef = inject(DestroyRef);
+
   userRoleInformation = {};
   userGroupInformation:any[] = [];
 
+  sliderDisplayMode = DisplayType;
+
+  sliderData!:Date[];
+  markerPosition!:Date[];
+  sliderDisabled: boolean = false;
+
   expertToolbarVisible = false;
+  diagramSubMenuOpen: boolean = false;
 
   showUserLogin = false;
-  authenticated = false;
   password;
   showAdminLogin = false;
-  
-  sidebarIndicatorConfigClass = "disappear";
-  sidebarDiagramsClass = "disappear";
-  sidebarRadarDiagramClass = "disappear";
-  sidebarProcessingClass = "disappear";
-  sidebarRegressionDiagramClass = "disappear";
-  sidebarFilterClass = "disappear";
-  sidebarBalanceClass = "disappear";
-  sidebarReachabilityClass = "disappear";
-  sidebarPoiClass = "disappear";
-  sidebarDataImportClass = "disappear";
 
-  sidebarLegendClass = "";
-
-  // check put "invert" class, in case diagram buttons must be stiled differently
-  buttonFilterClass = "btn btn-custom btn-circle";
-  buttonBalanceClass = "btn btn-custom btn-circle";
+  userLoggedIn: boolean = false;
 
   sidebarElement = "";
 
@@ -56,30 +69,48 @@ export class UserInterfaceComponent implements OnInit {
     protected visibilityHelperService: ElementVisibilityHelperService,
     private authService: AuthService,
     private favService: FavService,
-    private globalFilterHelperService: GlobalFilterHelperService
-  ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
-  }
+    protected globalFilterHelperService: GlobalFilterHelperService,
+    private visualStyleHelperService: VisualStyleHelperServiceNew,
+    private router: Router,
+    protected envConfigService: EnvConfigService,
+    private mapService: MapService
+  ) { }
 
   ngOnInit(): void {
 
+    this.mapService.dateSlider$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if(value.data)
+          this.sliderData = value.data;
+
+        if(value.selected)
+          this.markerPosition = [value.selected];
+
+        if(value.disabled)
+          this.sliderDisabled = value.disabled;
+      });
+
+    this.dataExchangeService.selectedDate$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if(value)
+          this.markerPosition = [value];
+      });
+
     // load all app configs
     this.configStorageService.getConfigs();
-
-    /* todo
-    // initialize application
-    console.log("Initialize Application");
-    if ($scope.authenticated) {
-      console.log("Authetication successfull");
-    }			
-
-    await  */
 
     // todo
     //kommonitorShareHelperService.init();
 
     this.globalFilterHelperService.init();
-    this.favService.init();
+
+    if(this.authService.isAuthenticated()) {
+      this.favService.init();
+      this.userLoggedIn = true;
+    } 
 
     if(this.globalFilterHelperService.applicationFilter) {
       this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
@@ -87,36 +118,26 @@ export class UserInterfaceComponent implements OnInit {
       this.dataExchangeService.fetchAllMetadata();
     }
 
-    this.checkAuthentication();
+    this.showAdminLogin = this.authService.hasAdminRights();
     
     setTimeout(() => {
       this.prepUserInformation();
     }, 1000);
 
     // open infoModal ico
-    if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
-      //this.openInfoModal();
+    /* if(!localStorage.getItem('hideKomMonitorAppGreeting') || localStorage.getItem('hideKomMonitorAppGreeting') === 'false')
+      this.openInfoModal(); */
 
-    //this.openReportingModal();
+    //this.openReportingModal()
+  }
 
-    if (this.exchangeData.spatialFilterIsApplied || this.exchangeData.rangeFilterIsApplied || this.exchangeData.isMeasureOfValueChecked) {
-      this.buttonFilterClass = "btn btn-custom btn-circle filterActive";
-    }
+  onSidebarClose(event:any) {
+    this.sidebarElement = '';
+    this.mapService.setMapRecenterState({recenter: true, resize: true});
+  }
 
-    if (this.exchangeData.isBalanceChecked) {
-      this.buttonBalanceClass = "btn btn-custom btn-circle balanceActive";
-    }
-
-    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
-
-      switch (title) {
-        case 'sidebarClosed' : {
-          this.sidebarElement = "";
-        } break;
-      }
-    });
+  onDateSliderChange(data:any) {
+    this.mapService.setDateSliderValues({selected: data[0]});
   }
 
   isDiagramSidebarOpened() {
@@ -125,149 +146,82 @@ export class UserInterfaceComponent implements OnInit {
     return diagramElements.includes(this.sidebarElement);
   }
 
-  /* 
-    // todo
-    // Custom event to pass broadcast "updateLegendDisplay" towards new NG Legend Component, replace with NG2 variant once userInterface / mapComponent is migrated
-    $scope.onUpdateLegendDisplayEmitterData = false;
-    $rootScope.$on('updateLegendDisplay', function(event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate) {
+  prepUserInformation() {
+
+    if(this.dataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
+      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
       
-      let vars = {event, containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate};
-      $scope.onUpdateLegendDisplayEmitterData = vars;
-    });*/
+      let key = roles.split('.')[0];
+      let role = roles.split('.')[1];
 
+      if(!this.userRoleInformation.hasOwnProperty(key)) {
+        this.userRoleInformation[key] = [];
+      }
+      
+      this.userRoleInformation[key].push(role);
 
-		prepUserInformation() {
-
-			if(this.exchangeData.currentKomMonitorLoginRoleNames.length>0) {
-			  this.exchangeData.currentKomMonitorLoginRoleNames.forEach(roles => {
-				
-				let key = roles.split('.')[0];
-				let role = roles.split('.')[1];
-
-				if(!this.userRoleInformation.hasOwnProperty(key)) {
-				  this.userRoleInformation[key] = [];
-				}
-				
-				this.userRoleInformation[key].push(role);
-
-			  });
-			}
-
-			if(this.exchangeData.currentKeycloakLoginGroups.length>0) {
-			  this.exchangeData.currentKeycloakLoginGroups.forEach((group, index) => {
-
-				let parts = group.split('/');
-				this.userGroupInformation[index] = [];
-
-				parts.forEach(part => {
-				  if(part.length>0)
-            this.userGroupInformation[index].push(part);
-				});
-			  });
-			}
-    }
- /*
-	
-		function sleep(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
-		}
-
-		Auth.keycloak.onAuthLogout  = function() {
-			console.log("Logout successfull");
-			checkAuthentication();
-		}
-
-		Auth.keycloak.onAuthSuccess   = function() {
-			console.log("User successfully authenticated");
-			checkAuthentication();
-		}
-*/
-		tryLoginUser_withoutKeycloak(){
-			// TODO FIXME make generic user login once user/role concept is implemented
-
-			// currently only simple ADMIN user login is possible
-			console.log("Check user login");
-			if (this.exchangeData.adminUserName === this.exchangeData.currentKeycloakUser && this.exchangeData.adminPassword === this.password){
-				// success login --> currently switch to ADMIN page directly
-				console.log("User Login success - redirect to Admin Page");
-				this.exchangeData.adminIsLoggedIn = true;
-				location.href = '/administration';
-			}
-		}
-
-		tryLoginUser(){
-			if(this.exchangeData.enableKeycloakSecurity){
-				this.authService.Auth.keycloak.login();
-			}
-			else{
-				this.tryLoginUser_withoutKeycloak();
-			}
-		}
-
-		tryLogoutUser() {
-			//Auth.keycloak.logout();
-		}
-/*  
-		$scope.tryLoginUserByKeypress = function ($event) {
-			var keyCode = $event.which || $event.keyCode;
-			//check for enter key
-	    if (keyCode === 13) {
-	        $scope.tryLoginUser();
-	    }
-		};
-  */
-		checkAuthentication() {	
-			this.exchangeData.currentKeycloakLoginRoles = [];
-
-			if (this.authService.Auth.keycloak.authenticated) {
-				this.authenticated = this.authService.Auth.keycloak.authenticated;
-				if(this.authService.Auth.keycloak.tokenParsed 
-					&& this.authService.Auth.keycloak.tokenParsed.realm_access 
-					&& this.authService.Auth.keycloak.tokenParsed.realm_access.roles 
-					&& this.authService.Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
-						this.authService.Auth.keycloak.showAdminView = true;
-						this.showAdminLogin = true;
-				}
-			}
-		};
-
-		openAdminUI() {
-			document.location = '/administration';
-		};
-
-    openInfoModal() {
-
-      const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
+      });
     }
 
-    openReportingModal() {
-        const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
-    }
+    if(this.dataExchangeService.currentKeycloakLoginGroups.length>0) {
+      this.dataExchangeService.currentKeycloakLoginGroups.forEach((group, index) => {
 
-    openDownloadModal() {
+      let parts = group.split('/');
+      this.userGroupInformation[index] = [];
+
+      parts.forEach(part => {
+        if(part.length>0)
+          this.userGroupInformation[index].push(part);
+      });
+      });
+    }
+  }
+
+  tryLoginUser_withoutKeycloak(){
+    // TODO FIXME make generic user login once user/role concept is implemented
+
+    // currently only simple ADMIN user login is possible
+    console.log("Check user login");
+    if (this.dataExchangeService.adminUserName === this.dataExchangeService.currentKeycloakUser && this.dataExchangeService.adminPassword === this.password){
+      // success login --> currently switch to ADMIN page directly
+      console.log("User Login success - redirect to Admin Page");
+      this.dataExchangeService.adminIsLoggedIn = true;
+      location.href = '/administration';
+    }
+  }
+
+  openAdminUI() {
+    this.router.navigate(['/administration']);
+  };
+
+  openInfoModal() {
+    const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
+  }
+
+  openReportingModal() {
+      const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
+  }
+
+  openDownloadModal() {
       this.modalService.open(DownloadModalComponent, {windowClass: 'modal-holder', centered: true});
-    }
+  }
 
-    onSidebarButtonClick(event) {
+  onSidebarButtonClick(event) {
+    this.closeDiagramSubmenu();
 
-      let ident; 
-      if(event.target.id!="")
-        ident = event.target.id;
-      else
-        ident = event.srcElement.parentElement.id;
+    let ident; 
+    if(event.target.id!="")
+      ident = event.target.id;
+    else
+      ident = event.srcElement.parentElement.id;
 
-      if(ident!=this.sidebarElement) {
+    if(ident!=this.sidebarElement)
+      this.sidebarElement = ident;
+    else 
+      this.sidebarElement = '';
 
-        if(this.sidebarElement=='')
-          this.broadcastService.broadcast("recenterMapOnSidebarAction",[true]);
-
-        this.sidebarElement = ident;
-      }
-      else {
-        this.sidebarElement = '';
-        this.broadcastService.broadcast("recenterMapOnSidebarAction",[false]);
-      }
-    }
+    this.mapService.setMapRecenterState({recenter: true, resize: true});
+  }
     
 /*
 
@@ -291,37 +245,74 @@ export class UserInterfaceComponent implements OnInit {
 
 
  */
-		onRecenterMapButtonClick(){
-			this.broadcastService.broadcast("recenterMapContent");
-		}
+  onRecenterMapButtonClick(){
+    this.mapService.setMapRecenterState({recenter: true});
+  }
 
-		onExportMapButtonClick(){
-			this.broadcastService.broadcast("exportMap");
-		}
+  onExportMapButtonClick(){
+    this.broadcastService.broadcast("exportMap");
+  }
 
-		onUnselectFeaturesButtonClick(){
-			this.broadcastService.broadcast("unselectAllFeatures");
-		}
+  onUnselectFeaturesButtonClick(){
+    this.broadcastService.broadcast("unselectAllFeatures");
+  }
 
-		onOpenLayerControlButtonClick(){
-			this.broadcastService.broadcast("openLayerControl");
-		}
+  onOpenLayerControlButtonClick(){
+    this.broadcastService.broadcast("openLayerControl");
+  }
 
-		onToggleInfoControlButtonClick(){
-			this.broadcastService.broadcast("toggleInfoControl");
-		}
+  onToggleInfoControlButtonClick(){
+    this.broadcastService.broadcast("toggleInfoControl");
+  }
 
-    onExpertButtonClick() {
-      this.expertToolbarVisible = !this.expertToolbarVisible;
-			this.broadcastService.broadcast("toggleExpertControl");
-    }
+  onExpertButtonClick() {
+    this.expertToolbarVisible = !this.expertToolbarVisible;
+    this.broadcastService.broadcast("toggleExpertControl");
+  }
 
-    onDiagramSubMenuClick() {
-      $('#diagramSubMenu').toggle();
-    }
+  onDiagramSubMenuOver() {
+    if(!this.diagramSubMenuOpen)
+      this.openDiagramSubmenu();  
+  }
 
-    onDiagramSubMenuButtonClick($event) {
-      this.onSidebarButtonClick($event);
-      this.onDiagramSubMenuClick();
-    }
+  openDiagramSubmenu() {
+    this.diagramSubMenuOpen = true;
+  }
+
+  closeDiagramSubmenu() {
+    this.diagramSubMenuOpen = false;
+  }
+
+  onDiagramSubMenuButtonClick($event) {
+    this.onSidebarButtonClick($event);
+  }
+
+  openFilterSidebar() {
+    this.sidebarElement = 'sidebarFilterCollapse';
+  }
+
+  openBalanceSidebar() {
+    this.sidebarElement = 'sidebarBalanceCollapse';
+  }
+
+  onSpatialFilterCloseButtonClick() {
+    this.globalFilterHelperService.reset();
+  }
+  
+  onMOVCloseButtonClick() {
+    this.dataExchangeService.isMeasureOfValueChecked = false;
+  }
+        
+  onRangeFilterCloseButtonClick() {
+    this.broadcastService.broadcast('removeRangeFilter');
+  }
+  
+  onBalanceCloseButtonClick() {
+    this.broadcastService.broadcast('disableBalance');
+  }
+
+  filterModusActive():boolean {
+
+    return this.globalFilterHelperService.globalFilterApplied() || this.dataExchangeService.isMeasureOfValueChecked || this.dataExchangeService.rangeFilterIsApplied;
+  }
 }

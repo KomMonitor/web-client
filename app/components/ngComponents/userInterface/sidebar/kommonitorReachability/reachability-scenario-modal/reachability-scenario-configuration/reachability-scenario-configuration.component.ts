@@ -144,7 +144,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
     this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
     this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
-    this.dataExchangeService.pipedData.isochroneLegend = undefined;
+    this.dataExchangeService.isochroneLegend = undefined;
     // remove any diagram
     this.broadcastService.broadcast("resetPoisInIsochrone");
     this.reachabilityHelperService.settings.loadingData = false;

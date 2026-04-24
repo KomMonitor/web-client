@@ -1,12 +1,24 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
-  selector: 'indicator-add-modal-new',
+  selector: 'indicator-add-modal',
   templateUrl: './indicator-add-modal.component.html',
-  styleUrls: ['./indicator-add-modal.component.css']
+  styleUrls: ['./indicator-add-modal.component.css'],
+  imports: [CommonModule, FormsModule, AdminTopicsManagementComponent, NgbCollapseModule],
+  standalone: true
 })
 export class IndicatorAddModalComponent implements OnInit {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
@@ -21,6 +33,8 @@ export class IndicatorAddModalComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   loadingData = false;
+
+  isIndicatorAddTopicsCollapse:boolean = true;
 
   // Basic form data
   datasetName = '';
@@ -67,7 +81,11 @@ export class IndicatorAddModalComponent implements OnInit {
   // Step 3: Topic Hierarchy
   selectedTopic: any = null;
   selectedSubTopic: any = null;
+  selectedSubSubTopic: any = null;
+  selectedSubSubSubTopic: any = null;
   availableSubTopics: any[] = [];
+  availableSubSubTopics: any[] = [];
+  availableSubSubSubTopics: any[] = [];
   additionalTopic: any = null;
   additionalSubTopic: any = null;
   additionalSubTopics: any[] = [];
@@ -178,13 +196,14 @@ export class IndicatorAddModalComponent implements OnInit {
 
   constructor(
     public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorDataGridHelperService') private kommonitorDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') private kommonitorMultiStepFormHelperService: any,
+    public kommonitorDataExchangeService: DataExchangeService,
+    public kommonitorImporterHelperService: KommonitorImporterHelperService,
+    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
-    @Inject('kommonitorConfigStorageService') private kommonitorConfigStorageService: any
+    private kommonitorConfigStorageService: ConfigStorageService,
+    protected envConfigService: EnvConfigService
   ) {
     console.log('IndicatorAddModalComponent constructor initialized - Modal is being created');
   }
@@ -208,13 +227,13 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Load update interval options
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.updateIntervalOptions) {
-      this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
+    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
+      this.updateIntervalOptions = this.envConfigService.updateIntervalOptions;
     }
 
     // Load indicator type options
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.indicatorTypeOptions) {
-      this.indicatorTypeOptions = this.kommonitorDataExchangeService.indicatorTypeOptions;
+    if (this.envConfigService && this.envConfigService.indicatorTypeOptions) {
+      this.indicatorTypeOptions = this.envConfigService.indicatorTypeOptions;
       this.indicatorType = this.indicatorTypeOptions.length > 0 ? this.indicatorTypeOptions[0] : null;
     }
 
@@ -255,7 +274,7 @@ export class IndicatorAddModalComponent implements OnInit {
 
   private initializeMultiStepForm() {
     // Initialize multi-step form based on security settings
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity) {
+    if (this.kommonitorDataExchangeService && this.envConfigService.enableKeycloakSecurity) {
       this.totalSteps = 7; // Include role management step
     } else {
       this.totalSteps = 6;
@@ -496,12 +515,12 @@ export class IndicatorAddModalComponent implements OnInit {
       this.postBody_indicators = this.buildPostBody_indicators();
 
       // Check if service is available
-      if (!this.kommonitorDataExchangeService || !this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI) {
+      if (!this.kommonitorDataExchangeService || !this.envConfigService.baseUrlToKomMonitorDataAPI) {
         throw new Error('Data exchange service not available');
       }
 
       const response = await this.http.post(
-        this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators",
+        this.envConfigService.baseUrlToKomMonitorDataAPI + "/indicators",
         this.postBody_indicators
       ).toPromise();
 
@@ -543,7 +562,7 @@ export class IndicatorAddModalComponent implements OnInit {
 
   // Multi-step navigation
   nextStep() {
-    const maxSteps = this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity ? 7 : 6;
+    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
     if (this.currentStep < maxSteps) {
       this.currentStep++;
     }
@@ -556,7 +575,7 @@ export class IndicatorAddModalComponent implements OnInit {
   }
 
   goToStep(step: number) {
-    const maxSteps = this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.enableKeycloakSecurity ? 7 : 6;
+    const maxSteps = this.envConfigService.enableKeycloakSecurity ? 7 : 6;
     
     // Allow navigation to any step without validation (like old AngularJS counterpart)
     if (step >= 1 && step <= maxSteps) {
@@ -640,8 +659,8 @@ export class IndicatorAddModalComponent implements OnInit {
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
     
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.updateIntervalOptions) {
-    this.kommonitorDataExchangeService.updateIntervalOptions.forEach((option: any) => {
+    if (this.envConfigService && this.envConfigService.updateIntervalOptions) {
+    this.envConfigService.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
@@ -666,8 +685,8 @@ export class IndicatorAddModalComponent implements OnInit {
     this.isHeadlineIndicator = this.metadataImportSettings.isHeadlineIndicator || false;
 
     // Parse indicator type
-    if (this.metadataImportSettings.indicatorType && this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.indicatorTypeOptions) {
-      this.kommonitorDataExchangeService.indicatorTypeOptions.forEach((option: any) => {
+    if (this.metadataImportSettings.indicatorType && this.envConfigService && this.envConfigService.indicatorTypeOptions) {
+      this.envConfigService.indicatorTypeOptions.forEach((option: any) => {
         if (option.apiName === this.metadataImportSettings.indicatorType) {
           this.indicatorType = option;
         }
@@ -1117,16 +1136,51 @@ export class IndicatorAddModalComponent implements OnInit {
       this.indicatorTopic_subsubsubTopic = null;
     } else {
       this.availableSubTopics = [];
+      this.availableSubSubTopics = [];
+      this.availableSubSubSubTopics = [];
       this.selectedSubTopic = null;
+      this.selectedSubSubTopic = null;
+      this.selectedSubSubSubTopic = null;
     }
   }
 
   onSubTopicChange() {
     if (this.selectedSubTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubSubTopics = this.selectedSubTopic.subTopics || [];
+      this.selectedSubSubTopic = null;
+
       // Update sub topic reference
       this.indicatorTopic_subTopic = this.selectedSubTopic;
       this.indicatorTopic_subsubTopic = null;
       this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubSubTopics = [];
+      this.availableSubSubSubTopics = [];
+      this.selectedSubSubTopic = null;
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubSubTopicChange() {
+    if (this.selectedSubSubTopic) {
+      // Load sub-topics for the selected topic
+      this.availableSubSubSubTopics = this.selectedSubSubTopic.subTopics || [];
+      this.selectedSubSubSubTopic = null;
+
+      // Update sub topic reference
+      this.indicatorTopic_subsubTopic = this.selectedSubSubTopic;
+      this.indicatorTopic_subsubsubTopic = null;
+    } else {
+      this.availableSubSubSubTopics = [];
+      this.selectedSubSubSubTopic = null;
+    }
+  }
+
+  onSubSubSubTopicChange() {
+    if (this.selectedSubSubSubTopic) {
+      // Update sub topic reference
+      this.indicatorTopic_subsubsubTopic = this.selectedSubSubSubTopic;
     }
   }
 

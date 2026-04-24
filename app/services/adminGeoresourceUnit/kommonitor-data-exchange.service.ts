@@ -1,5 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,18 +12,19 @@ export class KommonitorGeoresourceDataExchangeService {
   public georesources$ = this.georesourcesSubject.asObservable();
 
   constructor(
-    @Inject('kommonitorDataExchangeService') private angularJsDataExchangeService: any
+    private angularJsDataExchangeService: DataExchangeService,
+    private topicHierarchyService: TopicHierarchyService,
   ) {}
 
   /**
-   * Get available georesources - delegates to AngularJS service
+   * Get available georesources - 
    */
   get availableGeoresources(): any[] {
     return this.angularJsDataExchangeService.availableGeoresources || [];
   }
 
   /**
-   * Get current Keycloak login roles - delegates to AngularJS service
+   * Get current Keycloak login roles - 
    */
   get currentKeycloakLoginRoles(): string[] {
     return this.angularJsDataExchangeService.currentKeycloakLoginRoles || [];
@@ -51,7 +54,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Fetch georesources metadata - delegates to AngularJS service
    */
-  async fetchGeoresourcesMetadata(keycloakRolesArray: string[], filter?: any): Promise<any[]> {
+  async fetchGeoresourcesMetadata(keycloakRolesArray: string[], filter?: any): Promise<void> {
     return this.angularJsDataExchangeService.fetchGeoresourcesMetadata(keycloakRolesArray, filter);
   }
 
@@ -101,7 +104,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get topic hierarchy display string - delegates to AngularJS service
    */
   getTopicHierarchyDisplayString(topicReference: any): string {
-    return this.angularJsDataExchangeService.getTopicHierarchyDisplayString(topicReference);
+    return this.topicHierarchyService.getTopicHierarchyDisplayString(this.angularJsDataExchangeService.availableTopics, topicReference);
   }
 
   /**
@@ -114,7 +117,7 @@ export class KommonitorGeoresourceDataExchangeService {
   /**
    * Get LOI dash SVG from string value - delegates to AngularJS service
    */
-  getLoiDashSvgFromStringValue(dashArrayString: string): string {
+  getLoiDashSvgFromStringValue(dashArrayString: string): any {
     return this.angularJsDataExchangeService.getLoiDashSvgFromStringValue(dashArrayString);
   }
 } 

@@ -25,31 +25,38 @@ export interface GeoresourcesTopicsHierarchy {
 
 export interface GeoresourcesDataset {
   aoiColor: string | null | undefined;
-  availablePeriodsOfValidity: GeoresourcesDateFormat[];
-  datasetName: string;
-  geoJSON: any;
-  georesourceId: string;
+  availablePeriodsOfValidity: GeoresourcesDateFormat[] | null | undefined;
+  datasetName: string | null | undefined;
+  georesourceName: string | null | undefined;
+  geoJSON: any | null | undefined;
+  georesourceId: string | null | undefined;
   isAOI: boolean;
   isLOI: boolean;
   isPOI: boolean;
   isPublic: boolean;
   isSelected: boolean;
-  loiColor: null;
-  loiDashArrayString: null;
-  loiWidth: 3;
+  loiColor: null | undefined;
+  loiDashArrayString: string | null | undefined;
+  loiWidth: number | null | undefined;
   metadata: GeoresourcesMetadata;
-  ownerId: string;
+  ownerId: string | null | undefined;
   permissions: string[];
-  poiMarkerColor: string;
-  poiMarkerStyle: string;
-  poiMarkerText: string;
-  poiSymbolBootstrap3Name: string;
-  poiSymbolColor: string;
-  selectedDate: GeoresourcesDateFormat;
+  poiMarkerColor: string | null | undefined;
+  poiMarkerStyle: string | null | undefined;
+  poiMarkerText: string | null | undefined;
+  poiSymbolBootstrap3Name: string | null | undefined;
+  poiSymbolColor: string | null | undefined;
+  selectedDate: GeoresourcesDateFormat | null | undefined;
   topicReference: string;
-  userPermissions: null;
-  wfsUrl: string;
-  wmsUrl: string;
+  userPermissions: any | null | undefined;
+  wfsUrl: string | null | undefined;
+  wmsUrl: string | null | undefined;
+  isTmpDataLayer?: boolean;
+  displayColor?: string | undefined;
+  type?: string | undefined;
+  transparency?: any | undefined;
+  featureSchema?: any | undefined;
+  dataRows?: any | undefined;
 }
 
 export interface GeoresourcesMetadata {
@@ -65,6 +72,6 @@ export interface GeoresourcesMetadata {
 }
 
 export interface GeoresourcesDateFormat {
-  endData: string;
-  startDate: string;
+  endDate: string | undefined;
+  startDate: string | undefined;
 }

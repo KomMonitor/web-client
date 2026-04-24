@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NgbDate, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchange, DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { LabelService } from 'services/label-service/label.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { ShareHelperService } from 'services/share-helper-service/share-helper.service';
@@ -9,19 +10,34 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 import { SpatialUnitNotificationModalComponent } from '../spatialUnitNotificationModal/spatial-unit-notification-modal.component';
 import shpwrite from '@mapbox/shp-write';
 import Papa from 'papaparse';
+import { OgcService } from 'services/ogcServices/ogc.service';
+import { MapService } from 'services/map-service/map.service';
+import { CommonModule } from '@angular/common';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FormsModule } from '@angular/forms';
+import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
+import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 
 @Component({
   selector: 'app-kommonitor-legend',
   templateUrl: './kommonitor-legend.component.html',
-  styleUrls: ['./kommonitor-legend.component.css']
+  styleUrls: ['./kommonitor-legend.component.scss'],
+  standalone: true,
+  imports: [
+    NgbCollapseModule, 
+    CommonModule, 
+    FormsModule, 
+    NgbDatepickerModule,
+    ActiveWmsFilter,
+    KommonitorClassificationComponent,
+    ExpandableBoxComponent]
 })
 export class KommonitorLegendComponent implements OnInit, OnChanges {
 
-  exchangeData!:DataExchange;
   elementVisibilityData: any;
   visualStyleData: any;
-  env!:any;
 
   dateAsDate!: Date;
   containsZeroValues!: any;
@@ -42,23 +58,30 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   globalFilterActivated = false;
   actualSelectedSpatialUnitId = undefined;
 
+  protected defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
+  protected defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
+  protected defaultBorderColorForFilteredValues = this.envConfigService.defaultBorderColorForFilteredValues;
+  protected defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
+  protected defaultBorderColorForNoDataValues = this.envConfigService.defaultBorderColorForNoDataValues;
+
   isDisabledDate;
   datePickerDate;
 
   @Input() onupdatelegenddisplaydata!:any;
 
   constructor(
-    public dataExchangeService: DataExchangeService,
+    protected dataExchangeService: DataExchangeService,
+    protected labelService: LabelService,
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,
     protected visualStyleService: VisualStyleHelperServiceNew,
     protected filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService,
-    private modalService: NgbModal
-  ) {
-    this.exchangeData = this.dataExchangeService.pipedData;
-    this.env = window.__env;
-  }
+    private modalService: NgbModal,
+    protected ogcService: OgcService,
+    private mapService: MapService,
+    protected envConfigService: EnvConfigService
+  ) { }
 
   ngOnChanges(changes: any): void {
 
@@ -98,7 +121,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       
       // todo del timeout
       setTimeout(()=> {
-        var dateComponents = this.exchangeData.selectedDate.split("-");
+        var dateComponents = this.dataExchangeService.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
       },2500);
@@ -152,16 +175,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     var dateComponents = selectedDate.split("-");
     this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
     
-    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.exchangeData.selectedDate]);
+    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
   }
 
   filteredSpatialUnits() {
-    return this.exchangeData.availableSpatialUnits.filter(e => this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
+    return this.dataExchangeService.availableSpatialUnits.filter(e => this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
   }
 
   onChangeIndicatorDatepickerDate() {
-    this.exchangeData.selectedDate = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
-    this.broadcastService.broadcast("changeIndicatorDate",[this.datePickerDate]);
+    let dateString = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
+    this.dataExchangeService.setSelectedDate(dateString);
   }
 
   onChangeSelectedSpatialUnit() {
@@ -174,19 +197,19 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     if(!this.actualSelectedSpatialUnitId && this.globalFilterActivated) {
       // initial click, no change yet. Define currently selected spatial unit
-      this.actualSelectedSpatialUnitId = this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitId;
+      this.actualSelectedSpatialUnitId = this.dataExchangeService.selectedSpatialUnit.spatialUnitId;
       this.globalFilterActivated = false;
     } else {
 
-      if(this.dataExchangeService.pipedData.selectedSpatialUnit && this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
+      if(this.dataExchangeService.selectedSpatialUnit && this.dataExchangeService.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
 
-        this.actualSelectedSpatialUnitId = this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitId;
+        this.actualSelectedSpatialUnitId = this.dataExchangeService.selectedSpatialUnit.spatialUnitId;
         this.broadcastService.broadcast("changeSpatialUnit");
 
-        if(window.__env.enableSpatialUnitNotificationSelection) {
+        if(this.envConfigService.enableSpatialUnitNotificationSelection) {
           if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
-            let selectedSpatialUnitName = this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
-            if(window.__env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
+            let selectedSpatialUnitName = this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+            if(this.envConfigService.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
               this.openSpatialunitModal()
             }
           }
@@ -207,41 +230,47 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       }
     }  */
   }
-  
+
+  spatialUnitNotificationModalEnabled() {
+    if(this.envConfigService.enableSpatialUnitNotificationSelection)
+      return true
+    
+    return false;
+  }
+
   showSpatialUnitNotificationModalIfEnabled() {
-    if(window.__env.enableSpatialUnitNotificationSelection) {
+    if(this.envConfigService.enableSpatialUnitNotificationSelection) {
       this.openSpatialunitModal();
     }
   }
 
   openSpatialunitModal() {
-          
     const modalRef = this.modalService.open(SpatialUnitNotificationModalComponent, {windowClass: 'modal-holder', centered: true});
   }
 
   async onClickDownloadMetadata() {
     // create PDF from currently selected/displayed indicator!
-    var indicatorMetadata = this.exchangeData.selectedIndicator;
+    var indicatorMetadata = this.dataExchangeService.selectedIndicator;
     var pdfName = indicatorMetadata.indicatorName + ".pdf";
-    let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, true);	
+    let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
     jspdf.save();
   }
   
   downloadIndicatorAsGeoJSON() {
-    var fileName = this.exchangeData.selectedIndicator.indicatorName + "_" + this.exchangeData.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 				  
     var geoJSON_string;
     var geoJSON;
 
-    if(this.exchangeData.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.exchangeData.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.exchangeData.indicatorAndMetadataAsBalance);							  
+    if(this.dataExchangeService.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.dataExchangeService.indicatorAndMetadataAsBalance);							  
       geoJSON_string = JSON.stringify(geoJSON);
-      fileName += "_Bilanz" + this.exchangeData.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.exchangeData.indicatorAndMetadataAsBalance['toDate'];
+      fileName += "_Bilanz" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
-      geoJSON_string = JSON.stringify(this.dataExchangeService.pipedData.selectedIndicator.geoJSON);
-      fileName += "_" + this.exchangeData.selectedDate;
+      geoJSON_string = JSON.stringify(this.dataExchangeService.selectedIndicator.geoJSON);
+      fileName += "_" + this.dataExchangeService.selectedDate;
     }			
 
     this.dataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
@@ -249,8 +278,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   
   downloadIndicatorAsShape() {
     
-    var fileName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
-    var polygonName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+    var polygonName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
     var options:any = {
       folder: "shape",
@@ -263,14 +292,14 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     var geoJSON;
 
-    if( this.dataExchangeService.pipedData.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {},  this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON,  this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance);
-      fileName += "_Bilanz_" +  this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance['fromDate'] + " - " +  this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance['toDate'];
+    if( this.dataExchangeService.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {},  this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON,  this.dataExchangeService.indicatorAndMetadataAsBalance);
+      fileName += "_Bilanz_" +  this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " +  this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
-      geoJSON = jQuery.extend(true, {},  this.dataExchangeService.pipedData.selectedIndicator.geoJSON);
-      fileName += "_" +  this.dataExchangeService.pipedData.selectedDate;
+      geoJSON = jQuery.extend(true, {},  this.dataExchangeService.selectedIndicator.geoJSON);
+      fileName += "_" +  this.dataExchangeService.selectedDate;
     }
 
     for (var feature of geoJSON.features) {
@@ -316,18 +345,18 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   
   downloadIndicatorAsCSV() {
     //todo
-    var fileName = this.dataExchangeService.pipedData.selectedIndicator.indicatorName + "_" + this.dataExchangeService.pipedData.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
     var geoJSON;
 
-    if(this.dataExchangeService.pipedData.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance);
-      fileName += "_Bilanz_" + this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.pipedData.indicatorAndMetadataAsBalance['toDate'];
+    if(this.dataExchangeService.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.dataExchangeService.indicatorAndMetadataAsBalance);
+      fileName += "_Bilanz_" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
-      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.pipedData.selectedIndicator.geoJSON);
-      fileName += "_" + this.dataExchangeService.pipedData.selectedDate;
+      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator.geoJSON);
+      fileName += "_" + this.dataExchangeService.selectedDate;
     }
 
     var items:any[] = [];
@@ -423,12 +452,12 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
     var fromDate = indicatorMetadataAsBalance["fromDate"];
     var toDate = indicatorMetadataAsBalance["toDate"];
-    var targetDate = this.exchangeData.selectedDate;
+    var targetDate = this.dataExchangeService.selectedDate;
 
     for (var feature of geoJSON.features) {
       var properties = feature.properties;
 
-      var targetValue = properties[this.exchangeData.indicatorDatePrefix + targetDate];
+      var targetValue = properties[this.dataExchangeService.indicatorDatePrefix + targetDate];
       properties["balance"] = targetValue;
 
       // rename all properties due to char limit in shaoefiles
@@ -464,10 +493,14 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   };
 
   keywordFilteredWmsDataset() {
-    return this.exchangeData.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
+    return this.dataExchangeService.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
   }
 
   hasActiveWMSLayers(){
-    return this.dataExchangeService.pipedData.wmsDatasets.filter(item => item.isSelected).length > 0;
+    return this.dataExchangeService.wmsDatasets.filter(item => item.isSelected).length > 0;
+  }
+
+  adjustOpacityForWmsLayer(dataset, transparency) {
+    this.mapService.adjustOpacityForWmsLayer(dataset, transparency);
   }
 }

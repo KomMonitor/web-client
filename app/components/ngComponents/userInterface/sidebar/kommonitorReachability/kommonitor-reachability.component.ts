@@ -12,8 +12,6 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
   styleUrls: ['./kommonitor-reachability.component.css']
 })
 export class KommonitorReachabilityComponent implements OnInit {
-  
-  numberOfDecimals = window.__env.numberOfDecimals;
   error = undefined;
 
 

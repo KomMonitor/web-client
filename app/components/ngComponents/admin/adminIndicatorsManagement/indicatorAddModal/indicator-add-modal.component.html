@@ -17,42 +17,30 @@
     <div class="col-md-12">
       <form class="multiStepForm form-group" id="indicatorAddForm" role="form" style="margin-bottom: 0px;">
         <!-- progressbar -->
-        <div *ngIf="kommonitorDataExchangeService && kommonitorDataExchangeService.enableKeycloakSecurity">
+        <div *ngIf="envConfigService.enableKeycloakSecurity">
           <ul id="progressbar">
             <li [style.width.%]="14.28" [class.active]="currentStep >= 1" [class.current]="currentStep === 1" 
                 (click)="goToStep(1)" style="cursor: pointer;">
-              <span class="step-number">1</span>
-              <span class="step-title">Metadaten des Indikators</span>
+              Metadaten des Indikators
             </li>
             <li [style.width.%]="14.28" [class.active]="currentStep >= 2" [class.current]="currentStep === 2" 
                 (click)="goToStep(2)" style="cursor: pointer;">
-              <span class="step-number">2</span>
-              <span class="step-title">Allgemeine Metadaten</span>
+                Allgemeine Metadaten
             </li>
             <li [style.width.%]="14.28" [class.active]="currentStep >= 3" [class.current]="currentStep === 3" 
-                (click)="goToStep(3)" style="cursor: pointer;">
-              <span class="step-number">3</span>
-              <span class="step-title">Themenhierarchie</span>
+                (click)="goToStep(3)" style="cursor: pointer;">Themenhierarchie
             </li>
             <li [style.width.%]="14.28" [class.active]="currentStep >= 4" [class.current]="currentStep === 4" 
-                (click)="goToStep(4)" style="cursor: pointer;">
-              <span class="step-number">4</span>
-              <span class="step-title">Referenzen zu Indikatoren/Georessourcen</span>
+                (click)="goToStep(4)" style="cursor: pointer;">Referenzen zu Indikatoren/Georessourcen
             </li>
             <li [style.width.%]="14.28" [class.active]="currentStep >= 5" [class.current]="currentStep === 5" 
-                (click)="goToStep(5)" style="cursor: pointer;">
-              <span class="step-number">5</span>
-              <span class="step-title">Klassifizierungsoptionen</span>
+                (click)="goToStep(5)" style="cursor: pointer;">Klassifizierungsoptionen
             </li>
             <li [style.width.%]="14.28" [class.active]="currentStep >= 6" [class.current]="currentStep === 6" 
-                (click)="goToStep(6)" style="cursor: pointer;">
-              <span class="step-number">6</span>
-              <span class="step-title">regionale Vergleichswerte</span>
+                (click)="goToStep(6)" style="cursor: pointer;">regionale Vergleichswerte
             </li>
             <li [style.width.%]="14.28" [class.active]="currentStep >= 7" [class.current]="currentStep === 7" 
-                (click)="goToStep(7)" style="cursor: pointer;">
-              <span class="step-number">7</span>
-              <span class="step-title">Zugriffsschutz und Eigentümerschaft</span>
+                (click)="goToStep(7)" style="cursor: pointer;">Zugriffsschutz und Eigentümerschaft
             </li>
           </ul>
         </div>
@@ -135,7 +123,7 @@
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Einheit wählen --</option>
                   <option value="-- Freitext --">-- Freitext --</option>
-                  <option *ngFor="let unit of kommonitorDataExchangeService?.indicatorUnitOptions" [value]="unit">{{unit}}</option>
+                  <option *ngFor="let unit of envConfigService.indicatorUnitOptions" [value]="unit">{{unit}}</option>
                 </select>
                 <div *ngIf="enableFreeTextUnit">
                   <label>Freitexteingabe*</label>
@@ -214,7 +202,7 @@
                 <select [(ngModel)]="indicatorCreationType" name="indicatorCreationType" (ngModelChange)="onChangeCreationType()"
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Fortführungstyp wählen --</option>
-                  <option *ngFor="let type of kommonitorDataExchangeService?.indicatorCreationTypeOptions" [ngValue]="type">
+                  <option *ngFor="let type of envConfigService.indicatorCreationTypeOptions" [ngValue]="type">
                     {{type.displayName}}
                   </option>
                 </select>
@@ -304,13 +292,12 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-              </div>
-                  <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadata.lastUpdate"
-                    class="form-control pull-right" placeholder="YYYY-MM-DD" required>
-            </div>
+                <km-date-picker
+                  name="metadata.lastUpdate"
+                  placeholder="YYYY-MM-DD"
+                  [(ngModel)]="metadata.lastUpdate"
+                  [required]="true"
+                  ></km-date-picker>
                 <div class="help-block with-errors"></div>
               </div>
             </div>
@@ -357,9 +344,9 @@
           <p><b><i>* = Pflichtfeld</i></b></p>
 
           <div class="row vertical-align">
-            <div class="col-md-6 col-sm-12 col-xs-12">
+            <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group">
-                <label>Thema*</label>
+                <label>Hauptthema*</label>
                 <select [(ngModel)]="selectedTopic" name="selectedTopic" (ngModelChange)="onTopicChange()"
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Thema wählen --</option>
@@ -367,30 +354,79 @@
                     {{topic.topicName}}
                   </option>
                 </select>
-                <div class="help-block">
-                  <p>Auswahl des übergeordneten Themas, dem der Indikator zugeordnet werden soll</p>
-              </div>
                 <div class="help-block with-errors"></div>
+              </div>
             </div>
-            </div>
-            <div class="col-md-6 col-sm-12 col-xs-12">
-              <div class="form-group">
-                <label>Unterthema*</label>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group" *ngIf="availableSubTopics.length > 0">
+                <label>Unterthema - erste Ebene</label>
                 <select [(ngModel)]="selectedSubTopic" name="selectedSubTopic" (ngModelChange)="onSubTopicChange()"
                   class="form-control" required>
                   <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
                   <option *ngFor="let subTopic of availableSubTopics" [ngValue]="subTopic">
-                    {{subTopic.subTopicName}}
+                    {{subTopic.topicName}}
                   </option>
                 </select>
-                <div class="help-block">
-                  <p>Auswahl des Unterthemas, dem der Indikator zugeordnet werden soll</p>
-              </div>
                 <div class="help-block with-errors"></div>
+              </div>
             </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group" *ngIf="availableSubSubTopics.length > 0">
+                <label>Unterthema - zweite Ebene</label>
+                <select [(ngModel)]="selectedSubSubTopic" name="selectedSubSubTopic" (ngModelChange)="onSubSubTopicChange()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
+                  <option *ngFor="let subsubTopic of availableSubSubTopics" [ngValue]="subsubTopic">
+                    {{subsubTopic.topicName}}
+                  </option>
+                </select>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+              <div class="form-group" *ngIf="availableSubSubSubTopics.length > 0">
+                <label>Unterthema - dritte Ebene</label>
+                <select [(ngModel)]="selectedSubSubSubTopic" name="selectedSubSubSubTopic" (ngModelChange)="onSubSubSubTopicChange()"
+                  class="form-control" required>
+                  <option [ngValue]="null" disabled selected>-- Unterthema wählen --</option>
+                  <option *ngFor="let subsubsubTopic of availableSubSubSubTopics" [ngValue]="subsubsubTopic">
+                    {{subsubsubTopic.topicName}}
+                  </option>
+                </select>
+                <div class="help-block with-errors"></div>
+              </div>
             </div>
           </div>
 
+          <hr>
+
+          <br/>
+          
+          <div class="row vertical-align" *ngIf="kommonitorDataExchangeService.checkAdminPermission()">
+            <div class="col-md-10 col-sm-12 col-xs-12">
+              <div style="text-align: left;">
+                <div id="indicatorAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
+                  <div class="box-header">
+                    <h3 class="box-title">Themenkatalog</h3>
+
+                    <div class="box-tools pull-right">
+                      <button type="button" (click)="indicatorAddTopicsCollapse.toggle()" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [ngClass]="{'fa-plus':isIndicatorAddTopicsCollapse, 'fa-minus':!isIndicatorAddTopicsCollapse}"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- /.box-header -->
+                  <div class="box-body" #indicatorAddTopicsCollapse="ngbCollapse" [(ngbCollapse)]="isIndicatorAddTopicsCollapse">
+
+                    <admin-topics-management></admin-topics-management>
+                  </div>
+                  <!-- /.box-body -->
+                  </div>
+                  <!-- /.box -->
+
+              </div>
+            </div>
+          </div>
+<!-- 
           <div class="row vertical-align" *ngIf="selectedTopic && selectedSubTopic">
             <div class="col-md-12">
               <div class="form-group">
@@ -405,7 +441,6 @@
               </div>
             </div>
           </div>
-
           <div class="row vertical-align">
             <div class="col-md-12">
               <div class="form-group">
@@ -484,7 +519,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
           <input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
           <input type="button" name="next" class="next next_addIndicator action-button" value="Nächster Schritt" (click)="nextStep()"/>
@@ -496,181 +531,199 @@
           <h3 class="fs-subtitle">Angaben über Referenzen zu anderen Indikatoren und Georessourcen</h3>
           <p><b><i>* = Pflichtfeld</i></b></p>
 
+          <p>Hier werden Angaben &uuml;ber assoziierte Indikatoren und Georessourcen get&auml;tigt. Sie eignen sich dazu, im System Querverbindungen 
+                zwischen Indikatoren und Georessourcen darzustellen und dem Nutzer so die M&ouml;glichkeit zu geben, einen Themenkomplex, 
+                der durch mehrere Datens&auml;tze abgebildet wird, besser zu verstehen.</p>
+
           <!-- Indicator References Section -->
-              <div class="row vertical-align">
-            <div class="col-md-12">
-                  <div class="form-group">
-                <label>Referenzen zu anderen Indikatoren (optional)</label>
-                <div class="alert alert-info">
-                  <i class="fas fa-info-circle"></i>
-                  <strong>Hinweis:</strong> Hier können Sie Referenzen zu anderen Indikatoren hinzufügen, die mit diesem Indikator in Beziehung stehen.
-                  </div>
-                </div>
-            </div>
-          </div>
-
           <div class="row vertical-align">
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                  <div class="form-group">
-                <label>Indikator auswählen</label>
-                <input type="text" class="form-control" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter"
-                  placeholder="Indikatorname filtern" (ngModelChange)="filterIndicators()">
-                <select [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata" name="tmpIndicatorReference_selectedIndicatorMetadata"
-                  class="form-control" size="8">
-                  <option [ngValue]="null" disabled>-- Indikator wählen --</option>
-                  <option *ngFor="let indicator of filteredIndicators" [ngValue]="indicator">
-                    {{indicator.datasetName}} ({{indicator.indicatorType.displayName}})
-                      </option>
-                    </select>
-                <div class="help-block">
-                  <p>Wählen Sie einen Indikator aus der Liste aus, zu dem eine Referenz erstellt werden soll</p>
-                </div>
+            <div class="col-md-10 col-sm-12 col-xs-12">
+
+              <!-- box indicators -->
+              <div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+                <div class="box-header">
+                  <h3 class="box-title">Referenzen zu anderen Indikatoren</h3>
+
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
                   </div>
                 </div>
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                  <div class="form-group">
-                <label>Referenzbeschreibung*</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="tmpIndicatorReference_referenceDescription" name="tmpIndicatorReference_referenceDescription"
-                  placeholder="Beschreibung der Beziehung zum ausgewählten Indikator" required></textarea>
-                <div class="help-block">
-                  <p>Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und dem ausgewählten Indikator</p>
+                <!-- /.box-header -->
+                <div class="box-body">
+
+                  <div class="row vertical-align">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                      <div class="form-group">
+                        <label>Indikator auswählen</label>
+                        <input type="text" class="form-control" [(ngModel)]="indicatorNameFilter" name="indicatorNameFilter"
+                          placeholder="Indikatorname filtern" (ngModelChange)="filterIndicators()">
+                        <select [(ngModel)]="tmpIndicatorReference_selectedIndicatorMetadata" name="tmpIndicatorReference_selectedIndicatorMetadata"
+                          class="form-control" size="8">
+                          <option [ngValue]="null" disabled>-- Indikator wählen --</option>
+                          <option *ngFor="let indicator of filteredIndicators" [ngValue]="indicator">
+                            {{indicator.datasetName}} ({{indicator.indicatorType.displayName}})
+                              </option>
+                            </select>
+                        <div class="help-block">
+                          <p>Wählen Sie einen Indikator aus der Liste aus, zu dem eine Referenz erstellt werden soll</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                      <div class="form-group">
+                        <label>Referenzbeschreibung*</label>
+                        <textarea rows="3" class="form-control" [(ngModel)]="tmpIndicatorReference_referenceDescription" name="tmpIndicatorReference_referenceDescription"
+                          placeholder="Beschreibung der Beziehung zum ausgewählten Indikator" required></textarea>
+                        <div class="help-block">
+                          <p>Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und dem ausgewählten Indikator</p>
+                        </div>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                      <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-primary form-control" 
+                          [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata || !tmpIndicatorReference_referenceDescription"
+                          (click)="onAddOrUpdateIndicatorReference()">
+                          <i class="fas fa-plus"></i> Indikator-Referenz hinzufügen
+                          </button>
+                      </div>
+                    </div>
                   </div>
-                <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            <div class="col-md-4 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>&nbsp;</label>
-                <button type="button" class="btn btn-primary form-control" 
-                  [disabled]="!tmpIndicatorReference_selectedIndicatorMetadata || !tmpIndicatorReference_referenceDescription"
-                  (click)="onAddOrUpdateIndicatorReference()">
-                  <i class="fas fa-plus"></i> Indikator-Referenz hinzufügen
-                  </button>
-              </div>
+
+                  <div class="row vertical-align" *ngIf="indicatorReferences_adminView.length > 0">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Hinzugefügte Indikator-Referenzen</label>
+                        <div class="table-responsive">
+                          <table class="table table-striped table-bordered">
+                            <thead>
+                              <tr>
+                                <th>Indikator</th>
+                                <th>Typ</th>
+                                <th>Referenzbeschreibung</th>
+                                <th>Aktion</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let reference of indicatorReferences_adminView; let i = index">
+                                <td>{{reference.indicatorMetadata.datasetName}}</td>
+                                <td>{{reference.indicatorMetadata.indicatorType.displayName}}</td>
+                                <td>{{reference.referenceDescription}}</td>
+                                <td>
+                                  <button type="button" class="btn btn-warning btn-sm" (click)="onClickEditIndicatorReference(reference)">
+                                    <i class="fas fa-edit"></i> Bearbeiten
+                                  </button>
+                                  <button type="button" class="btn btn-danger btn-sm" (click)="onClickDeleteIndicatorReference(reference)">
+                                    <i class="fas fa-trash"></i> Löschen
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
-          <div class="row vertical-align" *ngIf="indicatorReferences_adminView.length > 0">
-                <div class="col-md-12">
-              <div class="form-group">
-                <label>Hinzugefügte Indikator-Referenzen</label>
-                <div class="table-responsive">
-                  <table class="table table-striped table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Indikator</th>
-                        <th>Typ</th>
-                        <th>Referenzbeschreibung</th>
-                        <th>Aktion</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let reference of indicatorReferences_adminView; let i = index">
-                        <td>{{reference.indicatorMetadata.datasetName}}</td>
-                        <td>{{reference.indicatorMetadata.indicatorType.displayName}}</td>
-                        <td>{{reference.referenceDescription}}</td>
-                        <td>
-                          <button type="button" class="btn btn-warning btn-sm" (click)="onClickEditIndicatorReference(reference)">
-                            <i class="fas fa-edit"></i> Bearbeiten
-                          </button>
-                          <button type="button" class="btn btn-danger btn-sm" (click)="onClickDeleteIndicatorReference(reference)">
-                            <i class="fas fa-trash"></i> Löschen
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
+              <!-- box georesources -->
+              <div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+                <div class="box-header">
+                  <h3 class="box-title">Referenzen zu Georessourcen</h3>
 
-          <!-- Georesource References Section -->
-              <div class="row vertical-align">
-            <div class="col-md-12">
-                  <div class="form-group">
-                <label>Referenzen zu Georessourcen (optional)</label>
-                <div class="alert alert-info">
-                  <i class="fas fa-info-circle"></i>
-                  <strong>Hinweis:</strong> Hier können Sie Referenzen zu Georessourcen hinzufügen, die mit diesem Indikator in Beziehung stehen.
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
                   </div>
                 </div>
-            </div>
-          </div>
+                <!-- /.box-header -->
+                <div class="box-body">
 
-          <div class="row vertical-align">
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                  <div class="form-group">
-                <label>Georessource auswählen</label>
-                <input type="text" class="form-control" [(ngModel)]="georesourceNameFilter" name="georesourceNameFilter"
-                  placeholder="Georessourcenname filtern" (ngModelChange)="filterGeoresources()">
-                <select [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata" name="tmpGeoresourceReference_selectedGeoresourceMetadata"
-                  class="form-control" size="8">
-                  <option [ngValue]="null" disabled>-- Georessource wählen --</option>
-                  <option *ngFor="let georesource of filteredGeoresources" [ngValue]="georesource">
-                    {{georesource.datasetName}} ({{georesource.georesourceType.displayName}})
-                      </option>
-                    </select>
-                <div class="help-block">
-                  <p>Wählen Sie eine Georessource aus der Liste aus, zu der eine Referenz erstellt werden soll</p>
-                </div>
+
+                  <div class="row vertical-align">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                      <div class="form-group">
+                        <label>Georessource auswählen</label>
+                        <input type="text" class="form-control" [(ngModel)]="georesourceNameFilter" name="georesourceNameFilter"
+                          placeholder="Georessourcenname filtern" (ngModelChange)="filterGeoresources()">
+                        <select [(ngModel)]="tmpGeoresourceReference_selectedGeoresourceMetadata" name="tmpGeoresourceReference_selectedGeoresourceMetadata"
+                          class="form-control" size="8">
+                          <option [ngValue]="null" disabled>-- Georessource wählen --</option>
+                          <option *ngFor="let georesource of filteredGeoresources" [ngValue]="georesource">
+                            {{georesource.datasetName}} ({{georesource.georesourceType.displayName}})
+                          </option>
+                        </select>
+                        <div class="help-block">
+                          <p>Wählen Sie eine Georessource aus der Liste aus, zu der eine Referenz erstellt werden soll</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                      <div class="form-group">
+                        <label>Referenzbeschreibung*</label>
+                        <textarea rows="3" class="form-control" [(ngModel)]="tmpGeoresourceReference_referenceDescription" name="tmpGeoresourceReference_referenceDescription"
+                          placeholder="Beschreibung der Beziehung zur ausgewählten Georessource" required></textarea>
+                        <div class="help-block">
+                          <p>Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und der ausgewählten Georessource</p>
+                        </div>
+                        <div class="help-block with-errors"></div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                      <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-primary form-control" 
+                          [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata || !tmpGeoresourceReference_referenceDescription"
+                          (click)="onAddOrUpdateGeoresourceReference()">
+                          <i class="fas fa-plus"></i> Georessourcen-Referenz hinzufügen
+                          </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                  <div class="form-group">
-                <label>Referenzbeschreibung*</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="tmpGeoresourceReference_referenceDescription" name="tmpGeoresourceReference_referenceDescription"
-                  placeholder="Beschreibung der Beziehung zur ausgewählten Georessource" required></textarea>
-                <div class="help-block">
-                  <p>Beschreiben Sie die Art der Beziehung zwischen diesem Indikator und der ausgewählten Georessource</p>
+
+                  <div class="row vertical-align" *ngIf="georesourceReferences_adminView.length > 0">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Hinzugefügte Georessourcen-Referenzen</label>
+                        <div class="table-responsive">
+                          <table class="table table-striped table-bordered">
+                            <thead>
+                              <tr>
+                                <th>Georessource</th>
+                                <th>Typ</th>
+                                <th>Referenzbeschreibung</th>
+                                <th>Aktion</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let reference of georesourceReferences_adminView; let i = index">
+                                <td>{{reference.georesourceMetadata.datasetName}}</td>
+                                <td>{{reference.georesourceMetadata.georesourceType.displayName}}</td>
+                                <td>{{reference.referenceDescription}}</td>
+                                <td>
+                                  <button type="button" class="btn btn-warning btn-sm" (click)="onClickEditGeoresourceReference(reference)">
+                                    <i class="fas fa-edit"></i> Bearbeiten
+                                  </button>
+                                  <button type="button" class="btn btn-danger btn-sm" (click)="onClickDeleteGeoresourceReference(reference)">
+                                    <i class="fas fa-trash"></i> Löschen
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            <div class="col-md-4 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>&nbsp;</label>
-                <button type="button" class="btn btn-primary form-control" 
-                  [disabled]="!tmpGeoresourceReference_selectedGeoresourceMetadata || !tmpGeoresourceReference_referenceDescription"
-                  (click)="onAddOrUpdateGeoresourceReference()">
-                  <i class="fas fa-plus"></i> Georessourcen-Referenz hinzufügen
-                  </button>
-              </div>
+
                 </div>
               </div>
 
-          <div class="row vertical-align" *ngIf="georesourceReferences_adminView.length > 0">
-                <div class="col-md-12">
-              <div class="form-group">
-                <label>Hinzugefügte Georessourcen-Referenzen</label>
-                <div class="table-responsive">
-                  <table class="table table-striped table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Georessource</th>
-                        <th>Typ</th>
-                        <th>Referenzbeschreibung</th>
-                        <th>Aktion</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let reference of georesourceReferences_adminView; let i = index">
-                        <td>{{reference.georesourceMetadata.datasetName}}</td>
-                        <td>{{reference.georesourceMetadata.georesourceType.displayName}}</td>
-                        <td>{{reference.referenceDescription}}</td>
-                        <td>
-                          <button type="button" class="btn btn-warning btn-sm" (click)="onClickEditGeoresourceReference(reference)">
-                            <i class="fas fa-edit"></i> Bearbeiten
-                          </button>
-                          <button type="button" class="btn btn-danger btn-sm" (click)="onClickDeleteGeoresourceReference(reference)">
-                            <i class="fas fa-trash"></i> Löschen
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
           </div>
 

@@ -1,12 +1,20 @@
 import { Component, Input } from "@angular/core";
-import { Topic, TopicResourceType, TopicOrderMode } from '../admin-topics-management.component';
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { Topic, TopicOrderMode, TopicResourceType } from "../admin-topics-management.component";
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  moveItemInArray,
+} from "@angular/cdk/drag-drop";
+import { NgbCollapseModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { TopicDeleteModalComponent } from "../topicDeleteModal/topic-delete-modal.component";
 import { TopicEditModalComponent } from "../topicEditModal/topic-edit-modal.component";
 import { AdminTopicsManagementService } from "../admin-topics-management.service";
 
 import { Injectable } from "@angular/core";
+import { AddTopicComponent } from "../add-topic/add-topic.component";
+import { CommonModule } from "@angular/common";
+import { SortByOrderPipe } from "../sortByOrder.pipe";
 
 @Injectable({ providedIn: "root" })
 export class ExpandedService {
@@ -17,6 +25,15 @@ export class ExpandedService {
   selector: "app-topic-list",
   templateUrl: "./topicList.component.html",
   styleUrls: ["./topicList.component.css"],
+  imports: [
+    AddTopicComponent,
+    CommonModule,
+    SortByOrderPipe,
+    CdkDropList,
+    NgbCollapseModule,
+    CdkDrag,
+  ],
+  standalone: true,
 })
 export class TopicListComponent {
   @Input({ required: true }) topics!: Topic[];
@@ -31,7 +48,7 @@ export class TopicListComponent {
   constructor(
     private modalService: NgbModal,
     private srvc: AdminTopicsManagementService,
-    private expandedService: ExpandedService
+    private expandedService: ExpandedService,
   ) {}
 
   dropIndicatorTopics(event: CdkDragDrop<string[]>) {
@@ -48,16 +65,22 @@ export class TopicListComponent {
         },
       });
     } else {
-      this.srvc.updateMainTopicOrder(this.topicResourceType, this.topics).subscribe({
-        next: () => {
-          console.log(`Updated main topic order successfully.`);
-        },
-        error: () => {
-          console.log(`Failed to update main topic order.`);
-          // revert local change
-          moveItemInArray(this.topics, event.currentIndex, event.previousIndex);
-        },
-      });
+      this.srvc
+        .updateMainTopicOrder(this.topicResourceType, this.topics)
+        .subscribe({
+          next: () => {
+            console.log(`Updated main topic order successfully.`);
+          },
+          error: () => {
+            console.log(`Failed to update main topic order.`);
+            // revert local change
+            moveItemInArray(
+              this.topics,
+              event.currentIndex,
+              event.previousIndex,
+            );
+          },
+        });
     }
   }
 

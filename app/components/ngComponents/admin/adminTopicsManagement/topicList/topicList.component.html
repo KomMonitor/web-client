@@ -7,52 +7,48 @@
   <div *ngFor="let topic of topics | sortByOrder: order">
     <div
       class="list-group-item list-group-item-default level-{{ level }}"
+      (click)="toggleExpand(topic.topicId!)"
       cdkDrag
     >
-      <div style="display: flex; align-items: center">
-        <div
-          [id]="topic.topicId"
-          href=""
-          [title]="topic.topicDescription"
-          class="collapseTrigger"
-          style="flex-grow: 1"
-          (click)="toggleExpand(topic.topicId!)"
-          [attr.data-init]="true"
+      <i
+        class="fa collapse-marker"
+        *ngIf="isExpandable()"
+        [class.fa-angle-right]="!isExpanded(topic.topicId!)"
+        [class.fa-angle-down]="isExpanded(topic.topicId!)"
+      ></i>
+      <div [title]="topic.topicDescription">
+        {{ topic.topicName }}
+      </div>
+      <div
+        class="btn-group btn-group-sm"
+        style="display: inline-block; margin: 0 5px"
+      >
+        <button
+          type="button"
+          class="btn btn-warning"
+          (click)="$event.stopPropagation(); onClickEditTopic(topic)"
         >
-          <i
-            class="glyphicon"
-            *ngIf="isExpandable()"
-            [class.glyphicon-chevron-right]="!isExpanded(topic.topicId!)"
-            [class.glyphicon-chevron-down]="isExpanded(topic.topicId!)"
-          ></i>
-          <div
-            class="btn-group btn-group-sm"
-            style="display: inline-block; margin: 0 5px"
-          >
-            <button
-              type="button"
-              class="btn btn-warning"
-              (click)="onClickEditTopic(topic)"
-            >
-              <i class="fas fa-pencil-alt"></i>
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              (click)="onClickDeleteTopic(topic)"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-          {{ topic.topicName }}
-        </div>
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="$event.stopPropagation(); onClickDeleteTopic(topic)"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
 
-        <div *ngIf="showTopicIds" style="margin: 0 10px">
-          (ID: {{ topic.topicId }})
-        </div>
+      <div *ngIf="showTopicIds" style="margin: 0 10px">
+        (ID: {{ topic.topicId }})
       </div>
     </div>
-    <div class="list-group collapse" [class.show]="isExpanded(topic.topicId!)">
+    <div
+      class="list-group collapse"
+      [class.show]="isExpanded(topic.topicId!)"
+      #collapse="ngbCollapse"
+      [ngbCollapse]="!isExpanded(topic.topicId!)"
+    >
       <div class="sub-topics" *ngIf="topic.subTopics">
         <app-topic-list
           [topics]="topic.subTopics"
