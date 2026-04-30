@@ -1,8 +1,8 @@
 import { Component, signal } from "@angular/core";
 import { ExportItem, Indicator } from "../models";
 import { CommonModule } from "@angular/common";
-import { ExportingService } from "../../../../../services/exporting/exporting.service";
 import { ExportItemTimeSelectionComponent } from "../export-item-time-selection/export-item-time-selection.component";
+import { ExportingStateService } from "../exporting-state.service";
 
 @Component({
   selector: "app-export-dataset-list",
@@ -34,7 +34,7 @@ export class ExportDatasetListComponent {
 
   AVAILABLE_FORMATS = ["GeoPackage", "Excel", "CSV", "GeoJSON"];
 
-  constructor(protected srvc: ExportingService) {}
+  constructor(protected srvc: ExportingStateService) {}
 
   isItemRelevant(item: ExportItem): boolean {
     // const type = this.combinedExportType();

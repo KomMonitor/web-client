@@ -3,7 +3,9 @@ import { Component, inject } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ExportTypSelectionComponent } from "../export-typ-selection/export-typ-selection.component";
 import { ExportDatasetListComponent } from "../export-dataset-list/export-dataset-list.component";
-import { ExportingService } from "../../../../../services/exporting/exporting.service";
+import {
+  ExportingStateService,
+} from "../exporting-state.service";
 import { ExpandableBoxComponent } from "../../../common/expandable-box/expandable-box.component";
 
 @Component({
@@ -15,13 +17,13 @@ import { ExpandableBoxComponent } from "../../../common/expandable-box/expandabl
     CommonModule,
     ExportTypSelectionComponent,
     ExportDatasetListComponent,
-    ExpandableBoxComponent
+    ExpandableBoxComponent,
   ],
 })
 export class DownloadModalComponent {
   activeModal = inject(NgbActiveModal);
 
-  constructor(protected srvc: ExportingService) {}
+  constructor(protected srvc: ExportingStateService) {}
 
   startDownload() {
     throw new Error("Method not implemented.");

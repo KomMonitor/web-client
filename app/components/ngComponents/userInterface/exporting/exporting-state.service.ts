@@ -2,14 +2,14 @@ import { Injectable, signal } from "@angular/core";
 import {
   ExportItem,
   TimeSelectionMode,
-} from "../../components/ngComponents/userInterface/exporting/models";
+} from "./models";
 
 export type SelectionType = "none" | "multiIndicator" | "multiSpatialUnit";
 
 @Injectable({
   providedIn: "root",
 })
-export class ExportingService {
+export class ExportingStateService {
   selectionType = signal<SelectionType>("multiSpatialUnit");
 
   // TODO: fetch available spatial units

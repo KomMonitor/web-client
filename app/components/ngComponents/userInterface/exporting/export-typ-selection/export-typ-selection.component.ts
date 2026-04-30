@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import {
-  ExportingService,
+  ExportingStateService,
   SelectionType,
-} from "../../../../../services/exporting/exporting.service";
+} from "../exporting-state.service";
 
 @Component({
   selector: "app-export-typ-selection",
@@ -25,7 +25,7 @@ export class ExportTypSelectionComponent {
     },
   ];
 
-  constructor(protected srvc: ExportingService) {}
+  constructor(protected srvc: ExportingStateService) {}
 
   updateSelectedSpatialUnit(evt: Event): void {
     const value = (evt.target as HTMLSelectElement).value;
