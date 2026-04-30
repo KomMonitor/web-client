@@ -7,19 +7,19 @@
     <div
       *ngFor="let item of srvc.exportItems(); let i = index"
       [id]="item.dataset.id"
-      class="panel panel-default"
+      class="card mb-3"
     >
-      <div class="panel-body">
+      <div class="card-body">
         <div style="display: flex">
           <div>
             <span
               *ngIf="item.dataset.type === 'indicator'"
-              class="label label-primary"
+              class="badge bg-primary"
               >INDIKATOR</span
             >
             <span
               *ngIf="item.dataset.type === 'georesource'"
-              class="label label-success"
+              class="badge bg-success"
               >GEORESOURCE</span
             >
             <h4>
@@ -70,16 +70,15 @@
             <div *ngIf="srvc.selectionType() === 'multiSpatialUnit'">
               <div
                 *ngFor="let lvl of getIndicatorLevels(item)"
-                class="checkbox"
+                class="form-check"
               >
-                <label>
-                  <input
-                    type="checkbox"
-                    [checked]="item.selectedMultiLevels.includes(lvl)"
-                    (change)="srvc.toggleItemLevel(item.dataset.id, lvl)"
-                  />
-                  <span>{{ lvl }}</span>
-                </label>
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="item.selectedMultiLevels.includes(lvl)"
+                  (change)="srvc.toggleItemLevel(item.dataset.id, lvl)"
+                />
+                <label class="form-check-label">{{ lvl }}</label>
               </div>
             </div>
           </div>
@@ -91,13 +90,22 @@
 
         <div>
           <div>Downloadformate</div>
-          <div class="btn-group" data-toggle="buttons">
-            <label
-              class="btn btn-default"
-              *ngFor="let fmt of AVAILABLE_FORMATS"
-            >
-              <input type="checkbox" /> {{ fmt }}
-            </label>
+          <div
+            class="btn-group"
+            role="group"
+            aria-label="Basic checkbox toggle button group"
+          >
+            <ng-container *ngFor="let fmt of AVAILABLE_FORMATS">
+              <input
+                type="checkbox"
+                class="btn-check"
+                [id]="fmt"
+                autocomplete="off"
+              />
+              <label class="btn btn-outline-secondary" [for]="fmt">{{
+                fmt
+              }}</label>
+            </ng-container>
           </div>
         </div>
       </div>

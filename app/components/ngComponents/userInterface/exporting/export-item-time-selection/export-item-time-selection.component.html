@@ -7,19 +7,19 @@
   class="nav nav-tabs"
   [animation]="false"
 >
-  <li [ngbNavItem]="1" [ngClass]="{ active: active === 1 }">
+  <li [ngbNavItem]="1">
     <a class="nav-link" ngbNavLink>Einzeln</a>
     <ng-template ngbNavContent>
       <p>einzelnen Zeitpunkt auswählen</p>
       <pre>{{ exportItem.dataset.availableTimestamps | json }}</pre>
     </ng-template>
   </li>
-  <li [ngbNavItem]="2" [ngClass]="{ active: active === 2 }">
+  <li [ngbNavItem]="2">
     <a class="nav-link" ngbNavLink>Zeitraum</a>
     <ng-template ngbNavContent>
       <div class="row">
         <div class="col-md-6">
-          <div>Vonhorst</div>
+          <div>Von</div>
           <select
             (change)="updateRangeStart($event)"
             [value]="start"

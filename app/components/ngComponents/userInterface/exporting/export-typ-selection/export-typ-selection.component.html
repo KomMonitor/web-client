@@ -3,17 +3,16 @@
     Exportieren Sie mehrere Datensätze gebündelt in einem einzigen GeoPackage.
   </p>
   <div *ngFor="let opt of options">
-    <div class="radio">
-      <label>
-        <input
-          type="radio"
-          name="exportType"
-          [value]="opt.val"
-          [checked]="srvc.selectionType() === opt.val"
-          (change)="setSelectionType(opt.val)"
-        />
-        <span>{{ opt.label }}</span>
-      </label>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="exportType"
+        [value]="opt.val"
+        [checked]="srvc.selectionType() === opt.val"
+        (change)="setSelectionType(opt.val)"
+      />
+      <label class="form-check-label">{{ opt.label }}</label>
     </div>
   </div>
 
@@ -28,7 +27,7 @@
     <select
       (change)="updateSelectedSpatialUnit($event)"
       [value]="srvc.selectedSpatialUnit()"
-      style="width: 100%;"
+      style="width: 100%"
     >
       <option value="">Bitte wählen...</option>
       <option *ngFor="let level of srvc.spatialUnits()" [value]="level">

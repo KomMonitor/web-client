@@ -1,14 +1,12 @@
 <div class="modal-content">
   <div class="modal-header">
+    <h4 class="modal-title"><b>Downloadbereich</b></h4>
     <button
       type="button"
-      class="close"
-      data-dismiss="modal"
+      class="btn-close"
+      aria-label="Close"
       (click)="activeModal.close('Close click')"
-    >
-      &times;
-    </button>
-    <h4 class="modal-title"><b>Downloadbereich</b></h4>
+    ></button>
   </div>
   <div class="modal-body">
     <p class="hint">
@@ -17,40 +15,39 @@
 
     <div class="row">
       <div class="col-md-4">
-        <div class="box box-primary">
-          <div class="box-header with-border">
-            <h3 class="box-title">Kombinierter Export</h3>
-          </div>
-          <div class="box-body">
-            <app-export-typ-selection />
-          </div>
-        </div>
+        <expandable-box
+          title="Kombinierter Export"
+          [collapsed]="false"
+          [isCollapsible]="false"
+        >
+          <app-export-typ-selection />
+        </expandable-box>
 
-        <div class="box box-primary">
-          <div class="box-header with-border">
-            <h3 class="box-title">Export starten</h3>
-          </div>
-          <div class="box-body">
+        <expandable-box
+          title="Export starten"
+          [collapsed]="false"
+          [isCollapsible]="false"
+        >
+          <div class="d-grid">
             <button
               type="button"
-              class="btn btn-primary btn-lg btn-block"
+              class="btn btn-primary"
               (click)="startDownload()"
             >
               <i class="fas fa-download"></i>
               <span> Download starten</span>
             </button>
           </div>
-        </div>
+        </expandable-box>
       </div>
       <div class="col-md-8">
-        <div class="box box-primary">
-          <div class="box-header with-border">
-            <h3 class="box-title">Ausgewählte Datensätze (...)</h3>
-          </div>
-          <div class="box-body">
-            <app-export-dataset-list></app-export-dataset-list>
-          </div>
-        </div>
+        <expandable-box
+          title="Ausgewählte Datensätze"
+          [collapsed]="false"
+          [isCollapsible]="false"
+        >
+          <app-export-dataset-list />
+        </expandable-box>
       </div>
     </div>
   </div>

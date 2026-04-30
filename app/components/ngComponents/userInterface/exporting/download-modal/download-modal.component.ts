@@ -4,6 +4,7 @@ import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ExportTypSelectionComponent } from "../export-typ-selection/export-typ-selection.component";
 import { ExportDatasetListComponent } from "../export-dataset-list/export-dataset-list.component";
 import { ExportingService } from "../../../../../services/exporting/exporting.service";
+import { ExpandableBoxComponent } from "../../../common/expandable-box/expandable-box.component";
 
 @Component({
   selector: "app-download-modal",
@@ -14,6 +15,7 @@ import { ExportingService } from "../../../../../services/exporting/exporting.se
     CommonModule,
     ExportTypSelectionComponent,
     ExportDatasetListComponent,
+    ExpandableBoxComponent
   ],
 })
 export class DownloadModalComponent {
