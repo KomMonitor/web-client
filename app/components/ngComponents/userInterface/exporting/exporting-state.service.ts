@@ -12,12 +12,12 @@ export type SelectionType = "none" | "multiIndicator" | "multiSpatialUnit";
 export class ExportingStateService {
   selectionType = signal<SelectionType>("multiSpatialUnit");
 
-  // TODO: fetch available spatial units
+  selectedEpsgCode = signal<number | null>(4326);
+
   spatialUnits = signal<string[]>(["Gesamtstadt", "Stadtteil", "Stadtbezirk"]);
 
   selectedSpatialUnit = signal<string | null>(null);
 
-  // TODO: fetch export items
   exportItems = signal<ExportItem[]>([
     {
       dataset: {

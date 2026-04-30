@@ -28,10 +28,15 @@
           [collapsed]="false"
           [isCollapsible]="false"
         >
+          <app-epsg-selector
+            (epsgCodeChange)="onEpsgCodeChange($event)"
+            class="mb-3 d-block"
+          />
           <div class="d-grid">
             <button
               type="button"
               class="btn btn-primary"
+              [disabled]="srvc.selectedEpsgCode() === null"
               (click)="startDownload()"
             >
               <i class="fas fa-download"></i>
