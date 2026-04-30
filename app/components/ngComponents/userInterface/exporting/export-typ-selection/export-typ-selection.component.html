@@ -4,19 +4,21 @@
   </p>
   <div *ngFor="let opt of options">
     <div class="form-check">
-      <input
-        class="form-check-input"
-        type="radio"
-        name="exportType"
-        [value]="opt.val"
-        [checked]="srvc.selectionType() === opt.val"
-        (change)="setSelectionType(opt.val)"
-      />
-      <label class="form-check-label">{{ opt.label }}</label>
+      <label class="form-check-label">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="exportType"
+          [value]="opt.val"
+          [checked]="srvc.exportType() === opt.val"
+          (change)="setSelectionType(opt.val)"
+        />
+        {{ opt.label }}
+      </label>
     </div>
   </div>
 
-  <div *ngIf="srvc.selectionType() === 'multiIndicator'">
+  <div *ngIf="srvc.exportType() === 'spatialUnit'">
     <hr />
     <div class="alert alert-info" role="alert">
       Gemeinsame Raumebene für <strong>alle</strong> Indikatoren.
@@ -36,7 +38,7 @@
     </select>
   </div>
 
-  <div *ngIf="srvc.selectionType() === 'multiSpatialUnit'">
+  <div *ngIf="srvc.exportType() === 'multiple'">
     <div class="alert alert-info" role="alert">
       Bitte wählen Sie die Raumebenen <strong>rechts in der Liste</strong>.
     </div>

@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import {
   ExportingStateService,
-  SelectionType,
+  ExportType,
 } from "../exporting-state.service";
 
 @Component({
@@ -13,14 +13,14 @@ import {
   standalone: true,
 })
 export class ExportTypSelectionComponent {
-  options: { val: SelectionType; label: string }[] = [
-    { val: "none", label: "Einzel-Export (Standard)" },
+  options: { val: ExportType; label: string }[] = [
+    { val: "single", label: "Einzel-Export (Standard)" },
     {
-      val: "multiIndicator",
+      val: "spatialUnit",
       label: "Mehrere Indikatoren für eine Raumebene",
     },
     {
-      val: "multiSpatialUnit",
+      val: "multiple",
       label: "Ein Indikator für mehrere Raumebenen",
     },
   ];
@@ -32,8 +32,8 @@ export class ExportTypSelectionComponent {
     this.srvc.selectedSpatialUnit.set(value);
   }
 
-  setSelectionType(type: SelectionType): void {
-    this.srvc.selectionType.set(type);
+  setSelectionType(type: ExportType): void {
+    this.srvc.exportType.set(type);
     // this.combinedConfig.set({ level: "", selectedIndicatorIds: [] });
     // // Reset multi-levels when switching mode
     // this.exportItems.update((items) =>

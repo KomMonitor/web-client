@@ -1,114 +1,180 @@
 <div>
-  <p *ngIf="srvc.exportItems().length === 0; else datasetList">
+  <p
+    *ngIf="
+      srvc.indicatorItems().length === 0 && srvc.georesourceItems().length === 0
+    "
+  >
     Es wurden keine Datensätze für den Download ausgewählt.
   </p>
 
-  <ng-template #datasetList>
-    <div
-      *ngFor="let item of srvc.exportItems(); let i = index"
-      [id]="item.dataset.id"
-      class="card mb-3"
-    >
-      <div class="card-body">
-        <div style="display: flex">
-          <div>
-            <span
-              *ngIf="item.dataset.type === 'indicator'"
-              class="badge bg-primary"
-              >INDIKATOR</span
-            >
-            <span
-              *ngIf="item.dataset.type === 'georesource'"
-              class="badge bg-success"
-              >GEORESOURCE</span
-            >
-            <h4>
-              {{ item.dataset.name }}
-              <!-- <span
-                *ngIf="!isItemRelevant(item) && combinedExportType() !== 'none'"
-                >(Ignoriert)</span
-              > -->
-            </h4>
-          </div>
-          <div style="flex: 1"></div>
-          <button
-            type="button"
-            class="btn btn-danger"
-            style="align-self: center; border-radius: 50%"
-            (click)="srvc.removeDataset(item.dataset.id)"
-          >
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
+  <ng-container
+    *ngIf="
+      srvc.indicatorItems().length > 0 || srvc.georesourceItems().length > 0
+    "
+  >
+    <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs mb-3">
+      <li [ngbNavItem]="'indicators'">
+        <button ngbNavLink>
+          Indikatoren
+          <span class="badge bg-primary ms-1">{{
+            srvc.indicatorItems().length
+          }}</span>
+        </button>
+        <ng-template ngbNavContent>
+          <ng-container *ngFor="let item of srvc.indicatorItems()">
+            <div [id]="item.dataset.id" class="card mb-3">
+              <div class="card-body">
+                <div style="display: flex">
+                  <div>
+                    <h4>{{ item.dataset.name }}</h4>
+                  </div>
+                  <div style="flex: 1"></div>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    style="align-self: center; border-radius: 50%"
+                    (click)="srvc.removeIndicator(item.dataset.id)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
 
-        <div class="row">
-          <div class="col-md-6" *ngIf="item.dataset.type === 'indicator'">
-            <div>Raumebene(n)</div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div>Raumebene(n)</div>
 
-            <div *ngIf="srvc.selectionType() === 'none'">
-              <select
-                (change)="updateSelectedSpatialUnit($event)"
-                [value]="srvc.selectedSpatialUnit()"
-                style="width: 100%"
-              >
-                <option value="">Bitte wählen...</option>
-                <option
-                  *ngFor="let level of srvc.spatialUnits()"
-                  [value]="level"
-                >
-                  {{ level }}
-                </option>
-              </select>
-            </div>
+                    <div *ngIf="srvc.exportType() === 'single'">
+                      <select
+                        (change)="updateSelectedSpatialUnit($event)"
+                        [value]="srvc.selectedSpatialUnit()"
+                        style="width: 100%"
+                      >
+                        <option value="">Bitte wählen...</option>
+                        <option
+                          *ngFor="let level of item.dataset.spatialUnits"
+                          [value]="level.id"
+                        >
+                          {{ level.name }}
+                        </option>
+                      </select>
+                    </div>
 
-            <div *ngIf="srvc.selectionType() === 'multiIndicator'">
-              <div class="alert alert-info" role="alert">
-                Bitte Ebene links wählen
+                    <div *ngIf="srvc.exportType() === 'spatialUnit'">
+                      <div class="alert alert-info" role="alert">
+                        Bitte Ebene links wählen
+                      </div>
+                    </div>
+
+                    <div *ngIf="srvc.exportType() === 'multiple'">
+                      <div
+                        *ngFor="let lvl of getIndicatorLevels(item)"
+                        class="form-check"
+                      >
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [checked]="item.selectedMultiLevels.includes(lvl.id)"
+                          (change)="
+                            srvc.toggleItemLevel(item.dataset.id, lvl.id)
+                          "
+                        />
+                        <label class="form-check-label">{{ lvl.name }}</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <app-export-item-time-selection [exportItem]="item" />
+                  </div>
+                </div>
+
+                <div>
+                  <div>Downloadformate</div>
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="Basic checkbox toggle button group"
+                  >
+                    <ng-container *ngFor="let fmt of AVAILABLE_FORMATS()">
+                      <input
+                        type="checkbox"
+                        class="btn-check"
+                        [id]="item.dataset.id + '-' + fmt"
+                        autocomplete="off"
+                      />
+                      <label
+                        class="btn btn-outline-secondary"
+                        [for]="item.dataset.id + '-' + fmt"
+                        >{{ fmt }}</label
+                      >
+                    </ng-container>
+                  </div>
+                </div>
               </div>
             </div>
+          </ng-container>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="'georesources'" *ngIf="srvc.exportType() === 'single'">
+        <button ngbNavLink>
+          Georessourcen
+          <span class="badge bg-success ms-1">{{
+            srvc.georesourceItems().length
+          }}</span>
+        </button>
+        <ng-template ngbNavContent>
+          <ng-container *ngFor="let item of srvc.georesourceItems()">
+            <div [id]="item.dataset.id" class="card mb-3">
+              <div class="card-body">
+                <div style="display: flex">
+                  <div>
+                    <h4>{{ item.dataset.name }}</h4>
+                  </div>
+                  <div style="flex: 1"></div>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    style="align-self: center; border-radius: 50%"
+                    (click)="srvc.removeGeoresource(item.dataset.id)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
 
-            <div *ngIf="srvc.selectionType() === 'multiSpatialUnit'">
-              <div
-                *ngFor="let lvl of getIndicatorLevels(item)"
-                class="form-check"
-              >
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  [checked]="item.selectedMultiLevels.includes(lvl)"
-                  (change)="srvc.toggleItemLevel(item.dataset.id, lvl)"
-                />
-                <label class="form-check-label">{{ lvl }}</label>
+                <div class="row">
+                  <div class="col-md-12">
+                    <app-export-item-time-selection [exportItem]="item" />
+                  </div>
+                </div>
+
+                <div>
+                  <div>Downloadformate</div>
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="Basic checkbox toggle button group"
+                  >
+                    <ng-container *ngFor="let fmt of AVAILABLE_FORMATS()">
+                      <input
+                        type="checkbox"
+                        class="btn-check"
+                        [id]="item.dataset.id + '-' + fmt"
+                        autocomplete="off"
+                      />
+                      <label
+                        class="btn btn-outline-secondary"
+                        [for]="item.dataset.id + '-' + fmt"
+                        >{{ fmt }}</label
+                      >
+                    </ng-container>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="col-md-6">
-            <app-export-item-time-selection [exportItem]="item" />
-          </div>
-        </div>
-
-        <div>
-          <div>Downloadformate</div>
-          <div
-            class="btn-group"
-            role="group"
-            aria-label="Basic checkbox toggle button group"
-          >
-            <ng-container *ngFor="let fmt of AVAILABLE_FORMATS">
-              <input
-                type="checkbox"
-                class="btn-check"
-                [id]="fmt"
-                autocomplete="off"
-              />
-              <label class="btn btn-outline-secondary" [for]="fmt">{{
-                fmt
-              }}</label>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-template>
+          </ng-container>
+        </ng-template>
+      </li>
+    </ul>
+    <div [ngbNavOutlet]="nav"></div>
+  </ng-container>
 </div>

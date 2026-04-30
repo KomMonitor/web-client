@@ -1,16 +1,24 @@
 import { Injectable, signal } from "@angular/core";
 import {
-  ExportItem,
+  GeoresourceExportItem,
+  Indicator,
+  IndicatorExportItem,
   TimeSelectionMode,
 } from "./models";
 
-export type SelectionType = "none" | "multiIndicator" | "multiSpatialUnit";
+export type ExportType = "single" | "spatialUnit" | "multiple";
+
+export const FORMAT_CONFIG: Record<ExportType, string[]> = {
+  single: ["GeoPackage", "Excel", "CSV", "GeoJSON"],
+  spatialUnit: ["GeoPackage", "Excel", "CSV"],
+  multiple: ["GeoPackage", "Excel", "CSV"],
+};
 
 @Injectable({
   providedIn: "root",
 })
 export class ExportingStateService {
-  selectionType = signal<SelectionType>("multiSpatialUnit");
+  exportType = signal<ExportType>("single");
 
   selectedEpsgCode = signal<number | null>(4326);
 
@@ -18,86 +26,24 @@ export class ExportingStateService {
 
   selectedSpatialUnit = signal<string | null>(null);
 
-  exportItems = signal<ExportItem[]>([
-    {
-      dataset: {
-        id: "ind-1",
-        name: "Bevölkerungsdichte",
-        type: "indicator",
-        availableLevels: ["Gesamtstadt", "Stadtteile", "Statistische Bezirke"],
-        availableTimestamps: [
-          "2023-12-31",
-          "2022-12-31",
-          "2021-12-31",
-          "2020-12-31",
-          "2019-12-31",
-        ],
-      },
-      selectedLevel: "Stadtteile",
-      selectedTimestamps: ["2023-12-31", "2022-12-31"],
-      dateRange: { start: "2022-01-01", end: "2023-12-31" },
-      selectedFormats: ["Excel", "CSV"],
-      selectedMultiLevels: ["Stadtteile", "Statistische Bezirke"],
-      timeSelectionMode: "points",
-    },
-    {
-      dataset: {
-        id: "geo-1",
-        name: "Schulstandorte",
-        type: "georesource",
-        availableTimestamps: ["2024-01-01", "2023-01-01", "2022-01-01"],
-      },
-      timeSelectionMode: "range",
-      selectedTimestamps: [],
-      dateRange: { start: "2022-01-01", end: "2024-01-01" },
-      selectedFormats: ["GeoPackage", "GeoJSON"],
-      selectedMultiLevels: [],
-    },
-    // {
-    //   dataset: {
-    //     id: "ind-2",
-    //     name: "Arbeitslosenquote",
-    //     type: "indicator",
-    //     availableLevels: ["Gesamtstadt", "Stadtteile"],
-    //     availableTimestamps: [
-    //       "2024-03-31",
-    //       "2023-12-31",
-    //       "2023-09-30",
-    //       "2023-06-30",
-    //     ],
-    //   },
-    //   selectedLevel: "Gesamtstadt",
-    //   timeSelectionMode: "points",
-    //   selectedTimestamps: ["2024-03-31", "2023-12-31"],
-    //   dateRange: { start: "2023-06-30", end: "2024-03-31" },
-    //   selectedFormats: ["Excel"],
-    //   selectedMultiLevels: ["Gesamtstadt"],
-    // },
-    // {
-    //   dataset: {
-    //     id: "ind-3",
-    //     name: "Durchschnittsalter",
-    //     type: "indicator",
-    //     availableLevels: ["Gesamtstadt", "Stadtteile", "Statistische Bezirke"],
-    //     availableTimestamps: ["2023-12-31", "2022-12-31"],
-    //   },
-    //   selectedLevel: "Statistische Bezirke",
-    //   timeSelectionMode: "range",
-    //   selectedTimestamps: [],
-    //   dateRange: { start: "2022-12-31", end: "2023-12-31" },
-    //   selectedFormats: ["CSV"],
-    //   selectedMultiLevels: ["Gesamtstadt", "Stadtteile"],
-    // }
-  ]);
+  indicatorItems = signal<IndicatorExportItem[]>([]);
 
-  removeDataset(datasetId: string): void {
-    this.exportItems.update((items) =>
-      items.filter((item) => item.dataset.id !== datasetId)
+  georesourceItems = signal<GeoresourceExportItem[]>([]);
+
+  removeIndicator(indicatorId: string) {
+    this.indicatorItems.update((items) =>
+      items.filter((item) => item.dataset.id !== indicatorId),
+    );
+  }
+
+  removeGeoresource(datasetId: string): void {
+    this.georesourceItems.update((items) =>
+      items.filter((item) => item.dataset.id !== datasetId),
     );
   }
 
   toggleItemLevel(datasetId: string, level: string): void {
-    this.exportItems.update((items) =>
+    this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === datasetId) {
           const currentLevels = new Set(item.selectedMultiLevels);
@@ -106,38 +52,45 @@ export class ExportingStateService {
           return { ...item, selectedMultiLevels: [...currentLevels] };
         }
         return item;
-      })
+      }),
     );
   }
 
   updateLevel(datasetId: string, event: Event): void {
     const target = event.target as HTMLSelectElement;
-    this.exportItems.update((items) =>
+    this.indicatorItems.update((items) =>
       items.map((item) =>
         item.dataset.id === datasetId
           ? { ...item, selectedLevel: target.value }
-          : item
-      )
+          : item,
+      ),
     );
   }
 
   updateTimeMode(datasetId: string, mode: TimeSelectionMode): void {
-    this.exportItems.update((items) =>
+    this.indicatorItems.update((items) =>
       items.map((item) =>
         item.dataset.id === datasetId
           ? { ...item, timeSelectionMode: mode }
-          : item
-      )
+          : item,
+      ),
+    );
+    this.georesourceItems.update((items) =>
+      items.map((item) =>
+        item.dataset.id === datasetId
+          ? { ...item, timeSelectionMode: mode }
+          : item,
+      ),
     );
   }
 
   updateDateRange(
     datasetId: string,
     type: "start" | "end",
-    event: Event
+    event: Event,
   ): void {
     const target = event.target as HTMLInputElement;
-    this.exportItems.update((items) =>
+    this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === datasetId) {
           return {
@@ -146,12 +99,23 @@ export class ExportingStateService {
           };
         }
         return item;
-      })
+      }),
+    );
+    this.georesourceItems.update((items) =>
+      items.map((item) => {
+        if (item.dataset.id === datasetId) {
+          return {
+            ...item,
+            dateRange: { ...item.dateRange, [type]: target.value },
+          };
+        }
+        return item;
+      }),
     );
   }
 
   toggleMultiSelectOption(datasetId: string, timestamp: string): void {
-    this.exportItems.update((items) =>
+    this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === datasetId) {
           const currentSelected = new Set(item.selectedTimestamps);
@@ -160,12 +124,23 @@ export class ExportingStateService {
           return { ...item, selectedTimestamps: [...currentSelected] };
         }
         return item;
-      })
+      }),
+    );
+    this.georesourceItems.update((items) =>
+      items.map((item) => {
+        if (item.dataset.id === datasetId) {
+          const currentSelected = new Set(item.selectedTimestamps);
+          if (currentSelected.has(timestamp)) currentSelected.delete(timestamp);
+          else currentSelected.add(timestamp);
+          return { ...item, selectedTimestamps: [...currentSelected] };
+        }
+        return item;
+      }),
     );
   }
 
   toggleFormat(datasetId: string, format: string): void {
-    this.exportItems.update((items) =>
+    this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === datasetId) {
           const formats = new Set(item.selectedFormats);
@@ -174,7 +149,43 @@ export class ExportingStateService {
           return { ...item, selectedFormats: [...formats] };
         }
         return item;
-      })
+      }),
     );
+    this.georesourceItems.update((items) =>
+      items.map((item) => {
+        if (item.dataset.id === datasetId) {
+          const formats = new Set(item.selectedFormats);
+          if (formats.has(format)) formats.delete(format);
+          else formats.add(format);
+          return { ...item, selectedFormats: [...formats] };
+        }
+        return item;
+      }),
+    );
+  }
+
+  addIndicator(indicator: Indicator): void {
+    const alreadyExists = this.indicatorItems().some(
+      (item) => item.dataset.id === indicator.id,
+    );
+    if (alreadyExists) return;
+
+    const newItem: IndicatorExportItem = {
+      dataset: indicator,
+      selectedLevel: undefined,
+      timeSelectionMode: "points",
+      selectedTimestamps: indicator.availableTimestamps.slice(0, 1),
+      dateRange: {
+        start:
+          indicator.availableTimestamps[
+            indicator.availableTimestamps.length - 1
+          ] ?? "",
+        end: indicator.availableTimestamps[0] ?? "",
+      },
+      selectedFormats: [],
+      selectedMultiLevels: [],
+    };
+
+    this.indicatorItems.update((items) => [...items, newItem]);
   }
 }
