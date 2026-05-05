@@ -11,23 +11,50 @@ import { ExportItem } from "../models";
   standalone: true,
 })
 export class ExportItemTimeSelectionComponent implements OnInit {
-  start: any;
-  end: any;
-
   @Input({ required: true })
   public exportItem!: ExportItem;
 
-  active = 2;
+  active = 1;
 
   constructor() {}
 
   ngOnInit() {}
 
+  onTabChange(tabId: number) {
+    this.exportItem.selectedTargetTime = undefined;
+  }
+
+  get singleValue(): string {
+    const t = this.exportItem.selectedTargetTime;
+    return typeof t === "string" ? t : "";
+  }
+
+  get rangeStart(): string {
+    const t = this.exportItem.selectedTargetTime;
+    return t && typeof t !== "string" ? t.start : "";
+  }
+
+  get rangeEnd(): string {
+    const t = this.exportItem.selectedTargetTime;
+    return t && typeof t !== "string" ? t.end : "";
+  }
+
+  updateSingleTimestamp($event: Event) {
+    const value = ($event.target as HTMLSelectElement).value;
+    this.exportItem.selectedTargetTime = value || undefined;
+  }
+
   updateRangeStart($event: Event) {
-    debugger;
+    const value = ($event.target as HTMLSelectElement).value;
+    const current = this.exportItem.selectedTargetTime;
+    const end = current && typeof current !== "string" ? current.end : "";
+    this.exportItem.selectedTargetTime = { start: value, end };
   }
 
   updateRangeEnd($event: Event) {
-    debugger;
+    const value = ($event.target as HTMLSelectElement).value;
+    const current = this.exportItem.selectedTargetTime;
+    const start = current && typeof current !== "string" ? current.start : "";
+    this.exportItem.selectedTargetTime = { start, end: value };
   }
 }

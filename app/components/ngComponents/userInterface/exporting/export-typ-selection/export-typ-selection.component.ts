@@ -34,10 +34,5 @@ export class ExportTypSelectionComponent {
 
   setSelectionType(type: ExportType): void {
     this.srvc.exportType.set(type);
-    // this.combinedConfig.set({ level: "", selectedIndicatorIds: [] });
-    // // Reset multi-levels when switching mode
-    // this.exportItems.update((items) =>
-    //   items.map((item) => ({ ...item, selectedMultiLevels: [] }))
-    // );
   }
 }

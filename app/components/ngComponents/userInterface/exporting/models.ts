@@ -1,5 +1,7 @@
 export type TimeSelectionMode = "points" | "range";
 
+export type SelectedTargetTime = string | { start: string; end: string };
+
 export interface SpatialUnit {
   id: string;
   name: string;
@@ -20,20 +22,15 @@ export interface Georesource {
 
 export interface IndicatorExportItem {
   dataset: Indicator;
-  selectedLevel?: string;
-  timeSelectionMode: TimeSelectionMode;
-  selectedTimestamps: string[];
-  dateRange: { start: string; end: string };
   selectedFormats: string[];
-  selectedMultiLevels: string[];
+  selectedSpatialUnits: string[];
+  selectedTargetTime?: SelectedTargetTime;
 }
 
 export interface GeoresourceExportItem {
   dataset: Georesource;
-  timeSelectionMode: TimeSelectionMode;
-  selectedTimestamps: string[];
-  dateRange: { start: string; end: string };
   selectedFormats: string[];
+  selectedTargetTime?: SelectedTargetTime;
 }
 
 export type ExportItem = IndicatorExportItem | GeoresourceExportItem;

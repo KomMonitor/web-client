@@ -32,12 +32,20 @@
             (epsgCodeChange)="onEpsgCodeChange($event)"
             class="mb-3 d-block"
           />
+          <div
+            *ngIf="isLoading()"
+            class="alert alert-info py-2 mb-2"
+            role="status"
+          >
+            <i class="fas fa-spinner fa-spin me-1"></i>
+            Export wird vorbereitet...
+          </div>
           <div class="d-grid">
             <button
               type="button"
               class="btn btn-primary"
-              [disabled]="srvc.selectedEpsgCode() === null"
               (click)="startDownload()"
+              [disabled]="isLoading()"
             >
               <i class="fas fa-download"></i>
               <span> Download starten</span>
@@ -45,7 +53,7 @@
           </div>
         </expandable-box>
       </div>
-      <div class="col-md-8">
+      <div class="col-md-8 dataset-lists">
         <expandable-box
           title="Ausgewählte Datensätze"
           [collapsed]="false"

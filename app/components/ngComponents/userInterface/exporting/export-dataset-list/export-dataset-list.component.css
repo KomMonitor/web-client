@@ -1,0 +1,13 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+
+  .nav-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+}

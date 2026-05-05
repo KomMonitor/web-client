@@ -6,12 +6,25 @@
   [(activeId)]="active"
   class="nav nav-tabs"
   [animation]="false"
+  (navChange)="onTabChange($event.nextId)"
 >
   <li [ngbNavItem]="1">
     <a class="nav-link" ngbNavLink>Einzeln</a>
     <ng-template ngbNavContent>
       <p>einzelnen Zeitpunkt auswählen</p>
-      <pre>{{ exportItem.dataset.availableTimestamps | json }}</pre>
+      <select
+        (change)="updateSingleTimestamp($event)"
+        [value]="singleValue"
+        class="form-select"
+      >
+        <option value="">Bitte wählen...</option>
+        <option
+          *ngFor="let ts of exportItem.dataset.availableTimestamps"
+          [value]="ts"
+        >
+          {{ ts }}
+        </option>
+      </select>
     </ng-template>
   </li>
   <li [ngbNavItem]="2">
@@ -22,15 +35,15 @@
           <div>Von</div>
           <select
             (change)="updateRangeStart($event)"
-            [value]="start"
-            style="width: 100%"
+            [value]="rangeStart"
+            class="form-select"
           >
             <option value="">Bitte wählen...</option>
             <option
-              *ngFor="let level of exportItem.dataset.availableTimestamps"
-              [value]="level"
+              *ngFor="let ts of exportItem.dataset.availableTimestamps"
+              [value]="ts"
             >
-              {{ level }}
+              {{ ts }}
             </option>
           </select>
         </div>
@@ -38,15 +51,15 @@
           <div>Bis</div>
           <select
             (change)="updateRangeEnd($event)"
-            [value]="end"
-            style="width: 100%"
+            [value]="rangeEnd"
+            class="form-select"
           >
             <option value="">Bitte wählen...</option>
             <option
-              *ngFor="let level of exportItem.dataset.availableTimestamps"
-              [value]="level"
+              *ngFor="let ts of exportItem.dataset.availableTimestamps"
+              [value]="ts"
             >
-              {{ level }}
+              {{ ts }}
             </option>
           </select>
         </div>

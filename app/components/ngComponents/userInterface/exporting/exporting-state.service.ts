@@ -1,4 +1,4 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, effect, signal } from "@angular/core";
 import {
   GeoresourceExportItem,
   Indicator,
@@ -6,13 +6,19 @@ import {
   TimeSelectionMode,
 } from "./models";
 
-export type ExportType = "single" | "spatialUnit" | "multiple";
+const LS_INDICATOR_ITEMS = "kommonitor.export.indicatorItems";
+const LS_GEORESOURCE_ITEMS = "kommonitor.export.georesourceItems";
 
-export const FORMAT_CONFIG: Record<ExportType, string[]> = {
-  single: ["GeoPackage", "Excel", "CSV", "GeoJSON"],
-  spatialUnit: ["GeoPackage", "Excel", "CSV"],
-  multiple: ["GeoPackage", "Excel", "CSV"],
-};
+function loadFromStorage<T>(key: string): T[] {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export type ExportType = "single" | "spatialUnit" | "multiple";
 
 @Injectable({
   providedIn: "root",
@@ -26,10 +32,28 @@ export class ExportingStateService {
 
   selectedSpatialUnit = signal<string | null>(null);
 
-  indicatorItems = signal<IndicatorExportItem[]>([]);
+  indicatorItems = signal<IndicatorExportItem[]>(
+    loadFromStorage<IndicatorExportItem>(LS_INDICATOR_ITEMS),
+  );
 
-  georesourceItems = signal<GeoresourceExportItem[]>([]);
+  georesourceItems = signal<GeoresourceExportItem[]>(
+    loadFromStorage<GeoresourceExportItem>(LS_GEORESOURCE_ITEMS),
+  );
 
+  constructor() {
+    effect(() => {
+      localStorage.setItem(
+        LS_INDICATOR_ITEMS,
+        JSON.stringify(this.indicatorItems()),
+      );
+    });
+    effect(() => {
+      localStorage.setItem(
+        LS_GEORESOURCE_ITEMS,
+        JSON.stringify(this.georesourceItems()),
+      );
+    });
+  }
   removeIndicator(indicatorId: string) {
     this.indicatorItems.update((items) =>
       items.filter((item) => item.dataset.id !== indicatorId),
@@ -42,97 +66,14 @@ export class ExportingStateService {
     );
   }
 
-  toggleItemLevel(datasetId: string, level: string): void {
+  toggleSpatialUnit(indicator: IndicatorExportItem, spatialUnitId: string): void {
     this.indicatorItems.update((items) =>
       items.map((item) => {
-        if (item.dataset.id === datasetId) {
-          const currentLevels = new Set(item.selectedMultiLevels);
-          if (currentLevels.has(level)) currentLevels.delete(level);
-          else currentLevels.add(level);
-          return { ...item, selectedMultiLevels: [...currentLevels] };
-        }
-        return item;
-      }),
-    );
-  }
-
-  updateLevel(datasetId: string, event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.indicatorItems.update((items) =>
-      items.map((item) =>
-        item.dataset.id === datasetId
-          ? { ...item, selectedLevel: target.value }
-          : item,
-      ),
-    );
-  }
-
-  updateTimeMode(datasetId: string, mode: TimeSelectionMode): void {
-    this.indicatorItems.update((items) =>
-      items.map((item) =>
-        item.dataset.id === datasetId
-          ? { ...item, timeSelectionMode: mode }
-          : item,
-      ),
-    );
-    this.georesourceItems.update((items) =>
-      items.map((item) =>
-        item.dataset.id === datasetId
-          ? { ...item, timeSelectionMode: mode }
-          : item,
-      ),
-    );
-  }
-
-  updateDateRange(
-    datasetId: string,
-    type: "start" | "end",
-    event: Event,
-  ): void {
-    const target = event.target as HTMLInputElement;
-    this.indicatorItems.update((items) =>
-      items.map((item) => {
-        if (item.dataset.id === datasetId) {
-          return {
-            ...item,
-            dateRange: { ...item.dateRange, [type]: target.value },
-          };
-        }
-        return item;
-      }),
-    );
-    this.georesourceItems.update((items) =>
-      items.map((item) => {
-        if (item.dataset.id === datasetId) {
-          return {
-            ...item,
-            dateRange: { ...item.dateRange, [type]: target.value },
-          };
-        }
-        return item;
-      }),
-    );
-  }
-
-  toggleMultiSelectOption(datasetId: string, timestamp: string): void {
-    this.indicatorItems.update((items) =>
-      items.map((item) => {
-        if (item.dataset.id === datasetId) {
-          const currentSelected = new Set(item.selectedTimestamps);
-          if (currentSelected.has(timestamp)) currentSelected.delete(timestamp);
-          else currentSelected.add(timestamp);
-          return { ...item, selectedTimestamps: [...currentSelected] };
-        }
-        return item;
-      }),
-    );
-    this.georesourceItems.update((items) =>
-      items.map((item) => {
-        if (item.dataset.id === datasetId) {
-          const currentSelected = new Set(item.selectedTimestamps);
-          if (currentSelected.has(timestamp)) currentSelected.delete(timestamp);
-          else currentSelected.add(timestamp);
-          return { ...item, selectedTimestamps: [...currentSelected] };
+        if (item.dataset.id === indicator.dataset.id) {
+          const currentLevels = new Set(item.selectedSpatialUnits);
+          if (currentLevels.has(spatialUnitId)) currentLevels.delete(spatialUnitId);
+          else currentLevels.add(spatialUnitId);
+          return { ...item, selectedSpatialUnits: [...currentLevels] };
         }
         return item;
       }),
@@ -172,18 +113,8 @@ export class ExportingStateService {
 
     const newItem: IndicatorExportItem = {
       dataset: indicator,
-      selectedLevel: undefined,
-      timeSelectionMode: "points",
-      selectedTimestamps: indicator.availableTimestamps.slice(0, 1),
-      dateRange: {
-        start:
-          indicator.availableTimestamps[
-            indicator.availableTimestamps.length - 1
-          ] ?? "",
-        end: indicator.availableTimestamps[0] ?? "",
-      },
       selectedFormats: [],
-      selectedMultiLevels: [],
+      selectedSpatialUnits: [],
     };
 
     this.indicatorItems.update((items) => [...items, newItem]);

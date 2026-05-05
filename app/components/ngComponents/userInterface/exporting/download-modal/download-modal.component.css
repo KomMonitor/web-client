@@ -9,5 +9,55 @@
     width: 60vw;
     height: 90vh;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    & > .row {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      align-items: stretch;
+
+      .dataset-lists {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100%;
+        min-height: 0;
+
+        expandable-box {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          overflow: hidden;
+          min-height: 0;
+
+          .box-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+            margin-bottom: 0;
+          }
+
+          .box-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+          }
+        }
+      }
+    }
   }
 }

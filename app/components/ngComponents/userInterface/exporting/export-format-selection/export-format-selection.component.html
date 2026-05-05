@@ -1,0 +1,24 @@
+<div>
+  <div>Downloadformate</div>
+  <div
+    class="btn-group"
+    role="group"
+    aria-label="Basic checkbox toggle button group"
+  >
+    <ng-container *ngFor="let fmt of AVAILABLE_FORMATS()">
+      <input
+        type="checkbox"
+        class="btn-check"
+        [id]="exportItem.dataset.id + '-' + fmt"
+        autocomplete="off"
+        [checked]="exportItem.selectedFormats.includes(fmt)"
+        (change)="srvc.toggleFormat(exportItem.dataset.id, fmt)"
+      />
+      <label
+        class="btn btn-outline-secondary"
+        [for]="exportItem.dataset.id + '-' + fmt"
+        >{{ fmt }}</label
+      >
+    </ng-container>
+  </div>
+</div>
