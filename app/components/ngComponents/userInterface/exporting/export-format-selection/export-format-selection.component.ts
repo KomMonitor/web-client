@@ -9,7 +9,7 @@ import {
 export const FORMAT_CONFIG: Record<ExportType, string[]> = {
   single: ["GeoPackage", "Excel", "CSV", "GeoJSON"],
   spatialUnit: ["GeoPackage", "Excel", "CSV"],
-  multiple: ["GeoPackage", "Excel", "CSV"],
+  multiple: ["GeoPackage"],
 };
 
 @Component({

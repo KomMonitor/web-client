@@ -23,8 +23,8 @@ export interface Georessource {
 export interface IndicatorExportItem {
   dataset: Indicator;
   selectedFormats: string[];
-  selectedSpatialUnits: string[];
   selectedTargetTime?: SelectedTargetTime;
+  selectedSpatialUnits: string[];
 }
 
 export interface GeoressourceExportItem {

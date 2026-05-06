@@ -88,7 +88,8 @@ export class DownloadModalComponent {
   });
 
   isSpatialUnitExportValid = computed(() => {
-    const hasSelectedSpatialUnit = this.stateSrvc.selectedSpatialUnit() !== null;
+    const hasSelectedSpatialUnit =
+      this.stateSrvc.selectedSpatialUnit() !== null;
     const hasIndicatorWithFormat = this.stateSrvc
       .indicatorItems()
       .some((item) => item.selectedFormats.length > 0);
@@ -100,7 +101,8 @@ export class DownloadModalComponent {
       .indicatorItems()
       .some(
         (item) =>
-          item.selectedFormats.length > 0 && item.selectedSpatialUnits.length > 0,
+          item.selectedFormats.includes("GeoPackage") &&
+          item.selectedSpatialUnits.length > 0,
       ),
   );
 
@@ -156,6 +158,7 @@ export class DownloadModalComponent {
     const indicators: IndicatorExportInput[] = this.stateSrvc
       .indicatorItems()
       .filter((item) => item.selectedSpatialUnits.length > 0)
+      .filter((item) => item.selectedFormats.length > 0)
       .map((item) => ({
         indicator_id: item.dataset.id,
         spatial_unit_ids: item.selectedSpatialUnits,
@@ -195,12 +198,13 @@ export class DownloadModalComponent {
   private buildMultipleExportParams(crs: string): MultipleExportParams {
     const indicators: MultipleExportIndicatorInput[] = this.stateSrvc
       .indicatorItems()
+      .filter((item) => item.selectedSpatialUnits.length > 0)
+      .filter((item) => item.selectedFormats.length > 0)
       .map((item) => ({
         indicator_id: item.dataset.id,
         spatial_unit_ids: item.selectedSpatialUnits,
         target_time: buildTargetTime(item.selectedTargetTime),
       }));
-
     return { crs, indicators };
   }
 }
