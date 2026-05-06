@@ -1,13 +1,14 @@
-import { Injectable, effect, signal } from "@angular/core";
+import { Injectable, computed, effect, signal } from "@angular/core";
 import {
-  GeoresourceExportItem,
+  Georessource,
+  GeoressourceExportItem,
   Indicator,
   IndicatorExportItem,
-  TimeSelectionMode,
+  SpatialUnit,
 } from "./models";
 
 const LS_INDICATOR_ITEMS = "kommonitor.export.indicatorItems";
-const LS_GEORESOURCE_ITEMS = "kommonitor.export.georesourceItems";
+const LS_GEORESSOURCE_ITEMS = "kommonitor.export.georessourceItems";
 
 function loadFromStorage<T>(key: string): T[] {
   try {
@@ -36,9 +37,20 @@ export class ExportingStateService {
     loadFromStorage<IndicatorExportItem>(LS_INDICATOR_ITEMS),
   );
 
-  georesourceItems = signal<GeoresourceExportItem[]>(
-    loadFromStorage<GeoresourceExportItem>(LS_GEORESOURCE_ITEMS),
+  georessourceItems = signal<GeoressourceExportItem[]>(
+    loadFromStorage<GeoressourceExportItem>(LS_GEORESSOURCE_ITEMS),
   );
+
+  commonSpatialUnits = computed<SpatialUnit[]>(() => {
+    const items = this.indicatorItems();
+    if (items.length === 0) return [];
+    const firstUnits = items[0].dataset.spatialUnits;
+    return firstUnits.filter((unit) =>
+      items.every((item) =>
+        item.dataset.spatialUnits.some((u) => u.id === unit.id),
+      ),
+    );
+  });
 
   constructor() {
     effect(() => {
@@ -49,8 +61,8 @@ export class ExportingStateService {
     });
     effect(() => {
       localStorage.setItem(
-        LS_GEORESOURCE_ITEMS,
-        JSON.stringify(this.georesourceItems()),
+        LS_GEORESSOURCE_ITEMS,
+        JSON.stringify(this.georessourceItems()),
       );
     });
   }
@@ -60,18 +72,22 @@ export class ExportingStateService {
     );
   }
 
-  removeGeoresource(datasetId: string): void {
-    this.georesourceItems.update((items) =>
+  removeGeoressource(datasetId: string): void {
+    this.georessourceItems.update((items) =>
       items.filter((item) => item.dataset.id !== datasetId),
     );
   }
 
-  toggleSpatialUnit(indicator: IndicatorExportItem, spatialUnitId: string): void {
+  toggleSpatialUnit(
+    indicator: IndicatorExportItem,
+    spatialUnitId: string,
+  ): void {
     this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === indicator.dataset.id) {
           const currentLevels = new Set(item.selectedSpatialUnits);
-          if (currentLevels.has(spatialUnitId)) currentLevels.delete(spatialUnitId);
+          if (currentLevels.has(spatialUnitId))
+            currentLevels.delete(spatialUnitId);
           else currentLevels.add(spatialUnitId);
           return { ...item, selectedSpatialUnits: [...currentLevels] };
         }
@@ -92,7 +108,7 @@ export class ExportingStateService {
         return item;
       }),
     );
-    this.georesourceItems.update((items) =>
+    this.georessourceItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === datasetId) {
           const formats = new Set(item.selectedFormats);
@@ -118,5 +134,19 @@ export class ExportingStateService {
     };
 
     this.indicatorItems.update((items) => [...items, newItem]);
+  }
+
+  addGeoressource(georessource: Georessource) {
+    const alreadyExists = this.indicatorItems().some(
+      (item) => item.dataset.id === georessource.id,
+    );
+    if (alreadyExists) return;
+
+    const newItem: GeoressourceExportItem = {
+      dataset: georessource,
+      selectedFormats: [],
+    };
+
+    this.georessourceItems.update((items) => [...items, newItem]);
   }
 }

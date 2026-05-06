@@ -40,12 +40,55 @@
             <i class="fas fa-spinner fa-spin me-1"></i>
             Export wird vorbereitet...
           </div>
+          <div
+            *ngIf="
+              stateSrvc.exportType() === 'single' && !isSingleExportValid()
+            "
+            class="alert alert-warning py-2 mb-2"
+            role="alert"
+          >
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Bitte wählen Sie mindestens einen Indikator mit Raumebene und
+            Downloadformat oder eine Georessource mit Downloadformat aus.
+          </div>
+          <div
+            *ngIf="
+              stateSrvc.exportType() === 'spatialUnit' &&
+              !isSpatialUnitExportValid()
+            "
+            class="alert alert-warning py-2 mb-2"
+            role="alert"
+          >
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Bitte wählen Sie eine Raumebene und mindestens einen Indikator mit
+            mindestens einem Downloadformat aus.
+          </div>
+          <div
+            *ngIf="
+              stateSrvc.exportType() === 'multiple' &&
+              !isMultipleExportValid()
+            "
+            class="alert alert-warning py-2 mb-2"
+            role="alert"
+          >
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Bitte wählen Sie mindestens einen Indikator mit mindestens einer
+            Raumebene und mindestens einem Downloadformat aus.
+          </div>
           <div class="d-grid">
             <button
               type="button"
               class="btn btn-primary"
               (click)="startDownload()"
-              [disabled]="isLoading()"
+              [disabled]="
+                isLoading() ||
+                (stateSrvc.exportType() === 'single' &&
+                  !isSingleExportValid()) ||
+                (stateSrvc.exportType() === 'spatialUnit' &&
+                  !isSpatialUnitExportValid()) ||
+                (stateSrvc.exportType() === 'multiple' &&
+                  !isMultipleExportValid())
+              "
             >
               <i class="fas fa-download"></i>
               <span> Download starten</span>

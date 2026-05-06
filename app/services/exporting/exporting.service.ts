@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { EnvConfigService } from "services/env-config-service/env-config.service";
 
-export type TargetTimeMode = "START_END" | "INCLUDE_DATES";
+export type TargetTimeMode = "START_END" | "SINGLE" | "ALL";
 export type DownloadFormat = "GEOPACKAGE" | "GEOJSON" | "EXCEL" | "CSV";
 
 export interface TargetTime {
@@ -20,7 +20,7 @@ export interface IndicatorExportInput {
   download_format: DownloadFormat[];
 }
 
-export interface GeoresourceExportInput {
+export interface GeoressourceExportInput {
   georessource_id: string;
   target_time: TargetTime;
   download_format: DownloadFormat[];
@@ -29,7 +29,7 @@ export interface GeoresourceExportInput {
 export interface SingleExportParams {
   crs: string;
   indicators?: IndicatorExportInput[];
-  georessources?: GeoresourceExportInput[];
+  georessources?: GeoressourceExportInput[];
 }
 
 export interface SpatialUnitIndicatorInput {
@@ -78,7 +78,8 @@ export class ExportingService {
   private readonly MULTIPLE_EXPORT_PATH = "processes/MultipleExport/execution";
 
   // TODO: get from config
-  private readonly url = "https://demo.kommonitor.de.52north.org/processes-api/";
+  private readonly url =
+    "https://demo.kommonitor.de.52north.org/processes-api/";
 
   constructor(
     private http: HttpClient,
@@ -99,7 +100,9 @@ export class ExportingService {
     return this.http.post<ExportResponse>(url, body, { headers });
   }
 
-  executeSpatialUnitExport(params: SpatialUnitExportParams): Observable<ExportResponse> {
+  executeSpatialUnitExport(
+    params: SpatialUnitExportParams,
+  ): Observable<ExportResponse> {
     const url = `${this.envConfigService.targetUrlToProcessingEngine}${this.SPATIAL_UNIT_EXPORT_PATH}`;
     const body = {
       inputs: {
@@ -112,7 +115,9 @@ export class ExportingService {
     return this.http.post<ExportResponse>(url, body, { headers });
   }
 
-  executeMultipleExport(params: MultipleExportParams): Observable<ExportResponse> {
+  executeMultipleExport(
+    params: MultipleExportParams,
+  ): Observable<ExportResponse> {
     const url = `${this.envConfigService.targetUrlToProcessingEngine}${this.MULTIPLE_EXPORT_PATH}`;
     const body = {
       inputs: {

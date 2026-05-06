@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Observable, finalize } from "rxjs";
 import { ExportTypSelectionComponent } from "../export-typ-selection/export-typ-selection.component";
@@ -11,7 +11,7 @@ import {
   DownloadFormat,
   ExportingService,
   ExportResponse,
-  GeoresourceExportInput,
+  GeoressourceExportInput,
   IndicatorExportInput,
   MultipleExportIndicatorInput,
   MultipleExportParams,
@@ -38,21 +38,21 @@ function buildTargetTime(targetTime?: SelectedTargetTime): TargetTime {
   if (!targetTime) {
     return {
       mode: "ALL",
-    }
+    };
   }
   if (typeof targetTime === "string") {
     return {
       mode: "SINGLE",
       start_date: targetTime,
       end_date: targetTime,
-      include_dates: [targetTime]
+      include_dates: [targetTime],
     };
   }
   return {
     mode: "START_END",
     start_date: targetTime.start,
     end_date: targetTime.end,
-    include_dates: [targetTime.start, targetTime.end]
+    include_dates: [targetTime.start, targetTime.end],
   };
 }
 
@@ -72,6 +72,37 @@ function buildTargetTime(targetTime?: SelectedTargetTime): TargetTime {
 export class DownloadModalComponent {
   activeModal = inject(NgbActiveModal);
   isLoading = signal(false);
+
+  isSingleExportValid = computed(() => {
+    const hasValidIndicator = this.stateSrvc
+      .indicatorItems()
+      .some(
+        (item) =>
+          item.selectedSpatialUnits.length > 0 &&
+          item.selectedFormats.length > 0,
+      );
+    const hasValidGeoressource = this.stateSrvc
+      .georessourceItems()
+      .some((item) => item.selectedFormats.length > 0);
+    return hasValidIndicator || hasValidGeoressource;
+  });
+
+  isSpatialUnitExportValid = computed(() => {
+    const hasSelectedSpatialUnit = this.stateSrvc.selectedSpatialUnit() !== null;
+    const hasIndicatorWithFormat = this.stateSrvc
+      .indicatorItems()
+      .some((item) => item.selectedFormats.length > 0);
+    return hasSelectedSpatialUnit && hasIndicatorWithFormat;
+  });
+
+  isMultipleExportValid = computed(() =>
+    this.stateSrvc
+      .indicatorItems()
+      .some(
+        (item) =>
+          item.selectedFormats.length > 0 && item.selectedSpatialUnits.length > 0,
+      ),
+  );
 
   constructor(
     protected stateSrvc: ExportingStateService,
@@ -131,9 +162,8 @@ export class DownloadModalComponent {
         target_time: buildTargetTime(item.selectedTargetTime),
         download_format: mapFormats(item.selectedFormats),
       }));
-
-    const georessources: GeoresourceExportInput[] = this.stateSrvc
-      .georesourceItems()
+    const georessources: GeoressourceExportInput[] = this.stateSrvc
+      .georessourceItems()
       .map((item) => ({
         georessource_id: item.dataset.id,
         target_time: buildTargetTime(item.selectedTargetTime),

@@ -1,13 +1,13 @@
 <p
   *ngIf="
-    srvc.indicatorItems().length === 0 && srvc.georesourceItems().length === 0
+    srvc.indicatorItems().length === 0 && srvc.georessourceItems().length === 0
   "
 >
   Es wurden keine Datensätze für den Download ausgewählt.
 </p>
 
 <ng-container
-  *ngIf="srvc.indicatorItems().length > 0 || srvc.georesourceItems().length > 0"
+  *ngIf="srvc.indicatorItems().length > 0 || srvc.georessourceItems().length > 0"
 >
   <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs mb-3">
     <li [ngbNavItem]="'indicators'">
@@ -79,15 +79,15 @@
         </ng-container>
       </ng-template>
     </li>
-    <li [ngbNavItem]="'georesources'" *ngIf="srvc.exportType() === 'single'">
+    <li [ngbNavItem]="'georessources'" *ngIf="srvc.exportType() === 'single'">
       <button ngbNavLink>
         Georessourcen
         <span class="badge bg-success ms-1">{{
-          srvc.georesourceItems().length
+          srvc.georessourceItems().length
         }}</span>
       </button>
       <ng-template ngbNavContent>
-        <ng-container *ngFor="let item of srvc.georesourceItems()">
+        <ng-container *ngFor="let item of srvc.georessourceItems()">
           <div [id]="item.dataset.id" class="card mb-3">
             <div class="card-body">
               <div style="display: flex">
@@ -99,7 +99,7 @@
                   type="button"
                   class="btn btn-danger"
                   style="align-self: center; border-radius: 50%"
-                  (click)="srvc.removeGeoresource(item.dataset.id)"
+                  (click)="srvc.removeGeoressource(item.dataset.id)"
                 >
                   <i class="fas fa-trash"></i>
                 </button>

@@ -23,19 +23,29 @@
     <div class="alert alert-info" role="alert">
       Gemeinsame Raumebene für <strong>alle</strong> Indikatoren.
     </div>
-    <div>
-      <label>Gemeinsame Raumebene</label>
-    </div>
-    <select
-      (change)="updateSelectedSpatialUnit($event)"
-      [value]="srvc.selectedSpatialUnit()"
-      style="width: 100%"
-    >
-      <option value="">Bitte wählen...</option>
-      <option *ngFor="let level of srvc.spatialUnits()" [value]="level">
-        {{ level }}
-      </option>
-    </select>
+    <ng-container *ngIf="srvc.commonSpatialUnits().length > 0; else noCommonUnits">
+      <div>
+        <label>Gemeinsame Raumebene</label>
+      </div>
+      <select
+        (change)="updateSelectedSpatialUnit($event)"
+        class="form-select"
+      >
+        <option value="" [selected]="srvc.selectedSpatialUnit() === ''">Bitte wählen...</option>
+        <option
+          *ngFor="let unit of srvc.commonSpatialUnits()"
+          [value]="unit.id"
+          [selected]="unit.id === srvc.selectedSpatialUnit()"
+        >
+          {{ unit.name }}
+        </option>
+      </select>
+    </ng-container>
+    <ng-template #noCommonUnits>
+      <div class="alert alert-danger" role="alert">
+        Es gibt keine Raumebene, die für alle ausgewählten Indikatoren-Datensätze verfügbar ist.
+      </div>
+    </ng-template>
   </div>
 
   <div *ngIf="srvc.exportType() === 'multiple'">

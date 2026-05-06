@@ -1,9 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import {
-  ExportingStateService,
-  ExportType,
-} from "../exporting-state.service";
+import { ExportingStateService, ExportType } from "../exporting-state.service";
 
 @Component({
   selector: "app-export-typ-selection",

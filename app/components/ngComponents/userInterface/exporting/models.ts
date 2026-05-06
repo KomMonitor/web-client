@@ -14,7 +14,7 @@ export interface Indicator {
   availableTimestamps: string[];
 }
 
-export interface Georesource {
+export interface Georessource {
   id: string;
   name: string;
   availableTimestamps: string[];
@@ -27,13 +27,13 @@ export interface IndicatorExportItem {
   selectedTargetTime?: SelectedTargetTime;
 }
 
-export interface GeoresourceExportItem {
-  dataset: Georesource;
+export interface GeoressourceExportItem {
+  dataset: Georessource;
   selectedFormats: string[];
   selectedTargetTime?: SelectedTargetTime;
 }
 
-export type ExportItem = IndicatorExportItem | GeoresourceExportItem;
+export type ExportItem = IndicatorExportItem | GeoressourceExportItem;
 
 export const AVAILABLE_FORMATS = ["GeoPackage", "Excel", "CSV", "GeoJSON"];
 
