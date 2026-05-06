@@ -103,7 +103,7 @@ export class ExportingService {
   executeSpatialUnitExport(
     params: SpatialUnitExportParams,
   ): Observable<ExportResponse> {
-    const url = `${this.envConfigService.targetUrlToProcessingEngine}${this.SPATIAL_UNIT_EXPORT_PATH}`;
+    const url = `${this.url}${this.SPATIAL_UNIT_EXPORT_PATH}`;
     const body = {
       inputs: {
         spatial_unit: {
@@ -118,7 +118,7 @@ export class ExportingService {
   executeMultipleExport(
     params: MultipleExportParams,
   ): Observable<ExportResponse> {
-    const url = `${this.envConfigService.targetUrlToProcessingEngine}${this.MULTIPLE_EXPORT_PATH}`;
+    const url = `${this.url}${this.MULTIPLE_EXPORT_PATH}`;
     const body = {
       inputs: {
         multiple_export: {
