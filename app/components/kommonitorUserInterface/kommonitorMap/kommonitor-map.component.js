@@ -3254,6 +3254,7 @@ angular.module('kommonitorMap').component(
 
           kommonitorFilterHelperService.clearSelectedFeatures();
           $rootScope.$broadcast("restyleCurrentLayer", false);
+          $rootScope.$broadcast("updateRadarDiagram", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date);
         });
 
         $scope.$on("removeAllDrawnPoints", function (event) {
