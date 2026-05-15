@@ -66,6 +66,10 @@ angular
 					$scope.date;
 					$scope.spatialUnitName;
 
+					$scope.$on("updateRadarDiagram", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date){
+						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+					})
+
 					$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 						// if the layer is just restyled (i.e. due to change of measureOfValue)
