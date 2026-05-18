@@ -35,7 +35,7 @@
 	-->
 
 	<p></p>
-              <!-- *ngIf="!isUsedInReporting" -->
+            
 	<div class="box box-primary"  id="reachability-point-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Erreichbarkeits-Szenarien verwalten</h3>
@@ -45,7 +45,6 @@
 				</button>
 			</div>
 		</div>
-		<!-- /.box-header -->
 
 		<div class="box-body">
 
@@ -65,7 +64,7 @@
 				</div>
 				<div class="col-md-3">
 					<button type="button"  class="btn btn-info "
-					[disabled]="reachabilityScenarioHelperService.pipedData.reachabilityScenarios.length > 0"
+					[disabled]="reachabilityScenarioHelperService.reachabilityScenarios.length > 0"
 					(click)="reachabilityScenarioHelperService.exportScenarios()"
 					title="Exportieren der Szenarien in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Szenarien-Export</button>
@@ -95,7 +94,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr *ngFor="let reachabilityScenario of reachabilityScenarioHelperService.pipedData.reachabilityScenarios">
+						<tr *ngFor="let reachabilityScenario of reachabilityScenarioHelperService.reachabilityScenarios">
 							<td>
 								<b>{{reachabilityScenario.scenarioName}}</b>
 								<br />

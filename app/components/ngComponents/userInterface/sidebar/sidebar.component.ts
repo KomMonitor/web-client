@@ -10,6 +10,7 @@ import { IndicatorRadarComponent } from './indicatorRadar/indicator-radar.compon
 import { RegressionDiagramComponent } from './regressionDiagram/regression-diagram.component';
 import { KommonitorDataImportComponent } from './kommonitorDataImport/kommonitor-data-import.component';
 import { MapService } from 'services/map-service/map.service';
+import { KommonitorReachabilityComponent } from './kommonitorReachability/kommonitor-reachability.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -25,7 +26,8 @@ import { MapService } from 'services/map-service/map.service';
     KommonitorDiagramsComponent,
     IndicatorRadarComponent,
     RegressionDiagramComponent,
-    KommonitorDataImportComponent]
+    KommonitorDataImportComponent,
+    KommonitorReachabilityComponent]
 })
 export class SidebarComponent implements OnInit{
 

@@ -10,14 +10,18 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
-import { ReachabilityIndicatorStatisticsComponent } from "./reachability-indicator-statistics/reachability-indicator-statistics.component";
 
 @Component({
   selector: 'app-reachability-scenario-modal',
   standalone: true,
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.css'],
-  imports: [CommonModule, FormsModule, ReachabilityScenarioConfigurationComponent, ReachabilityPoiInIsoComponent, ReachabilityIndicatorStatisticsComponent]
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ReachabilityScenarioConfigurationComponent, 
+    ReachabilityPoiInIsoComponent
+  ]
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -130,9 +134,9 @@ export class ReachabilityScenarioModalComponent implements OnInit {
         this.reachabilityHelperService.settings.selectedStartPointLayer = this.filteredDisplayableGeoresources.filter(e => e.georesourceId==poiId)[0];
 				this.reachabilityHelperService.settings.isochroneConfig.selectedDate = undefined;
 
-				if(this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.poiDataset &&
-            this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.poiDataset.poiName &&
-            this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.poiDataset.poiName != this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer.datasetName){
+				if(this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset &&
+            this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName &&
+            this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName != this.reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer.datasetName){
 						//kommonitorToastHelperService.displayWarningToast("Datenquelle neu gesetzt", "Die weiteren Abschnitte weisen vielleicht veraltete Daten auf.");
 					}
 

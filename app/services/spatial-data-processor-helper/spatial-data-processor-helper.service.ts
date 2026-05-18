@@ -20,7 +20,7 @@ export class SpatialDataProcessorHelperService {
  async postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weighting) {
     try {
       // get auth token to make authenticated requests
-      let bearerToken = this.authService.Auth.keycloak.token;
+      let bearerToken = this.authService.getToken();
 
       /*
       {
@@ -84,7 +84,7 @@ export class SpatialDataProcessorHelperService {
   async getJobStatus(jobId) {
     try {
       // get auth token to make authenticated requests
-      let bearerToken = this.authService.Auth.keycloak.token;
+      let bearerToken = this.authService.getToken();
 
       let headers = {
         'Accept': 'application/json',
@@ -175,7 +175,7 @@ export class SpatialDataProcessorHelperService {
   async getJobResult(jobId) {
     try {
       // get auth token to make authenticated requests
-      let bearerToken = this.authService.Auth.keycloak.token;
+      let bearerToken = this.authService.getToken();
       let headers = {
         'Accept': 'application/json',
         

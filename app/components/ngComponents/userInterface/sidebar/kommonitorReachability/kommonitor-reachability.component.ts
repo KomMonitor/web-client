@@ -5,11 +5,18 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReachabilityScenarioModalComponent } from './reachability-scenario-modal/reachability-scenario-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
+  standalone: true,
   selector: 'app-kommonitor-reachability',
   templateUrl: './kommonitor-reachability.component.html',
-  styleUrls: ['./kommonitor-reachability.component.css']
+  styleUrls: ['./kommonitor-reachability.component.css'],
+  imports: [
+    CommonModule, 
+    FormsModule
+  ]
 })
 export class KommonitorReachabilityComponent implements OnInit {
   error = undefined;

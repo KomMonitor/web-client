@@ -4,11 +4,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
-import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 
 @Component({
   selector: 'app-reachability-poi-in-iso',
