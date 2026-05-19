@@ -1,0 +1,36 @@
+:host {
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+
+    max-height: 300px;
+    overflow-y: auto;
+
+    z-index: 1000;
+  }
+
+  .autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+
+    &:hover {
+      background: #f3f3f3;
+    }
+  }
+}

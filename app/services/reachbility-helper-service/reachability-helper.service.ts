@@ -1,9 +1,10 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as turf from '@turf/turf';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class ReachabilityHelperService {
     private broadcastService: BroadcastService,
     private http: HttpClient,
     private dataExchangeService: DataExchangeService,
-    private envConfigService: EnvConfigService
+    private envConfigService: EnvConfigService,
+    private injector: Injector
   ) {
 
     this.settings.pointSourceConfigured = false;
@@ -280,8 +282,37 @@ export class ReachabilityHelperService {
     }); */
   }
 
+  /**
+   * Starts an isochrone calculation for a single point.
+   * @param {number[]} coordinates - An array containing longitude and latitude of the starting point, e.g., [8.123, 51.456].
+   * @param {number[]} ranges - An array of numbers representing the isochrone ranges (in meters or minutes, depending on focus).
+   * @param {'distance' | 'time'} focus - The focus of the analysis, either 'distance' or 'time'.
+   * @param {string} transitMode - The mode of transit, e.g., 'foot-walking', 'driving-car'.
+   */
+  public async startIsochroneCalculationForSinglePoint(coordinates: number[], ranges: number[], focus: 'distance' | 'time', transitMode: string) {
+    // Set required settings for a manual, single-point isochrone calculation
+    this.settings.startPointsSource = "manual";
+    this.settings.rangeArray = ranges;
+    this.settings.isochroneInput = ranges.join(',');
+    this.settings.focus = focus;
+    this.settings.transitMode = transitMode;
+
+    // Create a GeoJSON Feature for the starting point
+    this.settings.manualStartPoints = {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties: { [this.envConfigService.FEATURE_ID_PROPERTY_NAME]: 1 },
+        geometry: { type: "Point", coordinates: coordinates }
+      }]
+    };
+
+    await this.startIsochroneCalculation(false);
+    console.log(this.currentIsochronesGeoJSON)
+    this.injector.get(ReachabilityCombinerService).setIsochronesGeoJson(this.currentIsochronesGeoJSON);
+  }
+
   async startIsochroneCalculation(isUsedInReporting) {
-    //this.ajskommonitorReachabilityHelperServiceProvider.startIsochroneCalculation(used);
 
     if (!isUsedInReporting) { // reporting uses it's own loading overlay, which is controlled there
       this.settings.loadingData = true;
@@ -316,7 +347,7 @@ export class ReachabilityHelperService {
       return;
     }
 
-    this.currentIsochronesGeoJSON = resultIsochrones;			
+    this.currentIsochronesGeoJSON = resultIsochrones;		
 
     this.broadcastService.broadcast("isochronesCalculationFinished");
 
@@ -384,7 +415,7 @@ export class ReachabilityHelperService {
     this.original_nonDissolved_isochrones = jQuery.extend(true, {}, resultIsochrones);
     // sort buffered isochrones before attaching featureIDs as that expects a certain order of the point buffers
     // each point must have consecutive indices and increasing range!
-    this.original_nonDissolved_isochrones.features = this.original_nonDissolved_isochrones.features.sort(this.sortBuffers); 
+    this.original_nonDissolved_isochrones.features = this.original_nonDissolved_isochrones.features.sort((a, b) => this.sortBuffers(a, b)); 
 
     // attach metadata/query/range property for feature collection which is used by spatial data processor in indicator statistics computation
     this.original_nonDissolved_isochrones.metadata = {query: {
