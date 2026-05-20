@@ -33,4 +33,25 @@
       background: #f3f3f3;
     }
   }
+
+  .mapItem {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+
+    font-size: 1.2em;
+    background: var(--kommonitor-hierarchy-level-0);
+    padding: .2em .5em;
+    margin: .15em;
+    border-radius: .2em;
+
+    * {
+      margin: 0;
+    }
+
+    i {
+      cursor: pointer;
+    }
+  }
 }

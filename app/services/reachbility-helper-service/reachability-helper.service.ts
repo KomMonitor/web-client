@@ -289,26 +289,27 @@ export class ReachabilityHelperService {
    * @param {'distance' | 'time'} focus - The focus of the analysis, either 'distance' or 'time'.
    * @param {string} transitMode - The mode of transit, e.g., 'foot-walking', 'driving-car'.
    */
-  public async startIsochroneCalculationForSinglePoint(coordinates: number[], ranges: number[], focus: 'distance' | 'time', transitMode: string) {
+  public async startIsochroneCalculationForPoints(coordinates: number[][], ranges: number[], focus: 'distance' | 'time', transitMode: string) {
     // Set required settings for a manual, single-point isochrone calculation
     this.settings.startPointsSource = "manual";
     this.settings.rangeArray = ranges;
     this.settings.isochroneInput = ranges.join(',');
     this.settings.focus = focus;
     this.settings.transitMode = transitMode;
-
-    // Create a GeoJSON Feature for the starting point
+    
+    const features = coordinates.map((coord, index) => ({
+      type: "Feature",
+      properties: { [this.envConfigService.FEATURE_ID_PROPERTY_NAME]: index + 1 },
+      geometry: { type: "Point", coordinates: coord }
+    }));
+    
+    // Create a GeoJSON FeatureCollection for the starting points
     this.settings.manualStartPoints = {
       type: "FeatureCollection",
-      features: [{
-        type: "Feature",
-        properties: { [this.envConfigService.FEATURE_ID_PROPERTY_NAME]: 1 },
-        geometry: { type: "Point", coordinates: coordinates }
-      }]
+      features: features
     };
-
+    
     await this.startIsochroneCalculation(false);
-    console.log(this.currentIsochronesGeoJSON)
     this.injector.get(ReachabilityCombinerService).setIsochronesGeoJson(this.currentIsochronesGeoJSON);
   }
 

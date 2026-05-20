@@ -41,6 +41,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   searchControl:any;
   geosearchControl:any;
 
+  private singleMarkers: L.Marker[] = [];
+
   datasetContainsNegativeValues: any;
 
   svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + this.envConfigService.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + this.envConfigService.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
@@ -247,11 +249,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.reachabilityCombinerService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        if(value.location) 
-          this.addSingleMarker(value?.location);
+        if(value.locations) 
+          this.addSingleMarker(value?.locations);
 
         if(value.isochronesGeoJson)
           this.addIsochrones(value.isochronesGeoJson);
+        else 
+          this.removeIsochrones();
       });
 
     // catch broadcast msgs
@@ -628,41 +632,65 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.noDataFillPattern = this.visualStyleHelperService.noDataFillPattern;
     this.noDataFillPattern.addTo(this.map);
-  }
 
-  addSingleMarker(location: ReachabilityLocation) {
-    L.marker([location.coordinates.y, location.coordinates.x]).addTo(this.map);
-    // Create a GeoJSON feature for the location
-    const poiFeature: any = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [location.coordinates.x, location.coordinates.y]
-      },
-      properties: {
-        name: 'Startpunkt' // Default name for the marker
+    this.map.on('click', async (e: L.LeafletMouseEvent) => {
+
+      if(this.reachabilityCombinerService.manualMapSelectionMode) {
+        this.reachabilityCombinerService.addLocation({
+          coordinates: {
+            lat: e.latlng.lat,
+            lng: e.latlng.lng
+          }}, true);
       }
-    };
-
-    // Define some default styling properties for the marker
-    const defaultMarkerStyle = {
-      poiMarkerStyle: 'default', // or 'awesome' if you want to use AwesomeMarkers
-      poiMarkerText: 'Start',
-      poiSymbolColor: 'white',
-      poiMarkerColor: 'blue',
-      poiSymbolBootstrap3Name: 'home' // Example icon
-    };
-
-    const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, defaultMarkerStyle.poiMarkerStyle, defaultMarkerStyle.poiMarkerText, defaultMarkerStyle.poiSymbolColor, defaultMarkerStyle.poiMarkerColor, defaultMarkerStyle.poiSymbolBootstrap3Name, defaultMarkerStyle);
-    newMarker.addTo(this.map);
-    this.map.setView([location.coordinates.y, location.coordinates.x], 15);
+    });
   }
 
-  addIsochrones(isochrones: any) {
-    if (this.isochronesLayer) {
+  addSingleMarker(locations: ReachabilityLocation[]) {
+
+    this.singleMarkers.forEach(m => this.map.removeLayer(m));
+    this.singleMarkers = [];
+
+    locations.forEach(location => {
+      // Create a GeoJSON feature for the location
+      const poiFeature: any = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [location.coordinates.lng, location.coordinates.lat]
+        },
+        properties: {
+          name: 'Startpunkt' // Default name for the marker
+        }
+      };
+
+      // Define some default styling properties for the marker
+      const defaultMarkerStyle = {
+        poiMarkerStyle: 'default', // or 'awesome' if you want to use AwesomeMarkers
+        poiMarkerText: 'Start',
+        poiSymbolColor: 'white',
+        poiMarkerColor: 'blue',
+        poiSymbolBootstrap3Name: 'home' // Example icon
+      };
+
+      const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, defaultMarkerStyle.poiMarkerStyle, defaultMarkerStyle.poiMarkerText, defaultMarkerStyle.poiSymbolColor, defaultMarkerStyle.poiMarkerColor, defaultMarkerStyle.poiSymbolBootstrap3Name, defaultMarkerStyle);
+      newMarker.addTo(this.map);
+
+      // track to enable deletion
+      this.singleMarkers.push(newMarker);
+
+      this.map.setView([location.coordinates.lat, location.coordinates.lng], 15);
+    });
+  }
+
+  removeIsochrones() {
+    if(this.isochronesLayer) {
       this.map.removeLayer(this.isochronesLayer);
       this.layerControl.removeLayer(this.isochronesLayer);
     }
+  }
+
+  addIsochrones(isochrones: any) {
+    this.removeIsochrones();
     
     this.isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
       this.reachabilityHelperService.settings.selectedStartPointLayer?.datasetName || 'Manuelle Eingabe',
@@ -673,6 +701,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.reachabilityHelperService.settings.useMultipleStartPoints,
       this.reachabilityHelperService.settings.dissolveIsochrones
     );
+    
     this.isochronesLayer.addTo(this.map);
   }
 

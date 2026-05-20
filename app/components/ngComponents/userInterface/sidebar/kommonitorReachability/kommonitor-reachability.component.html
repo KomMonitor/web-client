@@ -10,7 +10,7 @@
     <b>Einstiegs-Modus</b>
     <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs nav-fill">
       <li [ngbNavItem]="1">
-        <button ngbNavLink>Einzelpunkt</button>
+        <button ngbNavLink (click)="onSinglePointSelection()">Einzelpunkt</button>
         <ng-template ngbNavContent>
           <div class="search-wrapper">
             <input
@@ -33,12 +33,15 @@
         </ng-template>
       </li>
       <li [ngbNavItem]="2">
-        <button ngbNavLink>Karte</button>
+        <button ngbNavLink (click)="onMapSelection()">Karte</button>
         <ng-template ngbNavContent>
-          sdfrtgh
+          <div *ngFor="let item of reachabilityCombinerService.locations" class="mapItem">
+            <i class="fa-solid fa-trash" (click)="reachabilityCombinerService.deleteLocation(item)"></i>
+            <p>{{item.label}}</p>
+          </div>
         </ng-template>
       </li>
-      <li [ngbNavItem]="3">
+      <li [ngbNavItem]="3" (click)="onLayerSelection()">
         <button ngbNavLink>Layer</button>
         <ng-template ngbNavContent>
           dfghj

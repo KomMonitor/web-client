@@ -41,12 +41,6 @@ import { ReachabilityCombinerService } from 'services/reachability-combiner-serv
 })
 export class KommonitorReachabilityComponent implements OnInit {
   error = undefined;
-
-
-  /**
-  * start points that were drawn manually
-  * direct GeoJSON structure
-  */
   manualStartPoints = undefined;
 
   settings:any = {};
@@ -60,7 +54,7 @@ export class KommonitorReachabilityComponent implements OnInit {
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private envConfigService: EnvConfigService,
-    private reachabilityCombinerService: ReachabilityCombinerService
+    protected reachabilityCombinerService: ReachabilityCombinerService
   ) {}
 
   ngOnInit(): void {
@@ -128,7 +122,7 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.query = result.label;
     this.results = [];
 
-    this.reachabilityCombinerService.setLocation({coordinates: {x: result.x, y: result.y}});
+    this.reachabilityCombinerService.addLocation({coordinates: {lat: result.y, lng: result.x}});
   }
 
   startCalculation() {
@@ -178,4 +172,18 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.mapService.removeReachabilityScenarioFromMainMap();
   } 
 
+  onSinglePointSelection() {
+    this.reachabilityCombinerService.manualMapSelectionMode = false;
+    this.reachabilityCombinerService.resetLocations();
+  }
+
+  onMapSelection() {
+    this.reachabilityCombinerService.manualMapSelectionMode = true;
+    this.reachabilityCombinerService.resetLocations();
+  }
+
+  onLayerSelection() {
+    this.reachabilityCombinerService.manualMapSelectionMode = false;
+    this.reachabilityCombinerService.resetLocations();
+  }
 }
