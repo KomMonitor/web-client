@@ -35,6 +35,7 @@
       <li [ngbNavItem]="2">
         <button ngbNavLink (click)="onMapSelection()">Karte</button>
         <ng-template ngbNavContent>
+          <div *ngIf="reachabilityCombinerService.locations.length==0" class="mapSelection_info">Beliebige Standorte auf der Karte wählen</div>
           <div *ngFor="let item of reachabilityCombinerService.locations" class="mapItem">
             <i class="fa-solid fa-trash" (click)="reachabilityCombinerService.deleteLocation(item)"></i>
             <p>{{item.label}}</p>
@@ -44,7 +45,23 @@
       <li [ngbNavItem]="3" (click)="onLayerSelection()">
         <button ngbNavLink>Layer</button>
         <ng-template ngbNavContent>
-          dfghj
+          <div class="layerSelectWrapper">
+            <div>
+              <b>Layer</b>
+              <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer" (change)="reachabilityCombinerService.onChangePoiResource()"
+                class="form-control" required>
+                <option disabled selected value> -- Punkt-Layer w&auml;hlen --</option>
+                <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources" [ngValue]="poi">{{poi.datasetName}}</option>
+              </select>
+            </div>
+            <div *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
+              <b>Datum</b>
+              <select [(ngModel)]="reachabilityCombinerService.selectedStartDate" (change)="reachabilityCombinerService.fetchPoiResourceGeoJSON()"
+                class="form-control" required>
+                <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity" [value]="date.startDate">{{date.startDate}}</option>
+              </select>
+            </div>
+          </div>
         </ng-template>
       </li>
     </ul>

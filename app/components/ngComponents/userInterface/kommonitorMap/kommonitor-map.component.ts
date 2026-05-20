@@ -22,7 +22,7 @@ import { FileHelperService, FileUploadState } from 'services/file-helper-service
 import { MapService } from 'services/map-service/map.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ReachabilityCombinerService, ReachabilityLocation } from 'services/reachability-combiner-service/reachability-combiner.service';
+import { ReachabilityCombinerService, GeoJSONFeature } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
@@ -249,8 +249,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.reachabilityCombinerService.reachabilityMapSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        if(value.locations) 
-          this.addSingleMarker(value?.locations);
+        if(value.features) 
+          this.addSingleMarker(value?.features);
 
         if(value.isochronesGeoJson)
           this.addIsochrones(value.isochronesGeoJson);
@@ -637,15 +637,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       if(this.reachabilityCombinerService.manualMapSelectionMode) {
         this.reachabilityCombinerService.addLocation({
-          coordinates: {
-            lat: e.latlng.lat,
-            lng: e.latlng.lng
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [e.latlng.lng,e.latlng.lat]
           }}, true);
       }
     });
   }
 
-  addSingleMarker(locations: ReachabilityLocation[]) {
+  addSingleMarker(locations: GeoJSONFeature[]) {
 
     this.singleMarkers.forEach(m => this.map.removeLayer(m));
     this.singleMarkers = [];
@@ -656,20 +657,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [location.coordinates.lng, location.coordinates.lat]
+          coordinates: [location.geometry.coordinates[0], location.geometry.coordinates[1]]
         },
         properties: {
-          name: 'Startpunkt' // Default name for the marker
+          name: '' 
         }
       };
 
-      // Define some default styling properties for the marker
       const defaultMarkerStyle = {
-        poiMarkerStyle: 'default', // or 'awesome' if you want to use AwesomeMarkers
+        poiMarkerStyle: 'default', 
         poiMarkerText: 'Start',
         poiSymbolColor: 'white',
         poiMarkerColor: 'blue',
-        poiSymbolBootstrap3Name: 'home' // Example icon
+        poiSymbolBootstrap3Name: 'home' 
       };
 
       const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, defaultMarkerStyle.poiMarkerStyle, defaultMarkerStyle.poiMarkerText, defaultMarkerStyle.poiSymbolColor, defaultMarkerStyle.poiMarkerColor, defaultMarkerStyle.poiSymbolBootstrap3Name, defaultMarkerStyle);
@@ -678,7 +678,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // track to enable deletion
       this.singleMarkers.push(newMarker);
 
-      this.map.setView([location.coordinates.lat, location.coordinates.lng], 15);
+      this.map.setView([location.geometry.coordinates[1], location.geometry.coordinates[0]], 12);
     });
   }
 

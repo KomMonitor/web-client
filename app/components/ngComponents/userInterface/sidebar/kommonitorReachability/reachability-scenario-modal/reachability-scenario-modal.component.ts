@@ -10,6 +10,7 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration/reachability-scenario-configuration.component';
 import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachability-poi-in-iso.component';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 
 @Component({
   selector: 'app-reachability-scenario-modal',
@@ -38,7 +39,8 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     protected dataExchangeService: DataExchangeService,
     private multiStepHelperService: MultiStepHelperServiceService,
     private broadcastService: BroadcastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private reachabilityCombinerService: ReachabilityCombinerService
   ) {
   }
 
@@ -157,13 +159,13 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 					this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityHelperService.settings.selectedStartPointLayer?.availablePeriodsOfValidity[this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 				}
 
-        this.prepAvailablePeriods(); 
-        this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.filteredAvailablePeriodsOfValidity[this.filteredAvailablePeriodsOfValidity.length-1];
+        this.reachabilityCombinerService.prepAvailablePeriods(); 
+        this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(-1);
 				
         this.fetchPoiResourceGeoJSON(this.reachabilityHelperService.settings.isochroneConfig.selectedDate);
 			}
 
-      prepAvailablePeriods() {
+      /* prepAvailablePeriods() {
 
         let tempDates:any[] = [];
         this.filteredAvailablePeriodsOfValidity = this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.filter(e => {
@@ -180,7 +182,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
           else  
             return 1;
         });
-      }
+      } */
         
 
 			fetchPoiResourceGeoJSON(date:any) {

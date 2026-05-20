@@ -54,4 +54,18 @@
       cursor: pointer;
     }
   }
+
+  .layerSelectWrapper {
+    display: flex;
+    gap: 1em;
+  }
+
+  .mapSelection_info {
+    text-align: center;
+    padding: .5em;
+    margin-top: 2em;
+    background: var(--kommonitor-hierarchy-level-0);
+    border: 2px dotted var(--kommonitor-primary);
+    border-radius: .5em;
+  }
 }

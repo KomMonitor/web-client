@@ -20,6 +20,7 @@ import {
 import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
+import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
 @Component({
   standalone: true,
@@ -54,7 +55,8 @@ export class KommonitorReachabilityComponent implements OnInit {
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private envConfigService: EnvConfigService,
-    protected reachabilityCombinerService: ReachabilityCombinerService
+    protected reachabilityCombinerService: ReachabilityCombinerService,
+    protected reachabilityHelperService: ReachabilityHelperService
   ) {}
 
   ngOnInit(): void {
@@ -122,7 +124,7 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.query = result.label;
     this.results = [];
 
-    this.reachabilityCombinerService.addLocation({coordinates: {lat: result.y, lng: result.x}});
+    this.reachabilityCombinerService.addLocation({type: 'Feature', geometry: {type: 'Point', coordinates: [result.x, result.y]}});
   }
 
   startCalculation() {
