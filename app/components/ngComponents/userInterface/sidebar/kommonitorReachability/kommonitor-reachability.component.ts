@@ -21,6 +21,7 @@ import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi-select-slider/multi-select-slider.component';
 
 @Component({
   standalone: true,
@@ -37,7 +38,8 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
     NgbNavItemRole, 
     NgbNavLinkButton,
     NgbNavLinkBase, 
-    NgbNavOutlet
+    NgbNavOutlet,
+    MultiSelectSliderComponent
   ]
 })
 export class KommonitorReachabilityComponent implements OnInit {
@@ -47,6 +49,9 @@ export class KommonitorReachabilityComponent implements OnInit {
   settings:any = {};
 
   active = 1;
+
+  selectedMultiSliderValues: number[] = this.reachabilityCombinerService.settings.ranges;
+  multiSliderUnit = 'm';
 
   constructor(
     protected dataExchangeService: DataExchangeService,

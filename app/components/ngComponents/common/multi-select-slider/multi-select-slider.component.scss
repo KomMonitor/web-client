@@ -1,0 +1,51 @@
+:host {
+  .valuesWrapper {
+    display: flex;
+    gap: .5em;
+    margin-bottom: .5em;
+
+    .valueItem {
+      display: flex;
+      align-items: center;
+
+      background: var(--kommonitor-hierarchy-level-0);
+      padding: .3em .7em;
+      gap: .5em;
+      border-radius: .5em;
+      white-space: nowrap;
+
+      p {
+        margin: 0;
+      }
+
+      i {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .valuesWrapper > * {
+    width: min-content;
+  }
+
+  .sliderWrapper {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+
+    .selectedValue {
+      font-weight: bold;
+      font-size: 14px;
+
+      input {
+        width: 80px;
+      }
+    }
+
+    i {
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--kommonitor-primary);
+    }
+  }
+}

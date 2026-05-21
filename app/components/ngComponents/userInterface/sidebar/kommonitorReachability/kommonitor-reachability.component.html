@@ -70,8 +70,9 @@
     <button class="btn btn-primary btn-sm w-100" (click)="startCalculation()">Berechnung starten</button>
   </expandable-box>
             
-  <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">
-    nix
+  <expandable-box [title]="'Experten-Optionen'" [collapsed]="false">
+    <b>Mehrfach-Reichweiten</b>
+    <multi-select-slider [range]="[100,300]" [selectedValues]="selectedMultiSliderValues" [unit]="multiSliderUnit"></multi-select-slider>
   </expandable-box>
 
   <expandable-box [title]="'Szenario-Verwaltung'" [collapsed]="true">
