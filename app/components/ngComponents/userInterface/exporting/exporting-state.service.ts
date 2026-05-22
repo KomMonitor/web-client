@@ -5,6 +5,7 @@ import {
   Indicator,
   IndicatorExportItem,
   SpatialUnit,
+  ExportFormat,
 } from "./models";
 
 const LS_INDICATOR_ITEMS = "kommonitor.export.indicatorItems";
@@ -40,6 +41,50 @@ export class ExportingStateService {
   georessourceItems = signal<GeoressourceExportItem[]>(
     loadFromStorage<GeoressourceExportItem>(LS_GEORESSOURCE_ITEMS),
   );
+
+  isSingleExportValid = computed(() => {
+    const hasValidIndicator = this.indicatorItems().some(
+      (item) =>
+        item.selectedSpatialUnitIds.length > 0 &&
+        item.selectedFormats.length > 0,
+    );
+    const hasValidGeoressource = this.georessourceItems().some(
+      (item) => item.selectedFormats.length > 0,
+    );
+    return hasValidIndicator || hasValidGeoressource;
+  });
+
+  isSpatialUnitExportValid = computed(
+    () =>
+      this.selectedSpatialUnit() !== null &&
+      this.indicatorItems().some((item) => item.selectedFormats.length > 0),
+  );
+
+  isMultipleExportValid = computed(() =>
+    this.indicatorItems().some(
+      (item) =>
+        item.selectedFormats.includes("GeoPackage") &&
+        item.selectedSpatialUnitIds.length > 0,
+    ),
+  );
+
+  isIndicatorItemValid(item: IndicatorExportItem): boolean {
+    const type = this.exportType();
+    if (type === "single" || type === "multiple") {
+      return (
+        item.selectedSpatialUnitIds.length > 0 &&
+        item.selectedFormats.length > 0
+      );
+    }
+    if (type === "spatialUnit") {
+      return item.selectedFormats.length > 0;
+    }
+    return false;
+  }
+
+  isGeoressourceItemValid(item: GeoressourceExportItem): boolean {
+    return item.selectedFormats.length > 0;
+  }
 
   commonSpatialUnits = computed<SpatialUnit[]>(() => {
     const items = this.indicatorItems();
@@ -85,18 +130,18 @@ export class ExportingStateService {
     this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === indicator.dataset.id) {
-          const currentLevels = new Set(item.selectedSpatialUnits);
+          const currentLevels = new Set(item.selectedSpatialUnitIds);
           if (currentLevels.has(spatialUnitId))
             currentLevels.delete(spatialUnitId);
           else currentLevels.add(spatialUnitId);
-          return { ...item, selectedSpatialUnits: [...currentLevels] };
+          return { ...item, selectedSpatialUnitIds: [...currentLevels] };
         }
         return item;
       }),
     );
   }
 
-  toggleFormat(datasetId: string, format: string): void {
+  toggleFormat(datasetId: string, format: ExportFormat): void {
     this.indicatorItems.update((items) =>
       items.map((item) => {
         if (item.dataset.id === datasetId) {
@@ -130,7 +175,7 @@ export class ExportingStateService {
     const newItem: IndicatorExportItem = {
       dataset: indicator,
       selectedFormats: [],
-      selectedSpatialUnits: [],
+      selectedSpatialUnitIds: [],
     };
 
     this.indicatorItems.update((items) => [...items, newItem]);

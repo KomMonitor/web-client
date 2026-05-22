@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, signal } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { Observable, finalize } from "rxjs";
 import { ExportTypSelectionComponent } from "../export-typ-selection/export-typ-selection.component";
@@ -19,16 +19,16 @@ import {
   SpatialUnitExportParams,
   TargetTime,
 } from "../../../../../services/exporting/exporting.service";
-import { SelectedTargetTime } from "../models";
+import { ExportFormat, SelectedTargetTime } from "../models";
 
-const FORMAT_MAP: Record<string, DownloadFormat | null> = {
+const FORMAT_MAP: Record<ExportFormat, DownloadFormat | null> = {
   GeoPackage: "GEOPACKAGE",
   GeoJSON: "GEOJSON",
   CSV: "CSV",
   Excel: "EXCEL",
 };
 
-function mapFormats(formats: string[]): DownloadFormat[] {
+function mapFormats(formats: ExportFormat[]): DownloadFormat[] {
   return formats
     .map((f) => FORMAT_MAP[f])
     .filter((f): f is DownloadFormat => f !== null);
@@ -40,12 +40,12 @@ function buildTargetTime(targetTime?: SelectedTargetTime): TargetTime {
       mode: "ALL",
     };
   }
-  if (typeof targetTime === "string") {
+  if (targetTime.mode === "point") {
     return {
       mode: "SINGLE",
-      start_date: targetTime,
-      end_date: targetTime,
-      include_dates: [targetTime],
+      start_date: targetTime.value,
+      end_date: targetTime.value,
+      include_dates: [targetTime.value],
     };
   }
   return {
@@ -73,38 +73,15 @@ export class DownloadModalComponent {
   activeModal = inject(NgbActiveModal);
   isLoading = signal(false);
 
-  isSingleExportValid = computed(() => {
-    const hasValidIndicator = this.stateSrvc
-      .indicatorItems()
-      .some(
-        (item) =>
-          item.selectedSpatialUnits.length > 0 &&
-          item.selectedFormats.length > 0,
-      );
-    const hasValidGeoressource = this.stateSrvc
-      .georessourceItems()
-      .some((item) => item.selectedFormats.length > 0);
-    return hasValidIndicator || hasValidGeoressource;
-  });
-
-  isSpatialUnitExportValid = computed(() => {
-    const hasSelectedSpatialUnit =
-      this.stateSrvc.selectedSpatialUnit() !== null;
-    const hasIndicatorWithFormat = this.stateSrvc
-      .indicatorItems()
-      .some((item) => item.selectedFormats.length > 0);
-    return hasSelectedSpatialUnit && hasIndicatorWithFormat;
-  });
-
-  isMultipleExportValid = computed(() =>
-    this.stateSrvc
-      .indicatorItems()
-      .some(
-        (item) =>
-          item.selectedFormats.includes("GeoPackage") &&
-          item.selectedSpatialUnits.length > 0,
-      ),
-  );
+  get isSingleExportValid() {
+    return this.stateSrvc.isSingleExportValid;
+  }
+  get isSpatialUnitExportValid() {
+    return this.stateSrvc.isSpatialUnitExportValid;
+  }
+  get isMultipleExportValid() {
+    return this.stateSrvc.isMultipleExportValid;
+  }
 
   constructor(
     protected stateSrvc: ExportingStateService,
@@ -157,11 +134,11 @@ export class DownloadModalComponent {
   private buildSingleExportParams(crs: string): SingleExportParams {
     const indicators: IndicatorExportInput[] = this.stateSrvc
       .indicatorItems()
-      .filter((item) => item.selectedSpatialUnits.length > 0)
+      .filter((item) => item.selectedSpatialUnitIds.length > 0)
       .filter((item) => item.selectedFormats.length > 0)
       .map((item) => ({
         indicator_id: item.dataset.id,
-        spatial_unit_ids: item.selectedSpatialUnits,
+        spatial_unit_ids: item.selectedSpatialUnitIds,
         target_time: buildTargetTime(item.selectedTargetTime),
         download_format: mapFormats(item.selectedFormats),
       }));
@@ -198,11 +175,11 @@ export class DownloadModalComponent {
   private buildMultipleExportParams(crs: string): MultipleExportParams {
     const indicators: MultipleExportIndicatorInput[] = this.stateSrvc
       .indicatorItems()
-      .filter((item) => item.selectedSpatialUnits.length > 0)
+      .filter((item) => item.selectedSpatialUnitIds.length > 0)
       .filter((item) => item.selectedFormats.length > 0)
       .map((item) => ({
         indicator_id: item.dataset.id,
-        spatial_unit_ids: item.selectedSpatialUnits,
+        spatial_unit_ids: item.selectedSpatialUnitIds,
         target_time: buildTargetTime(item.selectedTargetTime),
       }));
     return { crs, indicators };

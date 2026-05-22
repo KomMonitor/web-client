@@ -1,12 +1,12 @@
 import { Component, Input, computed } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ExportItem } from "../models";
+import { ExportFormat, ExportItem } from "../models";
 import {
   ExportingStateService,
   ExportType,
 } from "../exporting-state.service";
 
-export const FORMAT_CONFIG: Record<ExportType, string[]> = {
+export const FORMAT_CONFIG: Record<ExportType, ExportFormat[]> = {
   single: ["GeoPackage", "Excel", "CSV", "GeoJSON"],
   spatialUnit: ["GeoPackage", "Excel", "CSV"],
   multiple: ["GeoPackage"],

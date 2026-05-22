@@ -11,3 +11,24 @@
     min-height: 0;
   }
 }
+
+.card {
+  --card-border-width: 1px;
+  --card-border-width-success: 3px;
+  --card-border-offset: calc(
+    var(--card-border-width-success) - var(--card-border-width)
+  );
+
+  border-width: var(--card-border-width);
+
+  &:not(.border-success) {
+    .card-body {
+      padding: calc(var(--bs-card-spacer-y) + var(--card-border-offset))
+        calc(var(--bs-card-spacer-x) + var(--card-border-offset));
+    }
+  }
+
+  &.border-success {
+    border-width: var(--card-border-width-success);
+  }
+}

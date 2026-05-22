@@ -26,35 +26,37 @@ export class ExportItemTimeSelectionComponent implements OnInit {
 
   get singleValue(): string {
     const t = this.exportItem.selectedTargetTime;
-    return typeof t === "string" ? t : "";
+    return t?.mode === "point" ? t.value : "";
   }
 
   get rangeStart(): string {
     const t = this.exportItem.selectedTargetTime;
-    return t && typeof t !== "string" ? t.start : "";
+    return t?.mode === "range" ? t.start : "";
   }
 
   get rangeEnd(): string {
     const t = this.exportItem.selectedTargetTime;
-    return t && typeof t !== "string" ? t.end : "";
+    return t?.mode === "range" ? t.end : "";
   }
 
   updateSingleTimestamp($event: Event) {
     const value = ($event.target as HTMLSelectElement).value;
-    this.exportItem.selectedTargetTime = value || undefined;
+    this.exportItem.selectedTargetTime = value
+      ? { mode: "point", value }
+      : undefined;
   }
 
   updateRangeStart($event: Event) {
     const value = ($event.target as HTMLSelectElement).value;
     const current = this.exportItem.selectedTargetTime;
-    const end = current && typeof current !== "string" ? current.end : "";
-    this.exportItem.selectedTargetTime = { start: value, end };
+    const end = current?.mode === "range" ? current.end : "";
+    this.exportItem.selectedTargetTime = { mode: "range", start: value, end };
   }
 
   updateRangeEnd($event: Event) {
     const value = ($event.target as HTMLSelectElement).value;
     const current = this.exportItem.selectedTargetTime;
-    const start = current && typeof current !== "string" ? current.start : "";
-    this.exportItem.selectedTargetTime = { start, end: value };
+    const start = current?.mode === "range" ? current.start : "";
+    this.exportItem.selectedTargetTime = { mode: "range", start, end: value };
   }
 }

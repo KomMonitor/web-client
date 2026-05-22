@@ -19,11 +19,22 @@
       </button>
       <ng-template ngbNavContent>
         <ng-container *ngFor="let item of srvc.indicatorItems()">
-          <div [id]="item.dataset.id" class="card mb-3">
+          <div
+            [id]="item.dataset.id"
+            class="card mb-3"
+            [class.border-success]="isIndicatorItemValid(item)"
+          >
             <div class="card-body">
               <div style="display: flex">
                 <div>
-                  <h4>{{ item.dataset.name }}</h4>
+                  <h4>
+                    {{ item.dataset.name }}
+                    <i
+                      *ngIf="isIndicatorItemValid(item)"
+                      class="fas fa-check-circle text-success ms-1"
+                      title="Bereit für den Download"
+                    ></i>
+                  </h4>
                 </div>
                 <div style="flex: 1"></div>
                 <button
@@ -54,7 +65,7 @@
                         ><input
                           class="form-check-input"
                           type="checkbox"
-                          [checked]="item.selectedSpatialUnits.includes(lvl.id)"
+                          [checked]="item.selectedSpatialUnitIds.includes(lvl.id)"
                           (change)="srvc.toggleSpatialUnit(item, lvl.id)"
                         />{{ lvl.name }}</label
                       >
@@ -88,11 +99,22 @@
       </button>
       <ng-template ngbNavContent>
         <ng-container *ngFor="let item of srvc.georessourceItems()">
-          <div [id]="item.dataset.id" class="card mb-3">
+          <div
+            [id]="item.dataset.id"
+            class="card mb-3"
+            [class.border-success]="isGeoressourceItemValid(item)"
+          >
             <div class="card-body">
               <div style="display: flex">
                 <div>
-                  <h4>{{ item.dataset.name }}</h4>
+                  <h4>
+                    {{ item.dataset.name }}
+                    <i
+                      *ngIf="isGeoressourceItemValid(item)"
+                      class="fas fa-check-circle text-success ms-1"
+                      title="Bereit für den Download"
+                    ></i>
+                  </h4>
                 </div>
                 <div style="flex: 1"></div>
                 <button

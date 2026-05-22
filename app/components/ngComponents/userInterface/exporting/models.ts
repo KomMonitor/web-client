@@ -1,6 +1,17 @@
 export type TimeSelectionMode = "points" | "range";
 
-export type SelectedTargetTime = string | { start: string; end: string };
+export type SelectedTargetTime =
+  | { mode: "point"; value: string }
+  | { mode: "range"; start: string; end: string };
+
+export const AVAILABLE_FORMATS = [
+  "GeoPackage",
+  "Excel",
+  "CSV",
+  "GeoJSON",
+] as const;
+
+export type ExportFormat = (typeof AVAILABLE_FORMATS)[number];
 
 export interface SpatialUnit {
   id: string;
@@ -20,27 +31,28 @@ export interface Georessource {
   availableTimestamps: string[];
 }
 
-export interface IndicatorExportItem {
+export interface BaseExportItem {
+  selectedFormats: ExportFormat[];
+  selectedTargetTime?: SelectedTargetTime;
+}
+
+export interface IndicatorExportItem extends BaseExportItem {
   dataset: Indicator;
-  selectedFormats: string[];
-  selectedTargetTime?: SelectedTargetTime;
-  selectedSpatialUnits: string[];
+  selectedSpatialUnitIds: string[];
 }
 
-export interface GeoressourceExportItem {
+export interface GeoressourceExportItem extends BaseExportItem {
   dataset: Georessource;
-  selectedFormats: string[];
-  selectedTargetTime?: SelectedTargetTime;
 }
 
+// TODO kann das wech?
 export type ExportItem = IndicatorExportItem | GeoressourceExportItem;
 
-export const AVAILABLE_FORMATS = ["GeoPackage", "Excel", "CSV", "GeoJSON"];
-
-export const sortTimestamps = (timestamps: string[]): string[] => {
-  return [...timestamps].sort((a, b) => b.localeCompare(a));
-};
-
-export const sortTimestampsAsc = (timestamps: string[]): string[] => {
-  return [...timestamps].sort((a, b) => a.localeCompare(b));
+export const sortTimestamps = (
+  timestamps: string[],
+  direction: "asc" | "desc" = "desc",
+): string[] => {
+  return [...timestamps].sort((a, b) =>
+    direction === "desc" ? b.localeCompare(a) : a.localeCompare(b),
+  );
 };

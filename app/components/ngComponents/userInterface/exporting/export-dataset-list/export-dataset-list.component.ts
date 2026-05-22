@@ -1,5 +1,10 @@
 import { Component, OnInit, signal } from "@angular/core";
-import { IndicatorExportItem, SpatialUnit } from "../models";
+import {
+  GeoressourceExportItem,
+  IndicatorExportItem,
+  SpatialUnit,
+  sortTimestamps,
+} from "../models";
 import { CommonModule } from "@angular/common";
 import { ExportItemTimeSelectionComponent } from "../export-item-time-selection/export-item-time-selection.component";
 import { ExportFormatSelectionComponent } from "../export-format-selection/export-format-selection.component";
@@ -32,11 +37,9 @@ export class ExportDatasetListComponent implements OnInit {
 
   openMultiSelectId = signal<string | null>(null);
 
-  sortTimestamps = (timestamps: string[]): string[] =>
-    [...timestamps].sort((a, b) => b.localeCompare(a));
-
-  sortTimestampsAsc = (timestamps: string[]): string[] =>
-    [...timestamps].sort((a, b) => a.localeCompare(b));
+  sortTimestamps = (timestamps: string[]) => sortTimestamps(timestamps);
+  sortTimestampsAsc = (timestamps: string[]) =>
+    sortTimestamps(timestamps, "asc");
 
   constructor(protected srvc: ExportingStateService) {}
 
@@ -51,5 +54,13 @@ export class ExportDatasetListComponent implements OnInit {
 
   getIndicatorLevels(item: IndicatorExportItem): SpatialUnit[] {
     return item.dataset.spatialUnits;
+  }
+
+  isIndicatorItemValid(item: IndicatorExportItem): boolean {
+    return this.srvc.isIndicatorItemValid(item);
+  }
+
+  isGeoressourceItemValid(item: GeoressourceExportItem): boolean {
+    return this.srvc.isGeoressourceItemValid(item);
   }
 }
