@@ -144,6 +144,7 @@ export class DownloadModalComponent {
       }));
     const georessources: GeoressourceExportInput[] = this.stateSrvc
       .georessourceItems()
+      .filter((item) => item.selectedFormats.length > 0)
       .map((item) => ({
         georessource_id: item.dataset.id,
         target_time: buildTargetTime(item.selectedTargetTime),
@@ -156,13 +157,16 @@ export class DownloadModalComponent {
   private buildSpatialUnitExportParams(crs: string): SpatialUnitExportParams {
     const spatialUnitId = this.stateSrvc.selectedSpatialUnit() ?? "";
     const allFormats = new Set<DownloadFormat>();
-    const indicators = this.stateSrvc.indicatorItems().map((item) => {
-      mapFormats(item.selectedFormats).forEach((f) => allFormats.add(f));
-      return {
-        indicator_id: item.dataset.id,
-        target_time: buildTargetTime(item.selectedTargetTime),
-      };
-    });
+    const indicators = this.stateSrvc
+      .indicatorItems()
+      .filter((item) => item.selectedFormats.length > 0)
+      .map((item) => {
+        mapFormats(item.selectedFormats).forEach((f) => allFormats.add(f));
+        return {
+          indicator_id: item.dataset.id,
+          target_time: buildTargetTime(item.selectedTargetTime),
+        };
+      });
 
     return {
       crs,
