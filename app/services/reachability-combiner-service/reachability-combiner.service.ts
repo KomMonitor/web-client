@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 export interface ReachabiltySettings {
   ranges: number[];
   focus: ReachbilityFocusTypes;
+  focusUnit: string;
   transitMode: ReachabilityTransitModeTypes;
 }
 
@@ -24,6 +25,7 @@ export interface ReachbilityModel {
   isochronesGeoJson?: any;
   selectedStartPointLayer?: any;
   selectedStartDate?: string;
+  loadingState: boolean;
 }
 
 export interface GeoJSONFeature {
@@ -50,15 +52,22 @@ export class ReachabilityCombinerService {
   // mode to select a point on the map, for quick reachability calc
   manualMapSelectionMode = false;
 
+  defaults = {
+    distanceRanges: [100,200,300,400,500],
+    timeRanges: [5,10,15]
+  }
+
   settings:ReachabiltySettings = {
-    ranges: [100,200,300,400,500],
+    ranges: this.defaults.distanceRanges,
     focus: 'distance',
-    transitMode: 'buffer'
+    focusUnit: 'm',
+    transitMode: 'foot-walking'
   }
 
   private reachabilityMapSubject = new BehaviorSubject<ReachbilityModel>({
     features: [],
-    isochronesGeoJson: null
+    isochronesGeoJson: null,
+    loadingState: false
   });
 
   reachabilityMapSubject$ = this.reachabilityMapSubject.asObservable();
@@ -102,6 +111,10 @@ export class ReachabilityCombinerService {
 
   get selectedStartPointLayer():any {
     return this.reachabilityMapSubject.value.selectedStartPointLayer; 
+  }
+  
+  get loadingState():boolean {
+    return this.reachabilityMapSubject.value.loadingState; 
   }
 
   set selectedStartPointLayer(layer: any) {
@@ -157,17 +170,29 @@ export class ReachabilityCombinerService {
     });
   }
 
-  startQuickCalculation() {
+  setLoadingState(state:boolean) {
+    this.reachabilityMapSubject.next({
+      ...this.reachabilityMapSubject.value,
+      loadingState: state
+    });
+  }
+
+  async startQuickCalculation() {
 
     if(this.reachabilityMapSubject.value.features && this.reachabilityMapSubject.value.features.length > 0) {
+
+      this.setLoadingState(true);
+
       const coordinatesArray: any = this.reachabilityMapSubject.value.features.map(location => [location.geometry.coordinates[0], location.geometry.coordinates[1]]);
 
-      this.reachabilityHelperService.startIsochroneCalculationForPoints(
+      await this.reachabilityHelperService.startIsochroneCalculationForPoints(
         coordinatesArray,
         this.settings.ranges,
         this.settings.focus,
         this.settings.transitMode
       );
+
+      this.setLoadingState(false);
     }
   }
 
@@ -227,5 +252,25 @@ export class ReachabilityCombinerService {
         console.log(error)
       }
     });
+  }
+
+  setTransitMode(mode:ReachabilityTransitModeTypes) {
+    this.settings.transitMode = mode;
+    this.startQuickCalculation();
+  }
+  
+
+  setFocusMode(mode:ReachbilityFocusTypes) {
+    this.settings.focus = mode;
+
+    if(mode == 'distance') {
+      this.settings.ranges = this.defaults.distanceRanges;
+      this.settings.focusUnit = 'm';
+    } else {
+      this.settings.ranges = this.defaults.timeRanges;
+      this.settings.focusUnit = 'min';
+    }
+
+    this.startQuickCalculation();
   }
 }

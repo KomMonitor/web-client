@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as noUiSlider from 'nouislider';
 
@@ -10,7 +10,7 @@ import * as noUiSlider from 'nouislider';
   styleUrls: ['./multi-select-slider.component.scss'],
   imports: [CommonModule, FormsModule]
 })
-export class MultiSelectSliderComponent implements AfterViewInit {
+export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
   
   @ViewChild('sliderContainer') sliderContainer!: ElementRef;
 
@@ -18,7 +18,7 @@ export class MultiSelectSliderComponent implements AfterViewInit {
   @Input() selectedValues!: number[];
   @Input() unit!: string;
 
-  @Output() selectValueChange = new EventEmitter<number[]>();
+  @Output() change = new EventEmitter<number[]>();
 
   private sliderInstance: any;
 
@@ -41,11 +41,21 @@ export class MultiSelectSliderComponent implements AfterViewInit {
       connect: false
     });
 
-    this.selectedValue = this.range[1]*this.defaultStartPosition;
+    this.selectedValue = Math.ceil(this.range[1]*this.defaultStartPosition);
 
     this.sliderInstance.on('change', (values, handle, unencoded) => {
       this.selectedValue = Math.ceil(this.range[1]*unencoded[0]);
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['range']) {
+      this.sliderInstance.updateOptions({
+        start: this.defaultStartPosition,
+      });
+
+      this.selectedValue = Math.ceil(this.range[1]*this.defaultStartPosition);
+    }
   }
 
   addSelectedValue() {
@@ -70,6 +80,6 @@ export class MultiSelectSliderComponent implements AfterViewInit {
   }
 
   pushValues() {
-    this.selectValueChange.emit(this.selectedValues);
+    this.change.emit(this.selectedValues);
   }
 }

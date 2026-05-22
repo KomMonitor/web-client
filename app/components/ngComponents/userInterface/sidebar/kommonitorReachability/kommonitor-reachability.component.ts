@@ -22,6 +22,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi-select-slider/multi-select-slider.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
   standalone: true,
@@ -39,7 +40,8 @@ import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi
     NgbNavLinkButton,
     NgbNavLinkBase, 
     NgbNavOutlet,
-    MultiSelectSliderComponent
+    MultiSelectSliderComponent,
+    LoadingOverlayComponent
   ]
 })
 export class KommonitorReachabilityComponent implements OnInit {
@@ -50,8 +52,9 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   active = 1;
 
-  selectedMultiSliderValues: number[] = this.reachabilityCombinerService.settings.ranges;
-  multiSliderUnit = 'm';
+  loadingData: boolean = false;
+
+  sliderRange:number[] = [1,300];
 
   constructor(
     protected dataExchangeService: DataExchangeService,
@@ -62,7 +65,8 @@ export class KommonitorReachabilityComponent implements OnInit {
     private envConfigService: EnvConfigService,
     protected reachabilityCombinerService: ReachabilityCombinerService,
     protected reachabilityHelperService: ReachabilityHelperService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
        // catch broadcast msgs
@@ -192,5 +196,12 @@ export class KommonitorReachabilityComponent implements OnInit {
   onLayerSelection() {
     this.reachabilityCombinerService.manualMapSelectionMode = false;
     this.reachabilityCombinerService.resetLocations();
+  } 
+
+  onFocusModeChange() {
+    if(this.reachabilityCombinerService.settings.focus=='distance')
+      this.sliderRange = [1,300];
+    else
+      this.sliderRange = [1,15];
   }
 }
