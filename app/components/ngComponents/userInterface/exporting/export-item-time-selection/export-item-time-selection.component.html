@@ -11,7 +11,6 @@
   <li [ngbNavItem]="1">
     <a class="nav-link" ngbNavLink>Einzeln</a>
     <ng-template ngbNavContent>
-      <p>einzelnen Zeitpunkt auswählen</p>
       <select
         (change)="updateSingleTimestamp($event)"
         [value]="singleValue"
@@ -19,7 +18,7 @@
       >
         <option value="">Bitte wählen...</option>
         <option
-          *ngFor="let ts of exportItem.dataset.availableTimestamps"
+          *ngFor="let ts of sortedTimestamps"
           [value]="ts"
         >
           {{ ts }}
@@ -32,7 +31,14 @@
     <ng-template ngbNavContent>
       <div class="row">
         <div class="col-md-6">
-          <div>Von</div>
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span>Von</span>
+            <button
+              type="button"
+              class="btn btn-link btn-sm p-0"
+              (click)="setEarliestStart()"
+            >Frühester</button>
+          </div>
           <select
             (change)="updateRangeStart($event)"
             [value]="rangeStart"
@@ -40,7 +46,7 @@
           >
             <option value="">Bitte wählen...</option>
             <option
-              *ngFor="let ts of exportItem.dataset.availableTimestamps"
+              *ngFor="let ts of filteredStartTimestamps"
               [value]="ts"
             >
               {{ ts }}
@@ -48,7 +54,14 @@
           </select>
         </div>
         <div class="col-md-6">
-          <div>Bis</div>
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span>Bis</span>
+            <button
+              type="button"
+              class="btn btn-link btn-sm p-0"
+              (click)="setLatestEnd()"
+            >Aktuellster</button>
+          </div>
           <select
             (change)="updateRangeEnd($event)"
             [value]="rangeEnd"
@@ -56,7 +69,7 @@
           >
             <option value="">Bitte wählen...</option>
             <option
-              *ngFor="let ts of exportItem.dataset.availableTimestamps"
+              *ngFor="let ts of filteredEndTimestamps"
               [value]="ts"
             >
               {{ ts }}
