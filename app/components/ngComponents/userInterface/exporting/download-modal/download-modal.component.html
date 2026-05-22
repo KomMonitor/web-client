@@ -42,7 +42,7 @@
           </div>
           <div
             *ngIf="
-              stateSrvc.exportType() === 'single' && !isSingleExportValid()
+              stateSrvc.exportType() === 'single' && !stateSrvc.isSingleExportValid()
             "
             class="alert alert-warning py-2 mb-2"
             role="alert"
@@ -54,7 +54,7 @@
           <div
             *ngIf="
               stateSrvc.exportType() === 'spatialUnit' &&
-              !isSpatialUnitExportValid()
+              !stateSrvc.isSpatialUnitExportValid()
             "
             class="alert alert-warning py-2 mb-2"
             role="alert"
@@ -66,7 +66,7 @@
           <div
             *ngIf="
               stateSrvc.exportType() === 'multiple' &&
-              !isMultipleExportValid()
+              !stateSrvc.isMultipleExportValid()
             "
             class="alert alert-warning py-2 mb-2"
             role="alert"
@@ -83,11 +83,11 @@
               [disabled]="
                 isLoading() ||
                 (stateSrvc.exportType() === 'single' &&
-                  !isSingleExportValid()) ||
+                  !stateSrvc.isSingleExportValid()) ||
                 (stateSrvc.exportType() === 'spatialUnit' &&
-                  !isSpatialUnitExportValid()) ||
+                  !stateSrvc.isSpatialUnitExportValid()) ||
                 (stateSrvc.exportType() === 'multiple' &&
-                  !isMultipleExportValid())
+                  !stateSrvc.isMultipleExportValid())
               "
             >
               <i class="fas fa-download"></i>

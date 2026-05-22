@@ -34,11 +34,12 @@ function mapFormats(formats: ExportFormat[]): DownloadFormat[] {
     .filter((f): f is DownloadFormat => f !== null);
 }
 
-function buildTargetTime(targetTime?: SelectedTargetTime): TargetTime {
+function buildTargetTime(
+  targetTime?: SelectedTargetTime,
+  availableTimestamps: string[] = [],
+): TargetTime {
   if (!targetTime) {
-    return {
-      mode: "ALL",
-    };
+    return { mode: "ALL" };
   }
   if (targetTime.mode === "point") {
     return {
@@ -48,11 +49,17 @@ function buildTargetTime(targetTime?: SelectedTargetTime): TargetTime {
       include_dates: [targetTime.value],
     };
   }
+  const includeDates = availableTimestamps.filter(
+    (t) => t >= targetTime.start && t <= targetTime.end,
+  );
   return {
     mode: "START_END",
     start_date: targetTime.start,
     end_date: targetTime.end,
-    include_dates: [targetTime.start, targetTime.end],
+    include_dates:
+      includeDates.length > 0
+        ? includeDates
+        : [targetTime.start, targetTime.end],
   };
 }
 
@@ -71,22 +78,9 @@ function buildTargetTime(targetTime?: SelectedTargetTime): TargetTime {
 })
 export class DownloadModalComponent {
   activeModal = inject(NgbActiveModal);
+  stateSrvc = inject(ExportingStateService);
+  exportSrvc = inject(ExportingService);
   isLoading = signal(false);
-
-  get isSingleExportValid() {
-    return this.stateSrvc.isSingleExportValid;
-  }
-  get isSpatialUnitExportValid() {
-    return this.stateSrvc.isSpatialUnitExportValid;
-  }
-  get isMultipleExportValid() {
-    return this.stateSrvc.isMultipleExportValid;
-  }
-
-  constructor(
-    protected stateSrvc: ExportingStateService,
-    protected exportSrvc: ExportingService,
-  ) {}
 
   onEpsgCodeChange(code: number | null): void {
     this.stateSrvc.selectedEpsgCode.set(code);
@@ -131,23 +125,34 @@ export class DownloadModalComponent {
     });
   }
 
-  private buildSingleExportParams(crs: string): SingleExportParams {
-    const indicators: IndicatorExportInput[] = this.stateSrvc
+  private filteredIndicatorItems() {
+    return this.stateSrvc
       .indicatorItems()
       .filter((item) => item.selectedSpatialUnitIds.length > 0)
-      .filter((item) => item.selectedFormats.length > 0)
-      .map((item) => ({
+      .filter((item) => item.selectedFormats.length > 0);
+  }
+
+  private buildSingleExportParams(crs: string): SingleExportParams {
+    const indicators: IndicatorExportInput[] = this.filteredIndicatorItems().map(
+      (item) => ({
         indicator_id: item.dataset.id,
         spatial_unit_ids: item.selectedSpatialUnitIds,
-        target_time: buildTargetTime(item.selectedTargetTime),
+        target_time: buildTargetTime(
+          item.selectedTargetTime,
+          item.dataset.availableTimestamps,
+        ),
         download_format: mapFormats(item.selectedFormats),
-      }));
+      }),
+    );
     const georessources: GeoressourceExportInput[] = this.stateSrvc
       .georessourceItems()
       .filter((item) => item.selectedFormats.length > 0)
       .map((item) => ({
         georessource_id: item.dataset.id,
-        target_time: buildTargetTime(item.selectedTargetTime),
+        target_time: buildTargetTime(
+          item.selectedTargetTime,
+          item.dataset.availableTimestamps,
+        ),
         download_format: mapFormats(item.selectedFormats),
       }));
 
@@ -164,7 +169,10 @@ export class DownloadModalComponent {
         mapFormats(item.selectedFormats).forEach((f) => allFormats.add(f));
         return {
           indicator_id: item.dataset.id,
-          target_time: buildTargetTime(item.selectedTargetTime),
+          target_time: buildTargetTime(
+            item.selectedTargetTime,
+            item.dataset.availableTimestamps,
+          ),
         };
       });
 
@@ -177,14 +185,14 @@ export class DownloadModalComponent {
   }
 
   private buildMultipleExportParams(crs: string): MultipleExportParams {
-    const indicators: MultipleExportIndicatorInput[] = this.stateSrvc
-      .indicatorItems()
-      .filter((item) => item.selectedSpatialUnitIds.length > 0)
-      .filter((item) => item.selectedFormats.length > 0)
-      .map((item) => ({
+    const indicators: MultipleExportIndicatorInput[] =
+      this.filteredIndicatorItems().map((item) => ({
         indicator_id: item.dataset.id,
         spatial_unit_ids: item.selectedSpatialUnitIds,
-        target_time: buildTargetTime(item.selectedTargetTime),
+        target_time: buildTargetTime(
+          item.selectedTargetTime,
+          item.dataset.availableTimestamps,
+        ),
       }));
     return { crs, indicators };
   }
