@@ -22,6 +22,7 @@ import { UserLoginComponent } from '../common/userLogin/user-login.component';
 import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DownloadModalComponent } from './exporting/download-modal/download-modal.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'user-interface-new',
@@ -34,7 +35,8 @@ import { DownloadModalComponent } from './exporting/download-modal/download-moda
     KommonitorLegendComponent,
     SidebarComponent,
     UserLoginComponent,
-    CustomSliderComponent
+    CustomSliderComponent,
+    FormsModule
   ]
 })
 export class UserInterfaceComponent implements OnInit {

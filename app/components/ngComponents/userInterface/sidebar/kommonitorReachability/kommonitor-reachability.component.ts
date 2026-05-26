@@ -5,31 +5,68 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReachabilityScenarioModalComponent } from './reachability-scenario-modal/reachability-scenario-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import {
+	NgbNavContent,
+	NgbNav,
+	NgbNavItem,
+	NgbNavItemRole,
+	NgbNavLinkButton,
+	NgbNavLinkBase,
+	NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { OpenStreetMapProvider, SearchControl } from 'leaflet-geosearch';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
+import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi-select-slider/multi-select-slider.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
+  standalone: true,
   selector: 'app-kommonitor-reachability',
   templateUrl: './kommonitor-reachability.component.html',
-  styleUrls: ['./kommonitor-reachability.component.css']
+  styleUrls: ['./kommonitor-reachability.component.scss'],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    ExpandableBoxComponent,
+    NgbNavContent, 
+    NgbNav, 
+    NgbNavItem, 
+    NgbNavItemRole, 
+    NgbNavLinkButton,
+    NgbNavLinkBase, 
+    NgbNavOutlet,
+    MultiSelectSliderComponent,
+    LoadingOverlayComponent
+  ]
 })
 export class KommonitorReachabilityComponent implements OnInit {
   error = undefined;
-
-
-  /**
-  * start points that were drawn manually
-  * direct GeoJSON structure
-  */
   manualStartPoints = undefined;
 
   settings:any = {};
+
+  active = 1;
+
+  loadingData: boolean = false;
+
+  sliderRange:number[] = [1,300];
 
   constructor(
     protected dataExchangeService: DataExchangeService,
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     private mapService: MapService,
     private modalService: NgbModal,
-    private broadcastService: BroadcastService
-  ) {}
+    private broadcastService: BroadcastService,
+    private envConfigService: EnvConfigService,
+    protected reachabilityCombinerService: ReachabilityCombinerService,
+    protected reachabilityHelperService: ReachabilityHelperService
+  ) {
+  }
 
   ngOnInit(): void {
        // catch broadcast msgs
@@ -48,12 +85,61 @@ export class KommonitorReachabilityComponent implements OnInit {
     });
   }
 
-  /* 
-    unclear what old kommonitor-reachability.component.ts <---- "ts" is used for. As it is TypeScript
-    holds a lot of functionality, but maybe unused??!?!
+  geoserachProvider = new OpenStreetMapProvider({
+    params: {
+      'accept-language': 'de', // render results in Dutch
+      countrycodes: 'de', // limit search results to the Netherlands
+      addressdetails: 1, // include additional address detail parts  
+      viewbox: "" + (Number(this.envConfigService.initialLongitude) - 0.001) + "," + (Number(this.envConfigService.initialLatitude) - 0.001) + "," + (Number(this.envConfigService.initialLongitude) + 0.001) + "," + (Number(this.envConfigService.initialLatitude) + 0.001)             
+    },
+    searchUrl: this.envConfigService.targetUrlToGeocoderService + '/search',
+    reverseUrl: this.envConfigService.targetUrlToGeocoderService + '/reverse'
+  });
 
-    next 4 functions are based on this old ts file.. maybe replace/reposition
-  */
+  geosearchControl = SearchControl({
+    position: "topleft",
+    provider: this.geoserachProvider,
+    style: 'button',
+    autoComplete: true,
+    autoCompleteDelay: 250,
+    showMarker: true,                                   // optional: true|false  - default true
+    showPopup: false,                                   // optional: true|false  - default false
+    popupFormat: ({ query, result }) => result.label,   // optional: function    - default returns result label
+    maxMarkers: 1,                                      // optional: number      - default 1
+    retainZoomLevel: false,                             // optional: true|false  - default false
+    animateZoom: true,                                  // optional: true|false  - default true
+    autoClose: false,                                   // optional: true|false  - default false
+    searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
+    keepResult: false                                   // optional: true|false  - default false
+  });
+
+  results: any[] = [];
+  query = '';
+
+  async onSearch(value: string) {
+    this.query = value;
+
+    if (!value || value.length < 3) {
+      this.results = [];
+      return;
+    }
+
+    this.results = await this.geoserachProvider.search({
+      query: value
+    });
+  }
+
+  selectResult(result: any) {
+    this.query = result.label;
+    this.results = [];
+
+    this.reachabilityCombinerService.addLocation({type: 'Feature', geometry: {type: 'Point', coordinates: [result.x, result.y]}});
+  }
+
+  startCalculation() {
+    this.reachabilityCombinerService.startQuickCalculation();
+  }
+
   changeStartPointsSource_fromLayer() {
 
     this.disablePointDrawTool();	
@@ -97,4 +183,25 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.mapService.removeReachabilityScenarioFromMainMap();
   } 
 
+  onSinglePointSelection() {
+    this.reachabilityCombinerService.manualMapSelectionMode = false;
+    this.reachabilityCombinerService.resetLocations();
+  }
+
+  onMapSelection() {
+    this.reachabilityCombinerService.manualMapSelectionMode = true;
+    this.reachabilityCombinerService.resetLocations();
+  }
+
+  onLayerSelection() {
+    this.reachabilityCombinerService.manualMapSelectionMode = false;
+    this.reachabilityCombinerService.resetLocations();
+  } 
+
+  onFocusModeChange() {
+    if(this.reachabilityCombinerService.settings.focus=='distance')
+      this.sliderRange = [1,300];
+    else
+      this.sliderRange = [1,15];
+  }
 }

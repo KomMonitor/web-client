@@ -225,7 +225,8 @@ export class IconTranslateService {
     { glyphicon: 'blackboard', fontAwesome: 'chalkboard' },
     { glyphicon: 'bed', fontAwesome: 'bed' },
     { glyphicon: 'tent', fontAwesome: 'campground' },
-    { glyphicon: 'ice', fontAwesome: 'ice-cream' }
+    { glyphicon: 'ice', fontAwesome: 'ice-cream' },
+    { glyphicon: 'ice-lolly', fontAwesome: 'ice-cream' }
     
   ];
 

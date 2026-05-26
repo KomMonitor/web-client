@@ -23,10 +23,10 @@ export interface PoiMarkerColor {
 }
 
 export const POI_SIZES: PoiSize[] = [
-  { id: 0, label: 'sehr klein', iconClassName: 'vector-marker-icon-extra-small', scaleFactor: 0.4 },
-  { id: 1, label: 'klein', iconClassName: 'vector-marker-icon-small', scaleFactor: 0.6 },
-  { id: 2, label: 'mittel', iconClassName: 'vector-marker-icon-middlesized', scaleFactor: 0.75 },
-  { id: 3, label: 'groß', iconClassName: '', scaleFactor: 1 },
+  { id: 0, label: 'sehr klein', iconClassName: 'vector-marker-icon-extra-small', scaleFactor: 5 },
+  { id: 1, label: 'klein', iconClassName: 'vector-marker-icon-small', scaleFactor: 0.75 },
+  { id: 2, label: 'mittel', iconClassName: 'vector-marker-icon-middlesized', scaleFactor: 1 },
+  { id: 3, label: 'groß', iconClassName: 'vector-marker-icon-large', scaleFactor: 1.25 },
 ];
 
 export const DEFAULT_POI_SIZE: PoiSize = POI_SIZES[2];

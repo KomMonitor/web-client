@@ -22,11 +22,14 @@ import { FileHelperService, FileUploadState } from 'services/file-helper-service
 import { MapService } from 'services/map-service/map.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { ReachabilityCombinerService, GeoJSONFeature } from 'services/reachability-combiner-service/reachability-combiner.service';
+import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
+import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
 @Component({
   selector: 'app-kommonitor-map',
   templateUrl: './kommonitor-map.component.html',
-  styleUrls: ['./kommonitor-map.component.css'],
+  styleUrls: ['./kommonitor-map.component.scss'],
   standalone: true,
   imports: [CommonModule]
 })
@@ -37,6 +40,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   private map;
   searchControl:any;
   geosearchControl:any;
+
+  private singleMarkers: L.Marker[] = [];
 
   datasetContainsNegativeValues: any;
 
@@ -159,8 +164,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     private genericMapHelperService: GenericMapHelperService,
     private envConfigService: EnvConfigService,
     private fileHelperService: FileHelperService,
-    private mapService: MapService
-  ) { }
+    private mapService: MapService,
+    private reachabilityCombinerService: ReachabilityCombinerService
+  , private reachabilityMapHelperService: ReachabilityMapHelperService,
+    private reachabilityHelperService: ReachabilityHelperService
+    ) { }
 
   ngOnInit(): void {
 
@@ -236,6 +244,18 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
         if(value.recenter)
           this.recenterMapOnly();
+      });
+
+    this.reachabilityCombinerService.reachabilityMapSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if(value.features) 
+          this.addSingleMarker(value?.features);
+
+        if(value.isochronesGeoJson)
+          this.addIsochrones(value.isochronesGeoJson);
+        else 
+          this.removeIsochrones();
       });
 
     // catch broadcast msgs
@@ -612,6 +632,77 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.noDataFillPattern = this.visualStyleHelperService.noDataFillPattern;
     this.noDataFillPattern.addTo(this.map);
+
+    this.map.on('click', async (e: L.LeafletMouseEvent) => {
+
+      if(this.reachabilityCombinerService.manualMapSelectionMode) {
+        this.reachabilityCombinerService.addLocation({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [e.latlng.lng,e.latlng.lat]
+          }}, true);
+      }
+    });
+  }
+
+  addSingleMarker(locations: GeoJSONFeature[]) {
+
+    this.singleMarkers.forEach(m => this.map.removeLayer(m));
+    this.singleMarkers = [];
+
+    locations.forEach(location => {
+      // Create a GeoJSON feature for the location
+      const poiFeature: any = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [location.geometry.coordinates[0], location.geometry.coordinates[1]]
+        },
+        properties: {
+          name: '' 
+        }
+      };
+
+      const defaultMarkerStyle = {
+        poiMarkerStyle: 'default', 
+        poiMarkerText: 'Start',
+        poiSymbolColor: 'white',
+        poiMarkerColor: 'blue',
+        poiSymbolBootstrap3Name: 'home' 
+      };
+
+      const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, defaultMarkerStyle.poiMarkerStyle, defaultMarkerStyle.poiMarkerText, defaultMarkerStyle.poiSymbolColor, defaultMarkerStyle.poiMarkerColor, defaultMarkerStyle.poiSymbolBootstrap3Name, defaultMarkerStyle);
+      newMarker.addTo(this.map);
+
+      // track to enable deletion
+      this.singleMarkers.push(newMarker);
+
+      this.map.setView([location.geometry.coordinates[1], location.geometry.coordinates[0]], 12);
+    });
+  }
+
+  removeIsochrones() {
+    if(this.isochronesLayer) {
+      this.map.removeLayer(this.isochronesLayer);
+      this.layerControl.removeLayer(this.isochronesLayer);
+    }
+  }
+
+  addIsochrones(isochrones: any) {
+    this.removeIsochrones();
+    
+    this.isochronesLayer = this.reachabilityMapHelperService.makeIsochroneLayer(
+      this.reachabilityHelperService.settings.selectedStartPointLayer?.datasetName || 'Manuelle Eingabe',
+      isochrones,
+      this.reachabilityHelperService.settings.transitMode,
+      this.reachabilityHelperService.settings.focus,
+      this.reachabilityHelperService.settings.rangeArray,
+      this.reachabilityHelperService.settings.useMultipleStartPoints,
+      this.reachabilityHelperService.settings.dissolveIsochrones
+    );
+    
+    this.isochronesLayer.addTo(this.map);
   }
 
   onGlobalFilterChange() {

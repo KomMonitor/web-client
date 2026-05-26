@@ -25,8 +25,8 @@
 						of Interest</b>
 					&nbsp;
 
-          <select (change)="refreshPoiLayers()" [(ngModel)]="selectedPoiSize" class="form-control">
-            <option *ngFor="let item of poiSizes" [value]="item.id">{{item.label}}</option>
+          <select (change)="refreshPoiLayers()" [(ngModel)]="dataExchangeService.selectedPoiSize" class="form-control">
+            <option *ngFor="let item of poiSizes" [ngValue]="item">{{item.label}}</option>
           </select>
 				</label>
 

@@ -19,8 +19,9 @@
       <div id="switchAdvancedMode" class="switch" *ngIf="envConfigService.showAdvancedModeSwitch" style="width:250px">
         <strong>Erweiterte Ansicht</strong>
         <label class="switch">
-          <input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty"
-              ng-change="onChangeUseTimeseriesAsProperty()">
+          <input type="checkbox" title="Ein- / Ausblenden von UI Elementen" [(ngModel)]="visibilityHelperService.isAdvancedMode" 
+					  [value]="visibilityHelperService.isAdvancedMode"
+					  (change)="visibilityHelperService.onChangeIsAdvancedMode()" >
           <span class="switchslider round"></span>
         </label>
         <!-- <label class="switch" title="Ein- / Ausblenden von UI Elementen">
@@ -41,22 +42,22 @@
   <app-sidebar [element]="sidebarElement" (sidebarClosed)="onSidebarClose($event)"></app-sidebar>
   <div id="mapWrapper">
     <div id="sideBarButtons">
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse" *ngIf="visibilityHelperService.elementVisibility.indicatorConfig"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
           <i class="fas fa-sitemap"></i>
       </button>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse" *ngIf="visibilityHelperService.elementVisibility.poi"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
           <i class="fas fa-map-marker-alt"></i>
       </button>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse" *ngIf="userLoggedIn"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse" *ngIf="visibilityHelperService.elementVisibility.dataImport"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
           <i class="fas fa-file-import"></i>
       </button> 
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse" *ngIf="visibilityHelperService.elementVisibility.filter"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse'), 'filterActive':filterModusActive()}" data-toggle="tooltip" title="Darstellungsfilter">
           <i class="fas fa-filter"></i>
       </button>
@@ -69,7 +70,7 @@
         
         <div id="diagramSubMenu" [ngClass]="{'hidden':!diagramSubMenuOpen}">
 
-          <div class="subMenuButtonWrapper">
+          <div class="subMenuButtonWrapper" *ngIf="visibilityHelperService.elementVisibility.balance">
             <button type="button" style="display: block; position: relative;" id="sidebarBalanceCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="zeitliche Bilanzierung">
                 <i class="fas fa-chart-line"></i>
@@ -80,7 +81,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper">
+          <div class="subMenuButtonWrapper" *ngIf="visibilityHelperService.elementVisibility.diagrams">
             <button type="button" style="display: block; position: relative;" id="sidebarDiagramsCollapse" 
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="statistische Diagramme">
                 <i class="fas fa-chart-bar"></i>
@@ -91,7 +92,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper" *ngIf="userLoggedIn">
+          <div class="subMenuButtonWrapper" *ngIf="visibilityHelperService.elementVisibility.radarDiagram">
             <button type="button" style="display: block; position: relative" id="sidebarRadarDiagramCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Indikatorenradar">
                 <img src="icons/radarMap.svg">
@@ -102,7 +103,7 @@
             </div>
           </div>
 
-          <div class="subMenuButtonWrapper" *ngIf="userLoggedIn">
+          <div class="subMenuButtonWrapper" *ngIf="visibilityHelperService.elementVisibility.regressionDiagram">
             <button type="button" style="display: block; position: relative" id="sidebarRegressionDiagramCollapse"
               (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Regressionsdiagramm">
                 <img src="icons/scatterPlot.svg">
@@ -115,7 +116,7 @@
         </div>
       </div>
 
-      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse" *ngIf="userLoggedIn"
+      <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse" *ngIf="visibilityHelperService.elementVisibility.reachability"
         (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
         <i class="fas fa-route"></i>
       </button>

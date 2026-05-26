@@ -1,0 +1,13 @@
+<div class="valuesWrapper">
+  <div *ngFor="let item of selectedValues" class="valueItem">
+    <p>{{item}} {{unit}}</p>
+    <i class="fa-solid fa-x" (click)="removeValue(item)"></i>
+  </div>
+</div>
+<div class="sliderWrapper">
+  <div #sliderContainer class="slider"></div>
+  <div class="selectedValue">
+    <input [(ngModel)]="selectedValue" type="number" class="form-control">
+  </div>
+  <i class="fa-solid fa-circle-plus" (click)="addSelectedValue()"></i>
+</div>

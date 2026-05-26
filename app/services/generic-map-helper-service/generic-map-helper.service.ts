@@ -53,6 +53,23 @@ export class GenericMapHelperService {
     private envConfigService: EnvConfigService,
   ) { }
 
+  removeLayerFromLayerControl(layerControl, layer){
+    if(layerControl && layer){
+      layerControl.removeLayer(layer);
+    }
+  }
+
+  removeLayerFromMap(map, layer){
+    if(map && layer){
+      map.removeLayer(layer);
+    }
+  }
+
+  removeControlFromMap(map, control){
+    map.removeControl(control);
+  }
+
+
   createCustomMarker(poiFeature, poiMarkerStyle, poiMarkerText, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject) {
     
     if (poiFeature.properties["geocoder_geocoderank"] == 2)
@@ -63,7 +80,7 @@ export class GenericMapHelperService {
         prefix: 'fa',
         markerColor: poiMarkerColor,
         iconColor: poiSymbolColor,
-        extraClasses: DEFAULT_POI_SIZE.iconClassName
+        extraClasses: `${this.dataExchangeService.selectedPoiSize.iconClassName} vector-marker-icon-color-${poiMarkerColor}`
       });
 
     var newMarker;

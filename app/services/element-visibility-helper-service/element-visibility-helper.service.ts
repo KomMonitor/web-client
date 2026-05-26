@@ -14,7 +14,7 @@ export class ElementVisibilityHelperService implements OnInit {
 
   elementVisibility:any = {};
 
-  private isAdvancedMode = this.envConfigService.isAdvancedMode;
+  isAdvancedMode = this.envConfigService.isAdvancedMode;
 
   advancedModeGroupName = "fakeAdvancedModeGroup"; 
   advancedModeRoleName = "fakeAdvancedModeRole";

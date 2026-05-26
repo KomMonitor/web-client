@@ -5,27 +5,37 @@ import { Inject, Injectable } from '@angular/core';
 })
 export class ReachabilityScenarioHelperService {
 
-  pipedData:any;
+  reachabilityScenarios:any = [];
 
-  public constructor(
-    @Inject('kommonitorReachabilityScenarioHelperService') private ajskommonitorReachabilityScenarioHelperServiceProvider: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  ) {
-    this.pipedData = this.ajskommonitorReachabilityScenarioHelperServiceProvider;
-  }
+  tmpActiveScenario:any = {
+    reachabilitySettings: {}, // settings from rechability helper service for isochrone config
+      "scenarioName": "", // unique scenario name
+      "indicatorStatistics": [], // array of all calculated indicator statistics
+      "isochrones_dissolved": {}, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
+      "isochrones_perPoint": {}, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones
+      "poiDataset": {
+        "poiId": "",
+        "poiName": "",
+        "poiDate": "",
+      }
+  };
+
+
+  public constructor( ) {}
 
   onImportScenariosFile() {
-    return this.ajskommonitorReachabilityScenarioHelperServiceProvider.onImportScenariosFile();
+    //return this.ajskommonitorReachabilityScenarioHelperServiceProvider.onImportScenariosFile();
   }
 
   exportScenarios() {
-    this.ajskommonitorReachabilityScenarioHelperServiceProvider.exportScenarios();
+    //this.ajskommonitorReachabilityScenarioHelperServiceProvider.exportScenarios();
   }
 
   removeReachabilityScenario(reachabilityScenario) {
-    this.ajskommonitorReachabilityScenarioHelperServiceProvider.removeReachabilityScenario(reachabilityScenario);
+    //this.ajskommonitorReachabilityScenarioHelperServiceProvider.removeReachabilityScenario(reachabilityScenario);
   }
   
   cloneReachabilityScenario(reachabilityScenario) {
-    this.ajskommonitorReachabilityScenarioHelperServiceProvider.cloneReachabilityScenario(reachabilityScenario);
+    //this.ajskommonitorReachabilityScenarioHelperServiceProvider.cloneReachabilityScenario(reachabilityScenario);
   }
 }

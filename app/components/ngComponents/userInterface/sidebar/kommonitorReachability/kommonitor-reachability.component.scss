@@ -1,0 +1,104 @@
+:host {
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+
+    max-height: 300px;
+    overflow-y: auto;
+
+    z-index: 1000;
+  }
+
+  .autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+
+    &:hover {
+      background: #f3f3f3;
+    }
+  }
+
+  .mapItem {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+
+    font-size: 1.2em;
+    background: var(--kommonitor-hierarchy-level-0);
+    padding: .2em .5em;
+    margin: .15em;
+    border-radius: .2em;
+
+    * {
+      margin: 0;
+    }
+
+    i {
+      cursor: pointer;
+    }
+  }
+
+  .layerSelectWrapper {
+    display: flex;
+    gap: 1em;
+  }
+
+  .mapSelection_info {
+    text-align: center;
+    padding: .5em;
+    margin-top: 2em;
+    background: var(--kommonitor-hierarchy-level-0);
+    border: 2px dotted var(--kommonitor-primary);
+    border-radius: .5em;
+  }
+
+  .modeWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 2em;
+  }
+  
+  .focusWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 2em;
+  }
+   
+  .modeWrapper, .focusWrapper {
+    .modeItem { 
+      border: 1px solid lightgray;
+      border-radius: .5em;
+      display: grid;
+      text-align: center;
+      justify-content: middle;
+      padding: 1.5em;
+      cursor: pointer;
+      color: gray;
+
+      &.active {
+        background: var(--kommonitor-hierarchy-level-2);
+        border: 1px solid var(--kommonitor-primary);
+        color: var(--kommonitor-primary);
+      }
+    }
+  }
+}
