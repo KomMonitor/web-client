@@ -143,6 +143,8 @@ try {
 
   // KomMonitor Geocoder Proxy
   window.__env.targetUrlToGeocoderService = 'https://geocoder.fbg-hsbo.de/nominatim/';
+  window.__env.geocoderLanguage = 'de';
+  window.__env.geocoderCountryCodes = 'de';
 
   // KomMonitor Spatial Data Processor
   window.__env.targetUrlToSpatialDataProcessorInstance = 'http://localhost:8090/';

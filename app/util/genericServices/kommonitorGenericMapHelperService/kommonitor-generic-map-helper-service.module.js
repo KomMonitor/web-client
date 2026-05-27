@@ -316,8 +316,8 @@ angular
         var provider = new OpenStreetMapProvider(
           {
             params: {
-              'accept-language': 'de', // render results in Dutch
-              countrycodes: 'de', // limit search results to the Netherlands
+              'accept-language': __env.geocoderLanguage, // render results this language
+              countrycodes: __env.geocoderCountryCodes, // limit search results to this langauge
               addressdetails: 1, // include additional address detail parts  
               viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
             },
