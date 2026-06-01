@@ -228,7 +228,6 @@ export class ReachabilityCombinerService {
   }
 
   fetchPoiResourceGeoJSON() {
-    console.log(this.selectedStartDate)
     var dateComps = this.selectedStartDate.split("-");
 
     var year = dateComps[0];
@@ -239,7 +238,6 @@ export class ReachabilityCombinerService {
     let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.selectedStartPointLayer.georesourceId + "/" + year + "/" + month + "/" + day;
     this.http.get(url).subscribe({
       next: (response:any) => {
-        console.log(response);
 
         this.reachabilityMapSubject.next({
           ...this.reachabilityMapSubject.value,

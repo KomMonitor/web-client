@@ -94,6 +94,10 @@
       cursor: pointer;
       color: gray;
 
+      i {
+        font-size: 22px;
+      }
+
       &.active {
         background: var(--kommonitor-hierarchy-level-2);
         border: 1px solid var(--kommonitor-primary);
