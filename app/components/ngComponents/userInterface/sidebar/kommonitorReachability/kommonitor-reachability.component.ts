@@ -83,6 +83,8 @@ export class KommonitorReachabilityComponent implements OnInit {
         } break;
       }
     });
+
+    this.openReachabilityScenarioModal();
   }
 
   geoserachProvider = new OpenStreetMapProvider({

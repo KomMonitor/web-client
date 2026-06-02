@@ -21,6 +21,7 @@ export type ReachabilityTransitModeTypes = 'buffer' | 'foot-walking' | 'cycling-
 export type ReachbilityFocusTypes = 'distance' | 'time';
 
 export interface ReachbilityModel {
+  scenarioTitle?: string;
   features?: GeoJSONFeature[];
   isochronesGeoJson?: any;
   selectedStartPointLayer?: any;
@@ -89,6 +90,14 @@ export class ReachabilityCombinerService {
         if(value==MetadataLoadingState.COMPLETE)  
           this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI);
       });
+  }
+
+  get scenarioTitle():string {
+    return this.reachabilityMapSubject.value.scenarioTitle!; 
+  }
+
+  set scenarioTitle(title:string) {
+    this.reachabilityMapSubject.value.scenarioTitle = title; 
   }
 
   get locations():GeoJSONFeature[] {
@@ -224,10 +233,11 @@ export class ReachabilityCombinerService {
   }
 
   onChangePoiResource() {
+    console.log(this.selectedStartPointLayer)
     this.prepAvailablePeriods(); 
   }
 
-  fetchPoiResourceGeoJSON() {
+  fetchPoiResourceGeoJSON(globalModel = true) {
     var dateComps = this.selectedStartDate.split("-");
 
     var year = dateComps[0];
@@ -239,12 +249,15 @@ export class ReachabilityCombinerService {
     this.http.get(url).subscribe({
       next: (response:any) => {
 
-        this.reachabilityMapSubject.next({
-          ...this.reachabilityMapSubject.value,
-          features: response.features
-        });
-        /* this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = response;
-        this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = response; */
+        if(globalModel)
+          this.reachabilityMapSubject.next({
+            ...this.reachabilityMapSubject.value,
+            features: response.features
+          }); 
+        else {
+          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = response;
+          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = response;
+        }
       },
       error: error => {
         console.log(error)

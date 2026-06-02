@@ -1,0 +1,73 @@
+<h2 class="fs-title">Name und Punktdatenquelle</h2>
+<p>Definition eines eindeutigen Namens pro Szenario und Wahl der
+  Punktdatenquelle, f&uuml;r die Einzugsgebiete berechnet werden sollen</p>
+
+<div class="row vertical-align">
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <input
+        [(ngModel)]="reachabilityCombinerService.scenarioTitle"
+        placeholder="sprechender Name, der Szenario passend umschreibt">
+
+      <div class="help-block">
+        <p>Vergeben Sie einen Namen, der m&ouml;glichst gut darstellt, was das
+          Szenario beinhaltet.</p>
+        <p>Beispiel 1: <i>Kitas2022_ist_5min_10min_15min_fusslaeufig</i></p>
+        <p>Beispiel 2: <i>Kitas2024_planung_5min_10min_15min_fusslaeufig</i></p>
+      </div>
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="form-group">
+      <label>Auswahl von Punktdatenquelle und Zeitpunkt</label>
+      <p>mit der Option <i>'--leerer neuer Datensatz --'</i> kann ein neuer leerer
+        Datensatz angelegt werden, um neue Punkte zu erfassen</p>
+
+      <div class="row vertical-align" style="margin-right:0px;">
+
+        <div class="col-md-6 col-sm-6 col-xs-6">
+          <div class="horizontal-align" *ngIf="reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability">
+            <p><b>{{reachabilityCombinerService.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
+              Startpunkte im
+              selektierten Layer</p>
+          </div>
+
+          <div class="horizontal-align" *ngIf="!reachabilityCombinerService.selectedStartPointLayer">
+            <p>noch kein Layer selektiert</p>
+          </div>
+
+          <div class="horizontal-align" *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability">
+            <p style="color: red;">zum angegebenen Zeitwert konnten keine
+              validen Feature-Daten abgerufen werden</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-6">
+          <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer" (change)="onChangePoiResource()" class="form-control" required>
+            <option disabled selected value> -- Punkt-Layer w&auml;hlen --</option>
+            <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources" [ngValue]="poi">{{poi.datasetName}}</option>
+          </select>
+
+          <div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer?.isNewReachabilityDataSource">
+            <br />
+            <label>Name des neuen Datensatzes (Umbenennung)</label>
+            <input [ngModel]="reachabilityHelperService.settings.selectedStartPointLayer.datasetName">
+
+          </div>
+
+          <div *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
+            <select style="font-size: 11px; width:135px; padding: 0px;"
+              [(ngModel)]="reachabilityCombinerService.selectedStartDate"
+              (change)="fetchPoiResourceGeoJSON()"
+              class="form-control" required>
+              <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity" [value]="date.startDate">{{date.startDate}}</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="help-block with-errors"></div>
+    </div>
+  </div>
+</div>

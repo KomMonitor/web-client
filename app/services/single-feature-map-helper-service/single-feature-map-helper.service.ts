@@ -88,29 +88,28 @@ export class SingleFeatureMapHelperService implements OnInit {
 
     //function (geoJSON, map, layerControl, layerName)
     this.mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", (feature, layer) => {
+      var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+      for (var p in feature.properties) {
+        popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
+      }
+      popupContent += '</table></div>';
+
+      layer.bindPopup(popupContent);
+
       layer.on({
         click: () => {
-
           this.broadcastService.broadcast("singleFeatureSelected", [feature]);
-
-          var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-          for (var p in feature.properties) {
-            popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
-          }
-          popupContent += '</table></div>';
-
-          layer.bindPopup(popupContent);
+          layer.openPopup();
         }
       });
     }, this.pointToLayer, this.style);
   }
 
   pointToLayer(geoJsonPoint, latlng) {
-    return L.marker(latlng);
 
-     /* return L.circleMarker(latlng, {
-          radius: 6
-        }); */
+    return L.circleMarker(latlng, {
+        radius: 6
+      });
   }
 
   style(feature) {

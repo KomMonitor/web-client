@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
@@ -82,6 +82,7 @@ export class SingleFeatureEditComponent implements OnInit {
         $('#georesourceSingleFeatureDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions); */
   
   onEditGeoresourceFeatures([georesourceDataset, isReachabilityDatasetOnly]) {
+
     if (this.currentGeoresourceDataset && this.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName) {
       return;
     }
@@ -99,7 +100,6 @@ export class SingleFeatureEditComponent implements OnInit {
   onChangeEditMode(value) {
 
     this.singleFeatureMapHelperService.editMode = value;
-    console.log(this.singleFeatureMapHelperService.editMode);
     this.reinitSingleFeatureEdit();
   };
   
@@ -150,8 +150,8 @@ export class SingleFeatureEditComponent implements OnInit {
   
   reinitSingleFeatureEdit() {
   
-    this.resetContent();
-    this.initFeatureSchema();
+   /*  this.resetContent();
+    this.initFeatureSchema(); */
     this.initGeoMap();
   }
  

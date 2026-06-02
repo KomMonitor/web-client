@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
@@ -37,7 +38,8 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private genericMapHelperService: GenericMapHelperService,
   ) {
     // start points that were drawn manually
     // direct GeoJSON structure
@@ -73,6 +75,10 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
         } break;
         case 'isochronesCalculationFinished': {
           this.isochronesCalculationFinished();
+        } break;
+        case 'reinitReachabilityConfiguration': {
+          console.log("hire1")
+          this.reachabilityMapHelperService.invalidateMap(this.domId);
         } break;
       }
     });
