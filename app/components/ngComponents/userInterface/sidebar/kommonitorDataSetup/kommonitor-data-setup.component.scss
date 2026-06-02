@@ -1,96 +1,25 @@
-:host { 
-
-  .list-group .list-group-item-grid-layout div:first-child {
-    display: grid;
-    grid-template-columns: auto 1fr;
-  }
-
-  .indicator-element.list-group-item-grid-layout.favs {
-    display: grid;
-    grid-template-columns: auto 1fr min-content;
-    padding-right: 1rem !important;
-  }
-
-  .indicator-element.list-group-item-grid-layout.favs div:first-child {
-    display: block !important;
-    margin: .5em 0;
-  }
-
+:host {
   .hierarchy-topic-level-0 {
     background-color: var(--kommonitor-hierarchy-level-0);
   }
-
-  .hierarchy-topic-level-1 {
-    background-color: var(--kommonitor-hierarchy-level-1);
-  }
-
-  .hierarchy-topic-level-2 {
-    background-color: var(--kommonitor-hierarchy-level-2);
-  }
-
-  .hierarchy-topic-level-3 {
-    background-color: var(--kommonitor-hierarchy-level-3);
-  }
 }
 
+.style-hierarchy-selected-indicator-0 {
+  background: linear-gradient(
+    to right,
+    var(--kommonitor-primary) 12px,
+    var(--kommonitor-hierarchy-level-0) 12px
+  ) !important;
+}
 
 .style-headline-indicator {
   background-color: #f7931e !important;
   color: #fff !important;
 }
 
-.style-fav-normal-indicator-0 {
-  background-color: var(--kommonitor-hierarchy-level-0);
-}
-
-.style-fav-normal-indicator-1 {
-  background-color: var(--kommonitor-hierarchy-level-1);
-}
-
-.style-fav-normal-indicator-2 {
-  background-color: var(--kommonitor-hierarchy-level-2);
-}
-
-.style-fav-normal-indicator-3 {
-  background-color: var(--kommonitor-hierarchy-level-3);
-}
-
-.style-hierarchy-selected-indicator-0, .style-fav-selected-indicator-0 {
-  background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-0) 12px) !important;
-}
-
-.style-hierarchy-selected-indicator-1, .style-fav-selected-indicator-1 {
-  background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-1) 12px) !important;
-}
-
-.style-hierarchy-selected-indicator-2, .style-fav-selected-indicator-2 {
-  background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-2) 12px) !important;
-}
-
-.style-hierarchy-selected-indicator-3, .style-fav-selected-indicator-3 {
-  background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-3) 12px) !important;
-}
-
-.style-fav-normal-indicator-0,
-.style-fav-normal-indicator-1,
-.style-fav-normal-indicator-2,
-.style-fav-normal-indicator-3,
-.style-fav-selected-indicator-0,
-.style-fav-selected-indicator-1,
-.style-fav-selected-indicator-2,
-.style-fav-selected-indicator-3 {
-
-  p {
-    i {
-      margin-right: .8em;
-    }
-  }
-} 
-
 .list-group-item p {
-  margin: .5em 0;
+  margin: 0.5em 0;
 }
-
 
 /* Collapse animation */
 .collapse {
