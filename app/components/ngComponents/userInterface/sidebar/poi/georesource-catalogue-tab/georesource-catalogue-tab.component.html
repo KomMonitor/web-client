@@ -1,0 +1,225 @@
+<div class="just-padding">
+  <table
+    class="table"
+    style="width: 100%"
+    *ngIf="
+      filterService.enabledGeoresourcesInfrastructure.length +
+        filterService.enabledGeoresourcesGeoservices.length >
+      1
+    "
+  >
+    <tr>
+      <th
+        *ngIf="filterService.enabledGeoresourcesInfrastructure.length > 0"
+        [attr.colspan]="filterService.enabledGeoresourcesInfrastructure.length"
+        class="text-center"
+      >
+        <b>Infrastruktur</b>
+      </th>
+      <th
+        *ngIf="filterService.enabledGeoresourcesGeoservices.length > 0"
+        [attr.colSpan]="filterService.enabledGeoresourcesGeoservices.length"
+        class="text-center"
+      >
+        <b>Geodaten-Dienste</b>
+      </th>
+    </tr>
+    <tr>
+      <th
+        *ngIf="filterService.isGeoresourceInfrastructureEnabled('poi')"
+        class="text-center"
+      >
+        <b>Punktdaten</b>
+      </th>
+      <th
+        *ngIf="filterService.isGeoresourceInfrastructureEnabled('loi')"
+        class="text-center"
+      >
+        <b>Liniendaten</b>
+      </th>
+      <th
+        *ngIf="filterService.isGeoresourceInfrastructureEnabled('aoi')"
+        class="text-center"
+      >
+        <b>Fl&auml;chendaten</b>
+      </th>
+      <th
+        *ngIf="filterService.isGeoresourceGeoserviceEnabled('wms')"
+        class="text-center"
+      >
+        <b>WMS-Daten</b>
+      </th>
+      <th
+        *ngIf="filterService.isGeoresourceGeoserviceEnabled('wfs')"
+        class="text-center"
+      >
+        <b>WFS-Daten</b>
+      </th>
+    </tr>
+    <tr>
+      <td
+        class="text-center"
+        *ngIf="filterService.isGeoresourceInfrastructureEnabled('poi')"
+      >
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterService.showPOI"
+            checked
+            (change)="filterService.onChangeGeoresourceKeywordFilter()"
+          />
+          <span class="switchslider round"></span>
+        </label>
+      </td>
+      <td
+        class="text-center"
+        *ngIf="filterService.isGeoresourceInfrastructureEnabled('loi')"
+      >
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterService.showLOI"
+            checked
+            (change)="filterService.onChangeGeoresourceKeywordFilter()"
+          />
+          <span class="switchslider round"></span>
+        </label>
+      </td>
+      <td
+        class="text-center"
+        *ngIf="filterService.isGeoresourceInfrastructureEnabled('aoi')"
+      >
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterService.showAOI"
+            checked
+            (change)="filterService.onChangeGeoresourceKeywordFilter()"
+          />
+          <span class="switchslider round"></span>
+        </label>
+      </td>
+      <td
+        class="text-center"
+        *ngIf="filterService.isGeoresourceGeoserviceEnabled('wms')"
+      >
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterService.showWMS"
+            checked
+            (change)="filterService.onChangeGeoresourceKeywordFilter()"
+          />
+          <span class="switchslider round"></span>
+        </label>
+      </td>
+      <td
+        class="text-center"
+        *ngIf="filterService.isGeoresourceGeoserviceEnabled('wfs')"
+      >
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterService.showWFS"
+            checked
+            (change)="filterService.onChangeGeoresourceKeywordFilter()"
+          />
+          <span class="switchslider round"></span>
+        </label>
+      </td>
+    </tr>
+  </table>
+  <!-- </div> -->
+
+  <div
+    id="georesourceHierarchySelection"
+    class="list-group list-group-root well"
+  >
+    <app-georesource-topic-tree
+      [topics]="filterService.preppedTopicGeoresourceHierarchy"
+      [showFavSelection]="showFavSelection"
+      [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
+      [topicFavItems]="favoritesService.georesourceTopicFavItems"
+      [poiFavItems]="favoritesService.poiFavItems"
+      [wmsFavItems]="favoritesService.wmsFavItems"
+      (showAllOnTopic)="showAllOnTopic.emit($event)"
+      (topicFavToggled)="favoritesService.onGeoresourceTopicFavClick($event)"
+      (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+      (toggleWmsOnMap)="layerService.handleWmsOnMap($event)"
+      (toggleWfsOnMap)="layerService.handleWfsOnMap($event)"
+      (selectedDateChange)="layerService.onChangeSelectedDate($event)"
+      (zoomToLayer)="zoomToLayer.emit($event)"
+      (exportGeoresource)="layerService.getExportLinkForGeoresource($event)"
+      (poiFavToggled)="favoritesService.onPoiFavClick($event)"
+      (wmsFavToggled)="favoritesService.onWmsFavClick($event)"
+      (wfsColorChange)="layerService.adjustWfsLayerColor($event)"
+    >
+    </app-georesource-topic-tree>
+
+    <div
+      class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0"
+      *ngIf="
+        dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+          .totalCount > 0
+      "
+    >
+      <i
+        class="fa-solid"
+        [ngClass]="{
+          'fa-chevron-right': isCollapsed_noTopic,
+          'fa-chevron-down': !isCollapsed_noTopic,
+        }"
+      ></i>
+      <p
+        id="noHierarchyGeoresourceDatasets"
+        title="Georessourcen-Daten ohne Themenbezug"
+        class="collapseTrigger"
+        (click)="toggleNoTopicHierarchy()"
+      >
+        ohne Themenbezug ({{
+          dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+            .totalCount
+        }})
+      </p>
+      <input
+        type="checkbox"
+        value="showAllForTopic_null"
+        [(ngModel)]="showAllForTopic_null"
+      />
+    </div>
+
+    <div
+      class="list-group collapse"
+      [ngClass]="{ in: !isCollapsed_noTopic }"
+      uib-collapse="isCollapsed_noTopic"
+    >
+      <div
+        class="georesourceInputForm"
+        *ngIf="
+          dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+            .totalCount > 0
+        "
+      >
+        <app-georesource-dataset-table
+          [datasets]="
+            dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+          "
+          [showFavSelection]="showFavSelection"
+          [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
+          [poiFavItems]="favoritesService.poiFavItems"
+          [wmsFavItems]="favoritesService.wmsFavItems"
+          (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+          (toggleWmsOnMap)="layerService.handleWmsOnMap($event)"
+          (toggleWfsOnMap)="layerService.handleWfsOnMap($event)"
+          (selectedDateChange)="layerService.onChangeSelectedDate($event)"
+          (zoomToLayer)="zoomToLayer.emit($event)"
+          (exportGeoresource)="layerService.getExportLinkForGeoresource($event)"
+          (poiFavClick)="favoritesService.onPoiFavClick($event)"
+          (wmsFavClick)="favoritesService.onWmsFavClick($event)"
+          (wfsColorChange)="layerService.adjustWfsLayerColor($event)"
+        >
+        </app-georesource-dataset-table>
+      </div>
+    </div>
+  </div>
+</div>

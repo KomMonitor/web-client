@@ -1,24 +1,23 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { PoiComponent } from 'components/ngComponents/userInterface/sidebar/poi/poi.component';
+import { Pipe, PipeTransform } from "@angular/core";
+import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
 
 @Pipe({
-    name: 'geoFavItemFilter',
-    pure: false,
-    standalone: true
+  name: "geoFavItemFilter",
+  pure: false,
+  standalone: true,
 })
 export class GeoFavItemFilter implements PipeTransform {
+  constructor(private favoritesService: GeoresourceFavoritesService) {}
 
-  constructor(
-    private poiComponent: PoiComponent
-  ) {}
-
-  transform(items:any, topic: any): any {
+  transform(items: any, topic: any): any {
     if (!items) {
-        return items;
+      return items;
     }
 
     // filter for items in favList
-    items = items.filter(e => this.poiComponent.FavTabShowPoi(topic,e.georesourceId));
+    items = items.filter((e) =>
+      this.favoritesService.FavTabShowPoi(topic, e.georesourceId),
+    );
 
     return items;
   }

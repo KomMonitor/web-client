@@ -1,0 +1,17 @@
+:host {
+
+  .poiList-downloadLink {
+    color: var(--kommonitor-primary);
+  }
+
+  .export-column {
+    display: grid;
+    grid-template-columns: auto auto;
+    padding-top: 1em;
+  }
+}
+
+.poiColorLegend {
+  width: 15px;
+  height: 15px;
+}
