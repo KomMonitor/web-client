@@ -1,0 +1,79 @@
+<table class="table table-condensed" style="margin-bottom: 0px">
+  <thead>
+    <tr>
+      <th>Typ</th>
+      <th>Datensatz</th>
+      <th>Beschreibung</th>
+      <th>Legende</th>
+      <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let wmsData of wmsDataList">
+      <td>
+        <b><i>WMS</i></b>
+      </td>
+      <td>
+        <label class="checkbox-inline">
+          <input
+            type="checkbox"
+            [(ngModel)]="wmsData.isSelected"
+            (change)="wmsToggled.emit(wmsData)"
+          />
+          <b>{{ wmsData.title }}</b>
+        </label>
+      </td>
+      <td [innerHTML]="wmsData.description"></td>
+      <td class="text-center">
+        <div *ngIf="!wmsData.showLegend">
+          <button
+            class="btn btn-sm btn-primary"
+            (click)="wmsData.showLegend = true"
+          >
+            laden
+          </button>
+        </div>
+        <div *ngIf="wmsData.showLegend">
+          <img
+            [src]="
+              ogcService.buildLegendUrl(
+                wmsData.connectionDetails.baseUrl,
+                wmsData.connectionDetails.layerName
+              )
+            "
+          />
+        </div>
+      </td>
+      <td
+        *ngIf="dataExchangeService.showGeoresourceExportButtons"
+        class="text-center"
+      >
+        <a
+          [href]="
+            ogcService.buildGetCapabilitiesUrl(
+              wmsData.connectionDetails.baseUrl
+            )
+          "
+          title="WMS GetCapabilities URL"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <i class="fas fa-cloud-download-alt"></i>
+        </a>
+      </td>
+      <td>
+        <i
+          *ngIf="showFavSelection"
+          class="fav-star fa-star"
+          [ngClass]="{
+            'fa-solid': wmsFavItems.includes(wmsData.id),
+            'fa-regular': !wmsFavItems.includes(wmsData.id),
+          }"
+          (click)="wmsFavToggled.emit(wmsData.id)"
+          style="color: black"
+        ></i>
+      </td>
+    </tr>
+  </tbody>
+</table>
