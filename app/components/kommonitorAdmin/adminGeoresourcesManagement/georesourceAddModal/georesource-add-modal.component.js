@@ -557,11 +557,57 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
 			$scope.postBody_georesources = $scope.buildPostBody_georesources();
 
+			if ($scope.datasourceTypeDefinition && Array.isArray($scope.datasourceTypeDefinition.parameters)) {
+				var nameParameter = $scope.datasourceTypeDefinition.parameters.find(function(parameter){
+					return parameter.name === "NAME";
+				});
+
+				if (nameParameter) {
+					var useFilenameAsDatasource = await $scope.askUseFilenameAsDatasource(nameParameter.value);
+					if (useFilenameAsDatasource) {
+						$scope.postBody_georesources.metadata.datasource = nameParameter.value;
+					}
+				}
+			}
+
 			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.postBody_georesources){
 				return false;
 			}
 
 			return true;
+		};
+
+		$scope.askUseFilenameAsDatasource = function(filename){
+			return new Promise(function(resolve){
+				$scope.datasourceFilenameConfirmation = filename;
+				$scope._datasourceFilenameConfirmResolve = resolve;
+				$("#datasourceFilenameConfirmModal").one('hidden.bs.modal', function(){
+					if ($scope._datasourceFilenameConfirmResolve) {
+						$scope._datasourceFilenameConfirmResolve(false);
+						$scope._datasourceFilenameConfirmResolve = null;
+					}
+				});
+				$("#datasourceFilenameConfirmModal").modal('show');
+				$timeout(function(){
+					$scope.$digest();
+				});
+			});
+		};
+
+		$scope.onConfirmUseDatasourceFilename = function(){
+			$("#datasourceFilenameConfirmModal").modal('hide');
+			if ($scope._datasourceFilenameConfirmResolve) {
+				$scope._datasourceFilenameConfirmResolve(true);
+				$scope._datasourceFilenameConfirmResolve = null;
+			}
+		};
+
+		$scope.onCancelUseDatasourceFilename = function(){
+			$("#datasourceFilenameConfirmModal").modal('hide');
+			if ($scope._datasourceFilenameConfirmResolve) {
+				$scope._datasourceFilenameConfirmResolve(false);
+				$scope._datasourceFilenameConfirmResolve = null;
+			}
 		};
 
 		$scope.buildConverterDefinition = function(){
