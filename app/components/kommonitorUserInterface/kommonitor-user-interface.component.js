@@ -45,8 +45,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.fetchAllMetadata();
 			}
 
-
-			kommonitorDataExchangeService.fetchAllMetadata();
 			setTimeout(function(){
 				$scope.prepUserInformation();
 			}, 1000);
