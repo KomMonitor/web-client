@@ -37,7 +37,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 			kommonitorShareHelperService.init();
 			kommonitorGlobalFilterHelperService.init();
-      kommonitorFavService.init();
+      		kommonitorFavService.init();
       
 			if(kommonitorGlobalFilterHelperService.applicationFilter) {
 				kommonitorDataExchangeService.fetchAllMetadata(kommonitorGlobalFilterHelperService.applicationFilter);
@@ -45,8 +45,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.fetchAllMetadata();
 			}
 
-
-			kommonitorDataExchangeService.fetchAllMetadata();
 			setTimeout(function(){
 				$scope.prepUserInformation();
 			}, 1000);
