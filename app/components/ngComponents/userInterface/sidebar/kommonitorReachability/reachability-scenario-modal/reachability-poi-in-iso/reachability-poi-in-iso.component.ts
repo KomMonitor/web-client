@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
@@ -9,6 +9,8 @@ import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
 
 @Component({
   selector: 'app-reachability-poi-in-iso',
@@ -18,6 +20,8 @@ import { ReachabilityMapHelperService } from 'services/reachability-map-helper-s
   imports: [CommonModule, FormsModule]
 })
 export class ReachabilityPoiInIsoComponent implements OnInit {
+
+  private readonly destroyRef = inject(DestroyRef);
 
   domId = "reachabilityScenarioPoiInIsoGeoMap";
   mapParts;
@@ -40,15 +44,19 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
-    this.originGeoresources = this.dataExchangeService.displayableGeoresources;
-    this.filteredDisplayableGeoresources = this.originGeoresources;
   }
 
   ngOnInit(): void {
 
     this.init();
 
-    this.prepDisplayableGeoresources();
+    this.dataExchangeService.metadataLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if(value==MetadataLoadingState.COMPLETE)  
+          this.prepDisplayableGeoresources();
+      });
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -64,6 +72,9 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         case 'selectedIndicatorDateHasChanged': {
           this.selectedIndicatorDateHasChanged();
         } break;
+        case 'reinitPoisInReachabilityMap': {
+          this.reachabilityMapHelperService.invalidateMap(this.domId);
+        } break
       }
     });
   }
@@ -82,8 +93,11 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   }
 
   prepDisplayableGeoresources() {
-    this.filteredDisplayableGeoresources = this.filteredDisplayableGeoresources.filter(e => e.isPOI==true);
-    this.filteredDisplayableGeoresources = this.filteredDisplayableGeoresources.filter(e => e.datasetName!="!-- leerer neuer Datensatz --");
+
+    this.originGeoresources = this.dataExchangeService.displayableGeoresources;
+
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI==true);
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName!="!-- leerer neuer Datensatz --");
 
     // sort available dates and preselect last item (as on the UI)
     this.filteredDisplayableGeoresources.forEach(e => {

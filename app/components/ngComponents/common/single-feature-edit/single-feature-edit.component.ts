@@ -150,8 +150,8 @@ export class SingleFeatureEditComponent implements OnInit {
   
   reinitSingleFeatureEdit() {
   
-   /*  this.resetContent();
-    this.initFeatureSchema(); */
+    this.resetContent();
+    this.initFeatureSchema();
     this.initGeoMap();
   }
  
@@ -265,7 +265,12 @@ export class SingleFeatureEditComponent implements OnInit {
       }
     }
 
-    this.singleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap(this.georesourceFeaturesGeoJSON);
+    // add context layer of currently selected indicator features
+    if(this.dataExchangeService.selectedIndicator && this.dataExchangeService.selectedIndicator.geoJSON){
+      this.singleFeatureMapHelperService.addContextLayerToSingleFeatureGeoMap_indicator(this.dataExchangeService.selectedIndicator.geoJSON);
+    }
+
+    this.singleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap_georesource(this.georesourceFeaturesGeoJSON);
 
      this.featureInfoText_singleFeatureAddMenu = "" + this.georesourceFeaturesGeoJSON.features.length + " Features im Datensatz vorhanden";
 

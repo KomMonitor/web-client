@@ -21,6 +21,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ReachabilityCombinerService, GeoJSONFeature } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
@@ -236,6 +237,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.onReplaceIndicatorAsGeoJSON([value.values.indicator, value.values.spatialUnit, value.values.date, value.values.justRestyling, value.values.customComputation]);
       });
 
+    this.mapService.replaceIndicatorLayerSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        if (params) {
+          this._replaceIndicatorLayer(params.indicator, params.spatialUnitName, params.date, params.isCustomComputation);
+        }
+      });
+      
     this.mapService.mapRecenter$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
@@ -2752,14 +2761,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   onReplaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
+    this._replaceIndicatorLayer(indicatorMetadataAndGeoJSON, spatialUnitName, date, isCustomComputation, justRestyling);
+  }
 
+  private _replaceIndicatorLayer(indicatorMetadataAndGeoJSON, spatialUnitName, date, isCustomComputation, justRestyling = false) {
     console.log('replaceIndicatorAsGeoJSON was called');
     
-    this.visualStyleHelperService.isCustomComputation = false;
-    if (isCustomComputation){
-      this.visualStyleHelperService.isCustomComputation = true;
-    }
-
+    this.visualStyleHelperService.isCustomComputation = !!isCustomComputation;
     //reset opacity
     this.visualStyleHelperService.setOpacity(this.envConfigService.defaultFillOpacity);
 

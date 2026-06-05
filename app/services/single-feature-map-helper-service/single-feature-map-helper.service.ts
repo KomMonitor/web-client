@@ -1,8 +1,11 @@
 import { Inject, Injectable, OnInit } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
+import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +25,10 @@ export class SingleFeatureMapHelperService implements OnInit {
 
   public constructor(
     private genericMapHelperService: GenericMapHelperService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private dataExchangeService: DataExchangeService,
+    private visualStyleHelperService: VisualStyleHelperServiceNew,
+    private envConfigService: EnvConfigService
   ) {
   }
 
@@ -39,6 +45,86 @@ export class SingleFeatureMapHelperService implements OnInit {
       }
     });
   }
+
+  addDataLayertoSingleFeatureGeoMap_georesource(geoJSON) {
+
+    this.georesourceData_geoJSON = geoJSON;
+
+    this.mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", (feature, layer) => {
+      var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+      for (var p in feature.properties) {
+        popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
+      }
+      popupContent += '</table></div>';
+
+      layer.bindPopup(popupContent);
+
+      layer.on({
+        click: () => {
+          this.broadcastService.broadcast("singleFeatureSelected", [feature]);
+          layer.openPopup();
+        }
+      });
+    }, this.pointToLayer, this.style);
+  }
+
+  addContextLayerToSingleFeatureGeoMap_indicator(geoJSON) {
+    const indicatorMetadata = this.dataExchangeService.selectedIndicator;
+    const date = this.dataExchangeService.selectedDate;
+    const propertyName = this.envConfigService.indicatorDatePrefix + date;
+
+    // Simplified styling setup based on kommonitor-map.component
+    const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(
+      geoJSON,
+      propertyName,
+      indicatorMetadata.defaultClassificationMapping.numClasses || 5,
+      indicatorMetadata.defaultClassificationMapping.colorBrewerSchemeName,
+      this.visualStyleHelperService.classifyMethod
+    );
+
+    const containsNegativeValues = geoJSON.features.some(
+      (feature) => feature.properties[propertyName] < 0
+    );
+
+    let dynamicIncreaseBrew, dynamicDecreaseBrew;
+    if (containsNegativeValues) {
+      const dynamicBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+        geoJSON,
+        propertyName,
+        this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
+        this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
+        this.visualStyleHelperService.classifyMethod,
+        this.visualStyleHelperService.numClasses,
+        []
+      );
+      dynamicIncreaseBrew = dynamicBrewArray[0];
+      dynamicDecreaseBrew = dynamicBrewArray[1];
+    }
+
+    this.genericMapHelperService.addDataLayer(geoJSON, this.mapParts.map, undefined, "", (feature, layer) => this.onEachFeatureIndicator(feature, layer), this.pointToLayer, (feature) =>
+      this.visualStyleHelperService.styleDefault(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, this.envConfigService.useTransparencyOnIndicator, containsNegativeValues, false)
+    );
+  }
+
+  onEachFeatureIndicator(feature, layer) {
+    // Prepare feature data for map use, similar to kommonitor-map.component
+    feature.tempData = {};
+    const date = this.dataExchangeService.selectedDate;
+    const indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + date];
+
+    if (this.dataExchangeService.indicatorValueIsNoData(indicatorValue)) {
+      feature.tempData.indicatorValueText = "NoData";
+    } else {
+      feature.tempData.indicatorValueText = this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+    }
+    feature.tempData.unitText = this.dataExchangeService.selectedIndicator.unit;
+
+    const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${feature.tempData.indicatorValueText} [${feature.tempData.unitText}]`;
+    layer.bindTooltip(tooltipHtml, {
+      sticky: false
+    });
+  }
+
 
   onUpdateSingleFeatureGeometry([geoJSON, drawControl]) {
     this.mapParts.drawControlObject.drawControl = drawControl;

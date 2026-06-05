@@ -879,13 +879,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
         this.dataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
-        this.mapService.setMapRefreshValues({
-          indicator: this.dataExchangeService.selectedIndicator,
-          spatialUnit: this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, 
-          date: this.dataExchangeService.selectedDate, 
-          justRestyling: false, 
-          customComputation: false
-        })
+        this.mapService.replaceIndicatorLayer(this.dataExchangeService.selectedIndicator, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedDate, false);
       },
       error: (error) => {
         this.loadingData = false;

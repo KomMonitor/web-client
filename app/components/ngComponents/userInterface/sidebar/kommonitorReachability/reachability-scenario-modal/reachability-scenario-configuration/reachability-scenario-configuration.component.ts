@@ -77,7 +77,6 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
           this.isochronesCalculationFinished();
         } break;
         case 'reinitReachabilityConfiguration': {
-          console.log("hire1")
           this.reachabilityMapHelperService.invalidateMap(this.domId);
         } break;
       }

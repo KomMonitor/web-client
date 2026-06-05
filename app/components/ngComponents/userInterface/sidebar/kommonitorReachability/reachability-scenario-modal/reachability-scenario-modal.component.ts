@@ -57,6 +57,10 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     setTimeout(() => this.broadcastService.broadcast('reinitReachabilityConfiguration'),250);
   }
 
+  onPoisInReachabilityClick() {
+    setTimeout(() => this.broadcastService.broadcast('reinitPoisInReachabilityMap'),250);
+  }
+
 		/* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {
 				if (event.target.id === "modal-manage-reachability-scenario") {
 					$scope.initEmptyDataset();
