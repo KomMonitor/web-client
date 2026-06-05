@@ -55,6 +55,10 @@ try {
   // show bar chart label and average line
   window.__env.showBarChartLabel = false;
   window.__env.showBarChartAverageLine = true;
+
+  // show filter config section for GeodataEditRoleNames
+  // if false, only users with admin role can see filter config section; if true, users with geodata edit roles can also see filter config section
+  window.__env.showFilterConfigForGeodataEditRoleNames = true; 
   
   // custom report styling
   // value: number

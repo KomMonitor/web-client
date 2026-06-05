@@ -3264,6 +3264,15 @@ angular
       return false;
     }
 
+    this.checkGlobalFilterEditPermission = function(){
+      if(__env.showFilterConfigForGeodataEditRoleNames) {
+        return this.checkResourcesEditPermission();
+      }
+      else {
+        return this.checkAdminPermission();
+      }
+    }
+
     this.getRoleTitles = function(){
 
       return this.currentKeycloakLoginRoles.map(role => role.split('.')[role.split('.').length-1]);
