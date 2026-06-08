@@ -6,6 +6,7 @@ import { ElementVisibilityHelperService } from "services/element-visibility-help
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
 import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
 import { GeoresourceFilterService } from "components/ngComponents/userInterface/sidebar/poi/georesource-filter.service";
+import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
@@ -44,6 +45,7 @@ export class PoiComponent implements OnInit {
     protected layerService: GeoresourceLayerService,
     protected favoritesService: GeoresourceFavoritesService,
     protected filterService: GeoresourceFilterService,
+    protected exportMode: GeoresourceExportModeService,
     private broadcastService: BroadcastService,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
   ) {}

@@ -12,6 +12,8 @@ import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
 } from "components/ngComponents/models/georesources.models";
+import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
+import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
 
 /**
  * The "Favoriten" tab: a recursive view of the favourite topics/datasets with
@@ -31,6 +33,7 @@ import {
     GeoFavFilter,
     GeoFavItemFilter,
     IconTranslate,
+    ExportItemCheckboxComponent,
   ],
 })
 export class GeoresourceFavTabComponent {
@@ -47,6 +50,7 @@ export class GeoresourceFavTabComponent {
     protected layerService: GeoresourceLayerService,
     protected dataExchangeService: DataExchangeService,
     protected ogcService: OgcService,
+    protected exportMode: GeoresourceExportModeService,
   ) {}
 
   isFavSubTopicCollapsed(topicId: string) {

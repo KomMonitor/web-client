@@ -62,6 +62,24 @@
 
     <br />
 
+    <div
+      class="export-mode-switch"
+      style="display: flex; align-items: center; gap: 8px"
+    >
+      <label class="switch">
+        <input
+          type="checkbox"
+          title="Export-Auswahl ein-/ausblenden"
+          [checked]="exportMode.exportMode()"
+          (change)="exportMode.toggle()"
+        />
+        <span class="switchslider round"></span>
+      </label>
+      <strong>Export-Auswahl</strong>
+    </div>
+
+    <br />
+
     <ul class="nav nav-tabs" id="poiTabs" role="tablist">
       <li class="nav-item active">
         <a

@@ -9,6 +9,8 @@ import { EnvConfigService } from "services/env-config-service/env-config.service
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
 import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
+import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
+import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
 
 /**
  * The "Alphabetische Listen" tab: per-type expandable boxes (POI/LOI/AOI/WMS/WFS)
@@ -22,7 +24,13 @@ import { GeoresourcesDataset } from "components/ngComponents/models/georesources
   templateUrl: "./georesource-list-tab.component.html",
   styleUrls: ["./georesource-list-tab.component.scss"],
   standalone: true,
-  imports: [CommonModule, FormsModule, ExpandableBoxComponent, IconTranslate],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ExpandableBoxComponent,
+    IconTranslate,
+    ExportItemCheckboxComponent,
+  ],
 })
 export class GeoresourceListTabComponent {
   @Input() showFavSelection = false;
@@ -35,6 +43,7 @@ export class GeoresourceListTabComponent {
     protected layerService: GeoresourceLayerService,
     protected favoritesService: GeoresourceFavoritesService,
     protected ogcService: OgcService,
+    protected exportMode: GeoresourceExportModeService,
     private envConfigService: EnvConfigService,
   ) {}
 

@@ -34,6 +34,11 @@
             <i style="font-size: 1.5em" class="fas fa-search-location"></i>
           </p>
         </label>
+        <app-export-item-checkbox
+          *ngIf="exportMode.exportMode()"
+          kind="georessource"
+          [dataset]="exportMode.toExportGeoresource(poi)"
+        ></app-export-item-checkbox>
       </td>
       <td>
         <p>{{ poi.metadata.description }}</p>
@@ -141,6 +146,11 @@
             <i style="font-size: 1.5em" class="fas fa-search-location"></i>
           </p>
         </label>
+        <app-export-item-checkbox
+          *ngIf="exportMode.exportMode()"
+          kind="georessource"
+          [dataset]="exportMode.toExportGeoresource(loi)"
+        ></app-export-item-checkbox>
       </td>
       <td>
         <p>{{ loi.metadata.description }}</p>
@@ -224,6 +234,11 @@
             <i style="font-size: 1.5em" class="fas fa-search-location"></i>
           </p>
         </label>
+        <app-export-item-checkbox
+          *ngIf="exportMode.exportMode()"
+          kind="georessource"
+          [dataset]="exportMode.toExportGeoresource(aoi)"
+        ></app-export-item-checkbox>
       </td>
       <td>
         <p>{{ aoi.metadata.description }}</p>

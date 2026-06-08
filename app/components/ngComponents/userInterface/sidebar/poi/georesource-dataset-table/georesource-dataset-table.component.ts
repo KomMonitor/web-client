@@ -5,6 +5,8 @@ import { IconTranslate } from "pipes/icon-translate.pipe";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
+import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
+import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
 
 /**
  * The set of dataset arrays held by a single node of the georesource topic
@@ -36,7 +38,7 @@ export interface GeoresourceDatasetGroup {
   templateUrl: "./georesource-dataset-table.component.html",
   styleUrls: ["./georesource-dataset-table.component.scss"],
   standalone: true,
-  imports: [CommonModule, FormsModule, IconTranslate],
+  imports: [CommonModule, FormsModule, IconTranslate, ExportItemCheckboxComponent],
 })
 export class GeoresourceDatasetTableComponent {
   @Input({ required: true }) datasets!: GeoresourceDatasetGroup;
@@ -58,6 +60,7 @@ export class GeoresourceDatasetTableComponent {
   constructor(
     protected dataExchangeService: DataExchangeService,
     protected ogcService: OgcService,
+    protected exportMode: GeoresourceExportModeService,
   ) {}
 
   isPoiFav(id: string | null | undefined): boolean {
