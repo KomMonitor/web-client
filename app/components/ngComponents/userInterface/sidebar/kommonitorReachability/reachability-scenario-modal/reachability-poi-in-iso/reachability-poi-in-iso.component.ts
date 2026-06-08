@@ -16,7 +16,7 @@ import { MetadataLoadingState } from 'services/data-exchange-service/data-exchan
   selector: 'app-reachability-poi-in-iso',
   standalone: true,
   templateUrl: './reachability-poi-in-iso.component.html',
-  styleUrls: ['./reachability-poi-in-iso.component.css'],
+  styleUrls: ['./reachability-poi-in-iso.component.scss'],
   imports: [CommonModule, FormsModule]
 })
 export class ReachabilityPoiInIsoComponent implements OnInit {
@@ -31,7 +31,6 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   isUsedInReporting = false;
   loadingData = false;
 
-  originGeoresources:any[] = [];
   filteredDisplayableGeoresources:any[] = [];
 
   echartsInstances_reachabilityAnalysis = new Map();
@@ -86,15 +85,12 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   }
 
   onNameFilterChange(name:any) {
-    let value = name.target.value;
+    let value = name.target.value.toLowerCase();
 
-    this.filteredDisplayableGeoresources = this.originGeoresources.filter(e => e.datasetName.includes(value));
-    this.prepDisplayableGeoresources();
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName.toLowerCase().includes(value));
   }
 
   prepDisplayableGeoresources() {
-
-    this.originGeoresources = this.dataExchangeService.displayableGeoresources;
 
     this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI==true);
     this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName!="!-- leerer neuer Datensatz --");
