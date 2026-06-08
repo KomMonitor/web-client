@@ -1667,6 +1667,10 @@ table, th, td {
 
 	align-items: center;
 	justify-content: center;
+
+  button {
+    width: auto !important;
+  }
 }
 
 .horizontal-align {

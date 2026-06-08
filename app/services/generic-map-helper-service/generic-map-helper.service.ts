@@ -231,6 +231,9 @@ export class GenericMapHelperService {
       layers: [backgroundLayer]
     });
 
+    // Fix for leaflet-draw icons
+    L.Icon.Default.imagePath = 'assets/leaflet/images/';
+
     L.control.scale().addTo(map);
 
     if (withLayerControl) {

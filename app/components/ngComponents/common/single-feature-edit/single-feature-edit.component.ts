@@ -8,12 +8,13 @@ import * as uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { FormsModule } from '@angular/forms';
 import * as turf from '@turf/turf';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-single-feature-edit',
   templateUrl: './single-feature-edit.component.html',
   styleUrls: ['./single-feature-edit.component.css'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgbDatepickerModule],
   standalone: true,
 })
 export class SingleFeatureEditComponent implements OnInit {
@@ -35,8 +36,8 @@ export class SingleFeatureEditComponent implements OnInit {
   featureIdIsUnique = false;
   featureNameValue = undefined;
   featureGeometryValue:any = undefined;
-  featureStartDateValue = undefined;
-  featureEndDateValue = undefined;
+  featureStartDateValue:string | undefined = undefined;
+  featureEndDateValue:string | undefined = undefined;
   // [{property: name, value: value}]
   featureSchemaProperties:any[] = [];
   schemaObject;
@@ -324,7 +325,18 @@ export class SingleFeatureEditComponent implements OnInit {
     return uuidv4();
   }
 
-  validateSingleFeatureId  () {
+  onStartDateChange(date: NgbDateStruct) {
+
+    this.featureStartDateValue = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+  }
+
+  onEndDateChange(date: NgbDateStruct) {
+
+    this.featureEndDateValue = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+  }
+
+  validateSingleFeatureId() {
+
     this.featureIdIsUnique = true;
     if (this.georesourceFeaturesGeoJSON && this.featureIdValue) {
       let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
