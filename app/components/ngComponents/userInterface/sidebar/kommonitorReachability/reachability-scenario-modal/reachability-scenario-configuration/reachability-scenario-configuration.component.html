@@ -1,3 +1,5 @@
+<app-loading-overlay [loading]="reachabilityHelperService.settings.loadingData">
+
 <div class="row vertical-align">
 	<!-- reachability config -->
 	<div [ngClass]="{'col-md-4 col-sm-4 col-xs-12': !isUsedInReporting, 'col-md-6 col-sm-6 col-xs-12': isUsedInReporting}">
@@ -5,20 +7,20 @@
 		<div id="reachabilityConfigForm" style="height: 57vh; overflow-y: auto;">
 
 			<br />
-			<div class="btn-group btn-group-justified" data-toggle="buttons">
-				<button class="feature-btn" (click)="changeType('buffer')">
+			<div class="reachability-feature-btn-wrapper">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'buffer'}" (click)="changeType('buffer')">
           <i class="far fa-dot-circle"></i>
         </button>
-				<button class="feature-btn" (click)="changeType('foot-walking')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'foot-walking'}" (click)="changeType('foot-walking')">
           <i class="fas fa-walking"></i>
         </button>
-				<button class="feature-btn" (click)="changeType('cycling-regular')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'cycling-regular'}" (click)="changeType('cycling-regular')">
           <i class="fas fa-biking"></i> 
         </button>
-				<button class="feature-btn" (click)="changeType('driving-car')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'driving-car'}" (click)="changeType('driving-car')">
           <i class="fas fa-car"></i> 
         </button>
-				<button class="feature-btn" (click)="changeType('wheelchair')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'wheelchair'}" (click)="changeType('wheelchair')">
           <i class="fab fa-accessible-icon"></i>
         </button>
 			</div>
@@ -31,11 +33,11 @@
 
 					<br />
 
-					<div class="btn-group btn-group-justified" data-toggle="buttons">
-            <button class="feature-btn" (click)="changeFocus('distance')">
+					<div class="reachability-feature-btn-wrapper">
+            <button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.focus == 'distance'}" (click)="changeFocus('distance')">
               <i class="fas fa-ruler"></i> Distanz
 						</button>
-						<button class="feature-btn" (click)="changeFocus('time')" [disabled]="reachabilityHelperService.settings.transitMode=='buffer'">
+						<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.focus == 'time'}" (click)="changeFocus('time')" [disabled]="reachabilityHelperService.settings.transitMode=='buffer'">
 							<i class="far fa-clock"></i> Zeit
             </button>
 					</div>
@@ -129,8 +131,7 @@
 						<div class="row vertical-align">
 							<!-- reachability config -->
 							<div class="col-md-4 col-sm-4 col-xs-12">
-								<div class="btn-group btn-group-justified reachabilityIsochroneButtonSection"
-									data-toggle="buttons">
+								<div class="horizontal-align" style="text-align: left;">
 
 									<label>
 										<button class="btn btn-s btn-info"
@@ -223,3 +224,4 @@
 		<div id="reachabilityScenarioIsochroneGeoMap" style="height: 57vh;"></div>
 	</div>
 </div>
+</app-loading-overlay>

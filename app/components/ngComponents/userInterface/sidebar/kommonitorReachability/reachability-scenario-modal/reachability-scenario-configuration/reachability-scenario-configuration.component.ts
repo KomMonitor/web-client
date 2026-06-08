@@ -6,13 +6,14 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-reachability-scenario-configuration',
   standalone: true,
   templateUrl: './reachability-scenario-configuration.component.html',
   styleUrls: ['./reachability-scenario-configuration.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, LoadingOverlayComponent]
 })
 export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
