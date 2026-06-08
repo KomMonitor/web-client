@@ -1,0 +1,12 @@
+.export-item-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 0.7rem;
+  line-height: 1;
+  min-width: 18px;
+  padding: 3px 5px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+  background-color: var(--kommonitor-primary);
+  color: #fff;
+}

@@ -111,6 +111,7 @@ export class ExportingStateService {
       );
     });
   }
+  
   removeIndicator(indicatorId: string) {
     this.indicatorItems.update((items) =>
       items.filter((item) => item.dataset.id !== indicatorId),
@@ -182,7 +183,7 @@ export class ExportingStateService {
   }
 
   addGeoressource(georessource: Georessource) {
-    const alreadyExists = this.indicatorItems().some(
+    const alreadyExists = this.georessourceItems().some(
       (item) => item.dataset.id === georessource.id,
     );
     if (alreadyExists) return;

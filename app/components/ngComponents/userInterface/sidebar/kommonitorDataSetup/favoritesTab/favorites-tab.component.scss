@@ -1,13 +1,40 @@
 :host {
   .indicator-element.list-group-item-grid-layout.favs {
-    display: grid;
-    grid-template-columns: auto 1fr min-content;
+    display: block;
     padding-right: 1rem !important;
+    margin: 0;
   }
 
-  .indicator-element.list-group-item-grid-layout.favs div:first-child {
-    display: block !important;
+  .list-group .list-group-item-grid-layout * {
+    margin: 0;
+  }
+
+  // Erste Zeile: Icon, Label, Info-Tooltip und Star horizontal ausgerichtet
+  .fav-indicator-row {
+    display: flex;
+    align-items: center;
+  }
+
+  // Label nimmt nur seine Inhaltsbreite ein
+  .fav-indicator-row>div:first-child {
     margin: 0.5em 0;
+  }
+
+  // Tooltip füllt den verbleibenden Platz, damit der Star rechts steht
+  .fav-indicator-row app-indicator-metadata-tooltip {
+    flex: 1 1 auto;
+    margin-left: 0.5em;
+  }
+
+  // Export-Checkbox als eigene, kompakte Zeile unter dem Indikator-Inhalt
+  .fav-export-checkbox {
+    display: block;
+    margin-top: 0.25em;
+
+    ::ng-deep .form-check {
+      margin-bottom: 0;
+      min-height: auto;
+    }
   }
 }
 
@@ -33,35 +60,27 @@
 }
 
 .style-fav-selected-indicator-0 {
-  background: linear-gradient(
-    to right,
-    var(--kommonitor-primary) 12px,
-    var(--kommonitor-hierarchy-level-0) 12px
-  ) !important;
+  background: linear-gradient(to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-0) 12px) !important;
 }
 
 .style-fav-selected-indicator-1 {
-  background: linear-gradient(
-    to right,
-    var(--kommonitor-primary) 12px,
-    var(--kommonitor-hierarchy-level-1) 12px
-  ) !important;
+  background: linear-gradient(to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-1) 12px) !important;
 }
 
 .style-fav-selected-indicator-2 {
-  background: linear-gradient(
-    to right,
-    var(--kommonitor-primary) 12px,
-    var(--kommonitor-hierarchy-level-2) 12px
-  ) !important;
+  background: linear-gradient(to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-2) 12px) !important;
 }
 
 .style-fav-selected-indicator-3 {
-  background: linear-gradient(
-    to right,
-    var(--kommonitor-primary) 12px,
-    var(--kommonitor-hierarchy-level-3) 12px
-  ) !important;
+  background: linear-gradient(to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-3) 12px) !important;
 }
 
 .style-fav-normal-indicator-0,

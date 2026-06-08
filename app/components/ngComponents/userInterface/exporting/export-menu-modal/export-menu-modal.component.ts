@@ -64,9 +64,9 @@ function buildTargetTime(
 }
 
 @Component({
-  selector: "app-download-modal",
-  templateUrl: "./download-modal.component.html",
-  styleUrls: ["./download-modal.component.css"],
+  selector: "app-export-menu-modal",
+  templateUrl: "./export-menu-modal.component.html",
+  styleUrls: ["./export-menu-modal.component.css"],
   standalone: true,
   imports: [
     CommonModule,
@@ -76,7 +76,7 @@ function buildTargetTime(
     EpsgSelectorComponent,
   ],
 })
-export class DownloadModalComponent {
+export class ExportMenuModalComponent {
   activeModal = inject(NgbActiveModal);
   stateSrvc = inject(ExportingStateService);
   exportSrvc = inject(ExportingService);

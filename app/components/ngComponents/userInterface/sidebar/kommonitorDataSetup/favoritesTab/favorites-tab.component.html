@@ -77,24 +77,32 @@
               data.indicatorId,
           }"
         >
-          <div (click)="indicatorSelected.emit(data)">
-            <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b>{{
-              data.indicatorName
-            }}</b>
-            [{{ data.unit }}]
+          <div class="fav-indicator-row">
+            <div (click)="indicatorSelected.emit(data)">
+              <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b>{{
+                data.indicatorName
+              }}</b>
+              [{{ data.unit }}]
+            </div>
+            <app-indicator-metadata-tooltip
+              [indicatorData]="{ data: data, prefix: 'fav' }"
+            ></app-indicator-metadata-tooltip>
+            <i
+              [hidden]="!showFavSelection"
+              class="fav-star fa-star"
+              [ngClass]="{
+                'fa-solid': indicatorFavItems.includes(data.indicatorId),
+                'fa-regular': !indicatorFavItems.includes(data.indicatorId),
+              }"
+              (click)="indicatorFavToggled.emit(data.indicatorId)"
+            ></i>
           </div>
-          <app-indicator-metadata-tooltip
-            [indicatorData]="{ data: data, prefix: 'fav' }"
-          ></app-indicator-metadata-tooltip>
-          <i
-            [hidden]="!showFavSelection"
-            class="fav-star fa-star"
-            [ngClass]="{
-              'fa-solid': indicatorFavItems.includes(data.indicatorId),
-              'fa-regular': !indicatorFavItems.includes(data.indicatorId),
-            }"
-            (click)="indicatorFavToggled.emit(data.indicatorId)"
-          ></i>
+          <app-export-item-checkbox
+            *ngIf="exportModeService.exportMode()"
+            class="fav-export-checkbox"
+            kind="indicator"
+            [dataset]="toExportIndicator(data)"
+          ></app-export-item-checkbox>
         </div>
 
         <!-- WMS -->

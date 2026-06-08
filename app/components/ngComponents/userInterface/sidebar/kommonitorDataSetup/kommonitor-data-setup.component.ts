@@ -16,7 +16,11 @@ import { MetadataLoadingState } from "services/data-exchange-service/data-exchan
 import { FavoritesTabComponent } from "./favoritesTab/favorites-tab.component";
 import { TopicTreeComponent } from "./topicTree/topic-tree.component";
 import { KommonitorDataSetupService } from "./kommonitor-data-setup.service";
+import { ExportModeService } from "./export-mode.service";
 import { FavoritesStateService } from "./favorites-state.service";
+import { ExportItemCheckboxComponent } from "../../exporting/export-item-checkbox/export-item-checkbox.component";
+import { Indicator } from "../../exporting/models";
+import { IndicatorsDataset } from "components/ngComponents/models/indicators.models";
 
 @Component({
   selector: "app-kommonitor-data-setup",
@@ -30,6 +34,7 @@ import { FavoritesStateService } from "./favorites-state.service";
     ExpandableBoxComponent,
     FavoritesTabComponent,
     TopicTreeComponent,
+    ExportItemCheckboxComponent,
   ],
 })
 export class KommonitorDataSetupComponent implements OnInit {
@@ -40,6 +45,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   );
   private readonly mapService = inject(MapService);
   private readonly dataSetupService = inject(KommonitorDataSetupService);
+  protected readonly exportModeService = inject(ExportModeService);
   protected readonly favStateService = inject(FavoritesStateService);
   private readonly adminTopicsManagementService = inject(
     AdminTopicsManagementService,
@@ -111,11 +117,13 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.mapService.resetMapRefreshState();
 
-    this.preppedIndicatorTopics = this.dataSetupService.prepareIndicatorTopicsRecursive(
-      this.dataExchangeService.topicIndicatorHierarchy,
-      this.topicSorting,
-    );
-    this.preppedKeywordList = this.dataSetupService.prepareKeywordFilteredList();
+    this.preppedIndicatorTopics =
+      this.dataSetupService.prepareIndicatorTopicsRecursive(
+        this.dataExchangeService.topicIndicatorHierarchy,
+        this.topicSorting,
+      );
+    this.preppedKeywordList =
+      this.dataSetupService.prepareKeywordFilteredList();
 
     this.prepareHeadlineIndicatorTopics();
 
@@ -219,15 +227,19 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.favStateService.initFromUserInfo();
 
     setTimeout(() => {
-      if (this.elementVisibilityHelperService.elementVisibility.favSelection === true)
+      if (
+        this.elementVisibilityHelperService.elementVisibility.favSelection ===
+        true
+      )
         this.favStateService.showFavSelection = true;
     }, 1000);
 
-    this.favStateService.indicatorFavTopicsTree = this.dataSetupService.prepTopicsTree(
-      this.dataExchangeService.topicIndicatorHierarchy,
-      0,
-      undefined,
-    );
+    this.favStateService.indicatorFavTopicsTree =
+      this.dataSetupService.prepTopicsTree(
+        this.dataExchangeService.topicIndicatorHierarchy,
+        0,
+        undefined,
+      );
   }
 
   prepareHeadlineIndicatorTopics() {
@@ -254,6 +266,10 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.onChangeSelectedIndicator(false);
   }
 
+  toExportIndicator(indicator: IndicatorsDataset): Indicator {
+    return this.dataSetupService.toExportIndicator(indicator);
+  }
+
   setupDateSliderForIndicator() {
     const availableDates =
       this.dataExchangeService.selectedIndicator.applicableDates;
@@ -275,10 +291,11 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.indicatorNameFilter,
     );
 
-    this.preppedIndicatorTopics = this.dataSetupService.prepareIndicatorTopicsRecursive(
-      this.dataExchangeService.topicIndicatorHierarchy,
-      this.topicSorting,
-    );
+    this.preppedIndicatorTopics =
+      this.dataSetupService.prepareIndicatorTopicsRecursive(
+        this.dataExchangeService.topicIndicatorHierarchy,
+        this.topicSorting,
+      );
   }
 
   setupDatePickerForIndicator() {
@@ -299,13 +316,20 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeDateSliderItem(data: Date) {
-    if (!this.changeIndicatorWasClicked && this.dataExchangeService.selectedIndicator) {
+    if (
+      !this.changeIndicatorWasClicked &&
+      this.dataExchangeService.selectedIndicator
+    ) {
       this.selectedDate = data.toISOString().split("T")[0];
       this.date = this.selectedDate;
       this.dataExchangeService.selectedDate = this.selectedDate;
 
-      const preppedDate = this.dataSetupService.prepNgbDates([this.dataExchangeService.selectedDate])[0];
-      this.broadcastService.broadcast("updateDatePickerSelectedDate", [preppedDate]);
+      const preppedDate = this.dataSetupService.prepNgbDates([
+        this.dataExchangeService.selectedDate,
+      ])[0];
+      this.broadcastService.broadcast("updateDatePickerSelectedDate", [
+        preppedDate,
+      ]);
 
       if (this.applyMeasureOfValueUpdate()) {
         this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
@@ -356,7 +380,10 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   changeIndicatorDate() {
-    if (this.dataExchangeService.selectedIndicator && this.dataExchangeService.selectedDate) {
+    if (
+      this.dataExchangeService.selectedIndicator &&
+      this.dataExchangeService.selectedDate
+    ) {
       this.date = this.dataExchangeService.selectedDate;
       this.selectedDate = this.dataExchangeService.selectedDate;
 
@@ -367,7 +394,10 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeSelectedSpatialUnit() {
-    if (!this.changeIndicatorWasClicked && this.dataExchangeService.selectedIndicator) {
+    if (
+      !this.changeIndicatorWasClicked &&
+      this.dataExchangeService.selectedIndicator
+    ) {
       this.applyMeasureOfValueUpdate();
     }
   }
@@ -471,5 +501,4 @@ export class KommonitorDataSetupComponent implements OnInit {
     }
     this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
   }
-
 }

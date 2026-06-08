@@ -5,9 +5,13 @@ import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { MapService } from "services/map-service/map.service";
-import { IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
+import {
+  IndicatorsDataset,
+  IndicatorsTopicsHierarchy,
+} from "components/ngComponents/models/indicators.models";
 import { WmsDataset } from "components/ngComponents/models/services.models";
 import { TopicOrderMode } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
+import { Indicator } from "components/ngComponents/userInterface/exporting/models";
 
 @Injectable({
   providedIn: "root",
@@ -37,6 +41,18 @@ export class KommonitorDataSetupService {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  toExportIndicator(dataset: IndicatorsDataset): Indicator {
+    return {
+      id: dataset.indicatorId,
+      name: dataset.indicatorName,
+      spatialUnits: dataset.applicableSpatialUnits.map((unit) => ({
+        id: unit.spatialUnitId,
+        name: unit.spatialUnitName,
+      })),
+      availableTimestamps: dataset.applicableDates,
+    };
   }
 
   prepNgbDates(dates: string[]): NgbDateStruct[] {

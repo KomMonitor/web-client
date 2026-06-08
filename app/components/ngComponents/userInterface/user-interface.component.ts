@@ -21,7 +21,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { UserLoginComponent } from '../common/userLogin/user-login.component';
 import { CustomSliderComponent } from '../common/custom-slider/custom-slider.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DownloadModalComponent } from './exporting/download-modal/download-modal.component';
+import { ExportMenuButtonComponent } from './exporting/export-menu-button/export-menu-button.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -36,7 +36,8 @@ import { FormsModule } from '@angular/forms';
     SidebarComponent,
     UserLoginComponent,
     CustomSliderComponent,
-    FormsModule
+    FormsModule,
+    ExportMenuButtonComponent
   ]
 })
 export class UserInterfaceComponent implements OnInit {
@@ -202,10 +203,6 @@ export class UserInterfaceComponent implements OnInit {
 
   openReportingModal() {
       const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
-  }
-
-  openDownloadModal() {
-      this.modalService.open(DownloadModalComponent, {windowClass: 'modal-holder', centered: true});
   }
 
   onSidebarButtonClick(event) {

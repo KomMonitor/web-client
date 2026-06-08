@@ -10,10 +10,16 @@ import {
 import { CommonModule } from "@angular/common";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { KommonitorDataSetupService } from "../kommonitor-data-setup.service";
-import { IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
+import { ExportModeService } from "../export-mode.service";
+import {
+  IndicatorsDataset,
+  IndicatorsTopicsHierarchy,
+} from "components/ngComponents/models/indicators.models";
 import { WmsDataset } from "components/ngComponents/models/services.models";
 import { IndicatorMetadataTooltipComponent } from "components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component";
 import { WmsTableComponent } from "../wmsTable/wms-table.component";
+import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
+import { Indicator } from "components/ngComponents/userInterface/exporting/models";
 
 @Component({
   selector: "app-topic-tree",
@@ -24,11 +30,13 @@ import { WmsTableComponent } from "../wmsTable/wms-table.component";
     CommonModule,
     IndicatorMetadataTooltipComponent,
     WmsTableComponent,
+    ExportItemCheckboxComponent,
   ],
 })
 export class TopicTreeComponent implements OnChanges {
   protected readonly dataExchangeService = inject(DataExchangeService);
   private readonly dataSetupService = inject(KommonitorDataSetupService);
+  protected readonly exportModeService = inject(ExportModeService);
 
   @Input() topics: IndicatorsTopicsHierarchy[] = [];
   @Input() showFavSelection = false;
@@ -63,6 +71,10 @@ export class TopicTreeComponent implements OnChanges {
 
   checkHierarchyIndicatorSelected(topic: IndicatorsTopicsHierarchy): boolean {
     return this.dataSetupService.isTopicContainingSelectedIndicator(topic);
+  }
+
+  toExportIndicator(indicator: IndicatorsDataset): Indicator {
+    return this.dataSetupService.toExportIndicator(indicator);
   }
 
   private initCollapsedState(topics: IndicatorsTopicsHierarchy[]): void {

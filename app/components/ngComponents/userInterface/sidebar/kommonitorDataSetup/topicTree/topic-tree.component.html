@@ -46,6 +46,11 @@
         ></i>
       </div>
     </div>
+    <app-export-item-checkbox
+      *ngIf="exportModeService.exportMode()"
+      kind="indicator"
+      [dataset]="toExportIndicator(indicator)"
+    ></app-export-item-checkbox>
   </div>
 </ng-template>
 

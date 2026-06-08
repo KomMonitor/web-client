@@ -19,6 +19,24 @@
 
     <br />
 
+    <div
+      class="export-mode-switch"
+      style="display: flex; align-items: center; gap: 8px"
+    >
+      <label class="switch">
+        <input
+          type="checkbox"
+          title="Export-Auswahl ein-/ausblenden"
+          [checked]="exportModeService.exportMode()"
+          (change)="exportModeService.toggle()"
+        />
+        <span class="switchslider round"></span>
+      </label>
+      <strong>Export-Auswahl</strong>
+    </div>
+
+    <br />
+
     <label>Datenkataloge:</label>
 
     <ul class="nav nav-tabs" id="legendTabs" role="tablist">
@@ -136,8 +154,12 @@
               [wmsFavItems]="favStateService.wmsFavItems"
               (indicatorClicked)="onClickHierarchyIndicator($event)"
               (wmsToggled)="handleWmsOnMap($event)"
-              (indicatorTopicFavToggled)="favStateService.onIndicatorTopicFavClick($event)"
-              (indicatorFavToggled)="favStateService.onIndicatorFavClick($event)"
+              (indicatorTopicFavToggled)="
+                favStateService.onIndicatorTopicFavClick($event)
+              "
+              (indicatorFavToggled)="
+                favStateService.onIndicatorFavClick($event)
+              "
               (wmsFavToggled)="favStateService.onWmsFavClick($event)"
             ></app-topic-tree>
           </div>
@@ -265,6 +287,11 @@
                         }"
                       >
                       </app-indicator-metadata-tooltip>
+                      <app-export-item-checkbox
+                        *ngIf="exportModeService.exportMode()"
+                        kind="indicator"
+                        [dataset]="toExportIndicator(item.headlineIndicator)"
+                      ></app-export-item-checkbox>
                     </div>
                     <i
                       *ngIf="favStateService.showFavSelection"
@@ -311,6 +338,11 @@
                         }"
                       >
                       </app-indicator-metadata-tooltip>
+                      <app-export-item-checkbox
+                        *ngIf="exportModeService.exportMode()"
+                        kind="indicator"
+                        [dataset]="toExportIndicator(baseIndicator)"
+                      ></app-export-item-checkbox>
                     </div>
                     <i
                       *ngIf="favStateService.showFavSelection"
@@ -324,7 +356,9 @@
                         ),
                       }"
                       (click)="
-                        favStateService.onBaseIndicatorFavClick(baseIndicator.indicatorId)
+                        favStateService.onBaseIndicatorFavClick(
+                          baseIndicator.indicatorId
+                        )
                       "
                       style="color: black"
                     ></i>
@@ -380,7 +414,9 @@
             [indicatorFavItems]="favStateService.indicatorFavItems"
             [wmsFavItems]="favStateService.wmsFavItems"
             [showFavSelection]="favStateService.showFavSelection"
-            (indicatorTopicFavToggled)="favStateService.onIndicatorTopicFavClick($event)"
+            (indicatorTopicFavToggled)="
+              favStateService.onIndicatorTopicFavClick($event)
+            "
             (indicatorFavToggled)="favStateService.onIndicatorFavClick($event)"
             (wmsFavToggled)="favStateService.onWmsFavClick($event)"
             (indicatorSelected)="onClickHierarchyIndicator($event)"
