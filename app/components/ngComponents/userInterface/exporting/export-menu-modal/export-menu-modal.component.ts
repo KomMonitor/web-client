@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, signal } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { Observable, finalize } from "rxjs";
+import { Observable, switchMap, finalize, EMPTY } from "rxjs";
+import { HttpClient } from '@angular/common/http';
 import { ExportTypSelectionComponent } from "../export-typ-selection/export-typ-selection.component";
 import { ExportDatasetListComponent } from "../export-dataset-list/export-dataset-list.component";
 import { EpsgSelectorComponent } from "../epsg-selector/epsg-selector.component";
@@ -82,6 +83,12 @@ export class ExportMenuModalComponent {
   exportSrvc = inject(ExportingService);
   isLoading = signal(false);
 
+  constructor(private http: HttpClient) {}
+
+  downloadFile(url: string): Observable<Blob> {
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   onEpsgCodeChange(code: number | null): void {
     this.stateSrvc.selectedEpsgCode.set(code);
   }
@@ -113,16 +120,32 @@ export class ExportMenuModalComponent {
     }
 
     this.isLoading.set(true);
-    request$.pipe(finalize(() => this.isLoading.set(false))).subscribe({
-      next: (result: ExportResponse) => {
-        if (result.status === "successful" && result.file?.href) {
-          window.open(result.file.href, "_blank");
-        }
-      },
-      error: (err) => {
-        console.error("Export error", err);
-      },
-    });
+    request$.pipe(
+        switchMap((result: ExportResponse) => {
+          if (result.status === "successful" && result.file?.href) {
+            return this.downloadFile(result.file.href);
+          }
+          return EMPTY;
+        }),
+        finalize(() => this.isLoading.set(false))
+      ).subscribe({
+        next: (blob: Blob) => {
+          const blobUrl = window.URL.createObjectURL(blob);
+          
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = `export-${Date.now()}.zip`;
+          
+          document.body.appendChild(link);
+          link.click();
+          
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(blobUrl);
+        },
+        error: (err) => {
+          console.error("Error while exporting data", err);
+        },
+      });
   }
 
   private filteredIndicatorItems() {
