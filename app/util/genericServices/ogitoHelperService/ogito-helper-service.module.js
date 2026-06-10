@@ -123,7 +123,7 @@ angular
             if(geoJSON.features.length == 0){
               return;
             }
-            customColor = 'rgb(205,59,40)';; // noise
+            let customColor = 'rgb(205,59,40)';; // noise
             if(type == 'quiet'){
               customColor = 'rgb(53,161,209)'; // quiet
             } 
@@ -161,14 +161,20 @@ angular
         this.filterForSpecificLayer = function(geoJSON, type){
           let filteredFeatures = geoJSON.features.filter(function(feature){
             let passed = false;
-            if(feature.properties.layername == "PartWiss"){
-              if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
+            // if(feature.properties.layername == "PartWiss"){
+            //   if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
+            //     passed = true;
+            //   }
+            //   else if(type == 'noise' && noiseColorNames.includes(feature.properties.style)){
+            //     passed = true;
+            //   }
+            // }
+            if(type == 'quiet' && quietColorNames.includes(feature.properties.style)){
                 passed = true;
               }
               else if(type == 'noise' && noiseColorNames.includes(feature.properties.style)){
                 passed = true;
               }
-            }
             return passed 
           });
 
@@ -190,7 +196,7 @@ angular
               return;
             }          
 
-            customColor = 'rgb(205,59,40)';; // noise
+            let customColor = 'rgb(205,59,40)';; // noise
             if(type == 'quiet'){
               customColor = 'rgb(53,161,209)'; // quiet
             } 
@@ -233,7 +239,7 @@ angular
             if(geoJSON.features.length == 0){
               return;
             }
-            customColor = 'rgb(205,59,40)';; // noise
+            let customColor = 'rgb(205,59,40)';; // noise
             if(type == 'quiet'){
               customColor = 'rgb(53,161,209)'; // quiet
             } 
