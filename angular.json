@@ -21,8 +21,15 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "app/",
-              "app/assets/"
+              { "glob": "favicon.ico", "input": "app", "output": "/" },
+              { "glob": "**/*", "input": "app/assets", "output": "/assets" },
+              { "glob": "**/*", "input": "app/icons", "output": "/icons" },
+              { "glob": "**/*", "input": "app/logos", "output": "/logos" },
+              { "glob": "*.js", "input": "app/kommonitor-script-resources", "output": "/kommonitor-script-resources" },
+              { "glob": "config-storage-server.json", "input": "app/config", "output": "/config" },
+              { "glob": "keycloak_backup.json", "input": "app/config", "output": "/config" },
+              { "glob": "env_backup.js", "input": "app/config", "output": "/config" },
+              { "glob": "*_forAdminViewExplanation.txt", "input": "app/config", "output": "/config" }
             ],
             "styles": [
               "app/app.scss",

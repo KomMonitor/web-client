@@ -7,24 +7,6 @@ Analysebasis: Codebestand, `angular.json`, `webpack.config.js`, `package.json`, 
 
 ---
 
-## Prio 1 — Build-Output reparieren: Quellcode wird mit ausgeliefert
-
-**Problem:** In `angular.json` ist der gesamte App-Ordner als Asset deklariert:
-
-```json
-"assets": ["app/", "app/assets/"]
-```
-
-Dadurch landet bei jedem Build der komplette Quellbaum im `dist/`-Ordner — nachweisbar im aktuellen `dist/kommonitor-client/`: alle `.ts`-Quelldateien (z. B. `components/ngComponents/admin/admin.component.ts`), die Backup-Konfigurationen (`config/env_backup.ts` inkl. des Platzhalter-Secrets `password: "password"`) und der 56 MB große, ungenutzte `app/dependencies/`-Ordner.
-
-**Folgen:** Quellcode-Offenlegung im Produktiv-Deployment, potenziell sensible Konfigurationsreste öffentlich, massiv aufgeblähtes Image.
-
-**Maßnahme:** Assets-Liste auf das tatsächlich Benötigte eingrenzen (`app/assets/`, `app/config/` nur mit den Runtime-Configs, Favicon, ggf. Übersetzungsdateien). Anschließend `dist/` einmal neu bauen und prüfen, dass keine `.ts`/`.js`-Quellen mehr enthalten sind.
-
-**Aufwand: S** (eine Konfigurationsänderung + Smoke-Test) — **Nutzen: sehr hoch**
-
----
-
 ## Prio 2 — AngularJS-Altlasten vollständig entfernen
 
 **Problem:** Es existieren noch 38 `*.component.js` und 65 `*.module.js` aus der AngularJS-Welt (u. a. `app/components/kommonitorAdmin/adminRoleManagement/`, `adminScriptManagement/`, `app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/`) sowie `app/app.js` als alter App-Einstieg. Nichts davon wird noch geladen: `app/index.html` bindet keine Skripte ein, `angular.json` lädt nur jQuery/Bootstrap, ngUpgrade ist nirgends aktiv. Für RoleManagement, ScriptManagement und Reachability existieren bereits fertige Angular-Pendants unter `app/components/ngComponents/`.
@@ -41,7 +23,7 @@ Dadurch landet bei jedem Build der komplette Quellbaum im `dist/`-Ordner — nac
 
 ## Prio 3 — Webpack-Pipeline stilllegen
 
-**Problem:** `webpack.config.js` baut noch `app/app.js` zu `app/dependencies/app.bundle.js` und kopiert ~96 Bibliotheks-Assets nach `app/dependencies/` (56 MB). Kein einziges Quell- oder Template-File referenziert `dependencies/` — der Output ist verwaist und wird über das Assets-Problem aus Prio 1 sogar mit deployt. Die benötigten Bibliotheken laufen längst über `angular.json` (`styles`/`scripts`) bzw. npm-Imports.
+**Problem:** `webpack.config.js` baut noch `app/app.js` zu `app/dependencies/app.bundle.js` und kopiert ~96 Bibliotheks-Assets nach `app/dependencies/` (56 MB). Kein einziges Quell- oder Template-File referenziert `dependencies/` — der Output ist verwaist. Die benötigten Bibliotheken laufen längst über `angular.json` (`styles`/`scripts`) bzw. npm-Imports.
 
 **Maßnahme:** `webpack.config.js`, `.babelrc`, den Ordner `app/dependencies/` und die zugehörigen devDependencies (`webpack`, `webpack-cli`, `copy-webpack-plugin`, alle `babel-*`-Pakete, `babel-polyfill`) entfernen. Falls einzelne Assets daraus doch noch gebraucht werden (z. B. Webfonts), gezielt in `angular.json` aufnehmen.
 
@@ -61,9 +43,11 @@ Dadurch landet bei jedem Build der komplette Quellbaum im `dist/`-Ordner — nac
 
 ## Prio 5 — Backup- und Altdateien aus dem Repo entfernen
 
-**Problem:** `app/config/` enthält acht `*_backup*`-Dateien (`env_backup.js/.ts/.js.map`, `keycloak_backup.json`, `filter-config_backup.json`, `controls-config_backup.json`, `landingPage_backup.html`, …) und `config-storage-server.json_old`. In `customizedExternalLibs/` liegen `leaflet-groupedlayercontrol_old/`, `leaflet-wfst.src_custom_old.js`. Diese Dateien werden teils mit ausgeliefert (siehe Prio 1) und enthalten Konfigurations-/Secret-Platzhalter.
+**Problem:** `app/config/` enthält acht `*_backup*`-Dateien (`env_backup.js/.ts/.js.map`, `keycloak_backup.json`, `filter-config_backup.json`, `controls-config_backup.json`, `landingPage_backup.html`, …) und `config-storage-server.json_old`. In `customizedExternalLibs/` liegen `leaflet-groupedlayercontrol_old/`, `leaflet-wfst.src_custom_old.js`. Diese Dateien enthalten Konfigurations-/Secret-Platzhalter.
 
-**Maßnahme:** Löschen — die Historie liegt in Git. Beispiel-Konfigurationen, die bewusst dokumentiert bleiben sollen, in `documentation/` bzw. als `*.example.json` führen und in `.gitignore`/Assets-Ausschluss aufnehmen.
+**Achtung:** Vier davon werden zur Laufzeit geladen und sind bewusst Teil des Deployments: `keycloak_backup.json` (Fallback in `keycloak-helper.service.ts`), `env_backup.js` sowie die beiden `*_forAdminViewExplanation.txt` (Beispiel-Anzeige in den Admin-Config-Views). Diese nicht löschen, sondern umbenennen (z. B. `*.example.*`) und die Referenzen sowie die Assets-Liste in `angular.json` anpassen.
+
+**Maßnahme:** Den Rest löschen — die Historie liegt in Git. Beispiel-Konfigurationen, die bewusst dokumentiert bleiben sollen, in `documentation/` bzw. als `*.example.json` führen und in `.gitignore`/Assets-Ausschluss aufnehmen.
 
 **Aufwand: S** — **Nutzen: mittel**
 
@@ -113,7 +97,7 @@ Dadurch landet bei jedem Build der komplette Quellbaum im `dist/`-Ordner — nac
 
 ## Empfohlene Reihenfolge
 
-1. **Sofort, geringer Aufwand:** Prio 1 (Assets-Fix), Prio 5 (Backups löschen) — zusammen ein kleiner PR mit großem Effekt.
+1. **Sofort, geringer Aufwand:** Prio 5 (Backups löschen).
 2. **Als Nächstes:** Prio 2 + 3 (AngularJS- und Webpack-Altlasten) — ein Aufräum-PR.
 3. **Dann:** Prio 6 (Tests lauffähig) als Sicherheitsnetz, danach Prio 4 (Angular-Upgrade).
 4. **Laufend/inkrementell:** Prio 7, 8, 9 im Zuge regulärer Feature-Arbeit.

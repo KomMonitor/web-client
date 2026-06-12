@@ -46,6 +46,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "serve:dist": "http-server dist/kommonitor-client -p 8000 -P http://localhost:8000?",
     "watch": "ng build --watch --configuration development",
     "release": "release-it",
     "tsc": "tsc",
