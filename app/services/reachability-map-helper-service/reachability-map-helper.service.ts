@@ -81,25 +81,22 @@ export class ReachabilityMapHelperService {
   }
 
   async takeScreenshot_image(domId: string, overridedPluginOptions?: any) {
-    const mapParts = this.mapPartsMap.get(domId);
 
-    if (!overridedPluginOptions) {
-      overridedPluginOptions = {
-        quality: 0.95
-      };
-    }
+    const node: any = document.getElementById(domId);
+    const options = overridedPluginOptions || {
+      quality: 1.0,
+      width: 400,
+      height: 400
+    };
 
-    if (mapParts && mapParts.map && mapParts.screenshoter) {
-      const node = document.getElementById(domId);
-      if (node) {
-        try {
-          return await domtoimage.toJpeg(node, overridedPluginOptions);
-        } catch (error) {
-          console.error('oops, something went wrong!', error);
-        }
-      }
+    try {
+      return await domtoimage.toJpeg(node, options);
+    } catch (error) {
+      console.log("Error while exporting map view.");
+      console.error(error);
+      this.dataExchangeService.displayMapApplicationError(error);
+      return undefined;
     }
-    return undefined;
   }
 
   invalidateMap(domId: string) {

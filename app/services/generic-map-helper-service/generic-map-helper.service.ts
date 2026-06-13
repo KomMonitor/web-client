@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import L from 'leaflet';
+import * as L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import 'leaflet.awesome-markers';
@@ -250,9 +250,8 @@ export class GenericMapHelperService {
       drawControlObject = this.initDrawControl(map, drawResourceType, editMode);
     }
 
-    // todo
-    /* if(withScreenshoter){
-      screenshoter = L.simpleMapScreenshoter(this.screenshoterOptions).addTo(map);
+  /*   if(withScreenshoter){
+      screenshoter = (L.simpleMapScreenshoter as any)(this.screenshoterOptions).addTo(map);
     } */
 
     this.invalidateMap(map);
