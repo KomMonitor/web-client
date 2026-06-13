@@ -2441,6 +2441,12 @@ transition: opacity 0.3s;
 	overflow: auto;
 }
 
+.btn[disabled], fieldset[disabled] {
+  cursor: not-allowed;
+  opacity: .65;
+  box-shadow: none;
+}
+
 .btn-circle {
   width: 5vh;
   height: 5vh;

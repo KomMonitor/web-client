@@ -38,4 +38,6 @@ export class ReachabilityScenarioHelperService {
   cloneReachabilityScenario(reachabilityScenario) {
     //this.ajskommonitorReachabilityScenarioHelperServiceProvider.cloneReachabilityScenario(reachabilityScenario);
   }
+
+  configureActiveScenario() {}
 }

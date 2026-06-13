@@ -60,7 +60,7 @@
               [(ngModel)]="reachabilityCombinerService.selectedStartDate"
               (change)="fetchPoiResourceGeoJSON()"
               class="form-control" required>
-              <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity" [value]="date.startDate">{{date.startDate}}</option>
+              <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity; let i = index" [value]="date.startDate">{{date.startDate}}</option>
             </select>
           </div>
         </div>

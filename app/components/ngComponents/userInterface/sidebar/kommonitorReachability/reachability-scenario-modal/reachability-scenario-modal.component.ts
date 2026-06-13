@@ -13,6 +13,7 @@ import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso/reachab
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachbilityScenarioSetupComponent } from './reachbility-scenario-setup/reachbility-scenario-setup.component';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
+import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicator-statistics/reachability-indicator-statistics.component';
 
 @Component({
   selector: 'app-reachability-scenario-modal',
@@ -25,7 +26,8 @@ import { SingleFeatureEditComponent } from 'components/ngComponents/common/singl
     ReachabilityScenarioConfigurationComponent, 
     ReachabilityPoiInIsoComponent,
     ReachbilityScenarioSetupComponent,
-    SingleFeatureEditComponent
+    SingleFeatureEditComponent,
+    ReachabilityIndicatorStatisticsComponent
   ]
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
@@ -60,6 +62,11 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   onPoisInReachabilityClick() {
     setTimeout(() => this.broadcastService.broadcast('reinitPoisInReachabilityMap'),250);
   }
+
+  onIndicatorStatisticsClick() {
+    setTimeout(() => this.broadcastService.broadcast('reinitIndicatorStatisticsConfiguration'),250);
+  }
+  
 
 		/* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {
 				if (event.target.id === "modal-manage-reachability-scenario") {

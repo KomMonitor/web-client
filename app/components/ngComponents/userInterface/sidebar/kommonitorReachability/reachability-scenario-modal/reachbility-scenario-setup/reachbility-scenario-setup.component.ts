@@ -50,12 +50,12 @@ export class ReachbilityScenarioSetupComponent {
     }
 
     if (!this.reachabilityHelperService.settings.isochroneConfig.selectedDate) {
-      this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityHelperService.settings.selectedStartPointLayer?.availablePeriodsOfValidity[this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
+      this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityHelperService.settings.selectedStartPointLayer?.availablePeriodsOfValidity[this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1].startDate;
     }
 
     this.reachabilityCombinerService.prepAvailablePeriods(); 
-    this.reachabilityCombinerService.selectedStartDate = this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(-1).startDate;
-    this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(-1).startDate;
+    this.reachabilityCombinerService.selectedStartDate = this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(0).startDate;
+    this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityCombinerService.filteredAvailablePeriodsOfValidity.at(0).startDate;
     
     this.fetchPoiResourceGeoJSON();
   }

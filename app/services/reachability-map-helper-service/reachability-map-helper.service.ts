@@ -106,6 +106,7 @@ export class ReachabilityMapHelperService {
     const mapParts = this.mapPartsMap.get(domId);
     if (mapParts && mapParts.map) {
       this.genericMapHelperService.invalidateMap(mapParts.map);
+      this.zoomToIsochroneLayer(domId);
     }
   }
 
@@ -252,7 +253,7 @@ export class ReachabilityMapHelperService {
     }
 
     geoJSON.features.sort((a: any, b: any) => a.properties.value - b.properties.value);
-
+  
     for (let i = geoJSON.features.length - 1; i >= 0; i--) {
       const feature = geoJSON.features[i];
       const styleIndex = this.getStyleIndexForFeature(feature, this.dataExchangeService.isochroneLegend.colorValueEntries, reachMode);
@@ -290,11 +291,12 @@ export class ReachabilityMapHelperService {
   }
 
   private getStyleIndexForFeature(feature: any, colorValueEntries: any[], reachMode: string): number {
+
     let featureCutOffValue = feature.properties.value;
     if (reachMode === "time") {
       featureCutOffValue /= 60;
     }
-    const entry = colorValueEntries.find(e => e.value === featureCutOffValue);
+    const entry = colorValueEntries.find(e => e.value === parseInt(featureCutOffValue));
     return entry ? colorValueEntries.indexOf(entry) : 0;
   }
 
