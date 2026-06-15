@@ -43,7 +43,8 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     protected dataExchangeService: DataExchangeService,
     private multiStepHelperService: MultiStepHelperServiceService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService
   ) {
   }
 
@@ -53,6 +54,11 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   onEditFeaturesClick() {
     setTimeout(() => this.broadcastService.broadcast('reinitSingleFeatureEdit'),250);
+  }
+
+  onClickAddScenario() {
+    this.reachabilityScenarioHelperService.addReachabilityScenario();
+    this.activeModal.close();
   }
 
   onReachbilityConfigurationClick() {
@@ -65,6 +71,10 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   onIndicatorStatisticsClick() {
     setTimeout(() => this.broadcastService.broadcast('reinitIndicatorStatisticsConfiguration'),250);
+  }
+
+  test() {
+    console.log(this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName, this.reachabilityHelperService.currentIsochronesGeoJSON, this.reachabilityHelperService.original_nonDissolved_isochrones);
   }
   
 

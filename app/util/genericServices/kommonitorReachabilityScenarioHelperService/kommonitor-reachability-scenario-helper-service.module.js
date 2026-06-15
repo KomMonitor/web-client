@@ -16,7 +16,7 @@ angular
           "scenarioName": "name", // unique scenario name
           "indicatorStatistics": indicatorStatistics, // array of all calculated indicator statistics
           "isochrones_dissolved": isochrones_dissolved, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
-          "isochrones_perPoint": isochrones_perPoint, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones 
+          "isochrones_perPoint": isochrones_perPoint, //kommonitorReachabilityHelper Service.original_nonDissolved_isochrones 
           "poiDataset": {
             "poiId": poiId,
             "poiName": poiName,

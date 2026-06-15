@@ -138,6 +138,10 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.reachabilityCombinerService.addLocation({type: 'Feature', geometry: {type: 'Point', coordinates: [result.x, result.y]}});
   }
 
+  onClickImport() {
+    //reachabilityScenarioHelperService.importScenarios()
+  }
+
   startCalculation() {
     this.reachabilityCombinerService.startQuickCalculation();
   }
@@ -164,7 +168,7 @@ export class KommonitorReachabilityComponent implements OnInit {
     this.broadcastService.broadcast("removeAllDrawnPoints");
   }
 
-  openReachabilityScenarioModal(scenarioDataset=false){
+  openReachabilityScenarioModal(scenarioDataset:any=false){
 
     const modalRef = this.modalService.open(ReachabilityScenarioModalComponent, {windowClass: 'modal-holder', centered: true});
     if(scenarioDataset){

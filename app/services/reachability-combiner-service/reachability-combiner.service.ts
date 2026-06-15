@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { HttpClient } from '@angular/common/http';
+import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 
 export interface ReachabiltySettings {
   ranges: number[];
@@ -81,7 +82,8 @@ export class ReachabilityCombinerService {
   constructor(
     private reachabilityHelperService: ReachabilityHelperService,
     private dataExchangeService: DataExchangeService,
-    private http: HttpClient
+    private http: HttpClient,
+    private reachabilityScenarioHelperService: ReachabilityScenarioHelperService
   ) {
 
     this.dataExchangeService.metadataLoading$
@@ -98,6 +100,7 @@ export class ReachabilityCombinerService {
 
   set scenarioTitle(title:string) {
     this.reachabilityMapSubject.value.scenarioTitle = title; 
+    this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName = title;
   }
 
   get locations():GeoJSONFeature[] {

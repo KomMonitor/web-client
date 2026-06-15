@@ -96,7 +96,7 @@
 
                   <input type="button" name="previous" class="previous  action-button-previous"
                     value="Voriger Schritt" />
-                  <input type="button" name="next" class="next  action-button"
+                  <input type="button" name="next" class="next  action-button" (click)="test()"
                     value="N&auml;chster Schritt" />
 
                 </fieldset>
@@ -112,8 +112,8 @@
       </div>
       <div>
         <button type="button" class="btn btn-success"
-          ng-disabled="! $ctrl.kommonitorReachabilityScenarioHelperServiceInstance.tmpActiveScenario.scenarioName || !$ctrl.kommonitorReachabilityHelperServiceInstance.currentIsochronesGeoJSON || !$ctrl.kommonitorReachabilityHelperServiceInstance.original_nonDissolved_isochrones"
-          ng-click="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.addReachabilityScenario()">Szenario anlegen/aktualisieren</button>
+          [disabled]="!reachabilityScenarioHelperService.tmpActiveScenario.scenarioName || !reachabilityHelperService.currentIsochronesGeoJSON || !reachabilityHelperService.original_nonDissolved_isochrones"
+          (click)="onClickAddScenario()">Szenario anlegen/aktualisieren</button>
         <button type="button" class="btn btn-danger"
           ng-click="resetReachabilityScenarioForm()">Zur&uuml;cksetzen</button>
       </div>
