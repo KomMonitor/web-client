@@ -6,7 +6,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { GeocoderHelperService } from 'services/geocoder-helper-service/geocoder-helper.service';
 import { MapService } from 'services/map-service/map.service';
-import { ColorPickerDirective } from 'ngx-color-picker';
+import { ColorPickerModule } from 'ngx-color-picker';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
@@ -39,7 +39,7 @@ export interface CSVImportType {
     NgbDropdown, 
     NgbDropdownToggle, 
     NgbDropdownMenu,
-    ColorPickerDirective,
+    ColorPickerModule,
     FormsModule
   ]
 })

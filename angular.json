@@ -83,15 +83,15 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-              "browserTarget": "latest-angular:build",
-              "port": 8000
+            "port": 8000,
+              "buildTarget": "latest-angular:build"
             },
           "configurations": {
             "production": {
-              "browserTarget": "kommonitor-client:build:production"
+              "buildTarget": "kommonitor-client:build:production"
             },
             "development": {
-              "browserTarget": "kommonitor-client:build:development"
+              "buildTarget": "kommonitor-client:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -99,7 +99,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "kommonitor-client:build"
+            "buildTarget": "kommonitor-client:build"
           }
         },
         "test": {
