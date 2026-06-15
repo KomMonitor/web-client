@@ -1,4 +1,0 @@
-{
-  "presets": ["env"],
-  "plugins": ["angularjs-annotate", "transform-es2015-destructuring", "transform-object-rest-spread"]
-}

@@ -37,6 +37,10 @@ Analysebasis: Codebestand, `angular.json`, `webpack.config.js`, `package.json`, 
 
 **Aufwand: S–M** — **Nutzen: hoch** (eine Build-Pipeline statt zwei, −56 MB Repo-/Deploy-Ballast)
 
+**Status (2026-06-15, erledigt):** Gelöscht: `webpack.config.js`, `.babelrc`, der Ordner `app/dependencies/` (56 MB; war via `.gitignore` ohnehin nicht im Repo, nur lokaler Build-/Deploy-Ballast) sowie der obsolete `dependencies/`-Eintrag in `.gitignore`. Aus `package.json` (devDependencies) entfernt: `webpack`, `webpack-cli`, `copy-webpack-plugin`, `babel-core`, `babel-polyfill`, `babel-preset-env`, `babel-plugin-transform-es2015-destructuring`, `babel-plugin-transform-object-rest-spread` sowie zusätzlich `@babel/cli` und `@babel/core` (gehörten zur selben toten Babel-Toolchain — kein npm-Script ruft sie auf, Angular CLI bringt sein eigenes Babel mit). `npm install --force` + `npm run build` danach grün (EXIT 0).
+
+Verifiziert vor dem Löschen: Webpack-Entry war `./app/app.js` (bereits in Prio 2 gelöscht → Pipeline baute ohnehin ins Leere); kein Quell-/Template-File referenziert `dependencies/` (nur auskommentierte `background:url(...)`-Zeilen in `app/app.scss`); `.babelrc` war bereits tot (Plugin `angularjs-annotate` in Prio 2 entfernt). Einzige verbleibende Babel-Nutzung: das eigenständige `gulpfile.js` der vendored Lib `customizedExternalLibs/Excalibur-Dual-List/` (nutzt `gulp-babel`, nicht unsere Deps; nicht Teil des Builds).
+
 ---
 
 ## Prio 4 — Angular 16 (EOL) anheben
