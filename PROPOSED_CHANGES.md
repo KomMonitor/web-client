@@ -81,6 +81,10 @@ Bewusst behalten (echte Runtime-Fallbacks, in `angular.json` assets): `keycloak_
 
 **Aufwand: M** — **Nutzen: hoch** (Sicherheitsnetz für Upgrade in Prio 4 und Refactorings in Prio 7)
 
+**Status (2026-06-15, bewusst zurückgestellt — erst nach Prio 4):** Bestandsaufnahme ergab: Test-Infrastruktur faktisch nicht vorhanden — kein Runner installiert (kein Karma/Jasmine/Jest), **`tsconfig.spec.json` fehlt** (obwohl `angular.json` darauf verweist), kein `karma.conf.js`/`test.ts`, kein `test`-Script, Test-Target referenziert die nicht existierende `app/app.css`. Vor allem: **alle 73 Specs sind leere Auto-Stubs** (`ng generate`-Boilerplate, je ~19 Zeilen, 0 echte Testlogik; 32 Service-Stubs `should be created`, 41 Komponenten-Stubs `should create`).
+
+Konsequenz für die Reihenfolge: Das in der Doc genannte „Sicherheitsnetz vor Prio 4" greift hier nicht — es gibt kein schützenswertes Netz, nur Stubs. Gleichzeitig sind die modernen First-Party-Runner (esbuild/Web-Test-Runner bzw. Jest-Builder) erst **ab Angular 17+** verfügbar. Daher Entscheidung: Test-Setup **nach Prio 4** aufsetzen und dann direkt mit dem First-Party-Runner (kein Karma-Wegwerf-Setup). Die 41 Komponenten-Stubs müssen dabei ohnehin überarbeitet werden (sie deklarieren die Komponente ohne ihre Abhängigkeiten und würden so fehlschlagen).
+
 ---
 
 ## Prio 7 — God-Services aufteilen
@@ -117,7 +121,8 @@ Bewusst behalten (echte Runtime-Fallbacks, in `angular.json` assets): `keycloak_
 
 ## Empfohlene Reihenfolge
 
-1. **Sofort, geringer Aufwand:** Prio 5 (Backups löschen).
-2. **Als Nächstes:** Prio 2 + 3 (AngularJS- und Webpack-Altlasten) — ein Aufräum-PR.
-3. **Dann:** Prio 6 (Tests lauffähig) als Sicherheitsnetz, danach Prio 4 (Angular-Upgrade).
-4. **Laufend/inkrementell:** Prio 7, 8, 9 im Zuge regulärer Feature-Arbeit.
+1. ~~**Sofort, geringer Aufwand:** Prio 5 (Backups löschen).~~ ✅ erledigt (2026-06-15)
+2. ~~**Als Nächstes:** Prio 2 + 3 (AngularJS- und Webpack-Altlasten) — ein Aufräum-PR.~~ ✅ erledigt (2026-06-15; Prio 2 bis auf bewusst behaltenes AngularJS-TODO)
+3. **Dann:** Prio 4 (Angular-Upgrade 16 → 17 → 18). *Reihenfolge gegenüber dem ursprünglichen Plan getauscht:* Prio 6 wird **nach** Prio 4 gemacht, weil die 73 Specs nur leere Stubs sind (kein Schutznetz vorhanden) und die modernen First-Party-Test-Runner erst ab Angular 17+ verfügbar sind (siehe Status unter Prio 6).
+4. **Danach:** Prio 6 (Tests lauffähig) mit dem dann verfügbaren First-Party-Runner.
+5. **Laufend/inkrementell:** Prio 7, 8, 9 im Zuge regulärer Feature-Arbeit.
