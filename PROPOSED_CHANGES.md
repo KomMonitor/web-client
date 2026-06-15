@@ -51,6 +51,22 @@ Verifiziert vor dem Löschen: Webpack-Entry war `./app/app.js` (bereits in Prio 
 
 **Aufwand: M–L** — **Nutzen: hoch** (Security-Support, Voraussetzung für alles Weitere)
 
+**Status (2026-06-15, erledigt bis Angular 18):** Upgrade 16 → 17 → 18 durchgeführt (zwei Commits: „upgrade Angular 16 -> 17", „upgrade Angular 17 -> 18"). Alle `@angular/*`-Framework-Pakete auf 17.3.12 bzw. 18.2.14; `zone.js ~0.14` und `typescript ~5.4` explizit als direkte Deps ergänzt (vorher nur transitiv). Build nach jedem Schritt grün.
+
+Begleitende Anpassungen:
+- **Gekoppelte Drittpakete** mit-hochgezogen: `@ng-bootstrap/ng-bootstrap` 15 → 17, `ngx-echarts` 16 → 18.
+- **`ngx-color-picker` 20 → 17** zurückgestuft — v20 verlangte Angular ≥19 (war ursprünglich nur per `--force` in das Angular-16-Projekt gezwungen) und blockierte die Auflösung. v17 akzeptiert Angular ≥9, läuft also auch unter 18. In `kommonitor-data-import.component.ts` den Import von `ColorPickerDirective` auf `ColorPickerModule` umgestellt (Directive ist in v17 nicht standalone).
+- Fehlende **`tsconfig.spec.json`** angelegt (vom `test`-Target in `angular.json` referenziert; blockierte sonst die CDK-Migration). Erster Baustein für Prio 6.
+- Angular-Migrationen automatisch angewandt: `browserTarget` → `buildTarget` (17), HTTP `HttpClientModule` → `provideHttpClient(withInterceptorsFromDi())` in `app.module.ts` (18, DI-registrierter `AuthInterceptor` bleibt erhalten).
+
+> **Wichtig für Build/Serve:** Das Projekt braucht jetzt **Node 18 (oder 20)** — Node 24 wird von der Angular-CLI als „Unsupported" gemeldet. Lokal via `nvm use 18`.
+
+> **Offene Punkte (nicht blockierend):**
+> - Die **optionale** Migration „use-application-builder" (esbuild/Vite statt Webpack-`browser`-Builder) wurde **nicht** angewendet — kann separat als eigener Schritt erfolgen.
+> - ~~43 „CommonJS optimization bailout"-Warnungen (jquery, jszip, docx, codemirror, papaparse, jstat, file-saver, dom-to-image-more, leaflet.markercluster, …) — über `allowedCommonJsDependencies` in `angular.json` unterdrückbar.~~ ✅ erledigt (2026-06-15): `allowedCommonJsDependencies` in den Build-Options ergänzt (21 Einträge, jeweils der Paketname — Angular reduziert Deep-Imports wie `codemirror/mode/...` bzw. `core-js/modules/...` auf den Paketnamen, daher genügen `codemirror`/`core-js`). Build danach mit **0** CommonJS-Warnungen, grün.
+> - ~~Vorbestehender Bug: `serve.options.buildTarget` in `angular.json` zeigt auf `latest-angular:build` statt `kommonitor-client:build` (betrifft `npm start`, unabhängig vom Upgrade).~~ ✅ behoben (2026-06-15): auf `kommonitor-client:build` korrigiert (+ schiefe Einrückung bereinigt); `ng serve` löst das Target nun auf und kompiliert grün („Compiled successfully").
+> - Optionales Weiter-Upgrade auf Angular 19/20 + `bootstrap` 5.2 → 5.3 noch offen.
+
 ---
 
 ## Prio 5 — Backup- und Altdateien aus dem Repo entfernen
@@ -123,6 +139,6 @@ Konsequenz für die Reihenfolge: Das in der Doc genannte „Sicherheitsnetz vor 
 
 1. ~~**Sofort, geringer Aufwand:** Prio 5 (Backups löschen).~~ ✅ erledigt (2026-06-15)
 2. ~~**Als Nächstes:** Prio 2 + 3 (AngularJS- und Webpack-Altlasten) — ein Aufräum-PR.~~ ✅ erledigt (2026-06-15; Prio 2 bis auf bewusst behaltenes AngularJS-TODO)
-3. **Dann:** Prio 4 (Angular-Upgrade 16 → 17 → 18). *Reihenfolge gegenüber dem ursprünglichen Plan getauscht:* Prio 6 wird **nach** Prio 4 gemacht, weil die 73 Specs nur leere Stubs sind (kein Schutznetz vorhanden) und die modernen First-Party-Test-Runner erst ab Angular 17+ verfügbar sind (siehe Status unter Prio 6).
-4. **Danach:** Prio 6 (Tests lauffähig) mit dem dann verfügbaren First-Party-Runner.
+3. ~~**Dann:** Prio 4 (Angular-Upgrade 16 → 17 → 18).~~ ✅ erledigt (2026-06-15, bis Angular 18). *Reihenfolge gegenüber dem ursprünglichen Plan getauscht:* Prio 6 wird **nach** Prio 4 gemacht, weil die 73 Specs nur leere Stubs sind (kein Schutznetz vorhanden) und die modernen First-Party-Test-Runner erst ab Angular 17+ verfügbar sind (siehe Status unter Prio 6).
+4. **Als Nächstes:** Prio 6 (Tests lauffähig) mit dem ab Angular 17+ verfügbaren First-Party-Runner (esbuild/Web-Test-Runner bzw. Jest-Builder).
 5. **Laufend/inkrementell:** Prio 7, 8, 9 im Zuge regulärer Feature-Arbeit.

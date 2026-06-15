@@ -20,6 +20,28 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+            "allowedCommonJsDependencies": [
+              "@turf/jsts",
+              "codemirror",
+              "concaveman",
+              "core-js",
+              "docx",
+              "dom-to-image-more",
+              "earcut",
+              "fast-deep-equal",
+              "file-saver",
+              "jquery",
+              "js-sha256",
+              "jspdf-autotable",
+              "jstat",
+              "jszip",
+              "leaflet.markercluster",
+              "papaparse",
+              "raf",
+              "rbush",
+              "rgbcolor",
+              "skmeans"
+            ],
             "assets": [
               { "glob": "favicon.ico", "input": "app", "output": "/" },
               { "glob": "**/*", "input": "app/assets", "output": "/assets" },
@@ -84,8 +106,8 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "port": 8000,
-              "buildTarget": "latest-angular:build"
-            },
+            "buildTarget": "kommonitor-client:build"
+          },
           "configurations": {
             "production": {
               "buildTarget": "kommonitor-client:build:production"
