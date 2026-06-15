@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { routes } from 'app.routes';
 import { RouterModule } from '@angular/router';
 
-import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { StartupService } from 'services/startup-service/startup.service';
 import { NgbDropdownModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -45,66 +45,59 @@ export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
-@NgModule({
-  declarations: [
-    MainComponent,
-    OrderByPipe
-  ],
-  imports: [
-    CommonModule,
-    BrowserModule, 
-    UserLoginComponent,
-    NgbModule,
-    FormsModule,
-    RouterModule.forRoot(routes),
-    HttpClientModule,
-    // MathjaxModule.forRoot(),
-    ReactiveFormsModule,
-    TranslateModule.forRoot({
-      defaultLanguage: 'de',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
-    }),
-    AgGridAngular,
-    KmColorPickerComponent,
-    KmLinePatternPickerComponent,
-    KmDatePickerComponent,
-    DragDropModule,
-    NgbDropdownModule,
-    NgbAccordionButton,
-    NgbAccordionDirective,
-    NgbAccordionItem,
-    NgbAccordionHeader,
-    NgbAccordionToggle,
-    NgbAccordionBody,
-    NgbAccordionCollapse,
-    SmallBoxComponent,
-    ExpandableBoxComponent,
-    KommonitorLegendComponent,
-    SidebarComponent,
-    ExpandableBoxComponent,
-    AdminComponent,
-    UserLoginComponent
-  ],
-  providers: [
-    StartupService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeApp,
-      deps: [StartupService],
-      multi: true
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
-  ],
-  bootstrap: [MainComponent],
-  exports: [
-  ]
-})
+@NgModule({ declarations: [
+        MainComponent,
+        OrderByPipe
+    ],
+    bootstrap: [MainComponent],
+    exports: [], imports: [CommonModule,
+        BrowserModule,
+        UserLoginComponent,
+        NgbModule,
+        FormsModule,
+        RouterModule.forRoot(routes),
+        // MathjaxModule.forRoot(),
+        ReactiveFormsModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'de',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        AgGridAngular,
+        KmColorPickerComponent,
+        KmLinePatternPickerComponent,
+        KmDatePickerComponent,
+        DragDropModule,
+        NgbDropdownModule,
+        NgbAccordionButton,
+        NgbAccordionDirective,
+        NgbAccordionItem,
+        NgbAccordionHeader,
+        NgbAccordionToggle,
+        NgbAccordionBody,
+        NgbAccordionCollapse,
+        SmallBoxComponent,
+        ExpandableBoxComponent,
+        KommonitorLegendComponent,
+        SidebarComponent,
+        ExpandableBoxComponent,
+        AdminComponent,
+        UserLoginComponent], providers: [
+        StartupService,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeApp,
+            deps: [StartupService],
+            multi: true
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptor,
+            multi: true
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {}
