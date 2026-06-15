@@ -19,10 +19,15 @@
     "@types/jquery": "^3.5.16",
     "@types/mathjax": "^0.0.37",
     "@types/node": "^20.4.8",
+    "angular-eslint": "18.4.3",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^10.1.8",
     "http-server": "^14.1.0",
     "license-checker": "^25.0.1",
+    "prettier": "^3.8.4",
     "release-it": "^15.10.1",
-    "typescript": "~5.4.5"
+    "typescript": "~5.4.5",
+    "typescript-eslint": "8.16.0"
   },
   "scripts": {
     "ng": "ng",
@@ -32,7 +37,11 @@
     "watch": "ng build --watch --configuration development",
     "release": "release-it",
     "tsc": "tsc",
-    "tsc:w": "tsc -w"
+    "tsc:w": "tsc -w",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix",
+    "format": "prettier --write \"app/**/*.{ts,html,scss}\"",
+    "format:check": "prettier --check \"app/**/*.{ts,html,scss}\""
   },
   "dependencies": {
     "@angular/animations": "^18.2.14",

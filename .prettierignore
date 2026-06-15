@@ -1,0 +1,19 @@
+# Build-Output & Abhängigkeiten
+dist/
+node_modules/
+coverage/
+
+# Vendored / gepatchte Drittlibs (bewusst unverändert lassen)
+customizedExternalLibs/
+
+# Generierte & Legacy-Artefakte
+**/*.js.map
+ThirdParty.json
+package-lock.json
+
+# Bewusst behaltene AngularJS-Restfeatures (kein aktiver Code)
+app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/
+app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/
+
+# Laufzeit-Config-Fallbacks (ausgeliefert; Format nicht anfassen)
+app/config/
