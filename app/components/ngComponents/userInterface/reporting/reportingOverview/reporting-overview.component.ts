@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { fromJson, toJson } from 'angular';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -1046,7 +1045,7 @@ export class ReportingOverviewComponent implements OnInit {
 				})
 
 				jsonToExport.pages = JSON.parse( temp )
-				jsonToExport.template = fromJson(toJson( this.reportingService.workingTemplate ));
+				jsonToExport.template = JSON.parse(JSON.stringify( this.reportingService.workingTemplate ));
 				jsonToExport.templateSections = this.reportingService.getSectionsAsArray();
 
 				// Only store commune logo once (in first page)
@@ -1103,7 +1102,7 @@ export class ReportingOverviewComponent implements OnInit {
 					}
 				}
 
-				let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( toJson(jsonToExport) );
+				let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( JSON.stringify(jsonToExport) );
 				// to download json, a DOM element is created, clicked and removed
 				let downloadAnchorNode = document.createElement('a');
 				downloadAnchorNode.setAttribute("href", jsonString);

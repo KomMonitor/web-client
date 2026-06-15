@@ -255,7 +255,7 @@ export class ScriptHelperService {
 
     setTimeout(() => {
 
-      $(htmlDomElementOrId).removeClass("prettyprinted");
+      $(htmlDomElementOrId as any).removeClass("prettyprinted");
 
       // todo ?!
       //PR.prettyPrint();

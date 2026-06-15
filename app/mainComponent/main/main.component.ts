@@ -1,8 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
-import { AuthService } from 'services/auth-service/auth.service';
-import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
 
 @Component({
   selector: 'app-main',
@@ -15,27 +11,7 @@ export class MainComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-
     this.checkBrowser();
-
-    // instantiate env variable 
-    // this.env = this.envConfigService;
-
-    // Initialize TranslateService
-    //this.initializeTranslateService();
-
-    // initialize kommonitorClient module
-    //await this.initKomMonitorClientModule();
-
-    // init keycloak authentication
-    
-  
-    //this.upgrade.bootstrap(document.documentElement, ['kommonitorClient']);
-    // setUpLocationSync(this.upgrade);
-
-    // fix for route-mismatch. to be rebuild/deleted with routeModule implementation // todo
-   /*  if(window.location.href.includes('administration#!'))
-      location.href = `${window.location.origin}/administration#!/administration`; */
   }
 
   private checkBrowser(): void {

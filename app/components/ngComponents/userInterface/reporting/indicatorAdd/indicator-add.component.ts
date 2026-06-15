@@ -1,7 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { fromJson, toJson } from 'angular';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { LabelService } from 'services/label-service/label.service';
@@ -984,7 +983,7 @@ export class IndicatorAddComponent implements OnInit {
     if(newVal.length < oldVal.length) {
       // if it was the last one
       if(newVal.length === 0) {
-        let cleanTemplate = fromJson(this.untouchedTemplateAsString);
+        let cleanTemplate = JSON.parse(this.untouchedTemplateAsString);
         for(let page of cleanTemplate.pages) {
           page.id = this.templatePageIdCounter++;
         }
@@ -2057,7 +2056,7 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   getCleanTemplate() {
-    let result = fromJson(this.untouchedTemplateAsString);
+    let result = JSON.parse(this.untouchedTemplateAsString);
     for(let page of result.pages) {
       page.id = this.templatePageIdCounter++;
     }

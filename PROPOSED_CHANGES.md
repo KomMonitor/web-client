@@ -19,6 +19,14 @@ Analysebasis: Codebestand, `angular.json`, `webpack.config.js`, `package.json`, 
 
 **Aufwand: M** — **Nutzen: hoch** (kleinere Installation, kein toter Code mehr, der bei Suchen/Refactorings stört)
 
+**Status (2026-06-15, erledigt):** Schritte 2–4 umgesetzt. Gelöscht: `app/app.js`, `app/components/common/`, `app/components/kommonitorAdmin/`, `app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/` (Angular-Pendant unter `app/components/ngComponents/userInterface/sidebar/kommonitorReachability/`), `app/util/genericServices/`. Die o. g. AngularJS-`package.json`-Einträge entfernt. Zwei aktive ngComponents (`reporting-overview`, `indicator-add`) nutzten noch `fromJson`/`toJson` aus `angular` — auf natives `JSON.parse`/`JSON.stringify` umgestellt.
+
+> **TODO — offene AngularJS-Migration (bewusst behalten):** Zwei Features unter `app/components/kommonitorUserInterface/kommonitorControls/` haben noch kein Angular-Pendant und sind als Migrationsreferenz im Repo geblieben (werden nicht gebaut/geladen):
+> - `feedbackModal` — im aktiven UI nur über einen auskommentierten Link in `user-interface.component.html` referenziert.
+> - `kommonitorIndividualIndicatorComputation` ("Interaktive parametrisierte Neuberechnung eines Indikators") — in der README als Key-Feature gelistet, im aktiven Code aktuell nicht eingebunden.
+>
+> Beide nach Angular (`ngComponents/`) migrieren oder nach finaler Produktentscheidung löschen. Erst danach ist Prio 2 vollständig abgeschlossen.
+
 ---
 
 ## Prio 3 — Webpack-Pipeline stilllegen
@@ -50,6 +58,14 @@ Analysebasis: Codebestand, `angular.json`, `webpack.config.js`, `package.json`, 
 **Maßnahme:** Den Rest löschen — die Historie liegt in Git. Beispiel-Konfigurationen, die bewusst dokumentiert bleiben sollen, in `documentation/` bzw. als `*.example.json` führen und in `.gitignore`/Assets-Ausschluss aufnehmen.
 
 **Aufwand: S** — **Nutzen: mittel**
+
+**Status (2026-06-15, Löschungen erledigt):** Gelöscht (keine lebenden Referenzen): `app/config/config-storage-server.json_old`, `env_backup.js.map`, `env_backup.ts`, `controls-config_backup.json`, `filter-config_backup.json`, `keycloak_backup_withComments.txt`, `landingPage_backup.html` sowie `customizedExternalLibs/leaflet-groupedlayercontrol_old/` und `leaflet-wfst.src_custom_old.js`. Build danach grün.
+
+Wichtige Korrektur zur Annahme oben: `controls-config_backup.json` und `filter-config_backup.json` sind **keine** Runtime-Fallbacks — der `catch`-Block in `startup.service.ts` lädt keine lokale Backup-Datei nach (die Log-Meldung „Using local backup defaults" ist irreführend), sie wurden nur noch im toten `app/dependencies/app.bundle.js` (Prio 3) referenziert.
+
+Bewusst behalten (echte Runtime-Fallbacks, in `angular.json` assets): `keycloak_backup.json` (Fallback in `keycloak-helper.service.ts`), `env_backup.js` (geladen in `admin-app-config.component.ts`), beide `*_forAdminViewExplanation.txt` (Admin-Config-Views) sowie `config-storage-server.json` (startup).
+
+> **TODO — offen:** Das im Maßnahme-Text vorgeschlagene Umbenennen der behaltenen Fallbacks nach `*.example.*` ist **noch nicht** erfolgt (ändert ausgelieferte Asset-Dateinamen + Referenzen in 3 Komponenten + `angular.json`; Namens-/Deployment-Entscheidung offen).
 
 ---
 
