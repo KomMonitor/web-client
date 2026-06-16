@@ -87,6 +87,11 @@ module.exports = tseslint.config(
       "@angular-eslint/no-output-on-prefix": "warn",
       "@angular-eslint/component-class-suffix": "warn",
       "@angular-eslint/use-pipe-transform-interface": "warn",
+      // angular-eslint 19 promotes prefer-standalone to error. The app intentionally
+      // keeps an NgModule (AppModule) with two module-declared opt-outs
+      // (MainComponent bootstrap, OrderByPipe); downgrade to warn (ratchet backlog),
+      // consistent with the project's deliberately mild lint baseline.
+      "@angular-eslint/prefer-standalone": "warn",
       "@typescript-eslint/no-array-constructor": "warn",
     },
   },

@@ -1407,6 +1407,7 @@ export class DataExchangeService {
       return Object.keys(o).some((k) => {
         if (typeof o[k] === "string")
           return o[k].toLowerCase().includes(string.toLowerCase());
+        return false;
       });
     });
   }

@@ -8,6 +8,12 @@
     // `import L from 'leaflet'` (and other CJS libs) would resolve to `undefined`
     // at runtime without it. Test-only — the production build config is unchanged.
     "esModuleInterop": true,
+    // Transpile-only under ts-jest (it reads this flag): the bundler-based build
+    // and ts-jest cannot match CommonJS interop for every pattern via tsconfig flags
+    // alone (e.g. `import * as shp from 'shpjs'; shp(...)` is callable through the
+    // bundler but not under esModuleInterop+TS5.8 → TS2349). Type safety is still
+    // fully enforced by the production build (tsconfig.app.json); tests only run.
+    "isolatedModules": true,
     "types": [
       "jest",
       "node",

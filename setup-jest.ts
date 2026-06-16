@@ -1,4 +1,8 @@
-import "jest-preset-angular/setup-jest";
+// NOTE: the Angular test environment (setupZoneTestEnv) is initialized by
+// @angular-builders/jest 19's own built-in setup file, which runs before this one.
+// We must NOT call it again here (double init → "Cannot set base providers").
+// This file only adds polyfills / global stubs on top.
+
 // Polyfill HTMLCanvasElement.getContext (jsdom has none). Needed by Leaflet,
 // ECharts and other canvas-based libs that components/services touch on init.
 import "jest-canvas-mock";

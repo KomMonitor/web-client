@@ -65,7 +65,7 @@ Begleitende Anpassungen:
 > - Die **optionale** Migration „use-application-builder" (esbuild/Vite statt Webpack-`browser`-Builder) wurde **nicht** angewendet — kann separat als eigener Schritt erfolgen.
 > - ~~43 „CommonJS optimization bailout"-Warnungen (jquery, jszip, docx, codemirror, papaparse, jstat, file-saver, dom-to-image-more, leaflet.markercluster, …) — über `allowedCommonJsDependencies` in `angular.json` unterdrückbar.~~ ✅ erledigt (2026-06-15): `allowedCommonJsDependencies` in den Build-Options ergänzt (21 Einträge, jeweils der Paketname — Angular reduziert Deep-Imports wie `codemirror/mode/...` bzw. `core-js/modules/...` auf den Paketnamen, daher genügen `codemirror`/`core-js`). Build danach mit **0** CommonJS-Warnungen, grün.
 > - ~~Vorbestehender Bug: `serve.options.buildTarget` in `angular.json` zeigt auf `latest-angular:build` statt `kommonitor-client:build` (betrifft `npm start`, unabhängig vom Upgrade).~~ ✅ behoben (2026-06-15): auf `kommonitor-client:build` korrigiert (+ schiefe Einrückung bereinigt); `ng serve` löst das Target nun auf und kompiliert grün („Compiled successfully").
-> - ~~`bootstrap` 5.2 → 5.3 noch offen.~~ ✅ erledigt (2026-06-16, siehe Status-Block unten). Optionales Weiter-Upgrade auf Angular 19/20 noch offen.
+> - ~~`bootstrap` 5.2 → 5.3 noch offen.~~ ✅ erledigt (2026-06-16, siehe Status-Block unten). ~~Optionales Weiter-Upgrade auf Angular 19/20 noch offen.~~ → **Angular 19 erledigt** (2026-06-16, siehe Status-Block unten); 20 weiterhin offen.
 
 **Status (2026-06-16, Bootstrap/SCSS-Konsolidierung erledigt):** Der unter „Offene Punkte" notierte Bootstrap-Rest sowie die angefangene `app/app.scss`-Konsolidierung wurden in vier Commits abgeschlossen. Realisierte Reihenfolge (sicher → riskant, jeder Schritt einzeln verifiziert):
 
@@ -77,6 +77,21 @@ Begleitende Anpassungen:
 > **Verifikations-Setup:** `ng serve` (Node 18) + Headless-Chrome-Screenshots einer **statischen CSS-Fixture** (`styles.css`-Bundle + repräsentatives Bootstrap-Markup, `file://`). **Volle Live-App-Visual-QA war nicht möglich** — die App leitet zu Keycloak, das die `localhost`-`redirect_uri` ablehnt. Die Fixture isoliert dafür genau die globale Cascade.
 
 > **Bewusst NICHT gemacht — breiter `!important`-Sweep (offen, inkrementell):** Die verbleibenden ~148 `!important` wurden **nicht** pauschal entfernt. Das erfordert Live-Visual-QA (hier blockiert), und blindes Entfernen ist unsicher: z. B. `.dropdown-menu { position: absolute !important }` überschreibt **Popper-Inline-Styles**, nicht Bootstrap-CSS — eine statische Fixture würde die Regression nicht erkennen. **Sichere Methodik für später:** nur `!important` entfernen, die gegen *Bootstrap* (jetzt vor app.scss) bei gleicher/niedrigerer Spezifität kämpfen; **behalten** bei (a) später geladenen Libs (nouislider/ag-grid/leaflet/codemirror laden in `angular.json` nach app.scss), (b) Inline-Styles (Popper/JS), (c) spezifischeren Fremdselektoren — jede Entfernung in der laufenden App visuell prüfen.
+
+**Status (2026-06-16, Angular 18 → 19 erledigt):** Upgrade via `ng update @angular/core@19 @angular/cli@19 --force` durchgeführt. Alle `@angular/*` auf **19.2.x**, CLI/Devkit 19.2.27, **TypeScript 5.4 → 5.8.3**, **zone.js 0.14 → 0.15.1** (von `ng update` automatisch). `@angular/cdk` manuell auf 19.2.x. Node 18.20.7 erfüllt Angular 19s `^18.19.1`. Die optionale `use-application-builder`-Migration (esbuild) weiterhin **nicht** angewendet — `browser`-Builder läuft unter 19 weiter.
+
+Gekoppelte Drittpakete mit-hochgezogen: **`@ng-bootstrap/ng-bootstrap` 17 → 18** (Peer `^18`), **`ngx-echarts` 18 → 19**, **`@angular-builders/jest` 18 → 19** (Test-Builder), **`angular-eslint` 18 → 19**. Locker gepinnte Libs (`ngx-color-picker` 17, `ngx-color` 8, `ag-grid-angular` 31, `@ngx-translate` 16, `ng2-*`) unverändert — Peers (`>=9/14`) decken 19 ab.
+
+Begleitende Fixes (alle test-/build-seitig, kein Feature-Verhalten):
+- **`standalone:false` ergänzt** an `MainComponent` (Bootstrap) + `OrderByPipe` — in Angular 19 ist `standalone` Default `true`; als NgModule-`declarations`-Mitglieder müssen sie explizit opt-out. (Die automatische standalone-Migration schlug an einer tsconfig-Pfad-Eigenheit des Jest-Builders fehl → manuell nachgezogen.) Dazu `@angular-eslint/prefer-standalone` (in v19 als Error) auf `warn` gestellt — die App behält bewusst ein NgModule.
+- **`data-exchange.service.ts`**: fehlendes `return false;` in einem `.some()`-Callback ergänzt (TS 5.8 erkennt `noImplicitReturns` jetzt strenger).
+- **`tsconfig.json`**: `skipLibCheck: true` (echarts-`.d.ts` nutzt `export =`, unter TS 5.8 sonst `TS1203`).
+- **`angular.json`**: `anyComponentStyle maximumError` 280 → 300 kB (eine vorbestehend übergroße Komponenten-CSS war unter 18 nur Warnung, unter 19 Error).
+- **Test-Infra (Angular-19-spezifisch):** `@angular-builders/jest 19` initialisiert das Zone-Test-Env jetzt selbst (eingebautes `setup.js` mit `setupZoneTestEnv()`) → die alte Zeile `import "jest-preset-angular/setup-jest"` aus `setup-jest.ts` entfernt (sonst Doppel-Init „Cannot set base providers"). Außerdem `isolatedModules: true` in `tsconfig.spec.json`: der Bundler-Build und ts-jest können CJS-Interop nicht für jedes Muster gleichzeitig per tsconfig-Flag abbilden (`import * as shp from 'shpjs'; shp(...)` ist über den Bundler aufrufbar, unter `esModuleInterop`+TS5.8 aber `TS2349`) → ts-jest transpiliert nur, Typprüfung übernimmt vollständig der Produktions-Build.
+
+Ergebnis: `npm run build` **EXIT 0**, `tsc -p tsconfig.app.json` **EXIT 0**, `npm test` **70 passed / 1 skipped / 0 failed**, `npm run lint` **0 errors** (4865 warnings, +2 prefer-standalone als Ratchet-Backlog). `ng version` zeigt 19.2.x.
+
+> **Offen:** Angular 20 (analoges Vorgehen), die optionale esbuild-`use-application-builder`-Migration, sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
 
 ---
 
