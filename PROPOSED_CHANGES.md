@@ -127,7 +127,7 @@ Umgesetzt:
 Ergebnis (Baseline 2026-06-16): **`npm test` grün (Exit 0): 42 passed, 29 skipped, 0 failed** (71 Suites). `npm run build` und `npm run lint` weiterhin grün. *(Aktualisiert nach Cluster-6-Aufarbeitung, siehe Status-Block unten: jetzt 46 passed / 25 skipped.)*
 
 Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — sie scheitern an jsdom-/Umgebungs-Grenzen, nicht an den Stubs. Cluster:
-1. **ECharts** (Canvas `getContext` / untransformiertes ESM): ~10 Suites (kommonitorDiagrams, indicatorRadar, kommonitorBalance, regressionDiagram, admin.component, reporting-overview/-modal, indicator-add, generate-report …).
+1. **ECharts** (Canvas `getContext` / untransformiertes ESM): ~10 Suites (kommonitorDiagrams, indicatorRadar, kommonitorBalance, regressionDiagram, admin.component, reporting-overview/-modal, indicator-add, generate-report …). → **erledigt** (alle entskippt; eigentlicher Blocker war nicht ESM/echarts, sondern `getComputedStyle(#fontFamily-reference)` — siehe Status-Block unten).
 2. **shpjs `TextDecoder` not defined** in jsdom: file-helper, sidebar, kommonitorDataImport. → **erledigt** (file-helper + kommonitorDataImport entskippt; sidebar zu Cluster 1 umgehängt — siehe Status-Block unten).
 3. **`structuredClone` not defined**: reporting, templateSelect, workflowSelect. → **erledigt** (alle drei entskippt, Status-Block unten).
 4. **`indexedDB` not defined**: leaflet-screenshot-cache, generate-report. → **erledigt** (beide entskippt, Status-Block unten).
@@ -159,6 +159,14 @@ Entskippt & grün: `file-helper.service`, `kommonitor-data-import` (Cluster 2); 
 > **`sidebar.component` bleibt geskippt — neu zugeordnet zu Cluster 1.** Der `TextDecoder`-Blocker ist behoben, aber `SidebarComponent` injiziert `DiagramHelperServiceService`, dessen Konstruktor `getComputedStyle(document.querySelector('#fontFamily-reference'))` aufruft — Element fehlt in jsdom → wirft. Gehört damit zum ECharts/Diagram-Cluster (1), nicht 2–4. `TODO(prio6)`-Begründung entsprechend korrigiert.
 
 Ergebnis: **`npm test` grün: 53 passed, 18 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression. Verbleibende Skips: Cluster 1 (ECharts/Diagram, inkl. sidebar) und Cluster 5 (Legacy/Deep-DI: poi, user-interface, reachability-coverage-reports + Reachability-Subtree).
+
+**Status (2026-06-16, Cluster 1 (ECharts/Diagram) entskippt):** Alle **10** Ziel-Suites in echte Tests überführt. Der eigentliche Blocker war **nicht** primär ECharts/Canvas, sondern zwei separate Punkte:
+- **`getComputedStyle(#fontFamily-reference)` warf.** `DiagramHelperServiceService` hat den Feld-Initialisierer `customFontFamily = this.setCustomFontFamily()`, der `getComputedStyle(document.querySelector('#fontFamily-reference'))` aufruft — Element fehlt in jsdom → `getComputedStyle(null)` wirft. Erster Crash für **alle** Specs, die den Service (transitiv) injizieren. **Hebel:** in `setup-jest.ts` ein `<div id="fontFamily-reference">` an `document.body` anhängen.
+- **ESM-Module, die jest nicht transformierte:** `echarts/core` (nur `admin` via `admin-dashboard-management` + `provideEchartsCore`) und **`d3` v7** (ESM-only, `reporting-overview`/`indicator-add` via `import * as d3 from 'd3'`; `reporting-modal` transitiv). Das gängige `import * as echarts from 'echarts'` (UMD-Main) lud dagegen ohne Eingriff. **Hebel:** `echarts`/`zrender` in `transformIgnorePatterns` aufgenommen; `d3` per `moduleNameMapper` auf den vorgebauten UMD-Bundle `node_modules/d3/dist/d3.js` gemappt (statt die große d3-ESM-Familie zu transformieren).
+
+Entskippt & grün: `diagram-helper-service`, `kommonitor-diagrams`, `indicator-radar`, `kommonitor-balance`, `regression-diagram`, `admin.component`, `reporting-overview`, `reporting-modal`, `indicator-add`, `sidebar`.
+
+Ergebnis: **`npm test` grün: 63 passed, 8 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression (auch die zuvor grünen UMD-echarts-Specs bleiben grün). **Verbleibende 8 Skips = Cluster 5** (Legacy/Deep-DI): `reachability-coverage-reports` (AngularJS-Service), `poi`, `user-interface` (12 Deps) sowie der Reachability-Subtree (`kommonitor-reachability`, `reachability-scenario-modal`/-`configuration`/-`poi-in-iso`) und die bewusst behaltene `reachability-indicator-statistics` (Referenz, vgl. Cluster 6).
 
 ---
 

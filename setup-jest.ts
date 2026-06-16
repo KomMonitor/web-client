@@ -21,6 +21,15 @@ if (typeof (globalThis as { structuredClone?: unknown }).structuredClone !== "fu
     deserialize(serialize(value));
 }
 
+// DiagramHelperServiceService reads getComputedStyle(querySelector('#fontFamily-reference'))
+// in a field initializer; without the element, getComputedStyle(null) throws. Provide it
+// so the (ECharts-using) diagram services/components can be constructed in jsdom.
+if (!document.getElementById("fontFamily-reference")) {
+  const fontFamilyRef = document.createElement("div");
+  fontFamilyRef.id = "fontFamily-reference";
+  document.body.appendChild(fontFamilyRef);
+}
+
 /**
  * Global test setup.
  *

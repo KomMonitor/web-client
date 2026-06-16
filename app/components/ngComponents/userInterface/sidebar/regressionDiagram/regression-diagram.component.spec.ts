@@ -7,9 +7,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { RegressionDiagramComponent } from './regression-diagram.component';
 
-// TODO(prio6): ECharts initialises on construction; HTMLCanvasElement.getContext
-// is not implemented in jsdom, so createComponent throws. Needs canvas mock / DOM env.
-describe.skip('RegressionDiagramComponent', () => {
+describe('RegressionDiagramComponent', () => {
   let component: RegressionDiagramComponent;
   let fixture: ComponentFixture<RegressionDiagramComponent>;
 

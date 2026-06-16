@@ -7,9 +7,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { KommonitorBalanceComponent } from './kommonitor-balance.component';
 
-// TODO(prio6): ECharts initialises on construction; HTMLCanvasElement.getContext
-// is not implemented in jsdom, so createComponent throws. Needs canvas mock / DOM env.
-describe.skip('KommonitorBalanceComponent', () => {
+describe('KommonitorBalanceComponent', () => {
   let component: KommonitorBalanceComponent;
   let fixture: ComponentFixture<KommonitorBalanceComponent>;
 

@@ -4,8 +4,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { DiagramHelperServiceService } from './diagram-helper-service.service';
 
-// TODO(prio6): ECharts init requires HTMLCanvasElement.getContext (canvas pkg) not available in jsdom
-describe.skip('DiagramHelperServiceService', () => {
+describe('DiagramHelperServiceService', () => {
   let service: DiagramHelperServiceService;
 
   beforeEach(() => {

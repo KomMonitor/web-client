@@ -1,17 +1,28 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-// TODO(prio6): module-load fails in jsdom - canvas getContext not implemented and ESM
-// parse error from a transitive dependency. Import the component as a type only so the
-// failing module is never evaluated.
-import type { IndicatorAddComponent } from './indicator-add.component';
+import { IndicatorAddComponent } from './indicator-add.component';
 
-describe.skip('IndicatorAddComponent', () => {
+describe('IndicatorAddComponent', () => {
   let component: IndicatorAddComponent;
   let fixture: ComponentFixture<IndicatorAddComponent>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    fixture = TestBed.createComponent<IndicatorAddComponent>(null as any);
+    TestBed.configureTestingModule({
+      imports: [IndicatorAddComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideNoopAnimations(),
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+    fixture = TestBed.createComponent(IndicatorAddComponent);
     component = fixture.componentInstance;
   });
 
