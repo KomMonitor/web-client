@@ -90,8 +90,8 @@
               }
             ],
             "styles": [
-              "app/app.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "app/app.scss",
               "node_modules/nouislider/dist/nouislider.css",
               "node_modules/ag-grid-community/styles/ag-grid.css",
               "node_modules/ag-grid-community/styles/ag-theme-alpine.css",
