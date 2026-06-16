@@ -124,7 +124,7 @@ Umgesetzt:
 - **Stub-Sanierung (Sammelrezept):** Service-Specs → `providers: [provideHttpClient(), provideHttpClientTesting()]` (+ `provideRouter([])` bei ActivatedRoute). Komponenten-Specs → `declarations:` → `imports:` (alle Komponenten sind *standalone*), Standard-Provider + `NO_ERRORS_SCHEMA`, und `fixture.detectChanges()` entfernt (vermeidet ngOnInit-Crashes durch ungebundene `@Input()`s).
 - Gelöscht: `app/services/test.service.ts` (+Spec) — totes Relikt, importierte nicht-existierendes `app-upgraded-providers`; und `admin-landingpage-config.component.spec.ts` — die Quell-Komponente ist totes, kaputtes Code (importiert nicht-existierendes `PipesModule`, wird nirgends referenziert → deshalb stört es den AOT-Build nicht).
 
-Ergebnis: **`npm test` grün (Exit 0): 42 passed, 29 skipped, 0 failed** (71 Suites). `npm run build` und `npm run lint` weiterhin grün.
+Ergebnis (Baseline 2026-06-16): **`npm test` grün (Exit 0): 42 passed, 29 skipped, 0 failed** (71 Suites). `npm run build` und `npm run lint` weiterhin grün. *(Aktualisiert nach Cluster-6-Aufarbeitung, siehe Status-Block unten: jetzt 46 passed / 25 skipped.)*
 
 Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — sie scheitern an jsdom-/Umgebungs-Grenzen, nicht an den Stubs. Cluster:
 1. **ECharts** (Canvas `getContext` / untransformiertes ESM): ~10 Suites (kommonitorDiagrams, indicatorRadar, kommonitorBalance, regressionDiagram, admin.component, reporting-overview/-modal, indicator-add, generate-report …).
@@ -132,10 +132,22 @@ Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — si
 3. **`structuredClone` not defined**: reporting, templateSelect, workflowSelect.
 4. **`indexedDB` not defined**: leaflet-screenshot-cache, generate-report.
 5. **Legacy/Deep-DI**: reachability-coverage-reports (hängt an AngularJS-Service `kommonitorReachabilityCoverageReportsHelperService`), poi, user-interface (12 Deps).
-6. **Vorbestehende TS-Fehler in App-Source** (von ts-jest gemeldet, im AOT-Build offenbar maskiert — verifizieren!): `visual-style-helper.service.ts` (classybrew `colors`/`manualBrew`-Typing) blockiert transitiv ~7 Suites (kommonitorClassification, kommonitorLegend, Reachability-Subtree, kommonitorMap); `reachability-indicator-statistics.component.ts` (`pipedData` fehlt auf `ReachabilityScenarioHelperService`).
+6. **Vorbestehende TS-Fehler in App-Source** (von ts-jest gemeldet, im AOT-Build offenbar maskiert — verifizieren!): `visual-style-helper.service.ts` (classybrew `colors`/`manualBrew`-Typing) blockiert transitiv ~7 Suites (kommonitorClassification, kommonitorLegend, Reachability-Subtree, kommonitorMap); `reachability-indicator-statistics.component.ts` (`pipedData` fehlt auf `ReachabilityScenarioHelperService`). → **Cluster 6 aufgearbeitet, siehe Status-Block unten.**
 
 > **Folgearbeit (inkrementell, je TODO(prio6)):** Skips in echte Tests überführen. Günstige zentrale Hebel, die ganze Cluster auf einmal freischalten: `jest-canvas-mock` (Cluster 1), `structuredClone`/`TextDecoder`-Polyfills in `setup-jest.ts` (Cluster 2+3), `fake-indexeddb` (Cluster 4), echarts in `transformIgnorePatterns`. Cluster 6 zuerst klären — sind das echte latente Typfehler? Die toten Quell-Dateien (`admin-landingpage-config.component.ts` + `PipesModule`-Referenz) separat entfernen.
 > **CI-Verankerung** von `npm test` steht noch aus (gehört zu Prio 8).
+
+**Status (2026-06-16, Cluster 6 verifiziert + gefixt + entskippt):** Die offene „verifizieren!"-Frage ist beantwortet — **keiner** der beiden Cluster-6-Befunde ist ein echter Produktions-Bug:
+
+- **`visual-style-helper.service.ts` (`colors`/`colorSchemes`) — Typ-Artefakt, kein Bug.** Der Build (`tsc -p tsconfig.app.json`, `npm run build`) ist grün. Die Vendored-Lib `customizedExternalLibs/classyBrew.js` (untypisiert, `module.exports = classyBrew`) wird via `import * as classyBrew` geladen. Unter der Build-Config (`allowJs` ungesetzt = `false`) ist der Import `any` → `.colors`/`.colorSchemes` checken sauber. Unter ts-jest (jest-preset-angular transformiert/analysiert auch `.js`) bekommt die Instanz einen zu engen Typ **ohne** das zur Laufzeit extern zugewiesene `.colors` → `TS2339`. Reine Config-Divergenz. **Fix:** `createNewClassyBrewInstance(): any` + `new (classyBrew as any)()` — build- und ts-jest-konsistent, rein additiv.
+- **`reachability-indicator-statistics.component.ts` (`pipedData`) — echter Typ-Mismatch, aber in totem Code.** `ReachabilityScenarioHelperService` hat weder `pipedData` noch `configureActiveScenario` (alle Methoden auskommentierte Stubs). Die Komponente ist **nicht eingebunden**: `<app-reachability-indicator-statistics>` ist im einzigen Template auskommentiert (`reachability-scenario-modal.component.html:165`), und die Klasse steht in keinem `imports:`-Array → AOT kompiliert sie nie → Build bleibt grün. **Entscheidung (Nutzer):** als unfertige Migrationsreferenz behalten (vgl. Prio-2-TODO); Spec bleibt geskippt, `TODO(prio6)`-Begründung präzisiert.
+
+**Entskippt (Cluster 6 → echte Tests):** `visual-style-helper.service.spec`, `kommonitor-classification`, `kommonitor-legend`, `kommonitor-map`. Dafür drei zentrale Test-Env-Hebel ergänzt (test-only, Build unberührt):
+- `tsconfig.spec.json`: **`esModuleInterop: true`** — ts-jest braucht es für CJS-Default-Interop (`import L from 'leaflet'` wäre sonst `undefined`); esbuild-Build macht das selbst.
+- `setup-jest.ts`: **`jest-canvas-mock`** (Canvas `getContext` für Leaflet/ECharts) + **`TextEncoder`/`TextDecoder`-Polyfill** aus `util` (Cluster-2-Hebel).
+- `jest.config.js`: **`transformIgnorePatterns`** um `leaflet-geosearch` (ESM-only) erweitert.
+
+Ergebnis: **`npm test` grün: 46 passed, 25 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression. Die ergänzten Hebel (`jest-canvas-mock`, `TextDecoder`, `transformIgnorePatterns`) senken den Aufwand für die verbleibenden Cluster 1–4 in der Folgearbeit.
 
 ---
 

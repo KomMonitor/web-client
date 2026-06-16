@@ -10,4 +10,7 @@ module.exports = {
   testMatch: ["<rootDir>/app/**/*.spec.ts"],
   // Most node_modules are CommonJS; widen this only when a concrete ESM
   // transform error appears for a specific package.
+  // leaflet-geosearch ships ESM only ("export {...}") and is pulled in by the
+  // map component, so it must be transformed instead of ignored.
+  transformIgnorePatterns: ["node_modules/(?!(?:.*\\.mjs$|leaflet-geosearch))"],
 };

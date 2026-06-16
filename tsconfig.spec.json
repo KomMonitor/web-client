@@ -3,6 +3,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
+    // esModuleInterop is required only under ts-jest: the Angular esbuild build
+    // handles CommonJS default-import interop itself, but ts-jest does not, so
+    // `import L from 'leaflet'` (and other CJS libs) would resolve to `undefined`
+    // at runtime without it. Test-only — the production build config is unchanged.
+    "esModuleInterop": true,
     "types": [
       "jest",
       "node",

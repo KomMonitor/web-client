@@ -1,4 +1,12 @@
 import "jest-preset-angular/setup-jest";
+// Polyfill HTMLCanvasElement.getContext (jsdom has none). Needed by Leaflet,
+// ECharts and other canvas-based libs that components/services touch on init.
+import "jest-canvas-mock";
+import { TextEncoder, TextDecoder } from "util";
+
+// jsdom lacks TextEncoder/TextDecoder; Node provides them via `util`. Required
+// by shpjs / leaflet-geosearch and other libs pulled in transitively.
+Object.assign(globalThis, { TextEncoder, TextDecoder });
 
 /**
  * Global test setup.

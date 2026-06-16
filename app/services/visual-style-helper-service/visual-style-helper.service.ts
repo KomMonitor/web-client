@@ -257,8 +257,12 @@ export class VisualStyleHelperServiceNew {
     return this.defaultColorForZeroValues;
   }
 
-  createNewClassyBrewInstance(){
-    let classyBrewInstance = new classyBrew();
+  // Return type is `any` on purpose: classyBrew.js is an untyped vendored lib.
+  // The build (allowJs:false) sees the import as `any`; ts-jest (allowJs:true)
+  // analyzes the .js and would infer an instance type lacking the dynamically
+  // assigned `.colors` property. Casting + `any` keeps both configs consistent.
+  createNewClassyBrewInstance(): any {
+    let classyBrewInstance: any = new (classyBrew as any)();
     
     // Add custom color themes from configuration properties
     if(this.customColorSchemes) {
