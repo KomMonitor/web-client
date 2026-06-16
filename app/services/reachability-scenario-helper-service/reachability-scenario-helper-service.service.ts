@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { event } from 'jquery';
+import { Injector } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
 export interface PoiDataset {
@@ -35,7 +37,8 @@ export class ReachabilityScenarioHelperService {
     public tmpActiveScenario: ReachabilityScenario = this.createEmptyScenario();
   
     constructor(
-      private kommonitorReachabilityHelperService: ReachabilityHelperService
+      private kommonitorReachabilityHelperService: ReachabilityHelperService,
+      private injector: Injector
     ) { }
 
     get reachabilityScenarios(): ReachabilityScenario[] {
@@ -73,6 +76,11 @@ export class ReachabilityScenarioHelperService {
     public setActiveScenario(scenarioDataset: ReachabilityScenario): void {
       // deep clone object to persist this scenario as a whole
       this.tmpActiveScenario = JSON.parse(JSON.stringify(scenarioDataset));
+
+      const combinerService = this.injector.get(ReachabilityCombinerService);
+      combinerService.scenarioTitle = scenarioDataset.scenarioName;
+      combinerService.selectedStartPointLayer = scenarioDataset.reachabilitySettings.selectedStartPointLayer;
+      combinerService.selectedStartDate = scenarioDataset.reachabilitySettings.isochroneConfig.selectedDate;
   
       this.kommonitorReachabilityHelperService.settings = JSON.parse(JSON.stringify(this.tmpActiveScenario.reachabilitySettings));
       this.kommonitorReachabilityHelperService.currentIsochronesGeoJSON = JSON.parse(JSON.stringify(this.tmpActiveScenario.isochrones_dissolved));

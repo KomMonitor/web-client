@@ -60,6 +60,10 @@ export class ReachbilityScenarioSetupComponent {
     this.fetchPoiResourceGeoJSON();
   }
 
+  compareLayers(o1: any, o2: any): boolean {
+    return o1 && o2 ? o1.georesourceId === o2.georesourceId : o1 === o2;
+  }
+
   fetchPoiResourceGeoJSON() {
     this.reachabilityCombinerService.fetchPoiResourceGeoJSON(false);
     this.initPoiResourceEditFeaturesMenu();

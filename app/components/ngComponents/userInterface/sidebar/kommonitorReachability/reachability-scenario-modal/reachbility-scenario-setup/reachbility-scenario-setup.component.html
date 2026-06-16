@@ -43,8 +43,8 @@
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
-          <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer" (change)="onChangePoiResource()" class="form-control" required>
-            <option disabled selected value> -- Punkt-Layer w&auml;hlen --</option>
+          <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer" (change)="onChangePoiResource()" [compareWith]="compareLayers" class="form-control" required>
+            <option disabled value> -- Punkt-Layer w&auml;hlen --</option>
             <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources" [ngValue]="poi">{{poi.datasetName}}</option>
           </select>
 

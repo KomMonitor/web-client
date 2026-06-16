@@ -111,7 +111,7 @@
           <i class="fa-solid fa-file-export" ></i>
           Szenarien-Export
         </div>
-        <div class="modeItem red" (click)="reachabilityScenarioHelperService.reachabilityScenarios.length > 0 ? reachabilityScenarioHelperService.exportScenarios() : ''">
+        <div class="modeItem red" (click)="removeReachabilityScenarioFromMainMap()">
           <i class="fa-solid fa-trash-can"></i>
           Karte leeren
         </div>
@@ -186,10 +186,10 @@
                   <label>Einheit: </label>&nbsp;
                   {{dataExchangeService.isochroneLegend.cutOffUnit}}
                   <br />
-                <!-- 	<div *ngFor="let entry in dataExchangeService.isochroneLegend.colorValueEntries">
+                	<div *ngFor="let entry of dataExchangeService.isochroneLegend.colorValueEntries">
                     <i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
                     {{entry.value}}
-                  </div> -->
+                  </div>
                 </div>
               </div>
             </div>

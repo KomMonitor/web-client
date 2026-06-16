@@ -197,12 +197,10 @@ export class MapService {
   }
 
   replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    //this.ajskommonitorMapServiceProvider.replaceReachabilityScenarioOnMainMap(reachabilityScenario);
     this.broadcastService.broadcast("replaceReachabilityScenarioOnMainMap", [reachabilityScenario]);
   }
 
   removeReachabilityScenarioFromMainMap() {
-    //this.ajskommonitorMapServiceProvider.removeReachabilityScenarioFromMainMap();
     this.broadcastService.broadcast("removeReachabilityScenarioFromMainMap");
   }
 

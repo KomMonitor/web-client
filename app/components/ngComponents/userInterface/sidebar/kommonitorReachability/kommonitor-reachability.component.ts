@@ -172,12 +172,8 @@ export class KommonitorReachabilityComponent implements OnInit {
 
     const modalRef = this.modalService.open(ReachabilityScenarioModalComponent, {windowClass: 'modal-holder', centered: true});
     if(scenarioDataset){
-      // submit selected spatial unit to modal controller
-      //$rootScope.$broadcast("onManageReachabilityScenario", scenarioDataset);
-    }
-    else{
-      // open modal controller without dataset
-      //$rootScope.$broadcast("onManageReachabilityScenario");
+      console.log(scenarioDataset)
+      modalRef.componentInstance.onManageReachabilityScenario(scenarioDataset);
     }
   }
 
