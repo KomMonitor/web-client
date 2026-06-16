@@ -475,7 +475,7 @@ pre.CodeMirror-line {
   padding: 1em;
 
   * {
-    margin: 0.5em 0 !important;
+    margin: 0.5em 0;
   }
 }
 
@@ -617,7 +617,6 @@ pre.CodeMirror-line {
 .list-group.list-group-root .indicator-element {
   background-color: white;
   color: #333;
-  padding: .6em;
 }
 
 
@@ -3682,12 +3681,6 @@ input:checked + .switchsliderOrange {
 
 /* new BS5 stuff, trying to consolidate styles */
 
-/* inputs */
-input, select, #method-select, #method-select-selected {
-  font-size: 12px !important;
-  border-radius: 3px !important;
-}
-
 select {
   cursor: pointer;
 }
@@ -3753,13 +3746,6 @@ h4 {
   }
 }
 
-label {
-  display: inline-block;
-  max-width: 100%;
-  margin: .5em 0;
-  font-weight: 700;
-}
-
 .fav-star {
   margin-top: auto;
   margin-bottom: auto;
@@ -3782,12 +3768,6 @@ label {
   gap: .5em;
   align-items: start;
 }
-
-.input-group {
-  align-items: last baseline !important;
-  gap: 1em;
-}
-
 
 .dropdown-menu {
   position: absolute !important;
