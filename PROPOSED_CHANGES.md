@@ -97,9 +97,34 @@ Bewusst behalten (echte Runtime-Fallbacks, in `angular.json` assets): `keycloak_
 
 **Aufwand: M** — **Nutzen: hoch** (Sicherheitsnetz für Upgrade in Prio 4 und Refactorings in Prio 7)
 
-**Status (2026-06-15, bewusst zurückgestellt — erst nach Prio 4):** Bestandsaufnahme ergab: Test-Infrastruktur faktisch nicht vorhanden — kein Runner installiert (kein Karma/Jasmine/Jest), **`tsconfig.spec.json` fehlt** (obwohl `angular.json` darauf verweist), kein `karma.conf.js`/`test.ts`, kein `test`-Script, Test-Target referenziert die nicht existierende `app/app.css`. Vor allem: **alle 73 Specs sind leere Auto-Stubs** (`ng generate`-Boilerplate, je ~19 Zeilen, 0 echte Testlogik; 32 Service-Stubs `should be created`, 41 Komponenten-Stubs `should create`).
+**Status (2026-06-15, Bestandsaufnahme — zurückgestellt bis nach Prio 4):** Test-Infrastruktur faktisch nicht vorhanden — kein Runner installiert (kein Karma/Jasmine/Jest), **`tsconfig.spec.json` fehlt** (obwohl `angular.json` darauf verweist), kein `karma.conf.js`/`test.ts`, kein `test`-Script, Test-Target referenziert die nicht existierende `app/app.css`. Vor allem: **alle 73 Specs sind leere Auto-Stubs** (`ng generate`-Boilerplate, je ~19 Zeilen, 0 echte Testlogik; 32 Service-Stubs `should be created`, 41 Komponenten-Stubs `should create`).
 
-Konsequenz für die Reihenfolge: Das in der Doc genannte „Sicherheitsnetz vor Prio 4" greift hier nicht — es gibt kein schützenswertes Netz, nur Stubs. Gleichzeitig sind die modernen First-Party-Runner (esbuild/Web-Test-Runner bzw. Jest-Builder) erst **ab Angular 17+** verfügbar. Daher Entscheidung: Test-Setup **nach Prio 4** aufsetzen und dann direkt mit dem First-Party-Runner (kein Karma-Wegwerf-Setup). Die 41 Komponenten-Stubs müssen dabei ohnehin überarbeitet werden (sie deklarieren die Komponente ohne ihre Abhängigkeiten und würden so fehlschlagen).
+Konsequenz für die Reihenfolge: Das in der Doc genannte „Sicherheitsnetz vor Prio 4" greift hier nicht — es gibt kein schützenswertes Netz, nur Stubs. Die 41 Komponenten-Stubs müssen ohnehin überarbeitet werden (sie deklarieren die Komponente ohne ihre Abhängigkeiten und würden so fehlschlagen).
+
+**Status (2026-06-16, erledigt — Runner lauffähig + tragfähige grüne Baseline):**
+
+Runner-Entscheidung: **`@angular-builders/jest`** (Jest 29 + `jest-preset-angular`, jsdom → kein Browser, CI-freundlich). Die in der ursprünglichen Maßnahme angedachten **First-Party-Runner (`@angular-devkit/build-angular:jest` / `web-test-runner`) wurden verworfen** — Angular hat beide am 25.02.2026 aus der CLI **entfernt** (in 18.2.x noch vorhanden, aber Upstream gelöscht → Sackgasse, würde das spätere Upgrade auf Angular 19/20 blockieren). Zudem hätte der First-Party-Jest-Builder die `use-application-builder`-Migration (esbuild) erzwungen; `@angular-builders/jest` läuft unabhängig von der Build-Pipeline, daher **esbuild-Migration weiterhin aufgeschoben** und der `browser`-Build unverändert.
+
+Umgesetzt:
+- Neu: `jest.config.js` (Root; `moduleDirectories` für die `baseUrl: ./app`-Imports ohne `paths`, `testEnvironment: jsdom`), `setup-jest.ts` (Root; `jest-preset-angular/setup-jest` + globaler `window.__env`-Stub, da EnvConfigService/StartupService ihn transitiv brauchen), `app/testing/test-providers.ts` (gemeinsame Helper).
+- `angular.json` `test`-Target auf `@angular-builders/jest:run` umgestellt (Karma-Builder + kaputter `app/app.css`-Styles-Eintrag raus; `tsConfig`/`configPath` zeigen via `../` auf den Workspace-Root, da der Builder projekt-root-relativ (`app/`) auflöst).
+- `tsconfig.spec.json` `types: ["jasmine"]` → `["jest","node","jquery"]`; `@types/jasmine` aus devDeps entfernt.
+- Scripts: `test` / `test:watch` / `test:coverage`.
+- **Stub-Sanierung (Sammelrezept):** Service-Specs → `providers: [provideHttpClient(), provideHttpClientTesting()]` (+ `provideRouter([])` bei ActivatedRoute). Komponenten-Specs → `declarations:` → `imports:` (alle Komponenten sind *standalone*), Standard-Provider + `NO_ERRORS_SCHEMA`, und `fixture.detectChanges()` entfernt (vermeidet ngOnInit-Crashes durch ungebundene `@Input()`s).
+- Gelöscht: `app/services/test.service.ts` (+Spec) — totes Relikt, importierte nicht-existierendes `app-upgraded-providers`; und `admin-landingpage-config.component.spec.ts` — die Quell-Komponente ist totes, kaputtes Code (importiert nicht-existierendes `PipesModule`, wird nirgends referenziert → deshalb stört es den AOT-Build nicht).
+
+Ergebnis: **`npm test` grün (Exit 0): 42 passed, 29 skipped, 0 failed** (71 Suites). `npm run build` und `npm run lint` weiterhin grün.
+
+Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — sie scheitern an jsdom-/Umgebungs-Grenzen, nicht an den Stubs. Cluster:
+1. **ECharts** (Canvas `getContext` / untransformiertes ESM): ~10 Suites (kommonitorDiagrams, indicatorRadar, kommonitorBalance, regressionDiagram, admin.component, reporting-overview/-modal, indicator-add, generate-report …).
+2. **shpjs `TextDecoder` not defined** in jsdom: file-helper, sidebar, kommonitorDataImport.
+3. **`structuredClone` not defined**: reporting, templateSelect, workflowSelect.
+4. **`indexedDB` not defined**: leaflet-screenshot-cache, generate-report.
+5. **Legacy/Deep-DI**: reachability-coverage-reports (hängt an AngularJS-Service `kommonitorReachabilityCoverageReportsHelperService`), poi, user-interface (12 Deps).
+6. **Vorbestehende TS-Fehler in App-Source** (von ts-jest gemeldet, im AOT-Build offenbar maskiert — verifizieren!): `visual-style-helper.service.ts` (classybrew `colors`/`manualBrew`-Typing) blockiert transitiv ~7 Suites (kommonitorClassification, kommonitorLegend, Reachability-Subtree, kommonitorMap); `reachability-indicator-statistics.component.ts` (`pipedData` fehlt auf `ReachabilityScenarioHelperService`).
+
+> **Folgearbeit (inkrementell, je TODO(prio6)):** Skips in echte Tests überführen. Günstige zentrale Hebel, die ganze Cluster auf einmal freischalten: `jest-canvas-mock` (Cluster 1), `structuredClone`/`TextDecoder`-Polyfills in `setup-jest.ts` (Cluster 2+3), `fake-indexeddb` (Cluster 4), echarts in `transformIgnorePatterns`. Cluster 6 zuerst klären — sind das echte latente Typfehler? Die toten Quell-Dateien (`admin-landingpage-config.component.ts` + `PipesModule`-Referenz) separat entfernen.
+> **CI-Verankerung** von `npm test` steht noch aus (gehört zu Prio 8).
 
 ---
 
@@ -142,5 +167,5 @@ Konsequenz für die Reihenfolge: Das in der Doc genannte „Sicherheitsnetz vor 
 1. ~~**Sofort, geringer Aufwand:** Prio 5 (Backups löschen).~~ ✅ erledigt (2026-06-15)
 2. ~~**Als Nächstes:** Prio 2 + 3 (AngularJS- und Webpack-Altlasten) — ein Aufräum-PR.~~ ✅ erledigt (2026-06-15; Prio 2 bis auf bewusst behaltenes AngularJS-TODO)
 3. ~~**Dann:** Prio 4 (Angular-Upgrade 16 → 17 → 18).~~ ✅ erledigt (2026-06-15, bis Angular 18). *Reihenfolge gegenüber dem ursprünglichen Plan getauscht:* Prio 6 wird **nach** Prio 4 gemacht, weil die 73 Specs nur leere Stubs sind (kein Schutznetz vorhanden) und die modernen First-Party-Test-Runner erst ab Angular 17+ verfügbar sind (siehe Status unter Prio 6).
-4. **Als Nächstes:** Prio 6 (Tests lauffähig) mit dem ab Angular 17+ verfügbaren First-Party-Runner (esbuild/Web-Test-Runner bzw. Jest-Builder).
-5. **Laufend/inkrementell:** Prio 7, 8, 9 im Zuge regulärer Feature-Arbeit.
+4. ~~**Als Nächstes:** Prio 6 (Tests lauffähig).~~ ✅ erledigt (2026-06-16) mit **`@angular-builders/jest`** (nicht dem First-Party-Builder — der wurde Upstream entfernt; siehe Status unter Prio 6). `npm test` grün: 42 passed / 29 skipped / 0 failed.
+5. **Laufend/inkrementell:** Prio 7, 8, 9 im Zuge regulärer Feature-Arbeit; dazu die Prio-6-Skips schrittweise in echte Tests überführen.

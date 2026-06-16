@@ -1,13 +1,17 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 
-import { ConfigStorageServiceService } from './config-storage.service';
+import { ConfigStorageService } from './config-storage.service';
 
-describe('ConfigStorageServiceService', () => {
-  let service: ConfigStorageServiceService;
+describe('ConfigStorageService', () => {
+  let service: ConfigStorageService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(ConfigStorageServiceService);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(ConfigStorageService);
   });
 
   it('should be created', () => {

@@ -1,4 +1,9 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { IndicatorMetadataTooltipComponent } from './indicator-metadata-tooltip.component';
 
@@ -8,11 +13,17 @@ describe('IndicatorMetadataTooltipComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [IndicatorMetadataTooltipComponent]
+      imports: [IndicatorMetadataTooltipComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideNoopAnimations(),
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     });
     fixture = TestBed.createComponent(IndicatorMetadataTooltipComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

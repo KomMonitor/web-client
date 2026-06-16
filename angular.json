@@ -161,23 +161,10 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              "app/favicon.ico"
-            ],
-            "styles": [
-              "app/app.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/nouislider/dist/nouislider.css",
-              "node_modules/leaflet-geosearch/assets/css/leaflet.css"
-            ],
-            "scripts": []
+            "tsConfig": "../tsconfig.spec.json",
+            "configPath": "../jest.config.js"
           }
         },
         "lint": {
