@@ -4,13 +4,18 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { ReachabilityCoverageReportsHelperService } from './reachability-coverage-reports-helper.service';
 
-// TODO(prio6): depends on legacy AngularJS service kommonitorReachabilityCoverageReportsHelperService (no Angular provider)
-describe.skip('ReachabilityCoverageReportsHelperService', () => {
+describe('ReachabilityCoverageReportsHelperService', () => {
   let service: ReachabilityCoverageReportsHelperService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        // Legacy AngularJS bridge token, never provided in the migrated app.
+        // A unit-test double lets the service be constructed in isolation.
+        { provide: 'kommonitorReachabilityCoverageReportsHelperService', useValue: {} },
+      ],
     });
     service = TestBed.inject(ReachabilityCoverageReportsHelperService);
   });

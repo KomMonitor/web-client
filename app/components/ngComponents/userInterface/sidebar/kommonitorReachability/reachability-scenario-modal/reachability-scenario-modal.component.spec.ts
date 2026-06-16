@@ -6,16 +6,11 @@ import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-// TODO(prio6): The component transitively imports visual-style-helper.service.ts
-// (pre-existing classybrew TS compile errors) and ECharts child components. Use
-// `import type` + a null value stub so the file compiles and the suite reports as
-// skipped (not failed). NgbActiveModal is kept in providers for when this is revived.
-import type { ReachabilityScenarioModalComponent as ReachabilityScenarioModalComponentType } from './reachability-scenario-modal.component';
-const ReachabilityScenarioModalComponent = null as any;
+import { ReachabilityScenarioModalComponent } from './reachability-scenario-modal.component';
 
-describe.skip('ReachabilityScenarioModalComponent', () => {
-  let component: ReachabilityScenarioModalComponentType;
-  let fixture: ComponentFixture<ReachabilityScenarioModalComponentType>;
+describe('ReachabilityScenarioModalComponent', () => {
+  let component: ReachabilityScenarioModalComponent;
+  let fixture: ComponentFixture<ReachabilityScenarioModalComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

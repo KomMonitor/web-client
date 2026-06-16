@@ -131,7 +131,7 @@ Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — si
 2. **shpjs `TextDecoder` not defined** in jsdom: file-helper, sidebar, kommonitorDataImport. → **erledigt** (file-helper + kommonitorDataImport entskippt; sidebar zu Cluster 1 umgehängt — siehe Status-Block unten).
 3. **`structuredClone` not defined**: reporting, templateSelect, workflowSelect. → **erledigt** (alle drei entskippt, Status-Block unten).
 4. **`indexedDB` not defined**: leaflet-screenshot-cache, generate-report. → **erledigt** (beide entskippt, Status-Block unten).
-5. **Legacy/Deep-DI**: reachability-coverage-reports (hängt an AngularJS-Service `kommonitorReachabilityCoverageReportsHelperService`), poi, user-interface (12 Deps).
+5. **Legacy/Deep-DI**: reachability-coverage-reports (hängt an AngularJS-Service `kommonitorReachabilityCoverageReportsHelperService`), poi, user-interface (12 Deps). → **erledigt** (alle 7 entskippt; Blocker waren großteils schon durch frühere Hebel weg — siehe Status-Block unten).
 6. **Vorbestehende TS-Fehler in App-Source** (von ts-jest gemeldet, im AOT-Build offenbar maskiert — verifizieren!): `visual-style-helper.service.ts` (classybrew `colors`/`manualBrew`-Typing) blockiert transitiv ~7 Suites (kommonitorClassification, kommonitorLegend, Reachability-Subtree, kommonitorMap); `reachability-indicator-statistics.component.ts` (`pipedData` fehlt auf `ReachabilityScenarioHelperService`). → **Cluster 6 aufgearbeitet, siehe Status-Block unten.**
 
 > **Folgearbeit (inkrementell, je TODO(prio6)):** Skips in echte Tests überführen. Günstige zentrale Hebel, die ganze Cluster auf einmal freischalten: `jest-canvas-mock` (Cluster 1), `structuredClone`/`TextDecoder`-Polyfills in `setup-jest.ts` (Cluster 2+3), `fake-indexeddb` (Cluster 4), echarts in `transformIgnorePatterns`. Cluster 6 zuerst klären — sind das echte latente Typfehler? Die toten Quell-Dateien (`admin-landingpage-config.component.ts` + `PipesModule`-Referenz) separat entfernen.
@@ -167,6 +167,15 @@ Ergebnis: **`npm test` grün: 53 passed, 18 skipped, 0 failed** (71 Suites); `ts
 Entskippt & grün: `diagram-helper-service`, `kommonitor-diagrams`, `indicator-radar`, `kommonitor-balance`, `regression-diagram`, `admin.component`, `reporting-overview`, `reporting-modal`, `indicator-add`, `sidebar`.
 
 Ergebnis: **`npm test` grün: 63 passed, 8 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression (auch die zuvor grünen UMD-echarts-Specs bleiben grün). **Verbleibende 8 Skips = Cluster 5** (Legacy/Deep-DI): `reachability-coverage-reports` (AngularJS-Service), `poi`, `user-interface` (12 Deps) sowie der Reachability-Subtree (`kommonitor-reachability`, `reachability-scenario-modal`/-`configuration`/-`poi-in-iso`) und die bewusst behaltene `reachability-indicator-statistics` (Referenz, vgl. Cluster 6).
+
+**Status (2026-06-16, Cluster 5 (Legacy/Deep-DI) entskippt):** **7 von 8** Suites in echte Tests überführt — **ohne** neue zentrale Hebel. Erkenntnis: die `TODO(prio6)`-Begründungen waren veraltet; die Blocker waren großteils schon durch frühere Runden weg:
+- Die 4 Reachability-Komponenten + `poi` nannten `visual-style-helper` (Typ-Fix Cluster 6), Leaflet/geosearch (Cluster-6-Transform + canvas-mock), `DiagramHelperServiceService`/`#fontFamily-reference` (Cluster 1) bzw. `GeoresourceFilterService`/`enabledGeoresourcesInfrastructure` (`window.__env`-Stub aus Cluster 2–4). Alle erledigt → nach Entskippen grün.
+- **`reachability-coverage-reports-helper.service`**: injiziert den Legacy-AngularJS-Token `@Inject('kommonitorReachabilityCoverageReportsHelperService')` (kein Provider im migrierten Stand — wie viele tote AngularJS-Bridge-Tokens). Im Spec ein Unit-Test-Double `{ provide: '…', useValue: {} }` ergänzt → grün. (Verdeckt keinen echten Bug: der Token ist auch zur Laufzeit nicht verdrahtet.)
+- **`user-interface`** (12 Deps): degenerierter Stub (`createComponent(null)`) durch das Standard-Rezept ersetzt → grün (Konstruktor-Smoke-Test, kein `detectChanges()`).
+
+Entskippt & grün: `reachability-coverage-reports-helper.service`, `poi`, `kommonitor-reachability`, `reachability-scenario-modal`, `reachability-scenario-configuration`, `reachability-poi-in-iso`, `user-interface`.
+
+Ergebnis: **`npm test` grün: 70 passed, 1 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression. **Einziger verbleibender Skip:** die bewusst behaltene tote Referenz `reachability-indicator-statistics` (vgl. Cluster 6). Damit ist die Prio-6-Skip-Sanierung abgeschlossen — es bleibt nur noch die **CI-Verankerung** von `npm test`/`lint` (gehört zu Prio 8).
 
 ---
 

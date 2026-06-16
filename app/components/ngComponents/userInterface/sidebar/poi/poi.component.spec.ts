@@ -7,10 +7,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { PoiComponent } from './poi.component';
 
-// TODO(prio6): GeoresourceFilterService crashes in its constructor (reads
-// undefined runtime config: enabledGeoresourcesInfrastructure.indexOf). Needs
-// the service mocked/overridden with proper config state.
-describe.skip('PoiComponent', () => {
+describe('PoiComponent', () => {
   let component: PoiComponent;
   let fixture: ComponentFixture<PoiComponent>;
 

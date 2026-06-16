@@ -5,16 +5,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-// TODO(prio6): The component transitively imports visual-style-helper.service.ts
-// (pre-existing classybrew TS compile errors) and initialises ECharts (getContext
-// unimplemented in jsdom). Use `import type` + a null value stub so the file compiles
-// and the suite reports as skipped (not failed).
-import type { ReachabilityPoiInIsoComponent as ReachabilityPoiInIsoComponentType } from './reachability-poi-in-iso.component';
-const ReachabilityPoiInIsoComponent = null as any;
+import { ReachabilityPoiInIsoComponent } from './reachability-poi-in-iso.component';
 
-describe.skip('ReachabilityPoiInIsoComponent', () => {
-  let component: ReachabilityPoiInIsoComponentType;
-  let fixture: ComponentFixture<ReachabilityPoiInIsoComponentType>;
+describe('ReachabilityPoiInIsoComponent', () => {
+  let component: ReachabilityPoiInIsoComponent;
+  let fixture: ComponentFixture<ReachabilityPoiInIsoComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

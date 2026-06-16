@@ -5,16 +5,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-// TODO(prio6): The component transitively imports visual-style-helper.service.ts
-// (pre-existing classybrew TS compile errors), so the suite cannot compile. Use
-// `import type` + a null value stub so the file compiles and the suite reports as
-// skipped (not failed).
-import type { ReachabilityScenarioConfigurationComponent as ReachabilityScenarioConfigurationComponentType } from './reachability-scenario-configuration.component';
-const ReachabilityScenarioConfigurationComponent = null as any;
+import { ReachabilityScenarioConfigurationComponent } from './reachability-scenario-configuration.component';
 
-describe.skip('ReachabilityScenarioConfigurationComponent', () => {
-  let component: ReachabilityScenarioConfigurationComponentType;
-  let fixture: ComponentFixture<ReachabilityScenarioConfigurationComponentType>;
+describe('ReachabilityScenarioConfigurationComponent', () => {
+  let component: ReachabilityScenarioConfigurationComponent;
+  let fixture: ComponentFixture<ReachabilityScenarioConfigurationComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

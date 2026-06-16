@@ -1,17 +1,28 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-// TODO(prio6): heavy component (12 injected services); module-load fails in jsdom -
-// canvas getContext not implemented plus deep DI / Leaflet+echarts runtime errors.
-// Import the component as a type only so the failing module is never evaluated.
-import type { UserInterfaceComponent } from './user-interface.component';
+import { UserInterfaceComponent } from './user-interface.component';
 
-describe.skip('UserInterfaceComponent', () => {
+describe('UserInterfaceComponent', () => {
   let component: UserInterfaceComponent;
   let fixture: ComponentFixture<UserInterfaceComponent>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    fixture = TestBed.createComponent<UserInterfaceComponent>(null as any);
+    TestBed.configureTestingModule({
+      imports: [UserInterfaceComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideNoopAnimations(),
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
+    fixture = TestBed.createComponent(UserInterfaceComponent);
     component = fixture.componentInstance;
   });
 

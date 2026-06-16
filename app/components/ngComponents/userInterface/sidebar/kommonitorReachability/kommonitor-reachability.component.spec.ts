@@ -5,16 +5,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-// TODO(prio6): The component transitively imports visual-style-helper.service.ts
-// (pre-existing classybrew TS compile errors) and is a heavy Leaflet/geosearch
-// feature. Use `import type` + a null value stub so the file compiles and the suite
-// reports as skipped (not failed).
-import type { KommonitorReachabilityComponent as KommonitorReachabilityComponentType } from './kommonitor-reachability.component';
-const KommonitorReachabilityComponent = null as any;
+import { KommonitorReachabilityComponent } from './kommonitor-reachability.component';
 
-describe.skip('KommonitorReachabilityComponent', () => {
-  let component: KommonitorReachabilityComponentType;
-  let fixture: ComponentFixture<KommonitorReachabilityComponentType>;
+describe('KommonitorReachabilityComponent', () => {
+  let component: KommonitorReachabilityComponent;
+  let fixture: ComponentFixture<KommonitorReachabilityComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
