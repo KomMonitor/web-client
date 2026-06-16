@@ -3,10 +3,23 @@ import "jest-preset-angular/setup-jest";
 // ECharts and other canvas-based libs that components/services touch on init.
 import "jest-canvas-mock";
 import { TextEncoder, TextDecoder } from "util";
+import { deserialize, serialize } from "node:v8";
+// fake-indexeddb/auto installs a global indexedDB implementation. Needed by
+// leaflet-screenshot-cache-helper.service (indexedDB.open in its constructor).
+import "fake-indexeddb/auto";
 
 // jsdom lacks TextEncoder/TextDecoder; Node provides them via `util`. Required
 // by shpjs / leaflet-geosearch and other libs pulled in transitively.
 Object.assign(globalThis, { TextEncoder, TextDecoder });
+
+// jest's jsdom environment does not expose structuredClone (Node's global is not
+// visible inside the sandbox). Polyfill via V8 structured clone, which preserves
+// Dates/Maps/Sets/TypedArrays (unlike a JSON round-trip). Used e.g. by
+// reporting.service to clone template configs.
+if (typeof (globalThis as { structuredClone?: unknown }).structuredClone !== "function") {
+  (globalThis as { structuredClone?: unknown }).structuredClone = (value: unknown) =>
+    deserialize(serialize(value));
+}
 
 /**
  * Global test setup.
@@ -37,6 +50,13 @@ Object.assign(window.__env, {
   sortableLayers: [],
   wfsDatasets: [],
   customColorSchemes: [],
+
+  // Georesource catalogue toggles (GeoresourceFilterService calls .indexOf on these)
+  enabledGeoresourcesInfrastructure: [],
+  enabledGeoresourcesGeoservices: [],
+
+  // Geocoder (GeocoderHelperService calls .split("nominatim") on this URL)
+  targetUrlToGeocoderService: "http://localhost/nominatim/",
 
   // Dropdown option arrays (some getters call .sort()/iterate)
   indicatorUnitOptions: [],

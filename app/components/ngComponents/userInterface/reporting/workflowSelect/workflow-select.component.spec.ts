@@ -7,8 +7,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { WorkflowSelectComponent } from './workflow-select.component';
 
-// TODO(prio6): structuredClone is not defined in the jsdom test env (Angular DI lookup)
-describe.skip('WorkflowSelectComponent', () => {
+describe('WorkflowSelectComponent', () => {
   let component: WorkflowSelectComponent;
   let fixture: ComponentFixture<WorkflowSelectComponent>;
 

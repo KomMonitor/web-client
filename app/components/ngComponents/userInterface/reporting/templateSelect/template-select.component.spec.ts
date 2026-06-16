@@ -7,8 +7,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { TemplateSelectComponent } from './template-select.component';
 
-// TODO(prio6): structuredClone is not defined in the jsdom test env (Angular DI lookup)
-describe.skip('TemplateSelectComponent', () => {
+describe('TemplateSelectComponent', () => {
   let component: TemplateSelectComponent;
   let fixture: ComponentFixture<TemplateSelectComponent>;
 

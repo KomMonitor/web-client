@@ -5,10 +5,12 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-// TODO(prio6): The component transitively imports file-helper.service.ts -> shpjs
-// (module load throws `ReferenceError: TextDecoder is not defined` in jsdom) and
-// the chart/map child components. Use `import type` + a null value stub so the file
-// compiles and the suite reports as skipped (not failed).
+// TODO(prio6): The original TextDecoder/shpjs blocker is resolved (polyfill in
+// setup-jest.ts), but the component transitively injects DiagramHelperServiceService,
+// whose constructor calls getComputedStyle(document.querySelector('#fontFamily-reference'))
+// — that element doesn't exist in jsdom, so it throws. This belongs to the ECharts /
+// diagram cluster (Cluster 1), not 2-4. Use `import type` + a null value stub so the
+// file compiles and the suite reports as skipped (not failed).
 import type { SidebarComponent as SidebarComponentType } from './sidebar.component';
 const SidebarComponent = null as any;
 

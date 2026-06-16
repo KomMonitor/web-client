@@ -4,8 +4,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { LeafletScreenshotCacheHelperService } from './leaflet-screenshot-cache-helper.service';
 
-// TODO(prio6): service constructor uses indexedDB which is not available in jsdom test env
-describe.skip('LeafletScreenshotCacheHelperService', () => {
+describe('LeafletScreenshotCacheHelperService', () => {
   let service: LeafletScreenshotCacheHelperService;
 
   beforeEach(() => {

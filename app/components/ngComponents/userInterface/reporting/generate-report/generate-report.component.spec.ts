@@ -8,8 +8,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { GenerateReportComponent } from './generate-report.component';
 
-// TODO(prio6): indexedDB / canvas getContext not implemented in the jsdom test env
-describe.skip('GenerateReportComponent', () => {
+describe('GenerateReportComponent', () => {
   let component: GenerateReportComponent;
   let fixture: ComponentFixture<GenerateReportComponent>;
 

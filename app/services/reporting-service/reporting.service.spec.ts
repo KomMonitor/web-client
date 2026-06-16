@@ -4,8 +4,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 
 import { ReportingService } from './reporting.service';
 
-// TODO(prio6): service constructor uses structuredClone which is not defined in the Node 18 jsdom test env
-describe.skip('ReportingService', () => {
+describe('ReportingService', () => {
   let service: ReportingService;
 
   beforeEach(() => {

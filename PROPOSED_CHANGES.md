@@ -128,9 +128,9 @@ Ergebnis (Baseline 2026-06-16): **`npm test` grün (Exit 0): 42 passed, 29 skipp
 
 Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — sie scheitern an jsdom-/Umgebungs-Grenzen, nicht an den Stubs. Cluster:
 1. **ECharts** (Canvas `getContext` / untransformiertes ESM): ~10 Suites (kommonitorDiagrams, indicatorRadar, kommonitorBalance, regressionDiagram, admin.component, reporting-overview/-modal, indicator-add, generate-report …).
-2. **shpjs `TextDecoder` not defined** in jsdom: file-helper, sidebar, kommonitorDataImport.
-3. **`structuredClone` not defined**: reporting, templateSelect, workflowSelect.
-4. **`indexedDB` not defined**: leaflet-screenshot-cache, generate-report.
+2. **shpjs `TextDecoder` not defined** in jsdom: file-helper, sidebar, kommonitorDataImport. → **erledigt** (file-helper + kommonitorDataImport entskippt; sidebar zu Cluster 1 umgehängt — siehe Status-Block unten).
+3. **`structuredClone` not defined**: reporting, templateSelect, workflowSelect. → **erledigt** (alle drei entskippt, Status-Block unten).
+4. **`indexedDB` not defined**: leaflet-screenshot-cache, generate-report. → **erledigt** (beide entskippt, Status-Block unten).
 5. **Legacy/Deep-DI**: reachability-coverage-reports (hängt an AngularJS-Service `kommonitorReachabilityCoverageReportsHelperService`), poi, user-interface (12 Deps).
 6. **Vorbestehende TS-Fehler in App-Source** (von ts-jest gemeldet, im AOT-Build offenbar maskiert — verifizieren!): `visual-style-helper.service.ts` (classybrew `colors`/`manualBrew`-Typing) blockiert transitiv ~7 Suites (kommonitorClassification, kommonitorLegend, Reachability-Subtree, kommonitorMap); `reachability-indicator-statistics.component.ts` (`pipedData` fehlt auf `ReachabilityScenarioHelperService`). → **Cluster 6 aufgearbeitet, siehe Status-Block unten.**
 
@@ -148,6 +148,17 @@ Die **29 Skips** sind bewusst (`describe.skip` + `// TODO(prio6):`-Grund) — si
 - `jest.config.js`: **`transformIgnorePatterns`** um `leaflet-geosearch` (ESM-only) erweitert.
 
 Ergebnis: **`npm test` grün: 46 passed, 25 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression. Die ergänzten Hebel (`jest-canvas-mock`, `TextDecoder`, `transformIgnorePatterns`) senken den Aufwand für die verbleibenden Cluster 1–4 in der Folgearbeit.
+
+**Status (2026-06-16, Cluster 2 + 3 + 4 entskippt):** Mit zwei weiteren zentralen Hebeln in `setup-jest.ts` (test-only, Build unberührt) **7 von 8** Ziel-Suites in echte Tests überführt:
+- **`structuredClone`-Polyfill** (Cluster 3) — jest-jsdom liefert es nicht (Node-Global im Sandbox unsichtbar); dependency-frei über V8-Strukturklon (`v8.deserialize(v8.serialize(x))`, erhält Dates/Maps/Sets/TypedArrays).
+- **`fake-indexeddb/auto`** (Cluster 4, neue devDependency) — setzt globales `indexedDB` für `leaflet-screenshot-cache-helper.service` (ruft `indexedDB.open` im Konstruktor).
+- **`window.__env`-Stub erweitert** um `enabledGeoresourcesInfrastructure`/`enabledGeoresourcesGeoservices` (`[]`, `GeoresourceFilterService` ruft `.indexOf`) und `targetUrlToGeocoderService` (`GeocoderHelperService` ruft `.split("nominatim")`).
+
+Entskippt & grün: `file-helper.service`, `kommonitor-data-import` (Cluster 2); `reporting.service`, `template-select`, `workflow-select` (Cluster 3); `leaflet-screenshot-cache-helper.service`, `generate-report` (Cluster 4).
+
+> **`sidebar.component` bleibt geskippt — neu zugeordnet zu Cluster 1.** Der `TextDecoder`-Blocker ist behoben, aber `SidebarComponent` injiziert `DiagramHelperServiceService`, dessen Konstruktor `getComputedStyle(document.querySelector('#fontFamily-reference'))` aufruft — Element fehlt in jsdom → wirft. Gehört damit zum ECharts/Diagram-Cluster (1), nicht 2–4. `TODO(prio6)`-Begründung entsprechend korrigiert.
+
+Ergebnis: **`npm test` grün: 53 passed, 18 skipped, 0 failed** (71 Suites); `tsc -p tsconfig.app.json`, `npm run build`, `npm run lint` weiterhin grün, keine Regression. Verbleibende Skips: Cluster 1 (ECharts/Diagram, inkl. sidebar) und Cluster 5 (Legacy/Deep-DI: poi, user-interface, reachability-coverage-reports + Reachability-Subtree).
 
 ---
 
