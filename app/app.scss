@@ -517,12 +517,6 @@ pre.CodeMirror-line {
   margin: 0 !important;
 } 
 
-/* .list-group.list-group-root .list-group-item.list-group-item-grid-layout a,
-.list-group.list-group-root .list-group-item.list-group-item-grid-layout p,
-.list-group.list-group-root .list-group-item.list-group-item-grid-layout input {
-  margin-top: .2em;
-  margin-bottom: .2em;
-} */
 
 .list-group.list-group-root .list-group-item.list-group-item-level-0 {
   padding-right: 3px;
@@ -642,21 +636,6 @@ pre.CodeMirror-line {
     border-color: var(--kommonitor-primary);
 }
 
-/* .list-group.list-group-root > .list-group > .list-group-item {
-    padding-left: 30px;
-}
-
-.list-group.list-group-root > .list-group > .list-group > .list-group-item {
-    padding-left: 45px;
-}
-
-.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group-item {
-    padding-left: 60px;
-}
-
-.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .list-group-item {
-    padding-left: 75px;
-}*/
 
 .list-group.list-group-root > div > div > div > .list-group-item {
     margin-left: 15px;
@@ -749,11 +728,6 @@ pre.CodeMirror-line {
   min-width: fit-content;  
 }
 
-/* .customColorPicker ul li a {
-    display: unset;
-		clear: unset;
-		padding: unset;
-} */
 
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 #spatialUnitInfoControlDropdown {
@@ -830,14 +804,6 @@ pre.CodeMirror-line {
 	font-weight: unset;
 }
 
-/* .radio input[type="radio"],
-.radio-inline input[type="radio"],
-.checkbox input[type="checkbox"],
-.checkbox-inline input[type="checkbox"] {
-  vertical-align: middle;
-  margin-top: 4px \9;
-  margin-left: -20px;
-} */
 
 .tour-backdrop {
 	opacity: 0.6;
@@ -933,9 +899,6 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
     filter: brightness(130%);
 }
 
-/* div.kommonitor-theme-border {
-	border: solid var(--kommonitor-primary) 1px;
-} */
 
 .popover-title span {
 	cursor: pointer;
@@ -1074,66 +1037,6 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 	background-color: rgba(47,47,47,0.6);
 }
 
-/* .vector-marker-icon-middlesized {
-	font-size: 15px !important;
-}
-
-.vector-marker-icon-small {
-	font-size: 10px !important;
-}
-
-.vector-marker-icon-extra-small {
-	font-size: 8px !important;
-	width: 11px !important;
-	top: 5px !important;
-}
-
-.vector-marker-icon-big {
-	font-size: 20px !important;
-}
-
-.vector-marker-shadow-small {
-	margin-left: -26px;
-  margin-top: -18px;
-  width: 22px;
-  height: 33px;
-}
-
-.vector-marker-icon-red svg path {
-	fill: rgb(205, 59, 40);
-}
-
-.vector-marker-icon-orange svg path {
-	fill: rgb(235,144,46);
-}
-
-.vector-marker-icon-beige svg path {
-	fill: rgb(255,198,138);
-}
-
-.vector-marker-icon-green svg path {
-	fill: rgb(108,166,36);
-}
-
-.vector-marker-icon-blue svg path {
-	fill: rgb(53,161,209);
-}
-
-.vector-marker-icon-purple svg path {
-	fill: rgb(198,77,175);
-}
-
-.vector-marker-icon-pink svg path {
-	fill: rgb(255,138,232);
-}
-
-.vector-marker-icon-gray svg path {
-	fill: rgb(163,163,163);
-}
-
-.vector-marker-icon-black svg path {
-	fill: rgb(47,47,47);
-} */
 
 .leaflet-tooltip.poi-text-tooltip {
   background-color: transparent;
@@ -1143,11 +1046,6 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
 }
 
 
-/* .marker-cluster div{
-	width: 30px;
-	height: 30px;
-	border-radius: 15px;
-} */
 
 .cluster-small div{
 	width: 20px;
@@ -1496,51 +1394,13 @@ a.kommonitor-theme:hover, a.kommonitor-theme:active, a.kommonitor-theme:focus {
     top: .2em;
 }
 
-/*#dateSliderWrapper{
-	 position: absolute;
-  bottom: 25px;
-  margin-right: auto;
-  margin-left: auto;
-  left: 100px;
-  right: 20px;
-	z-index: 1004;
-	font: 16px/18px Arial, Helvetica, sans-serif; */
-	/* border: 2px solid black;
-  border-radius: 8px; 
-}*/
 
-/* #dateSliderWrapper .irs-grid-text{
-	color: black;
-	font-size: 16px;
-	margin-top: 3px;
-	padding: 0px 5px;
-
-	background-color: white;
-  border-radius: 3px;
-	line-height: 20px;
-
-}
-
-#dateSliderWrapper .irs-min{
-	font-size: 16px;
-
-}
-
-#dateSliderWrapper .irs-single{
-	font-size: 16px;
-	background: var(--kommonitor-primary);
-	
-} */
 
 .irs--big .irs-bar {
     border: 1px solid var(--kommonitor-primary);
     background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
 }
 
-/* #dateSliderWrapper .irs--big .irs-line {
-    border: 1px solid var(--kommonitor-primary);;
-    background: linear-gradient(to bottom, #ffffff 0%, var(--kommonitor-primary) 30%, var(--kommonitor-light) 100%);
-} */
 
 
 .irs--big .irs-grid-pol {
@@ -1638,20 +1498,6 @@ table, th, td {
 						background-color: white !important;
 					}
 
-					/* table, th, td {
-						border: inherit !important;
-						border-collapse:inherit !important;
-						font-family: arial;
-						font-size: 100% !important;
-						color: #555 !important;
-					}
-					th, td {
-						valign: top !important;
-						text-align: left !important;
-					}
-					th {
-						background-color: white !important;
-					} */
 
 .vertical-align {
 
@@ -1905,10 +1751,6 @@ select {
     margin-bottom: 90px;
 }
 
-/* .col-centered{
-    float: none;
-    margin: 0 auto;
-} */
 
 .margin-right {
     margin-right: 1em !important;
@@ -2538,15 +2380,6 @@ transition: opacity 0.3s;
 	z-index: 1003;
 }
 
-/* .btn-custom.invert {
-  background-color: white !important;
-	color: black !important;
-	border: 2px solid var(--kommonitor-primary) !important;
-}
-
-.btn-custom.invert img {
-	filter: invert(0) !important;
-} */
 
 .btn-custom:hover {
 	background-color: white;
@@ -3466,14 +3299,6 @@ input:checked + .switchslider:before {
 	padding: 10px !important;
 }
 
-/*
-.georesource-result-error-message {
-	background-color: #c82333 !important;
-	border-color: #bd2130 !important;
-	color: white !important;
-	padding: 12px !important;
-}
-*/
 
 .style-simple-indicator {
 	background-color: white;
