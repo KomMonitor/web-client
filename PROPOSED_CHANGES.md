@@ -122,7 +122,21 @@ Begleitende Fixes (alle auf Config-Ebene — **kein** Quellcode-Change nötig, a
 
 Ergebnis: `npm run build` **EXIT 0**, `tsc -p tsconfig.app.json` **EXIT 0**, `npm test` **70 passed / 1 skipped / 0 failed** (Jest 30), `npm run lint` **0 errors** (6720 warnings, +1295 `prefer-control-flow` als Ratchet-Backlog). `ng version` zeigt 21.2.x.
 
-> **Offen:** die optionale esbuild-`use-application-builder`-Migration als eigener Schritt; Angular 22 (analoges Vorgehen — verlangt **Node ≥24.15**, also vorher Node-Bump + `.nvmrc`-Anpassung); sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
+> ~~**Offen:** die optionale esbuild-`use-application-builder`-Migration~~ → **erledigt** (2026-06-17, siehe Status-Block unten). Weiterhin offen: Angular 22 (analoges Vorgehen — verlangt **Node ≥24.15**, also vorher Node-Bump + `.nvmrc`-Anpassung); sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
+
+**Status (2026-06-17, esbuild-`application`-Builder + HMR erledigt):** Die lange aufgeschobene Migration vom Webpack-`browser`- auf den esbuild/Vite-`application`-Builder durchgeführt — **Auslöser: HMR im Dev-Server** (der `browser`-Builder bietet nur Full-Page-Live-Reload; echtes Template-/Style-HMR gibt es nur mit dem `application`-Builder). `ng serve` läuft jetzt über den **Vite-Dev-Server mit HMR** (`@vite/client` erreichbar).
+
+`angular.json` (`build`-Target): Builder `…:browser` → **`…:application`**; `main` → `browser`; `outputPath` als Objekt **`{ "base": "dist/kommonitor-client", "browser": "" }`** → Output bleibt **flach** unter `dist/kommonitor-client/` ⇒ **Dockerfile/nginx/`serve:dist` unverändert**. In `configurations.development` die esbuild-unbekannten `buildOptimizer` + `vendorChunk` entfernt. Serve-Target unverändert (`dev-server` erkennt den `application`-Build und nutzt Vite automatisch).
+
+Quellcode-Fixes wegen esbuild-Strenge (Webpack hatte das kaschiert; **kein** Feature-Verhalten, nur Interop):
+- **`~`-Präfix** aus 4 CSS-`@import`s entfernt (`~ag-grid-community/...` → `ag-grid-community/...`) — das `~` ist Webpack-only; esbuild löst bare Specifier aus `node_modules` selbst.
+- **CJS-Default-Imports** statt `import * as` für vendored/CJS-Libs, die als Funktion/Konstruktor aufgerufen werden: `classyBrew` (1×), `uuidv4` (4×), `CodeMirror` (5×). Unter esbuild ist `import * as` ein **nicht-aufrufbares** Namespace-Objekt → hätte zur Laufzeit gecrasht (esbuild meldet `call-import-namespace`).
+
+Verifiziert: `npm run build` **EXIT 0** (flacher Output); **Tree-Shaking-Check** — die per Side-Effect-Import eingebundenen Leaflet-Plugins sind weiterhin im Bundle (`markerClusterGroup`, `L.AwesomeMarkers`, `L.Draw`, `GroupedLayers`, `leaflet-measure`); `tsc -p tsconfig.app.json` **EXIT 0**; `npm test` **70 passed / 1 skipped**; `npm run lint` **0 errors**; `ng serve` liefert HTTP 200 mit aktivem `@vite/client` (HMR). Build-Warnungen (initial-Budget ~9,4 MB < 10 MB Error-Schwelle; NG8107/NG8113-Diagnostics; „not ESM"-CJS-Hinweise) sind unkritisch.
+
+> **jQuery-Begleitfix (durch esbuild aufgedeckt):** `app/main.ts` machte `import * as jQuery from 'jquery'; window.$ = jQuery` — unter esbuild ein nicht-aufrufbares Namespace-Objekt, das die **korrekten** Globals des `jquery.min.js`-Script-Tags (`angular.json` `scripts`) überschrieb → `$(...)`/`jQuery.extend(...)` brachen. **Fix:** die 3 main.ts-Zeilen gelöscht (jQuery kommt ausschließlich aus dem Script-Bundle, das `window.$`/`jQuery` **vor** dem App-Main setzt); `$`/`jQuery` in `app/globals.d.ts` als Ambient-Globals deklariert (die ~80 `$(...)`-Stellen bezogen ihren Typ bisher nur über den main.ts-Import-Seiteneffekt). Zudem **4 tote jQuery-Deps entfernt** (`admin-lte`, `toastr`, `jquery-ui-dist`, `jquery.easing` — keine echten Referenzen). `jquery`, `@types/jquery` und die `bootstrap-*`-Picker bleiben.
+
+> **Offen (bewusst, separater Strang):** Die **vollständige jQuery-Entfernung** (~80 `$(...)`-Stellen in 45 Dateien + 4 jQuery-Plugin-Widgets in den Admin-Modals: datepicker/colorpicker/iconpicker/validator) wurde **nicht** angegangen — grob auf **50–70 h** geschätzt, teuerster Brocken der `bootstrap-iconpicker` (kein Angular-Pendant). Sinnvoll inkrementell, mit Keycloak-fähiger QA. Außerdem unverändert offen: Live-Visual-QA der Admin-Modals (Keycloak-Redirect).
 
 ---
 
