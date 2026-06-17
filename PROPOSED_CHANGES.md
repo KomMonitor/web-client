@@ -107,7 +107,22 @@ Begleitende Fixes (alle ohne Feature-Verhalten):
 
 Ergebnis: `npm run build` **EXIT 0**, `tsc -p tsconfig.app.json` **EXIT 0**, `npm test` **70 passed / 1 skipped / 0 failed**, `npm run lint` **0 errors** (5424 warnings, +559 `prefer-inject` als Ratchet-Backlog). `ng version` zeigt 20.3.x.
 
-> **Offen:** die optionale esbuild-`use-application-builder`-Migration (inkl. `moduleResolution → bundler`) als eigener Schritt; Angular 21 (analoges Vorgehen); sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
+> ~~**Offen:** Angular 21 (analoges Vorgehen)~~ → **Angular 21 erledigt** (2026-06-17, siehe Status-Block unten; dabei wurde auch `moduleResolution → bundler` gesetzt — bei 21 nicht mehr optional, sondern Pflicht). Weiterhin offen: die optionale esbuild-`use-application-builder`-Migration als eigener Schritt; Angular 22 (analoges Vorgehen, verlangt Node ≥24.15); sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
+
+**Status (2026-06-17, Angular 20 → 21 erledigt):** Upgrade via `ng update @angular/core@21 @angular/cli@21 --force`. Alle `@angular/*` auf **21.2.x** (core 21.2.17, cli/devkit 21.2.15, `@angular/cdk` 21.2.14). `ng update` zog automatisch **TypeScript 5.8.3 → 5.9.3** (Angular 21.2 Peer `>=5.9 <6.1`), **Jest 29 → 30.4.2** und **jest-environment-jsdom → 30.4.1** mit. **Node bleibt 24.10.0** — Angular-21-CLI-engines `^20.19 || ^22.12 || >=24.0.0` (erst Angular 22 verlangt ≥24.15). Die optionale `use-application-builder`-Migration (esbuild) weiterhin **nicht** angewendet; NgModule-Bootstrap bleibt; **kein** Zoneless-Opt-in (Angular 21 behält Zone.js für bestehende Projekte) und der Karma→**Vitest**-Default ignoriert (wir nutzen `@angular-builders/jest`, unabhängig vom Default-Test-Builder).
+
+Gekoppelte Drittpakete mit-hochgezogen: **`@ng-bootstrap/ng-bootstrap` 19 → 20.0.0** (Peer Angular `^21`; +1-Versatz), **`ngx-echarts` 20 → 21.0.0** (Peer Angular `>=21`), **`@angular-builders/jest` 20 → 21.0.4** (Peer Angular `^21`, **`jest ^30`** — erzwingt den Jest-Major), **`@types/jest` 29 → 30**, **`angular-eslint` 20 → 21.4.0** (Peer `eslint ^9/^10` ✓, `typescript-eslint ^8` ✓, `@angular/cli >=21<22` ✓). Locker gepinnte Libs (`jest-canvas-mock` 2.5.2, `fake-indexeddb` 6.2.5, `typescript-eslint` 8.16.0, `ngx-color-picker` 17, `ngx-color` 8, `ag-grid` 31, `@ngx-translate` 16, `ng2-*`, `keycloak-js` 25, `zone.js` ~0.15.1) unverändert.
+
+Begleitende Fixes (alle auf Config-Ebene — **kein** Quellcode-Change nötig, anders als beim 20er-Schritt):
+- **`tsconfig.json`: `moduleResolution` `"node"` → `"bundler"`.** Bei Angular 21 **Pflicht** (nicht mehr optional wie bei 20): Angular 21 und `@ng-bootstrap/ng-bootstrap` 20 liefern Subpfade wie `@angular/common/http`, `@angular/cdk/drag-drop`, `@angular/core/rxjs-interop` nur noch über die `exports`-Map im `package.json` aus — die `node`-Resolution (node10) liest sie nicht → ohne den Wechsel ~hunderte `TS2307 Cannot find module`/`TS2305 no exported member`. Genau die Migration, die die `ng update`-Kette (wie bei 20) an der absichtlich projekt-root-relativen Jest-Builder-Pfad-Eigenheit (`../tsconfig.spec.json`) abbrach → manuell gesetzt. (`module: "ES2022"` ist mit `bundler` kompatibel; ts-jest läuft weiter — `tsconfig.spec.json` setzt sein eigenes `esModuleInterop`/`isolatedModules`.)
+- **`angular.json` Test-Target:** das Builder-Schema von `@angular-builders/jest@21` hat sich geändert — `configPath` entfernt → **`config`**; zusätzlich die neue Option **`zoneless: false`** gesetzt (Default `true`), da die App Zone.js-Change-Detection nutzt (NgModule, nicht zoneless).
+- **`eslint.config.js`:** angular-eslint 21 stuft `@angular-eslint/template/prefer-control-flow` zu **Error** hoch (1295 Treffer — die Templates nutzen noch `*ngIf`/`*ngFor`; Migration auf `@if`/`@for` ist ein eigener Refactor via `ng generate @angular/core:control-flow`). Auf `warn` gesetzt (Ratchet-Backlog), konsistent mit `prefer-inject`/`prefer-standalone`.
+
+**Jest 30 / jsdom 26** (der erwartete Risiko-Hebel) lief **ohne jede Test-Nacharbeit** durch — alle bestehenden Hebel in `setup-jest.ts`/`jest.config.js` blieben gültig.
+
+Ergebnis: `npm run build` **EXIT 0**, `tsc -p tsconfig.app.json` **EXIT 0**, `npm test` **70 passed / 1 skipped / 0 failed** (Jest 30), `npm run lint` **0 errors** (6720 warnings, +1295 `prefer-control-flow` als Ratchet-Backlog). `ng version` zeigt 21.2.x.
+
+> **Offen:** die optionale esbuild-`use-application-builder`-Migration als eigener Schritt; Angular 22 (analoges Vorgehen — verlangt **Node ≥24.15**, also vorher Node-Bump + `.nvmrc`-Anpassung); sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
 
 ---
 

@@ -117,6 +117,12 @@ module.exports = tseslint.config(
       "@angular-eslint/template/alt-text": "warn",
       "@angular-eslint/template/eqeqeq": "warn",
       "@angular-eslint/template/elements-content": "warn",
+      // angular-eslint 21 promotes prefer-control-flow to error (1295 hits). The
+      // templates still use *ngIf/*ngFor/*ngSwitch; migrating to the @if/@for/@switch
+      // built-in control flow is a separate, large refactor (`ng generate
+      // @angular/core:control-flow`). Downgrade to warn (ratchet backlog), consistent
+      // with prefer-inject/prefer-standalone in the TS rules above.
+      "@angular-eslint/template/prefer-control-flow": "warn",
     },
   },
   // Formatierung übernimmt Prettier -> kollidierende ESLint-Formatregeln abschalten.
