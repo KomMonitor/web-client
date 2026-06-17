@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
-import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
+import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 
 @Injectable({
   providedIn: 'root'

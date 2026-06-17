@@ -11,11 +11,14 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/kommonitor-client",
+            "outputPath": {
+              "base": "dist/kommonitor-client",
+              "browser": ""
+            },
             "index": "app/index.html",
-            "main": "app/main.ts",
+            "browser": "app/main.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -128,9 +131,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true

@@ -8,7 +8,7 @@ import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-gri
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
-import * as uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
+import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
 import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
 import { AgGridAngular } from "ag-grid-angular";
 import { CommonModule } from '@angular/common';

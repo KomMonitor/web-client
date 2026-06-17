@@ -1,7 +1,7 @@
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Injectable } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import * as classyBrew from '../../../customizedExternalLibs/classyBrew.js';
+import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
 import L from 'leaflet';
 import 'leaflet.pattern';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';

@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { ConfigStorageService, LandingpageConfig } from '../../../../../services/config-storage-service/config-storage.service';
 import { firstValueFrom } from 'rxjs';
-import * as CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files 
 import 'codemirror/mode/xml/xml.js';

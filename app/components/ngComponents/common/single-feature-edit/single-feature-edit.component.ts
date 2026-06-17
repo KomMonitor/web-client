@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
-import * as uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
+import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { FormsModule } from '@angular/forms';
 import * as turf from '@turf/turf';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';

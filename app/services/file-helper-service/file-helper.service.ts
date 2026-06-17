@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
+import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 import shp from 'shpjs';
 import Papa from 'papaparse';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';

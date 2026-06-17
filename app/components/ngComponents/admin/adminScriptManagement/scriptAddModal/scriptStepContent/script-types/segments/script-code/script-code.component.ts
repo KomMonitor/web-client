@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import * as CodeMirror from "codemirror";
+import CodeMirror from "codemirror";
 import "codemirror/mode/javascript/javascript.js";
 
 @Component({

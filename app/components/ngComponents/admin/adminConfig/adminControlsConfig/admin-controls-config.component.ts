@@ -10,7 +10,7 @@ import { DataExchangeService } from "../../../../../services/data-exchange-servi
 import { ConfigStorageService } from "../../../../../services/config-storage-service/config-storage.service";
 import { firstValueFrom } from "rxjs";
 import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
-import * as CodeMirror from "codemirror";
+import CodeMirror from "codemirror";
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
 import "codemirror/mode/xml/xml.js";
