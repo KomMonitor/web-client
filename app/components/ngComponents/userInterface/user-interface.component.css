@@ -1,7 +1,15 @@
 :host {
+  /* Lay out header + content as a vertical flex column filling the viewport.
+     The content area then takes exactly the space left below the fixed-height
+     header, so nothing overflows and the page never scrolls vertically. */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 
   header {
     height: 3em !important;
+    flex: 0 0 auto;
     display: grid;
     grid-template-columns: min-content auto min-content;
     padding: 5px;
@@ -51,7 +59,10 @@
     width: 100%;
     display: grid;
     grid-template-columns: min-content auto;
-    height: 100vh;
+    /* Grow to fill the remaining viewport below the header (flex column on
+       :host). min-height: 0 lets it shrink past its content's intrinsic size. */
+    flex: 1 1 auto;
+    min-height: 0;
 
     #mapWrapper {
       position: relative;

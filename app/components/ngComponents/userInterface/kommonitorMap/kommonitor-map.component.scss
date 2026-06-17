@@ -26,11 +26,21 @@
 
   position: absolute !important;
 
+  top: 0;
+  bottom: 0;
   width: 100%;
+
+  /* The template wraps #ngMap in a position:relative <div>; give that wrapper
+     full height so #ngMap's height:100% resolves against the flex-sized map area
+     (#userInterface-content fills the viewport below the header) instead of
+     collapsing to 0. */
+  > div {
+    height: 100%;
+  }
 
   #ngMap {
     width: 100%;
-    height: 100vh;
+    height: 100%;
   }
   
   ::ng-deep .awesome-marker {
