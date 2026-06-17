@@ -1,4 +1,4 @@
-import { CommonModule, DOCUMENT } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { BroadcastService } from "./../../../../services/broadcast-service/broadcast.service";
 import {
   Component,
@@ -7,6 +7,7 @@ import {
   OnDestroy,
   Renderer2,
   ViewChild,
+  DOCUMENT,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";

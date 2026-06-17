@@ -7,9 +7,10 @@ import {
   NgZone,
   OnDestroy,
   ViewChild,
+  DOCUMENT,
 } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { CommonModule, DOCUMENT } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Subscription } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";

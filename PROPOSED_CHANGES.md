@@ -91,7 +91,23 @@ Begleitende Fixes (alle test-/build-seitig, kein Feature-Verhalten):
 
 Ergebnis: `npm run build` **EXIT 0**, `tsc -p tsconfig.app.json` **EXIT 0**, `npm test` **70 passed / 1 skipped / 0 failed**, `npm run lint` **0 errors** (4865 warnings, +2 prefer-standalone als Ratchet-Backlog). `ng version` zeigt 19.2.x.
 
-> **Offen:** Angular 20 (analoges Vorgehen), die optionale esbuild-`use-application-builder`-Migration, sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
+> ~~**Offen:** Angular 20 (analoges Vorgehen)~~ → **Angular 20 erledigt** (2026-06-17, siehe Status-Block unten). Weiterhin offen: die optionale esbuild-`use-application-builder`-Migration sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
+
+**Status (2026-06-17, Angular 19 → 20 erledigt):** Upgrade via `ng update @angular/core@20 @angular/cli@20 --force`. Alle `@angular/*` auf **20.3.x** (core 20.3.25, cli/devkit 20.3.28), `@angular/cdk` auf 20.2.14. **TypeScript 5.8.3** und **zone.js 0.15.1** erfüllten Angular 20 bereits (keine Änderung). Die optionale `use-application-builder`-Migration (esbuild) weiterhin **nicht** angewendet — `browser`-Builder läuft unter 20 weiter; ebenso bleibt der NgModule-Bootstrap (`platform-browser-dynamic` ist in 20 nur *deprecated*, nicht entfernt).
+
+> **Wichtig für Build/Serve:** Angular 20 **droppt Node 18** (EOL). Benötigt jetzt **Node `^20.19 || ^22.12 || ^24.x`** — lokal via `nvm use 24` (Node 24.10.0 ist von Angular 20 unterstützt). Eine `.nvmrc` mit `24` wurde ergänzt.
+
+Gekoppelte Drittpakete mit-hochgezogen: **`@ng-bootstrap/ng-bootstrap` 18 → 19.0.1** (Peer Angular `^20`; die Version läuft +1 vor Angular), **`ngx-echarts` 19 → 20.0.2** (Peer Angular `>=20`), **`@angular-builders/jest` 19 → 20.0.0** (Peer Angular `^20`; **Jest bleibt 29** — builders/jest 20 unterstützt `>=29`), **`angular-eslint` 19 → 20.7.0** (Peer `eslint ^9` ✓, `typescript-eslint ^8` ✓). Locker gepinnte Libs (`ngx-color-picker` 17, `ngx-color` 8, `ag-grid` 31, `@ngx-translate` 16, `ng2-*`, `keycloak-js` 25) unverändert.
+
+Begleitende Fixes (alle ohne Feature-Verhalten):
+- **`DOCUMENT`-Import** `@angular/common` → `@angular/core` in 3 Dateien (`admin-indicators-management`, `admin-georesources-management`, `user-login`). Die `ng update`-Migrationskette **brach** an der CLI-Migration `update-module-resolution` ab (`Path "/../tsconfig.spec.json" is invalid`) — sie interpretiert die *absichtlich projekt-root-relativen* Jest-Builder-Pfade (`../tsconfig.spec.json`/`../jest.config.js` in `angular.json`) naiv workspace-relativ. Dadurch liefen die `@angular/core`-Migrationen nicht; die einzige unseren Code betreffende (DOCUMENT) **manuell** nachgezogen — exakt das, was die Migration getan hätte. **`moduleResolution` bewusst auf `"node"` belassen** (die `bundler`-Migration ist nur eine Empfehlung; vermeidet ts-jest-Divergenzen).
+- **ngx-echarts 20 Breaking Change:** der `[options]`-Input ist jetzt non-nullable (`ECBasicOption`). Die drei Charts in `admin-dashboard-management.component.html` mit `@if`-Guards umschlossen (Felder sind `EChartsOption | null`, anfangs `null`) → kein `null` mehr an die Direktive, Verhalten unverändert (`null` renderte vorher ohnehin keinen Chart).
+- **angular-eslint 20** stuft `@angular-eslint/prefer-inject` zu **Error** hoch (559 Treffer — die App nutzt durchgängig Constructor-Injection; Umstellung auf `inject()` ist ein eigener Refactor via `ng generate @angular/core:inject`). Auf `warn` gesetzt (Ratchet-Backlog), konsistent mit `prefer-standalone` aus dem 18→19-Schritt.
+- **`angular.json`:** `schematics`-Block durch die CLI-Migration „workspace generation defaults" ergänzt (behält das bisherige `ng generate`-Namensschema).
+
+Ergebnis: `npm run build` **EXIT 0**, `tsc -p tsconfig.app.json` **EXIT 0**, `npm test` **70 passed / 1 skipped / 0 failed**, `npm run lint` **0 errors** (5424 warnings, +559 `prefer-inject` als Ratchet-Backlog). `ng version` zeigt 20.3.x.
+
+> **Offen:** die optionale esbuild-`use-application-builder`-Migration (inkl. `moduleResolution → bundler`) als eigener Schritt; Angular 21 (analoges Vorgehen); sowie Live-Visual-QA (weiterhin durch Keycloak-`localhost`-Redirect eingeschränkt).
 
 ---
 

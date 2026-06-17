@@ -61,25 +61,31 @@
   </div>
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <div
-        echarts
-        [options]="indicatorsPerSpatialUnitChartOptions"
-        style="width: 100%; min-height: 500px"
-      ></div>
+      @if (indicatorsPerSpatialUnitChartOptions) {
+        <div
+          echarts
+          [options]="indicatorsPerSpatialUnitChartOptions"
+          style="width: 100%; min-height: 500px"
+        ></div>
+      }
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <div
-        echarts
-        [options]="georesourcesPerTypeChartOptions"
-        style="width: 100%; min-height: 500px"
-      ></div>
+      @if (georesourcesPerTypeChartOptions) {
+        <div
+          echarts
+          [options]="georesourcesPerTypeChartOptions"
+          style="width: 100%; min-height: 500px"
+        ></div>
+      }
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <div
-        echarts
-        [options]="indicatorsPerTopicChartOptions"
-        style="width: 100%; min-height: 500px"
-      ></div>
+      @if (indicatorsPerTopicChartOptions) {
+        <div
+          echarts
+          [options]="indicatorsPerTopicChartOptions"
+          style="width: 100%; min-height: 500px"
+        ></div>
+      }
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12"></div>
   </div>

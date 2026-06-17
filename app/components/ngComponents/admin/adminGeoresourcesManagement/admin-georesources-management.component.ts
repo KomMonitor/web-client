@@ -6,8 +6,9 @@ import {
   Inject,
   ViewChild,
   AfterViewInit,
+  DOCUMENT,
 } from "@angular/core";
-import { CommonModule, DOCUMENT } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Subscription } from "rxjs";
 import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";

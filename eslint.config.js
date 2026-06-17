@@ -92,6 +92,11 @@ module.exports = tseslint.config(
       // (MainComponent bootstrap, OrderByPipe); downgrade to warn (ratchet backlog),
       // consistent with the project's deliberately mild lint baseline.
       "@angular-eslint/prefer-standalone": "warn",
+      // angular-eslint 20 promotes prefer-inject to error. The app uses constructor
+      // injection throughout (559 occurrences); migrating to inject() is a separate
+      // refactor (`ng generate @angular/core:inject`), so downgrade to warn (ratchet
+      // backlog), consistent with the deliberately mild lint baseline above.
+      "@angular-eslint/prefer-inject": "warn",
       "@typescript-eslint/no-array-constructor": "warn",
     },
   },
