@@ -34,5 +34,14 @@
     "strictTemplates": true,
 
 
-  }
+  },
+  // Solution-style config: route each file to the right child project so the
+  // editor evaluates *.spec.ts against tsconfig.spec.json (which has the Jest
+  // types). Without this, tsserver uses this root config's restricted
+  // `types: ["jquery"]` and reports `describe`/`it`/`expect` as missing.
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.spec.json" }
+  ]
 }
