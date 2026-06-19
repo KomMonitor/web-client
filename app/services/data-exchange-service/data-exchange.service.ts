@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { DEFAULT_POI_SIZE, LOI_DASH_ARRAY_OBJECTS, MetadataLoadingState, POI_SIZES, PoiSize } from "./data-exchange.constants";
-import { PdfExportService } from "services/pdf-export-service/pdf-export.service";
+import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
@@ -404,7 +404,7 @@ export class DataExchangeService {
     private broadcastService: BroadcastService,
     private topicHierarchyService: TopicHierarchyService,
     private envConfigService: EnvConfigService,
-    private pdfExportService: PdfExportService,
+    private metadataExportService: MetadataExportService,
     private indicatorValueService: IndicatorValueService,
   ) {}
 
@@ -1220,14 +1220,14 @@ export class DataExchangeService {
   }
 
   async downloadMetadataPDF_georesource(georesourceMetadata) {
-    return this.pdfExportService.downloadMetadataPDF_georesource(
+    return this.metadataExportService.downloadMetadataPDF_georesource(
       georesourceMetadata,
       this.availableTopics,
     );
   }
 
   async createMetadataPDF_georesource(georesource, pdfName) {
-    return this.pdfExportService.createMetadataPDF_georesource(
+    return this.metadataExportService.createMetadataPDF_georesource(
       georesource,
       pdfName,
       this.availableTopics,
@@ -1235,7 +1235,7 @@ export class DataExchangeService {
   }
 
   async createMetadataPDF_indicator(indicator) {
-    return this.pdfExportService.createMetadataPDF_indicator(
+    return this.metadataExportService.createMetadataPDF_indicator(
       indicator,
       this.availableSpatialUnits,
       this.availableTopics,
@@ -1243,11 +1243,11 @@ export class DataExchangeService {
   }
 
   getImageDimensions(file) {
-    return this.pdfExportService["_getImageDimensions"](file);
+    return this.metadataExportService.getImageDimensions(file);
   }
 
   getIndicatorStringFromIndicatorType(indicatorType) {
-    return this.pdfExportService.getIndicatorStringFromIndicatorType(
+    return this.metadataExportService.getIndicatorStringFromIndicatorType(
       indicatorType,
     );
   }
@@ -1256,14 +1256,14 @@ export class DataExchangeService {
     ts,
     updateIntervalApiName: any = undefined,
   ) {
-    return this.pdfExportService.tsToDate_withOptionalUpdateInterval(
+    return this.metadataExportService.tsToDate_withOptionalUpdateInterval(
       ts,
       updateIntervalApiName,
     );
   }
 
   dateToTS(date) {
-    return this.pdfExportService.dateToTS(date);
+    return this.metadataExportService.dateToTS(date);
   }
 
   private getTopicHierarchyForTopicId(topicReferenceId) {
@@ -1279,7 +1279,7 @@ export class DataExchangeService {
     fileEnding,
     jsZipOptions,
   ) {
-    return this.pdfExportService.generateAndDownloadIndicatorZIP(
+    return this.metadataExportService.generateAndDownloadIndicatorZIP(
       indicatorData,
       fileName,
       fileEnding,
@@ -1291,7 +1291,7 @@ export class DataExchangeService {
   }
 
   async generateIndicatorMetadataPdf_asBlob() {
-    return this.pdfExportService.generateIndicatorMetadataPdf_asBlob(
+    return this.metadataExportService.generateIndicatorMetadataPdf_asBlob(
       this.selectedIndicator,
       this.availableSpatialUnits,
       this.availableTopics,
@@ -1299,7 +1299,7 @@ export class DataExchangeService {
   }
 
   async generateIndicatorMetadataPdf(indicatorMetadata, pdfName) {
-    return this.pdfExportService.generateIndicatorMetadataPdf(
+    return this.metadataExportService.generateIndicatorMetadataPdf(
       indicatorMetadata,
       pdfName,
       this.availableSpatialUnits,
@@ -1753,7 +1753,7 @@ export class DataExchangeService {
     fileEnding,
     jsZipOptions,
   ) {
-    return this.pdfExportService.generateAndDownloadGeoresourceZIP(
+    return this.metadataExportService.generateAndDownloadGeoresourceZIP(
       georesourceMetadata,
       georesourceData,
       fileName,
@@ -1764,7 +1764,7 @@ export class DataExchangeService {
   }
 
   async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata) {
-    return this.pdfExportService.generateGeoresourceMetadataPdf_asBlob(
+    return this.metadataExportService.generateGeoresourceMetadataPdf_asBlob(
       georesourceMetadata,
       this.availableTopics,
     );
