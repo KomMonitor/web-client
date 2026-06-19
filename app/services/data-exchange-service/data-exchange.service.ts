@@ -11,6 +11,7 @@ import { AccessControlService } from "services/access-control-service/access-con
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { ProcessScriptMetadataStoreService } from "services/process-script-metadata-store-service/process-script-metadata-store.service";
+import { TopicMetadataStoreService } from "services/topic-metadata-store-service/topic-metadata-store.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -125,7 +126,8 @@ export class DataExchangeService {
   set accessControl(v: any[]) { this.accessControlService.accessControl = v; }
 
   // todo topics hirarchy interface ?!
-  availableTopics: any[] = [];
+  // Prio7 B6c: topic metadata lives in TopicMetadataStoreService; facade getter keeps consumers unchanged
+  get availableTopics(): any[] { return this.topicStore.availableTopics; }
 
   anySideBarIsShown = false;
 
@@ -416,6 +418,7 @@ export class DataExchangeService {
     private topicHierarchyStore: TopicHierarchyStoreService,
     private spatialUnitStore: SpatialUnitMetadataStoreService,
     private processScriptStore: ProcessScriptMetadataStoreService,
+    private topicStore: TopicMetadataStoreService,
   ) {}
 
   /**
@@ -844,7 +847,7 @@ export class DataExchangeService {
   }
 
   setTopics(topicsArray) {
-    this.availableTopics = topicsArray;
+    this.topicStore.setTopics(topicsArray);
   }
 
   setSpatialUnits(spatialUnitsArray) {
