@@ -6,6 +6,7 @@ import {
   IndicatorsTopicsHierarchy,
 } from "components/ngComponents/models/indicators.models";
 import { EnvConfigService } from "services/env-config-service/env-config.service";
+import { IndicatorValueService } from "services/indicator-value-service/indicator-value.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -404,7 +405,23 @@ export class DataExchangeService {
     private topicHierarchyService: TopicHierarchyService,
     private envConfigService: EnvConfigService,
     private pdfExportService: PdfExportService,
+    private indicatorValueService: IndicatorValueService,
   ) {}
+
+  /**
+   * Resolve the effective decimal precision from the explicit argument or the
+   * currently selected indicator. Kept in the facade because selection state
+   * (selectedIndicator) lives here until B7; the IndicatorValueService stays pure.
+   */
+  private resolveSelectedPrecision(precision = undefined) {
+    if (precision !== undefined) {
+      return precision;
+    }
+    if (this.selectedIndicator && this.selectedIndicator.precision !== null) {
+      return this.selectedIndicator.precision;
+    }
+    return undefined;
+  }
 
   setSelectedDate(dateString:string | undefined) {
     
@@ -1068,14 +1085,7 @@ export class DataExchangeService {
   }
 
   indicatorValueIsNoData(indicatorValue) {
-    if (
-      Number.isNaN(indicatorValue) ||
-      indicatorValue === null ||
-      indicatorValue === undefined
-    ) {
-      return true;
-    }
-    return false;
+    return this.indicatorValueService.indicatorValueIsNoData(indicatorValue);
   }
 
   async fetchAccessControlMetadata(keycloakRolesArray) {
@@ -1298,37 +1308,10 @@ export class DataExchangeService {
   }
 
   getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
-    var maximumDecimals = this.envConfigService.numberOfDecimals;
-    var minimumDecimals = 0;
-    if (precision !== undefined) {
-      maximumDecimals = precision;
-      minimumDecimals = precision;
-    } else {
-      if (this.selectedIndicator && this.selectedIndicator.precision !== null) {
-        maximumDecimals = this.selectedIndicator.precision;
-        minimumDecimals = this.selectedIndicator.precision;
-      }
-    }
-
-    var value;
-    if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
-    } else {
-      value = Number(indicatorValue).toLocaleString("de-DE", {
-        maximumFractionDigits: maximumDecimals,
-        minimumFractionDigits: minimumDecimals,
-      });
-    }
-
-    // if the original value is greater than zero but would be rounded as 0 then we must return the original result
-    if (Number(value) == 0 && indicatorValue > 0) {
-      value = Number(indicatorValue).toLocaleString("de-DE", {
-        minimumFractionDigits: minimumDecimals,
-        maximumFractionDigits: maximumDecimals,
-      });
-    }
-
-    return value;
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.resolveSelectedPrecision(precision),
+    );
   }
 
   displayMapApplicationError(error) {
@@ -1349,33 +1332,9 @@ export class DataExchangeService {
     }, 1000);
   }
 
-  syntaxHighlightJSON = function (json) {
-    if (typeof json != "string") {
-      json = JSON.stringify(json, undefined, 2);
-    }
-    json = json
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    return json.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-      function (match) {
-        var cls = "number";
-        if (/^"/.test(match)) {
-          if (/:$/.test(match)) {
-            cls = "key";
-          } else {
-            cls = "string";
-          }
-        } else if (/true|false/.test(match)) {
-          cls = "boolean";
-        } else if (/null/.test(match)) {
-          cls = "null";
-        }
-        return '<span class="' + cls + '">' + match + "</span>";
-      },
-    );
-  };
+  syntaxHighlightJSON(json) {
+    return this.indicatorValueService.syntaxHighlightJSON(json);
+  }
 
   getBaseUrlToKomMonitorDataAPI_spatialResource() {
     return (
@@ -1671,28 +1630,10 @@ export class DataExchangeService {
   }
 
   getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
-    var maximumDecimals = this.envConfigService.numberOfDecimals;
-    if (precision !== undefined) {
-      maximumDecimals = precision;
-    } else {
-      if (this.selectedIndicator && this.selectedIndicator.precision !== null)
-        maximumDecimals = this.selectedIndicator.precision;
-    }
-
-    var value;
-    if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
-    } else {
-      value = +Number(indicatorValue).toFixed(maximumDecimals);
-      // value = +Number(indicatorValue).toFixed(numberOfDecimals);
-    }
-
-    // if the original value is greater than zero but would be rounded as 0 then we must return the original result
-    if (Number(value) == 0 && indicatorValue > 0) {
-      value = Number(indicatorValue);
-    }
-
-    return value;
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.resolveSelectedPrecision(precision),
+    );
   }
 
   getIndicatorValueFromArray_asNumber(
@@ -1700,19 +1641,11 @@ export class DataExchangeService {
     targetDateString,
     precision = undefined,
   ) {
-    if (!targetDateString.includes(this.envConfigService.indicatorDatePrefix)) {
-      targetDateString =
-        this.envConfigService.indicatorDatePrefix + targetDateString;
-    }
-    var indicatorValue = propertiesArray[targetDateString];
-    var value;
-    if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
-    } else {
-      value = this.getIndicatorValue_asNumber(indicatorValue, precision);
-    }
-
-    return value;
+    return this.indicatorValueService.getIndicatorValueFromArray_asNumber(
+      propertiesArray,
+      targetDateString,
+      this.resolveSelectedPrecision(precision),
+    );
   }
 
   setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName) {
@@ -1838,22 +1771,11 @@ export class DataExchangeService {
   }
 
   createDualListInputArray(array, nameProperty, idProperty): any[] {
-    /* return this.ajskommonitorDataExchangeServiceeProvider.createDualListInputArray(areaNames, name, id);*/
-    var result: any[] = [];
-
-    if (array && Array.isArray(array)) {
-      for (var i = 0; i < array.length; i++) {
-        var obj = {};
-        obj["category"] = array[i][nameProperty];
-        obj["name"] = array[i][nameProperty];
-        if (idProperty && array[i][idProperty] !== undefined) {
-          obj["id"] = array[i][idProperty];
-        }
-        result.push(obj);
-      }
-    }
-
-    return result;
+    return this.indicatorValueService.createDualListInputArray(
+      array,
+      nameProperty,
+      idProperty,
+    );
   }
 
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
@@ -1874,23 +1796,10 @@ export class DataExchangeService {
   }
 
   formatIndicatorNameForLabel(indicatorName, maxCharsPerLine) {
-    var arr: any[] = [];
-    var space = /\s/;
-
-    const words = indicatorName.split(space);
-    // push first word into new array
-    if (words[0].length) {
-      arr.push(words[0]);
-    }
-
-    for (let i = 1; i < words.length; i++) {
-      if (words[i].length + arr[arr.length - 1].length < maxCharsPerLine) {
-        arr[arr.length - 1] = `${arr[arr.length - 1]} ${words[i]}`;
-      } else {
-        arr.push(words[i]);
-      }
-    }
-    return arr.join("\n");
+    return this.indicatorValueService.formatIndicatorNameForLabel(
+      indicatorName,
+      maxCharsPerLine,
+    );
   }
 
   filterIndicators() {
@@ -1921,37 +1830,10 @@ export class DataExchangeService {
   }
 
   getIndicatorValue_asFixedPrecisionNumber(indicatorValue, precision) {
-    var maximumDecimals = this.envConfigService.numberOfDecimals;
-    var minimumDecimals = 0;
-    if (precision !== undefined) {
-      maximumDecimals = precision;
-      minimumDecimals = precision;
-    } else {
-      if (this.selectedIndicator && this.selectedIndicator.precision !== null) {
-        maximumDecimals = this.selectedIndicator.precision;
-        minimumDecimals = this.selectedIndicator.precision;
-      }
-    }
-
-    var value;
-    if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
-    } else {
-      // value = string with . as separator, without "," as thounsand-sep
-      value = indicatorValue
-        .toLocaleString("en-GB", {
-          maximumFractionDigits: maximumDecimals,
-          minimumFractionDigits: minimumDecimals,
-        })
-        .replace(",", "");
-    }
-
-    // if the original value is greater than zero but would be rounded as 0 then we must return the original result
-    if (Number(value) == 0 && indicatorValue > 0) {
-      value = Number(indicatorValue);
-    }
-
-    return value;
+    return this.indicatorValueService.getIndicatorValue_asFixedPrecisionNumber(
+      indicatorValue,
+      this.resolveSelectedPrecision(precision),
+    );
   }
 
   getIndicatorAbbreviationFromIndicatorId(indicatorId) {
