@@ -9,6 +9,7 @@ import { EnvConfigService } from "services/env-config-service/env-config.service
 import { IndicatorValueService } from "services/indicator-value-service/indicator-value.service";
 import { AccessControlService } from "services/access-control-service/access-control.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
+import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -52,7 +53,8 @@ export class DataExchangeService {
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || "both";
 
   selectedIndicator!: IndicatorsDataset;
-  availableSpatialUnits: SpatialUnit[] = [];
+  // Prio7 B6a: spatial-unit metadata lives in SpatialUnitMetadataStoreService; facade getter keeps consumers unchanged
+  get availableSpatialUnits(): SpatialUnit[] { return this.spatialUnitStore.availableSpatialUnits; }
   availableWmsDatasets: WmsDataset[] = [];
   selectedDate: any;
   selectedSpatialUnit!: SpatialUnit;
@@ -143,7 +145,6 @@ export class DataExchangeService {
 
   availableIndicators_map = new Map();
   availableGeoresources_map = new Map();
-  availableSpatialUnits_map = new Map();
   availableProcessScripts_map = new Map();
 
 
@@ -412,6 +413,7 @@ export class DataExchangeService {
     private indicatorValueService: IndicatorValueService,
     private accessControlService: AccessControlService,
     private topicHierarchyStore: TopicHierarchyStoreService,
+    private spatialUnitStore: SpatialUnitMetadataStoreService,
   ) {}
 
   /**
@@ -849,12 +851,7 @@ export class DataExchangeService {
   }
 
   setSpatialUnits(spatialUnitsArray) {
-    this.availableSpatialUnits_map = new Map(
-      spatialUnitsArray.map((u) => [u.spatialUnitId, u]),
-    );
-    this.availableSpatialUnits = Array.from(
-      this.availableSpatialUnits_map.values(),
-    );
+    this.spatialUnitStore.setSpatialUnits(spatialUnitsArray);
   }
 
   addSingleIndicatorMetadata(indicatorMetadata) {
@@ -893,7 +890,7 @@ export class DataExchangeService {
   }
 
   getSpatialUnitMetadataById(spatialUnitId) {
-    return this.availableSpatialUnits_map.get(spatialUnitId);
+    return this.spatialUnitStore.getSpatialUnitMetadataById(spatialUnitId);
   }
 
   deleteSingleIndicatorMetadata(indicatorId) {
