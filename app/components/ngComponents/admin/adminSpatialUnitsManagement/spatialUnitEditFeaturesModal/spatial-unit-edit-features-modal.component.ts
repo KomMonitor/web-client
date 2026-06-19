@@ -3,7 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -144,7 +144,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
-    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    public featureTableHelper: FeatureTableDataGridHelperService,
     private http: HttpClient,
     private broadcastService: BroadcastService
   ) {
@@ -211,11 +211,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       if (broadcastMsg) {
         if (broadcastMsg.msg === 'onEditSpatialUnitFeatures') {
           this.onEditSpatialUnitFeatures(broadcastMsg.values);
-        } else if (broadcastMsg.msg === 'showLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_spatialUnit) {
+        } else if (broadcastMsg.msg === 'showLoadingIcon_' + this.featureTableHelper?.resourceType_spatialUnit) {
           this.loadingData = true;
-        } else if (broadcastMsg.msg === 'hideLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_spatialUnit) {
+        } else if (broadcastMsg.msg === 'hideLoadingIcon_' + this.featureTableHelper?.resourceType_spatialUnit) {
           this.loadingData = false;
-        } else if (broadcastMsg.msg === 'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_spatialUnit) {
+        } else if (broadcastMsg.msg === 'onDeleteFeatureEntry_' + this.featureTableHelper?.resourceType_spatialUnit) {
           // Handle individual feature deletion
           this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', { 
             crudType: 'edit', 
@@ -247,12 +247,12 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   private buildFeatureTable(): void {
     
     // Get base configuration from service
-    const baseGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+    const baseGridOptions = this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
       "spatialUnitFeatureTable", 
       this.remainingFeatureHeaders || [], 
       this.spatialUnitFeaturesGeoJSON?.features || [],
       this.currentSpatialUnitDataset?.spatialUnitId,
-      this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+      this.featureTableHelper.resourceType_spatialUnit,
       this.enableDeleteFeatures
     );
     
@@ -336,9 +336,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   resetForm(): void {
     // Reset edit banners
-    if (this.kommonitorDataGridHelperService) {
-      this.kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
-      this.kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
+    if (this.featureTableHelper) {
+      this.featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
+      this.featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
     }
 
     // Reset form data
@@ -459,9 +459,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         // Register click handlers if delete features is enabled
         if (this.enableDeleteFeatures) {
           setTimeout(() => {
-            this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+            this.featureTableHelper.registerFeatureTableClickHandlers(
               this.currentSpatialUnitDataset?.spatialUnitId,
-              this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+              this.featureTableHelper.resourceType_spatialUnit,
               this.enableDeleteFeatures
             );
           }, 100);
@@ -1085,9 +1085,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       
       // Register click handlers after grid update
       setTimeout(() => {
-        this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+        this.featureTableHelper.registerFeatureTableClickHandlers(
           this.currentSpatialUnitDataset?.spatialUnitId,
-          this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+          this.featureTableHelper.resourceType_spatialUnit,
           this.enableDeleteFeatures
         );
       }, 100);
@@ -1179,9 +1179,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (!this.enableDeleteFeatures) return;
 
     setTimeout(() => {
-      this.kommonitorDataGridHelperService.registerFeatureTableClickHandlers(
+      this.featureTableHelper.registerFeatureTableClickHandlers(
         this.currentSpatialUnitDataset?.spatialUnitId,
-        this.kommonitorDataGridHelperService.resourceType_spatialUnit,
+        this.featureTableHelper.resourceType_spatialUnit,
         this.enableDeleteFeatures
       );
     }, 100);

@@ -68,13 +68,13 @@
           </div>
 
           <div>
-            <div *ngIf="kommonitorDataGridHelperService?.featureTable_spatialUnit_lastUpdate_timestamp_success" class="timestamp-success">
+            <div *ngIf="featureTableHelper?.featureTable_spatialUnit_lastUpdate_timestamp_success" class="timestamp-success">
               <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
-              {{ kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_success | date:'medium' }}
+              {{ featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success | date:'medium' }}
             </div>
-            <div *ngIf="kommonitorDataGridHelperService?.featureTable_spatialUnit_lastUpdate_timestamp_failure" class="timestamp-error">
+            <div *ngIf="featureTableHelper?.featureTable_spatialUnit_lastUpdate_timestamp_failure" class="timestamp-error">
               <b>Letztes gescheitertes Update eines Einzeleintrags</b>
-              {{ kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_failure | date:'medium' }}
+              {{ featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure | date:'medium' }}
             </div>
           </div>
 
