@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent workflow (read this)
+
+- **Never commit on your own.** Make the changes, run build/test/lint, and stop — leave staging and committing to the user. Only `git add`/`git commit` when explicitly asked.
+- **Keep plan descriptions short** — concise, scannable bullets over long prose.
+
 ## What this is
 
 The **KomMonitor Web Client** — the main user-facing application of the [KomMonitor](http://kommonitor.de) spatial data infrastructure. It displays and analyzes municipal indicator and georesource data, combining cartographic (Leaflet) and statistical (ECharts) visualizations with exploration tools for city planning (filters, reachability/isochrone analysis, reporting, data export, admin pages).
