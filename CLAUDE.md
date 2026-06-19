@@ -81,7 +81,7 @@ Under `app/components/ngComponents/`:
 `app/services/` holds the bulk of the application logic — most components are thin orchestrators over these. Convention: one folder per service, `*.service.ts` + `*.service.spec.ts`.
 
 Key central services (high fan-in; change carefully):
-- **`data-exchange-service`** — central data cache + API access + shared UI state (~3500 lines; a known "god service").
+- **`data-exchange-service`** — central data cache + API access + shared UI state (~2060 lines; a known "god service"). See `documentation/PRIO7_GOD_SERVICE_SPLIT.md` for the incremental split roadmap.
 - **`map-service`** / `generic-map-helper-service` / `single-feature-map-helper-service` — Leaflet map orchestration.
 - **`diagram-helper-service`** — ECharts chart construction.
 - **`reachability-*` services** — isochrone/routing analysis via Open Route Service.
@@ -89,7 +89,7 @@ Key central services (high fan-in; change carefully):
 - **`config-storage-service` / `env-config-service`** — config plumbing.
 - **`keycloak-helper-service` / `auth-service`** — auth.
 
-Note: a large legacy `kommonitorDataGridHelperService` (~4300 lines) also exists. Per `PROPOSED_CHANGES.md`, these god-services are being split incrementally — peel off responsibilities when you touch them rather than doing a big-bang rewrite.
+Note: a large `kommonitorDataGridHelperService` (~1320 lines, in `app/services/adminSpatialUnit/`; a near-identical twin lives in `adminGeoresourceUnit/`) also exists. Per `PROPOSED_CHANGES.md` / `documentation/PRIO7_GOD_SERVICE_SPLIT.md`, these god-services are being split incrementally — peel off responsibilities when you touch them rather than doing a big-bang rewrite.
 
 ### Vendored libraries
 

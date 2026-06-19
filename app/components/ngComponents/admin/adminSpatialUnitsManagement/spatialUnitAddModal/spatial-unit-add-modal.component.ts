@@ -17,7 +17,7 @@ import {
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { HttpClient } from "@angular/common/http";
 import { KommonitorImporterHelperService } from "../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service";
-import { KommonitorDataGridHelperService } from "../../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { KommonitorDataExchangeService } from "../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service";
 import { AgGridAngular } from "ag-grid-angular";
 import { ColDef, GridOptions, GridApi, ColumnApi } from "ag-grid-community";
@@ -195,7 +195,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.roleManagementColumnApi = params.columnApi;
     
     // Update the service with the grid API so it can be used for getSelectedRoleIds
-    this.kommonitorDataGridHelperService.setGridApi(params.api);
+    this.roleManagementHelper.setGridApi(params.api);
   }
 
   // Additional grid event handlers to match parent component
@@ -273,7 +273,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
-    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private roleManagementHelper: RoleManagementDataGridHelperService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
     private sanitizer: DomSanitizer
@@ -358,7 +358,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Initialize role management if available
     if (this.kommonitorDataExchangeService.accessControl && 
         this.kommonitorDataExchangeService.accessControl.length > 0) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'spatialUnitAddRoleManagementTable', 
         this.roleManagementTableOptions, 
         this.kommonitorDataExchangeService.accessControl, 
@@ -442,7 +442,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     });
 
     // Build the role management grid options
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'spatialUnitAddRoleManagementTable',
       this.roleManagementTableOptions,
       this.kommonitorDataExchangeService.accessControl || [],
@@ -793,7 +793,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     };
 
     if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
           postBody.permissions.push(roleId);
@@ -1009,7 +1009,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
     // Parse role management (changed from allowedRoles to permissions)
     if (this.kommonitorDataExchangeService.accessControl) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'spatialUnitAddRoleManagementTable', 
         this.roleManagementTableOptions, 
         this.kommonitorDataExchangeService.accessControl, 
@@ -1201,7 +1201,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Add component-specific properties
     metadataExport.permissions = [];
     if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       metadataExport.permissions.push(...roleIds);
     }
 
@@ -1347,7 +1347,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     
     // Reset role management table
     if (this.kommonitorDataExchangeService.accessControl) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'spatialUnitAddRoleManagementTable',
         this.roleManagementTableOptions,
         this.kommonitorDataExchangeService.accessControl,
@@ -1408,8 +1408,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   private buildRoleManagementGridConfig() {
     // Use service methods for base grid configuration
-    this.roleManagementDefaultColDef = this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef();
-    const baseGridOptions = this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
       this.roleManagementTableOptions?.components
     );
     

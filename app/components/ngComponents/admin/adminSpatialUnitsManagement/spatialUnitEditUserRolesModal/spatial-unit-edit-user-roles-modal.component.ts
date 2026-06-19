@@ -11,7 +11,7 @@ import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { KommonitorDataExchangeService } from "services/adminSpatialUnit/kommonitor-data-exchange.service";
-import { KommonitorDataGridHelperService } from "services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { GridOptions, GridReadyEvent, ColDef } from "ag-grid-community";
 import { AgGridAngular } from "ag-grid-angular";
 import { CommonModule } from "@angular/common";
@@ -72,7 +72,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   constructor(
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: KommonitorDataExchangeService,
-    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    public roleManagementHelper: RoleManagementDataGridHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {}
@@ -178,7 +178,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     let access = this.kommonitorDataExchangeService.accessControl;
     // Do not filter access here; always pass the full array to the grid helper
 
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'spatialUnitEditRoleManagementTable',
       this.roleManagementTableOptions,
       access,
@@ -203,10 +203,10 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   private buildRoleManagementGridConfig(): void {
     // Get base configuration from service
-    this.roleManagementDefaultColDef = this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef();
+    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
     
     // Get base grid options from service
-    const baseGridOptions = this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
       this.roleManagementTableOptions?.components
     );
     
@@ -232,7 +232,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   onRoleManagementGridReady(params: GridReadyEvent): void {
     this.roleManagementGridApi = params.api;
     // Ensure helper service has the grid API to collect selected role IDs
-    this.kommonitorDataGridHelperService.setGridApi(params.api);
+    this.roleManagementHelper.setGridApi(params.api);
   }
 
   onRoleManagementFirstDataRendered(event: any): void {
@@ -268,7 +268,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     });
 
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'spatialUnitEditRoleManagementTable',
       this.roleManagementTableOptions,
       this.kommonitorDataExchangeService.accessControl,
@@ -369,7 +369,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       this.errorMessagePart = '';
 
       const putBody = {
-        permissions: this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions),
+        permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions),
         isPublic: this.currentSpatialUnitDataset.isPublic
       };
 

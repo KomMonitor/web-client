@@ -241,11 +241,19 @@ Ergebnis: **`npm test` grün: 70 passed, 1 skipped, 0 failed** (71 Suites); `tsc
 
 ## Prio 7 — God-Services aufteilen
 
-**Problem:** Einzelne Services sind extrem groß und bündeln zu viele Verantwortlichkeiten, v. a. `kommonitorDataGridHelperService` (~4.300 Zeilen) und `kommonitorDataExchangeService` (~3.500 Zeilen). Sie sind zentrale Abhängigkeit fast aller Komponenten und damit Änderungs-Hotspots.
+**Problem:** Einzelne Services sind groß und bündeln zu viele Verantwortlichkeiten, v. a. `data-exchange.service.ts` (real **2063 Zeilen**, 14 Cluster, ~25 geteilte mutable Felder, 108 Konsumenten) und `adminSpatialUnit/kommonitor-data-grid-helper.service.ts` (real **1322 Zeilen**, LIVE, 15 Admin-Konsumenten). Sie sind zentrale Abhängigkeit fast aller Komponenten und damit Änderungs-Hotspots. *(Die früher genannten ~4.300/~3.500 Zeilen waren veraltet — 4.300 vermutlich das gelöschte AngularJS-Original.)*
 
-**Maßnahme:** Inkrementell entlang von Verantwortlichkeiten aufteilen (z. B. Grid-Konfiguration vs. Datenaufbereitung vs. Export; Daten-Cache vs. API-Zugriff vs. UI-State). Kein Big Bang — bei jeder ohnehin anstehenden Änderung den betroffenen Teil herauslösen. Tests aus Prio 6 als Absicherung.
+**Maßnahme:** Inkrementell entlang von Verantwortlichkeiten aufteilen, **Facade-Delegation** + **Signals** (Angular 21) als State-Primitiv. Kein Big Bang. Detaillierter, kleinteiliger Fahrplan (Reihenfolge, Ziel-Services, Schnitte, Test-/Migrationsrezept): **[`documentation/PRIO7_GOD_SERVICE_SPLIT.md`](documentation/PRIO7_GOD_SERVICE_SPLIT.md)**. Tests aus Prio 6 als Absicherung.
 
 **Aufwand: L (inkrementell)** — **Nutzen: mittel–hoch**
+
+**Status (2026-06-17, A0 + A1 erledigt):**
+- **A0:** toter Code-Cluster im spatialUnit-Grid-Helper entfernt (5 nie verdrahtete Click-Handler + zugehörige auskommentierte `refreshSpatialUnitsGrid`; Einstiegspunkt war nur in auskommentiertem Code referenziert → provably unreachable). −98 Zeilen (1322 → 1224). Der georesource-Zwilling (`adminGeoresourceUnit/…`) bleibt unberührt — dort ist das Handler-Muster live.
+- **A1:** Role-/Permission-Management-Grid als eigener `RoleManagementDataGridHelperService` herausgelöst (querschnittliches Feature, wohnte nur unglücklich im spatialUnit-Helper). Volle Implementierung inkl. der 3 Checkbox-Renderer + eigenes `gridApi` im neuen Service; alter Service delegierte zunächst. Neues Spec (+6 Tests).
+- **A1b:** Die 7 typisierten Konsumenten direkt auf `RoleManagementDataGridHelperService` umgestellt, danach die Delegations-Wrapper aus dem alten Service entfernt (755 → 710 Z.). Dabei zwei Annahmen korrigiert: die wms-Modals nutzen einen **eigenen `OgcDataGridHelperService`** (nicht den spatialUnit-Helper), und 4 weitere „Konsumenten" hängen am **nicht-verdrahteten Legacy-`@Inject`-String-Token** (tote Bridge).
+- **A1c:** Die **byte-identische** Role-Mgmt-Duplikat-Implementierung in `OgcDataGridHelperService` (wms) entfernt und per Delegation auf `RoleManagementDataGridHelperService` umgestellt (**844 → 332 Z.**, ~280 echtes Duplikat weg). wms-Komponenten unverändert. Offen (A1d, brauchen Entscheidung): die 4 toten Bridge-Token-Konsumenten + optionale wms-Vollumstellung.
+
+Build/Test/Lint nach jedem Schritt grün (zuletzt 71 Suites/76 Tests passed, 1 skipped, 0 lint errors). Details: `documentation/PRIO7_GOD_SERVICE_SPLIT.md`.
 
 ---
 

@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -72,7 +72,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     public activeModal: NgbActiveModal,
     @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
     @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private roleManagementHelper: RoleManagementDataGridHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient
   ) {
@@ -196,7 +196,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     
     console.log('accessControl after filter:', access);
 
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable', 
       this.roleManagementTableOptions, 
       access, 
@@ -233,7 +233,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     });
 
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable', 
       this.roleManagementTableOptions, 
       this.kommonitorDataExchangeService.accessControl, 

@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
@@ -97,7 +97,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: DataExchangeService,
     public kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
-    public kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    public roleManagementHelper: RoleManagementDataGridHelperService,
     private broadcastService: BroadcastService,
     private topicHierarchyService: TopicHierarchyService,
     private http: HttpClient,
@@ -173,7 +173,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   private refreshRoles(): void {
     const allowedRoles = this.currentGeoresourceDataset ? this.currentGeoresourceDataset.allowedRoles : [];
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable', 
       this.roleManagementTableOptions, 
       this.kommonitorDataExchangeService.accessControl, 
@@ -209,7 +209,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     });
 
     // Set role management
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable', 
       this.roleManagementTableOptions, 
       this.kommonitorDataExchangeService.accessControl, 
@@ -468,7 +468,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.datasetName = this.metadataImportSettings.datasetName;
 
     // Set role management
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable', 
       this.roleManagementTableOptions, 
       this.kommonitorDataExchangeService.accessControl, 
@@ -555,7 +555,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     metadataExport.allowedRoles = [];
 
-    const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
     for (const roleId of roleIds) {
       metadataExport.allowedRoles.push(roleId);
     }
@@ -653,7 +653,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       topicReference: null
     };
 
-    const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
     for (const roleId of roleIds) {
       patchBody.allowedRoles.push(roleId);
     }

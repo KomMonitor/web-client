@@ -8,7 +8,7 @@ import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
 } from "services/adminSpatialUnit/kommonitor-data-exchange.service";
-import { KommonitorDataGridHelperService } from "services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import {
   AdminRoleManagementService,
   RoleDelegatePutEntry,
@@ -223,7 +223,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   constructor(
     protected activeModal: NgbActiveModal,
     protected kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private roleManagementHelper: RoleManagementDataGridHelperService,
     private adminRoleManagementService: AdminRoleManagementService,
     private notificationService: NotificationService,
   ) {}
@@ -275,13 +275,13 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     this.authorityColumnDefs = this.buildColumnDefs();
     this.authorityRowData = rowData;
     this.authorityDefaultColDef = {
-      ...this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef(),
+      ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
       filter: true,
       floatingFilter: true,
       minWidth: 110,
     };
     const baseOptions =
-      this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
         components,
       );
     this.authorityGridOptions = {
@@ -317,13 +317,13 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     const components = this.getComponents();
     this.delegatedColumnDefs = this.buildColumnDefs();
     this.delegatedDefaultColDef = {
-      ...this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef(),
+      ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
       filter: true,
       floatingFilter: true,
       minWidth: 110,
     };
     const baseOptions =
-      this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
         components,
       );
     this.delegatedGridOptions = {

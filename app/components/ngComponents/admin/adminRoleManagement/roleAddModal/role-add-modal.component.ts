@@ -8,7 +8,7 @@ import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
 } from "services/adminSpatialUnit/kommonitor-data-exchange.service";
-import { KommonitorDataGridHelperService } from "services/adminSpatialUnit/kommonitor-data-grid-helper.service";
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { AdminRoleManagementService } from "../admin-role-management.service";
 import {
   StepperComponent,
@@ -236,7 +236,7 @@ export class RoleAddModalComponent implements OnInit {
   constructor(
     protected activeModal: NgbActiveModal,
     protected kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private roleManagementHelper: RoleManagementDataGridHelperService,
     private adminRoleManagementService: AdminRoleManagementService,
     private notificationService: NotificationService,
   ) {}
@@ -351,7 +351,7 @@ export class RoleAddModalComponent implements OnInit {
       this.buildAdvancedRoleManagementColumnConfig();
     this.roleDelegatesRowData = rowData;
     this.roleDelegatesDefaultColDef = {
-      ...this.kommonitorDataGridHelperService.buildRoleManagementDefaultColDef(),
+      ...this.roleManagementHelper.buildRoleManagementDefaultColDef(),
       filter: true,
       floatingFilter: true,
       minWidth: 110,
@@ -363,7 +363,7 @@ export class RoleAddModalComponent implements OnInit {
     };
 
     const baseGridOptions =
-      this.kommonitorDataGridHelperService.buildRoleManagementGridOptionsPublic(
+      this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
         components,
       );
 

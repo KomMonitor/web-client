@@ -6,7 +6,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -198,7 +198,7 @@ export class IndicatorAddModalComponent implements OnInit {
     public activeModal: NgbActiveModal,
     public kommonitorDataExchangeService: DataExchangeService,
     public kommonitorImporterHelperService: KommonitorImporterHelperService,
-    private kommonitorDataGridHelperService: KommonitorDataGridHelperService,
+    private roleManagementHelper: RoleManagementDataGridHelperService,
     private kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
@@ -281,8 +281,8 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Initialize role management if available
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl && this.kommonitorDataGridHelperService) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl && this.roleManagementHelper) {
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable', 
         this.roleManagementTableOptions, 
         this.kommonitorDataExchangeService.accessControl, 
@@ -493,8 +493,8 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Add role permissions
-    if (this.roleManagementTableOptions && this.kommonitorDataGridHelperService) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    if (this.roleManagementTableOptions && this.roleManagementHelper) {
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
           postBody.allowedRoles.push(roleId);
@@ -765,8 +765,8 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Parse role permissions
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl && this.metadataImportSettings.allowedRoles && this.kommonitorDataGridHelperService) {
-      this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl && this.metadataImportSettings.allowedRoles && this.roleManagementHelper) {
+      this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable', 
         this.roleManagementTableOptions, 
         this.kommonitorDataExchangeService.accessControl, 
@@ -855,8 +855,8 @@ export class IndicatorAddModalComponent implements OnInit {
 
     // Add role permissions
     metadataExport.allowedRoles = [];
-    if (this.roleManagementTableOptions && this.kommonitorDataGridHelperService) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    if (this.roleManagementTableOptions && this.roleManagementHelper) {
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
       if (roleIds && Array.isArray(roleIds)) {
       for (const roleId of roleIds) {
         metadataExport.allowedRoles.push(roleId);
