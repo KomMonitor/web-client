@@ -146,10 +146,48 @@ behält ausschließlich Delegations-Wrapper/Getter + die Metadaten-Fetch-Orchest
 Konsumenten blieben durchgängig unverändert. Test-Baseline: 83 Suites / 124 Tests, Build/Lint grün.
 
 **Offene Folgeprojekte (separat, nicht Teil des Splits):**
-- Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6).
+- Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6) → **eigener Abschnitt unten**.
 - AngularJS-Bridge-Migration der 4 Admin-Modals (A1d-1).
 - Optional: State-Felder auf Signals/`computed()` heben (v. a. B7-Aggregate).
 - Latenter Feature-Table-Header-Height-Bug (A1d-3).
+
+---
+
+## Folgeprojekt: Konsumenten-Migration (Facade-Wrapper abbauen)
+
+**Ziel.** Heute leiten `DataExchangeService` (und der schlanke `KommonitorDataGridHelperService`) jeden
+extrahierten Member nur noch per Delegations-Wrapper/Getter weiter; Konsumenten rufen weiter
+`dataExchangeService.X`. Schritt 6 hängt die Konsumenten **direkt auf den jeweiligen Sub-Service** um
+und entfernt danach den Wrapper. Erst damit sinkt der Fan-in (heute ~108 Konsumenten am DataExchange),
+werden echte Abhängigkeiten sichtbar und die Facade kann letztlich verschwinden.
+
+**Vorgehen (pro Sub-Service, 1 PR):**
+1. `git grep "dataExchangeService\.<member>"` → Konsumentenliste.
+2. Betroffene Komponenten: konkreten Sub-Service injizieren (statt/zusätzlich zu `DataExchangeService`),
+   Aufrufe `this.dataExchangeService.X` → `this.<store>.X` (Sichtbarkeit/HTML-Bindings mitziehen — wie bei A1b/A2).
+3. `git grep` bestätigt 0 verbleibende Wrapper-Nutzer → Wrapper/Getter aus der Facade löschen.
+4. `npm run build` + `npm test` + `npm run lint` grün.
+
+**Reihenfolge (risikoarm → -reich), nach Konsumentenzahl/Glue:**
+- **Reine Pass-throughs zuerst:** B6-Stores `ProcessScript` (4), `Topic` (11), `SpatialUnit` (23),
+  `Indicator` (15), `Georesource/WMS/WFS` (13) sowie `MetadataExportService` (0–3) — mechanischer Repoint.
+- **B1 `IndicatorValueService`:** rein nur für die parameterlosen Utilities (`indicatorValueIsNoData`,
+  `syntaxHighlightJSON` (25!), `formatIndicatorNameForLabel`, `createDualListInputArray`). **Achtung Glue:**
+  die Precision-auflösenden Formatter (`getIndicatorValue_asNumber/_asFormattedText/_asFixedPrecisionNumber`,
+  `getIndicatorValueFromArray_asNumber`) brauchen `SelectionStateService.resolveSelectedPrecision` — beim
+  direkten Aufruf des reinen Service ginge die Selektions-Precision verloren. Solche Konsumenten entweder
+  Precision selbst auflösen lassen oder als dünne Facade behalten.
+- **B3 `AccessControlService` / B7 `SelectionStateService`:** Get/Set-State-Felder breit gestreut
+  (`accessControl` 18, `selectedIndicator` 21, `selectedDate` 18, `selectedSpatialUnit` 14). Mechanisch
+  einfach, aber Karte/Diagramme + Auth betroffen → Smoke-Test; auth-kritische Pfade ohne Keycloak nicht QA-bar.
+
+**Nicht 1:1 umhängbar (Glue-Wrapper — mitmigrieren oder bewusst behalten):**
+- die o. g. Precision-Formatter,
+- `modifyIndicatorApplicableSpatialUnitsForLoginRoles` (ruft Store **und** setzt danach B4-State
+  `displayableIndicators_keywordFiltered`),
+- die B5-Builder-Wrapper (`buildTopic*Hierarchy` lesen Facade-State und reichen ihn an den Store).
+
+**Hinweis:** Wrapper erst entfernen, wenn `git grep` 0 Konsumenten zeigt (Rezept-Schritt, Verifikation unten).
 
 ---
 
