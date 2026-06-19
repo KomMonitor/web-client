@@ -10,6 +10,7 @@ import { IndicatorValueService } from "services/indicator-value-service/indicato
 import { AccessControlService } from "services/access-control-service/access-control.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
+import { ProcessScriptMetadataStoreService } from "services/process-script-metadata-store-service/process-script-metadata-store.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -141,11 +142,11 @@ export class DataExchangeService {
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
-  availableProcessScripts: any[] = [];
+  // Prio7 B6b: process-script metadata lives in ProcessScriptMetadataStoreService; facade getter keeps consumers unchanged
+  get availableProcessScripts(): any[] { return this.processScriptStore.availableProcessScripts; }
 
   availableIndicators_map = new Map();
   availableGeoresources_map = new Map();
-  availableProcessScripts_map = new Map();
 
 
   topicIndicatorHierarchy_forOrderView: any[] = [];
@@ -414,6 +415,7 @@ export class DataExchangeService {
     private accessControlService: AccessControlService,
     private topicHierarchyStore: TopicHierarchyStoreService,
     private spatialUnitStore: SpatialUnitMetadataStoreService,
+    private processScriptStore: ProcessScriptMetadataStoreService,
   ) {}
 
   /**
@@ -757,12 +759,7 @@ export class DataExchangeService {
   }
 
   setProcessScripts(scriptsArray) {
-    this.availableProcessScripts_map = new Map(
-      scriptsArray.map((s) => [s.scriptId, s]),
-    );
-    this.availableProcessScripts = Array.from(
-      this.availableProcessScripts_map.values(),
-    );
+    this.processScriptStore.setProcessScripts(scriptsArray);
   }
 
   setIndicators(indicatorsArray) {
