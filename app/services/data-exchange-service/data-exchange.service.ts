@@ -8,6 +8,7 @@ import {
 import { EnvConfigService } from "services/env-config-service/env-config.service";
 import { IndicatorValueService } from "services/indicator-value-service/indicator-value.service";
 import { AccessControlService } from "services/access-control-service/access-control.service";
+import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -391,12 +392,12 @@ export class DataExchangeService {
   },
 ]; */
 
-  headlineIndicatorHierarchy: any[] = [];
-  computationIndicatorHierarchy: any[] = [];
-  topicIndicatorHierarchy: IndicatorsTopicsHierarchy[] = [];
-
-  topicGeoresourceHierarchy: any[] = [];
-  topicGeoresourceHierarchy_unmappedEntries: any = {};
+  // Prio7 B5: hierarchy results live in TopicHierarchyStoreService; facade getters keep consumers unchanged
+  get headlineIndicatorHierarchy(): any[] { return this.topicHierarchyStore.headlineIndicatorHierarchy; }
+  get computationIndicatorHierarchy(): any[] { return this.topicHierarchyStore.computationIndicatorHierarchy; }
+  get topicIndicatorHierarchy(): IndicatorsTopicsHierarchy[] { return this.topicHierarchyStore.topicIndicatorHierarchy; }
+  get topicGeoresourceHierarchy(): any[] { return this.topicHierarchyStore.topicGeoresourceHierarchy; }
+  get topicGeoresourceHierarchy_unmappedEntries(): any { return this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries; }
   georesourceMapKey_forUnmappedTopicReferences = "unmapped";
 
   currentKeycloakUser!: KeycloakProfile;
@@ -410,6 +411,7 @@ export class DataExchangeService {
     private metadataExportService: MetadataExportService,
     private indicatorValueService: IndicatorValueService,
     private accessControlService: AccessControlService,
+    private topicHierarchyStore: TopicHierarchyStoreService,
   ) {}
 
   /**
@@ -934,7 +936,7 @@ export class DataExchangeService {
   }
 
   private buildTopicGeoresourceHierarchy(filter: any = undefined) {
-    const result = this.topicHierarchyService.buildTopicGeoresourceHierarchy(
+    this.topicHierarchyStore.buildTopicGeoresourceHierarchy(
       this.availableTopics,
       this.displayableGeoresources_keywordFiltered,
       this.wmsDatasets_keywordFiltered,
@@ -942,25 +944,21 @@ export class DataExchangeService {
       this.georesourceMapKey_forUnmappedTopicReferences,
       filter,
     );
-    this.topicGeoresourceHierarchy = result.hierarchy;
-    this.topicGeoresourceHierarchy_unmappedEntries = result.unmappedEntries;
   }
 
   private buildComputationIndicatorHierarchy() {
-    this.computationIndicatorHierarchy =
-      this.topicHierarchyService.buildComputationIndicatorHierarchy(
-        this.displayableIndicators_keywordFiltered,
-        this.availableProcessScripts,
-      );
+    this.topicHierarchyStore.buildComputationIndicatorHierarchy(
+      this.displayableIndicators_keywordFiltered,
+      this.availableProcessScripts,
+    );
   }
 
   private buildTopicIndicatorHierarchy() {
-    this.topicIndicatorHierarchy =
-      this.topicHierarchyService.buildTopicIndicatorHierarchy(
-        this.availableTopics,
-        this.displayableIndicators_keywordFiltered,
-        this.getAvailableIndiWmsDatasets(),
-      );
+    this.topicHierarchyStore.buildTopicIndicatorHierarchy(
+      this.availableTopics,
+      this.displayableIndicators_keywordFiltered,
+      this.getAvailableIndiWmsDatasets(),
+    );
   }
 
   modifyIndicatorApplicableSpatialUnitsForLoginRoles() {
@@ -1051,11 +1049,10 @@ export class DataExchangeService {
   }
 
   private buildHeadlineIndicatorHierarchy() {
-    this.headlineIndicatorHierarchy =
-      this.topicHierarchyService.buildHeadlineIndicatorHierarchy(
-        this.displayableIndicators_keywordFiltered,
-        this.availableProcessScripts,
-      );
+    this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
+      this.displayableIndicators_keywordFiltered,
+      this.availableProcessScripts,
+    );
   }
 
   indicatorValueIsNoData(indicatorValue) {
@@ -1151,7 +1148,7 @@ export class DataExchangeService {
   }
 
   private getTopicHierarchyForTopicId(topicReferenceId) {
-    return this.topicHierarchyService.getTopicHierarchyForTopicId(
+    return this.topicHierarchyStore.getTopicHierarchyForTopicId(
       this.availableTopics,
       topicReferenceId,
     );
