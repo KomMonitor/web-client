@@ -1,0 +1,159 @@
+import { Injectable } from "@angular/core";
+import { EnvConfigService } from "services/env-config-service/env-config.service";
+
+/**
+ * Indicator metadata store extracted from DataExchangeService
+ * (Prio 7 / B6d — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ *
+ * Owns the indicator collection (availableIndicators + id-map) and the derived
+ * displayableIndicators. Depends only on EnvConfigService (decimals / hide-substrings).
+ * Cross-domain inputs are passed in: modifyIndicatorApplicableSpatialUnitsForLoginRoles
+ * receives availableSpatialUnits as a param; the B4 field displayableIndicators_keywordFiltered
+ * stays in the DataExchangeService facade. The facade re-exposes availableIndicators /
+ * displayableIndicators via getters so its consumers stay unchanged.
+ */
+@Injectable({
+  providedIn: "root",
+})
+export class IndicatorMetadataStoreService {
+
+  availableIndicators: any = [];
+  availableIndicators_map = new Map();
+  displayableIndicators: any;
+
+  constructor(private envConfigService: EnvConfigService) {}
+
+  setIndicators(indicatorsArray) {
+    this.availableIndicators = this.modifyIndicators(indicatorsArray);
+    this.availableIndicators_map = new Map(
+      this.availableIndicators.map((i) => [i.indicatorId, i]),
+    );
+  }
+
+  addSingleIndicatorMetadata(indicatorMetadata) {
+    const modified = this.modifySingleIndicator(indicatorMetadata);
+    this.availableIndicators = [modified, ...this.availableIndicators];
+    this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
+  }
+
+  replaceSingleIndicatorMetadata(indicatorMetadata) {
+    const modified = this.modifySingleIndicator(indicatorMetadata);
+    const index = this.availableIndicators.findIndex(
+      (i) => i.indicatorId === indicatorMetadata.indicatorId,
+    );
+    if (index !== -1) this.availableIndicators[index] = modified;
+    this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
+  }
+
+  getIndicatorMetadataById(indicatorId) {
+    return this.availableIndicators_map.get(indicatorId);
+  }
+
+  deleteSingleIndicatorMetadata(indicatorId) {
+    const index = this.availableIndicators.findIndex(
+      (i) => i.indicatorId === indicatorId,
+    );
+    if (index !== -1) this.availableIndicators.splice(index, 1);
+    this.availableIndicators_map.delete(indicatorId);
+  }
+
+  modifySingleIndicator(indicator) {
+    var temp = this.modifyIndicators([indicator]);
+    return temp[0];
+  }
+
+  modifyIndicators(indicators) {
+    var decimalDefault = 2;
+    if (this.envConfigService.numberOfDecimals !== undefined)
+      decimalDefault = this.envConfigService.numberOfDecimals;
+
+    indicators.forEach((elem) => {
+      if (elem.precision === null) {
+        elem.precision = decimalDefault;
+        elem.defaultPrecision = true;
+      } else elem.defaultPrecision = false;
+    });
+
+    return indicators;
+  }
+
+  /**
+   * Filters each indicator's applicableSpatialUnits to those available for the current
+   * login roles and rebuilds displayableIndicators. `availableSpatialUnits` is passed in
+   * by the facade (SpatialUnitMetadataStoreService). The B4 keyword-filtered snapshot is
+   * derived by the facade afterwards.
+   */
+  modifyIndicatorApplicableSpatialUnitsForLoginRoles(availableSpatialUnits) {
+    var availableSpatialUnitNames: any[] = [];
+    for (const spatialUnit of availableSpatialUnits) {
+      availableSpatialUnitNames.push(spatialUnit.spatialUnitLevel);
+    }
+    for (const indicator of this.availableIndicators) {
+      indicator.applicableSpatialUnits =
+        indicator.applicableSpatialUnits.filter((applicableSpatialUnit) =>
+          availableSpatialUnitNames.includes(
+            applicableSpatialUnit.spatialUnitName,
+          ),
+        );
+    }
+
+    this.displayableIndicators = this.availableIndicators.filter((item) =>
+      this.isDisplayableIndicator(item),
+    );
+  }
+
+  isDisplayableIndicator(item) {
+    // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
+    var arrayOfNameSubstringsForHidingIndicators =
+      this.envConfigService.arrayOfNameSubstringsForHidingIndicators;
+
+    // this is an item from i.e. indicatorRadar, that has a different structure
+    if (item.indicatorMetadata) {
+      if (
+        item.indicatorMetadata.applicableDates == undefined ||
+        item.indicatorMetadata.applicableDates.length === 0
+      )
+        return false;
+
+      if (
+        item.indicatorMetadata.applicableSpatialUnits == undefined ||
+        item.indicatorMetadata.applicableSpatialUnits.length === 0
+      )
+        return false;
+
+      var isIndicatorThatShallNotBeDisplayed =
+        arrayOfNameSubstringsForHidingIndicators.some((substring) =>
+          String(item.indicatorMetadata.indicatorName).includes(substring),
+        );
+
+      if (isIndicatorThatShallNotBeDisplayed) {
+        return false;
+      }
+
+      return true;
+    } else {
+      if (
+        item.applicableDates == undefined ||
+        item.applicableDates.length === 0
+      )
+        return false;
+
+      if (
+        item.applicableSpatialUnits == undefined ||
+        item.applicableSpatialUnits.length === 0
+      )
+        return false;
+
+      var isIndicatorThatShallNotBeDisplayed2 =
+        arrayOfNameSubstringsForHidingIndicators.some((substring) =>
+          String(item.indicatorName).includes(substring),
+        );
+
+      if (isIndicatorThatShallNotBeDisplayed2) {
+        return false;
+      }
+
+      return true;
+    }
+  }
+}

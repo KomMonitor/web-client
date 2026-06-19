@@ -12,6 +12,7 @@ import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-servi
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { ProcessScriptMetadataStoreService } from "services/process-script-metadata-store-service/process-script-metadata-store.service";
 import { TopicMetadataStoreService } from "services/topic-metadata-store-service/topic-metadata-store.service";
+import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -81,7 +82,8 @@ export class DataExchangeService {
   selectedFeaturesMax: any;
   allFeaturesRegionalSpatiallyUnassignable: any;
   selectedIndicatorBackup!: IndicatorsDataset;
-  displayableIndicators: any;
+  // Prio7 B6d: indicator metadata lives in IndicatorMetadataStoreService; facade getters keep consumers unchanged
+  get displayableIndicators(): any { return this.indicatorStore.displayableIndicators; }
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
   displayableIndicators_keywordFiltered: any;
@@ -94,7 +96,7 @@ export class DataExchangeService {
   simplifyGeometries: any;
   FEATURE_NAME_PROPERTY_NAME: any;
   availableGeoresources: GeoresourcesDataset[] = [];
-  availableIndicators: any = [];
+  get availableIndicators(): any { return this.indicatorStore.availableIndicators; }
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any = false;
   displayableGeoresources: any;
@@ -147,7 +149,6 @@ export class DataExchangeService {
   // Prio7 B6b: process-script metadata lives in ProcessScriptMetadataStoreService; facade getter keeps consumers unchanged
   get availableProcessScripts(): any[] { return this.processScriptStore.availableProcessScripts; }
 
-  availableIndicators_map = new Map();
   availableGeoresources_map = new Map();
 
 
@@ -419,6 +420,7 @@ export class DataExchangeService {
     private spatialUnitStore: SpatialUnitMetadataStoreService,
     private processScriptStore: ProcessScriptMetadataStoreService,
     private topicStore: TopicMetadataStoreService,
+    private indicatorStore: IndicatorMetadataStoreService,
   ) {}
 
   /**
@@ -766,10 +768,7 @@ export class DataExchangeService {
   }
 
   setIndicators(indicatorsArray) {
-    this.availableIndicators = this.modifyIndicators(indicatorsArray);
-    this.availableIndicators_map = new Map(
-      this.availableIndicators.map((i) => [i.indicatorId, i]),
-    );
+    this.indicatorStore.setIndicators(indicatorsArray);
   }
 
   getAvailableGeoWmsDatasets(): WmsDataset[] {
@@ -855,18 +854,11 @@ export class DataExchangeService {
   }
 
   addSingleIndicatorMetadata(indicatorMetadata) {
-    const modified = this.modifySingleIndicator(indicatorMetadata);
-    this.availableIndicators = [modified, ...this.availableIndicators];
-    this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
+    this.indicatorStore.addSingleIndicatorMetadata(indicatorMetadata);
   }
 
   replaceSingleIndicatorMetadata(indicatorMetadata) {
-    const modified = this.modifySingleIndicator(indicatorMetadata);
-    const index = this.availableIndicators.findIndex(
-      (i) => i.indicatorId === indicatorMetadata.indicatorId,
-    );
-    if (index !== -1) this.availableIndicators[index] = modified;
-    this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
+    this.indicatorStore.replaceSingleIndicatorMetadata(indicatorMetadata);
   }
 
   checkDeletePermission() {
@@ -882,7 +874,7 @@ export class DataExchangeService {
   }
 
   getIndicatorMetadataById(indicatorId) {
-    return this.availableIndicators_map.get(indicatorId);
+    return this.indicatorStore.getIndicatorMetadataById(indicatorId);
   }
 
   getGeoresourceMetadataById(georesourceId) {
@@ -894,31 +886,15 @@ export class DataExchangeService {
   }
 
   deleteSingleIndicatorMetadata(indicatorId) {
-    const index = this.availableIndicators.findIndex(
-      (i) => i.indicatorId === indicatorId,
-    );
-    if (index !== -1) this.availableIndicators.splice(index, 1);
-    this.availableIndicators_map.delete(indicatorId);
+    this.indicatorStore.deleteSingleIndicatorMetadata(indicatorId);
   }
 
   modifySingleIndicator(indicator) {
-    var temp = this.modifyIndicators([indicator]);
-    return temp[0];
+    return this.indicatorStore.modifySingleIndicator(indicator);
   }
 
   modifyIndicators(indicators) {
-    var decimalDefault = 2;
-    if (this.envConfigService.numberOfDecimals !== undefined)
-      decimalDefault = this.envConfigService.numberOfDecimals;
-
-    indicators.forEach((elem) => {
-      if (elem.precision === null) {
-        elem.precision = decimalDefault;
-        elem.defaultPrecision = true;
-      } else elem.defaultPrecision = false;
-    });
-
-    return indicators;
+    return this.indicatorStore.modifyIndicators(indicators);
   }
 
   onMetadataLoadingCompleted() {
@@ -959,90 +935,17 @@ export class DataExchangeService {
   }
 
   modifyIndicatorApplicableSpatialUnitsForLoginRoles() {
-    var availableSpatialUnitNames: any[] = [];
-    for (const spatialUnit of this.availableSpatialUnits) {
-      availableSpatialUnitNames.push(spatialUnit.spatialUnitLevel);
-    }
-    for (const indicator of this.availableIndicators) {
-      indicator.applicableSpatialUnits =
-        indicator.applicableSpatialUnits.filter((applicableSpatialUnit) =>
-          availableSpatialUnitNames.includes(
-            applicableSpatialUnit.spatialUnitName,
-          ),
-        );
-    }
-
-    this.displayableIndicators = this.availableIndicators.filter((item) =>
-      this.isDisplayableIndicator(item),
+    this.indicatorStore.modifyIndicatorApplicableSpatialUnitsForLoginRoles(
+      this.availableSpatialUnits,
     );
+    // displayableIndicators_keywordFiltered is B4 state and stays in the facade
     this.displayableIndicators_keywordFiltered = JSON.parse(
       JSON.stringify(this.displayableIndicators),
     );
   }
 
   isDisplayableIndicator(item) {
-    // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
-    var arrayOfNameSubstringsForHidingIndicators =
-      this.envConfigService.arrayOfNameSubstringsForHidingIndicators;
-
-    // this is an item from i.e. indicatorRadar, that has a different structure
-    if (item.indicatorMetadata) {
-      if (
-        item.indicatorMetadata.applicableDates == undefined ||
-        item.indicatorMetadata.applicableDates.length === 0
-      )
-        return false;
-
-      if (
-        item.indicatorMetadata.applicableSpatialUnits == undefined ||
-        item.indicatorMetadata.applicableSpatialUnits.length === 0
-      )
-        return false;
-
-      var isIndicatorThatShallNotBeDisplayed =
-        arrayOfNameSubstringsForHidingIndicators.some((substring) =>
-          String(item.indicatorMetadata.indicatorName).includes(substring),
-        );
-
-      if (isIndicatorThatShallNotBeDisplayed) {
-        return false;
-      }
-
-      //  if(! roleMappingAllowsDisplay(item.indicatorMetadata)){
-      //    return false;
-      //  }
-
-      return true;
-    } else {
-      //
-      if (
-        item.applicableDates == undefined ||
-        item.applicableDates.length === 0
-      )
-        return false;
-
-      if (
-        item.applicableSpatialUnits == undefined ||
-        item.applicableSpatialUnits.length === 0
-      )
-        return false;
-
-      // var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
-      var isIndicatorThatShallNotBeDisplayed =
-        arrayOfNameSubstringsForHidingIndicators.some((substring) =>
-          String(item.indicatorName).includes(substring),
-        );
-
-      if (isIndicatorThatShallNotBeDisplayed) {
-        return false;
-      }
-
-      //  if(! roleMappingAllowsDisplay(item)){
-      //   return false;
-      // }
-
-      return true;
-    }
+    return this.indicatorStore.isDisplayableIndicator(item);
   }
 
   private buildHeadlineIndicatorHierarchy() {
