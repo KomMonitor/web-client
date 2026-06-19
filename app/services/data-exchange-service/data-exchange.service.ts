@@ -15,6 +15,7 @@ import { TopicMetadataStoreService } from "services/topic-metadata-store-service
 import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
+import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -46,9 +47,8 @@ export class DataExchangeService {
   private metadataLoadingSubject = new BehaviorSubject<MetadataLoadingState>(MetadataLoadingState.NONE);
   metadataLoading$ = this.metadataLoadingSubject.asObservable();
 
-  // object to share changes on selectedDate, still needs the "real" 'selectedDate' as numerous components use it
-  private selectedDateSubject = new BehaviorSubject<Date | undefined>(undefined);
-  selectedDate$ = this.selectedDateSubject.asObservable();
+  // Prio7 B7: selectedDate stream lives in SelectionStateService
+  get selectedDate$() { return this.selectionState.selectedDate$; }
 
   selectedDateInit = false;
 
@@ -56,33 +56,37 @@ export class DataExchangeService {
   showGeoresourceExportButtons = true;
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || "both";
 
-  selectedIndicator!: IndicatorsDataset;
+  // Prio7 B7: selection state lives in SelectionStateService; facade get/set keeps consumers unchanged
+  get selectedIndicator(): IndicatorsDataset { return this.selectionState.selectedIndicator; }
+  set selectedIndicator(v: IndicatorsDataset) { this.selectionState.selectedIndicator = v; }
   // Prio7 B6a: spatial-unit metadata lives in SpatialUnitMetadataStoreService; facade getter keeps consumers unchanged
   get availableSpatialUnits(): SpatialUnit[] { return this.spatialUnitStore.availableSpatialUnits; }
   // Prio7 B6e: georesource/WMS/WFS state lives in GeoresourceMetadataStoreService; facade getters keep consumers unchanged
   get availableWmsDatasets(): WmsDataset[] { return this.georesourceStore.availableWmsDatasets; }
-  selectedDate: any;
-  selectedSpatialUnit!: SpatialUnit;
+  get selectedDate(): any { return this.selectionState.selectedDate; }
+  set selectedDate(v: any) { this.selectionState.selectedDate = v; }
+  get selectedSpatialUnit(): SpatialUnit { return this.selectionState.selectedSpatialUnit; }
+  set selectedSpatialUnit(v: SpatialUnit) { this.selectionState.selectedSpatialUnit = v; }
   disableIndicatorDatePicker!: boolean;
   isBalanceChecked!: boolean;
   indicatorAndMetadataAsBalance: any;
   indicatorDatePrefix!: string;
   measureOfValue: any;
   isMeasureOfValueChecked: boolean = false;
-  allFeaturesRegionalMean: any;
-  allFeaturesMean: any;
-
-  allFeaturesNumberOfFeatures: any;
-  selectedFeaturesNumberOfFeatures: any;
-  allFeaturesSum: any;
-  allFeaturesRegionalSum: any;
-  selectedFeaturesSum: any;
-  selectedFeaturesMean: any;
-  allFeaturesMin: any;
-  selectedFeaturesMin: any;
-  allFeaturesMax: any;
-  selectedFeaturesMax: any;
-  allFeaturesRegionalSpatiallyUnassignable: any;
+  // Prio7 B7: feature aggregates live in SelectionStateService; facade getters keep consumers unchanged
+  get allFeaturesRegionalMean(): any { return this.selectionState.allFeaturesRegionalMean; }
+  get allFeaturesMean(): any { return this.selectionState.allFeaturesMean; }
+  get allFeaturesNumberOfFeatures(): any { return this.selectionState.allFeaturesNumberOfFeatures; }
+  get selectedFeaturesNumberOfFeatures(): any { return this.selectionState.selectedFeaturesNumberOfFeatures; }
+  get allFeaturesSum(): any { return this.selectionState.allFeaturesSum; }
+  get allFeaturesRegionalSum(): any { return this.selectionState.allFeaturesRegionalSum; }
+  get selectedFeaturesSum(): any { return this.selectionState.selectedFeaturesSum; }
+  get selectedFeaturesMean(): any { return this.selectionState.selectedFeaturesMean; }
+  get allFeaturesMin(): any { return this.selectionState.allFeaturesMin; }
+  get selectedFeaturesMin(): any { return this.selectionState.selectedFeaturesMin; }
+  get allFeaturesMax(): any { return this.selectionState.allFeaturesMax; }
+  get selectedFeaturesMax(): any { return this.selectionState.selectedFeaturesMax; }
+  get allFeaturesRegionalSpatiallyUnassignable(): any { return this.selectionState.allFeaturesRegionalSpatiallyUnassignable; }
   selectedIndicatorBackup!: IndicatorsDataset;
   // Prio7 B6d: indicator metadata lives in IndicatorMetadataStoreService; facade getters keep consumers unchanged
   get displayableIndicators(): any { return this.indicatorStore.displayableIndicators; }
@@ -145,7 +149,7 @@ export class DataExchangeService {
   get wmsDatasets_keywordFiltered(): WmsDataset[] { return this.georesourceStore.wmsDatasets_keywordFiltered; }
   get wfsDatasets_keywordFiltered(): any { return this.georesourceStore.wfsDatasets_keywordFiltered; }
 
-  allFeaturesPropertyUnit;
+  get allFeaturesPropertyUnit(): any { return this.selectionState.allFeaturesPropertyUnit; }
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
@@ -424,6 +428,7 @@ export class DataExchangeService {
     private indicatorStore: IndicatorMetadataStoreService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private metadataFilterService: MetadataFilterService,
+    private selectionState: SelectionStateService,
   ) {}
 
   /**
@@ -432,21 +437,11 @@ export class DataExchangeService {
    * (selectedIndicator) lives here until B7; the IndicatorValueService stays pure.
    */
   private resolveSelectedPrecision(precision = undefined) {
-    if (precision !== undefined) {
-      return precision;
-    }
-    if (this.selectedIndicator && this.selectedIndicator.precision !== null) {
-      return this.selectedIndicator.precision;
-    }
-    return undefined;
+    return this.selectionState.resolveSelectedPrecision(precision);
   }
 
   setSelectedDate(dateString:string | undefined) {
-    
-    if(dateString) {
-      this.selectedDate = dateString;
-      this.selectedDateSubject.next(new Date(dateString));
-    }
+    this.selectionState.setSelectedDate(dateString);
   }
 
   setMetadataState(state: MetadataLoadingState) {
@@ -1162,86 +1157,17 @@ export class DataExchangeService {
   }
 
   setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName) {
-    let sum = 0;
-    let count = 0;
-    let min = Number.MAX_VALUE;
-    let max = Number.MIN_VALUE;
-
-    for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
-      if (!this.indicatorValueIsNoData(feature.properties[propertyName])) {
-        let value = this.getIndicatorValueFromArray_asNumber(
-          feature.properties,
-          propertyName,
-        );
-        sum += value;
-        if (value < min) min = value;
-        if (value > max) max = value;
-        count++;
-      }
-    }
-
-    this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
-    this.allFeaturesNumberOfFeatures = count;
-    this.allFeaturesSum = sum;
-    // no division by zero
-    if (count > 0) this.allFeaturesMean = sum / count;
-    else this.allFeaturesMean = 0;
-    this.allFeaturesMin = min;
-    this.allFeaturesMax = max;
-
-    this.allFeaturesRegionalSum = undefined;
-    this.allFeaturesRegionalMean = undefined;
-    this.allFeaturesRegionalSpatiallyUnassignable = undefined;
-
-    if (indicatorMetadataAndGeoJSON.regionalReferenceValues) {
-      for (const regionalReferenceValuesEntry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
-        if (
-          regionalReferenceValuesEntry.referenceDate &&
-          regionalReferenceValuesEntry.referenceDate == this.selectedDate
-        ) {
-          this.allFeaturesRegionalSum =
-            regionalReferenceValuesEntry.regionalSum;
-          this.allFeaturesRegionalMean =
-            regionalReferenceValuesEntry.regionalAverage;
-          this.allFeaturesRegionalSpatiallyUnassignable =
-            regionalReferenceValuesEntry.spatiallyUnassignable;
-        }
-      }
-    }
+    this.selectionState.setAllFeaturesProperty(
+      indicatorMetadataAndGeoJSON,
+      propertyName,
+    );
   }
 
   setSelectedFeatureProperty(selectedFeaturesMap, propertyName) {
-    let sum = 0;
-    let count = 0;
-    let min = Number.MAX_VALUE;
-    let max = Number.MIN_VALUE;
-
-    selectedFeaturesMap.forEach((feature, key, map) => {
-      if (!this.indicatorValueIsNoData(feature.properties[propertyName])) {
-        let value = this.getIndicatorValueFromArray_asNumber(
-          feature.properties,
-          propertyName,
-        );
-        sum += value;
-        if (value < min) min = value;
-        if (value > max) max = value;
-        count++;
-      }
-    });
-
-    if (count === 0) {
-      // no feature selected, overwrite initial values for min and max
-      min = 0;
-      max = 0;
-    }
-
-    this.selectedFeaturesNumberOfFeatures = count;
-    this.selectedFeaturesSum = sum;
-    // no division by zero
-    if (count > 0) this.selectedFeaturesMean = sum / count;
-    else this.selectedFeaturesMean = 0;
-    this.selectedFeaturesMin = min;
-    this.selectedFeaturesMax = max;
+    this.selectionState.setSelectedFeatureProperty(
+      selectedFeaturesMap,
+      propertyName,
+    );
   }
 
   selectedSpatialUnitIsRaster() {
@@ -1292,20 +1218,11 @@ export class DataExchangeService {
   }
 
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
-    let propertyName = this.buildIndicatorPropertyName();
-
-    setTimeout(() => {
-      this.setSelectedFeatureProperty(
-        selectedIndicatorFeatureIds,
-        propertyName,
-      );
-    });
+    this.selectionState.onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]);
   }
 
   buildIndicatorPropertyName() {
-    const INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
-    let propertyName = INDICATOR_DATE_PREFIX + this.selectedDate;
-    return propertyName;
+    return this.selectionState.buildIndicatorPropertyName();
   }
 
   formatIndicatorNameForLabel(indicatorName, maxCharsPerLine) {

@@ -130,9 +130,26 @@ Reihenfolge nach Kopplung: erst die State-armen, reinen Seams; der zentrale Cach
 > **B6e · `GeoresourceMetadataStoreService` (Georesource + WMS/WFS + Georesource-Filter, B6e + B4-Georesource zusammen)** ✅ **erledigt (2026-06-19).** Neuer `app/services/georesource-metadata-store-service/georesource-metadata-store.service.ts` (+ Spec). Deps: `EnvConfigService`, `TopicHierarchyService`, `TopicHierarchyStoreService`, `TopicMetadataStoreService`. Verschoben: 12 Felder (`availableGeoresources(_map)`, `displayableGeoresources`, `availableWmsDatasets`, `wmsDatasets`, `wfsDatasets`, `*_keywordFiltered`, `…_forAlphabeticalDisplay`, `georesourceMapKey_forUnmappedTopicReferences`) + ~19 Methoden (setGeoresources/setServices, add/replace/delete, getById, isDisplayableGeoresource, alle Georesource-/WMS/WFS-Filter inkl. `onChangeGeoresourceKeywordFilter`/`getGeoresourceDatasets`/`getAvailable*`/`filterGeoresourcesByTypes`, setWmsLayer*). **Kopplung intern gelöst:** `setGeoresources`↔`onChangeGeoresourceKeywordFilter` beide im Store; `buildTopicGeoresourceHierarchy` direkt über injizierten `TopicHierarchyStore`; `availableTopics` aus `TopicStore`; `filterArrayObjectsByValue` als private Store-Kopie; `topicHierarchyContains*` ganz in den Store (kein Facade-Wrapper). Facade: 12 Getter (`displayableGeoresources` zusätzlich Setter — 1 ext. Schreibzugriff in `reachability-poi-in-iso`), Methoden-Wrapper; ungenutzte `TopicHierarchyService`-Injection aus DataExchange entfernt. Build/Test/Lint grün (81 Suites/115 Tests, 0 errors).
 > **Offen (Teil B):** nur noch **B7 · SelectionStateService**.
 
-**B7 · `SelectionStateService` — Selektion + Aggregation (Cluster F, zuletzt/schwerste).** `selectedIndicator`, `selectedSpatialUnit`, `selectedDate`, `setSelectedDate`, `setAllFeaturesProperty`, `setSelectedFeatureProperty`, `onRemovedFeatureFromSelection` + die ~15 `allFeatures*`/`selectedFeatures*`-Aggregate. Hier zahlt sich **Signals + `computed()`** am stärksten aus: die Aggregate als abgeleitete `computed()` aus `selectedIndicator`+`selectedDate` statt manueller Pflege. Höchste Konsumenten-Dichte (`kommonitor-map`, Diagramme) → Facade-Getter halten Lese-Stellen stabil.
+**B7 · `SelectionStateService` — Selektion + Aggregation (Cluster F).** ✅ **erledigt (2026-06-19).** Neuer `app/services/selection-state-service/selection-state.service.ts` (+ Spec), Deps `IndicatorValueService` + `EnvConfigService`. Verschoben: `selectedIndicator`, `selectedSpatialUnit`, `selectedDate`, `selectedDate$` (+ privates `selectedDateSubject`), die 14 `allFeatures*`/`selectedFeatures*`-Aggregate (inkl. `allFeaturesPropertyUnit`, `*Regional*`), die Methoden `setSelectedDate`/`setAllFeaturesProperty`/`setSelectedFeatureProperty`/`onRemovedFeatureFromSelection`/`buildIndicatorPropertyName` (B1-zurückgestellt) + `resolveSelectedPrecision`.
+> **Schnitt:** Facade-**Get/Set** für `selectedIndicator`/`selectedSpatialUnit`/`selectedDate` (externe Writes nur in `kommonitor-data-setup`; Leser: 21/14/18 Dateien), **Getter** für die Aggregate + `selectedDate$` (keine externen Writes). Die Value-Aufrufe in `setAllFeaturesProperty`/`setSelectedFeatureProperty` gehen direkt an `IndicatorValueService` mit selbst aufgelöster Precision. `metadataLoading$`/`setMetadataState` **bleiben** in der Facade (kein Selektions-State). Facade-`resolveSelectedPrecision` delegiert an den Store. Plain Fields (Signals/`computed()` optional später). Build/Test/Lint grün (83 Suites/124 Tests, 0 errors). ⚠️ Karte/Diagramme betroffen → manueller Smoke-Test vor Release empfohlen.
 
-**Rest:** Metadaten-Orchestrierung (`fetchAllMetadata` + `fetch*Metadata`, `reinitServices`) und UI-Config-Flags (Cluster K) bleiben vorerst in der schlank gewordenen Facade; `fetchAllMetadata` koordiniert künftig die neuen Stores.
+**Rest:** Metadaten-Orchestrierung (`fetchAllMetadata` + `fetch*Metadata`, `reinitServices`) und UI-Config-Flags (Cluster K) + `metadataLoading$` bleiben in der schlank gewordenen Facade; `fetchAllMetadata` koordiniert die neuen Stores.
+
+---
+
+## Stand: Teil A + Teil B abgeschlossen (2026-06-19)
+
+Alle geplanten Schnitte ✅. Aus `DataExchangeService` extrahiert: `IndicatorValueService` (B1),
+`MetadataExportService` (B2), `AccessControlService` (B3), `MetadataFilterService` (B4-Indicator),
+`TopicHierarchyStoreService` (B5), die Metadaten-Stores `SpatialUnit`/`ProcessScript`/`Topic`/`Indicator`/`Georesource(+WMS/WFS+Filter)` (B6a–e) und `SelectionStateService` (B7). Die Facade `DataExchangeService`
+behält ausschließlich Delegations-Wrapper/Getter + die Metadaten-Fetch-Orchestrierung + UI-Config-Flags.
+Konsumenten blieben durchgängig unverändert. Test-Baseline: 83 Suites / 124 Tests, Build/Lint grün.
+
+**Offene Folgeprojekte (separat, nicht Teil des Splits):**
+- Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6).
+- AngularJS-Bridge-Migration der 4 Admin-Modals (A1d-1).
+- Optional: State-Felder auf Signals/`computed()` heben (v. a. B7-Aggregate).
+- Latenter Feature-Table-Header-Height-Bug (A1d-3).
 
 ---
 
