@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { 
-  GridOptions, 
-  ColDef, 
-  GridApi, 
+  GridOptions,
+  ColDef,
   ColumnApi,
   ICellRendererParams,
   ICellRendererComp,
@@ -13,7 +12,6 @@ import {
   CellClickedEvent
 } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { OgcService } from 'services/ogcServices/ogc.service';
@@ -34,8 +32,7 @@ export class OgcDataGridHelperService {
 
   constructor(
     private dataExchangeService: DataExchangeService,
-    private ogcService: OgcService,
-    private roleManagementHelper: RoleManagementDataGridHelperService
+    private ogcService: OgcService
   ) { }
 
   /**
@@ -301,32 +298,4 @@ export class OgcDataGridHelperService {
     return topic.topicName;
   }
 
-  // ===== Role-/Permission-Management grid =====
-  // Delegated to the shared RoleManagementDataGridHelperService (Prio 7 / A1c —
-  // see documentation/PRIO7_GOD_SERVICE_SPLIT.md). The implementation here was a
-  // verbatim duplicate; the `tableDOMId` parameter of the shared API is unused.
-
-  setGridApi(gridApi: GridApi): void {
-    this.roleManagementHelper.setGridApi(gridApi);
-  }
-
-  buildRoleManagementGrid(currentTableOptionsObject: any, accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
-    return this.roleManagementHelper.buildRoleManagementGrid('', currentTableOptionsObject, accessControlMetadata, selectedPermissionIds, reducedRoleManagement);
-  }
-
-  getRoleManagementComponents(): any {
-    return this.roleManagementHelper.getRoleManagementComponents();
-  }
-
-  getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions: any): string[] {
-    return this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(roleManagementTableOptions);
-  }
-
-  buildRoleManagementDefaultColDef(): any {
-    return this.roleManagementHelper.buildRoleManagementDefaultColDef();
-  }
-
-  buildRoleManagementGridOptionsPublic(components?: any): GridOptions {
-    return this.roleManagementHelper.buildRoleManagementGridOptionsPublic(components);
-  }
 }

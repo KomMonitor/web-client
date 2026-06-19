@@ -4,8 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
-import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
-import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
@@ -82,7 +81,7 @@ export class WmsAddModalComponent implements OnInit {
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
     private ogcService: OgcService,
-    protected dataGridHelperService: OgcDataGridHelperService,
+    protected roleManagementHelper: RoleManagementDataGridHelperService,
     protected envConfigService: EnvConfigService
   ) {}
 
@@ -143,7 +142,7 @@ export class WmsAddModalComponent implements OnInit {
       ownerId: this.ownerOrganization,
       serviceResource: this.resourceType,
       isPublic: this.isPublic,
-      permissions: this.dataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
+      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
     };
 
     this.ogcService.registerWms(data).subscribe({
@@ -188,7 +187,8 @@ export class WmsAddModalComponent implements OnInit {
     });
 
     // Build the role management grid options
-    this.roleManagementTableOptions = this.dataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
+      '',
       this.roleManagementTableOptions,
       this.dataExchangeService.accessControl || [],
       permissionIds_ownerUnit,
@@ -280,7 +280,7 @@ export class WmsAddModalComponent implements OnInit {
     this.roleManagementColumnApi = params.columnApi;
     
     // Update the service with the grid API so it can be used for getSelectedRoleIds
-    this.dataGridHelperService.setGridApi(params.api);
+    this.roleManagementHelper.setGridApi(params.api);
   }
 
   // Additional grid event handlers to match parent component
@@ -325,8 +325,8 @@ export class WmsAddModalComponent implements OnInit {
 
   private buildRoleManagementGridConfig() {
     // Use service methods for base grid configuration
-    this.roleManagementDefaultColDef = this.dataGridHelperService.buildRoleManagementDefaultColDef();
-    const baseGridOptions = this.dataGridHelperService.buildRoleManagementGridOptionsPublic(
+    this.roleManagementDefaultColDef = this.roleManagementHelper.buildRoleManagementDefaultColDef();
+    const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
       this.roleManagementTableOptions?.components
     );
     

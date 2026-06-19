@@ -20,7 +20,6 @@ export class KommonitorDataGridHelperService {
   // Store the data grid options
   private dataGridOptions_spatialUnits: GridOptions | null = null;
   private dataGridOptions_featureTable: GridOptions | null = null;
-  private gridApi_spatialUnits: GridApi | null = null;
   private gridApi_featureTable: GridApi | null = null;
 
   // Resource type constants
@@ -80,78 +79,6 @@ export class KommonitorDataGridHelperService {
       paginationPageSize: 10,
       suppressColumnVirtualisation: true
     };
-  }
-
-  /**
-   * Get selected spatial units metadata
-   */
-  getSelectedSpatialUnitsMetadata(): any[] {
-    const spatialUnitsMetadataArray: any[] = [];
-
-    if (this.dataGridOptions_spatialUnits && this.gridApi_spatialUnits) {
-      const selectedNodes = this.gridApi_spatialUnits.getSelectedNodes();
-      for (const selectedNode of selectedNodes) {
-        spatialUnitsMetadataArray.push(selectedNode.data);
-      }
-    }
-
-    return spatialUnitsMetadataArray;
-  }
-
-  /**
-   * Save grid state (for preserving selection/filters when updating data)
-   */
-  private saveGridStore(gridOptions: any): void {
-    if (gridOptions && this.gridApi_spatialUnits) {
-      // Store selection state
-      const selectedNodes = this.gridApi_spatialUnits.getSelectedNodes();
-      gridOptions._savedState = {
-        selectedIds: selectedNodes.map((node: any) => node.data.spatialUnitId)
-      };
-    }
-  }
-
-  /**
-   * Restore grid state (for preserving selection/filters when updating data)
-   */
-  private restoreGridStore(gridOptions: any): void {
-    if (gridOptions && this.gridApi_spatialUnits && gridOptions._savedState) {
-      setTimeout(() => {
-        // Restore selection
-        this.gridApi_spatialUnits?.forEachNode((node: any) => {
-          if (gridOptions._savedState.selectedIds.includes(node.data.spatialUnitId)) {
-            node.setSelected(true);
-          }
-        });
-      }, 100);
-    }
-  }
-
-  /**
-   * Set header height for proper display
-   */
-  private headerHeightSetter(): void {
-    if (this.gridApi_spatialUnits) {
-      const headerHeight = this.headerHeightGetter();
-      this.gridApi_spatialUnits.setHeaderHeight(headerHeight);
-    }
-  }
-
-  /**
-   * Calculate header height based on content
-   */
-  private headerHeightGetter(): number {
-    const columnHeaderTexts = document.querySelectorAll('.ag-header-cell-text');
-    let maxHeight = 0;
-    
-    columnHeaderTexts.forEach((element: any) => {
-      const height = element.offsetHeight;
-      if (height > maxHeight) {
-        maxHeight = height;
-      }
-    });
-    
-    return Math.max(maxHeight + 20, 50); // Add padding, minimum 50px
   }
 
   /**
@@ -264,11 +191,7 @@ export class KommonitorDataGridHelperService {
       // Grid features
       suppressColumnVirtualisation: true,
       onFirstDataRendered: () => {
-        this.headerHeightSetter();
         this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
-      },
-      onColumnResized: () => {
-        this.headerHeightSetter();
       },
       onGridReady: (params: GridReadyEvent) => {
         this.gridApi_featureTable = params.api;
