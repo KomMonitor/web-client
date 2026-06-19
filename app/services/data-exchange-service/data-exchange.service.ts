@@ -14,6 +14,7 @@ import { ProcessScriptMetadataStoreService } from "services/process-script-metad
 import { TopicMetadataStoreService } from "services/topic-metadata-store-service/topic-metadata-store.service";
 import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
+import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
 import { BehaviorSubject, forkJoin } from "rxjs";
 import { AuthService } from "services/auth-service/auth.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -87,7 +88,9 @@ export class DataExchangeService {
   get displayableIndicators(): any { return this.indicatorStore.displayableIndicators; }
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
-  displayableIndicators_keywordFiltered: any;
+  // Prio7 B4: indicator keyword filter lives in MetadataFilterService; facade get/set keeps consumers + the B6d wrapper unchanged
+  get displayableIndicators_keywordFiltered(): any { return this.metadataFilterService.displayableIndicators_keywordFiltered; }
+  set displayableIndicators_keywordFiltered(v: any) { this.metadataFilterService.displayableIndicators_keywordFiltered = v; }
   get displayableGeoresources_keywordFiltered(): any { return this.georesourceStore.displayableGeoresources_keywordFiltered; }
   wmsLegendImage: any;
   get displayableGeoresources_keywordFiltered_forAlphabeticalDisplay(): any { return this.georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay; }
@@ -420,6 +423,7 @@ export class DataExchangeService {
     private topicStore: TopicMetadataStoreService,
     private indicatorStore: IndicatorMetadataStoreService,
     private georesourceStore: GeoresourceMetadataStoreService,
+    private metadataFilterService: MetadataFilterService,
   ) {}
 
   /**
@@ -1041,31 +1045,7 @@ export class DataExchangeService {
   }
 
   onChangeIndicatorKeywordFilter(indicatorNameFilter) {
-    this.displayableIndicators_keywordFiltered = JSON.parse(
-      JSON.stringify(this.displayableIndicators),
-    );
-
-    if (indicatorNameFilter && indicatorNameFilter != "") {
-      this.displayableIndicators_keywordFiltered =
-        this.filterArrayObjectsByValue(
-          this.displayableIndicators_keywordFiltered,
-          indicatorNameFilter,
-        );
-    }
-
-    this.buildTopicIndicatorHierarchy();
-    this.buildHeadlineIndicatorHierarchy();
-    this.buildComputationIndicatorHierarchy();
-  }
-
-  filterArrayObjectsByValue(array, string) {
-    return array.filter((o) => {
-      return Object.keys(o).some((k) => {
-        if (typeof o[k] === "string")
-          return o[k].toLowerCase().includes(string.toLowerCase());
-        return false;
-      });
-    });
+    this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
   }
 
   onChangeGeoresourceKeywordFilter(
@@ -1336,9 +1316,7 @@ export class DataExchangeService {
   }
 
   filterIndicators() {
-    return (item) => {
-      return this.isDisplayableIndicator(item);
-    };
+    return this.metadataFilterService.filterIndicators();
   }
 
   isDisplayableGeoresource(item) {
