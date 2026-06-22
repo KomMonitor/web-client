@@ -4,22 +4,16 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
-      </div>
-    }
-  </div>
+  <app-loading-overlay [loading]="loadingData">
+    <h4><b>Soll folgender Themeneintrag wirklich gelöscht werden?</b></h4>
+    <p>Dabei werden auch sämtliche Unterthemen dauerhaft aus dem System entfernt.</p>
 
-  <h4><b>Soll folgender Themeneintrag wirklich gelöscht werden?</b></h4>
-  <p>Dabei werden auch sämtliche Unterthemen dauerhaft aus dem System entfernt.</p>
-
-  <pre
-    id="deleteTopicPre"
-    style="overflow: auto; max-height: 500px"
-    [innerHTML]="topicToDeletePrettyPrint"
-  ></pre>
+    <pre
+      id="deleteTopicPre"
+      style="overflow: auto; max-height: 500px"
+      [innerHTML]="topicToDeletePrettyPrint"
+    ></pre>
+  </app-loading-overlay>
 
   @if (successMessage) {
     <div

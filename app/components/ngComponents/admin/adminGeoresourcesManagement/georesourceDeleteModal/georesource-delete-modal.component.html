@@ -6,14 +6,8 @@
 </div>
 
 <div class="modal-body">
-  <!-- Loading overlay -->
-  @if (loadingData) {
-    <div class="loading-overlay-admin-panel">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
-  }
-
-  <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
+  <app-loading-overlay [loading]="loadingData">
+    <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
 
   @if (datasetsToDelete.length === 0) {
     <div>
@@ -141,6 +135,8 @@
       }
     </div>
   }
+
+  </app-loading-overlay>
 
   <!-- Success Alert -->
   @if (showSuccessAlert) {

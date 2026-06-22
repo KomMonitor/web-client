@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription, forkJoin } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 interface AffectedScript {
   scriptId: string;
@@ -32,7 +33,7 @@ interface AffectedIndicatorReference {
   selector: 'app-georesource-delete-modal',
   templateUrl: './georesource-delete-modal.component.html',
   styleUrls: ['./georesource-delete-modal.component.css'],
-  imports: [],
+  imports: [LoadingOverlayComponent],
   standalone: true,
 })
 export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {

@@ -7,12 +7,13 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-topic-delete-modal',
   templateUrl: './topic-delete-modal.component.html',
   styleUrls: ['./topic-delete-modal.component.css'],
-  imports: [],
+  imports: [LoadingOverlayComponent],
   standalone: true,
 })
 export class TopicDeleteModalComponent implements OnInit {

@@ -4,36 +4,30 @@
 </div>
 
 <div class="modal-body">
-  <div align="center">
-    @if (loadingData) {
-      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
-        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+  <app-loading-overlay [loading]="loadingData">
+    <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
+
+    <p>
+      Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus dem
+      System entfernt.
+    </p>
+
+    @if (datasetsToDelete.length > 0) {
+      <div>
+        <ul>
+          @for (dataset of datasetsToDelete; track dataset) {
+            <li>{{ dataset.spatialUnitLevel }}</li>
+          }
+        </ul>
       </div>
     }
-  </div>
 
-  <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
-
-  <p>
-    Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus dem
-    System entfernt.
-  </p>
-
-  @if (datasetsToDelete.length > 0) {
-    <div>
-      <ul>
-        @for (dataset of datasetsToDelete; track dataset) {
-          <li>{{ dataset.spatialUnitLevel }}</li>
-        }
-      </ul>
-    </div>
-  }
-
-  @if (!datasetsToDelete.length) {
-    <div>
-      <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
-    </div>
-  }
+    @if (!datasetsToDelete.length) {
+      <div>
+        <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+      </div>
+    }
+  </app-loading-overlay>
 </div>
 
 <div class="modal-footer">
