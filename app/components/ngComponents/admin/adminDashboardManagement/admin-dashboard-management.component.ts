@@ -2,7 +2,7 @@ import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as echarts from 'echarts/core';
 import type { EChartsOption, TooltipComponentOption } from 'echarts';
@@ -91,13 +91,7 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
   selector: 'app-admin-dashboard-management',
   templateUrl: './admin-dashboard-management.component.html',
   styleUrls: ['./admin-dashboard-management.component.css'],
-  imports: [
-    SmallBoxComponent,
-    TranslateModule,
-    CommonModule,
-    NgxEchartsDirective,
-    AdminContentViewComponent,
-  ],
+  imports: [SmallBoxComponent, TranslateModule, NgxEchartsDirective, AdminContentViewComponent],
   providers: [provideEchartsCore({ echarts })],
   standalone: true,
 })

@@ -5,7 +5,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
@@ -15,7 +15,7 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.css'],
-  imports: [FormsModule, CommonModule, FilterPipe],
+  imports: [FormsModule, FilterPipe],
   standalone: true,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {

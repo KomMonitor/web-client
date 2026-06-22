@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -30,7 +30,6 @@ interface AccessControlTableEntry extends AccessControlMetadata {
   templateUrl: './admin-role-management.component.html',
   styleUrls: ['./admin-role-management.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     AgGridAngular,
     AdminContentViewComponent,

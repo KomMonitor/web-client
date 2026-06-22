@@ -13,7 +13,7 @@ import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { CommonModule } from '@angular/common';
+
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 
 // import 'codemirror/addon/display/autoRefresh.js';
@@ -38,7 +38,7 @@ interface LintingIssue {
   selector: 'app-admin-app-config',
   templateUrl: './admin-app-config.component.html',
   styleUrls: ['./admin-app-config.component.css'],
-  imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],
+  imports: [ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminAppConfigComponent implements OnInit {

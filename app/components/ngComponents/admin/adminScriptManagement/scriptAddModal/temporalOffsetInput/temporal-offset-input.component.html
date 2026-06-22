@@ -24,9 +24,11 @@
             [ngModel]="offsetUnit"
             (ngModelChange)="offsetUnitChange.emit($event)"
           >
-            <option *ngFor="let unit of temporalOptions" [ngValue]="unit">
-              {{ unit.displayName }}
-            </option>
+            @for (unit of temporalOptions; track unit) {
+              <option [ngValue]="unit">
+                {{ unit.displayName }}
+              </option>
+            }
           </select>
         </div>
       </div>

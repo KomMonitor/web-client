@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -14,7 +14,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
   selector: 'app-role-edit-metadata-modal',
   templateUrl: './role-edit-metadata-modal.component.html',
   styleUrls: ['./role-edit-metadata-modal.component.scss'],
-  imports: [CommonModule, FormsModule, LoadingOverlayComponent],
+  imports: [FormsModule, LoadingOverlayComponent],
   standalone: true,
 })
 export class RoleEditMetadataModalComponent implements OnInit {

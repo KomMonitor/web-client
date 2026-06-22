@@ -38,10 +38,7 @@
 <div class="row">
   <div class="col-md-6 col-sm-6">
     <div class="form-group">
-      <label
-        >Ziel-Indikator, der mittels des anzulegenden Skripts berechnet werden
-        soll*</label
-      >
+      <label>Ziel-Indikator, der mittels des anzulegenden Skripts berechnet werden soll*</label>
       <div class="input-group mb-2">
         <span class="input-group-text"><i class="fas fa-filter"></i></span>
         <input
@@ -58,17 +55,14 @@
         (ngModelChange)="updateTargetIndicator($event)"
       >
         <option disabled [ngValue]="null">-- Ziel-Indikator wählen --</option>
-        <option
-          *ngFor="let indicator of filteredComputationIndicators"
-          [ngValue]="indicator"
-        >
-          {{ indicator.indicatorName }} [{{ indicator.unit }}]
-        </option>
+        @for (indicator of filteredComputationIndicators; track indicator) {
+          <option [ngValue]="indicator">
+            {{ indicator.indicatorName }} [{{ indicator.unit }}]
+          </option>
+        }
       </select>
       <div class="help-block">
-        <p>
-          Nur Indikatoren mit Fortführungstyp "Berechnung durch KomMonitor".
-        </p>
+        <p>Nur Indikatoren mit Fortführungstyp "Berechnung durch KomMonitor".</p>
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -12,7 +12,7 @@ import { GeoresourcesDataset } from '../../../../../../../models/georesources.mo
   templateUrl: './script-georesources.component.html',
   styleUrls: ['./script-georesources.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
+  imports: [FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
 })
 export class ScriptGeoresourcesComponent {
   protected scriptHelperService = inject(ScriptHelperService);

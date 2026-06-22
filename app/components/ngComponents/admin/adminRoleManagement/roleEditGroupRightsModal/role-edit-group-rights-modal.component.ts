@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -172,7 +172,6 @@ function createAdvancedCheckboxRenderer(
   templateUrl: './role-edit-group-rights-modal.component.html',
   styleUrls: ['./role-edit-group-rights-modal.component.scss'],
   imports: [
-    CommonModule,
     FormsModule,
     AgGridAngular,
     StepperComponent,

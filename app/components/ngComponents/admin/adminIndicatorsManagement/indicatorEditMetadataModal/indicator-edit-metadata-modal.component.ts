@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
@@ -18,7 +18,7 @@ declare const colorbrewer: any;
   selector: 'app-indicator-edit-metadata-modal',
   templateUrl: './indicator-edit-metadata-modal.component.html',
   styleUrls: ['./indicator-edit-metadata-modal.component.css'],
-  imports: [FormsModule, CommonModule, FilterPipe],
+  imports: [FormsModule, FilterPipe],
   standalone: true,
 })
 export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {

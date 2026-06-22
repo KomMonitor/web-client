@@ -1,7 +1,6 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+import { Component } from '@angular/core';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 
 interface AccordionItem {
   title: string;
@@ -11,16 +10,16 @@ interface AccordionItem {
 }
 
 @Component({
-  selector: "app-admin-role-explanation",
-  templateUrl: "./admin-role-explanation.component.html",
-  styleUrls: ["./admin-role-explanation.component.css"],
-  imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],
+  selector: 'app-admin-role-explanation',
+  templateUrl: './admin-role-explanation.component.html',
+  styleUrls: ['./admin-role-explanation.component.css'],
+  imports: [ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminRoleExplanationComponent {
   items: AccordionItem[] = [
     {
-      title: "Was ist ein Mandant?",
+      title: 'Was ist ein Mandant?',
       content: `KomMonitor erlaubt das Anlegen unterschiedlicher Gruppen, um Verwaltungstrukturen
       abzubilden und Zugriffsrechte dediziert zu vergeben.
       <br>
@@ -39,7 +38,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Wie werden neue Mandanten angelegt?",
+      title: 'Wie werden neue Mandanten angelegt?',
       content: `<i>
         <ol type="1">
           <li>
@@ -84,7 +83,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Was sind Untergruppen eines Mandanten?",
+      title: 'Was sind Untergruppen eines Mandanten?',
       content: `Innerhalb eines Mandanten können optional beliebig viele Untergruppen erzeugt werden,
       Während eine Mandantengruppe alleine bereits ausreicht, um Datensätze
       vollumfänglich in KomMonitor zu verwalten,
@@ -97,7 +96,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Wie werden neue Untergruppen erstellt?",
+      title: 'Wie werden neue Untergruppen erstellt?',
       content: `<i>
         <ol type="1">
           <li>
@@ -147,7 +146,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Was ist die Eigentümerschaft an Datensätzen?",
+      title: 'Was ist die Eigentümerschaft an Datensätzen?',
       content: `Bei der Erstellung neuer Raumeinheiten, Indikatoren und Georessourcen ist die Angabe
       erforderlich, welche Gruppe Eigentümer der Ressource ist.
       <br>
@@ -158,7 +157,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Kann die Eigentümerschaft verändert werden?",
+      title: 'Kann die Eigentümerschaft verändert werden?',
       content: `Ja, Superadministratoren mit der Rolle <code>kommonitor-creator</code> sowie Mitgliedern der
       Eigentümer-Gruppe ist es möglich, die Eigentümerstellung an eine andere
       existierende Gruppe zu übertragen.
@@ -184,7 +183,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?",
+      title: 'Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?',
       content: `Mitglieder der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
       Georessource) haben immer vollen Zugriff auf die Ressource (lesen, editieren, löschen).
 
@@ -205,7 +204,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Wie erfolgt die öffentliche Freigabe von Datensätzen?",
+      title: 'Wie erfolgt die öffentliche Freigabe von Datensätzen?',
       content: `Ähnlich wie bei der gruppenspezifischen Freigabe von Datensätzen ist es nur
       Mitgliedern der Eigentümer-Gruppe eines Datensatzes (Raumeinheit, Indikator oder
       Georessource) gestattet, einen öffentlichen Lesezugriff auf die Ressource einzurichten.
@@ -226,7 +225,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
     },
     {
-      title: "Wie funktioniert die Datenfreigabe von Indikatoren für bestimmte Raumeinheiten?",
+      title: 'Wie funktioniert die Datenfreigabe von Indikatoren für bestimmte Raumeinheiten?',
       content: `Bei der Freigabe (Lesen, Editieren) von Indikatoren gelten besondere Regeln.
 
 						Grundsätzlich unterscheidet KomMonitor bei Indikatoren zwischen der <i>Freigabe ihrer
@@ -249,7 +248,7 @@ export class AdminRoleExplanationComponent {
       expanded: false,
       nestedItems: [
         {
-          title: "Szenario Indikator nicht öffentlich",
+          title: 'Szenario Indikator nicht öffentlich',
           content: `<table class="table">
 									<tr>
 										<th>
@@ -282,7 +281,7 @@ export class AdminRoleExplanationComponent {
           expanded: false,
         },
         {
-          title: "Szenario Indikator teilweise öffentlich",
+          title: 'Szenario Indikator teilweise öffentlich',
           content: `<table class="table">
 									<tr>
 										<th>
@@ -328,7 +327,7 @@ export class AdminRoleExplanationComponent {
           expanded: false,
         },
         {
-          title: "Szenario Indikator komplett öffentlich",
+          title: 'Szenario Indikator komplett öffentlich',
           content: `<table class="table">
 									<tr>
 										<th>

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
@@ -9,7 +9,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   templateUrl: './script-parameters.component.html',
   styleUrls: ['./script-parameters.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ExpandableBoxComponent],
+  imports: [FormsModule, ExpandableBoxComponent],
 })
 export class ScriptParametersComponent {
   protected scriptHelperService = inject(ScriptHelperService);

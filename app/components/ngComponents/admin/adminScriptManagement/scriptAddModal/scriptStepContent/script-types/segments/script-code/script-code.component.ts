@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import CodeMirror from 'codemirror';
@@ -10,7 +10,7 @@ import 'codemirror/mode/javascript/javascript.js';
   templateUrl: './script-code.component.html',
   styleUrls: ['./script-code.component.scss'],
   standalone: true,
-  imports: [CommonModule, ExpandableBoxComponent],
+  imports: [ExpandableBoxComponent],
 })
 export class ScriptCodeComponent {
   private scriptHelperService = inject(ScriptHelperService);

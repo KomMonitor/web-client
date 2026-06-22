@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
 import { IndicatorsDataset } from '../../../../models/indicators.models';
@@ -15,7 +15,7 @@ export interface ScriptMetadata {
   templateUrl: './script-step-metadata.component.html',
   styleUrls: ['./script-step-metadata.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
 })
 export class ScriptStepMetadataComponent {
   private dataExchangeService = inject(DataExchangeService);

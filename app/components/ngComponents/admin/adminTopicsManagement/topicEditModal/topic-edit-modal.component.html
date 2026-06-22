@@ -6,18 +6,15 @@
     </i>
     editieren
   </h4>
-  <button
-    type="button"
-    class="btn-close"
-    aria-label="Close"
-    (click)="cancel()"
-  ></button>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
 </div>
 <div class="modal-body">
   <div>
-    <div class="loading-overlay-admin-panel" *ngIf="isSubmitting">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
+    @if (isSubmitting) {
+      <div class="loading-overlay-admin-panel">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
   </div>
 
   <p>
@@ -44,18 +41,15 @@
           formControlName="name"
           required
           [attr.aria-invalid]="topicForm.get('name')?.invalid && topicForm.get('name')?.touched"
-          [attr.aria-describedby]="topicForm.get('name')?.invalid && topicForm.get('name')?.touched ? 'name-error' : null"
-        />
-        <div
-          id="name-error"
-          class="help-block with-errors"
-          role="alert"
-          *ngIf="
-            topicForm.get('name')?.invalid && topicForm.get('name')?.touched
+          [attr.aria-describedby]="
+            topicForm.get('name')?.invalid && topicForm.get('name')?.touched ? 'name-error' : null
           "
-        >
-          Name ist erforderlich
-        </div>
+        />
+        @if (topicForm.get('name')?.invalid && topicForm.get('name')?.touched) {
+          <div id="name-error" class="help-block with-errors" role="alert">
+            Name ist erforderlich
+          </div>
+        }
       </div>
       <div class="col-md-7">
         <label for="topic-description-input">Beschreibung des Eintrags*</label>
@@ -67,28 +61,26 @@
           placeholder="Beschreibung des Eintrags"
           formControlName="description"
           required
-          [attr.aria-invalid]="topicForm.get('description')?.invalid && topicForm.get('description')?.touched"
-          [attr.aria-describedby]="topicForm.get('description')?.invalid && topicForm.get('description')?.touched ? 'description-error' : null"
-        ></textarea>
-        <div
-          id="description-error"
-          class="help-block with-errors"
-          role="alert"
-          *ngIf="
-            topicForm.get('description')?.invalid &&
-            topicForm.get('description')?.touched
+          [attr.aria-invalid]="
+            topicForm.get('description')?.invalid && topicForm.get('description')?.touched
           "
-        >
-          Beschreibung ist erforderlich
-        </div>
+          [attr.aria-describedby]="
+            topicForm.get('description')?.invalid && topicForm.get('description')?.touched
+              ? 'description-error'
+              : null
+          "
+        ></textarea>
+        @if (topicForm.get('description')?.invalid && topicForm.get('description')?.touched) {
+          <div id="description-error" class="help-block with-errors" role="alert">
+            Beschreibung ist erforderlich
+          </div>
+        }
       </div>
     </div>
   </form>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
-    Schließen
-  </button>
+  <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Schließen</button>
   <div style="flex: 1"></div>
   <button
     type="button"
@@ -96,54 +88,54 @@
     [disabled]="topicForm.invalid || isSubmitting"
     (click)="onSubmit()"
   >
-    <span
-      *ngIf="isSubmitting"
-      class="spinner-border spinner-border-sm mr-1"
-    ></span>
+    @if (isSubmitting) {
+      <span class="spinner-border spinner-border-sm mr-1"></span>
+    }
     Eintrag aktualisieren
   </button>
 </div>
 
-<div
-  *ngIf="successMessage"
-  class="alert alert-success alert-dismissable"
-  style="position: absolute; bottom: 0px; width: 100%"
-  role="alert"
-  aria-live="polite"
-  aria-atomic="true"
->
-  <button
-    type="button"
-    class="close"
-    (click)="hideSuccessAlert()"
-    aria-label="Erfolgsmeldung schließen"
+@if (successMessage) {
+  <div
+    class="alert alert-success alert-dismissable"
+    style="position: absolute; bottom: 0px; width: 100%"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
   >
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Themeneintrag aktualisiert</h4>
-  Die Metadaten des Eintrags mit Namen {{ topic.topicName }} wurden in
-  KomMonitor aktualisiert.
-</div>
+    <button
+      type="button"
+      class="close"
+      (click)="hideSuccessAlert()"
+      aria-label="Erfolgsmeldung schließen"
+    >
+      &times;
+    </button>
+    <h4><i class="icon fa fa-check"></i>Themeneintrag aktualisiert</h4>
+    Die Metadaten des Eintrags mit Namen {{ topic.topicName }} wurden in KomMonitor aktualisiert.
+  </div>
+}
 
-<div
-  *ngIf="errorMessage"
-  class="alert alert-danger alert-dismissable"
-  style="position: absolute; bottom: 0px; width: 100%"
-  role="alert"
-  aria-live="assertive"
-  aria-atomic="true"
->
-  <button
-    type="button"
-    class="close"
-    (click)="hideErrorAlert()"
-    aria-label="Fehlermeldung schließen"
+@if (errorMessage) {
+  <div
+    class="alert alert-danger alert-dismissable"
+    style="position: absolute; bottom: 0px; width: 100%"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
   >
-    &times;
-  </button>
-  <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-  Bei der Aktualisierung der Metadaten des Themeneintrags ist ein Fehler
-  aufgetreten. Fehlermeldung:
-  <br />
-  <pre>{{ errorMessage }}</pre>
-</div>
+    <button
+      type="button"
+      class="close"
+      (click)="hideErrorAlert()"
+      aria-label="Fehlermeldung schließen"
+    >
+      &times;
+    </button>
+    <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+    Bei der Aktualisierung der Metadaten des Themeneintrags ist ein Fehler aufgetreten.
+    Fehlermeldung:
+    <br />
+    <pre>{{ errorMessage }}</pre>
+  </div>
+}

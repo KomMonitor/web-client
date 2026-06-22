@@ -2,7 +2,7 @@ import { Component, OnInit, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../admin-topics-management.component';
-import { CommonModule } from '@angular/common';
+
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,7 +12,7 @@ import { DataExchangeService } from '../../../../../services/data-exchange-servi
   selector: 'app-topic-delete-modal',
   templateUrl: './topic-delete-modal.component.html',
   styleUrls: ['./topic-delete-modal.component.css'],
-  imports: [CommonModule],
+  imports: [],
   standalone: true,
 })
 export class TopicDeleteModalComponent implements OnInit {

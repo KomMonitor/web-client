@@ -2,13 +2,12 @@
   Die Berechnung von Indikatoren erfolgt in KomMonitor mittels eines
   <b>Skript-basierten Ansatzes</b>, f&uuml;r den Angaben &uuml;ber notwendige
   <i>(Basis-)Indikatoren</i> und/oder <i>Georessourcen</i> sowie
-  <i>variable Skript-Parameter</i> und den <i>Skript Code</i> selbst
-  erforderlich sind.
+  <i>variable Skript-Parameter</i> und den <i>Skript Code</i> selbst erforderlich sind.
 </p>
 
 <p class="center">
-  Der Skript Code muss dabei einem festgelegten Template folgen. Das Template
-  steht unter folgendem Link bereit:
+  Der Skript Code muss dabei einem festgelegten Template folgen. Das Template steht unter folgendem
+  Link bereit:
   <a
     href="./kommonitor-script-resources/kommonitor-script-template.js"
     rel="noopener noreferrer"
@@ -42,10 +41,9 @@
     ></app-filterable-select>
     <div class="help-block">
       <p>
-        Die Option <b>Generische Definition</b> bedarf der manuellen
-        Definition aller Skript-Daten. Die &uuml;brigen Auswahloptionen bieten
-        vereinfachte Eingabemasken, die im Hintergrund die notwendigen
-        Skript-Daten sowie den vordefinierten Skript-Code automatisch setzen.
+        Die Option <b>Generische Definition</b> bedarf der manuellen Definition aller Skript-Daten.
+        Die &uuml;brigen Auswahloptionen bieten vereinfachte Eingabemasken, die im Hintergrund die
+        notwendigen Skript-Daten sowie den vordefinierten Skript-Code automatisch setzen.
       </p>
     </div>
   </div>
@@ -53,13 +51,15 @@
 
 <!-- ===================== SCRIPT TYPE SPECIFIC SECTIONS ===================== -->
 
-<div *ngIf="selectedScriptType?.apiName === 'generic'">
-  <app-script-definition-wrapper
-    title="Generische manuelle Definition aller Skript-Daten"
-    description="Mindestens ein (Basis-)Indikator oder eine Georessource muss angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind möglich."
-    [content]="scriptGeneric"
-  ></app-script-definition-wrapper>
-  <ng-template #scriptGeneric>
-    <app-script-generic></app-script-generic>
-  </ng-template>
-</div>
+@if (selectedScriptType?.apiName === 'generic') {
+  <div>
+    <app-script-definition-wrapper
+      title="Generische manuelle Definition aller Skript-Daten"
+      description="Mindestens ein (Basis-)Indikator oder eine Georessource muss angegeben werden, aus dem sich der Ziel-Indikator ableitet. Beliebig viele sind möglich."
+      [content]="scriptGeneric"
+    ></app-script-definition-wrapper>
+    <ng-template #scriptGeneric>
+      <app-script-generic></app-script-generic>
+    </ng-template>
+  </div>
+}

@@ -4,7 +4,6 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
-import { CommonModule } from '@angular/common';
 
 declare const __env: any;
 
@@ -12,7 +11,7 @@ declare const __env: any;
   selector: 'app-spatial-unit-delete-modal',
   templateUrl: './spatial-unit-delete-modal.component.html',
   styleUrls: ['./spatial-unit-delete-modal.component.css'],
-  imports: [CommonModule],
+  imports: [],
   standalone: true,
 })
 export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {

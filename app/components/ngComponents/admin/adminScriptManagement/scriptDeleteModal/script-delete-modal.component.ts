@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
@@ -9,7 +9,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 @Component({
   selector: 'app-script-delete-modal',
   templateUrl: './script-delete-modal.component.html',
-  imports: [CommonModule],
+  imports: [],
   standalone: true,
 })
 export class ScriptDeleteModalComponent implements OnInit {

@@ -1,15 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { Component, inject } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { ICellRendererParams } from 'ag-grid-community';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Component({
-  selector: "app-script-indicators-cell-renderer",
+  selector: 'app-script-indicators-cell-renderer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
-    <ng-container *ngIf="indicatorIds && indicatorIds.length > 0; else none">
+    @if (indicatorIds && indicatorIds.length > 0) {
       <table class="table table-condensed table-bordered table-striped table-sm">
         <thead>
           <tr>
@@ -18,19 +17,20 @@ import { DataExchangeService } from "services/data-exchange-service/data-exchang
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let id of indicatorIds">
-            <td>{{ id }}</td>
-            <td>{{ getIndicatorName(id) }}</td>
-          </tr>
+          @for (id of indicatorIds; track id) {
+            <tr>
+              <td>{{ id }}</td>
+              <td>{{ getIndicatorName(id) }}</td>
+            </tr>
+          }
         </tbody>
       </table>
-    </ng-container>
-    <ng-template #none>keine</ng-template>
+    } @else {
+      keine
+    }
   `,
 })
-export class ScriptIndicatorsCellRendererComponent
-  implements ICellRendererAngularComp
-{
+export class ScriptIndicatorsCellRendererComponent implements ICellRendererAngularComp {
   private dataExchangeService = inject(DataExchangeService);
 
   indicatorIds: string[] = [];
@@ -49,9 +49,6 @@ export class ScriptIndicatorsCellRendererComponent
   }
 
   getIndicatorName(id: string): string {
-    return (
-      (this.dataExchangeService.getIndicatorMetadataById(id) as any)
-        ?.indicatorName ?? ""
-    );
+    return (this.dataExchangeService.getIndicatorMetadataById(id) as any)?.indicatorName ?? '';
   }
 }

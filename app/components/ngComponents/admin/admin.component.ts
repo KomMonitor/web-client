@@ -10,7 +10,7 @@ import { AdminIndicatorsManagementComponent } from './adminIndicatorsManagement/
 import { AdminRoleExplanationComponent } from './adminRoleExplanation/admin-role-explanation.component';
 import { AdminSpatialUnitsManagementComponent } from './adminSpatialUnitsManagement/admin-spatial-units-management.component';
 import { AdminTopicsManagementComponent } from './adminTopicsManagement/admin-topics-management.component';
-import { CommonModule } from '@angular/common';
+
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationComponent } from '../common/notification/notification.component';
 import { AdminScriptExecutionComponent } from './adminScriptExecution/admin-script-execution.component';
@@ -50,7 +50,6 @@ export enum AdminNavItem {
     AdminTopicsManagementComponent,
     AdminScriptExecutionComponent,
     AdminScriptManagementComponent,
-    CommonModule,
     NgbNavModule,
     UserLoginComponent,
     NotificationComponent,

@@ -1,6 +1,6 @@
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -19,7 +19,7 @@ import { ScriptProcessParametersCellRendererComponent } from './script-process-p
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
   styleUrls: ['./admin-script-management.component.css'],
-  imports: [AgGridAngular, FormsModule, CommonModule, AdminContentViewComponent],
+  imports: [AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminScriptManagementComponent implements OnInit, OnDestroy {

@@ -15,7 +15,7 @@ import {
 } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 
 // Removed in favor of standalone km-date-picker component providers
@@ -26,7 +26,6 @@ import { KmDatePickerComponent } from '../../../customElements/date-picker/km-da
   styleUrls: ['./spatial-unit-add-modal.component.css'],
   imports: [
     FormsModule,
-    CommonModule,
     KmColorPickerComponent,
     KmLinePatternPickerComponent,
     AgGridAngular,

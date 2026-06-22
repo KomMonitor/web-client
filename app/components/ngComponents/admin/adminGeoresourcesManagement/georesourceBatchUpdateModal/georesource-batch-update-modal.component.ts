@@ -4,13 +4,12 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-georesource-batch-update-modal',
   templateUrl: './georesource-batch-update-modal.component.html',
   styleUrls: ['./georesource-batch-update-modal.component.css'],
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule],
   standalone: true,
 })
 export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {

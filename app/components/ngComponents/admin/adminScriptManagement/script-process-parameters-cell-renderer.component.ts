@@ -1,7 +1,6 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
+import { Component } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { ICellRendererParams } from 'ag-grid-community';
 
 interface VariableProcessParameter {
   name: string;
@@ -13,14 +12,12 @@ interface VariableProcessParameter {
 }
 
 @Component({
-  selector: "app-script-process-parameters-cell-renderer",
+  selector: 'app-script-process-parameters-cell-renderer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
-    <ng-container *ngIf="parameters && parameters.length > 0; else none">
-      <table
-        class="table table-condensed table-bordered table-striped table-sm"
-      >
+    @if (parameters && parameters.length > 0) {
+      <table class="table table-condensed table-bordered table-striped table-sm">
         <thead>
           <tr>
             <th style="word-break: normal">Name</th>
@@ -31,23 +28,27 @@ interface VariableProcessParameter {
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of parameters">
-            <td>{{ p.name }}</td>
-            <td>{{ p.description }}</td>
-            <td>{{ p.dataType }}</td>
-            <td>{{ p.defaultValue }}</td>
-            <td>
-              <ng-container *ngIf="isNumeric(p.dataType); else notNumeric">
-                {{ p.minParameterValueForNumericInputs }} -
-                {{ p.maxParameterValueForNumericInputs }}
-              </ng-container>
-              <ng-template #notNumeric>-</ng-template>
-            </td>
-          </tr>
+          @for (p of parameters; track p) {
+            <tr>
+              <td>{{ p.name }}</td>
+              <td>{{ p.description }}</td>
+              <td>{{ p.dataType }}</td>
+              <td>{{ p.defaultValue }}</td>
+              <td>
+                @if (isNumeric(p.dataType)) {
+                  {{ p.minParameterValueForNumericInputs }} -
+                  {{ p.maxParameterValueForNumericInputs }}
+                } @else {
+                  -
+                }
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
-    </ng-container>
-    <ng-template #none>keine</ng-template>
+    } @else {
+      keine
+    }
   `,
 })
 export class ScriptProcessParametersCellRendererComponent implements ICellRendererAngularComp {
@@ -67,6 +68,6 @@ export class ScriptProcessParametersCellRendererComponent implements ICellRender
   }
 
   isNumeric(dataType: string): boolean {
-    return dataType === "integer" || dataType === "double";
+    return dataType === 'integer' || dataType === 'double';
   }
 }

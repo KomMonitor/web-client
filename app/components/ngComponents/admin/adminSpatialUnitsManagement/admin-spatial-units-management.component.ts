@@ -1,6 +1,6 @@
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
@@ -29,13 +29,7 @@ interface RefreshBroadcastValues {
   selector: 'app-admin-spatial-units-management',
   templateUrl: './admin-spatial-units-management.component.html',
   styleUrls: ['./admin-spatial-units-management.component.css'],
-  imports: [
-    ExpandableBoxComponent,
-    AgGridAngular,
-    CommonModule,
-    FormsModule,
-    AdminContentViewComponent,
-  ],
+  imports: [ExpandableBoxComponent, AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {

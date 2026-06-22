@@ -7,781 +7,1417 @@
 
 <div class="modal-body">
   <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
+    @if (loadingData) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
   </div>
 
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-      <form class="multiStepForm form-group" #georesourceAddForm="ngForm" (ngSubmit)="addGeoresource()" 
-        data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
-        
+      <form
+        class="multiStepForm form-group"
+        #georesourceAddForm="ngForm"
+        (ngSubmit)="addGeoresource()"
+        data-toggle="validator"
+        data-disable="true"
+        style="margin-bottom: 0px"
+      >
         <!-- progressbar -->
-        <div *ngIf="!kommonitorDataExchangeService.enableKeycloakSecurity">
-          <ul id="progressbar">
-            <li style="width: 25%;" [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)">Metadaten der Georessource</li>
-            <li style="width: 25%;" [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)">Allgemeine Metadaten</li>
-            <li style="width: 25%;" [class.active]="currentStep >= 3" [class.clickable]="true" (click)="goToStep(3)">Themenhierarchie</li>
-            <li style="width: 25%;" [class.active]="currentStep >= 4" [class.clickable]="true" (click)="goToStep(4)">Räumlicher Datensatz</li>
-          </ul>
-        </div>
-        <div *ngIf="kommonitorDataExchangeService.enableKeycloakSecurity">
-          <ul id="progressbar">
-            <li style="width: 20%;" [class.active]="currentStep >= 1" [class.clickable]="true" (click)="goToStep(1)">Metadaten der Georessource</li>
-            <li style="width: 20%;" [class.active]="currentStep >= 2" [class.clickable]="true" (click)="goToStep(2)">Allgemeine Metadaten</li>
-            <li style="width: 20%;" [class.active]="currentStep >= 3" [class.clickable]="true" (click)="goToStep(3)">Themenhierarchie</li>
-            <li style="width: 20%;" [class.active]="currentStep >= 4" [class.clickable]="true" (click)="goToStep(4)">Zugriffsschutz und Eigentümerschaft</li>
-            <li style="width: 20%;" [class.active]="currentStep >= 5" [class.clickable]="true" (click)="goToStep(5)">Räumlicher Datensatz</li>
-          </ul>
-        </div>
+        @if (!kommonitorDataExchangeService.enableKeycloakSecurity) {
+          <div>
+            <ul id="progressbar">
+              <li
+                style="width: 25%"
+                [class.active]="currentStep >= 1"
+                [class.clickable]="true"
+                (click)="goToStep(1)"
+              >
+                Metadaten der Georessource
+              </li>
+              <li
+                style="width: 25%"
+                [class.active]="currentStep >= 2"
+                [class.clickable]="true"
+                (click)="goToStep(2)"
+              >
+                Allgemeine Metadaten
+              </li>
+              <li
+                style="width: 25%"
+                [class.active]="currentStep >= 3"
+                [class.clickable]="true"
+                (click)="goToStep(3)"
+              >
+                Themenhierarchie
+              </li>
+              <li
+                style="width: 25%"
+                [class.active]="currentStep >= 4"
+                [class.clickable]="true"
+                (click)="goToStep(4)"
+              >
+                Räumlicher Datensatz
+              </li>
+            </ul>
+          </div>
+        }
+        @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+          <div>
+            <ul id="progressbar">
+              <li
+                style="width: 20%"
+                [class.active]="currentStep >= 1"
+                [class.clickable]="true"
+                (click)="goToStep(1)"
+              >
+                Metadaten der Georessource
+              </li>
+              <li
+                style="width: 20%"
+                [class.active]="currentStep >= 2"
+                [class.clickable]="true"
+                (click)="goToStep(2)"
+              >
+                Allgemeine Metadaten
+              </li>
+              <li
+                style="width: 20%"
+                [class.active]="currentStep >= 3"
+                [class.clickable]="true"
+                (click)="goToStep(3)"
+              >
+                Themenhierarchie
+              </li>
+              <li
+                style="width: 20%"
+                [class.active]="currentStep >= 4"
+                [class.clickable]="true"
+                (click)="goToStep(4)"
+              >
+                Zugriffsschutz und Eigentümerschaft
+              </li>
+              <li
+                style="width: 20%"
+                [class.active]="currentStep >= 5"
+                [class.clickable]="true"
+                (click)="goToStep(5)"
+              >
+                Räumlicher Datensatz
+              </li>
+            </ul>
+          </div>
+        }
 
         <!-- fieldsets -->
-        <fieldset *ngIf="currentStep === 1">
-          <h2 class="fs-title">Metadaten der Georessource</h2>
-          <h3 class="fs-subtitle">Angaben über Metadaten der Georessource</h3>
-          <p><b><i>* = Pflichtfeld</i></b></p>
-
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Name der Georessource*</label>
-                <input type="text" class="form-control" [(ngModel)]="datasetName" name="datasetName"
-                  (ngModelChange)="checkDatasetName()" placeholder="eindeutiger Name" required>
-                <div class="help-block with-errors"></div>
-                <div *ngIf="datasetNameInvalid" style="color: red;">
-                  <p>Eingabe ungültig. Es existiert bereits eine Georessource mit gleichem Namen und gleichem Typ.</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Typ*</label>
-                <select [(ngModel)]="georesourceType" name="georesourceType" (ngModelChange)="onChangeGeoresourceType()"
-                  class="form-control" required>
-                  <option value="poi" selected>Points of Interest</option>
-                  <option value="loi">Lines of Interest</option>
-                  <option value="aoi">Areas of Interest</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="georesourceType === 'poi'" class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group" align="center">
-                <label>Farbe des Punktmarkers*</label>
-                <div class="dropdown customColorPicker">
-                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i [style.background]="selectedPoiMarkerColor?.colorValue || '#ccc'"></i>
-                    {{selectedPoiMarkerColor?.colorName || 'Farbe wählen'}} <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let markerColor of availablePoiMarkerColors" (click)="onChangeMarkerColor(markerColor)">
-                      <a href=""><i [style.background]="markerColor?.colorValue || '#ccc'"></i>{{markerColor?.colorName || markerColor}}</a>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group" align="center">
-                <label>Art*</label>
-                <div class="dropdown customColorPicker">
-                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{selectedPoiMarkerStyle.charAt(0).toUpperCase() + selectedPoiMarkerStyle.slice(1)}} <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li (click)="onChangeMarkerStyle('symbol')">
-                      <a href="">Symbol</a>
-                    </li>
-                    <li (click)="onChangeMarkerStyle('text')">
-                      <a href="">Text</a>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle === 'symbol'">
-              <div class="form-group" align="center">
-                <label>Symbol*</label>
-                <br />
-                <button id="poiSymbolPicker" class="btn btn-info"></button>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle === 'text'">
-              <div class="form-group" align="center">
-                <label>Text*</label>
-                <br />
-                <input type="text" class="form-control" [(ngModel)]="poiMarkerText" name="poiMarkerText"
-                  (ngModelChange)="checkPoiMarkerText()" placeholder="" maxlength="3" required>
-                <div class="help-block with-errors">
-                  0-3 Zeichen
-                </div>
-                <div *ngIf="poiMarkerTextInvalid" style="color: red;">
-                  <p>Text darf maximal 3 Zeichen lang sein.</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group" align="center">
-                <label *ngIf="selectedPoiMarkerStyle === 'symbol'">Farbe des Punktsymbols*</label>
-                <label *ngIf="selectedPoiMarkerStyle === 'text'">Textfarbe*</label>
-                <div class="dropdown customColorPicker">
-                  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i [style.background]="selectedPoiSymbolColor?.colorValue || '#ccc'"></i>
-                    {{selectedPoiSymbolColor?.colorName || 'Farbe wählen'}} <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let symbolColor of availablePoiMarkerColors" (click)="onChangeSymbolColor(symbolColor)">
-                      <a href=""><i [style.background]="symbolColor?.colorValue || '#ccc'"></i>{{symbolColor?.colorName || symbolColor}}</a>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="georesourceType === 'loi'" class="row vertical-align">
-            <div class="col-md-4 col-sm-4 col-xs-12">
-              <div class="form-group" align="center">
-                <label>Linienfarbe*</label>
-                <div id="loiColorPicker" class="input-group" style="width: 50px;">
-                  <input type="text" style="display:none;" class="form-control input-sm"
-                    [(ngModel)]="loiColor" name="loiColor" placeholder="Line of Interest Farbauswahl"
-                    value="#bf3d2c" required />
-                  <span title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"><i></i></span>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-4 col-sm-4 col-xs-12">
-              <div class="form-group" align="center">
-                <label>Linienbreite*</label>
-                <br/>
-                <input style="width: auto;" type="number" [(ngModel)]="loiWidth" name="loiWidth" min="1" max="5" step="1">
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-4 col-sm-4 col-xs-12">
-              <div class="form-group" align="center">
-                <label>Linienmuster*</label>
-                <div class="dropdown">
-                  <button type="button" width="200px" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div id="loiDashArrayDropdownButton_addGeoresource">
-                      {{selectedLoiDashArrayObject?.displayName}}
-                    </div> <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-center">
-                    <li *ngFor="let loiDashArrayObject of availableLoiDashArrayObjects; let i = index" (click)="onChangeLoiDashArray(loiDashArrayObject)">
-                      <a href="">
-                        <div id="loiDashArrayDropdownItem-{{i}}">
-                          {{loiDashArrayObject.displayName}}
-                        </div>
-                      </a>
-                    </li>
-                  </ul>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="georesourceType === 'aoi'" class="row vertical-align">
-            <div class="col-md-12 col-sm-12 col-xs-12">
-              <div class="form-group" align="center">
-                <label>Objektfarbe*</label>
-                <div id="aoiColorPicker" class="input-group" style="width: 50px;">
-                  <input type="text" style="display:none;" class="form-control input-sm"
-                    [(ngModel)]="aoiColor" name="aoiColor" placeholder="Area of Interest Farbauswahl"
-                    value="#bf3d2c" required />
-                  <span title="Klicken, um die Farbe anzupassen"
-                    style="border: 1px solid #ccc; width: 100%"
-                    class="input-group-addon btn btn-info btn-sm"><i></i></span>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-
-          <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
-        </fieldset>
-
-        <fieldset *ngIf="currentStep === 2">
-          <h2 class="fs-title">Allgemeine Metadaten</h2>
-          <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
-          <p><b><i>* = Pflichtfeld</i></b></p>
-
-          <div class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Beschreibung*</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="metadata.description" name="metadataDescription"
-                  placeholder="Datensatz Beschreibung" required></textarea>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Datenbasis</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="metadata.databasis" name="metadataDatabasis"
-                  placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Datenquelle*</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="metadata.datasource" name="metadataDatasource"
-                  placeholder="Beschreibung der Datenquelle" required></textarea>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Datenhalter und Kontakt*</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="metadata.contact" name="metadataContact"
-                  placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen" required></textarea>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Aktualisierungszyklus*</label>
-                <select [(ngModel)]="metadata.updateInterval" name="metadataUpdateInterval" class="form-control" required>
-                  <option disabled selected value> -- Aktualisierungszyklus wählen -- </option>
-                  <option *ngFor="let interval of updateIntervalOptions" [ngValue]="interval">{{interval.displayName}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Datum der letzten Aktualisierung*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
-                  </div>
-                  <input type="text" [(ngModel)]="metadata.lastUpdate" name="metadataLastUpdate"
-                    class="form-control pull-right" id="georesourceAddLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Literatur</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="metadata.literature" name="metadataLiterature"
-                  placeholder="optionale Angaben zu Literatur"></textarea>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Bemerkung</label>
-                <textarea rows="3" class="form-control" [(ngModel)]="metadata.note" name="metadataNote"
-                  placeholder="optionale Bemerkung"></textarea>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-
-          <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
-          <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
-        </fieldset>
-
-        <fieldset *ngIf="currentStep === 3">
-          <h2 class="fs-title">Themenhierarchie</h2>
-          <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
-          <p><b><i>* = Pflichtfeld</i></b></p>
-          <p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
-          <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
-
-          <div class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Hauptthema*</label>
-                <select [(ngModel)]="georesourceTopic_mainTopic" name="georesourceTopic_mainTopic" class="form-control" required>
-                  <option disabled selected value> -- Hauptthema wählen -- </option>
-                  <option *ngFor="let mainTopic of availableTopics" [ngValue]="mainTopic">{{mainTopic.topicName}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div *ngIf="georesourceTopic_mainTopic?.subTopics?.length > 0" class="form-group">
-                <label>Unterthema - erste Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subTopic" name="georesourceTopic_subTopic" class="form-control">
-                  <option disabled selected value> -- Unterthema wählen -- </option>
-                  <option *ngFor="let subTopic of georesourceTopic_mainTopic.subTopics" [ngValue]="subTopic">{{subTopic.topicName}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div *ngIf="georesourceTopic_subTopic?.subTopics?.length > 0" class="form-group">
-                <label>Unterthema - zweite Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subsubTopic" name="georesourceTopic_subsubTopic" class="form-control">
-                  <option disabled selected value> -- Unterthema wählen -- </option>
-                  <option *ngFor="let subsubTopic of georesourceTopic_subTopic.subTopics" [ngValue]="subsubTopic">{{subsubTopic.topicName}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div *ngIf="georesourceTopic_subsubTopic?.subTopics?.length > 0" class="form-group">
-                <label>Unterthema - dritte Ebene</label>
-                <select [(ngModel)]="georesourceTopic_subsubsubTopic" name="georesourceTopic_subsubsubTopic" class="form-control">
-                  <option disabled selected value> -- Unterthema wählen -- </option>
-                  <option *ngFor="let subsubsubTopic of georesourceTopic_subsubTopic.subTopics" [ngValue]="subsubsubTopic">{{subsubsubTopic.topicName}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-
-          <hr>
-          <br/>
-
-          <div class="row vertical-align" *ngIf="kommonitorDataExchangeService.checkAdminPermission && kommonitorDataExchangeService.checkAdminPermission()">
-            <div class="col-md-10 col-sm-12 col-xs-12">
-              <div style="text-align: left;">
-                <div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
-                  <div class="box-header">
-                    <h3 class="box-title">Themenkatalog</h3>
-                    <div class="box-tools pull-right">
-                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
-                    </div>
-                  </div>
-                  <div class="box-body">
-                    <style>
-                      #georesourceAddAdmin_topicsManagement #indicatorTopicsManagement{
-                        display: none;
-                      }
-                    </style>
-                    <app-admin-topics-management></app-admin-topics-management>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
-          <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
-        </fieldset>
-
-        <fieldset *ngIf="currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity">
-          <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
-          <h3 class="fs-subtitle">Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro Organisationseinheit</h3>
-          <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="alert alert-info">
-                Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den Datensatz anlegen möchten
-              </div>
-              <label for="addGeoresourceUserRoleSelect">Eigentümer-Organisationseinheit*</label>
-              <div class="input-group">
-                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
-              </div>
-              <select *ngIf="kommonitorDataExchangeService.checkAdminPermission && kommonitorDataExchangeService.checkAdminPermission()" 
-                id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
-                class="form-control" (ngModelChange)="onChangeOwner($event)" required>
-                <option *ngFor="let org of kommonitorDataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
-              </select>
-              <select *ngIf="!kommonitorDataExchangeService.checkAdminPermission || !kommonitorDataExchangeService.checkAdminPermission()" 
-                id="addGeoresourceUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
-                class="form-control" (ngModelChange)="onChangeOwner($event)" required>
-                <option *ngFor="let org of resourcesCreatorRights" [value]="org.organizationalUnitId">{{org.name}}</option>
-              </select>
-              <p></p>
-            </div>
-            <div class="col-md-3"></div>
-          </div>
-
-          <br>
-          <hr>
-          <br>
-
-          <div id="georesourceRoleForm">
-            <label>Datensatz-Freigaben</label>
-            
+        @if (currentStep === 1) {
+          <fieldset>
+            <h2 class="fs-title">Metadaten der Georessource</h2>
+            <h3 class="fs-subtitle">Angaben über Metadaten der Georessource</h3>
+            <p>
+              <b><i>* = Pflichtfeld</i></b>
+            </p>
             <div class="row vertical-align">
-              <div class="col-md-3">
-                <label>Öffentliche Lesefreigabe*</label>
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="isPublic" name="isPublic" (ngModelChange)="onChangeIsPublic($event)">
-                  <span class="switchslider round"></span>
-                </label>
-                <div class="help-block">
-                  <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
+              <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Name der Georessource*</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="datasetName"
+                    name="datasetName"
+                    (ngModelChange)="checkDatasetName()"
+                    placeholder="eindeutiger Name"
+                    required
+                  />
+                  <div class="help-block with-errors"></div>
+                  @if (datasetNameInvalid) {
+                    <div style="color: red">
+                      <p>
+                        Eingabe ungültig. Es existiert bereits eine Georessource mit gleichem Namen
+                        und gleichem Typ.
+                      </p>
+                    </div>
+                  }
                 </div>
               </div>
               <div class="col-md-6 col-sm-6 col-xs-12">
-                <div id="georesourceAddRoleManagementTable" style="height: 45vh" class="ag-theme-alpine"></div>
-              </div>
-              <div class="col-md-3">
-                <div class="alert alert-info">
-                  Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte an die eigene und weitere Organisationseinheiten vergeben.
-                </div>
-                <br/>
-                <div class="alert alert-warning">
-                  Lese- und Editierrechte wurden für die von Ihnen selektierte Eigentümer-Organisationseinheit markiert.
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
-          <input type="button" name="next" class="next next_addGeoresource action-button" value="Nächster Schritt" (click)="nextStep()"/>
-        </fieldset>
-
-        <fieldset *ngIf="(currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) || (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity)">
-          <div style="position: absolute;">
-            <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceAddMappingConfig()" 
-              title="Importieren der Mapping-Konfigurationen aus einer Datei">
-              <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
-            </button>
-            <input style="display:none;" class="pull-left" type="file" #mappingConfigImportFile class="form-control" 
-              id="georesourceMappingConfigAddImportFile" accept=".json" (change)="onMappingConfigFileSelected($event)">
-            <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMappingConfig()" 
-              title="Exportieren der Mapping-Konfigurationen in eine Datei">
-              <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
-            </button>
-          </div>
-          
-          <h2 class="fs-title">Räumlicher Datensatz</h2>
-          <h3 class="fs-subtitle">Angaben über den räumlichen Datensatz, aus dem die Features importiert werden</h3>
-          <p><b><i>* = Pflichtfeld</i></b></p>
-
-          <div class="row vertical-align">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Geodaten-Quellformat*</label>
-                <select [(ngModel)]="converter" name="converter" (ngModelChange)="onChangeConverter()" class="form-control" required>
-                  <option disabled selected value> -- Quellformat wählen -- </option>
-                  <option *ngFor="let conv of kommonitorImporterHelperService.availableConverters" [ngValue]="conv">{{conv.name}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-              
-              <div *ngIf="converter?.schemas">
                 <div class="form-group">
-                  <label>Schema*</label>
-                  <select [(ngModel)]="schema" name="schema" class="form-control" required>
-                    <option disabled selected value> -- Schema wählen -- </option>
-                    <option *ngFor="let schemaOption of converter.schemas" [value]="schemaOption">{{schemaOption}}</option>
+                  <label>Typ*</label>
+                  <select
+                    [(ngModel)]="georesourceType"
+                    name="georesourceType"
+                    (ngModelChange)="onChangeGeoresourceType()"
+                    class="form-control"
+                    required
+                  >
+                    <option value="poi" selected>Points of Interest</option>
+                    <option value="loi">Lines of Interest</option>
+                    <option value="aoi">Areas of Interest</option>
                   </select>
                   <div class="help-block with-errors"></div>
                 </div>
               </div>
-
-              <div *ngIf="converter?.mimeTypes">
-                <div class="form-group">
-                  <label>Quellformat*</label>
-                  <select [(ngModel)]="mimeType" name="mimeType" (ngModelChange)="onChangeMimeType($event)" class="form-control" required>
-                    <option disabled selected value> -- Format wählen -- </option>
-                    <option *ngFor="let mimeTypeOption of converter.mimeTypes" [value]="mimeTypeOption">{{mimeTypeOption}}</option>
-                  </select>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
-
-              <div *ngFor="let parameter of converter?.parameters">
-                <div class="form-group">
-                  <label>{{parameter.name}}<i *ngIf="parameter.mandatory">*</i></label>
-                  <input type="text" [id]="'converterParameter_georesourceAdd_' + parameter.name" class="form-control"
-                    [placeholder]="parameter.name" [required]="parameter.mandatory">
-                  <div class="help-block">
-                    <p>{{parameter.description}}</p>
-                  </div>
-                  <div *ngIf="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
-                    <p>CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften Koordinaten der Features</p>
-                  </div>
-                  <div class="help-block with-errors"></div>
-                </div>
-              </div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <div *ngIf="!converter">
-                  <p>bitte zuerst das Quellformat wählen</p>
+            @if (georesourceType === 'poi') {
+              <div class="row vertical-align">
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="form-group" align="center">
+                    <label>Farbe des Punktmarkers*</label>
+                    <div class="dropdown customColorPicker">
+                      <button
+                        type="button"
+                        class="btn btn-info dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <i [style.background]="selectedPoiMarkerColor?.colorValue || '#ccc'"></i>
+                        {{ selectedPoiMarkerColor?.colorName || 'Farbe wählen' }}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-center">
+                        @for (markerColor of availablePoiMarkerColors; track markerColor) {
+                          <li (click)="onChangeMarkerColor(markerColor)">
+                            <a href=""
+                              ><i [style.background]="markerColor?.colorValue || '#ccc'"></i
+                              >{{ markerColor?.colorName || markerColor }}</a
+                            >
+                          </li>
+                        }
+                      </ul>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
                 </div>
-                <div *ngIf="converter">
-                  <div class="form-group">
-                    <label>Datenquelltyp*</label>
-                    <select [(ngModel)]="datasourceType" name="datasourceType" (ngModelChange)="onChangeDatasourceType($event)" 
-                      class="form-control" required>
-                      <option disabled selected value> -- Quelltyp wählen -- </option>
-                      <option *ngFor="let dsType of availableDatasourceTypes" [ngValue]="dsType">{{dsType.type}}</option>
-                    </select>
-                    <div class="help-block"></div>
-                  </div>
-
-                  <div *ngIf="datasourceType?.type === 'FILE'">
-                    <label>Datei*</label>
-                    <input type="file" class="form-control" #georesourceDataSourceInput id="georesourceDataSourceInput_add" required>
-                  </div>
-                  
-                  <div *ngIf="datasourceType?.type === 'OGCAPI_FEATURES'">
-                    <label>Räumlicher Filter*</label>
-                    <select [id]="'datasourceTypeParameter_georesourceAdd_bboxType'" [(ngModel)]="bboxType" name="bboxType" class="form-control" required>
-                      <option disabled selected value> -- Filter wählen -- </option>
-                      <option value="ref"> Referenzraumebene </option>
-                      <option value="literal"> Manueller Begrenzungsrahmen </option>
-                    </select>
-
-                    <div *ngIf="bboxType === 'ref'">
-                      <select [id]="'datasourceTypeParameter_georesourceAdd_bboxRef'" [(ngModel)]="bboxRefSpatialUnit" name="bboxRefSpatialUnit"
-                        class="form-control" [required]="bboxType === 'ref'">
-                        <option disabled selected value> -- Raumebene wählen -- </option>
-                        <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
-                          [value]="spatialUnit.spatialUnitId">{{spatialUnit.spatialUnitLevel}}</option>
-                      </select>
-                      <div class="help-block">
-                        <p>Raumebene aus welchem ein umschließendes Rechteck extrahiert wird</p>
-                      </div>
-                    </div>
-                    
-                    <div *ngIf="bboxType === 'literal'">
-                      <label>Begrenzungsrahmen*</label>
-                      <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_minx'" class="form-control" type="number" lang="us" 
-                        placeholder="-180" [required]="bboxType === 'literal'">
-                      <div class="help-block">
-                        <p>Minimale x-Koordinate (Longitude)</p>
-                      </div>
-                      <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_miny'" class="form-control" type="number" lang="us" 
-                        placeholder="-90" [required]="bboxType === 'literal'">
-                      <div class="help-block">
-                        <p>Minimale y-Koordinate (Latitude)</p>
-                      </div>
-                      <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxx'" class="form-control" type="number" lang="us" 
-                        placeholder="180" [required]="bboxType === 'literal'">
-                      <div class="help-block">
-                        <p>Maximale x-Koordinate (Longitude)</p>
-                      </div>
-                      <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxy'" class="form-control" type="number" lang="us" 
-                        placeholder="90" [required]="bboxType === 'literal'">
-                      <div class="help-block">
-                        <p>Maximale y-Koordinate (Latitude)</p>
-                      </div>
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="form-group" align="center">
+                    <label>Art*</label>
+                    <div class="dropdown customColorPicker">
+                      <button
+                        type="button"
+                        class="btn btn-info dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        {{
+                          selectedPoiMarkerStyle.charAt(0).toUpperCase() +
+                            selectedPoiMarkerStyle.slice(1)
+                        }}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-center">
+                        <li (click)="onChangeMarkerStyle('symbol')">
+                          <a href="">Symbol</a>
+                        </li>
+                        <li (click)="onChangeMarkerStyle('text')">
+                          <a href="">Text</a>
+                        </li>
+                      </ul>
+                      <div class="help-block with-errors"></div>
                     </div>
                   </div>
-                  
-                  <div *ngIf="datasourceType?.type !== 'FILE'">
-                    <div *ngFor="let parameter of datasourceType?.parameters">
-                      <div *ngIf="parameter.name !== 'bbox'" class="form-group">
-                        <label *ngIf="parameter.mandatory">{{parameter.name}}*</label>
-                        <label *ngIf="!parameter.mandatory">{{parameter.name}}</label>
-                        <textarea rows="1" [id]="'datasourceTypeParameter_georesourceAdd_' + parameter.name"
-                          class="form-control" [placeholder]="parameter.name" [required]="parameter.mandatory"></textarea>
-                        <div class="help-block">
-                          <p>{{parameter.description}}</p>
+                </div>
+                @if (selectedPoiMarkerStyle === 'symbol') {
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group" align="center">
+                      <label>Symbol*</label>
+                      <br />
+                      <button id="poiSymbolPicker" class="btn btn-info"></button>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                }
+                @if (selectedPoiMarkerStyle === 'text') {
+                  <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="form-group" align="center">
+                      <label>Text*</label>
+                      <br />
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="poiMarkerText"
+                        name="poiMarkerText"
+                        (ngModelChange)="checkPoiMarkerText()"
+                        placeholder=""
+                        maxlength="3"
+                        required
+                      />
+                      <div class="help-block with-errors">0-3 Zeichen</div>
+                      @if (poiMarkerTextInvalid) {
+                        <div style="color: red">
+                          <p>Text darf maximal 3 Zeichen lang sein.</p>
                         </div>
-                        <div class="help-block with-errors"></div>
+                      }
+                    </div>
+                  </div>
+                }
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="form-group" align="center">
+                    @if (selectedPoiMarkerStyle === 'symbol') {
+                      <label>Farbe des Punktsymbols*</label>
+                    }
+                    @if (selectedPoiMarkerStyle === 'text') {
+                      <label>Textfarbe*</label>
+                    }
+                    <div class="dropdown customColorPicker">
+                      <button
+                        type="button"
+                        class="btn btn-info dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <i [style.background]="selectedPoiSymbolColor?.colorValue || '#ccc'"></i>
+                        {{ selectedPoiSymbolColor?.colorName || 'Farbe wählen' }}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-center">
+                        @for (symbolColor of availablePoiMarkerColors; track symbolColor) {
+                          <li (click)="onChangeSymbolColor(symbolColor)">
+                            <a href=""
+                              ><i [style.background]="symbolColor?.colorValue || '#ccc'"></i
+                              >{{ symbolColor?.colorName || symbolColor }}</a
+                            >
+                          </li>
+                        }
+                      </ul>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (georesourceType === 'loi') {
+              <div class="row vertical-align">
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                  <div class="form-group" align="center">
+                    <label>Linienfarbe*</label>
+                    <div id="loiColorPicker" class="input-group" style="width: 50px">
+                      <input
+                        type="text"
+                        style="display: none"
+                        class="form-control input-sm"
+                        [(ngModel)]="loiColor"
+                        name="loiColor"
+                        placeholder="Line of Interest Farbauswahl"
+                        value="#bf3d2c"
+                        required
+                      />
+                      <span
+                        title="Klicken, um die Farbe anzupassen"
+                        style="border: 1px solid #ccc; width: 100%"
+                        class="input-group-addon btn btn-info btn-sm"
+                        ><i></i
+                      ></span>
+                    </div>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                  <div class="form-group" align="center">
+                    <label>Linienbreite*</label>
+                    <br />
+                    <input
+                      style="width: auto"
+                      type="number"
+                      [(ngModel)]="loiWidth"
+                      name="loiWidth"
+                      min="1"
+                      max="5"
+                      step="1"
+                    />
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                  <div class="form-group" align="center">
+                    <label>Linienmuster*</label>
+                    <div class="dropdown">
+                      <button
+                        type="button"
+                        width="200px"
+                        class="btn btn-info dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <div id="loiDashArrayDropdownButton_addGeoresource">
+                          {{ selectedLoiDashArrayObject?.displayName }}
+                        </div>
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-center">
+                        @for (
+                          loiDashArrayObject of availableLoiDashArrayObjects;
+                          track loiDashArrayObject;
+                          let i = $index
+                        ) {
+                          <li (click)="onChangeLoiDashArray(loiDashArrayObject)">
+                            <a href="">
+                              <div id="loiDashArrayDropdownItem-{{ i }}">
+                                {{ loiDashArrayObject.displayName }}
+                              </div>
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (georesourceType === 'aoi') {
+              <div class="row vertical-align">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                  <div class="form-group" align="center">
+                    <label>Objektfarbe*</label>
+                    <div id="aoiColorPicker" class="input-group" style="width: 50px">
+                      <input
+                        type="text"
+                        style="display: none"
+                        class="form-control input-sm"
+                        [(ngModel)]="aoiColor"
+                        name="aoiColor"
+                        placeholder="Area of Interest Farbauswahl"
+                        value="#bf3d2c"
+                        required
+                      />
+                      <span
+                        title="Klicken, um die Farbe anzupassen"
+                        style="border: 1px solid #ccc; width: 100%"
+                        class="input-group-addon btn btn-info btn-sm"
+                        ><i></i
+                      ></span>
+                    </div>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+              </div>
+            }
+            <input
+              type="button"
+              name="next"
+              class="next next_addGeoresource action-button"
+              value="Nächster Schritt"
+              (click)="nextStep()"
+            />
+          </fieldset>
+        }
+
+        @if (currentStep === 2) {
+          <fieldset>
+            <h2 class="fs-title">Allgemeine Metadaten</h2>
+            <h3 class="fs-subtitle">Angaben über allgemeine Metadaten in KomMonitor</h3>
+            <p>
+              <b><i>* = Pflichtfeld</i></b>
+            </p>
+            <div class="row vertical-align">
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Beschreibung*</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="metadata.description"
+                    name="metadataDescription"
+                    placeholder="Datensatz Beschreibung"
+                    required
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Datenbasis</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="metadata.databasis"
+                    name="metadataDatabasis"
+                    placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Datenquelle*</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="metadata.datasource"
+                    name="metadataDatasource"
+                    placeholder="Beschreibung der Datenquelle"
+                    required
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Datenhalter und Kontakt*</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="metadata.contact"
+                    name="metadataContact"
+                    placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+                    required
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row vertical-align">
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Aktualisierungszyklus*</label>
+                  <select
+                    [(ngModel)]="metadata.updateInterval"
+                    name="metadataUpdateInterval"
+                    class="form-control"
+                    required
+                  >
+                    <option disabled selected value>-- Aktualisierungszyklus wählen --</option>
+                    @for (interval of updateIntervalOptions; track interval) {
+                      <option [ngValue]="interval">{{ interval.displayName }}</option>
+                    }
+                  </select>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Datum der letzten Aktualisierung*</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <input
+                      type="text"
+                      [(ngModel)]="metadata.lastUpdate"
+                      name="metadataLastUpdate"
+                      class="form-control pull-right"
+                      id="georesourceAddLastUpdateDatepicker"
+                      placeholder="YYYY-MM-DD"
+                      required
+                    />
+                  </div>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Literatur</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="metadata.literature"
+                    name="metadataLiterature"
+                    placeholder="optionale Angaben zu Literatur"
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Bemerkung</label>
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="metadata.note"
+                    name="metadataNote"
+                    placeholder="optionale Bemerkung"
+                  ></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+            </div>
+            <input
+              type="button"
+              name="previous"
+              class="previous previous_addGeoresource action-button-previous"
+              value="Voriger Schritt"
+              (click)="previousStep()"
+            />
+            <input
+              type="button"
+              name="next"
+              class="next next_addGeoresource action-button"
+              value="Nächster Schritt"
+              (click)="nextStep()"
+            />
+          </fieldset>
+        }
+
+        @if (currentStep === 3) {
+          <fieldset>
+            <h2 class="fs-title">Themenhierarchie</h2>
+            <h3 class="fs-subtitle">Angaben über die Themenhierarchie der Georessource</h3>
+            <p>
+              <b><i>* = Pflichtfeld</i></b>
+            </p>
+            <p>
+              Angabe der Themenhierarchie. Mindestens das Hauptthema muss gewählt werden. Vorhandene
+              Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind
+              erlaubt.
+            </p>
+            <p>Das Aufklappen der unteren Box ermöglicht die Verwaltung des Themenkatalogs.</p>
+            <div class="row vertical-align">
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Hauptthema*</label>
+                  <select
+                    [(ngModel)]="georesourceTopic_mainTopic"
+                    name="georesourceTopic_mainTopic"
+                    class="form-control"
+                    required
+                  >
+                    <option disabled selected value>-- Hauptthema wählen --</option>
+                    @for (mainTopic of availableTopics; track mainTopic) {
+                      <option [ngValue]="mainTopic">{{ mainTopic.topicName }}</option>
+                    }
+                  </select>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                @if (georesourceTopic_mainTopic?.subTopics?.length > 0) {
+                  <div class="form-group">
+                    <label>Unterthema - erste Ebene</label>
+                    <select
+                      [(ngModel)]="georesourceTopic_subTopic"
+                      name="georesourceTopic_subTopic"
+                      class="form-control"
+                    >
+                      <option disabled selected value>-- Unterthema wählen --</option>
+                      @for (subTopic of georesourceTopic_mainTopic.subTopics; track subTopic) {
+                        <option [ngValue]="subTopic">{{ subTopic.topicName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                }
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                @if (georesourceTopic_subTopic?.subTopics?.length > 0) {
+                  <div class="form-group">
+                    <label>Unterthema - zweite Ebene</label>
+                    <select
+                      [(ngModel)]="georesourceTopic_subsubTopic"
+                      name="georesourceTopic_subsubTopic"
+                      class="form-control"
+                    >
+                      <option disabled selected value>-- Unterthema wählen --</option>
+                      @for (subsubTopic of georesourceTopic_subTopic.subTopics; track subsubTopic) {
+                        <option [ngValue]="subsubTopic">{{ subsubTopic.topicName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                }
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                @if (georesourceTopic_subsubTopic?.subTopics?.length > 0) {
+                  <div class="form-group">
+                    <label>Unterthema - dritte Ebene</label>
+                    <select
+                      [(ngModel)]="georesourceTopic_subsubsubTopic"
+                      name="georesourceTopic_subsubsubTopic"
+                      class="form-control"
+                    >
+                      <option disabled selected value>-- Unterthema wählen --</option>
+                      @for (
+                        subsubsubTopic of georesourceTopic_subsubTopic.subTopics;
+                        track subsubsubTopic
+                      ) {
+                        <option [ngValue]="subsubsubTopic">{{ subsubsubTopic.topicName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                }
+              </div>
+            </div>
+            <hr />
+            <br />
+            @if (
+              kommonitorDataExchangeService.checkAdminPermission &&
+              kommonitorDataExchangeService.checkAdminPermission()
+            ) {
+              <div class="row vertical-align">
+                <div class="col-md-10 col-sm-12 col-xs-12">
+                  <div style="text-align: left">
+                    <div
+                      id="georesourceAddAdmin_topicsManagement"
+                      class="box box-primary collapsed-box"
+                      style="background: #ebf0fd"
+                    >
+                      <div class="box-header">
+                        <h3 class="box-title">Themenkatalog</h3>
+                        <div class="box-tools pull-right">
+                          <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                            <i class="fa fa-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="box-body">
+                        <style>
+                          #georesourceAddAdmin_topicsManagement #indicatorTopicsManagement {
+                            display: none;
+                          }
+                        </style>
+                        <app-admin-topics-management></app-admin-topics-management>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+            }
+            <input
+              type="button"
+              name="previous"
+              class="previous previous_addGeoresource action-button-previous"
+              value="Voriger Schritt"
+              (click)="previousStep()"
+            />
+            <input
+              type="button"
+              name="next"
+              class="next next_addGeoresource action-button"
+              value="Nächster Schritt"
+              (click)="nextStep()"
+            />
+          </fieldset>
+        }
 
-                <div class="help-block with-errors"></div>
-                <div *ngIf="georesourceDataSourceInputInvalid" style="color: red;">
-                  <p>Eingabe ungültig. Grund: {{georesourceDataSourceInputInvalidReason}}</p>
+        @if (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity) {
+          <fieldset>
+            <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
+            <h3 class="fs-subtitle">
+              Vergabe der Zugriffsrechte auf Datensatz-Metadaten und -Features pro
+              Organisationseinheit
+            </h3>
+            <div class="row">
+              <div class="col-md-3"></div>
+              <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="alert alert-info">
+                  Bitte wählen Sie zunächst die Organisationseinheit aus, unter welcher Sie den
+                  Datensatz anlegen möchten
                 </div>
+                <label for="addGeoresourceUserRoleSelect">Eigentümer-Organisationseinheit*</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                  <input
+                    type="text"
+                    class="form-control input-sm"
+                    placeholder="Stichwortfilter"
+                    [(ngModel)]="ownerOrgFilter"
+                    name="ownerOrgFilter"
+                  />
+                </div>
+                @if (
+                  kommonitorDataExchangeService.checkAdminPermission &&
+                  kommonitorDataExchangeService.checkAdminPermission()
+                ) {
+                  <select
+                    id="addGeoresourceUserRoleSelect"
+                    [(ngModel)]="ownerOrganization"
+                    name="ownerOrganization"
+                    class="form-control"
+                    (ngModelChange)="onChangeOwner($event)"
+                    required
+                  >
+                    @for (org of kommonitorDataExchangeService.accessControl; track org) {
+                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
+                    }
+                  </select>
+                }
+                @if (
+                  !kommonitorDataExchangeService.checkAdminPermission ||
+                  !kommonitorDataExchangeService.checkAdminPermission()
+                ) {
+                  <select
+                    id="addGeoresourceUserRoleSelect"
+                    [(ngModel)]="ownerOrganization"
+                    name="ownerOrganization"
+                    class="form-control"
+                    (ngModelChange)="onChangeOwner($event)"
+                    required
+                  >
+                    @for (org of resourcesCreatorRights; track org) {
+                      <option [value]="org.organizationalUnitId">{{ org.name }}</option>
+                    }
+                  </select>
+                }
+                <p></p>
               </div>
+              <div class="col-md-3"></div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>ID Attributname*</label>
-                <input type="text" class="form-control" [(ngModel)]="georesourceDataSourceIdProperty" name="georesourceDataSourceIdProperty" required>
-                <div class="help-block">
-                  <p>Name des Attributs, welches den eindeutigen Identifier des Features enthält.</p>
-                </div>
-                <div class="help-block with-errors"></div>
-                <div *ngIf="idPropertyNotFound" style="color: red;">
-                  <p>Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält NULL-Werte.</p>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>NAME Attributname*</label>
-                <input type="text" class="form-control" [(ngModel)]="georesourceDataSourceNameProperty" name="georesourceDataSourceNameProperty" required>
-                <div class="help-block">
-                  <p>Name des Attributs, welches den eindeutigen Namen des Features enthält.</p>
-                </div>
-                <div class="help-block with-errors"></div>
-                <div *ngIf="namePropertyNotFound" style="color: red;">
-                  <p>Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält NULL-Werte.</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Lebenszeit-Beginn Attributname</label>
-                <input type="text" [(ngModel)]="validityStartDate_perFeature" name="validityStartDate_perFeature" class="form-control pull-right">
-                <div class="help-block">
-                  <p>Eintrag nur, falls die räumlichen Features über ein Attribut für den Lebenszeitraum (Beginn) verfügen.</p>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-              <div class="form-group">
-                <label>Lebenszeit-Ende Attributname</label>
-                <input type="text" [(ngModel)]="validityEndDate_perFeature" name="validityEndDate_perFeature" class="form-control pull-right">
-                <div class="help-block">
-                  <p>Eintrag nur, falls die räumlichen Features über ein Attribut für den Lebenszeitraum (Ende) verfügen.</p>
-                </div>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Gültigkeitszeitraum: gültig seit*</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
+            <br />
+            <hr />
+            <br />
+            <div id="georesourceRoleForm">
+              <label>Datensatz-Freigaben</label>
+              <div class="row vertical-align">
+                <div class="col-md-3">
+                  <label>Öffentliche Lesefreigabe*</label>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="isPublic"
+                      name="isPublic"
+                      (ngModelChange)="onChangeIsPublic($event)"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
+                  <div class="help-block">
+                    <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.startDate" name="periodOfValidityStart" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceAddDatepickerStart" placeholder="YYYY-MM-DD" required>
                 </div>
-                <div class="help-block">
-                  <p>Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein Lebenszeitraum-Attribut verfügen.</p>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                  <div
+                    id="georesourceAddRoleManagementTable"
+                    style="height: 45vh"
+                    class="ag-theme-alpine"
+                  ></div>
                 </div>
-                <div class="help-block with-errors"></div>
-                <div *ngIf="periodOfValidityInvalid" style="color: red;">
-                  <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Gültigkeitszeitraum: gültig bis</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="far fa-calendar-alt"></i>
+                <div class="col-md-3">
+                  <div class="alert alert-info">
+                    Als Eigentümer-Organisation des Datensatzes können Sie Lese- und Editier-Rechte
+                    an die eigene und weitere Organisationseinheiten vergeben.
                   </div>
-                  <input type="text" [(ngModel)]="periodOfValidity.endDate" name="periodOfValidityEnd" (ngModelChange)="checkPeriodOfValidity()"
-                    class="form-control pull-right" id="georesourceAddDatepickerEnd" placeholder="YYYY-MM-DD">
-                </div>
-                <div class="help-block">
-                  <p>Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell gültige Features handelt.</p>
-                </div>
-                <div class="help-block with-errors"></div>
-                <div *ngIf="periodOfValidityInvalid" style="color: red;">
-                  <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                  <br />
+                  <div class="alert alert-warning">
+                    Lese- und Editierrechte wurden für die von Ihnen selektierte
+                    Eigentümer-Organisationseinheit markiert.
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <hr>
-          <br/>
+            <input
+              type="button"
+              name="previous"
+              class="previous previous_addGeoresource action-button-previous"
+              value="Voriger Schritt"
+              (click)="previousStep()"
+            />
+            <input
+              type="button"
+              name="next"
+              class="next next_addGeoresource action-button"
+              value="Nächster Schritt"
+              (click)="nextStep()"
+            />
+          </fieldset>
+        }
 
-          <div class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Import weiterer Attribute*</label>
-                <br/>
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="keepAttributes" name="keepAttributes">
-                  <span class="switchslider round"></span>
-                </label>
-                <div class="help-block">
-                  <p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen übernommen werden sollen. Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
+        @if (
+          (currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) ||
+          (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity)
+        ) {
+          <fieldset>
+            <div style="position: absolute">
+              <button
+                type="button"
+                class="btn btn-info pull-left"
+                (click)="onImportGeoresourceAddMappingConfig()"
+                title="Importieren der Mapping-Konfigurationen aus einer Datei"
+              >
+                <i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import
+              </button>
+              <input
+                style="display: none"
+                class="pull-left"
+                type="file"
+                #mappingConfigImportFile
+                class="form-control"
+                id="georesourceMappingConfigAddImportFile"
+                accept=".json"
+                (change)="onMappingConfigFileSelected($event)"
+              />
+              <button
+                type="button"
+                style="margin-left: 6px"
+                class="btn btn-info pull-left"
+                (click)="onExportGeoresourceAddMappingConfig()"
+                title="Exportieren der Mapping-Konfigurationen in eine Datei"
+              >
+                <i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export
+              </button>
+            </div>
+            <h2 class="fs-title">Räumlicher Datensatz</h2>
+            <h3 class="fs-subtitle">
+              Angaben über den räumlichen Datensatz, aus dem die Features importiert werden
+            </h3>
+            <p>
+              <b><i>* = Pflichtfeld</i></b>
+            </p>
+            <div class="row vertical-align">
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Geodaten-Quellformat*</label>
+                  <select
+                    [(ngModel)]="converter"
+                    name="converter"
+                    (ngModelChange)="onChangeConverter()"
+                    class="form-control"
+                    required
+                  >
+                    <option disabled selected value>-- Quellformat wählen --</option>
+                    @for (conv of kommonitorImporterHelperService.availableConverters; track conv) {
+                      <option [ngValue]="conv">{{ conv.name }}</option>
+                    }
+                  </select>
+                  <div class="help-block with-errors"></div>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12" *ngIf="!keepAttributes">
-              <div class="form-group">
-                <label>Fehlende/NULL Werte beibehalten*</label>
-                <br/>
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="keepMissingValues" name="keepMissingValues">
-                  <span class="switchslider round"></span>
-                </label>
-                <div class="help-block">
-                  <p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) übernommen werden. Bei deaktivierter Option wird bei einem solchen Fall ein Fehler geworfen.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div *ngIf="!keepAttributes" class="row vertical-align">
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <div class="form-group">
-                <label>Attributname im zu importierenden Datensatz*</label>
-                <input type="text" class="form-control input-sm" placeholder="Quell-Attributname" [(ngModel)]="attributeMapping_sourceAttributeName" name="attributeMapping_sourceAttributeName">
-                <div class="help-block with-errors"></div>
-              </div>
-
-              <div class="form-group">
-                <label>Ziel-Attributname in Datenbank nach Import*</label>
-                <input type="text" class="form-control input-sm" placeholder="Ziel-Attributname" [(ngModel)]="attributeMapping_destinationAttributeName" name="attributeMapping_destinationAttributeName">
-                <div class="help-block with-errors"></div>
-              </div>
-
-              <div class="form-group">
-                <label>Datentyp*</label>
-                <select [(ngModel)]="attributeMapping_attributeType" name="attributeMapping_attributeType" class="form-control" required>
-                  <option disabled selected value> -- Datentyp wählen -- </option>
-                  <option *ngFor="let type of kommonitorImporterHelperService.attributeMapping_attributeTypes" [ngValue]="type">{{type.displayName}}</option>
-                </select>
-                <div class="help-block with-errors"></div>
-              </div>
-
-              <div class="form-group">
-                <button class="btn btn-success btn-sm" [disabled]="!attributeMapping_sourceAttributeName || !attributeMapping_destinationAttributeName || !attributeMapping_attributeType" (click)="onAddOrUpdateAttributeMapping()">Hinzufügen/Editieren</button>
-                <div class="help-block with-errors"></div>
-              </div>
-            </div>
-            
-            <div class="col-md-6 col-sm-6 col-xs-12">
-              <label>Übersicht der definierten Attribut-Mappings</label>
-              <table class="table table-condensed">
-                <thead>
-                  <tr>
-                    <th>Editierfunktionen</th>
-                    <th>Quell-Attributname im Datensatz</th>
-                    <th>Ziel-Attributname nach Import</th>
-                    <th>Datentyp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let attributeMappingEntry of attributeMappings_adminView">
-                    <td>
-                      <div class="btn-group btn-group-sm">
-                        <button class="btn btn-warning btn-sm" type="button" (click)="onClickEditAttributeMapping(attributeMappingEntry)"
-                          title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
-                        <button class="btn btn-danger btn-sm" type="button" (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
-                          title="Referenz löschen"><i class="fas fa-trash"></i></button>
+                @if (converter?.schemas) {
+                  <div>
+                    <div class="form-group">
+                      <label>Schema*</label>
+                      <select [(ngModel)]="schema" name="schema" class="form-control" required>
+                        <option disabled selected value>-- Schema wählen --</option>
+                        @for (schemaOption of converter.schemas; track schemaOption) {
+                          <option [value]="schemaOption">{{ schemaOption }}</option>
+                        }
+                      </select>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                }
+                @if (converter?.mimeTypes) {
+                  <div>
+                    <div class="form-group">
+                      <label>Quellformat*</label>
+                      <select
+                        [(ngModel)]="mimeType"
+                        name="mimeType"
+                        (ngModelChange)="onChangeMimeType($event)"
+                        class="form-control"
+                        required
+                      >
+                        <option disabled selected value>-- Format wählen --</option>
+                        @for (mimeTypeOption of converter.mimeTypes; track mimeTypeOption) {
+                          <option [value]="mimeTypeOption">{{ mimeTypeOption }}</option>
+                        }
+                      </select>
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                }
+                @for (parameter of converter?.parameters; track parameter) {
+                  <div>
+                    <div class="form-group">
+                      <label
+                        >{{ parameter.name }}
+                        @if (parameter.mandatory) {
+                          <i>*</i>
+                        }
+                      </label>
+                      <input
+                        type="text"
+                        [id]="'converterParameter_georesourceAdd_' + parameter.name"
+                        class="form-control"
+                        [placeholder]="parameter.name"
+                        [required]="parameter.mandatory"
+                      />
+                      <div class="help-block">
+                        <p>{{ parameter.description }}</p>
                       </div>
-                    </td>
-                    <td>{{attributeMappingEntry.sourceName}}</td>
-                    <td>{{attributeMappingEntry.destinationName}}</td>
-                    <td>{{attributeMappingEntry.dataType.displayName}}</td>
-                  </tr>
-                </tbody>
-              </table>
+                      @if (parameter.name === 'CRS') {
+                        <div class="help-block with-errors" style="color: red">
+                          <p>
+                            CRS aufmerksam setzen. Falsche Angaben führen zur fehlerhaften
+                            Koordinaten der Features
+                          </p>
+                        </div>
+                      }
+                      <div class="help-block with-errors"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  @if (!converter) {
+                    <div>
+                      <p>bitte zuerst das Quellformat wählen</p>
+                    </div>
+                  }
+                  @if (converter) {
+                    <div>
+                      <div class="form-group">
+                        <label>Datenquelltyp*</label>
+                        <select
+                          [(ngModel)]="datasourceType"
+                          name="datasourceType"
+                          (ngModelChange)="onChangeDatasourceType($event)"
+                          class="form-control"
+                          required
+                        >
+                          <option disabled selected value>-- Quelltyp wählen --</option>
+                          @for (dsType of availableDatasourceTypes; track dsType) {
+                            <option [ngValue]="dsType">{{ dsType.type }}</option>
+                          }
+                        </select>
+                        <div class="help-block"></div>
+                      </div>
+                      @if (datasourceType?.type === 'FILE') {
+                        <div>
+                          <label>Datei*</label>
+                          <input
+                            type="file"
+                            class="form-control"
+                            #georesourceDataSourceInput
+                            id="georesourceDataSourceInput_add"
+                            required
+                          />
+                        </div>
+                      }
+                      @if (datasourceType?.type === 'OGCAPI_FEATURES') {
+                        <div>
+                          <label>Räumlicher Filter*</label>
+                          <select
+                            [id]="'datasourceTypeParameter_georesourceAdd_bboxType'"
+                            [(ngModel)]="bboxType"
+                            name="bboxType"
+                            class="form-control"
+                            required
+                          >
+                            <option disabled selected value>-- Filter wählen --</option>
+                            <option value="ref">Referenzraumebene</option>
+                            <option value="literal">Manueller Begrenzungsrahmen</option>
+                          </select>
+                          @if (bboxType === 'ref') {
+                            <div>
+                              <select
+                                [id]="'datasourceTypeParameter_georesourceAdd_bboxRef'"
+                                [(ngModel)]="bboxRefSpatialUnit"
+                                name="bboxRefSpatialUnit"
+                                class="form-control"
+                                [required]="bboxType === 'ref'"
+                              >
+                                <option disabled selected value>-- Raumebene wählen --</option>
+                                @for (
+                                  spatialUnit of kommonitorDataExchangeService.availableSpatialUnits;
+                                  track spatialUnit
+                                ) {
+                                  <option [value]="spatialUnit.spatialUnitId">
+                                    {{ spatialUnit.spatialUnitLevel }}
+                                  </option>
+                                }
+                              </select>
+                              <div class="help-block">
+                                <p>
+                                  Raumebene aus welchem ein umschließendes Rechteck extrahiert wird
+                                </p>
+                              </div>
+                            </div>
+                          }
+                          @if (bboxType === 'literal') {
+                            <div>
+                              <label>Begrenzungsrahmen*</label>
+                              <input
+                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_minx'"
+                                class="form-control"
+                                type="number"
+                                lang="us"
+                                placeholder="-180"
+                                [required]="bboxType === 'literal'"
+                              />
+                              <div class="help-block">
+                                <p>Minimale x-Koordinate (Longitude)</p>
+                              </div>
+                              <input
+                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_miny'"
+                                class="form-control"
+                                type="number"
+                                lang="us"
+                                placeholder="-90"
+                                [required]="bboxType === 'literal'"
+                              />
+                              <div class="help-block">
+                                <p>Minimale y-Koordinate (Latitude)</p>
+                              </div>
+                              <input
+                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxx'"
+                                class="form-control"
+                                type="number"
+                                lang="us"
+                                placeholder="180"
+                                [required]="bboxType === 'literal'"
+                              />
+                              <div class="help-block">
+                                <p>Maximale x-Koordinate (Longitude)</p>
+                              </div>
+                              <input
+                                [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxy'"
+                                class="form-control"
+                                type="number"
+                                lang="us"
+                                placeholder="90"
+                                [required]="bboxType === 'literal'"
+                              />
+                              <div class="help-block">
+                                <p>Maximale y-Koordinate (Latitude)</p>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                      @if (datasourceType?.type !== 'FILE') {
+                        <div>
+                          @for (parameter of datasourceType?.parameters; track parameter) {
+                            <div>
+                              @if (parameter.name !== 'bbox') {
+                                <div class="form-group">
+                                  @if (parameter.mandatory) {
+                                    <label>{{ parameter.name }}*</label>
+                                  }
+                                  @if (!parameter.mandatory) {
+                                    <label>{{ parameter.name }}</label>
+                                  }
+                                  <textarea
+                                    rows="1"
+                                    [id]="
+                                      'datasourceTypeParameter_georesourceAdd_' + parameter.name
+                                    "
+                                    class="form-control"
+                                    [placeholder]="parameter.name"
+                                    [required]="parameter.mandatory"
+                                  ></textarea>
+                                  <div class="help-block">
+                                    <p>{{ parameter.description }}</p>
+                                  </div>
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                  <div class="help-block with-errors"></div>
+                  @if (georesourceDataSourceInputInvalid) {
+                    <div style="color: red">
+                      <p>Eingabe ungültig. Grund: {{ georesourceDataSourceInputInvalidReason }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>ID Attributname*</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="georesourceDataSourceIdProperty"
+                    name="georesourceDataSourceIdProperty"
+                    required
+                  />
+                  <div class="help-block">
+                    <p>
+                      Name des Attributs, welches den eindeutigen Identifier des Features enthält.
+                    </p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                  @if (idPropertyNotFound) {
+                    <div style="color: red">
+                      <p>
+                        Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält
+                        NULL-Werte.
+                      </p>
+                    </div>
+                  }
+                </div>
+                <div class="form-group">
+                  <label>NAME Attributname*</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="georesourceDataSourceNameProperty"
+                    name="georesourceDataSourceNameProperty"
+                    required
+                  />
+                  <div class="help-block">
+                    <p>Name des Attributs, welches den eindeutigen Namen des Features enthält.</p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                  @if (namePropertyNotFound) {
+                    <div style="color: red">
+                      <p>
+                        Eingabe ungültig. Angegebenes Attribut nicht gefunden oder enthält
+                        NULL-Werte.
+                      </p>
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Lebenszeit-Beginn Attributname</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="validityStartDate_perFeature"
+                    name="validityStartDate_perFeature"
+                    class="form-control pull-right"
+                  />
+                  <div class="help-block">
+                    <p>
+                      Eintrag nur, falls die räumlichen Features über ein Attribut für den
+                      Lebenszeitraum (Beginn) verfügen.
+                    </p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group">
+                  <label>Lebenszeit-Ende Attributname</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="validityEndDate_perFeature"
+                    name="validityEndDate_perFeature"
+                    class="form-control pull-right"
+                  />
+                  <div class="help-block">
+                    <p>
+                      Eintrag nur, falls die räumlichen Features über ein Attribut für den
+                      Lebenszeitraum (Ende) verfügen.
+                    </p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt" (click)="previousStep()"/>
-        </fieldset>
+            <div class="row vertical-align">
+              <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Gültigkeitszeitraum: gültig seit*</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <input
+                      type="text"
+                      [(ngModel)]="periodOfValidity.startDate"
+                      name="periodOfValidityStart"
+                      (ngModelChange)="checkPeriodOfValidity()"
+                      class="form-control pull-right"
+                      id="georesourceAddDatepickerStart"
+                      placeholder="YYYY-MM-DD"
+                      required
+                    />
+                  </div>
+                  <div class="help-block">
+                    <p>
+                      Eintrag ist immer erforderlich, selbst wenn die räumlichen Features über ein
+                      Lebenszeitraum-Attribut verfügen.
+                    </p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                  @if (periodOfValidityInvalid) {
+                    <div style="color: red">
+                      <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Gültigkeitszeitraum: gültig bis</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon">
+                      <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <input
+                      type="text"
+                      [(ngModel)]="periodOfValidity.endDate"
+                      name="periodOfValidityEnd"
+                      (ngModelChange)="checkPeriodOfValidity()"
+                      class="form-control pull-right"
+                      id="georesourceAddDatepickerEnd"
+                      placeholder="YYYY-MM-DD"
+                    />
+                  </div>
+                  <div class="help-block">
+                    <p>
+                      Eintrag ist erforderlich, falls die räumlichen Features nicht selbst über ein
+                      Lebenszeitraum-Attribut verfügen. Enddatum darf leer sein, um anzuzeigen, dass
+                      es sich um aktuell gültige Features handelt.
+                    </p>
+                  </div>
+                  <div class="help-block with-errors"></div>
+                  @if (periodOfValidityInvalid) {
+                    <div style="color: red">
+                      <p>Eingabe ungültig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            <hr />
+            <br />
+            <div class="row vertical-align">
+              <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="form-group">
+                  <label>Import weiterer Attribute*</label>
+                  <br />
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="keepAttributes" name="keepAttributes" />
+                    <span class="switchslider round"></span>
+                  </label>
+                  <div class="help-block">
+                    <p>
+                      Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem
+                      Namen übernommen werden sollen. Falls nicht, so lassen sich einzelne
+                      Attribut-Importe definieren.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              @if (!keepAttributes) {
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                    <label>Fehlende/NULL Werte beibehalten*</label>
+                    <br />
+                    <label class="switch">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="keepMissingValues"
+                        name="keepMissingValues"
+                      />
+                      <span class="switchslider round"></span>
+                    </label>
+                    <div class="help-block">
+                      <p>
+                        Angabe, ob fehlende Attribute oder leere Attributwerte
+                        (<code>NULL</code>-Werte) übernommen werden. Bei deaktivierter Option wird
+                        bei einem solchen Fall ein Fehler geworfen.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+            @if (!keepAttributes) {
+              <div class="row vertical-align">
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                    <label>Attributname im zu importierenden Datensatz*</label>
+                    <input
+                      type="text"
+                      class="form-control input-sm"
+                      placeholder="Quell-Attributname"
+                      [(ngModel)]="attributeMapping_sourceAttributeName"
+                      name="attributeMapping_sourceAttributeName"
+                    />
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                    <label>Ziel-Attributname in Datenbank nach Import*</label>
+                    <input
+                      type="text"
+                      class="form-control input-sm"
+                      placeholder="Ziel-Attributname"
+                      [(ngModel)]="attributeMapping_destinationAttributeName"
+                      name="attributeMapping_destinationAttributeName"
+                    />
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                    <label>Datentyp*</label>
+                    <select
+                      [(ngModel)]="attributeMapping_attributeType"
+                      name="attributeMapping_attributeType"
+                      class="form-control"
+                      required
+                    >
+                      <option disabled selected value>-- Datentyp wählen --</option>
+                      @for (
+                        type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
+                        track type
+                      ) {
+                        <option [ngValue]="type">{{ type.displayName }}</option>
+                      }
+                    </select>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                    <button
+                      class="btn btn-success btn-sm"
+                      [disabled]="
+                        !attributeMapping_sourceAttributeName ||
+                        !attributeMapping_destinationAttributeName ||
+                        !attributeMapping_attributeType
+                      "
+                      (click)="onAddOrUpdateAttributeMapping()"
+                    >
+                      Hinzufügen/Editieren
+                    </button>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                  <label>Übersicht der definierten Attribut-Mappings</label>
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Editierfunktionen</th>
+                        <th>Quell-Attributname im Datensatz</th>
+                        <th>Ziel-Attributname nach Import</th>
+                        <th>Datentyp</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (
+                        attributeMappingEntry of attributeMappings_adminView;
+                        track attributeMappingEntry
+                      ) {
+                        <tr>
+                          <td>
+                            <div class="btn-group btn-group-sm">
+                              <button
+                                class="btn btn-warning btn-sm"
+                                type="button"
+                                (click)="onClickEditAttributeMapping(attributeMappingEntry)"
+                                title="Referenz editieren"
+                              >
+                                <i class="fas fa-pencil-alt"></i>
+                              </button>
+                              <button
+                                class="btn btn-danger btn-sm"
+                                type="button"
+                                (click)="onClickDeleteAttributeMapping(attributeMappingEntry)"
+                                title="Referenz löschen"
+                              >
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                          <td>{{ attributeMappingEntry.sourceName }}</td>
+                          <td>{{ attributeMappingEntry.destinationName }}</td>
+                          <td>{{ attributeMappingEntry.dataType.displayName }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+            <input
+              type="button"
+              name="previous"
+              class="previous previous_addGeoresource action-button-previous"
+              value="Voriger Schritt"
+              (click)="previousStep()"
+            />
+          </fieldset>
+        }
       </form>
     </div>
   </div>
@@ -789,83 +1425,157 @@
 
 <div class="modal-footer">
   <button type="button" class="btn btn-default pull-left" (click)="cancel()">Schließen</button>
-  <button type="button" class="btn btn-info pull-left" (click)="onImportGeoresourceAddMetadata()"
-    title="Importieren der Metadaten aus einer Datei">
+  <button
+    type="button"
+    class="btn btn-info pull-left"
+    (click)="onImportGeoresourceAddMetadata()"
+    title="Importieren der Metadaten aus einer Datei"
+  >
     <i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import
   </button>
-  <input style="display:none;" class="pull-left" type="file" #metadataImportFile class="form-control"
-    id="georesourceMetadataImportFile" accept=".json" (change)="onMetadataFileSelected($event)">
-  <button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" (click)="onExportGeoresourceAddMetadata()" 
-    title="Exportieren der Metadaten in eine Datei">
+  <input
+    style="display: none"
+    class="pull-left"
+    type="file"
+    #metadataImportFile
+    class="form-control"
+    id="georesourceMetadataImportFile"
+    accept=".json"
+    (change)="onMetadataFileSelected($event)"
+  />
+  <button
+    type="button"
+    style="margin-left: 6px"
+    class="btn btn-info pull-left"
+    (click)="onExportGeoresourceAddMetadata()"
+    title="Exportieren der Metadaten in eine Datei"
+  >
     <i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export
   </button>
 
-  <button type="button" class="btn btn-success" 
-    [disabled]="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || poiMarkerTextInvalid || periodOfValidityInvalid || !converter || !datasourceType || (kommonitorDataExchangeService.enableKeycloakSecurity && !ownerOrganization)"
-    (click)="addGeoresource()">
+  <button
+    type="button"
+    class="btn btn-success"
+    [disabled]="
+      !datasetName ||
+      !metadata.description ||
+      !metadata.datasource ||
+      !metadata.contact ||
+      !metadata.updateInterval ||
+      !metadata.lastUpdate ||
+      !georesourceDataSourceIdProperty ||
+      !georesourceDataSourceNameProperty ||
+      !periodOfValidity.startDate ||
+      datasetNameInvalid ||
+      poiMarkerTextInvalid ||
+      periodOfValidityInvalid ||
+      !converter ||
+      !datasourceType ||
+      (kommonitorDataExchangeService.enableKeycloakSecurity && !ownerOrganization)
+    "
+    (click)="addGeoresource()"
+  >
     Georessource registrieren
   </button>
-  <button type="button" class="btn btn-danger" (click)="resetGeoresourceAddForm()">Zurücksetzen</button>
+  <button type="button" class="btn btn-danger" (click)="resetGeoresourceAddForm()">
+    Zurücksetzen
+  </button>
 </div>
 
 <!-- Success Alert -->
-<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
-  [hidden]="!successMessage" class="alert alert-success alert-dismissable">
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+<div
+  id="georesourceAddSuccessAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!successMessage"
+  class="alert alert-success alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
+    &times;
+  </button>
   <h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-  <p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die Übersichtstabelle eingetragen.
-    <span *ngIf="importedFeatures && importedFeatures.length > 0">
-      {{importedFeatures.length}} Features wurden dabei importiert.
-    </span>
+  <p>
+    Eine neue Georessource mit Namen {{ successMessagePart }} wurde in KomMonitor registriert und in
+    die Übersichtstabelle eingetragen.
+    @if (importedFeatures && importedFeatures.length > 0) {
+      <span> {{ importedFeatures.length }} Features wurden dabei importiert. </span>
+    }
   </p>
 </div>
 
 <!-- Error Alert -->
-<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
-  [hidden]="!errorMessage" class="alert alert-danger alert-dismissable">
+<div
+  id="georesourceAddErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!errorMessage"
+  class="alert alert-danger alert-dismissable"
+>
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
   Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
-  <br/>
-  <br/>
+  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
+  <br />
+  <br />
 
-  <div *ngIf="importerErrors">
-    <p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
-    <pre style="overflow:auto; max-height:500px;">
-      <ul>
-        <li *ngFor="let error of importerErrors">{{error}}</li>
-      </ul>
-    </pre>
-    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
-  </div>
+  @if (importerErrors) {
+    <div>
+      <p>Bei den {{ importerErrors.length }} Features mit folgenden IDs scheitert der Import:</p>
+      <pre style="overflow: auto; max-height: 500px">
+                          <ul>
+                            @for (error of importerErrors; track error) {
+                              <li>{{error}}</li>
+                            }
+                          </ul>
+                        </pre>
+      <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+    </div>
+  }
 </div>
 
 <!-- Metadata Import Error Alert -->
-<div id="georesourceMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
-  [hidden]="!georesourceMetadataImportError" class="alert alert-danger alert-dismissable">
-  <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">&times;</button>
+<div
+  id="georesourceMetadataImportErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!georesourceMetadataImportError"
+  class="alert alert-danger alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideMetadataErrorAlert()" aria-hidden="true">
+    &times;
+  </button>
   <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
   Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre>{{georesourceMetadataImportError}}</pre>
+  <pre>{{ georesourceMetadataImportError }}</pre>
   <br />
   <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-  <pre id="georesourcesAddMetadataPre" style="overflow:auto; max-height:500px;" [innerHTML]="georesourceMetadataStructure_pretty"></pre>
+  <pre
+    id="georesourcesAddMetadataPre"
+    style="overflow: auto; max-height: 500px"
+    [innerHTML]="georesourceMetadataStructure_pretty"
+  ></pre>
 </div>
 
 <!-- Mapping Config Import Error Alert -->
-<div id="georesourceMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
-  [hidden]="!georesourceMappingConfigImportError" class="alert alert-danger alert-dismissable">
-  <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+<div
+  id="georesourceMappingConfigImportErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!georesourceMappingConfigImportError"
+  class="alert alert-danger alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideMappingConfigErrorAlert()" aria-hidden="true">
+    &times;
+  </button>
   <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
   Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
-  <br/>
+  <br />
   <pre [innerHTML]="georesourceMappingConfigImportError"></pre>
-  <br/>
-  <br/>
+  <br />
+  <br />
   <p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-  <pre id="georesourcesAddMappingConfigPre" style="overflow:auto; max-height:500px;" [innerHTML]="georesourceMappingConfigStructure_pretty"></pre>
-</div> 
+  <pre
+    id="georesourcesAddMappingConfigPre"
+    style="overflow: auto; max-height: 500px"
+    [innerHTML]="georesourceMappingConfigStructure_pretty"
+  ></pre>
+</div>

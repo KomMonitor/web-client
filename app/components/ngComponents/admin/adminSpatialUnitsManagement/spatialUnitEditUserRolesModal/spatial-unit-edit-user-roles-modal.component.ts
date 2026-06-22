@@ -15,14 +15,14 @@ import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommoni
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { GridOptions, GridReadyEvent, ColDef } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-spatial-unit-edit-user-roles-modal',
   templateUrl: './spatial-unit-edit-user-roles-modal.component.html',
   styleUrls: ['./spatial-unit-edit-user-roles-modal.component.css'],
-  imports: [AgGridAngular, CommonModule, FormsModule],
+  imports: [AgGridAngular, FormsModule],
   standalone: true,
 })
 export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy, AfterViewInit {

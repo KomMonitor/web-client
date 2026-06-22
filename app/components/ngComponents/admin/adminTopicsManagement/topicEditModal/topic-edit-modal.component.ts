@@ -11,7 +11,6 @@ import {
 } from '@angular/forms';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../admin-topics-management.component';
-import { CommonModule } from '@angular/common';
 
 const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
 
@@ -19,7 +18,7 @@ const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
   selector: 'app-topic-edit-modal',
   templateUrl: './topic-edit-modal.component.html',
   styleUrls: ['./topic-edit-modal.component.css'],
-  imports: [FormsModule, CommonModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule],
   standalone: true,
 })
 export class TopicEditModalComponent implements OnInit {

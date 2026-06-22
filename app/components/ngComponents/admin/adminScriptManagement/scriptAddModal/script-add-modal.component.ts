@@ -1,6 +1,6 @@
 import { Component, ViewChild, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -18,7 +18,6 @@ import { StepperComponent, StepperStep } from '../../../common/stepper/stepper.c
   templateUrl: './script-add-modal.component.html',
   styleUrls: ['./script-add-modal.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     StepperComponent,
     ScriptStepIntroductionComponent,

@@ -8,11 +8,10 @@
 <ng-template #content>
   <expandable-box title="App Konfiguration" [isCollapsible]="false">
     <p>
-      Nehmen Sie Anpassungen an variablen Parametern des Web-Clients vor und
-      speichern sie diese. Die Editierungen erfolgen direkt im
-      JavaScript-Format. Dies speichert die Konfiguration im
-      <b>Config Storage Service</b> von KomMonitor, von dem die Daten beim Start
-      der Anwendung geladen werden. Setzen Sie die Werte daher sorgf&auml;ltig.
+      Nehmen Sie Anpassungen an variablen Parametern des Web-Clients vor und speichern sie diese.
+      Die Editierungen erfolgen direkt im JavaScript-Format. Dies speichert die Konfiguration im
+      <b>Config Storage Service</b> von KomMonitor, von dem die Daten beim Start der Anwendung
+      geladen werden. Setzen Sie die Werte daher sorgf&auml;ltig.
     </p>
 
     <hr />
@@ -48,21 +47,19 @@
           <br />
           <textarea #appConfigEditor id="appConfigEditor"></textarea>
         </div>
-        <div class="help-block with-errors" *ngIf="configSettingInvalid">
-          Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig;
-          der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher
-          die vorgegebene JavaScript-Struktur. Der Text wird auf
-          Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt,
-          dass valides JavaScript geparsed werden kann.
-        </div>
-        <div
-          class="help-block with-errors"
-          *ngIf="
-            missingRequiredParameters && missingRequiredParameters.length > 0
-          "
-        >
-          Fehlende Parameter: {{ missingRequiredParameters_string }}
-        </div>
+        @if (configSettingInvalid) {
+          <div class="help-block with-errors">
+            Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage
+            definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JavaScript-Struktur.
+            Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt,
+            dass valides JavaScript geparsed werden kann.
+          </div>
+        }
+        @if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+          <div class="help-block with-errors">
+            Fehlende Parameter: {{ missingRequiredParameters_string }}
+          </div>
+        }
       </div>
       <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="form-group">
@@ -95,21 +92,15 @@
       hidden
       class="alert alert-success alert-dismissable"
     >
-      <button
-        type="button"
-        class="close"
-        (click)="hideSuccessAlert()"
-        aria-hidden="true"
-      >
+      <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
         &times;
       </button>
       <h4>
-        <i class="icon fa fa-check"></i>App-Konfiguration in Config Storage
-        Server gespeichert
+        <i class="icon fa fa-check"></i>App-Konfiguration in Config Storage Server gespeichert
       </h4>
       <p>
-        Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung
-        vom Config Storage Server geladen und verwendet.
+        Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage
+        Server geladen und verwendet.
       </p>
     </div>
 
@@ -119,24 +110,16 @@
       hidden
       class="alert alert-danger alert-dismissable"
     >
-      <button
-        type="button"
-        class="close"
-        (click)="hideErrorAlert()"
-        aria-hidden="true"
-      >
+      <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
         &times;
       </button>
       <h4>
-        <i class="icon fa fa-ban"></i>Speichern der App-Konfiguration in Config
-        Storage Server gescheitert
+        <i class="icon fa fa-ban"></i>Speichern der App-Konfiguration in Config Storage Server
+        gescheitert
       </h4>
       Fehlermeldung:
       <br />
-      <pre
-        style="overflow: auto; max-height: 500px"
-        [innerHTML]="errorMessagePart"
-      ></pre>
+      <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
     </div>
   </expandable-box>
 </ng-template>

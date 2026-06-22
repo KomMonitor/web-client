@@ -7,11 +7,7 @@
 
 <ng-template #controls>
   <!-- TODO: needs to be integrated in button [disabled]="!dataExchangeService.checkCreatePermission()" -->
-  <button
-    class="btn btn-success btn-sm"
-    type="button"
-    (click)="onClickAddScript()"
-  >
+  <button class="btn btn-success btn-sm" type="button" (click)="onClickAddScript()">
     <i class="fas fa-plus"></i> Erstellen
   </button>
 
@@ -28,20 +24,24 @@
 
 <ng-template #content>
   <!-- TODO: use Loading Overlay Component -->
-  <div *ngIf="loadingData" class="loading-overlay-admin-panel text-center">
-    <i class="fas fa-spinner fa-spin fa-2x"></i>
-  </div>
+  @if (loadingData) {
+    <div class="loading-overlay-admin-panel text-center">
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+    </div>
+  }
 
-  <div *ngIf="!loadingData" class="admin-table-wrapper">
-    <ag-grid-angular
-      style="height: 70vh; width: 100%"
-      class="ag-theme-alpine"
-      [columnDefs]="columnDefs"
-      [defaultColDef]="defaultColDef"
-      [rowData]="rowData"
-      [gridOptions]="gridOptions"
-      (selectionChanged)="onSelectionChanged()"
-      rowSelection="multiple"
-    ></ag-grid-angular>
-  </div>
+  @if (!loadingData) {
+    <div class="admin-table-wrapper">
+      <ag-grid-angular
+        style="height: 70vh; width: 100%"
+        class="ag-theme-alpine"
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        [rowData]="rowData"
+        [gridOptions]="gridOptions"
+        (selectionChanged)="onSelectionChanged()"
+        rowSelection="multiple"
+      ></ag-grid-angular>
+    </div>
+  }
 </ng-template>

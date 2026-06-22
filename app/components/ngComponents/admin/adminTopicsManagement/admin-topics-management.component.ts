@@ -19,7 +19,7 @@ import { Injectable } from '@angular/core';
 import { AdminTopicsManagementService } from './admin-topics-management.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
 import { TopicListComponent } from './topicList/topicList.component';
 import { AddTopicComponent } from './add-topic/add-topic.component';
@@ -39,7 +39,6 @@ export class AdminTopicsManagementErrorHandlingService {
   imports: [
     ExpandableBoxComponent,
     FormsModule,
-    CommonModule,
     TopicOrderSelectionComponent,
     TopicListComponent,
     AddTopicComponent,

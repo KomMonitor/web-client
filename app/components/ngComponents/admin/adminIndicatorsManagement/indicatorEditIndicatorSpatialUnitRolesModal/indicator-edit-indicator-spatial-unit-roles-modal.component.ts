@@ -5,7 +5,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 
@@ -15,26 +15,26 @@ declare const $: any;
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
   styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.css'],
-  imports: [CommonModule, FormsModule, FilterPipe],
-  standalone: true
+  imports: [FormsModule, FilterPipe],
+  standalone: true,
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
   @ViewChild('modal') modal!: ElementRef;
-  
+
   private modalRef?: NgbModalRef;
-  
+
   // Form data
   currentIndicatorDataset: any;
   targetApplicableSpatialUnit: any;
-  
+
   // Role management tables
   roleManagementTableOptions_indicatorMetadata: any;
   roleManagementTableOptions_indicatorSpatialUnitTimeseries: any;
-  
+
   // Messages
   successMessagePart: string = '';
   errorMessagePart: string = '';
-  
+
   // Form controls
   ownerOrgFilter: string = '';
   ownerOrganization: any;
@@ -42,21 +42,22 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   activeConnectedRolesOnly: boolean = true;
   permissions: any[] = [];
   resourcesCreatorRights: any[] = [];
-  
+
   // Loading states
   loadingData: boolean = false;
-  
+
   // Multi-step form
   currentStep: number = 1;
   totalSteps: number = 3;
-  
+
   constructor(
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private http: HttpClient,
     @Inject('kommonitorDataExchangeService') public angularJsDataExchangeService: any,
     @Inject('kommonitorDataGridHelperService') private angularJsDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') private angularJsMultiStepFormHelperService: any,
+    @Inject('kommonitorMultiStepFormHelperService')
+    private angularJsMultiStepFormHelperService: any,
     private dataExchangeService: DataExchangeService,
     private dataGridHelperService: KommonitorIndicatorDataGridHelperService,
     private multiStepHelperService: MultiStepHelperServiceService
@@ -87,10 +88,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.currentIndicatorDataset = indicatorDataset;
     this.prepareCreatorList();
     this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
-    
+
     // Register the multi-step form handler
-    this.angularJsMultiStepFormHelperService.registerClickHandler("indicatorEditIndicatorSpatialUnitRolesForm");
-    
+    this.angularJsMultiStepFormHelperService.registerClickHandler(
+      'indicatorEditIndicatorSpatialUnitRolesForm'
+    );
+
     // Show the modal using jQuery (since this is a legacy modal)
     $('#modal-edit-indicator-spatial-unit-roles').modal('show');
   }
@@ -104,7 +107,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     if (this.angularJsDataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
       const creatorRights: string[] = [];
       const creatorRightsChildren: string[] = [];
-      
+
       this.angularJsDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
         const key = roles.split('.')[0];
         const role = roles.split('.')[1];
@@ -123,7 +126,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       // gather all children
       this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
 
-      this.resourcesCreatorRights = this.angularJsDataExchangeService.accessControl.filter((elem: any) => creatorRights.includes(elem.name));
+      this.resourcesCreatorRights = this.angularJsDataExchangeService.accessControl.filter(
+        (elem: any) => creatorRights.includes(elem.name)
+      );
     }
   }
 
@@ -178,17 +183,22 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     let access = this.angularJsDataExchangeService.accessControl;
     if (this.permissions.length > 0 && this.activeRolesOnly) {
       access = this.angularJsDataExchangeService.accessControl.filter((unit: any) => {
-        return (unit.permissions.filter((unitPermission: any) => this.permissions.includes(unitPermission.permissionId)).length > 0 ? true : false);
+        return unit.permissions.filter((unitPermission: any) =>
+          this.permissions.includes(unitPermission.permissionId)
+        ).length > 0
+          ? true
+          : false;
       });
     }
 
-    this.roleManagementTableOptions_indicatorMetadata = this.angularJsDataGridHelperService.buildRoleManagementGrid(
-      'indicatorEditRoleManagementTable', 
-      this.roleManagementTableOptions_indicatorMetadata, 
-      access, 
-      this.permissions, 
-      true
-    );
+    this.roleManagementTableOptions_indicatorMetadata =
+      this.angularJsDataGridHelperService.buildRoleManagementGrid(
+        'indicatorEditRoleManagementTable',
+        this.roleManagementTableOptions_indicatorMetadata,
+        access,
+        this.permissions,
+        true
+      );
   }
 
   refreshRoleManagementTable_indicatorSpatialUnitTimeseries(): void {
@@ -198,28 +208,37 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       }
 
       let connectedAccess = this.angularJsDataExchangeService.accessControl;
-      if (this.targetApplicableSpatialUnit.permissions.length > 0 && this.activeConnectedRolesOnly) {
+      if (
+        this.targetApplicableSpatialUnit.permissions.length > 0 &&
+        this.activeConnectedRolesOnly
+      ) {
         connectedAccess = this.angularJsDataExchangeService.accessControl.filter((unit: any) => {
-          return (unit.permissions.filter((unitPermission: any) => this.targetApplicableSpatialUnit.permissions.includes(unitPermission.permissionId)).length > 0 ? true : false);
+          return unit.permissions.filter((unitPermission: any) =>
+            this.targetApplicableSpatialUnit.permissions.includes(unitPermission.permissionId)
+          ).length > 0
+            ? true
+            : false;
         });
       }
 
-      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries = this.angularJsDataGridHelperService.buildRoleManagementGrid(
-        'indicatorEditIndicatorSpatialUnitsRoleManagementTable', 
-        this.roleManagementTableOptions_indicatorSpatialUnitTimeseries, 
-        connectedAccess, 
-        this.targetApplicableSpatialUnit.permissions, 
-        true
-      );
+      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
+        this.angularJsDataGridHelperService.buildRoleManagementGrid(
+          'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
+          this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
+          connectedAccess,
+          this.targetApplicableSpatialUnit.permissions,
+          true
+        );
     } else {
       this.activeConnectedRolesOnly = false;
-      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries = this.angularJsDataGridHelperService.buildRoleManagementGrid(
-        'indicatorEditIndicatorSpatialUnitsRoleManagementTable', 
-        this.roleManagementTableOptions_indicatorSpatialUnitTimeseries, 
-        this.angularJsDataExchangeService.accessControl, 
-        [], 
-        true
-      );
+      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
+        this.angularJsDataGridHelperService.buildRoleManagementGrid(
+          'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
+          this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
+          this.angularJsDataExchangeService.accessControl,
+          [],
+          true
+        );
     }
   }
 
@@ -233,15 +252,20 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   onChangeOwner(ownerOrganization: any): void {
     this.ownerOrganization = ownerOrganization;
-    console.log("Target creator role selected to be:", this.ownerOrganization);
+    console.log('Target creator role selected to be:', this.ownerOrganization);
     this.refreshRoles(this.ownerOrganization);
   }
 
   refreshRoles(orgUnitId: string): void {
-    const permissionIds_ownerUnit = orgUnitId ? 
-      this.angularJsDataExchangeService.getAccessControlById(orgUnitId).permissions
-        .filter((permission: any) => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor")
-        .map((permission: any) => permission.permissionId) : [];
+    const permissionIds_ownerUnit = orgUnitId
+      ? this.angularJsDataExchangeService
+          .getAccessControlById(orgUnitId)
+          .permissions.filter(
+            (permission: any) =>
+              permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'
+          )
+          .map((permission: any) => permission.permissionId)
+      : [];
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
     this.angularJsDataExchangeService.accessControl.forEach((item: any) => {
@@ -252,26 +276,35 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       }
     });
 
-    this.roleManagementTableOptions_indicatorMetadata = this.angularJsDataGridHelperService.buildRoleManagementGrid(
-      'indicatorEditRoleManagementTable', 
-      this.roleManagementTableOptions_indicatorMetadata, 
-      this.angularJsDataExchangeService.accessControl, 
-      permissionIds_ownerUnit, 
-      true
-    );
-    
-    this.roleManagementTableOptions_indicatorSpatialUnitTimeseries = this.angularJsDataGridHelperService.buildRoleManagementGrid(
-      'indicatorEditIndicatorSpatialUnitsRoleManagementTable', 
-      this.roleManagementTableOptions_indicatorSpatialUnitTimeseries, 
-      this.angularJsDataExchangeService.accessControl, 
-      permissionIds_ownerUnit, 
-      true
-    );
+    this.roleManagementTableOptions_indicatorMetadata =
+      this.angularJsDataGridHelperService.buildRoleManagementGrid(
+        'indicatorEditRoleManagementTable',
+        this.roleManagementTableOptions_indicatorMetadata,
+        this.angularJsDataExchangeService.accessControl,
+        permissionIds_ownerUnit,
+        true
+      );
+
+    this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
+      this.angularJsDataGridHelperService.buildRoleManagementGrid(
+        'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
+        this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
+        this.angularJsDataExchangeService.accessControl,
+        permissionIds_ownerUnit,
+        true
+      );
   }
 
   editIndicatorSpatialUnitRoles(): void {
-    if (this.ownerOrganization !== undefined && this.ownerOrganization != this.currentIndicatorDataset.ownerId) {
-      if (!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?')) {
+    if (
+      this.ownerOrganization !== undefined &&
+      this.ownerOrganization != this.currentIndicatorDataset.ownerId
+    ) {
+      if (
+        !confirm(
+          'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'
+        )
+      ) {
         return;
       }
     }
@@ -286,125 +319,189 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.loadingData = true;
 
     const putBody = {
-      "permissions": this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions_indicatorMetadata),
-      "isPublic": this.currentIndicatorDataset.isPublic
+      permissions: this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions_indicatorMetadata
+      ),
+      isPublic: this.currentIndicatorDataset.isPublic,
     };
 
-    this.http.put(
-      this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/permissions",
-      putBody
-    ).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
-        this.showSuccessAlert();
-        this.loadingData = false;
-      },
-      error: (error: any) => {
-        this.errorMessagePart = "Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n";
-        if (error.data) {
-          this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.showErrorAlert();
-        this.loadingData = false;
-      }
-    });
+    this.http
+      .put(
+        this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+          '/indicators/' +
+          this.currentIndicatorDataset.indicatorId +
+          '/permissions',
+        putBody
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.successMessagePart = this.currentIndicatorDataset.indicatorName;
+          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+            crudType: 'edit',
+            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+          });
+          this.showSuccessAlert();
+          this.loadingData = false;
+        },
+        error: (error: any) => {
+          this.errorMessagePart =
+            'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
+          if (error.data) {
+            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
+          } else {
+            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.showErrorAlert();
+          this.loadingData = false;
+        },
+      });
   }
 
   executeRequest_indicatorOwnership(): void {
     this.loadingData = true;
 
     const putBody = {
-      "ownerId": this.ownerOrganization === undefined ? this.currentIndicatorDataset.ownerId : this.ownerOrganization
+      ownerId:
+        this.ownerOrganization === undefined
+          ? this.currentIndicatorDataset.ownerId
+          : this.ownerOrganization,
     };
 
-    this.http.put(
-      this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/ownership",
-      putBody
-    ).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
-        this.showSuccessAlert();
-        this.loadingData = false;
-      },
-      error: (error: any) => {
-        this.errorMessagePart = "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n";
-        if (error.data) {
-          this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.showErrorAlert();
-        this.loadingData = false;
-      }
-    });
+    this.http
+      .put(
+        this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+          '/indicators/' +
+          this.currentIndicatorDataset.indicatorId +
+          '/ownership',
+        putBody
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.successMessagePart = this.currentIndicatorDataset.indicatorName;
+          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+            crudType: 'edit',
+            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+          });
+          this.showSuccessAlert();
+          this.loadingData = false;
+        },
+        error: (error: any) => {
+          this.errorMessagePart =
+            'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
+          if (error.data) {
+            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
+          } else {
+            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.showErrorAlert();
+          this.loadingData = false;
+        },
+      });
   }
 
   executeRequest_indicatorSpatialUnitOwnership(): void {
     this.loadingData = true;
 
-    if (this.currentIndicatorDataset.applicableSpatialUnits && this.currentIndicatorDataset.applicableSpatialUnits.length > 0) {
+    if (
+      this.currentIndicatorDataset.applicableSpatialUnits &&
+      this.currentIndicatorDataset.applicableSpatialUnits.length > 0
+    ) {
       this.currentIndicatorDataset.applicableSpatialUnits.forEach((indicatorSpatialUnit: any) => {
         const putBody = {
-          "ownerId": this.ownerOrganization === undefined ? this.currentIndicatorDataset.ownerId : this.ownerOrganization
+          ownerId:
+            this.ownerOrganization === undefined
+              ? this.currentIndicatorDataset.ownerId
+              : this.ownerOrganization,
         };
 
-        this.http.put(
-          this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/" + indicatorSpatialUnit.spatialUnitId + "/ownership",
-          putBody
-        ).subscribe({
-          next: (_response: any) => {
-            this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-            this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
-            this.showSuccessAlert();
-            this.loadingData = false;
-          },
-          error: (error: any) => {
-            this.errorMessagePart = "Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n";
-            if (error.data) {
-              this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
-            } else {
-              this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
-            }
-            this.showErrorAlert();
-            this.loadingData = false;
-          }
-        });
+        this.http
+          .put(
+            this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+              '/indicators/' +
+              this.currentIndicatorDataset.indicatorId +
+              '/' +
+              indicatorSpatialUnit.spatialUnitId +
+              '/ownership',
+            putBody
+          )
+          .subscribe({
+            next: (_response: any) => {
+              this.successMessagePart = this.currentIndicatorDataset.indicatorName;
+              this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+                crudType: 'edit',
+                targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+              });
+              this.showSuccessAlert();
+              this.loadingData = false;
+            },
+            error: (error: any) => {
+              this.errorMessagePart =
+                'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
+              if (error.data) {
+                this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+                  error.data
+                );
+              } else {
+                this.errorMessagePart +=
+                  this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+              }
+              this.showErrorAlert();
+              this.loadingData = false;
+            },
+          });
       });
     }
   }
 
   executeRequest_indicatorSpatialUnitRoles(): void {
     const putBody = {
-      "permissions": this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions_indicatorSpatialUnitTimeseries),
-      "isPublic": this.targetApplicableSpatialUnit.isPublic
+      permissions: this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions_indicatorSpatialUnitTimeseries
+      ),
+      isPublic: this.targetApplicableSpatialUnit.isPublic,
     };
 
     this.loadingData = true;
 
-    this.http.put(
-      this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/" + this.targetApplicableSpatialUnit.spatialUnitId + "/permissions",
-      putBody
-    ).subscribe({
-      next: (_response: any) => {
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
-        this.showSuccessAlert();
-        this.loadingData = false;
-      },
-      error: (error: any) => {
-        this.errorMessagePart = "Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit " + this.targetApplicableSpatialUnit.spatialUnitName + ". Fehler lautet: \n\n";
-        if (error.data) {
-          this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.showErrorAlert();
-        this.loadingData = false;
-      }
-    });
+    this.http
+      .put(
+        this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+          '/indicators/' +
+          this.currentIndicatorDataset.indicatorId +
+          '/' +
+          this.targetApplicableSpatialUnit.spatialUnitId +
+          '/permissions',
+        putBody
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+            crudType: 'edit',
+            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+          });
+          this.showSuccessAlert();
+          this.loadingData = false;
+        },
+        error: (error: any) => {
+          this.errorMessagePart =
+            'Fehler beim Aktualisieren der Zugriffsrechte auf Zeitreihe der Raumeinheit ' +
+            this.targetApplicableSpatialUnit.spatialUnitName +
+            '. Fehler lautet: \n\n';
+          if (error.data) {
+            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
+          } else {
+            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.showErrorAlert();
+          this.loadingData = false;
+        },
+      });
   }
 
   onChangeSelectedSpatialUnit(_targetApplicableSpatialUnit: any): void {
@@ -432,18 +529,18 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   // Alert management
   showSuccessAlert(): void {
-    $("#indicatorEditIndicatorSpatialUnitRolesSuccessAlert").show();
+    $('#indicatorEditIndicatorSpatialUnitRolesSuccessAlert').show();
   }
 
   hideSuccessAlert(): void {
-    $("#indicatorEditIndicatorSpatialUnitRolesSuccessAlert").hide();
+    $('#indicatorEditIndicatorSpatialUnitRolesSuccessAlert').hide();
   }
 
   showErrorAlert(): void {
-    $("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").show();
+    $('#indicatorEditIndicatorSpatialUnitRolesErrorAlert').show();
   }
 
   hideErrorAlert(): void {
-    $("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").hide();
+    $('#indicatorEditIndicatorSpatialUnitRolesErrorAlert').hide();
   }
-} 
+}

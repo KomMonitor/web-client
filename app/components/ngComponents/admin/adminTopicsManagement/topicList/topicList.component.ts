@@ -8,7 +8,7 @@ import { AdminTopicsManagementService } from '../admin-topics-management.service
 
 import { Injectable } from '@angular/core';
 import { AddTopicComponent } from '../add-topic/add-topic.component';
-import { CommonModule } from '@angular/common';
+
 import { SortByOrderPipe } from '../sortByOrder.pipe';
 
 @Injectable({ providedIn: 'root' })
@@ -20,14 +20,7 @@ export class ExpandedService {
   selector: 'app-topic-list',
   templateUrl: './topicList.component.html',
   styleUrls: ['./topicList.component.css'],
-  imports: [
-    AddTopicComponent,
-    CommonModule,
-    SortByOrderPipe,
-    CdkDropList,
-    NgbCollapseModule,
-    CdkDrag,
-  ],
+  imports: [AddTopicComponent, SortByOrderPipe, CdkDropList, NgbCollapseModule, CdkDrag],
   standalone: true,
 })
 export class TopicListComponent {

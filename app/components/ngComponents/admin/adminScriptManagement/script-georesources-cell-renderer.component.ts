@@ -1,17 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { Component, inject } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { ICellRendererParams } from 'ag-grid-community';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Component({
-  selector: "app-script-georesources-cell-renderer",
+  selector: 'app-script-georesources-cell-renderer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
-    <ng-container
-      *ngIf="georesourceIds && georesourceIds.length > 0; else none"
-    >
+    @if (georesourceIds && georesourceIds.length > 0) {
       <table class="table table-condensed table-bordered table-striped table-sm">
         <thead>
           <tr>
@@ -20,14 +17,17 @@ import { DataExchangeService } from "services/data-exchange-service/data-exchang
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let id of georesourceIds">
-            <td>{{ id }}</td>
-            <td>{{ getGeoresourceName(id) }}</td>
-          </tr>
+          @for (id of georesourceIds; track id) {
+            <tr>
+              <td>{{ id }}</td>
+              <td>{{ getGeoresourceName(id) }}</td>
+            </tr>
+          }
         </tbody>
       </table>
-    </ng-container>
-    <ng-template #none>keine</ng-template>
+    } @else {
+      keine
+    }
   `,
 })
 export class ScriptGeoresourcesCellRendererComponent implements ICellRendererAngularComp {
@@ -49,9 +49,6 @@ export class ScriptGeoresourcesCellRendererComponent implements ICellRendererAng
   }
 
   getGeoresourceName(id: string): string {
-    return (
-      (this.dataExchangeService.getGeoresourceMetadataById(id) as any)
-        ?.datasetName ?? ""
-    );
+    return (this.dataExchangeService.getGeoresourceMetadataById(id) as any)?.datasetName ?? '';
   }
 }

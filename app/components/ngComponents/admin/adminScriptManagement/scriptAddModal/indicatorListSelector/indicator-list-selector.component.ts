@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: "app-indicator-list-selector",
-  templateUrl: "./indicator-list-selector.component.html",
+  selector: 'app-indicator-list-selector',
+  templateUrl: './indicator-list-selector.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
 })
 export class IndicatorListSelectorComponent {
   @Input() availableIndicators: any[] = [];

@@ -14,7 +14,6 @@ import {
 } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 declare const __env: any;
 
@@ -22,7 +21,7 @@ declare const __env: any;
   selector: 'app-georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
   styleUrls: ['./georesource-edit-user-roles-modal.component.css'],
-  imports: [FormsModule, CommonModule, AgGridAngular],
+  imports: [FormsModule, AgGridAngular],
   standalone: true,
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {

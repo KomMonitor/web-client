@@ -7,7 +7,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
@@ -21,7 +21,7 @@ import {
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.css'],
-  imports: [FormsModule, CommonModule, AdminTopicsManagementComponent],
+  imports: [FormsModule, AdminTopicsManagementComponent],
   standalone: true,
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {

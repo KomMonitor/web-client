@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -12,7 +12,7 @@ import { IndicatorsDataset } from '../../../../../../../models/indicators.models
   templateUrl: './script-indicators.component.html',
   styleUrls: ['./script-indicators.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
+  imports: [FormsModule, ExpandableBoxComponent, FilterableSelectComponent],
 })
 export class ScriptIndicatorsComponent {
   protected scriptHelperService = inject(ScriptHelperService);

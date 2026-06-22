@@ -12,7 +12,7 @@ import {
   FirstDataRenderedEvent,
   ColumnResizedEvent,
 } from 'ag-grid-community';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 
@@ -22,7 +22,7 @@ declare const __env: any;
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
   styleUrls: ['./georesource-edit-features-modal.component.css'],
-  imports: [CommonModule, AgGridAngular, FormsModule, SingleFeatureEditComponent],
+  imports: [AgGridAngular, FormsModule, SingleFeatureEditComponent],
   standalone: true,
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {

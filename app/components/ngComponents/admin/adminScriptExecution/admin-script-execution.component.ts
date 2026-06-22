@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -23,7 +22,6 @@ import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-ov
   templateUrl: './admin-script-execution.component.html',
   styleUrls: ['./admin-script-execution.component.scss'],
   imports: [
-    CommonModule,
     AdminContentViewComponent,
     ExpandableBoxComponent,
     SmallBoxComponent,

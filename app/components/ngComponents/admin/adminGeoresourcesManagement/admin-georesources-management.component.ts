@@ -8,7 +8,7 @@ import {
   DOCUMENT,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
@@ -38,7 +38,6 @@ declare const $: any;
   imports: [
     ExpandableBoxComponent,
     AgGridAngular,
-    CommonModule,
     WmsAdminTableComponent,
     FormsModule,
     AdminContentViewComponent,

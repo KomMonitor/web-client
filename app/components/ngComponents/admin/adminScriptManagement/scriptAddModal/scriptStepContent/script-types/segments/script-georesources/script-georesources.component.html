@@ -71,40 +71,45 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            *ngFor="
-              let baseGeoresource of scriptHelperService.requiredGeoresources_tmp
-            "
-          >
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button
-                  class="btn btn-danger btn-sm"
-                  type="button"
-                  (click)="
-                    scriptHelperService.removeBaseGeoresource(baseGeoresource)
-                  "
-                  title="Eintrag löschen"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-            <td>
-              <div *ngIf="baseGeoresource.isPOI">
-                <i class="fas fa-map-marker-alt"></i>
-              </div>
-              <div *ngIf="baseGeoresource.isLOI">
-                <i class="fas fa-minus"></i>
-              </div>
-              <div *ngIf="baseGeoresource.isAOI">
-                <i class="fas fa-square"></i>
-              </div>
-            </td>
-            <td>{{ baseGeoresource.georesourceId }}</td>
-            <td>{{ baseGeoresource.datasetName }}</td>
-            <td>{{ baseGeoresource.metadata?.description }}</td>
-          </tr>
+          @for (
+            baseGeoresource of scriptHelperService.requiredGeoresources_tmp;
+            track baseGeoresource
+          ) {
+            <tr>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button
+                    class="btn btn-danger btn-sm"
+                    type="button"
+                    (click)="scriptHelperService.removeBaseGeoresource(baseGeoresource)"
+                    title="Eintrag löschen"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+              <td>
+                @if (baseGeoresource.isPOI) {
+                  <div>
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                }
+                @if (baseGeoresource.isLOI) {
+                  <div>
+                    <i class="fas fa-minus"></i>
+                  </div>
+                }
+                @if (baseGeoresource.isAOI) {
+                  <div>
+                    <i class="fas fa-square"></i>
+                  </div>
+                }
+              </td>
+              <td>{{ baseGeoresource.georesourceId }}</td>
+              <td>{{ baseGeoresource.datasetName }}</td>
+              <td>{{ baseGeoresource.metadata?.description }}</td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>

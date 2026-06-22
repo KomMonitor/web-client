@@ -6,24 +6,23 @@
     >
     editieren
   </h4>
-  <button
-    type="button"
-    class="btn-close"
-    aria-label="Schließen"
-    (click)="close()"
-  ></button>
+  <button type="button" class="btn-close" aria-label="Schließen" (click)="close()"></button>
 </div>
 
 <div class="modal-body">
   <app-loading-overlay [loading]="loadingData" message="Speichere...">
-    <div *ngIf="showErrorAlert" class="alert alert-danger" role="alert">
-      Fehler beim Speichern:
-      <span [innerHTML]="errorMessagePart"></span>
-    </div>
-    <div *ngIf="showKeycloakErrorAlert" class="alert alert-danger" role="alert">
-      Fehler beim Umbenennen der Keycloak-Rolle:
-      <span [innerHTML]="keycloakErrorMessagePart"></span>
-    </div>
+    @if (showErrorAlert) {
+      <div class="alert alert-danger" role="alert">
+        Fehler beim Speichern:
+        <span [innerHTML]="errorMessagePart"></span>
+      </div>
+    }
+    @if (showKeycloakErrorAlert) {
+      <div class="alert alert-danger" role="alert">
+        Fehler beim Umbenennen der Keycloak-Rolle:
+        <span [innerHTML]="keycloakErrorMessagePart"></span>
+      </div>
+    }
 
     <form (ngSubmit)="editMetadata()">
       <h2 class="fs-title text-center">Metadaten der Organisationseinheit</h2>
@@ -45,13 +44,14 @@
               required
             />
             <div class="help-block">
-              Eindeutiger Name der Rolle. Der identische Rollenname muss auch in
-              Keycloak definiert werden.
+              Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert
+              werden.
             </div>
-            <div *ngIf="nameInvalid" class="text-danger">
-              Eingabe ungültig. Es existiert bereits eine andere Rolle mit
-              gleichem Namen.
-            </div>
+            @if (nameInvalid) {
+              <div class="text-danger">
+                Eingabe ungültig. Es existiert bereits eine andere Rolle mit gleichem Namen.
+              </div>
+            }
           </div>
         </div>
         <div class="col-md-4">
@@ -86,9 +86,7 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="close()">
-    Schließen
-  </button>
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">Schließen</button>
   <div style="flex: 1"></div>
   <button
     type="button"

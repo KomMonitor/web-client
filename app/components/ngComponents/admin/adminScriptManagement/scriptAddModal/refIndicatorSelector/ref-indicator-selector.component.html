@@ -12,13 +12,17 @@
         (ngModelChange)="selectionChange.emit($event)"
       >
         <option disabled [ngValue]="null">-- Indikator wählen --</option>
-        <option *ngFor="let ind of availableIndicators" [ngValue]="ind">
-          {{ ind.indicatorName }}
-        </option>
+        @for (ind of availableIndicators; track ind) {
+          <option [ngValue]="ind">
+            {{ ind.indicatorName }}
+          </option>
+        }
       </select>
     </div>
-    <div *ngIf="selection" class="mt-2">
-      <span class="badge bg-info">{{ selection.indicatorName }}</span>
-    </div>
+    @if (selection) {
+      <div class="mt-2">
+        <span class="badge bg-info">{{ selection.indicatorName }}</span>
+      </div>
+    }
   </div>
 </div>

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccessControlMetadata } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { forkJoin } from 'rxjs';
@@ -10,7 +10,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 @Component({
   selector: 'app-role-delete-modal',
   templateUrl: './role-delete-modal.component.html',
-  imports: [CommonModule, LoadingOverlayComponent],
+  imports: [LoadingOverlayComponent],
   standalone: true,
 })
 export class RoleDeleteModalComponent implements OnInit {

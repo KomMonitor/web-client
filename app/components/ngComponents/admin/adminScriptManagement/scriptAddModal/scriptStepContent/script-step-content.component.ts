@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import {
   ScriptHelperService,
@@ -14,7 +14,6 @@ import { ScriptGenericComponent } from './script-types/script-generic/script-gen
   templateUrl: './script-step-content.component.html',
   styleUrls: ['./script-step-content.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     ScriptDefinitionWrapperComponent,
     ScriptGenericComponent,

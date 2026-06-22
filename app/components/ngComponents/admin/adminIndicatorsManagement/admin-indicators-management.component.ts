@@ -2,7 +2,7 @@ import { WmsResourceType } from './../../models/services.models';
 import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, DOCUMENT, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -33,7 +33,6 @@ declare const __env: any;
     AgGridAngular,
     WmsAdminTableComponent,
     FormsModule,
-    CommonModule,
     AdminContentViewComponent,
     NgbDropdownModule,
   ],

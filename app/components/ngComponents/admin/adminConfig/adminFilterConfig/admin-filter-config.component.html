@@ -8,9 +8,8 @@
 <ng-template #content>
   <expandable-box title="Globale Filter - Tabellenansicht" [collapsed]="false">
     <p>
-      Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern.
-      Beim Aufruf eines solchen Filters, wird KomMonitor den im Filter
-      definierten Inhalten geladen.
+      Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern. Beim Aufruf eines
+      solchen Filters, wird KomMonitor den im Filter definierten Inhalten geladen.
     </p>
 
     <div class="adminTableButtonWrapper">
@@ -46,14 +45,10 @@
     </ag-grid-angular>
   </expandable-box>
 
-  <expandable-box
-    title="Globale Filter - Konfigurationsdatei"
-    [collapsed]="false"
-  >
+  <expandable-box title="Globale Filter - Konfigurationsdatei" [collapsed]="false">
     <p>
-      Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern.
-      Beim Aufruf eines solchen Filters, wird KomMonitor den im Filter
-      definierten Inhalten geladen.
+      Gruppieren Sie Indikatoren, Georessourcen und Themen zu globalen Filtern. Beim Aufruf eines
+      solchen Filters, wird KomMonitor den im Filter definierten Inhalten geladen.
     </p>
 
     <hr />
@@ -96,21 +91,19 @@
           <br />
           <textarea id="filterConfigEditor"></textarea>
         </div>
-        <div class="help-block with-errors" *ngIf="configSettingInvalid">
-          Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig;
-          der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher
-          die vorgegebene JSON-Struktur. Der Text wird auf
-          Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt,
-          dass valides JSON geparsed werden kann.
-        </div>
-        <div
-          class="help-block with-errors"
-          *ngIf="
-            missingRequiredParameters && missingRequiredParameters.length > 0
-          "
-        >
-          Fehlende Parameter: {{ missingRequiredParameters_string }}
-        </div>
+        @if (configSettingInvalid) {
+          <div class="help-block with-errors">
+            Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage
+            definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text
+            wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides
+            JSON geparsed werden kann.
+          </div>
+        }
+        @if (missingRequiredParameters && missingRequiredParameters.length > 0) {
+          <div class="help-block with-errors">
+            Fehlende Parameter: {{ missingRequiredParameters_string }}
+          </div>
+        }
       </div>
       <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="form-group">
@@ -128,12 +121,12 @@
 
     <div class="row vertical-align">
       <!-- hide button to reset content as this will actually break the settings due to localhost standard config  -->
-      <!-- <div class="col-md-6 col-sm-6 col-xs-12">							
-						<div class="form-group">
-							<button type="button" class="btn btn-warning vertical-align horizontal-align"
-								(click)="resetDefaultConfig()">Standard-Einstellungen wiederherstellen</button>
-						</div>
-					</div>					 -->
+      <!-- <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="form-group">
+              <button type="button" class="btn btn-warning vertical-align horizontal-align"
+              (click)="resetDefaultConfig()">Standard-Einstellungen wiederherstellen</button>
+            </div>
+          </div>					 -->
       <div class="col-md-12 text-center">
         <div class="form-group">
           <button
@@ -155,21 +148,15 @@
     hidden
     class="alert alert-success alert-dismissable"
   >
-    <button
-      type="button"
-      class="close"
-      (click)="hideSuccessAlert()"
-      aria-hidden="true"
-    >
+    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
       &times;
     </button>
     <h4>
-      <i class="icon fa fa-check"></i>Filter-Konfiguration in Config Storage
-      Server gespeichert
+      <i class="icon fa fa-check"></i>Filter-Konfiguration in Config Storage Server gespeichert
     </h4>
     <p>
-      Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom
-      Config Storage Server geladen und verwendet.
+      Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage
+      Server geladen und verwendet.
     </p>
   </div>
 
@@ -179,23 +166,15 @@
     hidden
     class="alert alert-danger alert-dismissable"
   >
-    <button
-      type="button"
-      class="close"
-      (click)="hideErrorAlert()"
-      aria-hidden="true"
-    >
+    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
       &times;
     </button>
     <h4>
-      <i class="icon fa fa-ban"></i>Speichern der Filter-Konfiguration in Config
-      Storage Server gescheitert
+      <i class="icon fa fa-ban"></i>Speichern der Filter-Konfiguration in Config Storage Server
+      gescheitert
     </h4>
     Fehlermeldung:
     <br />
-    <pre
-      style="overflow: auto; max-height: 500px"
-      [innerHTML]="errorMessagePart"
-    ></pre>
+    <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
   </div>
 </ng-template>
