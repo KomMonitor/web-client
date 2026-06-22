@@ -69,9 +69,11 @@
 
 			<div class="row" style="margin-right: 0px;">
 
-				<div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
-					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
-				</div>
+        <div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer">
+          <div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+            <label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
+          </div>
+        </div>
 
 				<div class="col-sm-8">
 					<div *ngIf="reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName">

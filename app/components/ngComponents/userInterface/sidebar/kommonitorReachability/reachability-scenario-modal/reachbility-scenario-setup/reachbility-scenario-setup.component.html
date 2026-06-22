@@ -51,7 +51,7 @@
           <div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer?.isNewReachabilityDataSource">
             <br />
             <label>Name des neuen Datensatzes (Umbenennung)</label>
-            <input [ngModel]="reachabilityHelperService.settings.selectedStartPointLayer.datasetName">
+            <input [(ngModel)]="reachabilityHelperService.settings.selectedStartPointLayer.datasetName">
 
           </div>
 

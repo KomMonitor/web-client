@@ -1,11 +1,13 @@
+import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { ColorPickerDirective } from "ngx-color-picker";
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Component({
   standalone: true,
@@ -17,21 +19,50 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
     FormsModule
 ]
 })
-export class ReachbilityScenarioSetupComponent {
+export class ReachbilityScenarioSetupComponent implements OnInit {
 
   constructor(
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     protected reachabilityCombinerService: ReachabilityCombinerService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private dataExchangeService: DataExchangeService
   ) { }
+
+  ngOnInit(): void {
+
+    this.reachabilityCombinerService.reachabilityMapSubject$.subscribe(value => {
+      if(value.scenarioState) {
+        this.importScenarioFromQuickSetup();
+      }
+    });
+  }
+
+  importScenarioFromQuickSetup() {
+    this.reachabilityHelperService.settings.selectedStartPointLayer = this.reachabilityCombinerService.selectedStartPointLayer;
+    this.reachabilityHelperService.settings.isochroneConfig.selectedDate = this.reachabilityCombinerService.selectedStartDate;
+    
+    if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+      if (this.reachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || 
+          this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
+        this.initPoiResourceEditFeaturesMenu();
+      } else {
+        this.fetchPoiResourceGeoJSON();
+      }
+    }
+  }
 
   onChangePoiResource() {
 
     this.reachabilityHelperService.settings.selectedStartPointLayer = this.reachabilityCombinerService.selectedStartPointLayer;
 
+    if (!this.reachabilityHelperService.settings.selectedStartPointLayer) {
+      return;
+    }
+
     if(this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset &&
         this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName &&
+        this.reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings?.selectedStartPointLayer &&
         this.reachabilityScenarioHelperService.tmpActiveScenario.poiDataset.poiName != this.reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer.datasetName){
         //kommonitorToastHelperService.displayWarningToast("Datenquelle neu gesetzt", "Die weiteren Abschnitte weisen vielleicht veraltete Daten auf.");
       }

@@ -7,6 +7,7 @@ import { GenericMapHelperService } from 'services/generic-map-helper-service/gen
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 
 @Component({
   selector: 'app-reachability-scenario-configuration',
@@ -40,7 +41,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
     private broadcastService: BroadcastService,
-    private genericMapHelperService: GenericMapHelperService,
+    private reachabilityCombinerService: ReachabilityCombinerService
   ) {
     // start points that were drawn manually
     // direct GeoJSON structure
@@ -81,9 +82,19 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
           this.reachabilityMapHelperService.invalidateMap(this.domId);
         } break;
       }
+
+      this.reachabilityCombinerService.reachabilityMapSubject$.subscribe(value => {
+        if(value.scenarioState) {
+          this.isochronesCalculationFinished();
+        }
+      });
     });
 
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);	
+  }
+
+  importScenarioFromQuickSetup() {
+
   }
 
   	/* 

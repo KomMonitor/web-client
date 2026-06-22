@@ -47,12 +47,27 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     private multiStepHelperService: MultiStepHelperServiceService,
     private broadcastService: BroadcastService,
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
+    private reachabilityCombinerService: ReachabilityCombinerService,
     private cdr: ChangeDetectorRef
   ) {
   }
 
   ngOnInit(): void {
     this.multiStepHelperService.registerClickHandler("reachabilityScenarioForm");
+
+    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+      let title = broadcastMsg.msg;
+      let values:any = broadcastMsg.values;
+
+      switch (title) {
+        case 'georesourceGeoJSONUpdated' : {
+          if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = values[0];
+            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = values[0];
+          }
+        } break;
+      }
+    });
   }
 
   onEditFeaturesClick() {
@@ -132,15 +147,18 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
 			};
 
-			$scope.resetReachabilityScenarioForm = function(){
-				kommonitorReachabilityHelperService.settings.selectedStartPointLayer = undefined;
-				kommonitorReachabilityHelperService.currentIsochronesGeoJSON = undefined;
-				kommonitorReachabilityHelperService.original_nonDissolved_isochrones = undefined;
-				kommonitorReachabilityScenarioHelperService.resetTmpActiveScenario();
-				kommonitorReachabilityHelperService.resetSettings();
-			}
 
   */
+    resetReachabilityScenarioForm(){
+
+      this.reachabilityCombinerService.reset();
+
+      this.reachabilityHelperService.settings.selectedStartPointLayer = undefined;
+      this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
+      this.reachabilityHelperService.original_nonDissolved_isochrones = undefined;
+      this.reachabilityScenarioHelperService.resetTmpActiveScenario();
+      this.reachabilityHelperService.resetSettings();
+    }
 
 		onManageReachabilityScenario(scenarioDataset) {
 
@@ -164,12 +182,15 @@ export class ReachabilityScenarioModalComponent implements OnInit {
       // then we must init feature edit component with empty dataset!
       let isReachabilityDatasetOnly = false;
 
-      if (this.reachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
-        isReachabilityDatasetOnly = true;
-        // check if geoJSON is available
-        // is required by editFeature component
-        if(!this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON){
-          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability
+      if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+        if (this.reachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || 
+            this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
+          isReachabilityDatasetOnly = true;
+          // check if geoJSON is available
+          // is required by editFeature component
+          if(!this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON){
+            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability
+          }
         }
       }
 

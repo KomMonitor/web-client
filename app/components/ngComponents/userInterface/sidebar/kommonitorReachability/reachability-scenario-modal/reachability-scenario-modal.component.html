@@ -115,7 +115,7 @@
           [disabled]="!reachabilityScenarioHelperService.tmpActiveScenario.scenarioName || !reachabilityHelperService.currentIsochronesGeoJSON || !reachabilityHelperService.original_nonDissolved_isochrones"
           (click)="onClickAddScenario()">Szenario anlegen/aktualisieren</button>
         <button type="button" class="btn btn-danger"
-          ng-click="resetReachabilityScenarioForm()">Zur&uuml;cksetzen</button>
+          (click)="resetReachabilityScenarioForm()">Zur&uuml;cksetzen</button>
       </div>
     </div>
   </div>

@@ -372,6 +372,7 @@ export class SingleFeatureEditComponent implements OnInit {
   }
   
   buildSingleFeature() {
+
     // build new feature object and add it to geoJSON
     // then broadcast updated resources
     this.featureGeometryValue.features[0].properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] = this.featureIdValue;

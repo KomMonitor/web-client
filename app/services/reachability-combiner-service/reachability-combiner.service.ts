@@ -9,12 +9,14 @@ import { MetadataLoadingState } from 'services/data-exchange-service/data-exchan
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { HttpClient } from '@angular/common/http';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
+import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 
 export interface ReachabiltySettings {
   ranges: number[];
   focus: ReachbilityFocusTypes;
   focusUnit: string;
   transitMode: ReachabilityTransitModeTypes;
+  startPointsSource: string;
 }
 
 export type ReachabilityTransitModeTypes = 'buffer' | 'foot-walking' | 'cycling-regular' | 'driving-car' | 'wheelchair';
@@ -28,6 +30,7 @@ export interface ReachbilityModel {
   selectedStartPointLayer?: any;
   selectedStartDate?: string;
   loadingState: boolean;
+  scenarioState?: boolean;
 }
 
 export interface GeoJSONFeature {
@@ -63,7 +66,8 @@ export class ReachabilityCombinerService {
     ranges: this.defaults.distanceRanges,
     focus: 'distance',
     focusUnit: 'm',
-    transitMode: 'foot-walking'
+    transitMode: 'foot-walking',
+    startPointsSource: 'manual'
   }
 
   private reachabilityMapSubject = new BehaviorSubject<ReachbilityModel>({
@@ -79,19 +83,61 @@ export class ReachabilityCombinerService {
 
   startPointLayer!: GeoresourcesDataset;
 
+  emptyDatasetName = "-- leerer neuer Datensatz --";
+
   constructor(
     private reachabilityHelperService: ReachabilityHelperService,
     private dataExchangeService: DataExchangeService,
     private http: HttpClient,
-    private reachabilityScenarioHelperService: ReachabilityScenarioHelperService
+    private reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
+    private envConfigService: EnvConfigService
   ) {
 
     this.dataExchangeService.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        if(value==MetadataLoadingState.COMPLETE)  
+        if(value==MetadataLoadingState.COMPLETE) {
           this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI);
+          this.initEmptyDataset();
+        }
       });
+  }
+
+
+  initEmptyDataset() {
+    // add empty dataset to displayableGeoresources
+    // ensure to remove it again, if modal gets closed
+
+    // create empty georesource dataset and geoJSON 
+    let emptyDataset = {
+      georesourceId: uuidv4(),
+      datasetName: this.emptyDatasetName,
+      isNewReachabilityDataSource: true,
+      isPOI: true,
+      availablePeriodsOfValidity: [
+        {
+          "startDate": undefined,
+          "endDate": undefined
+        }
+      ],
+      poiMarkerColor: "orange",
+      poiSymbolBootstrap3Name: "pushpin",
+      poiSymbolColor: "white",
+      geoJSON_reachability: {
+        type: "FeatureCollection",
+        features: []
+      }
+    };
+
+    this.filteredDisplayableGeoresources.splice(0, 0, emptyDataset)
+  }
+
+  set startPointsSource(type: string) {
+    this.settings.startPointsSource = type;
+  }
+
+  get startPointsSource() {
+    return this.settings.startPointsSource;
   }
 
   get scenarioTitle():string {
@@ -101,6 +147,18 @@ export class ReachabilityCombinerService {
   set scenarioTitle(title:string) {
     this.reachabilityMapSubject.value.scenarioTitle = title; 
     this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName = title;
+  }
+
+  get isochronesGeoJson() {
+    return this.reachabilityMapSubject.value.isochronesGeoJson;
+  }
+
+  get features():GeoJSONFeature[] {
+    return this.reachabilityMapSubject.value.features!;
+  }
+
+  set setScenarioState(state:boolean) {
+    this.reachabilityMapSubject.value.scenarioState = state;
   }
 
   get locations():GeoJSONFeature[] {
@@ -136,7 +194,31 @@ export class ReachabilityCombinerService {
     });
   }
 
+  get isValidCalculation():boolean {
+    return (this.reachabilityMapSubject.value.features && 
+            this.reachabilityMapSubject.value.features.length > 0 && 
+            this.reachabilityMapSubject.value.isochronesGeoJson && 
+            !this.reachabilityMapSubject.value.loadingState) || false
+  }
+
+  reset() {
+    this.reachabilityMapSubject.value.scenarioTitle = undefined;
+    this.reachabilityMapSubject.value.features = undefined;
+    this.reachabilityMapSubject.value.isochronesGeoJson = undefined;
+    this.reachabilityMapSubject.value.selectedStartPointLayer = undefined;
+    this.reachabilityMapSubject.value.selectedStartDate = undefined;
+    this.reachabilityMapSubject.value.loadingState = false;
+    this.reachabilityMapSubject.value.scenarioState = false;
+  }
+
   async addLocation(location: GeoJSONFeature, manualSel:boolean = false) {
+
+    location.properties = {
+      [this.envConfigService.FEATURE_ID_PROPERTY_NAME]: uuidv4(),
+      [this.envConfigService.FEATURE_NAME_PROPERTY_NAME]: location.label,
+      [this.envConfigService.VALID_START_DATE_PROPERTY_NAME]: '2026-01-01',
+      [this.envConfigService.VALID_END_DATE_PROPERTY_NAME]: undefined
+    };
 
     let current = this.reachabilityMapSubject.value.features;
     current?.push(location);
@@ -236,7 +318,6 @@ export class ReachabilityCombinerService {
   }
 
   onChangePoiResource() {
-    console.log(this.selectedStartPointLayer)
     this.prepAvailablePeriods(); 
   }
 
