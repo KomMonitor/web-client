@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
@@ -9,15 +9,20 @@ import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 
 @Component({
   selector: 'app-reachability-poi-in-iso',
   standalone: true,
   templateUrl: './reachability-poi-in-iso.component.html',
-  styleUrls: ['./reachability-poi-in-iso.component.css'],
+  styleUrls: ['./reachability-poi-in-iso.component.scss'],
   imports: [CommonModule, FormsModule]
 })
 export class ReachabilityPoiInIsoComponent implements OnInit {
+
+  private readonly destroyRef = inject(DestroyRef);
 
   domId = "reachabilityScenarioPoiInIsoGeoMap";
   mapParts;
@@ -27,35 +32,39 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   isUsedInReporting = false;
   loadingData = false;
 
-  originGeoresources:any[] = [];
-  filteredDisplayableGeoresources:any[] = [];
+  filteredDisplayableGeoresources: any[] = [];
 
   echartsInstances_reachabilityAnalysis = new Map();
 
   constructor(
     protected reachabilityHelperService: ReachabilityHelperService,
-    private reachabilityMapHelperService: ReachabilityMapHelperService, 
+    private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
     private diagramHelperService: DiagramHelperServiceService,
     private http: HttpClient,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private reachabilityCombinerService: ReachabilityCombinerService
   ) {
-    this.originGeoresources = this.dataExchangeService.displayableGeoresources;
-    this.filteredDisplayableGeoresources = this.originGeoresources;
   }
 
   ngOnInit(): void {
 
     this.init();
 
-    this.prepDisplayableGeoresources();
+    this.dataExchangeService.metadataLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if (value == MetadataLoadingState.COMPLETE)
+          this.prepDisplayableGeoresources();
+      });
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      let values: any = broadcastMsg.values;
 
       switch (title) {
-        case 'resetPoisInIsochrone' : {
+        case 'resetPoisInIsochrone': {
           this.resetPoisInIsochrone();
         } break;
         case 'isochronesCalculationFinished': {
@@ -64,6 +73,16 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         case 'selectedIndicatorDateHasChanged': {
           this.selectedIndicatorDateHasChanged();
         } break;
+        case 'reinitPoisInReachabilityMap': {
+          this.reachabilityMapHelperService.invalidateMap(this.domId);
+        } break
+      }
+    });
+
+
+    this.reachabilityCombinerService.reachabilityMapSubject$.subscribe(value => {
+      if (value.scenarioState) {
+        this.isochronesCalculationFinished(true);
       }
     });
   }
@@ -74,28 +93,28 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
   }
 
-  onNameFilterChange(name:any) {
-    let value = name.target.value;
+  onNameFilterChange(name: any) {
+    let value = name.target.value.toLowerCase();
 
-    this.filteredDisplayableGeoresources = this.originGeoresources.filter(e => e.datasetName.includes(value));
-    this.prepDisplayableGeoresources();
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName.toLowerCase().includes(value));
   }
 
   prepDisplayableGeoresources() {
-    this.filteredDisplayableGeoresources = this.filteredDisplayableGeoresources.filter(e => e.isPOI==true);
-    this.filteredDisplayableGeoresources = this.filteredDisplayableGeoresources.filter(e => e.datasetName!="!-- leerer neuer Datensatz --");
+
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI == true);
+    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName != "!-- leerer neuer Datensatz --");
 
     // sort available dates and preselect last item (as on the UI)
     this.filteredDisplayableGeoresources.forEach(e => {
       e.availablePeriodsOfValidity.sort((a, b) => a.startDate - b.startDate);
-      e.selectedDate = e.availablePeriodsOfValidity[e.availablePeriodsOfValidity.length-1];
+      e.selectedDate = e.availablePeriodsOfValidity[e.availablePeriodsOfValidity.length - 1];
     });
   }
 
 
   isochronesCalculationFinished(reinit) {
 
-    if(reinit){
+    if (reinit) {
       this.init();
       this.resetPoisInIsochrone();
     }
@@ -128,7 +147,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   getQueryDate(resource) {
 
-    if(resource.isTmpDataLayer || resource.isNewReachabilityDataSource){
+    if (resource.isTmpDataLayer || resource.isNewReachabilityDataSource) {
       return "tmpDataLayer";
     }
 
@@ -152,18 +171,18 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     this.dataExchangeService.displayableGeoresources = this.filteredDisplayableGeoresources;
 
     this.reachabilityHelperService.settings.loadingData = true;
-    
+
 
     try {
       if (poi.isSelected_reachabilityAnalysis) {
-        await this.fetchGeoJSONForDate(poi).then((value) => poi = value );
+        await this.fetchGeoJSONForDate(poi).then((value) => poi = value);
       }
 
       poi = await this.handlePoiOnDiagram(poi);
       if (this.dataExchangeService.isDisplayableGeoresource(poi)) {
         this.handlePoiOnMap(poi);
       }
-      
+
     } catch (error) {
       console.error(error);
     }
@@ -175,8 +194,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
     // if is an imported file data layer then no data can be retrieved from data management component
     // instead use geoJSON of file contents
-    if(poiGeoresource.isTmpDataLayer || poiGeoresource.isNewReachabilityDataSource){
-      if (! poiGeoresource.geoJSON_poiInIsochrones){
+    if (poiGeoresource.isTmpDataLayer || poiGeoresource.isNewReachabilityDataSource) {
+      if (!poiGeoresource.geoJSON_poiInIsochrones) {
         poiGeoresource.geoJSON_poiInIsochrones = poiGeoresource.geoJSON_reachability || poiGeoresource.geoJSON;
       }
       return poiGeoresource;
@@ -329,8 +348,6 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       if (nextEntry_valueGeoJSON) {
         numberOfFeatures = nextEntry_valueGeoJSON.features.length;
       }
-      console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
-
       var date = this.getQueryDate(poi);
 
       if (this.echartsInstances_reachabilityAnalysis && this.echartsInstances_reachabilityAnalysis.has(nextEntry_keyRange)) {
@@ -343,15 +360,15 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         this.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
       }
       else {
-        var reachabilityDiagramsSectionNode:any = document.getElementById("reachability_diagrams_section");
+        var reachabilityDiagramsSectionNode: any = document.getElementById("reachability_diagrams_section");
         var newChartNode = document.createElement("div");
         newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + this.dataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
         reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
         // init new echarts instance
-        var echartsInstance:any = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
+        var echartsInstance: any = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
         // use configuration item and data specified to show chart
-        var echartsOptions:any = this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + this.dataExchangeService.isochroneLegend.cutOffUnit, date);
+        var echartsOptions: any = this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + this.dataExchangeService.isochroneLegend.cutOffUnit, date);
         echartsInstance.setOption(echartsOptions);
 
         echartsInstance.hideLoading();
@@ -400,18 +417,18 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   addPoiLayerToMap(poiGeoresource) {
     this.reachabilityHelperService.settings.loadingData = true;
-    
+
 
     // fale --> useCluster = false 
     this.reachabilityMapHelperService.addPoiGeoresourceGeoJSON_reachabilityAnalysis(this.domId, poiGeoresource, this.getQueryDate(poiGeoresource), false);
     this.reachabilityHelperService.settings.loadingData = false;
-    
+
 
   };
 
   removePoiLayerFromMap(poiGeoresource) {
     this.reachabilityHelperService.settings.loadingData = true;
-    
+
 
     poiGeoresource = poiGeoresource;
 
@@ -479,7 +496,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       setTimeout(() => {
 
         this.loadingData = true;
-        
+
       });
 
       setTimeout(() => {
@@ -526,9 +543,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   };
 
-	selectedIndicatorDateHasChanged() {
-
-    console.log("refresh selected georesource layers according to new date - reachability poi");
+  selectedIndicatorDateHasChanged() {
 
     // only refresh georesources if sync with indicator timestamp is selected
     if (!this.reachabilityHelperService.settings.dateSelectionType.selectedDateType.includes(this.reachabilityHelperService.settings.dateSelectionType_valueIndicator)) {
@@ -538,7 +553,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     setTimeout(() => {
 
       this.loadingData = true;
-      
+
     });
 
     setTimeout(() => {
@@ -563,7 +578,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     }
 
     this.loadingData = false;
-    
+
   };
 
   //async
@@ -582,20 +597,20 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     }
   };
 
-/* 
-  $(window).on('resize', () {
-    var chart_entries = this.echartsInstances_reachabilityAnalysis.entries();
-
-    var nextChartInstanceEntry = chart_entries.next();
-    while (nextChartInstanceEntry.value) {
-
-      var nextChartInstance = nextChartInstanceEntry.value[1];
-      if (nextChartInstance != null && nextChartInstance != undefined) {
-        nextChartInstance.resize();
+  /* 
+    $(window).on('resize', () {
+      var chart_entries = this.echartsInstances_reachabilityAnalysis.entries();
+  
+      var nextChartInstanceEntry = chart_entries.next();
+      while (nextChartInstanceEntry.value) {
+  
+        var nextChartInstance = nextChartInstanceEntry.value[1];
+        if (nextChartInstance != null && nextChartInstance != undefined) {
+          nextChartInstance.resize();
+        }
+        nextChartInstanceEntry = chart_entries.next();
       }
-      nextChartInstanceEntry = chart_entries.next();
-    }
-
-
-  }); */
+  
+  
+    }); */
 }

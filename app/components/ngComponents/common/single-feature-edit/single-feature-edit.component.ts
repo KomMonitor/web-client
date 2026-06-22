@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
@@ -8,12 +8,13 @@ import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { FormsModule } from '@angular/forms';
 import * as turf from '@turf/turf';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-single-feature-edit',
   templateUrl: './single-feature-edit.component.html',
   styleUrls: ['./single-feature-edit.component.css'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgbDatepickerModule],
   standalone: true,
 })
 export class SingleFeatureEditComponent implements OnInit {
@@ -35,8 +36,8 @@ export class SingleFeatureEditComponent implements OnInit {
   featureIdIsUnique = false;
   featureNameValue = undefined;
   featureGeometryValue:any = undefined;
-  featureStartDateValue = undefined;
-  featureEndDateValue = undefined;
+  featureStartDateValue:string | undefined = undefined;
+  featureEndDateValue:string | undefined = undefined;
   // [{property: name, value: value}]
   featureSchemaProperties:any[] = [];
   schemaObject;
@@ -82,6 +83,7 @@ export class SingleFeatureEditComponent implements OnInit {
         $('#georesourceSingleFeatureDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions); */
   
   onEditGeoresourceFeatures([georesourceDataset, isReachabilityDatasetOnly]) {
+
     if (this.currentGeoresourceDataset && this.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName) {
       return;
     }
@@ -99,7 +101,6 @@ export class SingleFeatureEditComponent implements OnInit {
   onChangeEditMode(value) {
 
     this.singleFeatureMapHelperService.editMode = value;
-    console.log(this.singleFeatureMapHelperService.editMode);
     this.reinitSingleFeatureEdit();
   };
   
@@ -265,7 +266,12 @@ export class SingleFeatureEditComponent implements OnInit {
       }
     }
 
-    this.singleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap(this.georesourceFeaturesGeoJSON);
+    // add context layer of currently selected indicator features
+    if(this.dataExchangeService.selectedIndicator && this.dataExchangeService.selectedIndicator.geoJSON){
+      this.singleFeatureMapHelperService.addContextLayerToSingleFeatureGeoMap_indicator(this.dataExchangeService.selectedIndicator.geoJSON);
+    }
+
+    this.singleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap_georesource(this.georesourceFeaturesGeoJSON);
 
      this.featureInfoText_singleFeatureAddMenu = "" + this.georesourceFeaturesGeoJSON.features.length + " Features im Datensatz vorhanden";
 
@@ -319,7 +325,18 @@ export class SingleFeatureEditComponent implements OnInit {
     return uuidv4();
   }
 
-  validateSingleFeatureId  () {
+  onStartDateChange(date: NgbDateStruct) {
+
+    this.featureStartDateValue = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+  }
+
+  onEndDateChange(date: NgbDateStruct) {
+
+    this.featureEndDateValue = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+  }
+
+  validateSingleFeatureId() {
+
     this.featureIdIsUnique = true;
     if (this.georesourceFeaturesGeoJSON && this.featureIdValue) {
       let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
@@ -355,6 +372,7 @@ export class SingleFeatureEditComponent implements OnInit {
   }
   
   buildSingleFeature() {
+
     // build new feature object and add it to geoJSON
     // then broadcast updated resources
     this.featureGeometryValue.features[0].properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] = this.featureIdValue;

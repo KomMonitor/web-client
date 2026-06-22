@@ -21,6 +21,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ReachabilityCombinerService, GeoJSONFeature } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
@@ -106,6 +107,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   currentCustomIndicatorLayer;
   isochronesLayer:any = undefined;
   isochroneMarkerLayer = undefined;
+
+  markerLayer:any = undefined;
+  isochroneLayer:any = undefined;
   
   showOutlierInfoAlert = false;
 
@@ -236,6 +240,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.onReplaceIndicatorAsGeoJSON([value.values.indicator, value.values.spatialUnit, value.values.date, value.values.justRestyling, value.values.customComputation]);
       });
 
+    this.mapService.replaceIndicatorLayerSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        if (params) {
+          this._replaceIndicatorLayer(params.indicator, params.spatialUnitName, params.date, params.isCustomComputation);
+        }
+      });
+      
     this.mapService.mapRecenter$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
@@ -371,7 +383,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         } break;
         case 'adjustColorForFileLayer': {
           this.adjustColorForFileLayer(values);
-        }
+        } break;
+        case 'replaceReachabilityScenarioOnMainMap': {
+          this.replaceReachabilityScenarioOnMainMap(values);
+        } break;
+        case 'removeReachabilityScenarioFromMainMap': {
+          this.removeReachabilityScenarioFromMainMap();
+        } break;
       }
     });
   }
@@ -2752,14 +2770,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   onReplaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
+    this._replaceIndicatorLayer(indicatorMetadataAndGeoJSON, spatialUnitName, date, isCustomComputation, justRestyling);
+  }
 
+  private _replaceIndicatorLayer(indicatorMetadataAndGeoJSON, spatialUnitName, date, isCustomComputation, justRestyling = false) {
     console.log('replaceIndicatorAsGeoJSON was called');
     
-    this.visualStyleHelperService.isCustomComputation = false;
-    if (isCustomComputation){
-      this.visualStyleHelperService.isCustomComputation = true;
-    }
-
+    this.visualStyleHelperService.isCustomComputation = !!isCustomComputation;
     //reset opacity
     this.visualStyleHelperService.setOpacity(this.envConfigService.defaultFillOpacity);
 
@@ -3654,43 +3671,44 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     });
   });
+*/
 
-  $scope.$on("removeReachabilityScenarioFromMainMap", function (event, reachabilityScenario){
-    if ($scope.markerLayer) {
-      $scope.layerControl.removeLayer($scope.markerLayer);
-      $scope.map.removeLayer($scope.markerLayer);
+  removeReachabilityScenarioFromMainMap() {
+    if (this.markerLayer) {
+      this.layerControl.removeLayer(this.markerLayer);
+      this.map.removeLayer(this.markerLayer);
     }
-    if ($scope.isochroneLayer) {
-      $scope.layerControl.removeLayer($scope.isochroneLayer);
-      $scope.map.removeLayer($scope.isochroneLayer);
+    if (this.isochroneLayer) {
+      this.layerControl.removeLayer(this.isochroneLayer);
+      this.map.removeLayer(this.isochroneLayer);
     }
 
-    kommonitorDataExchangeService.reachabilityScenarioOnMainMap = false;
-  });
+    this.dataExchangeService.reachabilityScenarioOnMainMap = false;
+  };
 
-  $scope.$on("replaceReachabilityScenarioOnMainMap", function (event, reachabilityScenario){
+  replaceReachabilityScenarioOnMainMap([reachabilityScenario]) {
 
-    if ($scope.markerLayer) {
-      $scope.layerControl.removeLayer($scope.markerLayer);
-      $scope.map.removeLayer($scope.markerLayer);
+    if (this.markerLayer) {
+      this.layerControl.removeLayer(this.markerLayer);
+      this.map.removeLayer(this.markerLayer);
     }
-    if ($scope.isochroneLayer) {
-      $scope.layerControl.removeLayer($scope.isochroneLayer);
-      $scope.map.removeLayer($scope.isochroneLayer);
+    if (this.isochroneLayer) {
+      this.layerControl.removeLayer(this.isochroneLayer);
+      this.map.removeLayer(this.isochroneLayer);
     }
 
     let poiDataset = reachabilityScenario.reachabilitySettings.selectedStartPointLayer;
-    let locationsArray = [];
+    let locationsArray:any[] = [];
 
-    poiDataset.geoJSON.features.forEach(function (feature) {
+    poiDataset.geoJSON.features.forEach((feature:any) => {
       locationsArray.push(feature.geometry.coordinates);						
     });
     
-    $scope.markerLayer = kommonitorReachabilityMapHelperService.makeIsochroneMarkerLayer(locationsArray);
+    this.markerLayer = this.reachabilityMapHelperService.makeIsochroneMarkerLayer(locationsArray);
 
-    kommonitorDataExchangeService.reachabilityScenarioOnMainMap = true;
+    this.dataExchangeService.reachabilityScenarioOnMainMap = true;
     
-    $scope.isochroneLayer = kommonitorReachabilityMapHelperService
+    this.isochroneLayer = this.reachabilityMapHelperService
     .makeIsochroneLayer(            
       reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName,
       reachabilityScenario.isochrones_dissolved,
@@ -3700,14 +3718,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       reachabilityScenario.reachabilitySettings.useMultipleStartPoints,
       reachabilityScenario.reachabilitySettings.dissolveIsochrones);
 
-      $scope.layerControl.addOverlay($scope.markerLayer, "Startpunkte der Isochronenberechnung - " + poiDataset.datasetName, reachabilityLayerGroupName);
-      $scope.layerControl.addOverlay($scope.isochroneLayer, "Erreichbarkeits-Isochronen_" + reachabilityScenario.reachabilitySettings.transitMode + "_" + poiDataset.datasetName, reachabilityLayerGroupName);
+      this.layerControl.addOverlay(this.markerLayer, "Startpunkte der Isochronenberechnung - " + poiDataset.datasetName, this.reachabilityLayerGroupName);
+      this.layerControl.addOverlay(this.isochroneLayer, "Erreichbarkeits-Isochronen_" + reachabilityScenario.reachabilitySettings.transitMode + "_" + poiDataset.datasetName, this.reachabilityLayerGroupName);
       
-      $scope.markerLayer.addTo($scope.map);
-      $scope.isochroneLayer.addTo($scope.map);
+      this.markerLayer.addTo(this.map);
+      this.isochroneLayer.addTo(this.map);
 
-      $scope.map.invalidateSize(true);
-      $scope.map.fitBounds($scope.isochroneLayer.getBounds()); 
-  }); */
+      this.map.invalidateSize(true);
+      this.map.fitBounds(this.isochroneLayer.getBounds()); 
+  }
  
 }

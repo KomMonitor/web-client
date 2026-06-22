@@ -1,4 +1,11 @@
 :host {
+
+  button {
+    &.margin-bottom {
+      margin-bottom: .5em;    
+    }
+  }
+
   .search-wrapper {
     position: relative;
     width: 100%;
@@ -82,8 +89,15 @@
     gap: 1em;
     margin-bottom: 2em;
   }
+
+  .scenarioWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 2em;
+  }
    
-  .modeWrapper, .focusWrapper {
+  .modeWrapper, .focusWrapper, .scenarioWrapper {
     .modeItem { 
       border: 1px solid lightgray;
       border-radius: .5em;
@@ -94,10 +108,27 @@
       cursor: pointer;
       color: gray;
 
+      i {
+        font-size: 22px;
+        margin-bottom: .2em;
+      }
+
       &.active {
         background: var(--kommonitor-hierarchy-level-2);
         border: 1px solid var(--kommonitor-primary);
         color: var(--kommonitor-primary);
+      }
+
+      &.green {
+        border: 1px solid #157347;
+        color: #157347;
+        background: #15734720;
+      }
+
+      &.red {
+        border: 1px solid #bb2d3b;
+        color: #bb2d3b;
+        background: #bb2d3b20;
       }
     }
   }

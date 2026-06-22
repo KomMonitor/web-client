@@ -81,31 +81,29 @@ export class ReachabilityMapHelperService {
   }
 
   async takeScreenshot_image(domId: string, overridedPluginOptions?: any) {
-    const mapParts = this.mapPartsMap.get(domId);
 
-    if (!overridedPluginOptions) {
-      overridedPluginOptions = {
-        quality: 0.95
-      };
-    }
+    const node: any = document.getElementById(domId);
+    const options = overridedPluginOptions || {
+      quality: 1.0,
+      width: 400,
+      height: 400
+    };
 
-    if (mapParts && mapParts.map && mapParts.screenshoter) {
-      const node = document.getElementById(domId);
-      if (node) {
-        try {
-          return await domtoimage.toJpeg(node, overridedPluginOptions);
-        } catch (error) {
-          console.error('oops, something went wrong!', error);
-        }
-      }
+    try {
+      return await domtoimage.toJpeg(node, options);
+    } catch (error) {
+      console.log("Error while exporting map view.");
+      console.error(error);
+      this.dataExchangeService.displayMapApplicationError(error);
+      return undefined;
     }
-    return undefined;
   }
 
   invalidateMap(domId: string) {
     const mapParts = this.mapPartsMap.get(domId);
     if (mapParts && mapParts.map) {
       this.genericMapHelperService.invalidateMap(mapParts.map);
+      this.zoomToIsochroneLayer(domId);
     }
   }
 
@@ -252,7 +250,7 @@ export class ReachabilityMapHelperService {
     }
 
     geoJSON.features.sort((a: any, b: any) => a.properties.value - b.properties.value);
-
+  
     for (let i = geoJSON.features.length - 1; i >= 0; i--) {
       const feature = geoJSON.features[i];
       const styleIndex = this.getStyleIndexForFeature(feature, this.dataExchangeService.isochroneLegend.colorValueEntries, reachMode);
@@ -290,11 +288,12 @@ export class ReachabilityMapHelperService {
   }
 
   private getStyleIndexForFeature(feature: any, colorValueEntries: any[], reachMode: string): number {
+
     let featureCutOffValue = feature.properties.value;
     if (reachMode === "time") {
       featureCutOffValue /= 60;
     }
-    const entry = colorValueEntries.find(e => e.value === featureCutOffValue);
+    const entry = colorValueEntries.find(e => e.value === parseInt(featureCutOffValue));
     return entry ? colorValueEntries.indexOf(entry) : 0;
   }
 

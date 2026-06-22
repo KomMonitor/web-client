@@ -1,41 +1,204 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { event } from 'jquery';
+import { Injector } from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
+import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+
+export interface PoiDataset {
+  poiId: string;
+  poiName: string;
+  poiDate: string;
+}
+
+export interface ReachabilityScenario {
+  reachabilitySettings: any; // Consider creating a specific interface for this
+  scenarioName: string;
+  indicatorStatistics: any[]; // Consider creating a specific interface for this
+  isochrones_dissolved: any; // GeoJSON FeatureCollection
+  isochrones_perPoint: any; // GeoJSON FeatureCollection
+  poiDataset: PoiDataset;
+  // To allow for extensibility while maintaining some type safety
+  [key: string]: any;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReachabilityScenarioHelperService {
 
-  reachabilityScenarios:any = [];
-
-  tmpActiveScenario:any = {
-    reachabilitySettings: {}, // settings from rechability helper service for isochrone config
-      "scenarioName": "", // unique scenario name
-      "indicatorStatistics": [], // array of all calculated indicator statistics
-      "isochrones_dissolved": {}, // kommonitorReachabilityHelperService.currentIsochronesGeoJSON 
-      "isochrones_perPoint": {}, //kommonitorReachabilityHelperService.original_nonDissolved_isochrones
-      "poiDataset": {
-        "poiId": "",
-        "poiName": "",
-        "poiDate": "",
-      }
-  };
-
-
-  public constructor( ) {}
-
-  onImportScenariosFile() {
-    //return this.ajskommonitorReachabilityScenarioHelperServiceProvider.onImportScenariosFile();
-  }
-
-  exportScenarios() {
-    //this.ajskommonitorReachabilityScenarioHelperServiceProvider.exportScenarios();
-  }
-
-  removeReachabilityScenario(reachabilityScenario) {
-    //this.ajskommonitorReachabilityScenarioHelperServiceProvider.removeReachabilityScenario(reachabilityScenario);
-  }
+   private readonly scenarios = new BehaviorSubject<ReachabilityScenario[]>([]);
+    public readonly scenarios$ = this.scenarios.asObservable();
   
-  cloneReachabilityScenario(reachabilityScenario) {
-    //this.ajskommonitorReachabilityScenarioHelperServiceProvider.cloneReachabilityScenario(reachabilityScenario);
+    private readonly isochronesCalculationFinished = new Subject<boolean>();
+    public readonly isochronesCalculationFinished$ = this.isochronesCalculationFinished.asObservable();
+  
+    public tmpActiveScenario: ReachabilityScenario = this.createEmptyScenario();
+  
+    constructor(
+      private kommonitorReachabilityHelperService: ReachabilityHelperService,
+      private injector: Injector
+    ) { }
+
+    get reachabilityScenarios(): ReachabilityScenario[] {
+      return this.scenarios.value;
+    }
+  
+    private createEmptyScenario(): ReachabilityScenario {
+      return {
+        reachabilitySettings: {},
+        scenarioName: "",
+        indicatorStatistics: [],
+        isochrones_dissolved: {},
+        isochrones_perPoint: {},
+        poiDataset: {
+          poiId: "",
+          poiName: "",
+          poiDate: "",
+        }
+      };
+    }
+  
+    public resetTmpActiveScenario(): void {
+      this.tmpActiveScenario = this.createEmptyScenario();
+    }
+  
+    public setPoiDataset(poiDataset: any): void {
+      const poiDatasetClone = JSON.parse(JSON.stringify(poiDataset));
+      this.tmpActiveScenario.poiDataset = {
+        poiId: poiDatasetClone.georesourceId,
+        poiName: poiDatasetClone.datasetName,
+        poiDate: this.kommonitorReachabilityHelperService.settings.isochroneConfig.selectedDate?.startDate || "tmpDataset"
+      };
+    }
+  
+    public setActiveScenario(scenarioDataset: ReachabilityScenario): void {
+      // deep clone object to persist this scenario as a whole
+      this.tmpActiveScenario = JSON.parse(JSON.stringify(scenarioDataset));
+
+      const combinerService = this.injector.get(ReachabilityCombinerService);
+      combinerService.scenarioTitle = scenarioDataset.scenarioName;
+      combinerService.selectedStartPointLayer = scenarioDataset.reachabilitySettings.selectedStartPointLayer;
+      combinerService.selectedStartDate = scenarioDataset.reachabilitySettings.isochroneConfig.selectedDate;
+  
+      this.kommonitorReachabilityHelperService.settings = JSON.parse(JSON.stringify(this.tmpActiveScenario.reachabilitySettings));
+      this.kommonitorReachabilityHelperService.currentIsochronesGeoJSON = JSON.parse(JSON.stringify(this.tmpActiveScenario.isochrones_dissolved));
+      this.kommonitorReachabilityHelperService.original_nonDissolved_isochrones = JSON.parse(JSON.stringify(this.tmpActiveScenario.isochrones_perPoint));
+    }
+  
+    public loadActiveScenario(scenarioDataset: ReachabilityScenario): void {
+      this.setActiveScenario(scenarioDataset);
+      // since the config contains all info for active scenario we just reload all reachability maps
+      this.isochronesCalculationFinished.next(true);
+    }
+  
+    public addReachabilityScenario(): void {
+      this.configureActiveScenario();
+      this.replaceOrAddScenario(JSON.parse(JSON.stringify(this.tmpActiveScenario)));
+    }
+  
+    public configureActiveScenario(): void {
+      this.tmpActiveScenario.reachabilitySettings = this.kommonitorReachabilityHelperService.settings;
+      this.tmpActiveScenario.isochrones_dissolved = this.kommonitorReachabilityHelperService.currentIsochronesGeoJSON;
+      this.tmpActiveScenario.isochrones_perPoint = this.kommonitorReachabilityHelperService.original_nonDissolved_isochrones;
+      // this.tmpActiveScenario.indicatorStatistics and this.tmpActiveScenario.scenarioName are already directly set within reachability components
+  
+      this.setPoiDataset(this.tmpActiveScenario.reachabilitySettings.selectedStartPointLayer);
+    }
+  
+    public replaceOrAddScenario(scenario: ReachabilityScenario): void {
+      const currentScenarios = this.scenarios.getValue();
+      const index = currentScenarios.findIndex(s => s.scenarioName === scenario.scenarioName);
+  
+      if (index > -1) {
+        currentScenarios.splice(index, 1, scenario);
+        //this.kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario aktualisiert", this.tmpActiveScenario.scenarioName);
+      } else {
+        currentScenarios.push(scenario);
+        //this.kommonitorToastHelperService.displaySuccessToast("Erreichbarkeitsszenario neu angelegt", this.tmpActiveScenario.scenarioName);
+      }
+      this.scenarios.next(currentScenarios);
+    }
+  
+    public cloneReachabilityScenario(scenario: ReachabilityScenario): void {
+      const clone: ReachabilityScenario = JSON.parse(JSON.stringify(scenario));
+      clone.scenarioName = "Kopie - " + clone.scenarioName;
+  
+      const currentScenarios = this.scenarios.getValue();
+      currentScenarios.push(clone);
+      this.scenarios.next(currentScenarios);
+    }
+  
+    public removeReachabilityScenario(scenario: ReachabilityScenario): void {
+      const currentScenarios = this.scenarios.getValue();
+      const updatedScenarios = currentScenarios.filter(s => s.scenarioName !== scenario.scenarioName);
+      this.scenarios.next(updatedScenarios);
+    }
+  
+    public exportScenarios(): void {
+      const scenariosString = JSON.stringify(this.scenarios.getValue());
+      const fileName = 'Erreichbarkeitsszenarien_KomMonitor.json';
+      const blob = new Blob([scenariosString], { type: 'application/json' });
+      const data = URL.createObjectURL(blob);
+  
+      const a = document.createElement('a');
+      a.download = fileName;
+      a.href = data;
+      a.textContent = "JSON";
+      a.target = "_self";
+      a.rel = "noopener noreferrer";
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(data);
+    }
+  
+    /**
+     * This method should be called from a component that handles the file input.
+     * The component should pass the File object to this method.
+     *
+     * @param file The imported file with reachability scenarios.
+     */
+    public async importScenarios(file: File): Promise<void> {
+      if (!file) {
+        return;
+      }
+      try {
+        const fileContent = await this.readFileContent(file);
+        const importedScenarios = JSON.parse(fileContent as string) as ReachabilityScenario[];
+        
+        // Basic validation
+        if (!Array.isArray(importedScenarios)) {
+          throw new Error("Imported file is not a valid scenario array.");
+        }
+  
+        const currentScenarios = this.scenarios.getValue();
+        this.scenarios.next([...currentScenarios, ...importedScenarios]);
+        //this.kommonitorToastHelperService.displaySuccessToast("Szenarien importiert", `${importedScenarios.length} Szenarien erfolgreich importiert.`);
+  
+      } catch (error) {
+        console.error("Uploaded Reachability Scenarios File cannot be parsed.", error);
+        //this.kommonitorToastHelperService.displayErrorToast("Import fehlgeschlagen", "Die Datei konnte nicht als Erreichbarkeitsszenario interpretiert werden.");
+      }
+    }
+  
+    private readFileContent(file: File): Promise<string> {
+      return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+
+        fileReader.onload = () => {
+          if (typeof fileReader.result === 'string') {
+            resolve(fileReader.result);
+          } else {
+            reject(new Error('Dateiinhalt konnte nicht als Text gelesen werden.'));
+          }
+        };
+
+        fileReader.onerror = () => {
+          reject(fileReader.error);
+        };
+
+        fileReader.readAsText(file);
+      });
+    }
   }
-}

@@ -1,6 +1,8 @@
 /* AG Grid CSS imports */
-@import 'ag-grid-community/styles/ag-grid.css';
-@import 'ag-grid-community/styles/ag-theme-alpine.css';
+@import '~ag-grid-community/styles/ag-grid.css';
+@import '~ag-grid-community/styles/ag-theme-alpine.css';
+/* Leaflet Draw CSS for icons */
+@import '~leaflet-draw/dist/leaflet.draw.css';
 
 /* AG Grid specific styles for this component */
 .ag-theme-alpine {
@@ -15,7 +17,8 @@
   --ag-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.modal-header, .modal-footer {
+.modal-header,
+.modal-footer {
   position: relative;
   z-index: 9999;
 }
@@ -244,7 +247,7 @@
   color: #fff;
 }
 
-.progressbar li.active ~ li::before {
+.progressbar li.active~li::before {
   background-color: #dee2e6;
   color: #6c757d;
 }
@@ -408,21 +411,21 @@ fieldset {
   vertical-align: middle;
 }
 
-.btn-group > .btn {
+.btn-group>.btn {
   position: relative;
   flex: 1 1 auto;
 }
 
-.btn-group > .btn:not(:first-child) {
+.btn-group>.btn:not(:first-child) {
   margin-left: -1px;
 }
 
-.btn-group > .btn:not(:last-child):not(.dropdown-toggle) {
+.btn-group>.btn:not(:last-child):not(.dropdown-toggle) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.btn-group > .btn:not(:first-child) {
+.btn-group>.btn:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -488,7 +491,7 @@ fieldset {
   width: 100%;
 }
 
-.input-group > .form-control {
+.input-group>.form-control {
   position: relative;
   flex: 1 1 auto;
   width: 1%;
@@ -510,18 +513,18 @@ fieldset {
   border-radius: 0.25rem;
 }
 
-.input-group > .input-group-text:not(:last-child) {
+.input-group>.input-group-text:not(:last-child) {
   border-right: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.input-group > .form-control:not(:last-child) {
+.input-group>.form-control:not(:last-child) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.input-group > .form-control:not(:first-child) {
+.input-group>.form-control:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -668,30 +671,31 @@ fieldset {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+
   .col-md-3,
   .col-md-6 {
     margin-bottom: 1rem;
   }
-  
+
   .vertical-align {
     flex-direction: column;
   }
-  
+
   .form-navigation {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .form-navigation .btn {
     width: 100%;
     margin: 0.25rem 0;
   }
-  
+
   .import-export-buttons {
     position: static;
     margin-bottom: 1rem;
   }
-  
+
   .import-export-buttons .btn {
     margin: 0.25rem;
     width: 100%;
@@ -765,7 +769,7 @@ fieldset {
 
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
-} 
+}
 
 /* AG Grid cell editing visual feedback */
 .ag-theme-alpine .ag-cell[style*="background-color: #9DC89F"] {
@@ -807,7 +811,7 @@ fieldset {
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
   font-weight: 500;
-} 
+}
 
 /* ng-bootstrap Datepicker Styles */
 .datepicker-dropdown {
@@ -816,7 +820,7 @@ fieldset {
   background: white !important;
   border: 1px solid #ccc !important;
   border-radius: 4px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
   margin-top: 2px !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
   width: 320px !important;
@@ -845,7 +849,7 @@ fieldset {
   background: white !important;
   border: 1px solid #ccc !important;
   border-radius: 4px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
   margin-top: 2px !important;
   width: 320px !important;
   left: 0 !important;
@@ -859,7 +863,7 @@ fieldset {
   background: white !important;
   border: 1px solid #ccc !important;
   border-radius: 4px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
   margin-top: 2px !important;
   width: 320px !important;
   left: 0 !important;
@@ -988,14 +992,14 @@ fieldset {
   z-index: 10;
 }
 
-.date-input-group > div {
+.date-input-group>div {
   flex: 1 1 auto !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.date-input-group > div > .form-control,
-.date-input-group > .form-control {
+.date-input-group>div>.form-control,
+.date-input-group>.form-control {
   width: 100% !important;
   height: 100% !important;
   border-left: 0 !important;
@@ -1128,22 +1132,22 @@ fieldset {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  
+
   .input-group .datepicker-dropdown {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  
+
   .datepicker-dropdown .ngb-dp-day {
     font-size: 16px !important;
     min-width: 40px !important;
     height: 40px !important;
   }
-  
+
   .datepicker-dropdown .ngb-dp-weekday {
     font-size: 16px !important;
   }
-  
+
   .datepicker-dropdown .ngb-dp-month-name {
     font-size: 18px !important;
   }
@@ -1172,11 +1176,11 @@ fieldset {
   display: none !important;
 }
 
-.date-toggle-btn .fas.fa-calendar-alt:not([class*="fa-calendar-alt"]) + .calendar-text {
+.date-toggle-btn .fas.fa-calendar-alt:not([class*="fa-calendar-alt"])+.calendar-text {
   font-size: 16px !important;
   font-weight: bold !important;
   margin-left: 0 !important;
-} 
+}
 
 /* New Calendar Icon Styling */
 .calendar-icon {
@@ -1256,7 +1260,7 @@ fieldset {
 
 .date-toggle-btn:active .calendar-svg {
   transform: scale(0.95) !important;
-} 
+}
 
 /* Text sizing to MATCH add modal */
 .multiStepForm {
@@ -1267,6 +1271,7 @@ fieldset {
 #progressbar li {
   font-size: 9px !important;
 }
+
 #progressbar li:before {
   font-size: 12px !important;
 }
@@ -1287,6 +1292,7 @@ fieldset {
 :host ::ng-deep #progressbar li {
   font-size: 9px !important;
 }
+
 :host ::ng-deep #progressbar li:before {
   font-size: 12px !important;
 }
@@ -1296,12 +1302,15 @@ fieldset {
 :host ::ng-deep .form-group label {
   font-size: inherit !important;
 }
+
 :host ::ng-deep .form-control {
   font-size: 13px !important;
 }
+
 :host ::ng-deep .help-block {
   font-size: 13px !important;
 }
+
 :host ::ng-deep table,
 :host ::ng-deep th,
 :host ::ng-deep td {

@@ -1512,6 +1512,10 @@ table, th, td {
 
 	align-items: center;
 	justify-content: center;
+
+  button {
+    width: auto !important;
+  }
 }
 
 .horizontal-align {
@@ -2276,6 +2280,12 @@ transition: opacity 0.3s;
 	height: 99%;
 	max-height: 99%;
 	overflow: auto;
+}
+
+.btn[disabled], fieldset[disabled] {
+  cursor: not-allowed;
+  opacity: .65;
+  box-shadow: none;
 }
 
 .btn-circle {

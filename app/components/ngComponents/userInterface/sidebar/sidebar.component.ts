@@ -47,7 +47,7 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit(): void {
     // default open
-    //this.element = 'sidebarReachabilityCollapse';
+    this.element = 'sidebarReachabilityCollapse';
   }
 
   closeSidebar() {

@@ -1,0 +1,6 @@
+:host {
+}
+
+::ng-deep .leaflet-marker-shadow {
+  display: none !important;
+}

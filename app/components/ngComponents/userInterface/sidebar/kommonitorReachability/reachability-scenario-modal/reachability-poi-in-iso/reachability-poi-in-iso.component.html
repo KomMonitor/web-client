@@ -10,9 +10,11 @@
 		<div class="col-md-4 col-sm-4 col-xs-12" style="padding-left: 5px; padding-right: 5px;">
 			<div class="just-padding" style="height: 57vh; overflow-y: auto;" id="reachabilityPoiInIsoConfigForm">
 
-				<div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
-					<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
-				</div>
+        <div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer">
+          <div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+            <label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer.datasetName}}</i></label>
+          </div>
+        </div>
 
 				<!-- <label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
 				<div class="form-group">
@@ -46,10 +48,10 @@
 
 				<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
 
-				<div class="input-group">
-					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" style="width: 100%" (keyup)="onNameFilterChange($event)">
-				</div>
+        <div class="input-wrapper">
+          <span class="icon"><i class="fas fa-filter"></i></span>                                             
+          <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" (keyup)="onNameFilterChange($event)">
+        </div>
 
 				<br />
 

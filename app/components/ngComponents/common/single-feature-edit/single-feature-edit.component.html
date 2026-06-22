@@ -1,14 +1,17 @@
 <div class="row vertical-align">
 
 	<div class="col-md-6 col-sm-6 col-xs-12">
-		<div>
-			<button class="feature-btn" (click)="onChangeEditMode('create')">
+		<div class="reachability-feature-btn-wrapper">
+			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode == 'create'}"
+				(click)="onChangeEditMode('create')">
 				<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
       </button>
-			<button class="feature-btn" (click)="onChangeEditMode('edit')">
+			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode == 'edit'}"
+        (click)="onChangeEditMode('edit')">
 				<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
       </button>
-			<button class="feature-btn" (click)="onChangeEditMode('delete')">
+			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode == 'delete'}"
+        (click)="onChangeEditMode('delete')">
 				<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
       </button>
 		</div>
@@ -78,11 +81,16 @@
 							<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit *</b>
 						</td>
 						<td>
-							<input type="text" [(ngModel)]="featureStartDateValue"
-                class="form-control pull-right"
-								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
-								id="georesourceSingleFeatureDatepickerStart" placeholder="YYYY-MM-DD"
-								(change)="validateSingleFeatureId()" required>
+              <input
+                  class="form-control"
+                  placeholder="yyyy-mm-dd"
+                  name="dp"
+                  [(ngModel)]="featureStartDateValue"
+                  ngbDatepicker
+                  #d="ngbDatepicker"
+                  (click)="d.toggle()"
+                  (ngModelChange)="onStartDateChange($event)"
+                />
 						</td>
 					</tr>
 					<tr>
@@ -90,10 +98,17 @@
 							<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</b>
 						</td>
 						<td>
-							<input type="text" [(ngModel)]="featureEndDateValue"
-                class="form-control pull-right"
-								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
-								id="georesourceSingleFeatureDatepickerEnd" placeholder="YYYY-MM-DD" required>
+              <input
+                  class="form-control"
+                  placeholder="yyyy-mm-dd"
+                  name="dp"
+                  [(ngModel)]="featureEndDateValue"
+                  ngbDatepicker
+                  #d="ngbDatepicker"
+                  (click)="d.toggle()"
+                  [disabled]="singleFeatureMapHelperService.editMode == 'delete'"
+                  (ngModelChange)="onEndDateChange($event)"
+                />
 						</td>
 					</tr>
 					<tr *ngFor="let featureSchemaEntry of featureSchemaProperties">

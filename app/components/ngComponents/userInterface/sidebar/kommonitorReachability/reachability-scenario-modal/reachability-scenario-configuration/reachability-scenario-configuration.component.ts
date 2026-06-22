@@ -3,15 +3,18 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 
 @Component({
   selector: 'app-reachability-scenario-configuration',
   standalone: true,
   templateUrl: './reachability-scenario-configuration.component.html',
   styleUrls: ['./reachability-scenario-configuration.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, LoadingOverlayComponent]
 })
 export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
@@ -37,7 +40,8 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private reachabilityCombinerService: ReachabilityCombinerService
   ) {
     // start points that were drawn manually
     // direct GeoJSON structure
@@ -74,10 +78,23 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
         case 'isochronesCalculationFinished': {
           this.isochronesCalculationFinished();
         } break;
+        case 'reinitReachabilityConfiguration': {
+          this.reachabilityMapHelperService.invalidateMap(this.domId);
+        } break;
       }
+
+      this.reachabilityCombinerService.reachabilityMapSubject$.subscribe(value => {
+        if(value.scenarioState) {
+          this.isochronesCalculationFinished();
+        }
+      });
     });
 
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);	
+  }
+
+  importScenarioFromQuickSetup() {
+
   }
 
   	/* 

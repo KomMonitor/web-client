@@ -2,6 +2,7 @@ import { AuthService } from 'services/auth-service/auth.service';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class SpatialDataProcessorHelperService {
     private envConfigService: EnvConfigService
   ) { }
 
- async postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weighting) {
+ postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weighting):Promise<string> {
     try {
       // get auth token to make authenticated requests
       let bearerToken = this.authService.getToken();
@@ -59,15 +60,18 @@ export class SpatialDataProcessorHelperService {
         headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
       }
 
-      return await this.http.post(this.targetUrlToSpatialDataProcessorInstance + "jobs", body,{headers: headers}).subscribe({
-        next: response => {
-          return response;
-        },
-        error: error => {
-          console.error("Error while posting isochrone statistic request.");
-          throw error;
-        }
+      return new Promise(resolve => {
+        this.http.post(this.targetUrlToSpatialDataProcessorInstance + "jobs", body,{headers: headers}).subscribe({
+          next: (response:any) => {
+            resolve(response);
+          },
+          error: error => {
+            console.error("Error while posting isochrone statistic request.");
+            throw error;
+          }
+        });
       });
+     
     } catch (error) {
       throw error;
     }
@@ -104,15 +108,7 @@ export class SpatialDataProcessorHelperService {
         }
       */
 
-      return await this.http.get(this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId, {headers: headers}).subscribe({
-        next: response => {
-          return response;
-        },
-        error: error => {
-          console.error("Error while fetching job status.");
-          throw error;
-        }
-      });
+      return await firstValueFrom(this.http.get(this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId, {headers: headers}));
 
     } catch (error) {
       throw error;
@@ -189,16 +185,11 @@ export class SpatialDataProcessorHelperService {
         
       */
 
-      return await this.http.get(this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId + "/result", {headers: headers}).subscribe({
-        next: response => {
-          return response;
-        },
-        error: error => {
-          console.error("Error while fetching job result.");
-          throw error;
-        }
-      });
+      return await firstValueFrom(
+        this.http.get(this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId + "/result", { headers: headers })
+      );
     } catch (error) {
+      console.error("Error while fetching job result.", error);
       throw error;
     }
   }

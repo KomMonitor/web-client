@@ -1,13 +1,15 @@
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
-import { ReachabilityCoverageReportsHelperService } from 'services/reachability-coverage-reports-helper-service/reachability-coverage-reports-helper.service';
 import { SpatialDataProcessorHelperService } from 'services/spatial-data-processor-helper/spatial-data-processor-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { ReachabilityCoverageReportsHelperService } from 'services/reachability-coverage-reports-helper-service/reachability-coverage-reports-helper.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
 
 @Component({
   selector: 'app-reachability-indicator-statistics',
@@ -17,6 +19,8 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
   imports: [CommonModule, FormsModule]
 })
 export class ReachabilityIndicatorStatisticsComponent implements OnInit {
+
+  private readonly destroyRef = inject(DestroyRef);
 
   availableIndicators:any;
   selectedIndicatorForStatistics:any;
@@ -51,14 +55,22 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     private spatialDataProcessorHelperService: SpatialDataProcessorHelperService,
     private broadcastService: BroadcastService
   ) {
-    this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics = [];
-    this.availableIndicators = this.dataExchangeService.displayableIndicators;
+    this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics = [];
   }
 
 
   ngOnInit(): void {
 
     this.init();
+
+    this.dataExchangeService.metadataLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+
+        if(value==MetadataLoadingState.COMPLETE)  
+          this.availableIndicators = this.dataExchangeService.displayableIndicators;
+      });
+
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -68,6 +80,9 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
         case 'isochronesCalculationFinished' : {
           this.isochronesCalculationFinished(values);
         } break;
+        case 'reinitIndicatorStatisticsConfiguration': {
+          this.reachabilityMapHelperService.invalidateMap(this.domId);
+        } break;
       }
     });
   }
@@ -76,12 +91,12 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityIndicatorStatisticsGeoMap(this.domId);
   }
 
-  isochronesCalculationFinished([reinit]) {
+  isochronesCalculationFinished(reinit=false) {
 
     if (reinit) {
       this.init();
 
-      for (const indicatorStatistic of this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics) {
+      for (const indicatorStatistic of this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
         if (indicatorStatistic.active) {
           this.displayIndicatorStatisticOnMap(indicatorStatistic);
         }
@@ -149,7 +164,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   };
 
   modifyJobStatus(jobId, jobStatus) {
-    for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics) {
+    for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
       if (indicatorStatisticsEntry.jobId == jobId) {
         indicatorStatisticsEntry.progress = jobStatus;
         break;
@@ -160,7 +175,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   async retrieveJobResult(jobId) {
     let response:any = await this.spatialDataProcessorHelperService.getJobResult(jobId);
 
-    for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics) {
+    for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
       indicatorStatisticsEntry.active = false;
       if (indicatorStatisticsEntry.jobId == jobId) {
         // as wen only query spatial data processor for one indicator and on timestamp at a time we can use first entry of result array
@@ -193,7 +208,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     }
 
     // insert at first place to emphasize where the new computation is happening
-    this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics.splice(0, 0, newIsochroneStatisticsEntry);
+    this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.splice(0, 0, newIsochroneStatisticsEntry);
 
     // now trigger periodical query of job status
     this.queryJobStatus(jobId);
@@ -206,10 +221,10 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
       this.reachabilityMapHelperService.removeOldLayers_reachabilityIndicatorStatistics(this.domId);
     }
 
-    for (let index = 0; index < this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics.length; index++) {
-      const entry = this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics[index];
+    for (let index = 0; index < this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.length; index++) {
+      const entry = this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics[index];
       if (entry.jobId == indicatorStatisticsCandidate.jobId) {
-        this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics.splice(index, 1);
+        this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics.splice(index, 1);
         break;
       }
     }
@@ -219,7 +234,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     // property coverageResult stores isochrone prune result
 
     // mark active list element
-    for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.pipedData.tmpActiveScenario.indicatorStatistics) {
+    for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
       indicatorStatisticsEntry.active = false;
       if (indicatorStatisticsEntry.jobId == indicatorStatisticsCandidate.jobId) {
         indicatorStatisticsEntry.active = true;
@@ -236,7 +251,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
 
     // in order to make UI consistent and have the ability to compare current scenario against any changes done in the ui regarding
     // recahbility config, we must set the current settings as activeScenario.
-    this.reachabilityScenarioHelperService.pipedData.configureActiveScenario();
+    this.reachabilityScenarioHelperService.configureActiveScenario();
 
     let indicatorIdArray = [this.selectedIndicatorForStatistics.indicatorId];
     // weighting options: residential_areas, simple

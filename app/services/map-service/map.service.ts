@@ -1,5 +1,5 @@
 import { Inject, Injectable, ViewChild } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 export interface MapRefreshObject {
@@ -42,6 +42,14 @@ export class MapService {
   });
   mapRefreshState$ = this.mapRefreshStateSubject.asObservable();
 
+  private replaceIndicatorLayerSubject = new Subject<{
+    indicator: any,
+    spatialUnitName: string,
+    date: string,
+    isCustomComputation: boolean
+  }>();
+  replaceIndicatorLayerSubject$ = this.replaceIndicatorLayerSubject.asObservable();
+ 
   private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
    resize: false,
    recenter: false
@@ -58,6 +66,10 @@ export class MapService {
   public constructor(
       private broadcastService: BroadcastService
   ) { }
+
+  replaceIndicatorLayer(indicator: any, spatialUnitName: string, date: string, isCustomComputation: boolean) {
+    this.replaceIndicatorLayerSubject.next({ indicator, spatialUnitName, date, isCustomComputation });
+  }
 
   setDateSliderValues(patch: Partial<DateSliderObject>) {
     this.dateSliderSubject.next({
@@ -185,12 +197,10 @@ export class MapService {
   }
 
   replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    //this.ajskommonitorMapServiceProvider.replaceReachabilityScenarioOnMainMap(reachabilityScenario);
     this.broadcastService.broadcast("replaceReachabilityScenarioOnMainMap", [reachabilityScenario]);
   }
 
   removeReachabilityScenarioFromMainMap() {
-    //this.ajskommonitorMapServiceProvider.removeReachabilityScenarioFromMainMap();
     this.broadcastService.broadcast("removeReachabilityScenarioFromMainMap");
   }
 
