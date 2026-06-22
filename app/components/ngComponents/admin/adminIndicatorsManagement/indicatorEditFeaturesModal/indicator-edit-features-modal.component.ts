@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions } from 'ag-grid-community';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -24,7 +24,7 @@ declare const $: any;
   standalone: true,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
-  private modalService = inject(NgbModal);
+  activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   dataExchangeService = inject(DataExchangeService);
@@ -37,8 +37,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   featureTableGridOptions: GridOptions = {};
 
   @ViewChild('modal') modal!: ElementRef;
-
-  private modalRef?: NgbModalRef;
 
   // Form data
   currentIndicatorDataset: any;
@@ -146,9 +144,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   closeModal(): void {
-    if (this.modalRef) {
-      this.modalRef.close();
-    }
+    this.activeModal.dismiss();
   }
 
   resetIndicatorEditFeaturesForm(): void {
@@ -156,18 +152,15 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.enableDeleteFeatures = false;
 
     // Reset edit banners
-    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success =
-      undefined;
-    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure =
-      undefined;
+    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success = undefined;
+    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
 
     this.indicatorFeaturesJSON = undefined;
     this.remainingFeatureHeaders = [];
     this.overviewTableTargetSpatialUnitMetadata = undefined;
 
     // Set default spatial unit
-    for (const spatialUnitMetadataEntry of this.dataExchangeService
-      .availableSpatialUnits) {
+    for (const spatialUnitMetadataEntry of this.dataExchangeService.availableSpatialUnits) {
       if (
         this.currentIndicatorDataset?.applicableSpatialUnits?.some(
           (o: any) => o.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel
@@ -450,8 +443,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       isPublic: this.isPublic,
     };
 
-    this.putBody_indicators =
-      this.importerHelperService.buildPutBody_indicators(scopeProperties);
+    this.putBody_indicators = this.importerHelperService.buildPutBody_indicators(scopeProperties);
 
     if (
       !this.converterDefinition ||
@@ -520,20 +512,17 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
     try {
       // Dry run first
-      const updateIndicatorResponse_dryRun =
-        await this.importerHelperService.updateIndicator(
-          this.converterDefinition,
-          this.datasourceTypeDefinition,
-          this.propertyMappingDefinition,
-          this.currentIndicatorDataset.indicatorId,
-          this.putBody_indicators,
-          true
-        );
+      const updateIndicatorResponse_dryRun = await this.importerHelperService.updateIndicator(
+        this.converterDefinition,
+        this.datasourceTypeDefinition,
+        this.propertyMappingDefinition,
+        this.currentIndicatorDataset.indicatorId,
+        this.putBody_indicators,
+        true
+      );
 
       if (
-        !this.importerHelperService.importerResponseContainsErrors(
-          updateIndicatorResponse_dryRun
-        )
+        !this.importerHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)
       ) {
         // All good, really execute the request to import data against data management API
         const updateIndicatorResponse = await this.importerHelperService.updateIndicator(

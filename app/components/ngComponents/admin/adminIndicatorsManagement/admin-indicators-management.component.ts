@@ -1,26 +1,26 @@
-import { WmsResourceType } from './../../models/services.models';
+import { Component, DOCUMENT, inject, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
-import { Component, OnInit, NgZone, OnDestroy, ViewChild, DOCUMENT, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { WmsResourceType } from './../../models/services.models';
 
-import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
-import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
-import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
-import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
-import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
-import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
-import { FormsModule } from '@angular/forms';
-import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
-import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
+import { Subscription } from 'rxjs';
+import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
+import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
+import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
+import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
+import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
+import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
 
 declare const __env: any;
 
