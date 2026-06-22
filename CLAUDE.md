@@ -23,26 +23,33 @@ npm start                # = ng serve, dev server on http://localhost:8000
 npm run build            # = ng build, production build into dist/kommonitor-client
 npm run watch            # ng build --watch, development configuration
 npm run serve:dist       # serve a built dist/ via http-server on :8000
+npm test                 # = ng test, Jest test run (single pass)
+npm run test:watch       # ng test --watch
+npm run test:coverage    # ng test --coverage
+npm run lint             # = ng lint (angular-eslint)
+npm run lint:fix         # ng lint --fix
+npm run format           # prettier --write "app/**/*.{ts,html,scss}"
+npm run format:check     # prettier --check (CI-style, no writes)
 ```
 
 Production deployment is a static build served by nginx (see `Dockerfile`, `nginx.conf`). `docker-compose.yml` brings up the client plus the **client-config** service it depends on at startup.
 
-### Tests
+### Tests, lint & format
 
-⚠️ Tests are **not currently runnable**. There are ~73 `*.spec.ts` files and a Karma `test` target in `angular.json`, but there is no `test` npm script, Karma/Jasmine runtime packages are not installed (only `@types/jasmine`), and the test target references a stale `app/app.css`. If asked to run or add tests, this gap must be addressed first (see `PROPOSED_CHANGES.md` Prio 6). Do not assume `ng test` works.
+Tests **are runnable now**. The `test` target uses **Jest** via `@angular-builders/jest` (config in `jest.config.js` + `tsconfig.spec.json`, setup in `setup-jest.ts`); there are ~84 `*.spec.ts` files. The old Karma/Jasmine setup is gone. Run `npm test` (single pass) or `npm run test:watch`. Note `jest.config.js` carries a hand-tuned `transformIgnorePatterns` / `moduleNameMapper` for ESM-only deps (leaflet-geosearch, echarts/zrender, d3) — extend it there when a new ESM package breaks a test transform.
 
-There is no ESLint/Prettier setup — only a minimal `jshintConfig` in `package.json`.
+**ESLint and Prettier are set up** (flat config). ESLint uses `eslint.config.js` (root) / `app/eslint.config.js` with `angular-eslint`; Prettier uses `.prettierrc.json` + `.prettierignore`. Use `npm run lint` / `npm run format`.
 
 ## Migration status — read this before editing
 
-This codebase is **mid-migration from AngularJS 1.8 → Angular 16**, and the migration is effectively complete at runtime. This is the single most important thing to understand before touching code:
+This codebase was migrated **from AngularJS 1.8 → Angular** and now runs on **Angular 21** (TypeScript 5.9). The migration is complete at runtime; what remains is cleanup of leftover legacy files. This is the single most important thing to understand before touching code:
 
-- The live app bootstraps **pure Angular** via `app/main.ts` → `app/app.module.ts` → `MainComponent`. There is **no active ngUpgrade/hybrid bootstrap** despite `@angular/upgrade` still being in `package.json`.
-- **`app/app.js` is dead code** — the old AngularJS entry point. It is not loaded (`app/index.html` includes no scripts; `angular.json` only loads jQuery/Bootstrap).
-- The legacy AngularJS source lives under `app/components/kommonitorUserInterface/`, `app/components/kommonitorAdmin/`, and `app/components/common/`. These `*.component.js` / `*.module.js` / `*.template.html` files (~38 components) are **not loaded by the running app**. Many also have compiled `.js`/`.js.map` siblings — noise from the migration.
+- The live app bootstraps **pure Angular** via `app/main.ts` → `app/app.module.ts` → `MainComponent` (`app/mainComponent/main/main.component.ts`). There is **no ngUpgrade/hybrid bootstrap**, and `@angular/upgrade` has been removed from `package.json`.
+- The old AngularJS entry point `app/app.js` has been **deleted**. `app/index.html` includes no scripts; `angular.json` only loads jQuery/Bootstrap.
+- Most of the legacy AngularJS source has been removed. A small remnant survives under `app/components/kommonitorUserInterface/` (only ~2 `*.component.js` files left); `kommonitorAdmin/` and the legacy `common/` dirs are gone. Treat any remaining `*.component.js` / `*.template.html` files as **not loaded by the running app** — reference-only.
 - **All active code is Angular and lives under `app/components/ngComponents/`** plus `app/services/`, `app/pipes/`, `app/guards/`, `app/mainComponent/`, `app/util/interceptors/`.
 
-When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Treat the AngularJS files as a reference for behavior being ported, not as live code. `PROPOSED_CHANGES.md` (German) is the authoritative cleanup/roadmap doc — consult it for what is dead, what is intentionally kept, and the recommended refactor order.
+When implementing features, work in the `ngComponents` / `services` (TypeScript) world. Treat any leftover AngularJS files as a reference for behavior, not as live code. `PROPOSED_CHANGES.md` (German) is the authoritative cleanup/roadmap doc — consult it for what is dead, what is intentionally kept, and the recommended refactor order.
 
 ### Files that look like backups but are loaded at runtime
 
@@ -86,7 +93,7 @@ Under `app/components/ngComponents/`:
 `app/services/` holds the bulk of the application logic — most components are thin orchestrators over these. Convention: one folder per service, `*.service.ts` + `*.service.spec.ts`.
 
 Key central services (high fan-in; change carefully):
-- **`data-exchange-service`** — central data cache + API access + shared UI state (~2060 lines; a known "god service"). See `documentation/PRIO7_GOD_SERVICE_SPLIT.md` for the incremental split roadmap.
+- **`data-exchange-service`** — central data cache + API access + shared UI state (~1290 lines; a shrinking "god service"). Responsibilities have been progressively peeled off into dedicated services (e.g. `*-metadata-store-service`, `metadata-filter-service`, `selection-state-service`, `cache-helper-service`). See `documentation/PRIO7_GOD_SERVICE_SPLIT.md` for the incremental split roadmap and progress.
 - **`map-service`** / `generic-map-helper-service` / `single-feature-map-helper-service` — Leaflet map orchestration.
 - **`diagram-helper-service`** — ECharts chart construction.
 - **`reachability-*` services** — isochrone/routing analysis via Open Route Service.
@@ -94,7 +101,7 @@ Key central services (high fan-in; change carefully):
 - **`config-storage-service` / `env-config-service`** — config plumbing.
 - **`keycloak-helper-service` / `auth-service`** — auth.
 
-Note: a large `kommonitorDataGridHelperService` (~1320 lines, in `app/services/adminSpatialUnit/`; a near-identical twin lives in `adminGeoresourceUnit/`) also exists. Per `PROPOSED_CHANGES.md` / `documentation/PRIO7_GOD_SERVICE_SPLIT.md`, these god-services are being split incrementally — peel off responsibilities when you touch them rather than doing a big-bang rewrite.
+Note: the admin data services in `app/services/adminSpatialUnit/` and `app/services/adminGeoresourceUnit/` were also oversized and are being split. The largest remaining pieces are `adminSpatialUnit/kommonitor-data-exchange.service.ts` (~1150 lines) and the `kommonitor-data-grid-helper` / `kommonitor-importer-helper` / `kommonitor-cache-helper` services peeled off from them. Per `PROPOSED_CHANGES.md` / `documentation/PRIO7_GOD_SERVICE_SPLIT.md`, keep peeling off responsibilities when you touch these rather than doing a big-bang rewrite.
 
 ### Vendored libraries
 
@@ -119,4 +126,4 @@ The client is non-functional without these backends (configured via the runtime 
 
 ## Branching
 
-`master` = stable releases. `develop` = main integration branch. Feature/fix work happens on dedicated branches (current work is on `feature/migration-bootstrap`).
+`master` = stable releases. `develop` = main integration branch. Feature/fix work happens on dedicated branches (current work is on `feature/migration-bootstrap-cleanup`).
