@@ -1,28 +1,31 @@
-import {
-  Component,
-  OnInit,
-  Inject,
-  ViewChild,
-  ElementRef,
-} from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { HttpClient } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 
 @Component({
-  selector: "app-georesource-add-modal",
-  templateUrl: "./georesource-add-modal.component.html",
-  styleUrls: ["./georesource-add-modal.component.css"],
+  selector: 'app-georesource-add-modal',
+  templateUrl: './georesource-add-modal.component.html',
+  styleUrls: ['./georesource-add-modal.component.css'],
   imports: [CommonModule, FormsModule, AdminTopicsManagementComponent],
   standalone: true,
 })
 export class GeoresourceAddModalComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  kommonitorImporterHelperService = inject<any>('kommonitorImporterHelperService' as any);
+  kommonitorMultiStepFormHelperService = inject<any>('kommonitorMultiStepFormHelperService' as any);
+  kommonitorDataGridHelperService = inject<any>('kommonitorDataGridHelperService' as any);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
-  @ViewChild('georesourceDataSourceInput', { static: false }) georesourceDataSourceInput!: ElementRef;
+  @ViewChild('georesourceDataSourceInput', { static: false })
+  georesourceDataSourceInput!: ElementRef;
 
   // Multi-step form
   currentStep = 1;
@@ -52,7 +55,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     lastUpdate: '',
     literature: '',
     note: '',
-    sridEPSG: 4326
+    sridEPSG: 4326,
   };
 
   // Topic hierarchy
@@ -76,7 +79,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Period of validity
   periodOfValidity: { startDate: string; endDate: string } = {
     startDate: '',
-    endDate: ''
+    endDate: '',
   };
   periodOfValidityInvalid = false;
 
@@ -139,29 +142,32 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   // Metadata structure for import/export
   georesourceMetadataStructure: any = {
-    "metadata": {
-      "note": "an optional note",
-      "literature": "optional text about literature",
-      "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-      "sridEPSG": 4326,
-      "datasource": "text about data source",
-      "contact": "text about contact details",
-      "lastUpdate": "YYYY-MM-DD",
-      "description": "description about spatial unit dataset",
-      "databasis": "text about data basis",
+    metadata: {
+      note: 'an optional note',
+      literature: 'optional text about literature',
+      updateInterval: 'YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY',
+      sridEPSG: 4326,
+      datasource: 'text about data source',
+      contact: 'text about contact details',
+      lastUpdate: 'YYYY-MM-DD',
+      description: 'description about spatial unit dataset',
+      databasis: 'text about data basis',
     },
-    "allowedRoles": ['roleId'],
-    "datasetName": "Name of georesource dataset",
-    "isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-    "isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-    "isAOI": "boolean parameter for area of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-    "poiSymbolBootstrap3Name": "glyphicon name of bootstrap 3 symbol to use for a POI resource",
-    "poiSymbolColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-    "loiDashArrayString": "dash array string value - e.g. 20 20",
-    "poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-    "loiColor": "color for lines of interest dataset",
-    "loiWidth": "width for lines of interest dataset",
-    "aoiColor": "color for area of interest dataset"
+    allowedRoles: ['roleId'],
+    datasetName: 'Name of georesource dataset',
+    isPOI:
+      'boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true',
+    isLOI:
+      'boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true',
+    isAOI:
+      'boolean parameter for area of interest dataset - only one of isPOI, isLOI, isAOI can be true',
+    poiSymbolBootstrap3Name: 'glyphicon name of bootstrap 3 symbol to use for a POI resource',
+    poiSymbolColor: "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
+    loiDashArrayString: 'dash array string value - e.g. 20 20',
+    poiMarkerColor: "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
+    loiColor: 'color for lines of interest dataset',
+    loiWidth: 'width for lines of interest dataset',
+    aoiColor: 'color for area of interest dataset',
   };
 
   georesourceMetadataStructure_pretty = '';
@@ -197,18 +203,8 @@ export class GeoresourceAddModalComponent implements OnInit {
     search: true,
     searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
     selectedClass: 'btn-success',
-    unselectedClass: ''
+    unselectedClass: '',
   };
-
-  constructor(
-    public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
-    private broadcastService: BroadcastService,
-    private http: HttpClient
-  ) {}
 
   ngOnInit(): void {
     this.initializeForm();
@@ -218,10 +214,10 @@ export class GeoresourceAddModalComponent implements OnInit {
   private initializeForm(): void {
     // Initialize form with default values
     this.resetGeoresourceAddForm();
-    
+
     // Load available options
     this.loadAvailableOptions();
-    
+
     // Adjust total steps based on security settings
     this.totalSteps = this.kommonitorDataExchangeService.enableKeycloakSecurity ? 5 : 4;
   }
@@ -240,21 +236,28 @@ export class GeoresourceAddModalComponent implements OnInit {
   private loadAvailableOptions(): void {
     // Load available options from services
     this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions || [];
-    this.availablePoiMarkerColors = this.kommonitorDataExchangeService.availablePoiMarkerColors || [];
-    this.availableLoiDashArrayObjects = this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    this.availablePoiMarkerColors =
+      this.kommonitorDataExchangeService.availablePoiMarkerColors || [];
+    this.availableLoiDashArrayObjects =
+      this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
     this.availableTopics = this.kommonitorDataExchangeService.availableTopics || [];
-    this.availableDatasourceTypes = this.kommonitorImporterHelperService.availableDatasourceTypes || [];
-    
+    this.availableDatasourceTypes =
+      this.kommonitorImporterHelperService.availableDatasourceTypes || [];
+
     // Initialize metadata structure pretty print
-    this.georesourceMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
-    this.georesourceMappingConfigStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.kommonitorImporterHelperService.mappingConfigStructure);
+    this.georesourceMetadataStructure_pretty =
+      this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
+    this.georesourceMappingConfigStructure_pretty =
+      this.kommonitorDataExchangeService.syntaxHighlightJSON(
+        this.kommonitorImporterHelperService.mappingConfigStructure
+      );
   }
 
   private refreshRoles(): void {
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
+      'georesourceAddRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl,
       this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
     );
   }
@@ -295,7 +298,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       const startDate = new Date(this.periodOfValidity.startDate);
       const endDate = new Date(this.periodOfValidity.endDate);
 
-      if ((startDate === endDate) || startDate > endDate) {
+      if (startDate === endDate || startDate > endDate) {
         this.periodOfValidityInvalid = true;
       }
     }
@@ -303,17 +306,17 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   onChangeGeoresourceType(): void {
     switch (this.georesourceType) {
-      case "poi":
+      case 'poi':
         this.isPOI = true;
         this.isLOI = false;
         this.isAOI = false;
         break;
-      case "loi":
+      case 'loi':
         this.isPOI = false;
         this.isLOI = true;
         this.isAOI = false;
         break;
-      case "aoi":
+      case 'aoi':
         this.isPOI = false;
         this.isLOI = false;
         this.isAOI = true;
@@ -376,23 +379,23 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Attribute mapping methods
   onAddOrUpdateAttributeMapping(): void {
     const tmpAttributeMapping_adminView = {
-      "sourceName": this.attributeMapping_sourceAttributeName,
-      "destinationName": this.attributeMapping_destinationAttributeName,
-      "dataType": this.attributeMapping_attributeType
+      sourceName: this.attributeMapping_sourceAttributeName,
+      destinationName: this.attributeMapping_destinationAttributeName,
+      dataType: this.attributeMapping_attributeType,
     };
 
     let processed = false;
 
     for (let index = 0; index < this.attributeMappings_adminView.length; index++) {
       const attributeMappingEntry_adminView = this.attributeMappings_adminView[index];
-      
+
       if (attributeMappingEntry_adminView.sourceName === tmpAttributeMapping_adminView.sourceName) {
         // replace object
         this.attributeMappings_adminView[index] = tmpAttributeMapping_adminView;
         processed = true;
         break;
       }
-    }			
+    }
 
     if (!processed) {
       // new entry
@@ -401,7 +404,8 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_attributeType = this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    this.attributeMapping_attributeType =
+      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
   }
 
   onClickEditAttributeMapping(attributeMappingEntry: any): void {
@@ -428,27 +432,29 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   onExportGeoresourceAddMetadataTemplate(): void {
     const metadataJSON = JSON.stringify(this.georesourceMetadataStructure);
-    const fileName = "Georessource_Metadaten_Vorlage_Export.json";
+    const fileName = 'Georessource_Metadaten_Vorlage_Export.json';
     this.downloadFile(metadataJSON, fileName);
   }
 
   onExportGeoresourceAddMetadata(): void {
     const metadataExport = JSON.parse(JSON.stringify(this.georesourceMetadataStructure));
 
-    metadataExport.metadata.note = this.metadata.note || "";
-    metadataExport.metadata.literature = this.metadata.literature || "";
-    metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || "";
-    metadataExport.metadata.datasource = this.metadata.datasource || "";
-    metadataExport.metadata.contact = this.metadata.contact || "";
-    metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || "";
-    metadataExport.metadata.description = this.metadata.description || "";
-    metadataExport.metadata.databasis = this.metadata.databasis || "";
-    metadataExport.datasetName = this.datasetName || "";
+    metadataExport.metadata.note = this.metadata.note || '';
+    metadataExport.metadata.literature = this.metadata.literature || '';
+    metadataExport.metadata.sridEPSG = this.metadata.sridEPSG || '';
+    metadataExport.metadata.datasource = this.metadata.datasource || '';
+    metadataExport.metadata.contact = this.metadata.contact || '';
+    metadataExport.metadata.lastUpdate = this.metadata.lastUpdate || '';
+    metadataExport.metadata.description = this.metadata.description || '';
+    metadataExport.metadata.databasis = this.metadata.databasis || '';
+    metadataExport.datasetName = this.datasetName || '';
 
     metadataExport.allowedRoles = [];
 
     if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions
+      );
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
           metadataExport.allowedRoles.push(roleId);
@@ -468,35 +474,35 @@ export class GeoresourceAddModalComponent implements OnInit {
     metadataExport.isAOI = this.isAOI;
 
     if (this.isPOI) {
-      metadataExport["poiSymbolBootstrap3Name"] = this.selectedPoiIconName;
-      metadataExport["poiSymbolColor"] = (this.selectedPoiSymbolColor as any)?.colorName || '';
-      metadataExport["poiMarkerColor"] = (this.selectedPoiMarkerColor as any)?.colorName || '';
+      metadataExport['poiSymbolBootstrap3Name'] = this.selectedPoiIconName;
+      metadataExport['poiSymbolColor'] = (this.selectedPoiSymbolColor as any)?.colorName || '';
+      metadataExport['poiMarkerColor'] = (this.selectedPoiMarkerColor as any)?.colorName || '';
 
-      metadataExport["loiDashArrayString"] = "";
-      metadataExport["loiColor"] = "";
-      metadataExport["loiWidth"] = "";
+      metadataExport['loiDashArrayString'] = '';
+      metadataExport['loiColor'] = '';
+      metadataExport['loiWidth'] = '';
 
-      metadataExport["aoiColor"] = "";
+      metadataExport['aoiColor'] = '';
     } else if (this.isLOI) {
-      metadataExport["poiSymbolBootstrap3Name"] = "";
-      metadataExport["poiSymbolColor"] = "";
-      metadataExport["poiMarkerColor"] = "";
+      metadataExport['poiSymbolBootstrap3Name'] = '';
+      metadataExport['poiSymbolColor'] = '';
+      metadataExport['poiMarkerColor'] = '';
 
-      metadataExport["loiDashArrayString"] = this.selectedLoiDashArrayObject.dashArrayValue;
-      metadataExport["loiColor"] = this.loiColor;
-      metadataExport["loiWidth"] = this.loiWidth;
+      metadataExport['loiDashArrayString'] = this.selectedLoiDashArrayObject.dashArrayValue;
+      metadataExport['loiColor'] = this.loiColor;
+      metadataExport['loiWidth'] = this.loiWidth;
 
-      metadataExport["aoiColor"] = "";
+      metadataExport['aoiColor'] = '';
     } else if (this.isAOI) {
-      metadataExport["poiSymbolBootstrap3Name"] = "";
-      metadataExport["poiSymbolColor"] = "";
-      metadataExport["poiMarkerColor"] = "";
+      metadataExport['poiSymbolBootstrap3Name'] = '';
+      metadataExport['poiSymbolColor'] = '';
+      metadataExport['poiMarkerColor'] = '';
 
-      metadataExport["loiDashArrayString"] = "";
-      metadataExport["loiColor"] = "";
-      metadataExport["loiWidth"] = "";
+      metadataExport['loiDashArrayString'] = '';
+      metadataExport['loiColor'] = '';
+      metadataExport['loiWidth'] = '';
 
-      metadataExport["aoiColor"] = this.aoiColor;
+      metadataExport['aoiColor'] = this.aoiColor;
     }
 
     // Topic reference
@@ -509,17 +515,17 @@ export class GeoresourceAddModalComponent implements OnInit {
     } else if (this.georesourceTopic_mainTopic) {
       metadataExport.topicReference = this.georesourceTopic_mainTopic.topicId;
     } else {
-      metadataExport.topicReference = "";
+      metadataExport.topicReference = '';
     }
 
     const metadataJSON = JSON.stringify(metadataExport);
-    let fileName = "Georessource_Metadaten_Export";
+    let fileName = 'Georessource_Metadaten_Export';
 
     if (name) {
-      fileName += "-" + name;
+      fileName += '-' + name;
     }
 
-    fileName += ".json";
+    fileName += '.json';
     this.downloadFile(metadataJSON, fileName);
   }
 
@@ -531,22 +537,22 @@ export class GeoresourceAddModalComponent implements OnInit {
   onExportGeoresourceAddMappingConfig(): void {
     this.buildImporterObjects().then(() => {
       const mappingConfigExport: any = {
-        "converter": this.converterDefinition,
-        "dataSource": this.datasourceTypeDefinition,
-        "propertyMapping": this.propertyMappingDefinition,
+        converter: this.converterDefinition,
+        dataSource: this.datasourceTypeDefinition,
+        propertyMapping: this.propertyMappingDefinition,
       };
 
       mappingConfigExport.periodOfValidity = this.periodOfValidity;
 
       const name = this.datasetName;
       const metadataJSON = JSON.stringify(mappingConfigExport);
-      let fileName = "KomMonitor-Import-Mapping-Konfiguration_Export";
+      let fileName = 'KomMonitor-Import-Mapping-Konfiguration_Export';
 
       if (name) {
-        fileName += "-" + name;
+        fileName += '-' + name;
       }
 
-      fileName += ".json";
+      fileName += '.json';
       this.downloadFile(metadataJSON, fileName);
     });
   }
@@ -574,8 +580,8 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.parseFromMetadataFile(event);
       } catch (error) {
         console.error(error);
-        console.error("Uploaded Metadata File cannot be parsed.");
-        this.georesourceMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
+        console.error('Uploaded Metadata File cannot be parsed.');
+        this.georesourceMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
         this.showMetadataErrorAlert();
       }
     };
@@ -591,8 +597,9 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.parseFromMappingConfigFile(event);
       } catch (error) {
         console.error(error);
-        console.error("Uploaded MappingConfig File cannot be parsed.");
-        this.georesourceMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
+        console.error('Uploaded MappingConfig File cannot be parsed.');
+        this.georesourceMappingConfigImportError =
+          'Uploaded MappingConfig File cannot be parsed correctly';
         this.showMappingConfigErrorAlert();
       }
     };
@@ -604,8 +611,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.metadataImportSettings = JSON.parse(event.target.result);
 
     if (!this.metadataImportSettings.metadata) {
-      console.error("uploaded Metadata File cannot be parsed - wrong structure.");
-      this.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
+      console.error('uploaded Metadata File cannot be parsed - wrong structure.');
+      this.georesourceMetadataImportError =
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
       this.showMetadataErrorAlert();
       return;
     }
@@ -613,13 +621,13 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.metadata = {};
     this.metadata.note = this.metadataImportSettings.metadata.note;
     this.metadata.literature = this.metadataImportSettings.metadata.literature;
-    
+
     this.updateIntervalOptions.forEach((option: any) => {
       if (option.apiName === this.metadataImportSettings.metadata.updateInterval) {
         this.metadata.updateInterval = option;
       }
     });
-    
+
     this.metadata.sridEPSG = this.metadataImportSettings.metadata.sridEPSG;
     this.metadata.datasource = this.metadataImportSettings.metadata.datasource;
     this.metadata.contact = this.metadataImportSettings.metadata.contact;
@@ -630,9 +638,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.datasetName = this.metadataImportSettings.datasetName;
 
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
+      'georesourceAddRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl,
       this.metadataImportSettings.allowedRoles
     );
 
@@ -640,15 +648,15 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.isPOI = this.metadataImportSettings.isPOI;
     this.isLOI = this.metadataImportSettings.isLOI;
     this.isAOI = this.metadataImportSettings.isAOI;
-    
+
     if (this.metadataImportSettings.isPOI) {
-      this.georesourceType = "poi";
+      this.georesourceType = 'poi';
     } else if (this.metadataImportSettings.isLOI) {
-      this.georesourceType = "loi";
+      this.georesourceType = 'loi';
     } else {
-      this.georesourceType = "aoi";
+      this.georesourceType = 'aoi';
     }
-    
+
     this.availablePoiMarkerColors.forEach((option: any) => {
       if (option.colorName === this.metadataImportSettings.poiMarkerColor) {
         this.selectedPoiMarkerColor = option;
@@ -657,20 +665,22 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.selectedPoiSymbolColor = option;
       }
     });
-    
+
     this.availableLoiDashArrayObjects.forEach((option: any) => {
       if (option.dashArrayValue === this.metadataImportSettings.loiDashArrayString) {
         this.selectedLoiDashArrayObject = option;
         this.onChangeLoiDashArray(this.selectedLoiDashArrayObject);
       }
     });
-    
+
     this.loiColor = this.metadataImportSettings.loiColor;
     this.loiWidth = this.metadataImportSettings.loiWidth;
     this.aoiColor = this.metadataImportSettings.aoiColor;
     this.selectedPoiIconName = this.metadataImportSettings.poiSymbolBootstrap3Name;
 
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(this.metadataImportSettings.topicReference);
+    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
+      this.metadataImportSettings.topicReference
+    );
 
     if (topicHierarchy && topicHierarchy[0]) {
       this.georesourceTopic_mainTopic = topicHierarchy[0];
@@ -689,9 +699,14 @@ export class GeoresourceAddModalComponent implements OnInit {
   private parseFromMappingConfigFile(event: any): void {
     this.mappingConfigImportSettings = JSON.parse(event.target.result);
 
-    if (!this.mappingConfigImportSettings.converter || !this.mappingConfigImportSettings.dataSource || !this.mappingConfigImportSettings.propertyMapping) {
-      console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
-      this.georesourceMappingConfigImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster überein.";
+    if (
+      !this.mappingConfigImportSettings.converter ||
+      !this.mappingConfigImportSettings.dataSource ||
+      !this.mappingConfigImportSettings.propertyMapping
+    ) {
+      console.error('uploaded MappingConfig File cannot be parsed - wrong structure.');
+      this.georesourceMappingConfigImportError =
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
       this.showMappingConfigErrorAlert();
       return;
     }
@@ -705,7 +720,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     this.schema = '';
-    if (this.converter && this.converter.schemas && this.mappingConfigImportSettings.converter.schema) {
+    if (
+      this.converter &&
+      this.converter.schemas &&
+      this.mappingConfigImportSettings.converter.schema
+    ) {
       for (const schema of this.converter.schemas) {
         if (schema === this.mappingConfigImportSettings.converter.schema) {
           this.schema = schema;
@@ -714,7 +733,11 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     this.mimeType = '';
-    if (this.converter && this.converter.mimeTypes && this.mappingConfigImportSettings.converter.mimeType) {
+    if (
+      this.converter &&
+      this.converter.mimeTypes &&
+      this.mappingConfigImportSettings.converter.mimeType
+    ) {
       for (const mimeType of this.converter.mimeTypes) {
         if (mimeType === this.mappingConfigImportSettings.converter.mimeType) {
           this.mimeType = mimeType;
@@ -733,7 +756,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     // converter parameters
     if (this.converter) {
       for (const convParameter of this.mappingConfigImportSettings.converter.parameters) {
-        const element = document.getElementById("converterParameter_georesourceAdd_" + convParameter.name) as HTMLInputElement;
+        const element = document.getElementById(
+          'converterParameter_georesourceAdd_' + convParameter.name
+        ) as HTMLInputElement;
         if (element) {
           element.value = convParameter.value;
         }
@@ -743,7 +768,9 @@ export class GeoresourceAddModalComponent implements OnInit {
     // datasourceTypes parameters
     if (this.datasourceType) {
       for (const dsParameter of this.mappingConfigImportSettings.dataSource.parameters) {
-        const element = document.getElementById("datasourceTypeParameter_georesourceAdd_" + dsParameter.name) as HTMLInputElement;
+        const element = document.getElementById(
+          'datasourceTypeParameter_georesourceAdd_' + dsParameter.name
+        ) as HTMLInputElement;
         if (element) {
           element.value = dsParameter.value;
         }
@@ -751,18 +778,23 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     // property Mapping
-    this.georesourceDataSourceNameProperty = this.mappingConfigImportSettings.propertyMapping.nameProperty;
-    this.georesourceDataSourceIdProperty = this.mappingConfigImportSettings.propertyMapping.identifierProperty;
-    this.validityStartDate_perFeature = this.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
-    this.validityEndDate_perFeature = this.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
+    this.georesourceDataSourceNameProperty =
+      this.mappingConfigImportSettings.propertyMapping.nameProperty;
+    this.georesourceDataSourceIdProperty =
+      this.mappingConfigImportSettings.propertyMapping.identifierProperty;
+    this.validityStartDate_perFeature =
+      this.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
+    this.validityEndDate_perFeature =
+      this.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
     this.keepAttributes = this.mappingConfigImportSettings.propertyMapping.keepAttributes;
-    this.keepMissingValues = this.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
+    this.keepMissingValues =
+      this.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
     this.attributeMappings_adminView = [];
 
     for (const attributeMapping of this.mappingConfigImportSettings.propertyMapping.attributes) {
       const tmpEntry: any = {
-        "sourceName": attributeMapping.name,
-        "destinationName": attributeMapping.mappingName
+        sourceName: attributeMapping.name,
+        destinationName: attributeMapping.mappingName,
       };
 
       for (const dataType of this.kommonitorImporterHelperService.attributeMapping_attributeTypes) {
@@ -777,22 +809,22 @@ export class GeoresourceAddModalComponent implements OnInit {
     if (this.mappingConfigImportSettings.periodOfValidity) {
       this.periodOfValidity = {
         startDate: this.mappingConfigImportSettings.periodOfValidity.startDate,
-        endDate: this.mappingConfigImportSettings.periodOfValidity.endDate
+        endDate: this.mappingConfigImportSettings.periodOfValidity.endDate,
       };
       this.periodOfValidityInvalid = false;
     }
   }
 
   private downloadFile(content: string, fileName: string): void {
-    const blob = new Blob([content], { type: "application/json" });
+    const blob = new Blob([content], { type: 'application/json' });
     const data = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.download = fileName;
     a.href = data;
-    a.textContent = "JSON";
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
+    a.textContent = 'JSON';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
     a.click();
 
     a.remove();
@@ -841,13 +873,13 @@ export class GeoresourceAddModalComponent implements OnInit {
       databasis: '',
       contact: '',
       lastUpdate: '',
-      description: ''
+      description: '',
     };
 
     this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
-      'georesourceAddRoleManagementTable', 
-      null, 
-      this.kommonitorDataExchangeService.accessControl, 
+      'georesourceAddRoleManagementTable',
+      null,
+      this.kommonitorDataExchangeService.accessControl,
       null
     );
 
@@ -873,7 +905,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.periodOfValidity = {
       startDate: '',
-      endDate: ''
+      endDate: '',
     };
     this.periodOfValidityInvalid = false;
 
@@ -902,7 +934,8 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
     this.attributeMapping_data = null;
-    this.attributeMapping_attributeType = this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    this.attributeMapping_attributeType =
+      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
     this.attributeMappings_adminView = [];
     this.keepAttributes = true;
     this.keepMissingValues = true;
@@ -920,35 +953,37 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Build post body for API request
   buildPostBody_georesources(): any {
     const postBody: any = {
-      "geoJsonString": "", // will be set by importer
-      "allowedRoles": [],
-      "metadata": {
-        "note": this.metadata.note,
-        "literature": this.metadata.literature,
-        "updateInterval": this.metadata.updateInterval?.apiName,
-        "sridEPSG": this.metadata.sridEPSG || 4326,
-        "datasource": this.metadata.datasource,
-        "contact": this.metadata.contact,
-        "lastUpdate": this.metadata.lastUpdate,
-        "description": this.metadata.description,
-        "databasis": this.metadata.databasis
+      geoJsonString: '', // will be set by importer
+      allowedRoles: [],
+      metadata: {
+        note: this.metadata.note,
+        literature: this.metadata.literature,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+        datasource: this.metadata.datasource,
+        contact: this.metadata.contact,
+        lastUpdate: this.metadata.lastUpdate,
+        description: this.metadata.description,
+        databasis: this.metadata.databasis,
       },
-      "jsonSchema": null,
-      "datasetName": this.datasetName,
-      "periodOfValidity": {
-        "endDate": this.periodOfValidity.endDate,
-        "startDate": this.periodOfValidity.startDate
+      jsonSchema: null,
+      datasetName: this.datasetName,
+      periodOfValidity: {
+        endDate: this.periodOfValidity.endDate,
+        startDate: this.periodOfValidity.startDate,
       },
-      "isAOI": this.isAOI,
-      "isLOI": this.isLOI,
-      "isPOI": this.isPOI,
-      "topicReference": null,
-      "ownerId": this.ownerOrganization,
-      "isPublic": this.isPublic
+      isAOI: this.isAOI,
+      isLOI: this.isLOI,
+      isPOI: this.isPOI,
+      topicReference: null,
+      ownerId: this.ownerOrganization,
+      isPublic: this.isPublic,
     };
 
     if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementTableOptions
+      );
       if (roleIds && Array.isArray(roleIds)) {
         for (const roleId of roleIds) {
           postBody.allowedRoles.push(roleId);
@@ -957,41 +992,42 @@ export class GeoresourceAddModalComponent implements OnInit {
     }
 
     if (this.isPOI) {
-      postBody["poiSymbolBootstrap3Name"] = this.selectedPoiIconName;
-      postBody["poiSymbolColor"] = (this.selectedPoiSymbolColor as any)?.colorName || '';
-      postBody["poiMarkerColor"] = (this.selectedPoiMarkerColor as any)?.colorName || '';
-      postBody["poiMarkerStyle"] = this.selectedPoiMarkerStyle;
-      postBody["poiMarkerText"] = this.poiMarkerText;
+      postBody['poiSymbolBootstrap3Name'] = this.selectedPoiIconName;
+      postBody['poiSymbolColor'] = (this.selectedPoiSymbolColor as any)?.colorName || '';
+      postBody['poiMarkerColor'] = (this.selectedPoiMarkerColor as any)?.colorName || '';
+      postBody['poiMarkerStyle'] = this.selectedPoiMarkerStyle;
+      postBody['poiMarkerText'] = this.poiMarkerText;
 
-      postBody["loiDashArrayString"] = null;
-      postBody["loiColor"] = null;
-      postBody["loiWidth"] = 3;
+      postBody['loiDashArrayString'] = null;
+      postBody['loiColor'] = null;
+      postBody['loiWidth'] = 3;
 
-      postBody["aoiColor"] = null;
+      postBody['aoiColor'] = null;
     } else if (this.isLOI) {
-      postBody["poiSymbolBootstrap3Name"] = null;
-      postBody["poiSymbolColor"] = null;
-      postBody["poiMarkerColor"] = null;
-      postBody["poiMarkerStyle"] = null;
-      postBody["poiMarkerText"] = null;
+      postBody['poiSymbolBootstrap3Name'] = null;
+      postBody['poiSymbolColor'] = null;
+      postBody['poiMarkerColor'] = null;
+      postBody['poiMarkerStyle'] = null;
+      postBody['poiMarkerText'] = null;
 
-      postBody["loiDashArrayString"] = (this.selectedLoiDashArrayObject as any)?.dashArrayValue || '';
-      postBody["loiColor"] = this.loiColor;
-      postBody["loiWidth"] = this.loiWidth;
+      postBody['loiDashArrayString'] =
+        (this.selectedLoiDashArrayObject as any)?.dashArrayValue || '';
+      postBody['loiColor'] = this.loiColor;
+      postBody['loiWidth'] = this.loiWidth;
 
-      postBody["aoiColor"] = null;
+      postBody['aoiColor'] = null;
     } else if (this.isAOI) {
-      postBody["poiSymbolBootstrap3Name"] = null;
-      postBody["poiSymbolColor"] = null;
-      postBody["poiMarkerColor"] = null;
-      postBody["poiMarkerStyle"] = null;
-      postBody["poiMarkerText"] = null;
+      postBody['poiSymbolBootstrap3Name'] = null;
+      postBody['poiSymbolColor'] = null;
+      postBody['poiMarkerColor'] = null;
+      postBody['poiMarkerStyle'] = null;
+      postBody['poiMarkerText'] = null;
 
-      postBody["loiDashArrayString"] = null;
-      postBody["loiColor"] = null;
-      postBody["loiWidth"] = 3;
+      postBody['loiDashArrayString'] = null;
+      postBody['loiColor'] = null;
+      postBody['loiWidth'] = 3;
 
-      postBody["aoiColor"] = this.aoiColor;
+      postBody['aoiColor'] = this.aoiColor;
     }
 
     // TOPIC REFERENCE
@@ -1004,7 +1040,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     } else if (this.georesourceTopic_mainTopic) {
       postBody.topicReference = this.georesourceTopic_mainTopic.topicId;
     } else {
-      postBody.topicReference = "";
+      postBody.topicReference = '';
     }
 
     return postBody;
@@ -1028,41 +1064,58 @@ export class GeoresourceAddModalComponent implements OnInit {
       }
 
       // Perform dry run
-      const newGeoresourceResponse_dryRun = await this.kommonitorImporterHelperService.registerNewGeoresource(
-        this.converterDefinition,
-        this.datasourceTypeDefinition,
-        this.propertyMappingDefinition,
-        this.postBody_georesources,
-        true
-      );
-
-      if (!this.kommonitorImporterHelperService.importerResponseContainsErrors(newGeoresourceResponse_dryRun)) {
-        // all good, really execute the request to import data against data management API
-        const newGeoresourceResponse = await this.kommonitorImporterHelperService.registerNewGeoresource(
+      const newGeoresourceResponse_dryRun =
+        await this.kommonitorImporterHelperService.registerNewGeoresource(
           this.converterDefinition,
           this.datasourceTypeDefinition,
           this.propertyMappingDefinition,
           this.postBody_georesources,
-          false
+          true
         );
 
+      if (
+        !this.kommonitorImporterHelperService.importerResponseContainsErrors(
+          newGeoresourceResponse_dryRun
+        )
+      ) {
+        // all good, really execute the request to import data against data management API
+        const newGeoresourceResponse =
+          await this.kommonitorImporterHelperService.registerNewGeoresource(
+            this.converterDefinition,
+            this.datasourceTypeDefinition,
+            this.propertyMappingDefinition,
+            this.postBody_georesources,
+            false
+          );
+
         // Broadcast refresh events
-        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { action: 'add', id: this.kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse) });
-        
+        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+          action: 'add',
+          id: this.kommonitorImporterHelperService.getIdFromImporterResponse(
+            newGeoresourceResponse
+          ),
+        });
+
         // refresh all admin dashboard diagrams due to modified metadata
         setTimeout(() => {
           this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
         }, 500);
 
         this.successMessagePart = this.postBody_georesources.datasetName;
-        this.importedFeatures = this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse);
+        this.importedFeatures =
+          this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(
+            newGeoresourceResponse
+          );
 
         this.successMessage = 'Georessource erfolgreich registriert';
         this.activeModal.close(true);
       } else {
         // errors occurred
-        this.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
-        this.importerErrors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+        this.errorMessagePart =
+          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf';
+        this.importerErrors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
+          newGeoresourceResponse_dryRun
+        );
         this.errorMessage = 'Validierung fehlgeschlagen';
       }
     } catch (error: any) {
@@ -1085,7 +1138,12 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
     this.postBody_georesources = this.buildPostBody_georesources();
 
-    if (!this.converterDefinition || !this.datasourceTypeDefinition || !this.propertyMappingDefinition || !this.postBody_georesources) {
+    if (
+      !this.converterDefinition ||
+      !this.datasourceTypeDefinition ||
+      !this.propertyMappingDefinition ||
+      !this.postBody_georesources
+    ) {
       return false;
     }
 
@@ -1094,9 +1152,9 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private buildConverterDefinition(): any {
     return this.kommonitorImporterHelperService.buildConverterDefinition(
-      this.converter, 
-      "converterParameter_georesourceAdd_", 
-      this.schema, 
+      this.converter,
+      'converterParameter_georesourceAdd_',
+      this.schema,
       this.mimeType
     );
   }
@@ -1104,8 +1162,8 @@ export class GeoresourceAddModalComponent implements OnInit {
   private async buildDatasourceTypeDefinition(): Promise<any> {
     try {
       return await this.kommonitorImporterHelperService.buildDatasourceTypeDefinition(
-        this.datasourceType, 
-        'datasourceTypeParameter_georesourceAdd_', 
+        this.datasourceType,
+        'datasourceTypeParameter_georesourceAdd_',
         'georesourceDataSourceInput_add'
       );
     } catch (error: any) {
@@ -1122,13 +1180,13 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private buildPropertyMappingDefinition(): any {
     return this.kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
-      this.georesourceDataSourceNameProperty, 
-      this.georesourceDataSourceIdProperty, 
-      this.validityStartDate_perFeature, 
-      this.validityEndDate_perFeature, 
-      undefined, 
-      this.keepAttributes, 
-      this.keepMissingValues, 
+      this.georesourceDataSourceNameProperty,
+      this.georesourceDataSourceIdProperty,
+      this.validityStartDate_perFeature,
+      this.validityEndDate_perFeature,
+      undefined,
+      this.keepAttributes,
+      this.keepMissingValues,
       this.attributeMappings_adminView
     );
   }
@@ -1137,4 +1195,4 @@ export class GeoresourceAddModalComponent implements OnInit {
   cancel(): void {
     this.activeModal.dismiss();
   }
-} 
+}

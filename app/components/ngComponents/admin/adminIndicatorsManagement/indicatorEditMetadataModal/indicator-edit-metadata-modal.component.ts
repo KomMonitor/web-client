@@ -1,33 +1,35 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-} from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { HttpClient } from "@angular/common/http";
-import { Subscription } from "rxjs";
-import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { FormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
-import { FilterPipe } from "../../../../../pipes/filter.pipe";
-import { EnvConfigService } from "../../../../../services/env-config-service/env-config.service";
-import { TopicHierarchyService } from "../../../../../services/topic-hierarchy-service/topic-hierarchy.service";
-import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FilterPipe } from '../../../../../pipes/filter.pipe';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 declare const __env: any;
 declare const colorbrewer: any;
 
 @Component({
-  selector: "app-indicator-edit-metadata-modal",
-  templateUrl: "./indicator-edit-metadata-modal.component.html",
-  styleUrls: ["./indicator-edit-metadata-modal.component.css"],
+  selector: 'app-indicator-edit-metadata-modal',
+  templateUrl: './indicator-edit-metadata-modal.component.html',
+  styleUrls: ['./indicator-edit-metadata-modal.component.css'],
   imports: [FormsModule, CommonModule, FilterPipe],
   standalone: true,
 })
 export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
+  protected activeModal = inject(NgbActiveModal);
+  private http = inject(HttpClient);
+  private kommonitorDataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
+  private broadcastService = inject(BroadcastService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  protected envConfigService = inject(EnvConfigService);
+  protected dataExchangeService = inject(DataExchangeService);
+
   @ViewChild('modal') modal!: ElementRef;
 
   private subscriptions: Subscription[] = [];
@@ -64,7 +66,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     contact: '',
     lastUpdate: '',
     description: '',
-    databasis: ''
+    databasis: '',
   };
 
   // Topic hierarchy
@@ -118,91 +120,85 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   // Metadata structure
   indicatorMetadataStructure: any = {
-    "metadata": {
-      "note": "an optional note",
-      "literature": "optional text about literature",
-      "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-      "sridEPSG": 4326,
-      "datasource": "text about data source",
-      "contact": "text about contact details",
-      "lastUpdate": "YYYY-MM-DD",
-      "description": "description about spatial unit dataset",
-      "databasis": "text about data basis",
+    metadata: {
+      note: 'an optional note',
+      literature: 'optional text about literature',
+      updateInterval: 'YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY',
+      sridEPSG: 4326,
+      datasource: 'text about data source',
+      contact: 'text about contact details',
+      lastUpdate: 'YYYY-MM-DD',
+      description: 'description about spatial unit dataset',
+      databasis: 'text about data basis',
     },
-    "precision": "Custom decimal place",
-    "refrencesToOtherIndicators": [
+    precision: 'Custom decimal place',
+    refrencesToOtherIndicators: [
       {
-        "referenceDescription": "description about the reference",
-        "indicatorId": "ID of referenced indicator dataset"
-      }
+        referenceDescription: 'description about the reference',
+        indicatorId: 'ID of referenced indicator dataset',
+      },
     ],
-    "refrencesToGeoresources": [
+    refrencesToGeoresources: [
       {
-        "referenceDescription": "description about the reference",
-        "georesourceId": "ID of referenced georesource dataset"
-      }
+        referenceDescription: 'description about the reference',
+        georesourceId: 'ID of referenced georesource dataset',
+      },
     ],
-    "datasetName": "Name of indicator dataset",
-    "abbreviation": "optional abbreviation of the indicator dataset",
-    "characteristicValue": "if the same datasetName is used for different indicators, the optional characteristicValue parameter may serve to distinguish between them (i.e. Habitants - male, Habitants - female, Habitants - diverse)",
-    "tags": [
-      "optinal list of tags; each tag is a free text tag"
-    ],
-    "creationType": "INSERTION|COMPUTATION  <-- enum parameter controls whether each timestamp must be updated manually (INSERTION) or if KomMonitor shall compute the indicator values for respective timestamps based on script file (COMPUTATION)",
-    "unit": "unit of the indicator",
-    "topicReference": "ID of the respective main/sub topic instance",
-    "indicatorType": "STATUS_ABSOLUTE|STATUS_RELATIVE|DYNAMIC_ABSOLUTE|DYNAMIC_RELATIVE|STATUS_STANDARDIZED|DYNAMIC_STANDARDIZED",
-    "interpretation": "interpretation hints for the user to better understand the indicator values",
-    "isHeadlineIndicator": "boolean parameter to indicate if indicator is a headline indicator",
-    "processDescription": "detailed description about the computation/creation of the indicator",
-    "lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
-    "referenceDateNote": "optional note for indicator reference date",
-    "displayOrder": 0,
-    "defaultClassificationMapping": {
-      "colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
-      "numClasses": "number of Classes",
-      "classificationMethod": "Classification Method ID",
-      "items": [
+    datasetName: 'Name of indicator dataset',
+    abbreviation: 'optional abbreviation of the indicator dataset',
+    characteristicValue:
+      'if the same datasetName is used for different indicators, the optional characteristicValue parameter may serve to distinguish between them (i.e. Habitants - male, Habitants - female, Habitants - diverse)',
+    tags: ['optinal list of tags; each tag is a free text tag'],
+    creationType:
+      'INSERTION|COMPUTATION  <-- enum parameter controls whether each timestamp must be updated manually (INSERTION) or if KomMonitor shall compute the indicator values for respective timestamps based on script file (COMPUTATION)',
+    unit: 'unit of the indicator',
+    topicReference: 'ID of the respective main/sub topic instance',
+    indicatorType:
+      'STATUS_ABSOLUTE|STATUS_RELATIVE|DYNAMIC_ABSOLUTE|DYNAMIC_RELATIVE|STATUS_STANDARDIZED|DYNAMIC_STANDARDIZED',
+    interpretation: 'interpretation hints for the user to better understand the indicator values',
+    isHeadlineIndicator: 'boolean parameter to indicate if indicator is a headline indicator',
+    processDescription: 'detailed description about the computation/creation of the indicator',
+    lowestSpatialUnitForComputation:
+      'the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically',
+    referenceDateNote: 'optional note for indicator reference date',
+    displayOrder: 0,
+    defaultClassificationMapping: {
+      colorBrewerSchemeName: 'schema name of colorBrewer colorPalette to use for classification',
+      numClasses: 'number of Classes',
+      classificationMethod: 'Classification Method ID',
+      items: [
         {
-          "spatialUnit": "spatial unit id for manual classification",
-          "breaks": ['break']
-        }
-      ]
+          spatialUnit: 'spatial unit id for manual classification',
+          breaks: ['break'],
+        },
+      ],
     },
-    "regionalReferenceValues": [
+    regionalReferenceValues: [
       {
-        "referenceDate": "2024-04-23",
-        "regionalSum": 0,
-        "regionalAverage": 0,
-        "spatiallyUnassignable": 0
-      }
+        referenceDate: '2024-04-23',
+        regionalSum: 0,
+        regionalAverage: 0,
+        spatiallyUnassignable: 0,
+      },
     ],
   };
 
   indicatorMetadataStructure_pretty = '';
 
-  constructor(
-    protected activeModal: NgbActiveModal,
-    private http: HttpClient,
-    private kommonitorDataGridHelperService: KommonitorIndicatorDataGridHelperService,
-    private broadcastService: BroadcastService,
-    private topicHierarchyService: TopicHierarchyService,
-    protected envConfigService: EnvConfigService,
-    protected dataExchangeService: DataExchangeService
-  ) {}
-
   ngOnInit(): void {
     this.setupEventListeners();
     this.instantiateColorBrewerPalettes();
-    this.indicatorMetadataStructure_pretty = this.dataExchangeService.syntaxHighlightJSON(this.indicatorMetadataStructure);
+    this.indicatorMetadataStructure_pretty = this.dataExchangeService.syntaxHighlightJSON(
+      this.indicatorMetadataStructure
+    );
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private setupEventListeners(): void {
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe(data => {
+    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
       if (data.msg === 'onEditIndicatorMetadata') {
         this.currentIndicatorDataset = data.values;
         this.resetIndicatorEditMetadataForm();
@@ -234,10 +230,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     for (const key in colorbrewerExtended) {
       if (Object.prototype.hasOwnProperty.call(colorbrewerExtended, key)) {
         const colorPalettes = colorbrewerExtended[key];
-        
+
         const paletteEntry = {
-          "paletteName": key,
-          "paletteArrayObject": colorPalettes
+          paletteName: key,
+          paletteArrayObject: colorPalettes,
         };
 
         this.colorbrewerPalettes.push(paletteEntry);
@@ -258,7 +254,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       const spatialUnit = this.dataExchangeService.availableSpatialUnits[i];
       this.spatialUnitClassification[i] = {
         spatialUnitId: spatialUnit.spatialUnitId,
-        breaks: []
+        breaks: [],
       };
       this.tabClasses[i] = '';
       for (let classNr = 0; classNr < numClasses - 1; classNr++) {
@@ -270,16 +266,19 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   onBreaksChanged(tabIndex: number): void {
     this.classBreaksInvalid = false;
     let cssClass = 'tab-completed';
-    
+
     for (const classBreak of this.spatialUnitClassification[tabIndex].breaks) {
       if (classBreak === null) {
         cssClass = '';
       }
     }
-    
+
     if (cssClass === 'tab-completed') {
       for (let i = 0; i < this.spatialUnitClassification[tabIndex].breaks.length - 1; i++) {
-        if (this.spatialUnitClassification[tabIndex].breaks[i] > this.spatialUnitClassification[tabIndex].breaks[i + 1]) {
+        if (
+          this.spatialUnitClassification[tabIndex].breaks[i] >
+          this.spatialUnitClassification[tabIndex].breaks[i + 1]
+        ) {
           cssClass = 'tab-error';
           this.classBreaksInvalid = true;
         }
@@ -297,9 +296,13 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   updateDecreaseAndIncreaseBreaks(tabIndex: number): void {
-    const increaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter((val: number) => val > 0).length;
-    const decreaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter((val: number) => val < 0).length;
-    
+    const increaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter(
+      (val: number) => val > 0
+    ).length;
+    const decreaseBreaksLength = this.spatialUnitClassification[tabIndex].breaks.filter(
+      (val: number) => val < 0
+    ).length;
+
     if (increaseBreaksLength < 3) {
       // Handle minimum increase breaks
     }
@@ -309,11 +312,12 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   refreshReferenceValuesManagementTable(): void {
-    this.regionalReferenceValuesManagementTableOptions = this.kommonitorDataGridHelperService.buildReferenceValuesManagementGrid(
-      this.regionalReferenceValuesManagementTableOptions,
-      this.currentIndicatorDataset.applicableDates,
-      this.currentIndicatorDataset.regionalReferenceValues
-    );
+    this.regionalReferenceValuesManagementTableOptions =
+      this.kommonitorDataGridHelperService.buildReferenceValuesManagementGrid(
+        this.regionalReferenceValuesManagementTableOptions,
+        this.currentIndicatorDataset.applicableDates,
+        this.currentIndicatorDataset.regionalReferenceValues
+      );
   }
 
   resetIndicatorEditMetadataForm(): void {
@@ -335,7 +339,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       databasis: this.currentIndicatorDataset.metadata.databasis,
       contact: this.currentIndicatorDataset.metadata.contact,
       description: this.currentIndicatorDataset.metadata.description,
-      lastUpdate: this.currentIndicatorDataset.metadata.lastUpdate
+      lastUpdate: this.currentIndicatorDataset.metadata.lastUpdate,
     };
 
     // Set update interval
@@ -400,7 +404,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     for (let i = 0; i < this.dataExchangeService.availableSpatialUnits.length; i++) {
       const spatialUnitMetadata = this.dataExchangeService.availableSpatialUnits[i];
-      if (spatialUnitMetadata.spatialUnitLevel === this.currentIndicatorDataset.lowestSpatialUnitForComputation) {
+      if (
+        spatialUnitMetadata.spatialUnitLevel ===
+        this.currentIndicatorDataset.lowestSpatialUnitForComputation
+      ) {
         this.indicatorLowestSpatialUnitMetadataObjectForComputation = spatialUnitMetadata;
         break;
       }
@@ -413,7 +420,10 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     }
 
     // Set topic hierarchy
-    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(this.dataExchangeService.availableTopics, this.currentIndicatorDataset.topicReference);;
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.dataExchangeService.availableTopics,
+      this.currentIndicatorDataset.topicReference
+    );
 
     if (topicHierarchy && topicHierarchy[0]) {
       this.indicatorTopic_mainTopic = topicHierarchy[0];
@@ -435,14 +445,21 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.indicatorReferences_adminView = [];
     this.indicatorReferences_apiRequest = [];
 
-    if (this.currentIndicatorDataset.referencedIndicators && this.currentIndicatorDataset.referencedIndicators.length > 0) {
-      for (const indicatorReference of this.currentIndicatorDataset.referencedIndicators.filter((item: any) => item != null && item != undefined)) {
-        const indicatorMetadata = this.dataExchangeService.getIndicatorMetadataById(indicatorReference.referencedIndicatorId);
+    if (
+      this.currentIndicatorDataset.referencedIndicators &&
+      this.currentIndicatorDataset.referencedIndicators.length > 0
+    ) {
+      for (const indicatorReference of this.currentIndicatorDataset.referencedIndicators.filter(
+        (item: any) => item != null && item != undefined
+      )) {
+        const indicatorMetadata = this.dataExchangeService.getIndicatorMetadataById(
+          indicatorReference.referencedIndicatorId
+        );
         const referenceEntry = {
-          "referencedIndicatorName": indicatorMetadata.indicatorName,
-          "referencedIndicatorId": indicatorMetadata.indicatorId,
-          "referencedIndicatorAbbreviation": indicatorMetadata.abbreviation,
-          "referencedIndicatorDescription": indicatorReference.referencedIndicatorDescription
+          referencedIndicatorName: indicatorMetadata.indicatorName,
+          referencedIndicatorId: indicatorMetadata.indicatorId,
+          referencedIndicatorAbbreviation: indicatorMetadata.abbreviation,
+          referencedIndicatorDescription: indicatorReference.referencedIndicatorDescription,
         };
         this.indicatorReferences_adminView.push(referenceEntry);
       }
@@ -454,13 +471,18 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.georesourceReferences_adminView = [];
     this.georesourceReferences_apiRequest = [];
 
-    if (this.currentIndicatorDataset.referencedGeoresources && this.currentIndicatorDataset.referencedGeoresources.length > 0) {
+    if (
+      this.currentIndicatorDataset.referencedGeoresources &&
+      this.currentIndicatorDataset.referencedGeoresources.length > 0
+    ) {
       for (const georesourceReference of this.currentIndicatorDataset.referencedGeoresources) {
-        const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceReference.referencedGeoresourceId);
+        const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(
+          georesourceReference.referencedGeoresourceId
+        );
         const geo_referenceEntry = {
-          "referencedGeoresourceName": georesourceMetadata.datasetName,
-          "referencedGeoresourceId": georesourceMetadata.georesourceId,
-          "referencedGeoresourceDescription": georesourceReference.referencedGeoresourceDescription
+          referencedGeoresourceName: georesourceMetadata.datasetName,
+          referencedGeoresourceId: georesourceMetadata.georesourceId,
+          referencedGeoresourceDescription: georesourceReference.referencedGeoresourceDescription,
         };
         this.georesourceReferences_adminView.push(geo_referenceEntry);
       }
@@ -474,12 +496,14 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.classBreaksInvalid = false;
 
     if (this.currentIndicatorDataset.defaultClassificationMapping.classificationMethod) {
-      this.classificationMethod = this.currentIndicatorDataset.defaultClassificationMapping.classificationMethod.toLowerCase();
+      this.classificationMethod =
+        this.currentIndicatorDataset.defaultClassificationMapping.classificationMethod.toLowerCase();
     }
     if (this.currentIndicatorDataset.defaultClassificationMapping.numClasses) {
-      this.numClassesPerSpatialUnit = this.currentIndicatorDataset.defaultClassificationMapping.numClasses;
+      this.numClassesPerSpatialUnit =
+        this.currentIndicatorDataset.defaultClassificationMapping.numClasses;
       this.onNumClassesChanged(this.numClassesPerSpatialUnit || 5);
-      
+
       // apply breaks for spatial units:
       for (let i = 0; i < this.spatialUnitClassification.length; i++) {
         for (const item of this.currentIndicatorDataset.defaultClassificationMapping.items) {
@@ -490,12 +514,15 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
         }
       }
     }
-    
+
     // instantiate with palette 'Blues'
     this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13];
 
     for (const colorbrewerPalette of this.colorbrewerPalettes) {
-      if (colorbrewerPalette.paletteName === this.currentIndicatorDataset.defaultClassificationMapping.colorBrewerSchemeName) {
+      if (
+        colorbrewerPalette.paletteName ===
+        this.currentIndicatorDataset.defaultClassificationMapping.colorBrewerSchemeName
+      ) {
         this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
         break;
       }
@@ -511,18 +538,22 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   onAddOrUpdateIndicatorReference(): void {
     const tmpIndicatorReference_adminView = {
-      "referencedIndicatorName": this.tmpIndicatorReference_selectedIndicatorMetadata.indicatorName,
-      "referencedIndicatorId": this.tmpIndicatorReference_selectedIndicatorMetadata.indicatorId,
-      "referencedIndicatorAbbreviation": this.tmpIndicatorReference_selectedIndicatorMetadata.abbreviation,
-      "referencedIndicatorDescription": this.tmpIndicatorReference_referenceDescription
+      referencedIndicatorName: this.tmpIndicatorReference_selectedIndicatorMetadata.indicatorName,
+      referencedIndicatorId: this.tmpIndicatorReference_selectedIndicatorMetadata.indicatorId,
+      referencedIndicatorAbbreviation:
+        this.tmpIndicatorReference_selectedIndicatorMetadata.abbreviation,
+      referencedIndicatorDescription: this.tmpIndicatorReference_referenceDescription,
     };
 
     let processed = false;
 
     for (let index = 0; index < this.indicatorReferences_adminView.length; index++) {
       const indicatorReference_adminView = this.indicatorReferences_adminView[index];
-      
-      if (indicatorReference_adminView.referencedIndicatorId === tmpIndicatorReference_adminView.referencedIndicatorId) {
+
+      if (
+        indicatorReference_adminView.referencedIndicatorId ===
+        tmpIndicatorReference_adminView.referencedIndicatorId
+      ) {
         // replace object
         this.indicatorReferences_adminView[index] = tmpIndicatorReference_adminView;
         processed = true;
@@ -540,13 +571,20 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onClickEditIndicatorReference(indicatorReference_adminView: any): void {
-    this.tmpIndicatorReference_selectedIndicatorMetadata = this.dataExchangeService.getIndicatorMetadataById(indicatorReference_adminView.referencedIndicatorId);
-    this.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
+    this.tmpIndicatorReference_selectedIndicatorMetadata =
+      this.dataExchangeService.getIndicatorMetadataById(
+        indicatorReference_adminView.referencedIndicatorId
+      );
+    this.tmpIndicatorReference_referenceDescription =
+      indicatorReference_adminView.referencedIndicatorDescription;
   }
 
   onClickDeleteIndicatorReference(indicatorReference_adminView: any): void {
     for (let index = 0; index < this.indicatorReferences_adminView.length; index++) {
-      if (this.indicatorReferences_adminView[index].referencedIndicatorId === indicatorReference_adminView.referencedIndicatorId) {
+      if (
+        this.indicatorReferences_adminView[index].referencedIndicatorId ===
+        indicatorReference_adminView.referencedIndicatorId
+      ) {
         // remove object
         this.indicatorReferences_adminView.splice(index, 1);
         break;
@@ -556,17 +594,22 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   onAddOrUpdateGeoresourceReference(): void {
     const tmpGeoresourceReference_adminView = {
-      "referencedGeoresourceName": this.tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName,
-      "referencedGeoresourceId": this.tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceId,
-      "referencedGeoresourceDescription": this.tmpGeoresourceReference_referenceDescription
+      referencedGeoresourceName:
+        this.tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName,
+      referencedGeoresourceId:
+        this.tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceId,
+      referencedGeoresourceDescription: this.tmpGeoresourceReference_referenceDescription,
     };
 
     let processed = false;
 
     for (let index = 0; index < this.georesourceReferences_adminView.length; index++) {
       const georesourceReference_adminView = this.georesourceReferences_adminView[index];
-      
-      if (georesourceReference_adminView.referencedGeoresourceId === tmpGeoresourceReference_adminView.referencedGeoresourceId) {
+
+      if (
+        georesourceReference_adminView.referencedGeoresourceId ===
+        tmpGeoresourceReference_adminView.referencedGeoresourceId
+      ) {
         // replace object
         this.georesourceReferences_adminView[index] = tmpGeoresourceReference_adminView;
         processed = true;
@@ -584,13 +627,20 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   }
 
   onClickEditGeoresourceReference(georesourceReference_adminView: any): void {
-    this.tmpGeoresourceReference_selectedGeoresourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(georesourceReference_adminView.referencedGeoresourceId);
-    this.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
+    this.tmpGeoresourceReference_selectedGeoresourceMetadata =
+      this.dataExchangeService.getGeoresourceMetadataById(
+        georesourceReference_adminView.referencedGeoresourceId
+      );
+    this.tmpGeoresourceReference_referenceDescription =
+      georesourceReference_adminView.referencedGeoresourceDescription;
   }
 
   onClickDeleteGeoresourceReference(georesourceReference_adminView: any): void {
     for (let index = 0; index < this.georesourceReferences_adminView.length; index++) {
-      if (this.georesourceReferences_adminView[index].referencedGeoresourceId === georesourceReference_adminView.referencedGeoresourceId) {
+      if (
+        this.georesourceReferences_adminView[index].referencedGeoresourceId ===
+        georesourceReference_adminView.referencedGeoresourceId
+      ) {
         // remove object
         this.georesourceReferences_adminView.splice(index, 1);
         break;
@@ -618,9 +668,11 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     this.datasetNameInvalid = false;
     this.dataExchangeService.availableIndicators.forEach((indicator: any) => {
       // show error only if indicator is renamed to another already existing indicator
-      if (indicator.indicatorName === this.datasetName && 
-          indicator.indicatorType === this.indicatorType?.apiName && 
-          indicator.indicatorId != this.currentIndicatorDataset.indicatorId) {
+      if (
+        indicator.indicatorName === this.datasetName &&
+        indicator.indicatorType === this.indicatorType?.apiName &&
+        indicator.indicatorId != this.currentIndicatorDataset.indicatorId
+      ) {
         this.datasetNameInvalid = true;
         return;
       }
@@ -629,53 +681,57 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   buildPatchBody_indicators(): any {
     const patchBody: any = {
-      "metadata": {
-        "note": this.metadata.note || null,
-        "literature": this.metadata.literature || null,
-        "updateInterval": this.metadata.updateInterval?.apiName,
-        "sridEPSG": this.metadata.sridEPSG || 4326,
-        "datasource": this.metadata.datasource,
-        "contact": this.metadata.contact,
-        "lastUpdate": this.metadata.lastUpdate,
-        "description": this.metadata.description || null,
-        "databasis": this.metadata.databasis || null
+      metadata: {
+        note: this.metadata.note || null,
+        literature: this.metadata.literature || null,
+        updateInterval: this.metadata.updateInterval?.apiName,
+        sridEPSG: this.metadata.sridEPSG || 4326,
+        datasource: this.metadata.datasource,
+        contact: this.metadata.contact,
+        lastUpdate: this.metadata.lastUpdate,
+        description: this.metadata.description || null,
+        databasis: this.metadata.databasis || null,
       },
-      "refrencesToOtherIndicators": [] as any[],
-      "regionalReferenceValues": [] as any[],
-      "datasetName": this.datasetName,
-      "abbreviation": this.indicatorAbbreviation || null,
-      "precision": (this.showCustomCommaValue === true) ? this.indicatorPrecision : null,
-      "characteristicValue": null,
-      "tags": [] as string[],
-      "creationType": this.indicatorCreationType?.apiName,
-      "unit": this.indicatorUnit,
-      "topicReference": "",
-      "refrencesToGeoresources": [] as any[],
-      "indicatorType": this.indicatorType?.apiName,
-      "interpretation": this.indicatorInterpretation || "",
-      "isHeadlineIndicator": this.isHeadlineIndicator || false,
-      "processDescription": this.indicatorProcessDescription || "",
-      "referenceDateNote": this.indicatorReferenceDateNote || "",
-      "displayOrder": this.displayOrder,
-      "lowestSpatialUnitForComputation": this.indicatorLowestSpatialUnitMetadataObjectForComputation ? 
-        this.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
-      "defaultClassificationMapping": {
-        "colorBrewerSchemeName": this.selectedColorBrewerPaletteEntry.paletteName,
-        "classificationMethod": this.classificationMethod.toUpperCase(),
-        "numClasses": this.numClassesPerSpatialUnit ? Number(this.numClassesPerSpatialUnit) : 5,
-        "items": this.spatialUnitClassification.filter((entry: any) => !entry.breaks.includes(null)),
-      }
+      refrencesToOtherIndicators: [] as any[],
+      regionalReferenceValues: [] as any[],
+      datasetName: this.datasetName,
+      abbreviation: this.indicatorAbbreviation || null,
+      precision: this.showCustomCommaValue === true ? this.indicatorPrecision : null,
+      characteristicValue: null,
+      tags: [] as string[],
+      creationType: this.indicatorCreationType?.apiName,
+      unit: this.indicatorUnit,
+      topicReference: '',
+      refrencesToGeoresources: [] as any[],
+      indicatorType: this.indicatorType?.apiName,
+      interpretation: this.indicatorInterpretation || '',
+      isHeadlineIndicator: this.isHeadlineIndicator || false,
+      processDescription: this.indicatorProcessDescription || '',
+      referenceDateNote: this.indicatorReferenceDateNote || '',
+      displayOrder: this.displayOrder,
+      lowestSpatialUnitForComputation: this.indicatorLowestSpatialUnitMetadataObjectForComputation
+        ? this.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel
+        : null,
+      defaultClassificationMapping: {
+        colorBrewerSchemeName: this.selectedColorBrewerPaletteEntry.paletteName,
+        classificationMethod: this.classificationMethod.toUpperCase(),
+        numClasses: this.numClassesPerSpatialUnit ? Number(this.numClassesPerSpatialUnit) : 5,
+        items: this.spatialUnitClassification.filter((entry: any) => !entry.breaks.includes(null)),
+      },
     };
 
     // regionalReferenceValues
-    const regionalReferenceValuesList = this.kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid(this.regionalReferenceValuesManagementTableOptions);
+    const regionalReferenceValuesList =
+      this.kommonitorDataGridHelperService.getReferenceValues_regionalReferenceValuesManagementGrid(
+        this.regionalReferenceValuesManagementTableOptions
+      );
     for (const referenceValueEntry of regionalReferenceValuesList) {
       patchBody.regionalReferenceValues.push(referenceValueEntry);
     }
 
     // TAGS
     if (this.indicatorTagsString_withCommas) {
-      const tags_splitted = this.indicatorTagsString_withCommas.split(",");
+      const tags_splitted = this.indicatorTagsString_withCommas.split(',');
       for (const tagString of tags_splitted) {
         patchBody.tags.push(tagString.trim());
       }
@@ -691,7 +747,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     } else if (this.indicatorTopic_mainTopic) {
       patchBody.topicReference = this.indicatorTopic_mainTopic.topicId;
     } else {
-      patchBody.topicReference = "";
+      patchBody.topicReference = '';
     }
 
     // REFERENCES
@@ -700,8 +756,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
       for (const indicRef of this.indicatorReferences_adminView) {
         patchBody.refrencesToOtherIndicators.push({
-          "indicatorId": indicRef.referencedIndicatorId,
-          "referenceDescription": indicRef.referencedIndicatorDescription
+          indicatorId: indicRef.referencedIndicatorId,
+          referenceDescription: indicRef.referencedIndicatorDescription,
         });
       }
     }
@@ -711,8 +767,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
       for (const geoRef of this.georesourceReferences_adminView) {
         patchBody.refrencesToGeoresources.push({
-          "georesourceId": geoRef.referencedGeoresourceId,
-          "referenceDescription": geoRef.referencedGeoresourceDescription
+          georesourceId: geoRef.referencedGeoresourceId,
+          referenceDescription: geoRef.referencedGeoresourceDescription,
         });
       }
     }
@@ -725,27 +781,36 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     this.loadingData = true;
 
-    this.http.patch(
-      this.envConfigService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId,
-      patchBody
-    ).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart = this.datasetName;
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
-        this.loadingData = false;
-      },
-      error: (error: any) => {
-        console.error("Error while updating indicator metadata.");
-        if (error.data?.message) {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data.message);
-        } else if (error.data) {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.loadingData = false;
-      }
-    });
+    this.http
+      .patch(
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
+          '/indicators/' +
+          this.currentIndicatorDataset.indicatorId,
+        patchBody
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.successMessagePart = this.datasetName;
+          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+            crudType: 'edit',
+            targetIndicatorId: this.currentIndicatorDataset.indicatorId,
+          });
+          this.loadingData = false;
+        },
+        error: (error: any) => {
+          console.error('Error while updating indicator metadata.');
+          if (error.data?.message) {
+            this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(
+              error.data.message
+            );
+          } else if (error.data) {
+            this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
+          } else {
+            this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.loadingData = false;
+        },
+      });
   }
 
   hideSuccessAlert(): void {
@@ -759,4 +824,4 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   hideMetadataErrorAlert(): void {
     this.indicatorAddMetadataImportErrorAlert = false;
   }
-} 
+}

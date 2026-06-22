@@ -1,16 +1,16 @@
-import { Component, OnInit, DestroyRef, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { CommonModule } from "@angular/common";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import * as echarts from "echarts/core";
-import type { EChartsOption, TooltipComponentOption } from "echarts";
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import * as echarts from 'echarts/core';
+import type { EChartsOption, TooltipComponentOption } from 'echarts';
 
-import { SmallBoxComponent } from "./small-box/small-box.component";
-import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+import { SmallBoxComponent } from './small-box/small-box.component';
+import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 
-import { NgxEchartsDirective, provideEchartsCore } from "ngx-echarts";
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
 interface PieSeriesDataItem {
   name: string;
@@ -21,18 +21,18 @@ const PIE_EMPHASIS = {
   itemStyle: {
     shadowBlur: 10,
     shadowOffsetX: 0,
-    shadowColor: "rgba(0, 0, 0, 0.5)",
+    shadowColor: 'rgba(0, 0, 0, 0.5)',
   },
 };
 
 const PIE_TOOLTIP: TooltipComponentOption = {
-  trigger: "item",
+  trigger: 'item',
   confine: true,
-  formatter: "{a} <br/>{b} : {c} ({d}%)",
+  formatter: '{a} <br/>{b} : {c} ({d}%)',
   textStyle: { fontSize: 12 },
 };
 
-const PIE_LABEL = { position: "inner" as const };
+const PIE_LABEL = { position: 'inner' as const };
 
 const FALLBACK_TIMEOUT_MS = 5_000;
 
@@ -54,19 +54,19 @@ function collectSubTopics(topics: any[]): any[] {
 function buildPieChartOptions(
   title: string,
   data: PieSeriesDataItem[],
-  color: string,
+  color: string
 ): EChartsOption {
   return {
-    title: { text: title, left: "center", show: true, top: 15 },
+    title: { text: title, left: 'center', show: true, top: 15 },
     tooltip: PIE_TOOLTIP,
     series: [
       {
         name: title,
-        type: "pie",
-        radius: "90%",
-        center: ["50%", "50%"],
+        type: 'pie',
+        radius: '90%',
+        center: ['50%', '50%'],
         data,
-        itemStyle: { color, shadowBlur: 20, shadowColor: "rgba(0, 0, 0, 0.5)" },
+        itemStyle: { color, shadowBlur: 20, shadowColor: 'rgba(0, 0, 0, 0.5)' },
         emphasis: PIE_EMPHASIS,
         label: PIE_LABEL,
       },
@@ -75,22 +75,22 @@ function buildPieChartOptions(
 }
 
 /** Maps a georesource to its geometry type key. */
-function georesourceTypeOf(georesource: any): "POI" | "LOI" | "AOI" {
-  if (georesource.isLOI) return "LOI";
-  if (georesource.isAOI) return "AOI";
-  return "POI";
+function georesourceTypeOf(georesource: any): 'POI' | 'LOI' | 'AOI' {
+  if (georesource.isLOI) return 'LOI';
+  if (georesource.isAOI) return 'AOI';
+  return 'POI';
 }
 
 const GEORESOURCE_TYPE_I18N: Record<string, string> = {
-  POI: "ADMIN_DASHBOARD.POINTS_OF_INTEREST",
-  LOI: "ADMIN_DASHBOARD.LINES_OF_INTEREST",
-  AOI: "ADMIN_DASHBOARD.AREAS_OF_INTEREST",
+  POI: 'ADMIN_DASHBOARD.POINTS_OF_INTEREST',
+  LOI: 'ADMIN_DASHBOARD.LINES_OF_INTEREST',
+  AOI: 'ADMIN_DASHBOARD.AREAS_OF_INTEREST',
 };
 
 @Component({
-  selector: "app-admin-dashboard-management",
-  templateUrl: "./admin-dashboard-management.component.html",
-  styleUrls: ["./admin-dashboard-management.component.css"],
+  selector: 'app-admin-dashboard-management',
+  templateUrl: './admin-dashboard-management.component.html',
+  styleUrls: ['./admin-dashboard-management.component.css'],
   imports: [
     SmallBoxComponent,
     TranslateModule,
@@ -102,29 +102,27 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
   standalone: true,
 })
 export class AdminDashboardManagementComponent implements OnInit {
+  private broadcastService = inject(BroadcastService);
+  private translateService = inject(TranslateService);
+  protected dataExchange = inject(DataExchangeService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   loadingData = true;
 
-  organisationCount = "0";
-  topicCounts = "0/0";
-  topicsLabel = "";
-  indicatorCount = "";
-  georesourceCount = "";
-  spatialUnitCount = "";
-  indicatorScriptCount = "";
+  organisationCount = '0';
+  topicCounts = '0/0';
+  topicsLabel = '';
+  indicatorCount = '';
+  georesourceCount = '';
+  spatialUnitCount = '';
+  indicatorScriptCount = '';
 
   indicatorsPerTopicChartOptions: EChartsOption | null = null;
   georesourcesPerTypeChartOptions: EChartsOption | null = null;
   indicatorsPerSpatialUnitChartOptions: EChartsOption | null = null;
 
   private initializationTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  constructor(
-    private broadcastService: BroadcastService,
-    private translateService: TranslateService,
-    protected dataExchange: DataExchangeService,
-  ) {}
 
   ngOnInit(): void {
     this.setupBroadcastListeners();
@@ -169,14 +167,14 @@ export class AdminDashboardManagementComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => {
         switch (msg.msg) {
-          case "refreshAdminDashboardDiagrams":
+          case 'refreshAdminDashboardDiagrams':
             this.refreshDashboard();
             break;
-          case "initialMetadataLoadingFailed":
+          case 'initialMetadataLoadingFailed':
             this.loadingData = false;
             this.clearTimeout();
             break;
-          case "initialMetadataLoadingCompleted":
+          case 'initialMetadataLoadingCompleted':
             this.clearTimeout();
             setTimeout(() => this.refreshDashboard(), 250);
             break;
@@ -185,13 +183,11 @@ export class AdminDashboardManagementComponent implements OnInit {
   }
 
   private setupLanguageChangeListener(): void {
-    this.translateService.onLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.isDataAvailable()) {
-          this.refreshDashboard();
-        }
-      });
+    this.translateService.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.isDataAvailable()) {
+        this.refreshDashboard();
+      }
+    });
   }
 
   refreshDashboard(): void {
@@ -204,7 +200,7 @@ export class AdminDashboardManagementComponent implements OnInit {
       this.updateDisplayValues();
       this.updateChartOptions();
     } catch (error) {
-      console.error("Error refreshing dashboard:", error);
+      console.error('Error refreshing dashboard:', error);
     } finally {
       this.loadingData = false;
     }
@@ -219,36 +215,31 @@ export class AdminDashboardManagementComponent implements OnInit {
     this.spatialUnitCount = String(d.availableSpatialUnits?.length ?? 0);
     this.indicatorScriptCount = String(d.availableProcessScripts?.length ?? 0);
 
-    const mainTopics = d.availableTopics.filter(
-      (t: any) => t.topicType === "main",
-    );
+    const mainTopics = d.availableTopics.filter((t: any) => t.topicType === 'main');
     const subTopics = collectSubTopics(mainTopics);
 
     this.topicCounts = `${mainTopics.length}/${subTopics.length}`;
     this.topicsLabel = [
-      this.translateService.instant("ADMIN_DASHBOARD.MAIN_TOPICS"),
-      this.translateService.instant("ADMIN_DASHBOARD.SUB_TOPICS"),
-    ].join("/");
+      this.translateService.instant('ADMIN_DASHBOARD.MAIN_TOPICS'),
+      this.translateService.instant('ADMIN_DASHBOARD.SUB_TOPICS'),
+    ].join('/');
   }
 
   private updateChartOptions(): void {
     this.indicatorsPerTopicChartOptions = this.buildIndicatorsPerTopicChart();
     this.georesourcesPerTypeChartOptions = this.buildGeoresourcesPerTypeChart();
-    this.indicatorsPerSpatialUnitChartOptions =
-      this.buildIndicatorsPerSpatialUnitChart();
+    this.indicatorsPerSpatialUnitChartOptions = this.buildIndicatorsPerSpatialUnitChart();
   }
 
   private buildIndicatorsPerTopicChart(): EChartsOption {
-    const data: PieSeriesDataItem[] = (
-      this.dataExchange.topicIndicatorHierarchy ?? []
-    )
+    const data: PieSeriesDataItem[] = (this.dataExchange.topicIndicatorHierarchy ?? [])
       .filter((t: any) => t.indicatorCount > 0)
       .map((t: any) => ({ name: t.topicName, value: t.indicatorCount }));
 
     return buildPieChartOptions(
-      this.translateService.instant("ADMIN_DASHBOARD.INDICATORS_PER_TOPIC"),
+      this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'),
       data,
-      "#00a65b",
+      '#00a65b'
     );
   }
 
@@ -260,7 +251,7 @@ export class AdminDashboardManagementComponent implements OnInit {
       countMap.set(type, (countMap.get(type) ?? 0) + 1);
     }
 
-    const data: PieSeriesDataItem[] = ["POI", "LOI", "AOI"]
+    const data: PieSeriesDataItem[] = ['POI', 'LOI', 'AOI']
       .filter((key) => countMap.has(key))
       .map((key) => ({
         name: this.translateService.instant(GEORESOURCE_TYPE_I18N[key]),
@@ -268,9 +259,9 @@ export class AdminDashboardManagementComponent implements OnInit {
       }));
 
     return buildPieChartOptions(
-      this.translateService.instant("ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE"),
+      this.translateService.instant('ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE'),
       data,
-      "#ff851b",
+      '#ff851b'
     );
   }
 
@@ -284,9 +275,7 @@ export class AdminDashboardManagementComponent implements OnInit {
       }
     }
 
-    const data: PieSeriesDataItem[] = (
-      this.dataExchange.availableSpatialUnits ?? []
-    )
+    const data: PieSeriesDataItem[] = (this.dataExchange.availableSpatialUnits ?? [])
       .filter((su: any) => countMap.has(su.spatialUnitLevel))
       .map((su: any) => ({
         name: su.spatialUnitLevel,
@@ -294,11 +283,9 @@ export class AdminDashboardManagementComponent implements OnInit {
       }));
 
     return buildPieChartOptions(
-      this.translateService.instant(
-        "ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT",
-      ),
+      this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
       data,
-      "#337ab7",
+      '#337ab7'
     );
   }
 }

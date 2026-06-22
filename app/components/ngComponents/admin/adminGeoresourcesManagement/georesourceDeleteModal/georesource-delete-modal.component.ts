@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -6,7 +6,6 @@ import { Subscription, forkJoin } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
-
 
 interface AffectedScript {
   scriptId: string;
@@ -35,9 +34,13 @@ interface AffectedIndicatorReference {
   templateUrl: './georesource-delete-modal.component.html',
   styleUrls: ['./georesource-delete-modal.component.css'],
   imports: [CommonModule],
-  standalone: true
+  standalone: true,
 })
 export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
+  activeModal = inject(NgbActiveModal);
+  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
 
   datasetsToDelete: any[] = [];
   loadingData: boolean = false;
@@ -57,12 +60,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    private broadcastService: BroadcastService,
-    private http: HttpClient
-  ) {
+  constructor() {
     console.log('GeoresourceDeleteModalComponent constructor initialized');
   }
 
@@ -71,16 +69,20 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   private setupEventListeners(): void {
     // Listen for broadcast events
-    const deleteSubscription = this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      if (broadcastMsg.msg === 'onDeleteGeoresources') {
-        this.onDeleteGeoresources(Array.isArray(broadcastMsg.values) ? broadcastMsg.values : [broadcastMsg.values]);
+    const deleteSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
+      (broadcastMsg) => {
+        if (broadcastMsg.msg === 'onDeleteGeoresources') {
+          this.onDeleteGeoresources(
+            Array.isArray(broadcastMsg.values) ? broadcastMsg.values : [broadcastMsg.values]
+          );
+        }
       }
-    });
+    );
     this.subscriptions.push(deleteSubscription);
   }
 
@@ -89,7 +91,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
     this.loadingData = true;
     this.datasetsToDelete = datasets;
     this.resetGeoresourcesDeleteForm();
-    
+
     setTimeout(() => {
       this.loadingData = false;
     }, 250);
@@ -107,9 +109,9 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
 
   gatherAffectedScripts(): AffectedScript[] {
     const affectedScripts: AffectedScript[] = [];
-    
+
     if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableScripts) {
-      this.datasetsToDelete.forEach(dataset => {
+      this.datasetsToDelete.forEach((dataset) => {
         this.kommonitorDataExchangeService.availableScripts.forEach((script: any) => {
           if (script.requiredGeoresources) {
             script.requiredGeoresources.forEach((requiredGeoresource: any) => {
@@ -118,7 +120,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
                   scriptId: script.scriptId,
                   name: script.name,
                   description: script.description,
-                  indicatorId: script.indicatorId
+                  indicatorId: script.indicatorId,
                 });
               }
             });
@@ -132,9 +134,12 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
 
   gatherAffectedIndicatorReferences(): AffectedIndicatorReference[] {
     const affectedIndicatorReferences: AffectedIndicatorReference[] = [];
-    
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableIndicators) {
-      this.datasetsToDelete.forEach(dataset => {
+
+    if (
+      this.kommonitorDataExchangeService &&
+      this.kommonitorDataExchangeService.availableIndicators
+    ) {
+      this.datasetsToDelete.forEach((dataset) => {
         this.kommonitorDataExchangeService.availableIndicators.forEach((indicator: any) => {
           if (indicator.referencedGeoresources) {
             indicator.referencedGeoresources.forEach((georesourceReference: any) => {
@@ -145,9 +150,9 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
                     indicatorName: indicator.indicatorName,
                     characteristicValue: indicator.characteristicValue,
                     indicatorType: indicator.indicatorType,
-                    description: indicator.description
+                    description: indicator.description,
                   },
-                  georesourceReference: georesourceReference
+                  georesourceReference: georesourceReference,
                 });
               }
             });
@@ -163,7 +168,9 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
     console.log('Starting deletion of georesources');
     this.loadingData = true;
 
-    const deletePromises = this.datasetsToDelete.map(dataset => this.getDeleteDatasetPromise(dataset));
+    const deletePromises = this.datasetsToDelete.map((dataset) =>
+      this.getDeleteDatasetPromise(dataset)
+    );
 
     forkJoin(deletePromises).subscribe({
       next: (_results) => {
@@ -173,34 +180,34 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error in delete operations:', error);
         this.handleDeleteResults();
-      }
+      },
     });
   }
 
   private getDeleteDatasetPromise(dataset: any) {
     const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}`;
-    
+
     return this.http.delete(url).pipe(
       tap((_response) => {
         console.log(`Successfully deleted georesource ${dataset.georesourceId}`);
         this.successfullyDeletedDatasets.push(dataset);
-        
+
         // Remove entry from array
         const index = this.kommonitorDataExchangeService.availableGeoresources.findIndex(
           (geo: any) => geo.georesourceId === dataset.georesourceId
         );
-        
+
         if (index > -1) {
           this.kommonitorDataExchangeService.availableGeoresources.splice(index, 1);
         }
       }),
       catchError((error) => {
         console.error(`Failed to delete georesource ${dataset.georesourceId}:`, error);
-        const errorMessage = error.error ? 
-          this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error) : 
-          this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+        const errorMessage = error.error
+          ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error)
+          : this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
         this.failedDatasetsAndErrors.push([dataset, errorMessage]);
-        
+
         // Return a resolved observable so forkJoin continues
         return of(null);
       })
@@ -215,14 +222,15 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
 
     if (this.successfullyDeletedDatasets.length > 0) {
       this.showSuccessAlert = true;
-      this.successMessage = 'Folgende Georessourcen sowie assoziierte Indikatorenreferenzen und Skripte wurden erfolgreich gelöscht';
-      
+      this.successMessage =
+        'Folgende Georessourcen sowie assoziierte Indikatorenreferenzen und Skripte wurden erfolgreich gelöscht';
+
       // Refresh overview table
       this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
         crudType: 'delete',
-        targetIds: this.successfullyDeletedDatasets.map(dataset => dataset.georesourceId)
+        targetIds: this.successfullyDeletedDatasets.map((dataset) => dataset.georesourceId),
       });
-      
+
       // Refresh admin dashboard diagrams
       setTimeout(() => {
         this.broadcastService.broadcast('refreshAdminDashboardDiagrams', null);
@@ -236,27 +244,27 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
 
   // Filter methods for template
   getPoiDatasets(): any[] {
-    return this.datasetsToDelete.filter(dataset => dataset.isPOI);
+    return this.datasetsToDelete.filter((dataset) => dataset.isPOI);
   }
 
   getLoiDatasets(): any[] {
-    return this.datasetsToDelete.filter(dataset => dataset.isLOI);
+    return this.datasetsToDelete.filter((dataset) => dataset.isLOI);
   }
 
   getAoiDatasets(): any[] {
-    return this.datasetsToDelete.filter(dataset => dataset.isAOI);
+    return this.datasetsToDelete.filter((dataset) => dataset.isAOI);
   }
 
   getSuccessfulPoiDatasets(): any[] {
-    return this.successfullyDeletedDatasets.filter(dataset => dataset.isPOI);
+    return this.successfullyDeletedDatasets.filter((dataset) => dataset.isPOI);
   }
 
   getSuccessfulLoiDatasets(): any[] {
-    return this.successfullyDeletedDatasets.filter(dataset => dataset.isLOI);
+    return this.successfullyDeletedDatasets.filter((dataset) => dataset.isLOI);
   }
 
   getSuccessfulAoiDatasets(): any[] {
-    return this.successfullyDeletedDatasets.filter(dataset => dataset.isAOI);
+    return this.successfullyDeletedDatasets.filter((dataset) => dataset.isAOI);
   }
 
   // Alert methods
@@ -277,4 +285,4 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
   cancel(): void {
     this.activeModal.dismiss('cancel');
   }
-} 
+}

@@ -1,18 +1,24 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { HttpClient } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { EnvConfigService } from "../../../../../services/env-config-service/env-config.service";
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
-  selector: "app-script-delete-modal",
-  templateUrl: "./script-delete-modal.component.html",
+  selector: 'app-script-delete-modal',
+  templateUrl: './script-delete-modal.component.html',
   imports: [CommonModule],
   standalone: true,
 })
 export class ScriptDeleteModalComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+  private http = inject(HttpClient);
+  private dataExchangeService = inject(DataExchangeService);
+  private broadcastService = inject(BroadcastService);
+  private envConfigService = inject(EnvConfigService);
+
   @Input() datasetsToDelete: any[] = [];
 
   loadingData: boolean = false;
@@ -20,14 +26,6 @@ export class ScriptDeleteModalComponent implements OnInit {
   failedDatasetsAndErrors: [any, string][] = [];
   showSuccessAlert: boolean = false;
   showErrorAlert: boolean = false;
-
-  constructor(
-    public activeModal: NgbActiveModal,
-    private http: HttpClient,
-    private dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService,
-    private envConfigService: EnvConfigService,
-  ) {}
 
   ngOnInit(): void {
     this.resetForm();
@@ -41,7 +39,7 @@ export class ScriptDeleteModalComponent implements OnInit {
   }
 
   close(): void {
-    this.activeModal.dismiss("closed");
+    this.activeModal.dismiss('closed');
   }
 
   deleteScripts(): void {
@@ -51,7 +49,7 @@ export class ScriptDeleteModalComponent implements OnInit {
     this.resetForm();
 
     const deletePromises = this.datasetsToDelete.map((dataset) =>
-      this.getDeleteDatasetPromise(dataset),
+      this.getDeleteDatasetPromise(dataset)
     );
 
     Promise.allSettled(deletePromises).then(() => {
@@ -61,14 +59,12 @@ export class ScriptDeleteModalComponent implements OnInit {
       if (this.successfullyDeletedDatasets.length > 0) {
         this.showSuccessAlert = true;
 
-        const deletedIds = this.successfullyDeletedDatasets.map(
-          (d) => d.scriptId,
-        );
-        this.broadcastService.broadcast("refreshScriptOverviewTable", {
-          crudType: "delete",
+        const deletedIds = this.successfullyDeletedDatasets.map((d) => d.scriptId);
+        this.broadcastService.broadcast('refreshScriptOverviewTable', {
+          crudType: 'delete',
           scriptId: deletedIds,
         });
-        this.broadcastService.broadcast("refreshAdminDashboardDiagrams");
+        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
       }
       this.loadingData = false;
     });
@@ -78,9 +74,7 @@ export class ScriptDeleteModalComponent implements OnInit {
     return new Promise((resolve) => {
       this.http
         .delete(
-          this.envConfigService.baseUrlToKomMonitorDataAPI +
-            "/process-scripts/" +
-            dataset.scriptId,
+          this.envConfigService.baseUrlToKomMonitorDataAPI + '/process-scripts/' + dataset.scriptId
         )
         .subscribe({
           next: () => {
@@ -89,9 +83,7 @@ export class ScriptDeleteModalComponent implements OnInit {
           },
           error: (error: any) => {
             const errorMsg = this.dataExchangeService.syntaxHighlightJSON
-              ? this.dataExchangeService.syntaxHighlightJSON(
-                  error.error || error,
-                )
+              ? this.dataExchangeService.syntaxHighlightJSON(error.error || error)
               : JSON.stringify(error.error || error);
             this.failedDatasetsAndErrors.push([dataset, errorMsg]);
             resolve();

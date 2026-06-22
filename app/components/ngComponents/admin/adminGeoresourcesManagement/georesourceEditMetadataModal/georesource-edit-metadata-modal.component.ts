@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -8,20 +8,32 @@ import { MultiStepHelperServiceService } from 'services/multi-step-helper-servic
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
+import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import { DATE_PICKER_OPTIONS, LOI_DASH_ARRAY_OBJECTS, POI_MARKER_COLORS } from '../../../../../services/data-exchange-service/data-exchange.constants';
+import {
+  DATE_PICKER_OPTIONS,
+  LOI_DASH_ARRAY_OBJECTS,
+  POI_MARKER_COLORS,
+} from '../../../../../services/data-exchange-service/data-exchange.constants';
 
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.css'],
   imports: [FormsModule, CommonModule, AdminTopicsManagementComponent],
-  standalone: true
-
+  standalone: true,
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
+  activeModal = inject(NgbActiveModal);
+  kommonitorDataExchangeService = inject(DataExchangeService);
+  kommonitorMultiStepFormHelperService = inject(MultiStepHelperServiceService);
+  roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private broadcastService = inject(BroadcastService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  private http = inject(HttpClient);
+  protected envConfigService = inject(EnvConfigService);
+
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Component state
@@ -45,7 +57,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     contact: '',
     lastUpdate: '',
     description: '',
-    databasis: ''
+    databasis: '',
   };
 
   // Georesource type
@@ -93,16 +105,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   readonly loiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS;
   readonly poiMarkerColors = POI_MARKER_COLORS;
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    public kommonitorDataExchangeService: DataExchangeService,
-    public kommonitorMultiStepFormHelperService: MultiStepHelperServiceService,
-    public roleManagementHelper: RoleManagementDataGridHelperService,
-    private broadcastService: BroadcastService,
-    private topicHierarchyService: TopicHierarchyService,
-    private http: HttpClient,
-    protected envConfigService: EnvConfigService
-  ) {
+  constructor() {
     this.initializeDefaultValues();
   }
 
@@ -112,7 +115,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private initializeDefaultValues(): void {
@@ -123,32 +126,38 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   private initializeMetadataStructure(): void {
     this.georesourceMetadataStructure = {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis",
+      metadata: {
+        note: 'an optional note',
+        literature: 'optional text about literature',
+        updateInterval: 'YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY',
+        sridEPSG: 4326,
+        datasource: 'text about data source',
+        contact: 'text about contact details',
+        lastUpdate: 'YYYY-MM-DD',
+        description: 'description about spatial unit dataset',
+        databasis: 'text about data basis',
       },
-      "allowedRoles": ['roleId'],
-      "datasetName": "Name of georesource dataset",
-      "isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-      "isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-      "isAOI": "boolean parameter for area of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-      "poiSymbolBootstrap3Name": "glyphicon name of bootstrap 3 symbol to use for a POI resource",
-      "poiSymbolColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-      "loiDashArrayString": "dash array string value - e.g. 20 20",
-      "poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-      "loiColor": "color for lines of interest dataset",
-      "loiWidth": "width for lines of interest dataset",
-      "aoiColor": "color for area of interest dataset"
+      allowedRoles: ['roleId'],
+      datasetName: 'Name of georesource dataset',
+      isPOI:
+        'boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true',
+      isLOI:
+        'boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true',
+      isAOI:
+        'boolean parameter for area of interest dataset - only one of isPOI, isLOI, isAOI can be true',
+      poiSymbolBootstrap3Name: 'glyphicon name of bootstrap 3 symbol to use for a POI resource',
+      poiSymbolColor:
+        "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
+      loiDashArrayString: 'dash array string value - e.g. 20 20',
+      poiMarkerColor:
+        "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
+      loiColor: 'color for lines of interest dataset',
+      loiWidth: 'width for lines of interest dataset',
+      aoiColor: 'color for area of interest dataset',
     };
 
-    this.georesourceMetadataStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
+    this.georesourceMetadataStructure_pretty =
+      this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
   }
 
   private setupEventListeners(): void {
@@ -172,11 +181,13 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   private refreshRoles(): void {
-    const allowedRoles = this.currentGeoresourceDataset ? this.currentGeoresourceDataset.allowedRoles : [];
+    const allowedRoles = this.currentGeoresourceDataset
+      ? this.currentGeoresourceDataset.allowedRoles
+      : [];
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
+      'georesourceEditRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl,
       allowedRoles
     );
   }
@@ -198,7 +209,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       databasis: this.currentGeoresourceDataset.metadata.databasis,
       contact: this.currentGeoresourceDataset.metadata.contact,
       description: this.currentGeoresourceDataset.metadata.description,
-      lastUpdate: this.currentGeoresourceDataset.metadata.lastUpdate
+      lastUpdate: this.currentGeoresourceDataset.metadata.lastUpdate,
     };
 
     // Set update interval
@@ -210,9 +221,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     // Set role management
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
+      'georesourceEditRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl,
       this.currentGeoresourceDataset.allowedRoles
     );
 
@@ -253,11 +264,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.selectedPoiIconName = this.currentGeoresourceDataset.poiSymbolBootstrap3Name;
 
     // Set topic hierarchy
-    const topicHierarchy =
-      this.topicHierarchyService.getTopicHierarchyForTopicId(
-        this.kommonitorDataExchangeService.availableTopics,
-        this.currentGeoresourceDataset.topicReference,
-      );
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.kommonitorDataExchangeService.availableTopics,
+      this.currentGeoresourceDataset.topicReference
+    );
 
     if (topicHierarchy && topicHierarchy[0]) {
       this.georesourceTopic_mainTopic = topicHierarchy[0];
@@ -287,18 +297,20 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       const datePicker = document.getElementById('georesourceEditLastUpdateDatepicker');
       if (datePicker && (window as any).$) {
         (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker(DATE_PICKER_OPTIONS);
-        (window as any).$('#georesourceEditLastUpdateDatepicker').datepicker('setDate', this.metadata.lastUpdate);
+        (window as any)
+          .$('#georesourceEditLastUpdateDatepicker')
+          .datepicker('setDate', this.metadata.lastUpdate);
       }
 
       // Initialize color pickers
       const loiColorPicker = document.getElementById('loiColorEditPicker');
       const aoiColorPicker = document.getElementById('aoiColorEditPicker');
-      
+
       if (loiColorPicker && (window as any).$) {
         (window as any).$('#loiColorEditPicker').colorpicker();
         (window as any).$('#loiColorEditPicker').colorpicker('setValue', this.loiColor);
       }
-      
+
       if (aoiColorPicker && (window as any).$) {
         (window as any).$('#aoiColorEditPicker').colorpicker();
         (window as any).$('#aoiColorEditPicker').colorpicker('setValue', this.aoiColor);
@@ -324,14 +336,16 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
           search: true,
           searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
           selectedClass: 'btn-success',
-          unselectedClass: ''
+          unselectedClass: '',
         };
 
         (window as any).$('#poiSymbolEditPicker').iconpicker(iconPickerOptions);
         (window as any).$('#poiSymbolEditPicker').on('change', (e: any) => {
           this.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-') + 1);
         });
-        (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
+        (window as any)
+          .$('#poiSymbolEditPicker')
+          .iconpicker('setIcon', 'glyphicon-' + this.selectedPoiIconName);
       }
 
       // Initialize LOI dash array dropdown
@@ -348,7 +362,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
           buttonElement.innerHTML = this.selectedLoiDashArrayObject.svgString;
         }
       }, 1000);
-
     } catch (error) {
       console.warn('Date picker/color picker initialization failed:', error);
     }
@@ -358,8 +371,10 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   checkDatasetName(): void {
     this.datasetNameInvalid = false;
     this.kommonitorDataExchangeService.availableGeoresources.forEach((georesource: any) => {
-      if (georesource.datasetName === this.datasetName && 
-          georesource.georesourceId !== this.currentGeoresourceDataset?.georesourceId) {
+      if (
+        georesource.datasetName === this.datasetName &&
+        georesource.georesourceId !== this.currentGeoresourceDataset?.georesourceId
+      ) {
         this.datasetNameInvalid = true;
         return;
       }
@@ -437,7 +452,8 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     if (!this.metadataImportSettings.metadata) {
       console.error('uploaded Metadata File cannot be parsed - wrong structure.');
-      this.georesourceMetadataImportError = 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
+      this.georesourceMetadataImportError =
+        'Struktur der Datei stimmt nicht mit erwartetem Muster überein.';
       const preElement = document.getElementById('georesourcesEditMetadataPre');
       if (preElement) {
         preElement.innerHTML = this.georesourceMetadataStructure_pretty;
@@ -455,7 +471,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       contact: this.metadataImportSettings.metadata.contact,
       lastUpdate: this.metadataImportSettings.metadata.lastUpdate,
       description: this.metadataImportSettings.metadata.description,
-      databasis: this.metadataImportSettings.metadata.databasis
+      databasis: this.metadataImportSettings.metadata.databasis,
     };
 
     // Set update interval
@@ -469,9 +485,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     // Set role management
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
+      'georesourceEditRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl,
       this.metadataImportSettings.allowedRoles
     );
 
@@ -516,14 +532,19 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       if ((window as any).$) {
         (window as any).$('#loiColorEditPicker').colorpicker('setValue', this.loiColor);
         (window as any).$('#aoiColorEditPicker').colorpicker('setValue', this.aoiColor);
-        (window as any).$('#poiSymbolEditPicker').iconpicker('setIcon', 'glyphicon-' + this.metadataImportSettings.poiSymbolBootstrap3Name);
+        (window as any)
+          .$('#poiSymbolEditPicker')
+          .iconpicker(
+            'setIcon',
+            'glyphicon-' + this.metadataImportSettings.poiSymbolBootstrap3Name
+          );
       }
     }, 200);
 
     // Set topic hierarchy
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
       this.kommonitorDataExchangeService.availableTopics,
-      this.metadataImportSettings.topicReference,
+      this.metadataImportSettings.topicReference
     );
 
     if (topicHierarchy && topicHierarchy[0]) {
@@ -555,7 +576,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     metadataExport.allowedRoles = [];
 
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+      this.roleManagementTableOptions
+    );
     for (const roleId of roleIds) {
       metadataExport.allowedRoles.push(roleId);
     }
@@ -643,17 +666,19 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         contact: this.metadata.contact,
         lastUpdate: this.metadata.lastUpdate,
         description: this.metadata.description,
-        databasis: this.metadata.databasis
+        databasis: this.metadata.databasis,
       },
       allowedRoles: [],
       datasetName: this.datasetName,
       isAOI: this.isAOI,
       isLOI: this.isLOI,
       isPOI: this.isPOI,
-      topicReference: null
+      topicReference: null,
     };
 
-    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions);
+    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+      this.roleManagementTableOptions
+    );
     for (const roleId of roleIds) {
       patchBody.allowedRoles.push(roleId);
     }
@@ -699,26 +724,35 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     this.loadingData = true;
 
-    this.http.patch(
-      this.envConfigService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
-      patchBody
-    ).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart = this.datasetName;
-        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { crudType: 'edit', targetGeoresourceId: this.currentGeoresourceDataset.georesourceId });
-        this.showSuccessAlert();
-        this.loadingData = false;
-      },
-      error: (error: any) => {
-        if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.showErrorAlert();
-        this.loadingData = false;
-      }
-    });
+    this.http
+      .patch(
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
+          '/georesources/' +
+          this.currentGeoresourceDataset.georesourceId,
+        patchBody
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.successMessagePart = this.datasetName;
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+            crudType: 'edit',
+            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
+          });
+          this.showSuccessAlert();
+          this.loadingData = false;
+        },
+        error: (error: any) => {
+          if (error.data) {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
+          } else {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.showErrorAlert();
+          this.loadingData = false;
+        },
+      });
   }
 
   // Alert methods
@@ -766,20 +800,22 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // Get filtered topics for georesource
   getMainTopicsForGeoresource(): any[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter((topic: any) => 
-      topic.topicType === 'main' && topic.topicResource === 'georesource'
+    return this.kommonitorDataExchangeService.availableTopics.filter(
+      (topic: any) => topic.topicType === 'main' && topic.topicResource === 'georesource'
     );
   }
 
   // Validation for form submission
   canSubmitForm(): boolean {
-    return !this.datasetNameInvalid && 
-           !!this.metadata.description && 
-           !!this.metadata.datasource && 
-           !!this.metadata.contact && 
-           !!this.metadata.updateInterval && 
-           !!this.metadata.lastUpdate && 
-           !this.poiMarkerTextInvalid;
+    return (
+      !this.datasetNameInvalid &&
+      !!this.metadata.description &&
+      !!this.metadata.datasource &&
+      !!this.metadata.contact &&
+      !!this.metadata.updateInterval &&
+      !!this.metadata.lastUpdate &&
+      !this.poiMarkerTextInvalid
+    );
   }
 
   // Step navigation
@@ -805,4 +841,4 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   cancel(): void {
     this.activeModal.dismiss();
   }
-} 
+}

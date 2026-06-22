@@ -1,34 +1,32 @@
-import { Component, Input } from "@angular/core";
-import { AdminTopicsManagementService } from "../admin-topics-management.service";
+import { Component, Input, inject } from '@angular/core';
+import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import {
   AdminTopicsManagementErrorHandlingService,
   Topic,
   TopicResourceType,
-} from "../admin-topics-management.component";
+} from '../admin-topics-management.component';
 import { take } from 'rxjs/operators';
-import { FormsModule } from "@angular/forms";
-import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
+import { FormsModule } from '@angular/forms';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 @Component({
-  selector: "app-admin-add-topic",
-  templateUrl: "./add-topic.component.html",
-  styleUrls: ["./add-topic.component.css"],
+  selector: 'app-admin-add-topic',
+  templateUrl: './add-topic.component.html',
+  styleUrls: ['./add-topic.component.css'],
   imports: [FormsModule],
   standalone: true,
 })
 export class AddTopicComponent {
+  private srvc = inject(AdminTopicsManagementService);
+  private errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
+  private dataExchangeService = inject(DataExchangeService);
+
   @Input({ required: true }) topicResourceType!: TopicResourceType;
-  @Input() topicType: "main" | "sub" = "main";
+  @Input() topicType: 'main' | 'sub' = 'main';
   @Input() parentTopic!: Topic;
 
-  newTopicDescription: string = "";
-  newTopicTitle: string = "";
-
-  constructor(
-    private srvc: AdminTopicsManagementService,
-    private errorHandlingService: AdminTopicsManagementErrorHandlingService,
-    private dataExchangeService: DataExchangeService
-  ) {}
+  newTopicDescription: string = '';
+  newTopicTitle: string = '';
 
   onAddTopic() {
     this.srvc
@@ -42,23 +40,22 @@ export class AddTopicComponent {
       .pipe(take(1))
       .subscribe({
         next: () => {
-          this.newTopicDescription = "";
-          this.newTopicTitle = "";
+          this.newTopicDescription = '';
+          this.newTopicTitle = '';
         },
         error: (error) => {
-          this.errorHandlingService.errorMessagePart =
-            this.dataExchangeService.syntaxHighlightJSON(
-              error?.data || error
-            );
+          this.errorHandlingService.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(
+            error?.data || error
+          );
         },
       });
   }
 
   getType() {
-    if (this.topicType === "main") {
-      return "Hauptthema";
+    if (this.topicType === 'main') {
+      return 'Hauptthema';
     } else {
-      return "Unterthema";
+      return 'Unterthema';
     }
   }
 }

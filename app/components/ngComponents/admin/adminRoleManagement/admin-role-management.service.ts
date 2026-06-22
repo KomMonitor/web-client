@@ -1,12 +1,12 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
-} from "services/adminSpatialUnit/kommonitor-data-exchange.service";
-import { KeycloakHelperService } from "services/keycloak-helper-service/keycloak-helper.service";
-import { Observable, of, from, throwError } from "rxjs";
-import { catchError, map, switchMap } from "rxjs/operators";
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { KeycloakHelperService } from 'services/keycloak-helper-service/keycloak-helper.service';
+import { Observable, of, from, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 export interface RoleAuthoritiesResponse {
   authorityRoles: Array<{ organizationalUnitId: string; adminRoles: string[] }>;
@@ -23,16 +23,13 @@ export interface RoleDelegatePutEntry {
   adminRoles: string[];
 }
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class AdminRoleManagementService {
-  private baseUrl =
-    this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI;
+  private http = inject(HttpClient);
+  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private keycloakHelperService = inject(KeycloakHelperService);
 
-  constructor(
-    private http: HttpClient,
-    private kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private keycloakHelperService: KeycloakHelperService,
-  ) {}
+  private baseUrl = this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI;
 
   deleteOrganizationalUnit(dataset: AccessControlMetadata): Observable<{
     dataset: AccessControlMetadata;
@@ -40,35 +37,33 @@ export class AdminRoleManagementService {
     error?: string;
   }> {
     return this.http
-      .delete(
-        `${this.baseUrl}/organizationalUnits/${dataset.organizationalUnitId}`,
-      )
+      .delete(`${this.baseUrl}/organizationalUnits/${dataset.organizationalUnitId}`)
       .pipe(
         switchMap(() =>
           from(this.keycloakHelperService.deleteRoles(dataset.name)).pipe(
             // Keycloak errors are non-blocking — still treat as success
             map(() => ({ dataset, success: true })),
-            catchError(() => of({ dataset, success: true })),
-          ),
+            catchError(() => of({ dataset, success: true }))
+          )
         ),
         catchError((error) => {
           const msg = error?.error?.message || JSON.stringify(error);
           return of({ dataset, success: false, error: msg });
-        }),
+        })
       );
   }
 
   addOrganizationalUnit(
     postBody: any,
     parentOrganizationalUnit: AccessControlMetadata | null,
-    roleDelegatesPutBody: any[],
+    roleDelegatesPutBody: any[]
   ): Observable<{ created?: AccessControlMetadata }> {
     return this.http.post(`${this.baseUrl}/organizationalUnits`, postBody).pipe(
       // after creation, refresh access control metadata
       map(() =>
         this.kommonitorDataExchangeService.accessControl.find(
-          (entry) => entry.name === postBody.name,
-        ),
+          (entry) => entry.name === postBody.name
+        )
       ),
       switchMap((created) => {
         if (!created) {
@@ -84,43 +79,38 @@ export class AdminRoleManagementService {
               mandant: !!postBody.mandant,
               parentId: postBody.parentId,
             },
-            parentOrganizationalUnit,
-          ),
+            parentOrganizationalUnit
+          )
         ).pipe(
           switchMap(() => {
             // if created has id and we have role delegates to set, PUT them
-            if (
-              created.organizationalUnitId &&
-              roleDelegatesPutBody.length > 0
-            ) {
+            if (created.organizationalUnitId && roleDelegatesPutBody.length > 0) {
               return this.http
                 .put(
                   `${this.baseUrl}/organizationalUnits/${created.organizationalUnitId}/role-delegates`,
-                  roleDelegatesPutBody,
+                  roleDelegatesPutBody
                 )
                 .pipe(
-                  switchMap(() =>
-                    from(this.keycloakHelperService.fetchAndSetKeycloakRoles()),
-                  ),
+                  switchMap(() => from(this.keycloakHelperService.fetchAndSetKeycloakRoles())),
                   map(() => ({ created })),
-                  catchError((err) => throwError(err)),
+                  catchError((err) => throwError(err))
                 );
             }
 
             // otherwise still refresh roles in Keycloak
-            return from(
-              this.keycloakHelperService.fetchAndSetKeycloakRoles(),
-            ).pipe(map(() => ({ created })));
-          }),
+            return from(this.keycloakHelperService.fetchAndSetKeycloakRoles()).pipe(
+              map(() => ({ created }))
+            );
+          })
         );
       }),
-      catchError((error) => throwError(error)),
+      catchError((error) => throwError(error))
     );
   }
 
   editOrganizationalUnit(
     currentDataset: AccessControlMetadata,
-    oldName: string,
+    oldName: string
   ): Observable<{
     success: boolean;
     keycloakErrorMessagePart?: string;
@@ -135,10 +125,7 @@ export class AdminRoleManagementService {
     };
 
     return this.http
-      .put(
-        `${this.baseUrl}/organizationalUnits/${currentDataset.organizationalUnitId}`,
-        putBody,
-      )
+      .put(`${this.baseUrl}/organizationalUnits/${currentDataset.organizationalUnitId}`, putBody)
       .pipe(
         switchMap(() =>
           from(
@@ -149,53 +136,42 @@ export class AdminRoleManagementService {
               .catch((err) => ({
                 success: true,
                 keycloakErrorMessagePart: this.kommonitorDataExchangeService.syntaxHighlightJSON(
-                  err?.error || err,
+                  err?.error || err
                 ),
-              })),
-          ),
+              }))
+          )
         ),
         catchError((error) => {
-          const msg = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-            error?.error || error,
-          );
+          const msg = this.kommonitorDataExchangeService.syntaxHighlightJSON(error?.error || error);
           return of({ success: false, errorMessagePart: msg });
-        }),
+        })
       );
   }
 
-  getAuthorityRoles(
-    organizationalUnitId: string,
-  ): Observable<RoleAuthoritiesResponse> {
+  getAuthorityRoles(organizationalUnitId: string): Observable<RoleAuthoritiesResponse> {
     return this.http.get<RoleAuthoritiesResponse>(
-      `${this.baseUrl}/organizationalUnits/${organizationalUnitId}/role-authorities`,
+      `${this.baseUrl}/organizationalUnits/${organizationalUnitId}/role-authorities`
     );
   }
 
-  getDelegatedRoles(
-    organizationalUnitId: string,
-  ): Observable<RoleDelegatesResponse> {
+  getDelegatedRoles(organizationalUnitId: string): Observable<RoleDelegatesResponse> {
     return this.http.get<RoleDelegatesResponse>(
-      `${this.baseUrl}/organizationalUnits/${organizationalUnitId}/role-delegates`,
+      `${this.baseUrl}/organizationalUnits/${organizationalUnitId}/role-delegates`
     );
   }
 
   updateDelegatedRoles(
     organizationalUnitId: string,
-    body: RoleDelegatePutEntry[],
+    body: RoleDelegatePutEntry[]
   ): Observable<{ success: boolean; errorMessagePart?: string }> {
     return this.http
-      .put(
-        `${this.baseUrl}/organizationalUnits/${organizationalUnitId}/role-delegates`,
-        body,
-      )
+      .put(`${this.baseUrl}/organizationalUnits/${organizationalUnitId}/role-delegates`, body)
       .pipe(
         map(() => ({ success: true })),
         catchError((error) => {
-          const msg = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-            error?.error || error,
-          );
+          const msg = this.kommonitorDataExchangeService.syntaxHighlightJSON(error?.error || error);
           return of({ success: false, errorMessagePart: msg });
-        }),
+        })
       );
   }
 }

@@ -1,17 +1,19 @@
-import { Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
-  selector: "app-script-parameters",
-  templateUrl: "./script-parameters.component.html",
-  styleUrls: ["./script-parameters.component.scss"],
+  selector: 'app-script-parameters',
+  templateUrl: './script-parameters.component.html',
+  styleUrls: ['./script-parameters.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, ExpandableBoxComponent],
 })
 export class ScriptParametersComponent {
+  protected scriptHelperService = inject(ScriptHelperService);
+
   parameterName_tmp: string | undefined = undefined;
   parameterDescription_tmp: string | undefined = undefined;
   parameterDefaultValue_tmp: any = undefined;
@@ -19,11 +21,9 @@ export class ScriptParametersComponent {
   parameterNumericMaxValue_tmp: number = 1;
   parameterDataType_tmp: any = undefined;
 
-  constructor(protected scriptHelperService: ScriptHelperService) {}
-
   onChangeParameterDataType(): void {
     this.parameterDefaultValue_tmp = undefined;
-    if (this.parameterDataType_tmp?.apiName === "boolean") {
+    if (this.parameterDataType_tmp?.apiName === 'boolean') {
       this.parameterDefaultValue_tmp = false;
     }
   }
@@ -35,7 +35,7 @@ export class ScriptParametersComponent {
       this.parameterDataType_tmp,
       this.parameterDefaultValue_tmp,
       this.parameterNumericMinValue_tmp,
-      this.parameterNumericMaxValue_tmp,
+      this.parameterNumericMaxValue_tmp
     );
     this.resetForm();
   }

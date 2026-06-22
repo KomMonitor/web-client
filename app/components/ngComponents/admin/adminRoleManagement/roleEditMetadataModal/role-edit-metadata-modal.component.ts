@@ -1,41 +1,39 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   KommonitorDataExchangeService,
   AccessControlMetadata,
-} from "services/adminSpatialUnit/kommonitor-data-exchange.service";
-import { AdminRoleManagementService } from "../admin-role-management.service";
-import { NotificationService } from "../../../common/notification/notification.service";
-import { LoadingOverlayComponent } from "components/ngComponents/common/loading-overlay/loading-overlay.component";
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { AdminRoleManagementService } from '../admin-role-management.service';
+import { NotificationService } from '../../../common/notification/notification.service';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
-  selector: "app-role-edit-metadata-modal",
-  templateUrl: "./role-edit-metadata-modal.component.html",
-  styleUrls: ["./role-edit-metadata-modal.component.scss"],
+  selector: 'app-role-edit-metadata-modal',
+  templateUrl: './role-edit-metadata-modal.component.html',
+  styleUrls: ['./role-edit-metadata-modal.component.scss'],
   imports: [CommonModule, FormsModule, LoadingOverlayComponent],
   standalone: true,
 })
 export class RoleEditMetadataModalComponent implements OnInit {
+  private activeModal = inject(NgbActiveModal);
+  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private adminRoleManagementService = inject(AdminRoleManagementService);
+  private notificationSrvc = inject(NotificationService);
+
   @Input() currentDataset!: AccessControlMetadata;
 
   loadingData: boolean = false;
   nameInvalid: boolean = false;
-  oldName: string = "";
+  oldName: string = '';
 
   successMessagePart: string | undefined;
   errorMessagePart: string | undefined;
   keycloakErrorMessagePart: string | undefined;
   showErrorAlert: boolean = false;
   showKeycloakErrorAlert: boolean = false;
-
-  constructor(
-    private activeModal: NgbActiveModal,
-    private kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private adminRoleManagementService: AdminRoleManagementService,
-    private notificationSrvc: NotificationService,
-  ) {}
 
   ngOnInit(): void {
     this.oldName = this.currentDataset.name;
@@ -54,12 +52,12 @@ export class RoleEditMetadataModalComponent implements OnInit {
     this.nameInvalid = this.kommonitorDataExchangeService.accessControl.some(
       (ou) =>
         ou.name === this.currentDataset.name &&
-        ou.organizationalUnitId !== this.currentDataset.organizationalUnitId,
+        ou.organizationalUnitId !== this.currentDataset.organizationalUnitId
     );
   }
 
   close(): void {
-    this.activeModal.dismiss("closed");
+    this.activeModal.dismiss('closed');
   }
 
   editMetadata() {
@@ -74,7 +72,7 @@ export class RoleEditMetadataModalComponent implements OnInit {
         if (res.success) {
           this.successMessagePart = this.currentDataset.name;
           this.notificationSrvc.showSuccess(
-            `Metadaten von '${this.successMessagePart}' erfolgreich gespeichert.`,
+            `Metadaten von '${this.successMessagePart}' erfolgreich gespeichert.`
           );
 
           if (res.keycloakErrorMessagePart) {
@@ -82,7 +80,7 @@ export class RoleEditMetadataModalComponent implements OnInit {
             this.showKeycloakErrorAlert = true;
           } else {
             this.notificationSrvc.showSuccess(
-              `Keycloak-Rollen für '${this.successMessagePart}' erfolgreich aktualisiert.`,
+              `Keycloak-Rollen für '${this.successMessagePart}' erfolgreich aktualisiert.`
             );
           }
 

@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { DataExchangeService } from "../../../../../../services/data-exchange-service/data-exchange.service";
-import { IndicatorsDataset } from "../../../../models/indicators.models";
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorsDataset } from '../../../../models/indicators.models';
 
 export interface ScriptMetadata {
   name: string;
@@ -11,34 +11,29 @@ export interface ScriptMetadata {
 }
 
 @Component({
-  selector: "app-script-step-metadata",
-  templateUrl: "./script-step-metadata.component.html",
-  styleUrls: ["./script-step-metadata.component.css"],
+  selector: 'app-script-step-metadata',
+  templateUrl: './script-step-metadata.component.html',
+  styleUrls: ['./script-step-metadata.component.css'],
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
 export class ScriptStepMetadataComponent {
+  private dataExchangeService = inject(DataExchangeService);
+
   @Input({ required: true }) metadata!: ScriptMetadata;
   @Output() metadataChange = new EventEmitter<ScriptMetadata>();
 
-  availableIndicators: IndicatorsDataset[] =
-    this.dataExchangeService.availableIndicators;
+  availableIndicators: IndicatorsDataset[] = this.dataExchangeService.availableIndicators;
 
   targetIndicator: IndicatorsDataset | undefined;
 
-  indicatorNameFilter: string = "";
-
-  constructor(private dataExchangeService: DataExchangeService) {}
+  indicatorNameFilter: string = '';
 
   get filteredComputationIndicators(): IndicatorsDataset[] {
-    const computation = this.availableIndicators.filter(
-      (i) => i.creationType === "COMPUTATION",
-    );
+    const computation = this.availableIndicators.filter((i) => i.creationType === 'COMPUTATION');
     if (!this.indicatorNameFilter) return computation;
     const filter = this.indicatorNameFilter.toLowerCase();
-    return computation.filter((i) =>
-      i.indicatorName?.toLowerCase().includes(filter),
-    );
+    return computation.filter((i) => i.indicatorName?.toLowerCase().includes(filter));
   }
 
   updateName(name: string) {

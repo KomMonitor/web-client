@@ -1,25 +1,22 @@
-import { Component, ViewChild } from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
-import { ScriptStepIntroductionComponent } from "./scriptStepIntroduction/script-step-introduction.component";
+import { Component, ViewChild, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import { ScriptStepIntroductionComponent } from './scriptStepIntroduction/script-step-introduction.component';
 import {
   ScriptMetadata,
   ScriptStepMetadataComponent,
-} from "./scriptStepMetadata/script-step-metadata.component";
-import { ScriptStepContentComponent } from "./scriptStepContent/script-step-content.component";
-import {
-  StepperComponent,
-  StepperStep,
-} from "../../../common/stepper/stepper.component";
+} from './scriptStepMetadata/script-step-metadata.component';
+import { ScriptStepContentComponent } from './scriptStepContent/script-step-content.component';
+import { StepperComponent, StepperStep } from '../../../common/stepper/stepper.component';
 
 @Component({
-  selector: "app-script-add-modal",
-  templateUrl: "./script-add-modal.component.html",
-  styleUrls: ["./script-add-modal.component.css"],
+  selector: 'app-script-add-modal',
+  templateUrl: './script-add-modal.component.html',
+  styleUrls: ['./script-add-modal.component.css'],
   imports: [
     CommonModule,
     FormsModule,
@@ -31,21 +28,26 @@ import {
   standalone: true,
 })
 export class ScriptAddModalComponent {
+  activeModal = inject(NgbActiveModal);
+  dataExchangeService = inject(DataExchangeService);
+  scriptHelperService = inject(ScriptHelperService);
+  private broadcastService = inject(BroadcastService);
+
   currentStep: number = 1;
 
   readonly stepperSteps: StepperStep[] = [
-    { label: "Einleitende Hinweise" },
-    { label: "Metadaten des Indikators-Skripts" },
-    { label: "Skriptinhalt und Parametrisierung" },
+    { label: 'Einleitende Hinweise' },
+    { label: 'Metadaten des Indikators-Skripts' },
+    { label: 'Skriptinhalt und Parametrisierung' },
   ];
 
   @ViewChild(ScriptStepContentComponent)
   scriptStepContent!: ScriptStepContentComponent;
 
   scriptMetadata: ScriptMetadata = {
-    name: "",
-    description: "",
-    associatedIndicatorId: "",
+    name: '',
+    description: '',
+    associatedIndicatorId: '',
   };
   scriptStepValid: boolean = false;
 
@@ -53,31 +55,24 @@ export class ScriptAddModalComponent {
   // Alerts
   showSuccessAlert: boolean = false;
   showErrorAlert: boolean = false;
-  errorMessagePart: string = "";
-  successMessagePart: string = "";
-  errorMessagePart_indicatorMetadata: string = "";
+  errorMessagePart: string = '';
+  successMessagePart: string = '';
+  errorMessagePart_indicatorMetadata: string = '';
   showIndicatorMetadataEditSuccessAlert: boolean = false;
   showIndicatorMetadataEditErrorAlert: boolean = false;
-
-  constructor(
-    public activeModal: NgbActiveModal,
-    public dataExchangeService: DataExchangeService,
-    public scriptHelperService: ScriptHelperService,
-    private broadcastService: BroadcastService,
-  ) {}
 
   resetForm(): void {
     this.currentStep = 1;
     this.scriptMetadata = {
-      name: "",
-      description: "",
-      associatedIndicatorId: "",
+      name: '',
+      description: '',
+      associatedIndicatorId: '',
     };
     this.showSuccessAlert = false;
     this.showErrorAlert = false;
-    this.errorMessagePart = "";
-    this.successMessagePart = "";
-    this.errorMessagePart_indicatorMetadata = "";
+    this.errorMessagePart = '';
+    this.successMessagePart = '';
+    this.errorMessagePart_indicatorMetadata = '';
     this.showIndicatorMetadataEditSuccessAlert = false;
     this.showIndicatorMetadataEditErrorAlert = false;
     this.scriptHelperService.reset();
@@ -85,7 +80,7 @@ export class ScriptAddModalComponent {
   }
 
   close(): void {
-    this.activeModal.dismiss("closed");
+    this.activeModal.dismiss('closed');
   }
 
   nextStep(): void {
@@ -105,30 +100,22 @@ export class ScriptAddModalComponent {
     this.loadingData = true;
     this.showSuccessAlert = false;
     this.showErrorAlert = false;
-    this.errorMessagePart = "";
-    this.successMessagePart = "";
+    this.errorMessagePart = '';
+    this.successMessagePart = '';
 
     // this.prepareParametersForScriptType();
 
     const name = this.scriptMetadata.name.trim();
     const description = this.scriptMetadata.description.trim();
-    const associatedIndicatorId =
-      this.scriptMetadata.associatedIndicatorId.trim();
+    const associatedIndicatorId = this.scriptMetadata.associatedIndicatorId.trim();
     try {
-      await this.scriptHelperService.postNewScript(
-        name,
-        description,
-        associatedIndicatorId,
-      );
+      await this.scriptHelperService.postNewScript(name, description, associatedIndicatorId);
 
       // Attempt to update the target indicator's processDescription if formula HTML is set
-      if (
-        this.scriptHelperService
-          .scriptFormulaHTML_overwriteTargetIndicatorMethod
-      ) {
+      if (this.scriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod) {
         try {
           await this.scriptHelperService.replaceMethodMetadataForTargetIndicator(
-            associatedIndicatorId,
+            associatedIndicatorId
           );
           this.showIndicatorMetadataEditSuccessAlert = true;
         } catch (error: any) {
@@ -139,10 +126,10 @@ export class ScriptAddModalComponent {
         }
       }
 
-      this.broadcastService.broadcast("refreshScriptOverviewTable", {
-        crudType: "add",
+      this.broadcastService.broadcast('refreshScriptOverviewTable', {
+        crudType: 'add',
       });
-      this.broadcastService.broadcast("refreshAdminDashboardDiagrams");
+      this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
       this.showSuccessAlert = true;
       this.loadingData = false;
     } catch (error: any) {
@@ -163,9 +150,11 @@ export class ScriptAddModalComponent {
 
   isFormValid(): boolean {
     return !!(
-      this.scriptMetadata.name.trim() !== "" &&
-      this.scriptMetadata.description.trim() !== "" &&
-      this.scriptMetadata.associatedIndicatorId.trim() !== ""
+      (
+        this.scriptMetadata.name.trim() !== '' &&
+        this.scriptMetadata.description.trim() !== '' &&
+        this.scriptMetadata.associatedIndicatorId.trim() !== ''
+      )
       // this.scriptStepValid
     );
   }

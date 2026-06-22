@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +14,13 @@ import { CommonModule } from '@angular/common';
   standalone: true,
 })
 export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
+  activeModal = inject(NgbActiveModal);
+  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  kommonitorImporterHelperService = inject<any>('kommonitorImporterHelperService' as any);
+  kommonitorBatchUpdateHelperService = inject<any>('kommonitorBatchUpdateHelperService' as any);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+
   @ViewChild('batchListFile', { static: false }) batchListFile!: ElementRef;
 
   // Component state
@@ -34,22 +41,13 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorBatchUpdateHelperService') public kommonitorBatchUpdateHelperService: any,
-    private broadcastService: BroadcastService,
-    private http: HttpClient
-  ) {}
-
   ngOnInit(): void {
     this.initialize();
     this.setupEventListeners();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private initialize(): void {
@@ -69,12 +67,16 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
       // Initialize default column date pickers
       const startDatePicker = document.getElementById('georesourceDefaultColumnDatePickerStart');
       const endDatePicker = document.getElementById('georesourceDefaultColumnDatePickerEnd');
-      
+
       if (startDatePicker && (window as any).$) {
-        (window as any).$('#georesourceDefaultColumnDatePickerStart').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+        (window as any)
+          .$('#georesourceDefaultColumnDatePickerStart')
+          .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
       }
       if (endDatePicker && (window as any).$) {
-        (window as any).$('#georesourceDefaultColumnDatePickerEnd').datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+        (window as any)
+          .$('#georesourceDefaultColumnDatePickerEnd')
+          .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
       }
 
       // Initialize row date pickers
@@ -116,7 +118,13 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
     if (file) {
       const reader = new FileReader();
       reader.addEventListener('load', (event: any) => {
-        this.kommonitorBatchUpdateHelperService.onMappingTableSelected('georesource', event, index, file, this.batchList);
+        this.kommonitorBatchUpdateHelperService.onMappingTableSelected(
+          'georesource',
+          event,
+          index,
+          file,
+          this.batchList
+        );
       });
       reader.readAsText(file);
     }
@@ -127,7 +135,11 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
     if (file) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
-        this.kommonitorBatchUpdateHelperService.onDataSourceFileSelected(file, index, this.batchList);
+        this.kommonitorBatchUpdateHelperService.onDataSourceFileSelected(
+          file,
+          index,
+          this.batchList
+        );
       });
       reader.readAsText(file);
     }
@@ -136,7 +148,11 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   onBatchListFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      this.kommonitorBatchUpdateHelperService.parseBatchListFromFile('georesource', file, this.batchList);
+      this.kommonitorBatchUpdateHelperService.parseBatchListFromFile(
+        'georesource',
+        file,
+        this.batchList
+      );
     }
   }
 
@@ -146,7 +162,10 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
       for (let i = 0; i < this.batchList.length; i++) {
         this.batchList[i].isSelected = true;
       }
-      this.kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected);
+      this.kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList(
+        this.batchList,
+        this.allRowsSelected
+      );
 
       // Add new rows
       for (let i = 0; i < newBatchList.length; i++) {
@@ -158,32 +177,50 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
         // name - convert georesourceId to georesource object
         const georesourceId = newBatchList[i].name;
-        const georesourceObj = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+        const georesourceObj =
+          this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
         row.name = georesourceObj;
 
         // mappingTableName
         row.mappingTableName = newBatchList[i].mappingTableName;
         // mappingObj
         row.mappingObj = newBatchList[i].mappingObj;
-        
+
         // converter parameters to properties
         if (row.mappingObj.converter) {
-          row.mappingObj.converter = this.kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
+          row.mappingObj.converter =
+            this.kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(
+              row.mappingObj.converter
+            );
         }
-        
+
         // dataSource parameters to properties
         if (row.mappingObj.dataSource) {
-          row.mappingObj.dataSource = this.kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
+          row.mappingObj.dataSource =
+            this.kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(
+              row.mappingObj.dataSource
+            );
         }
-        
+
         // set selectedConverter
-        if (newBatchList[i].mappingObj.converter && Object.prototype.hasOwnProperty.call(newBatchList[i].mappingObj.converter, 'name')) {
-          row.selectedConverter = this.kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
+        if (
+          newBatchList[i].mappingObj.converter &&
+          Object.prototype.hasOwnProperty.call(newBatchList[i].mappingObj.converter, 'name')
+        ) {
+          row.selectedConverter = this.kommonitorBatchUpdateHelperService.getConverterObjectByName(
+            newBatchList[i].mappingObj.converter.name
+          );
         }
-        
+
         // set selectedDatasourceType
-        if (newBatchList[i].mappingObj.dataSource && Object.prototype.hasOwnProperty.call(newBatchList[i].mappingObj.dataSource, 'type')) {
-          row.selectedDatasourceType = this.kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
+        if (
+          newBatchList[i].mappingObj.dataSource &&
+          Object.prototype.hasOwnProperty.call(newBatchList[i].mappingObj.dataSource, 'type')
+        ) {
+          row.selectedDatasourceType =
+            this.kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(
+              newBatchList[i].mappingObj.dataSource.type
+            );
         }
       }
 
@@ -198,11 +235,17 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   }
 
   deleteSelectedRows(): void {
-    this.kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected);
+    this.kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList(
+      this.batchList,
+      this.allRowsSelected
+    );
   }
 
   onSelectAllRows(): void {
-    this.kommonitorBatchUpdateHelperService.onChangeSelectAllRows(this.allRowsSelected, this.batchList);
+    this.kommonitorBatchUpdateHelperService.onChangeSelectAllRows(
+      this.allRowsSelected,
+      this.batchList
+    );
   }
 
   onGeoresourceSelected(georesource: any, _index: number): void {
@@ -230,11 +273,20 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   }
 
   exportBatchList(): void {
-    this.kommonitorBatchUpdateHelperService.saveBatchListToFile('georesource', this.batchList, true, this.keepMissingValues);
+    this.kommonitorBatchUpdateHelperService.saveBatchListToFile(
+      'georesource',
+      this.batchList,
+      true,
+      this.keepMissingValues
+    );
   }
 
   saveMappingObjectToFile(event: any): void {
-    this.kommonitorBatchUpdateHelperService.saveMappingObjectToFile('georesource', event, this.batchList);
+    this.kommonitorBatchUpdateHelperService.saveMappingObjectToFile(
+      'georesource',
+      event,
+      this.batchList
+    );
   }
 
   // Batch update execution
@@ -243,7 +295,10 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   }
 
   canExecuteBatchUpdate(): boolean {
-    return this.kommonitorBatchUpdateHelperService.checkIfNameAndFilesChosenInEachRow('georesource', this.batchList);
+    return this.kommonitorBatchUpdateHelperService.checkIfNameAndFilesChosenInEachRow(
+      'georesource',
+      this.batchList
+    );
   }
 
   reopenResultModal(): void {
@@ -258,19 +313,27 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   // Helper methods for template
   checkColumnsToShow_selectedConverter(): string[] {
-    return this.kommonitorBatchUpdateHelperService.checkColumnsToShow_selectedConverter(this.batchList);
+    return this.kommonitorBatchUpdateHelperService.checkColumnsToShow_selectedConverter(
+      this.batchList
+    );
   }
 
   checkIfSelectedDatasourceTypeIsFile(): boolean {
-    return this.kommonitorBatchUpdateHelperService.checkIfSelectedDatasourceTypeIsFile(this.batchList);
+    return this.kommonitorBatchUpdateHelperService.checkIfSelectedDatasourceTypeIsFile(
+      this.batchList
+    );
   }
 
   checkIfSelectedDatasourceTypeIsHttp(): boolean {
-    return this.kommonitorBatchUpdateHelperService.checkIfSelectedDatasourceTypeIsHttp(this.batchList);
+    return this.kommonitorBatchUpdateHelperService.checkIfSelectedDatasourceTypeIsHttp(
+      this.batchList
+    );
   }
 
   checkIfSelectedDatasourceTypeIsInline(): boolean {
-    return this.kommonitorBatchUpdateHelperService.checkIfSelectedDatasourceTypeIsInline(this.batchList);
+    return this.kommonitorBatchUpdateHelperService.checkIfSelectedDatasourceTypeIsInline(
+      this.batchList
+    );
   }
 
   getConverterObjectByName(name: string): any {
@@ -287,4 +350,4 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   cancel(): void {
     this.activeModal.dismiss();
   }
-} 
+}

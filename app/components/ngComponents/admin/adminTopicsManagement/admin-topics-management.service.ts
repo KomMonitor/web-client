@@ -1,32 +1,26 @@
-import { Injectable } from "@angular/core";
-import {
-  Topic,
-  TopicOrderMode,
-  TopicResourceType,
-} from "./admin-topics-management.component";
-import { HttpClient } from "@angular/common/http";
-import { map, tap, timeout } from "rxjs";
-import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
-import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
-import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
+import { Injectable, inject } from '@angular/core';
+import { Topic, TopicOrderMode, TopicResourceType } from './admin-topics-management.component';
+import { HttpClient } from '@angular/common/http';
+import { map, tap, timeout } from 'rxjs';
+import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
+import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 
 export interface TopicOrderResponseEntry {
   topicResource: TopicResourceType;
   orderMode: TopicOrderMode;
 }
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AdminTopicsManagementService {
-  constructor(
-    private broadcastService: BroadcastService,
-    private http: HttpClient,
-    private envConfigService: EnvConfigService,
-    private dataExchangeService: DataExchangeService
-  ) {}
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
+  private dataExchangeService = inject(DataExchangeService);
 
   addTopic(
-    topicType: "main" | "sub",
+    topicType: 'main' | 'sub',
     resourceType: TopicResourceType,
     newTopicTitle: string,
     newTopicDescription: string,
@@ -40,7 +34,7 @@ export class AdminTopicsManagementService {
       subTopics: [],
     };
 
-    if (topicType === "main") {
+    if (topicType === 'main') {
       const url = `${this.envConfigService.baseUrlToKomMonitorDataAPI}/topics`;
 
       return this.http.post(url, newTopic).pipe(
@@ -49,14 +43,10 @@ export class AdminTopicsManagementService {
       );
     } else {
       if (!parentTopic) {
-        throw new Error(
-          "Parent topic must be provided when adding a sub topic."
-        );
+        throw new Error('Parent topic must be provided when adding a sub topic.');
       }
       if (this.alreadyInSubtopics(newTopicTitle, parentTopic.subTopics)) {
-        throw new Error(
-          "Ein Unterthema mit dem gleichen Titel existiert bereits."
-        );
+        throw new Error('Ein Unterthema mit dem gleichen Titel existiert bereits.');
       }
       parentTopic.subTopics.push(newTopic);
       const putBody: Topic = {
@@ -111,10 +101,7 @@ export class AdminTopicsManagementService {
     );
   }
 
-  updateMainTopicOrder(
-    topicResourceType: TopicResourceType,
-    mainTopics: Topic[]
-  ) {
+  updateMainTopicOrder(topicResourceType: TopicResourceType, mainTopics: Topic[]) {
     const postBody = mainTopics.map((t, index) => ({
       topicId: t.topicId,
       displayOrder: index,
@@ -126,10 +113,7 @@ export class AdminTopicsManagementService {
     );
   }
 
-  setOrderMode(
-    topicResourceType: TopicResourceType,
-    orderMode: TopicOrderMode
-  ) {
+  setOrderMode(topicResourceType: TopicResourceType, orderMode: TopicOrderMode) {
     const postBody = {
       orderMode: orderMode,
     };
@@ -144,19 +128,12 @@ export class AdminTopicsManagementService {
 
   getOrderMode(topicResourceType: TopicResourceType) {
     return this.getOrderModes().pipe(
-      map((res) =>
-        res.find((e) => e.topicResource === topicResourceType)?.orderMode
-      )
+      map((res) => res.find((e) => e.topicResource === topicResourceType)?.orderMode)
     );
   }
 
-  private alreadyInSubtopics(
-    topicName: string,
-    existingTopics: Topic[]
-  ): boolean {
-    return (
-      existingTopics.find((st) => st.topicName === topicName) !== undefined
-    );
+  private alreadyInSubtopics(topicName: string, existingTopics: Topic[]): boolean {
+    return existingTopics.find((st) => st.topicName === topicName) !== undefined;
   }
 
   private prepareSubTopcis(subTopcis: Topic[]) {
@@ -176,12 +153,10 @@ export class AdminTopicsManagementService {
 
   private reloadTopics() {
     this.dataExchangeService
-      .fetchTopicsMetadata(
-        this.dataExchangeService.currentKeycloakLoginRoles
-      )
+      .fetchTopicsMetadata(this.dataExchangeService.currentKeycloakLoginRoles)
       .then(() => {
-        this.broadcastService.broadcast("refreshTopicsOverview");
-        this.broadcastService.broadcast("refreshAdminDashboardDiagrams");
+        this.broadcastService.broadcast('refreshTopicsOverview');
+        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
       });
   }
 }

@@ -1,7 +1,7 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { timeout } from "rxjs";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { timeout } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 export interface IndicatorJobHealth {
   activeJobs: number;
@@ -25,13 +25,11 @@ export interface IndicatorJob {
   jobData: any;
 }
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AdminScriptExecutionService {
-  constructor(
-    private http: HttpClient,
-    private envConfigService: EnvConfigService,
-  ) {}
+  private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
   getDefaultIndicatorJobs() {
     const url = `${this.envConfigService.targetUrlToProcessingEngine}/script-engine/defaultIndicatorComputation`;

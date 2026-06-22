@@ -1,45 +1,43 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { ConfigStorageService } from "services/config-storage-service/config-storage.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
-import CodeMirror from "codemirror";
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
-import "codemirror/mode/xml/xml.js";
-import "codemirror/mode/javascript/javascript.js";
-import "codemirror/mode/css/css.js";
-import "codemirror/mode/htmlmixed/htmlmixed.js";
+import 'codemirror/mode/xml/xml.js';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/css/css.js';
+import 'codemirror/mode/htmlmixed/htmlmixed.js';
 
 // import 'codemirror/addon/display/autoRefresh.js';
-import { HttpClient } from "@angular/common/http";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { AgGridAngular } from "ag-grid-angular";
-import {
-  ColDef,
-  GridOptions,
-  GridReadyEvent,
-  SelectionChangedEvent,
-} from "ag-grid-community";
-import { KommonitorFilterDataGridHelperService } from "services/adminFilterConfig/kommonitor-data-grid-helper.service";
-import { GlobalFilterEntry } from "components/ngComponents/models/globalFilters.models";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
+import { HttpClient } from '@angular/common/http';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
+import { KommonitorFilterDataGridHelperService } from 'services/adminFilterConfig/kommonitor-data-grid-helper.service';
+import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { CommonModule } from "@angular/common";
-import { AdminContentViewComponent } from "../../admin-content-view/admin-content-view.component";
+import { CommonModule } from '@angular/common';
+import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 
 @Component({
-  selector: "app-admin-filter-config",
-  templateUrl: "./admin-filter-config.component.html",
-  styleUrls: ["./admin-filter-config.component.css"],
-  imports: [
-    AgGridAngular,
-    ExpandableBoxComponent,
-    CommonModule,
-    AdminContentViewComponent,
-  ],
+  selector: 'app-admin-filter-config',
+  templateUrl: './admin-filter-config.component.html',
+  styleUrls: ['./admin-filter-config.component.css'],
+  imports: [AgGridAngular, ExpandableBoxComponent, CommonModule, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminFilterConfigComponent implements OnInit {
+  private kommonitorDataExchangeService = inject(DataExchangeService);
+  private kommonitorScriptHelperService = inject(ScriptHelperService);
+  private kommonitorConfigStorageService = inject(ConfigStorageService);
+  private kommonitorDataGridHelperService = inject(KommonitorFilterDataGridHelperService);
+  private httpClient = inject(HttpClient);
+  private broadcastService = inject(BroadcastService);
+  private envConfigService = inject(EnvConfigService);
+
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
   // AG Grid properties
@@ -56,7 +54,7 @@ export class AdminFilterConfigComponent implements OnInit {
   lintingIssues;
 
   missingRequiredParameters = [];
-  missingRequiredParameters_string = "";
+  missingRequiredParameters_string = '';
 
   keywordsInConfig = [];
 
@@ -71,50 +69,26 @@ export class AdminFilterConfigComponent implements OnInit {
 
   errorMessagePart;
 
-  constructor(
-    private kommonitorDataExchangeService: DataExchangeService,
-    private kommonitorScriptHelperService: ScriptHelperService,
-    private kommonitorConfigStorageService: ConfigStorageService,
-    private kommonitorDataGridHelperService: KommonitorFilterDataGridHelperService,
-    private httpClient: HttpClient,
-    private broadcastService: BroadcastService,
-    private envConfigService: EnvConfigService,
-  ) {}
-
   async ngOnInit() {
     this.httpClient
-      .get("./config/filter-config_backup_forAdminViewExplanation.txt", {
-        responseType: "text",
+      .get('./config/filter-config_backup_forAdminViewExplanation.txt', {
+        responseType: 'text',
       })
       .subscribe({
         next: (response) => {
           this.filterConfigTemplate = response;
 
           this.kommonitorScriptHelperService.prettifyScriptCodePreview(
-            "filterConfig_backupTemplate",
+            'filterConfig_backupTemplate'
           );
         },
       });
 
     // set in app.js
-    this.filterConfigTmp = JSON.stringify(
-      this.envConfigService.filterConfig,
-      null,
-      "    ",
-    );
-    this.filterConfigCurrent = JSON.stringify(
-      this.envConfigService.filterConfig,
-      null,
-      "    ",
-    );
-    this.filterConfigNew = JSON.stringify(
-      this.envConfigService.filterConfig,
-      null,
-      "    ",
-    );
-    this.kommonitorScriptHelperService.prettifyScriptCodePreview(
-      "filterConfig_current",
-    );
+    this.filterConfigTmp = JSON.stringify(this.envConfigService.filterConfig, null, '    ');
+    this.filterConfigCurrent = JSON.stringify(this.envConfigService.filterConfig, null, '    ');
+    this.filterConfigNew = JSON.stringify(this.envConfigService.filterConfig, null, '    ');
+    this.kommonitorScriptHelperService.prettifyScriptCodePreview('filterConfig_current');
 
     this.kommonitorConfigStorageService.getFilterConfig().subscribe({
       next: (response) => {
@@ -134,17 +108,17 @@ export class AdminFilterConfigComponent implements OnInit {
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case "initialMetadataLoadingCompleted":
+        case 'initialMetadataLoadingCompleted':
           {
             this.initialMetadataLoadingCompleted();
           }
           break;
-        case "onGlobalFilterDelete":
+        case 'onGlobalFilterDelete':
           {
             this.onGlobalFilterDelete(values);
           }
           break;
-        case "refreshAdminFilterOverview":
+        case 'refreshAdminFilterOverview':
           {
             this.refreshAdminFilterOverview();
           }
@@ -161,14 +135,12 @@ export class AdminFilterConfigComponent implements OnInit {
       this.setupGridOptions(this.origConfig);
 
       // Use the data grid helper service to build column definitions and row data
-      this.columnDefs =
-        this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(
-          this.origConfig,
-        );
-      this.rowData =
-        this.kommonitorDataGridHelperService.buildDataGridRowData_filters(
-          this.origConfig,
-        );
+      this.columnDefs = this.kommonitorDataGridHelperService.buildDataGridColumnConfig_filters(
+        this.origConfig
+      );
+      this.rowData = this.kommonitorDataGridHelperService.buildDataGridRowData_filters(
+        this.origConfig
+      );
 
       // Force change detection
       setTimeout(() => {
@@ -197,12 +169,12 @@ export class AdminFilterConfigComponent implements OnInit {
         wrapText: true,
         autoHeight: true,
         cellStyle: {
-          "font-size": "12px;",
-          "white-space": "normal !important",
-          "line-height": "20px !important",
-          "word-break": "break-word !important",
-          "padding-top": "17px",
-          "padding-bottom": "17px",
+          'font-size': '12px;',
+          'white-space': 'normal !important',
+          'line-height': '20px !important',
+          'word-break': 'break-word !important',
+          'padding-top': '17px',
+          'padding-bottom': '17px',
         },
         headerComponentParams: {
           template:
@@ -215,8 +187,8 @@ export class AdminFilterConfigComponent implements OnInit {
             '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
             '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
             '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-            "  </div>" +
-            "</div>",
+            '  </div>' +
+            '</div>',
         },
       },
       components: {
@@ -228,7 +200,7 @@ export class AdminFilterConfigComponent implements OnInit {
       pagination: true,
       paginationPageSize: 10,
       suppressColumnVirtualisation: true,
-      rowSelection: "multiple",
+      rowSelection: 'multiple',
       suppressRowClickSelection: true,
       onGridReady: (params: GridReadyEvent) => {
         this.onGridReady(params);
@@ -252,7 +224,7 @@ export class AdminFilterConfigComponent implements OnInit {
   }
 
   onAddFilter() {
-    this.broadcastService.broadcast("onOpenAddFilterModal");
+    this.broadcastService.broadcast('onOpenAddFilterModal');
   }
 
   // Grid event handlers
@@ -296,33 +268,25 @@ export class AdminFilterConfigComponent implements OnInit {
   }
 
   async onGlobalFilterDelete([itemId]) {
-    console.log("delete", itemId);
+    console.log('delete', itemId);
 
-    this.origConfig =
-      await this.kommonitorConfigStorageService.getFilterConfig();
+    this.origConfig = await this.kommonitorConfigStorageService.getFilterConfig();
 
     const item = this.mergedFilterConfig.filter((e) => e.filterId == itemId);
     if (item.length == 1) {
-      if (
-        confirm(
-          "Wollen Sie den Filter " +
-            item[0].name +
-            " sicher dauerhaft löschen?",
-        )
-      ) {
+      if (confirm('Wollen Sie den Filter ' + item[0].name + ' sicher dauerhaft löschen?')) {
         const configNew = this.origConfig
           .filter((e, i) => i != itemId)
           .map((e) => {
             delete e.filterId;
             return e;
           });
-        
-          await this.kommonitorConfigStorageService.postFilterConfig(
-            JSON.stringify(configNew, null, "    "),
-          );
 
-        this.origConfig =
-          await this.kommonitorConfigStorageService.getFilterConfig();
+        await this.kommonitorConfigStorageService.postFilterConfig(
+          JSON.stringify(configNew, null, '    ')
+        );
+
+        this.origConfig = await this.kommonitorConfigStorageService.getFilterConfig();
         this.mergedFilterConfig = configNew;
 
         setTimeout(() => {
@@ -334,12 +298,11 @@ export class AdminFilterConfigComponent implements OnInit {
           this.reloadCodeEditor();
         }, 1000);
       }
-    } else console.log("Filter id not found");
+    } else console.log('Filter id not found');
   }
 
   async refreshAdminFilterOverview() {
-    this.origConfig =
-      await this.kommonitorConfigStorageService.getFilterConfig();
+    this.origConfig = await this.kommonitorConfigStorageService.getFilterConfig();
     this.mergedFilterConfig = this.origConfig;
     setTimeout(() => {
       this.prepGlobalFilterData();
@@ -369,30 +332,24 @@ export class AdminFilterConfigComponent implements OnInit {
               .map((e) => e.datasetName)[0];
         });
 
-        filter.indicatorTopics.forEach(
-          (indicatorTopicElement, indicatorTopicIndex) => {
-            this.mergedFilterConfig[filterIndex].indicatorTopics[
-              indicatorTopicIndex
-            ] = this.searchTopicRecursive(
+        filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
+          this.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] =
+            this.searchTopicRecursive(
               this.kommonitorDataExchangeService.availableTopics.filter(
-                (e) => e.topicResource == "indicator",
+                (e) => e.topicResource == 'indicator'
               ),
-              indicatorTopicElement,
+              indicatorTopicElement
             );
-          },
-        );
-        filter.georesourceTopics.forEach(
-          (georesourceTopicElement, georesourceTopicIndex) => {
-            this.mergedFilterConfig[filterIndex].georesourceTopics[
-              georesourceTopicIndex
-            ] = this.searchTopicRecursive(
+        });
+        filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
+          this.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] =
+            this.searchTopicRecursive(
               this.kommonitorDataExchangeService.availableTopics.filter(
-                (e) => e.topicResource == "georesource",
+                (e) => e.topicResource == 'georesource'
               ),
-              georesourceTopicElement,
+              georesourceTopicElement
             );
-          },
-        );
+        });
       });
     }
   }
@@ -418,29 +375,26 @@ export class AdminFilterConfigComponent implements OnInit {
       PR.prettyPrintOne(JSON.stringify(confNew, null, "    "),
       'javascript', true); */
 
-    this.codeMirrorEditor.setValue(JSON.stringify(confNew, null, "    "));
+    this.codeMirrorEditor.setValue(JSON.stringify(confNew, null, '    '));
 
     this.onChangeFilterConfig();
   }
 
   initCodeEditor() {
-    this.codeMirrorEditor = CodeMirror.fromTextArea(
-      document.getElementById("filterConfigEditor"),
-      {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: "application/json",
-        gutters: ["CodeMirror-lint-markers"],
-        lint: {
-          getAnnotations: this.validateCode,
-          async: true,
-        },
+    this.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('filterConfigEditor'), {
+      lineNumbers: true,
+      autoRefresh: true,
+      mode: 'application/json',
+      gutters: ['CodeMirror-lint-markers'],
+      lint: {
+        getAnnotations: this.validateCode,
+        async: true,
       },
-    );
+    });
 
     this.codeMirrorEditor.setSize(null, 300);
 
-    this.codeMirrorEditor.on("change", (_cMirror) => {
+    this.codeMirrorEditor.on('change', (_cMirror) => {
       // get value right from instance
       this.filterConfigTmp = this.codeMirrorEditor.getValue();
     });
@@ -455,9 +409,7 @@ export class AdminFilterConfigComponent implements OnInit {
 
       updateLinting(this.lintingIssues);
     } catch (error) {
-      console.error(
-        "Error while linting filter config json code. Error is: \n" + error,
-      );
+      console.error('Error while linting filter config json code. Error is: \n' + error);
     }
 
     this.onChangeFilterConfig();
@@ -479,15 +431,11 @@ export class AdminFilterConfigComponent implements OnInit {
   isConfigSettingInvalid(configString) {
     let isInvalid = true;
 
-    isInvalid = !this.keywordsInConfig.every((keyword) =>
-      configString.includes(keyword),
-    );
+    isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
     this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword),
+      (keyword) => !configString.includes(keyword)
     );
-    this.missingRequiredParameters_string = JSON.stringify(
-      this.missingRequiredParameters,
-    );
+    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
 
     if (this.lintingIssues && this.lintingIssues.length > 0) {
       isInvalid = true;
@@ -501,8 +449,8 @@ export class AdminFilterConfigComponent implements OnInit {
 
     let configString = this.filterConfigTmp;
 
-    if (typeof configString === "object" && configString !== null) {
-      configString = JSON.stringify(configString, null, "    ");
+    if (typeof configString === 'object' && configString !== null) {
+      configString = JSON.stringify(configString, null, '    ');
     }
 
     this.configSettingInvalid = this.isConfigSettingInvalid(configString);
@@ -526,43 +474,39 @@ export class AdminFilterConfigComponent implements OnInit {
     this.errorMessagePart = undefined;
 
     try {
-      await this.kommonitorConfigStorageService
-        .postFilterConfig(this.filterConfigTmp)
-        .subscribe({
-          next: async (_response) => {
-            $("#filterConfigEditSuccessAlert").show();
-            this.loadingData = false;
+      await this.kommonitorConfigStorageService.postFilterConfig(this.filterConfigTmp).subscribe({
+        next: async (_response) => {
+          $('#filterConfigEditSuccessAlert').show();
+          this.loadingData = false;
 
-            this.filterConfigCurrent = this.filterConfigTmp;
+          this.filterConfigCurrent = this.filterConfigTmp;
 
-            setTimeout(() => {
-              this.origConfig = JSON.parse(this.filterConfigTmp);
-              this.mergedFilterConfig = JSON.parse(this.filterConfigTmp);
+          setTimeout(() => {
+            this.origConfig = JSON.parse(this.filterConfigTmp);
+            this.mergedFilterConfig = JSON.parse(this.filterConfigTmp);
 
-              this.prepGlobalFilterData();
-              this.initializeOrRefreshOverviewTable();
-            }, 250);
-          },
-        });
+            this.prepGlobalFilterData();
+            this.initializeOrRefreshOverviewTable();
+          }, 250);
+        },
+      });
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart =
-          this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart =
-          this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
 
-      $("#filterConfigEditErrorAlert").show();
+      $('#filterConfigEditErrorAlert').show();
       this.loadingData = false;
     }
   }
 
   hideSuccessAlert() {
-    $("#filterConfigEditSuccessAlert").hide();
+    $('#filterConfigEditSuccessAlert').hide();
   }
 
   hideErrorAlert() {
-    $("#filterConfigEditErrorAlert").hide();
+    $('#filterConfigEditErrorAlert').hide();
   }
 }

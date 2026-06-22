@@ -1,48 +1,43 @@
-import { Component, OnInit, Input } from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { AdminTopicsManagementService } from "../admin-topics-management.service";
-import { Topic } from "../admin-topics-management.component";
-import { CommonModule } from "@angular/common";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { finalize } from "rxjs/operators";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
+import { Component, OnInit, Input, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AdminTopicsManagementService } from '../admin-topics-management.service';
+import { Topic } from '../admin-topics-management.component';
+import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { finalize } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 @Component({
-  selector: "app-topic-delete-modal",
-  templateUrl: "./topic-delete-modal.component.html",
-  styleUrls: ["./topic-delete-modal.component.css"],
+  selector: 'app-topic-delete-modal',
+  templateUrl: './topic-delete-modal.component.html',
+  styleUrls: ['./topic-delete-modal.component.css'],
   imports: [CommonModule],
   standalone: true,
 })
 export class TopicDeleteModalComponent implements OnInit {
-  @Input() currentTopic?: Topic;
-  topicToDeletePrettyPrint: SafeHtml | string = "";
-  loadingData = false;
-  errorMessagePart: SafeHtml | string = "";
-  successMessage: string = "";
+  activeModal = inject(NgbActiveModal);
+  private dataExchangeService = inject(DataExchangeService);
+  private srvc = inject(AdminTopicsManagementService);
+  private sanitizer = inject(DomSanitizer);
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    private dataExchangeService: DataExchangeService,
-    private srvc: AdminTopicsManagementService,
-    private sanitizer: DomSanitizer,
-  ) {}
+  @Input() currentTopic?: Topic;
+  topicToDeletePrettyPrint: SafeHtml | string = '';
+  loadingData = false;
+  errorMessagePart: SafeHtml | string = '';
+  successMessage: string = '';
 
   ngOnInit() {
     if (this.currentTopic) {
-      const html = this.dataExchangeService.syntaxHighlightJSON(
-        this.currentTopic,
-      );
-      this.topicToDeletePrettyPrint =
-        this.sanitizer.bypassSecurityTrustHtml(html);
+      const html = this.dataExchangeService.syntaxHighlightJSON(this.currentTopic);
+      this.topicToDeletePrettyPrint = this.sanitizer.bypassSecurityTrustHtml(html);
       this.resetTopicDeleteForm();
     }
   }
 
   resetTopicDeleteForm() {
-    this.errorMessagePart = "";
-    this.successMessage = "";
+    this.errorMessagePart = '';
+    this.successMessage = '';
   }
 
   deleteTopic() {
@@ -58,14 +53,14 @@ export class TopicDeleteModalComponent implements OnInit {
         takeUntilDestroyed(),
         finalize(() => {
           this.loadingData = false;
-        }),
+        })
       )
       .subscribe({
         next: () => {
-          this.successMessage = "success";
+          this.successMessage = 'success';
           // Close modal after a short delay to show success message
           setTimeout(() => {
-            this.activeModal.close({ action: "deleted" });
+            this.activeModal.close({ action: 'deleted' });
           }, 1500);
         },
         error: (error: any) => {
@@ -78,14 +73,14 @@ export class TopicDeleteModalComponent implements OnInit {
   }
 
   hideSuccessAlert() {
-    this.successMessage = "";
+    this.successMessage = '';
   }
 
   hideErrorAlert() {
-    this.errorMessagePart = "";
+    this.errorMessagePart = '';
   }
 
   close() {
-    this.activeModal.dismiss("cancel");
+    this.activeModal.dismiss('cancel');
   }
 }

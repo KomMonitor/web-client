@@ -1,25 +1,19 @@
-import {
-  Component,
-  OnInit,
-  ElementRef,
-  ViewChild,
-  AfterViewInit,
-} from "@angular/core";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
-import { ConfigStorageService } from "../../../../../services/config-storage-service/config-storage.service";
-import { firstValueFrom } from "rxjs";
-import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
-import CodeMirror from "codemirror";
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
+import { firstValueFrom } from 'rxjs';
+import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
-import "codemirror/mode/xml/xml.js";
-import "codemirror/mode/javascript/javascript.js";
-import "codemirror/mode/css/css.js";
-import "codemirror/mode/htmlmixed/htmlmixed.js";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { CommonModule } from "@angular/common";
-import { AdminContentViewComponent } from "../../admin-content-view/admin-content-view.component";
+import 'codemirror/mode/xml/xml.js';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/css/css.js';
+import 'codemirror/mode/htmlmixed/htmlmixed.js';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { CommonModule } from '@angular/common';
+import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
@@ -33,24 +27,30 @@ interface CodeMirrorEditor {
 }
 
 interface LintingIssue {
-  severity: "error" | "warning";
+  severity: 'error' | 'warning';
   message: string;
   from: { line: number; ch: number };
   to: { line: number; ch: number };
 }
 
 @Component({
-  selector: "app-admin-controls-config",
-  templateUrl: "./admin-controls-config.component.html",
-  styleUrls: ["./admin-controls-config.component.css"],
+  selector: 'app-admin-controls-config',
+  templateUrl: './admin-controls-config.component.html',
+  styleUrls: ['./admin-controls-config.component.css'],
   imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],
   standalone: true,
 })
 export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
-  @ViewChild("controlsConfigEditor") controlsConfigEditor!: ElementRef;
-  @ViewChild("templateCodeMirror") templateCodeMirrorElement!: ElementRef;
-  @ViewChild("currentCodeMirror") currentCodeMirrorElement!: ElementRef;
-  @ViewChild("newCodeMirror") newCodeMirrorElement!: ElementRef;
+  private http = inject(HttpClient);
+  private kommonitorDataExchangeService = inject(DataExchangeService);
+  private kommonitorConfigStorageService = inject(ConfigStorageService);
+  private kommonitorScriptHelperService = inject(ScriptHelperService);
+  private ajskommonitorDataExchangeService = inject(DataExchangeService);
+
+  @ViewChild('controlsConfigEditor') controlsConfigEditor!: ElementRef;
+  @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
+  @ViewChild('currentCodeMirror') currentCodeMirrorElement!: ElementRef;
+  @ViewChild('newCodeMirror') newCodeMirrorElement!: ElementRef;
 
   loadingData = true;
   codeMirrorEditor!: CodeMirrorEditor;
@@ -58,44 +58,38 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
   missingRequiredParameters: string[] = [];
-  missingRequiredParameters_string = "";
+  missingRequiredParameters_string = '';
   keywordsInConfig = [
-    "id",
-    "groups",
-    "indicatorConfig",
-    "poi",
-    "dataImport",
-    "filter",
-    "measureOfValueClassification",
-    "balance",
-    "diagrams",
-    "radarDiagram",
-    "regressionDiagram",
-    "reachability",
-    "processing",
-    "indicatorLegendExportButtons",
-    "reportingButton",
-    "diagramExportButtons",
-    "georesourceExportButtons",
+    'id',
+    'groups',
+    'indicatorConfig',
+    'poi',
+    'dataImport',
+    'filter',
+    'measureOfValueClassification',
+    'balance',
+    'diagrams',
+    'radarDiagram',
+    'regressionDiagram',
+    'reachability',
+    'processing',
+    'indicatorLegendExportButtons',
+    'reportingButton',
+    'diagramExportButtons',
+    'georesourceExportButtons',
   ];
-  controlsConfigTemplate: string = "";
-  controlsConfigTmp: string = "";
-  controlsConfigCurrent: string = "";
-  controlsConfigNew: string = "";
+  controlsConfigTemplate: string = '';
+  controlsConfigTmp: string = '';
+  controlsConfigCurrent: string = '';
+  controlsConfigNew: string = '';
   configSettingInvalid = false;
-  errorMessagePart: string = "";
+  errorMessagePart: string = '';
   lintingIssues: LintingIssue[] = [];
   private dataLoaded = false;
 
-  constructor(
-    private http: HttpClient,
-    private kommonitorDataExchangeService: DataExchangeService,
-    private kommonitorConfigStorageService: ConfigStorageService,
-    private kommonitorScriptHelperService: ScriptHelperService,
-    private ajskommonitorDataExchangeService: DataExchangeService,
-  ) {
+  constructor() {
     if (!this.kommonitorScriptHelperService) {
-      console.error("kommonitorScriptHelperService is not available");
+      console.error('kommonitorScriptHelperService is not available');
     }
   }
 
@@ -123,68 +117,50 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       }
 
       const response = await firstValueFrom(
-        this.http.get(
-          "./config/controls-config_backup_forAdminViewExplanation.txt",
-          { responseType: "text" },
-        ),
+        this.http.get('./config/controls-config_backup_forAdminViewExplanation.txt', {
+          responseType: 'text',
+        })
       );
-      if (typeof response === "string") {
+      if (typeof response === 'string') {
         this.controlsConfigTemplate = response;
         if (this.kommonitorScriptHelperService) {
           this.kommonitorScriptHelperService.prettifyScriptCodePreview(
-            "controlsConfig_backupTemplate",
+            'controlsConfig_backupTemplate'
           );
         }
         try {
           const config = (window as any).__env?.controlsConfig;
           if (!config) {
             await this.kommonitorConfigStorageService.getControlsConfig();
-            const storedConfig =
-              this.kommonitorConfigStorageService.controlsConfig;
+            const storedConfig = this.kommonitorConfigStorageService.controlsConfig;
             if (storedConfig) {
-              this.controlsConfigTmp = JSON.stringify(
-                storedConfig,
-                null,
-                "    ",
-              );
-              this.controlsConfigCurrent = JSON.stringify(
-                storedConfig,
-                null,
-                "    ",
-              );
-              this.controlsConfigNew = JSON.stringify(
-                storedConfig,
-                null,
-                "    ",
-              );
+              this.controlsConfigTmp = JSON.stringify(storedConfig, null, '    ');
+              this.controlsConfigCurrent = JSON.stringify(storedConfig, null, '    ');
+              this.controlsConfigNew = JSON.stringify(storedConfig, null, '    ');
             }
           } else {
-            this.controlsConfigTmp = JSON.stringify(config, null, "    ");
-            this.controlsConfigCurrent = JSON.stringify(config, null, "    ");
-            this.controlsConfigNew = JSON.stringify(config, null, "    ");
+            this.controlsConfigTmp = JSON.stringify(config, null, '    ');
+            this.controlsConfigCurrent = JSON.stringify(config, null, '    ');
+            this.controlsConfigNew = JSON.stringify(config, null, '    ');
           }
         } catch (error) {
-          console.error("Error getting controls config:", error);
+          console.error('Error getting controls config:', error);
         }
 
         if (this.kommonitorScriptHelperService) {
-          this.kommonitorScriptHelperService.prettifyScriptCodePreview(
-            "controlsConfig_current",
-          );
+          this.kommonitorScriptHelperService.prettifyScriptCodePreview('controlsConfig_current');
         }
       }
     } catch (error) {
-      console.error("Error initializing controls config:", error);
+      console.error('Error initializing controls config:', error);
       if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart =
-          this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-            error.error,
-          );
+        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
+          error.error
+        );
       } else {
-        this.errorMessagePart =
-          this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
-      $("#controlsConfigEditErrorAlert").show();
+      $('#controlsConfigEditErrorAlert').show();
     } finally {
       this.loadingData = false;
       this.dataLoaded = true;
@@ -193,28 +169,25 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
   initCodeEditor() {
     if (!this.controlsConfigEditor?.nativeElement) {
-      console.error("Could not find controlsConfigEditor element");
+      console.error('Could not find controlsConfigEditor element');
       return;
     }
 
     // Initialize main editor
-    this.codeMirrorEditor = CodeMirror.fromTextArea(
-      this.controlsConfigEditor.nativeElement,
-      {
-        lineNumbers: true,
-        autoRefresh: true,
-        mode: "application/json",
-        gutters: ["CodeMirror-lint-markers"],
-        lint: {
-          getAnnotations: this.validateCode.bind(this),
-          async: true,
-        },
-        lineWrapping: true,
+    this.codeMirrorEditor = CodeMirror.fromTextArea(this.controlsConfigEditor.nativeElement, {
+      lineNumbers: true,
+      autoRefresh: true,
+      mode: 'application/json',
+      gutters: ['CodeMirror-lint-markers'],
+      lint: {
+        getAnnotations: this.validateCode.bind(this),
+        async: true,
       },
-    );
+      lineWrapping: true,
+    });
     this.codeMirrorEditor.setSize(null, 450);
 
-    this.codeMirrorEditor.on("change", () => {
+    this.codeMirrorEditor.on('change', () => {
       this.controlsConfigTmp = this.codeMirrorEditor.getValue();
       this.onChangeControlsConfig();
     });
@@ -228,17 +201,14 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
     // Initialize template editor
     if (this.templateCodeMirrorElement?.nativeElement) {
-      this.templateCodeMirrorEditor = CodeMirror(
-        this.templateCodeMirrorElement.nativeElement,
-        {
-          lineNumbers: true,
-          autoRefresh: true,
-          mode: "application/json",
-          readOnly: true,
-          theme: "panda-syntax",
-          lineWrapping: true,
-        },
-      );
+      this.templateCodeMirrorEditor = CodeMirror(this.templateCodeMirrorElement.nativeElement, {
+        lineNumbers: true,
+        autoRefresh: true,
+        mode: 'application/json',
+        readOnly: true,
+        theme: 'panda-syntax',
+        lineWrapping: true,
+      });
       this.templateCodeMirrorEditor.setSize(null, 450);
 
       // Set the value after a short delay
@@ -251,17 +221,14 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
     // Initialize current editor
     if (this.currentCodeMirrorElement?.nativeElement) {
-      this.currentCodeMirrorEditor = CodeMirror(
-        this.currentCodeMirrorElement.nativeElement,
-        {
-          lineNumbers: true,
-          autoRefresh: true,
-          mode: "application/json",
-          readOnly: true,
-          theme: "panda-syntax",
-          lineWrapping: true,
-        },
-      );
+      this.currentCodeMirrorEditor = CodeMirror(this.currentCodeMirrorElement.nativeElement, {
+        lineNumbers: true,
+        autoRefresh: true,
+        mode: 'application/json',
+        readOnly: true,
+        theme: 'panda-syntax',
+        lineWrapping: true,
+      });
       this.currentCodeMirrorEditor.setSize(null, 450);
 
       // Set the value after a short delay
@@ -274,17 +241,14 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
     // Initialize new editor
     if (this.newCodeMirrorElement?.nativeElement) {
-      this.newCodeMirrorEditor = CodeMirror(
-        this.newCodeMirrorElement.nativeElement,
-        {
-          lineNumbers: true,
-          autoRefresh: true,
-          mode: "application/json",
-          readOnly: true,
-          theme: "panda-syntax",
-          lineWrapping: true,
-        },
-      );
+      this.newCodeMirrorEditor = CodeMirror(this.newCodeMirrorElement.nativeElement, {
+        lineNumbers: true,
+        autoRefresh: true,
+        mode: 'application/json',
+        readOnly: true,
+        theme: 'panda-syntax',
+        lineWrapping: true,
+      });
       this.newCodeMirrorEditor.setSize(null, 450);
 
       // Set the value after a short delay
@@ -296,37 +260,25 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
     }
   }
 
-  validateCode(
-    cm: any,
-    updateLinting: (issues: LintingIssue[]) => void,
-    options: any,
-  ) {
+  validateCode(cm: any, updateLinting: (issues: LintingIssue[]) => void, options: any) {
     try {
       this.lintingIssues = CodeMirror.lint.json(cm, options);
       updateLinting(this.lintingIssues);
     } catch (error) {
-      console.error(
-        "Error while linting controls config json code. Error is: \n" + error,
-      );
+      console.error('Error while linting controls config json code. Error is: \n' + error);
     }
     this.onChangeControlsConfig();
   }
 
   isConfigSettingInvalid(configString: string): boolean {
     let isInvalid = true;
-    isInvalid = !this.keywordsInConfig.every((keyword) =>
-      configString.includes(keyword),
-    );
+    isInvalid = !this.keywordsInConfig.every((keyword) => configString.includes(keyword));
     this.missingRequiredParameters = this.keywordsInConfig.filter(
-      (keyword) => !configString.includes(keyword),
+      (keyword) => !configString.includes(keyword)
     );
-    this.missingRequiredParameters_string = JSON.stringify(
-      this.missingRequiredParameters,
-    );
+    this.missingRequiredParameters_string = JSON.stringify(this.missingRequiredParameters);
     if (this.lintingIssues && this.lintingIssues.length > 0) {
-      const errors = this.lintingIssues.filter(
-        (issue) => issue.severity === "error",
-      );
+      const errors = this.lintingIssues.filter((issue) => issue.severity === 'error');
       if (errors && errors.length > 0) {
         isInvalid = true;
       }
@@ -347,12 +299,10 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
   async editControlsConfig() {
     this.loadingData = true;
-    this.errorMessagePart = "";
+    this.errorMessagePart = '';
     try {
       await firstValueFrom(
-        this.kommonitorConfigStorageService.postControlsConfig(
-          this.controlsConfigTmp,
-        ),
+        this.kommonitorConfigStorageService.postControlsConfig(this.controlsConfigTmp)
       );
       // Call getControlsConfig which will update the service's controlsConfig property
       this.kommonitorConfigStorageService.getControlsConfig();
@@ -360,34 +310,32 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       this.controlsConfigCurrent = JSON.stringify(
         this.kommonitorConfigStorageService.controlsConfig,
         null,
-        "    ",
+        '    '
       );
       if (this.currentCodeMirrorEditor) {
         this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
       }
-      $("#controlsConfigEditSuccessAlert").show();
+      $('#controlsConfigEditSuccessAlert').show();
     } catch (error) {
-      console.error("Error editing controls config:", error);
+      console.error('Error editing controls config:', error);
       if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart =
-          this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-            error.error,
-          );
+        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
+          error.error
+        );
       } else {
-        this.errorMessagePart =
-          this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
-      $("#controlsConfigEditErrorAlert").show();
+      $('#controlsConfigEditErrorAlert').show();
     } finally {
       this.loadingData = false;
     }
   }
 
   hideSuccessAlert() {
-    $("#controlsConfigEditSuccessAlert").hide();
+    $('#controlsConfigEditSuccessAlert').hide();
   }
 
   hideErrorAlert() {
-    $("#controlsConfigEditErrorAlert").hide();
+    $('#controlsConfigEditErrorAlert').hide();
   }
 }

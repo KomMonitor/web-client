@@ -1,17 +1,10 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-  Input,
-} from "@angular/core";
-import { NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { Subscription } from "rxjs";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { FormsModule } from "@angular/forms";
-import { CommonModule } from "@angular/common";
-import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, inject } from '@angular/core';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 declare const __env: any;
 
@@ -35,13 +28,15 @@ interface BatchListItem {
 }
 
 @Component({
-  selector: "app-indicator-batch-update-modal",
-  templateUrl: "./indicator-batch-update-modal.component.html",
-  styleUrls: ["./indicator-batch-update-modal.component.css"],
+  selector: 'app-indicator-batch-update-modal',
+  templateUrl: './indicator-batch-update-modal.component.html',
+  styleUrls: ['./indicator-batch-update-modal.component.css'],
   imports: [FormsModule, CommonModule],
   standalone: true,
 })
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
+  private broadcastService = inject(BroadcastService);
+  protected dataExchangeService = inject(DataExchangeService);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef;
   @Input() modalRef?: NgbModalRef;
@@ -60,38 +55,33 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private keyDownHandler: (event: KeyboardEvent) => void;
 
-  constructor(
-    private broadcastService: BroadcastService,
-    protected dataExchangeService: DataExchangeService,
-  ) {
+  constructor() {
     this.keyDownHandler = this.handleKeyDown.bind(this);
   }
 
   ngOnInit(): void {
     this.setupEventListeners();
     this.initialize();
-    
+
     // Add keyboard event listener for Escape key
     document.addEventListener('keydown', this.keyDownHandler);
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+
     // Remove keyboard event listener
     document.removeEventListener('keydown', this.keyDownHandler);
   }
 
   private setupEventListeners(): void {
     // Listen for batch update completion
-    const sub1 = this.broadcastService.currentBroadcastMsg.subscribe(data => {
+    const sub1 = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
       if (data.msg === 'batchUpdateCompleted' && (data as any).resourceType === 'indicator') {
         this.lastUpdateResponseObj = data;
-      }
-      else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
+      } else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
         this.refreshNameColumn();
-      }
-      else if (data.msg === 'timeseriesMappingChanged') {
+      } else if (data.msg === 'timeseriesMappingChanged') {
         this.timeseriesMappingReference = (data as any).mapping;
       }
     });
@@ -110,8 +100,10 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     }
 
     // Set initial selected value if available
-    if (this.dataExchangeService.availableIndicators && 
-        this.dataExchangeService.availableIndicators.length > 0) {
+    if (
+      this.dataExchangeService.availableIndicators &&
+      this.dataExchangeService.availableIndicators.length > 0
+    ) {
       this.selected.value = this.dataExchangeService.availableIndicators[0];
     }
   }
@@ -131,35 +123,35 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
           crs: 'EPSG:4326',
           separator: ',',
           schemaNamespace: '',
-          schemaLocation: ''
+          schemaLocation: '',
         },
         dataSource: {
           parameters: [],
           type: 'FILE',
           url: '',
-          payload: ''
+          payload: '',
         },
         propertyMapping: {
           timeseriesMappings: [],
           spatialReferenceKeyProperty: '',
-          keepMissingOrNullValueIndicator: true
+          keepMissingOrNullValueIndicator: true,
         },
-        targetSpatialUnitName: ''
+        targetSpatialUnitName: '',
       },
       selectedConverter: null,
       selectedDatasourceType: null,
-      selectedTargetSpatialUnit: null
+      selectedTargetSpatialUnit: null,
     };
 
     this.batchList.push(newRow);
   }
 
   public deleteSelectedRowsFromBatchList(): void {
-    this.batchList = this.batchList.filter(row => !row.isSelected);
+    this.batchList = this.batchList.filter((row) => !row.isSelected);
   }
 
   public onChangeSelectAllRows(): void {
-    this.batchList.forEach(row => {
+    this.batchList.forEach((row) => {
       row.isSelected = this.allRowsSelected;
     });
   }
@@ -193,7 +185,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   private processParsedBatchList(newBatchList: any[]): void {
     // Remove all existing rows
-    this.batchList.forEach(row => row.isSelected = true);
+    this.batchList.forEach((row) => (row.isSelected = true));
     this.deleteSelectedRowsFromBatchList();
 
     // Add new rows from file
@@ -202,7 +194,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       const row = this.batchList[this.batchList.length - 1];
 
       row.isSelected = item.isSelected;
-      
+
       // Set indicator by ID
       const indicatorId = item.name;
       const indicatorObj = this.dataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -213,10 +205,14 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
       // Convert parameters to properties
       if (row.mappingObj.converter) {
-        row.mappingObj.converter = this.converterParametersArrayToProperties(row.mappingObj.converter);
+        row.mappingObj.converter = this.converterParametersArrayToProperties(
+          row.mappingObj.converter
+        );
       }
       if (row.mappingObj.dataSource) {
-        row.mappingObj.dataSource = this.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
+        row.mappingObj.dataSource = this.dataSourceParametersArrayToProperty(
+          row.mappingObj.dataSource
+        );
       }
 
       // Set selected objects
@@ -224,10 +220,14 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
         row.selectedConverter = this.getConverterObjectByName(item.mappingObj.converter.name);
       }
       if (item.mappingObj.dataSource?.type) {
-        row.selectedDatasourceType = this.getDatasourceTypeObjectByType(item.mappingObj.dataSource.type);
+        row.selectedDatasourceType = this.getDatasourceTypeObjectByType(
+          item.mappingObj.dataSource.type
+        );
       }
       if (item.mappingObj.targetSpatialUnitName) {
-        row.selectedTargetSpatialUnit = this.getSpatialUnitObjectByName(item.mappingObj.targetSpatialUnitName);
+        row.selectedTargetSpatialUnit = this.getSpatialUnitObjectByName(
+          item.mappingObj.targetSpatialUnitName
+        );
       }
     });
   }
@@ -238,7 +238,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     if (file) {
       // Implementation for mapping table selection
       console.log('Mapping table selected for index:', index, file);
-      
+
       const reader = new FileReader();
       reader.onload = (_e: any) => {
         try {
@@ -258,7 +258,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     if (file) {
       // Implementation for data source file selection
       console.log('Data source file selected for index:', index, file);
-      
+
       const reader = new FileReader();
       reader.onload = () => {
         try {
@@ -289,7 +289,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       name: row.name?.indicatorId || '',
       mappingTableName: row.mappingTableName,
       mappingObj: row.mappingObj,
-      isSelected: row.isSelected
+      isSelected: row.isSelected,
     };
 
     const blob = new Blob([JSON.stringify(mappingData, null, 2)], { type: 'application/json' });
@@ -303,17 +303,17 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   public startBatchUpdate(): void {
     this.loadingData = true;
-    
+
     // Implementation for batch update
     console.log('Starting batch update for indicators:', this.batchList);
-    
+
     // Simulate batch update process
     setTimeout(() => {
       this.loadingData = false;
       this.broadcastService.broadcast('batchUpdateCompleted', {
         resourceType: 'indicator',
         status: 'success',
-        message: 'Batch update completed successfully'
+        message: 'Batch update completed successfully',
       });
     }, 2000);
   }
@@ -358,27 +358,27 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   private getConverterParameterPropertyName(paramName: string): string | null {
     const mapping: { [key: string]: string } = {
-      'CRS': 'crs',
-      'Hausnummer_Spaltenname': 'hnrColumnName',
-      'Strasse_Spaltenname': 'streetColumnName',
-      'Adresse_Spaltenname': 'addressColumnName',
-      'Strasse_Hausnummer_Spaltenname': 'streetHnrColumnName',
-      'X_Koordinatenspalte_Rechtswert': 'xCoordColumnName',
-      'Y_Koordinatenspalte_Hochwert': 'yCoordColumnName',
-      'Postleitzahl_Spaltenname': 'plzColumnName',
-      'Stadt_Spaltenname': 'cityColumnName',
-      'NAMESPACE': 'schemaNamespace',
-      'SCHEMA_LOCATION': 'schemaLocation',
-      'Trennzeichen': 'separator'
+      CRS: 'crs',
+      Hausnummer_Spaltenname: 'hnrColumnName',
+      Strasse_Spaltenname: 'streetColumnName',
+      Adresse_Spaltenname: 'addressColumnName',
+      Strasse_Hausnummer_Spaltenname: 'streetHnrColumnName',
+      X_Koordinatenspalte_Rechtswert: 'xCoordColumnName',
+      Y_Koordinatenspalte_Hochwert: 'yCoordColumnName',
+      Postleitzahl_Spaltenname: 'plzColumnName',
+      Stadt_Spaltenname: 'cityColumnName',
+      NAMESPACE: 'schemaNamespace',
+      SCHEMA_LOCATION: 'schemaLocation',
+      Trennzeichen: 'separator',
     };
     return mapping[paramName] || null;
   }
 
   private getDataSourceParameterPropertyName(paramName: string): string | null {
     const mapping: { [key: string]: string } = {
-      'NAME': 'name',
-      'URL': 'url',
-      'payload': 'payload'
+      NAME: 'name',
+      URL: 'url',
+      payload: 'payload',
     };
     return mapping[paramName] || null;
   }
@@ -406,7 +406,9 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private getSpatialUnitObjectByName(name: string): any {
     // Implementation to get spatial unit object by name
     if (this.dataExchangeService.availableSpatialUnits) {
-      return this.dataExchangeService.availableSpatialUnits.find(s => s.spatialUnitLevel === name);
+      return this.dataExchangeService.availableSpatialUnits.find(
+        (s) => s.spatialUnitLevel === name
+      );
     }
     return null;
   }
@@ -414,33 +416,33 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   // Column visibility methods
   public checkColumnsToShowSelectedConverter(): string[] {
     const converters = this.batchList
-      .map(row => row.selectedConverter?.name)
-      .filter(name => name);
-    
+      .map((row) => row.selectedConverter?.name)
+      .filter((name) => name);
+
     const columns: string[] = [];
-    if (converters.some(name => name && name.includes('Tabelle_Zeitreihe_zu_Indikator'))) {
+    if (converters.some((name) => name && name.includes('Tabelle_Zeitreihe_zu_Indikator'))) {
       columns.push('Tabelle_Zeitreihe_zu_Indikator');
     }
-    if (converters.some(name => name && name.includes('WFS_v1'))) {
+    if (converters.some((name) => name && name.includes('WFS_v1'))) {
       columns.push('WFS_v1');
     }
     return columns;
   }
 
   public checkIfSelectedDatasourceTypeIsFile(): boolean {
-    return this.batchList.some(row => row.selectedDatasourceType?.type === 'FILE');
+    return this.batchList.some((row) => row.selectedDatasourceType?.type === 'FILE');
   }
 
   public checkIfSelectedDatasourceTypeIsHttp(): boolean {
-    return this.batchList.some(row => row.selectedDatasourceType?.type === 'HTTP');
+    return this.batchList.some((row) => row.selectedDatasourceType?.type === 'HTTP');
   }
 
   public checkIfSelectedDatasourceTypeIsInline(): boolean {
-    return this.batchList.some(row => row.selectedDatasourceType?.type === 'INLINE');
+    return this.batchList.some((row) => row.selectedDatasourceType?.type === 'INLINE');
   }
 
   public checkIfSelectedConverterIsCsvOnlyIndicator(): boolean {
-    return this.batchList.some(row => row.selectedConverter?.name?.includes('csv_onlyIndicator'));
+    return this.batchList.some((row) => row.selectedConverter?.name?.includes('csv_onlyIndicator'));
   }
 
   // Helper methods to get available options
@@ -463,15 +465,19 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   public onClickSaveColDefaultValue(): void {
     // Implementation for saving default column value
-    console.log('Saving default column value:', this.colDefaultFunctionSelectedColumn, this.colDefaultFunctionNewValue);
+    console.log(
+      'Saving default column value:',
+      this.colDefaultFunctionSelectedColumn,
+      this.colDefaultFunctionNewValue
+    );
   }
 
   public saveBatchListToFile(): void {
-    const batchData = this.batchList.map(item => ({
+    const batchData = this.batchList.map((item) => ({
       name: item.name?.indicatorId || '',
       mappingTableName: item.mappingTableName,
       mappingObj: item.mappingObj,
-      isSelected: item.isSelected
+      isSelected: item.isSelected,
     }));
 
     const blob = new Blob([JSON.stringify(batchData, null, 2)], { type: 'application/json' });
@@ -485,12 +491,16 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   public checkIfNameAndFilesChosenInEachRow(): boolean {
     // Check if each row has required fields filled
-    return this.batchList.length > 0 && this.batchList.every(row => 
-      row.name && 
-      row.selectedConverter && 
-      row.selectedDatasourceType &&
-      row.mappingObj.propertyMapping.spatialReferenceKeyProperty &&
-      row.selectedTargetSpatialUnit
+    return (
+      this.batchList.length > 0 &&
+      this.batchList.every(
+        (row) =>
+          row.name &&
+          row.selectedConverter &&
+          row.selectedDatasourceType &&
+          row.mappingObj.propertyMapping.spatialReferenceKeyProperty &&
+          row.selectedTargetSpatialUnit
+      )
     );
   }
 
@@ -513,4 +523,4 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       this.closeModal();
     }
   }
-} 
+}

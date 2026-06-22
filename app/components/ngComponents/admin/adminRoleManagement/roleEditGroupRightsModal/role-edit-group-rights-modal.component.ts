@@ -1,34 +1,31 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { AgGridAngular } from "ag-grid-angular";
-import { ColDef, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
-} from "services/adminSpatialUnit/kommonitor-data-exchange.service";
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import {
-  AdminRoleManagementService,
-  RoleDelegatePutEntry,
-} from "../admin-role-management.service";
+import { AdminRoleManagementService, RoleDelegatePutEntry } from '../admin-role-management.service';
 import {
   StepperComponent,
   StepperStep,
-} from "components/ngComponents/common/stepper/stepper.component";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { LoadingOverlayComponent } from "components/ngComponents/common/loading-overlay/loading-overlay.component";
-import { NotificationService } from "../../../common/notification/notification.service";
-import { forkJoin } from "rxjs";
+} from 'components/ngComponents/common/stepper/stepper.component';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { NotificationService } from '../../../common/notification/notification.service';
+import { forkJoin } from 'rxjs';
 
 type AdvancedPermissionLevel =
-  | "unit-users-creator"
-  | "client-users-creator"
-  | "unit-resources-creator"
-  | "client-resources-creator"
-  | "unit-themes-creator"
-  | "client-themes-creator";
+  | 'unit-users-creator'
+  | 'client-users-creator'
+  | 'unit-resources-creator'
+  | 'client-resources-creator'
+  | 'unit-themes-creator'
+  | 'client-themes-creator';
 
 type PermissionWithSelection = {
   permissionId: string;
@@ -52,43 +49,43 @@ const ADVANCED_PERMISSION_GROUPS: Array<{
   subGroupRenderer: string;
 }> = [
   {
-    headerName: "Verwalten von Nutzern",
-    groupLevel: "unit-users-creator",
-    subGroupLevel: "client-users-creator",
-    groupRenderer: "checkboxRenderer_UM_group",
-    subGroupRenderer: "checkboxRenderer_UM_subGroup",
+    headerName: 'Verwalten von Nutzern',
+    groupLevel: 'unit-users-creator',
+    subGroupLevel: 'client-users-creator',
+    groupRenderer: 'checkboxRenderer_UM_group',
+    subGroupRenderer: 'checkboxRenderer_UM_subGroup',
   },
   {
-    headerName: "Verwalten von Ressourcen",
-    groupLevel: "unit-resources-creator",
-    subGroupLevel: "client-resources-creator",
-    groupRenderer: "checkboxRenderer_RM_group",
-    subGroupRenderer: "checkboxRenderer_RM_subGroup",
+    headerName: 'Verwalten von Ressourcen',
+    groupLevel: 'unit-resources-creator',
+    subGroupLevel: 'client-resources-creator',
+    groupRenderer: 'checkboxRenderer_RM_group',
+    subGroupRenderer: 'checkboxRenderer_RM_subGroup',
   },
   {
-    headerName: "Verwalten von Themen",
-    groupLevel: "unit-themes-creator",
-    subGroupLevel: "client-themes-creator",
-    groupRenderer: "checkboxRenderer_TM_group",
-    subGroupRenderer: "checkboxRenderer_TM_subGroup",
+    headerName: 'Verwalten von Themen',
+    groupLevel: 'unit-themes-creator',
+    subGroupLevel: 'client-themes-creator',
+    groupRenderer: 'checkboxRenderer_TM_group',
+    subGroupRenderer: 'checkboxRenderer_TM_subGroup',
   },
 ];
 
 function getDisableKey(
-  permissionLevel: string,
+  permissionLevel: string
 ):
-  | "_disable_unit_users_creator"
-  | "_disable_unit_resources_creator"
-  | "_disable_unit_themes_creator" {
-  return `_disable_${permissionLevel.replace(/-/g, "_")}` as
-    | "_disable_unit_users_creator"
-    | "_disable_unit_resources_creator"
-    | "_disable_unit_themes_creator";
+  | '_disable_unit_users_creator'
+  | '_disable_unit_resources_creator'
+  | '_disable_unit_themes_creator' {
+  return `_disable_${permissionLevel.replace(/-/g, '_')}` as
+    | '_disable_unit_users_creator'
+    | '_disable_unit_resources_creator'
+    | '_disable_unit_themes_creator';
 }
 
 function getPermission(
   row: AdvancedAccessControlRow,
-  permissionLevel: string,
+  permissionLevel: string
 ): PermissionWithSelection | undefined {
   return row.permissions.find((p) => p.permissionLevel === permissionLevel);
 }
@@ -96,22 +93,19 @@ function getPermission(
 function setPermissionChecked(
   row: AdvancedAccessControlRow,
   permissionLevel: string,
-  checked: boolean,
+  checked: boolean
 ): void {
   const perm = getPermission(row, permissionLevel);
   if (perm) perm.isChecked = checked;
 }
 
-function isPermissionChecked(
-  row: AdvancedAccessControlRow,
-  permissionLevel: string,
-): boolean {
+function isPermissionChecked(row: AdvancedAccessControlRow, permissionLevel: string): boolean {
   return !!getPermission(row, permissionLevel)?.isChecked;
 }
 
 function createAdvancedCheckboxRenderer(
   currentLevel: AdvancedPermissionLevel,
-  impliedGroupLevel?: AdvancedPermissionLevel,
+  impliedGroupLevel?: AdvancedPermissionLevel
 ) {
   return class {
     private params: any;
@@ -123,22 +117,19 @@ function createAdvancedCheckboxRenderer(
       const permission = getPermission(params.data, currentLevel);
 
       if (!permission) {
-        this.eGui = document.createElement("span");
+        this.eGui = document.createElement('span');
         return;
       }
 
-      const input = document.createElement("input");
-      input.type = "checkbox";
+      const input = document.createElement('input');
+      input.type = 'checkbox';
       input.checked = !!permission.isChecked;
 
-      const disableKey = impliedGroupLevel
-        ? undefined
-        : getDisableKey(currentLevel);
-      input.disabled =
-        !!params.data.disabled || !!(disableKey && params.data[disableKey]);
+      const disableKey = impliedGroupLevel ? undefined : getDisableKey(currentLevel);
+      input.disabled = !!params.data.disabled || !!(disableKey && params.data[disableKey]);
 
       this.boundClickHandler = this.clickHandler.bind(this);
-      input.addEventListener("click", this.boundClickHandler);
+      input.addEventListener('click', this.boundClickHandler);
       this.eGui = input;
     }
 
@@ -170,16 +161,16 @@ function createAdvancedCheckboxRenderer(
 
     destroy(): void {
       if (this.eGui && this.boundClickHandler) {
-        this.eGui.removeEventListener("click", this.boundClickHandler);
+        this.eGui.removeEventListener('click', this.boundClickHandler);
       }
     }
   };
 }
 
 @Component({
-  selector: "app-role-edit-group-rights-modal",
-  templateUrl: "./role-edit-group-rights-modal.component.html",
-  styleUrls: ["./role-edit-group-rights-modal.component.scss"],
+  selector: 'app-role-edit-group-rights-modal',
+  templateUrl: './role-edit-group-rights-modal.component.html',
+  styleUrls: ['./role-edit-group-rights-modal.component.scss'],
   imports: [
     CommonModule,
     FormsModule,
@@ -191,6 +182,12 @@ function createAdvancedCheckboxRenderer(
   standalone: true,
 })
 export class RoleEditGroupRightsModalComponent implements OnInit {
+  protected activeModal = inject(NgbActiveModal);
+  protected kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private adminRoleManagementService = inject(AdminRoleManagementService);
+  private notificationService = inject(NotificationService);
+
   @Input() currentDataset!: AccessControlMetadata;
 
   loadingData: boolean = false;
@@ -199,8 +196,8 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   activeDelegatedRolesOnly: boolean = true;
 
   protected steps: StepperStep[] = [
-    { label: "Eigene Rechte an anderen Gruppen" },
-    { label: "Rechte anderer Gruppen an gewählter Gruppe" },
+    { label: 'Eigene Rechte an anderen Gruppen' },
+    { label: 'Rechte anderer Gruppen an gewählter Gruppe' },
   ];
   protected currentStep: number = 1;
 
@@ -220,23 +217,15 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   private allDelegatedRowData: AdvancedAccessControlRow[] = [];
   private delegatedRoleIds: string[] = [];
 
-  constructor(
-    protected activeModal: NgbActiveModal,
-    protected kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private roleManagementHelper: RoleManagementDataGridHelperService,
-    private adminRoleManagementService: AdminRoleManagementService,
-    private notificationService: NotificationService,
-  ) {}
-
   ngOnInit(): void {
     this.loadingData = true;
 
     forkJoin({
       authorities: this.adminRoleManagementService.getAuthorityRoles(
-        this.currentDataset.organizationalUnitId,
+        this.currentDataset.organizationalUnitId
       ),
       delegates: this.adminRoleManagementService.getDelegatedRoles(
-        this.currentDataset.organizationalUnitId,
+        this.currentDataset.organizationalUnitId
       ),
     }).subscribe({
       next: ({ authorities, delegates }) => {
@@ -246,9 +235,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.notificationService.showError(
-          "Die Rollendaten konnten nicht geladen werden.",
-        );
+        this.notificationService.showError('Die Rollendaten konnten nicht geladen werden.');
         this.loadingData = false;
       },
     });
@@ -258,15 +245,15 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     authorityRoles: Array<{
       organizationalUnitId: string;
       adminRoles: string[];
-    }>,
+    }>
   ): void {
     const authorityRoleIds = authorityRoles.map((r) => r.organizationalUnitId);
     const authorityPermissionIds = authorityRoles.flatMap((r) =>
-      r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`),
+      r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`)
     );
 
-    const access = this.kommonitorDataExchangeService.accessControl.filter(
-      (item) => authorityRoleIds.includes(item.organizationalUnitId),
+    const access = this.kommonitorDataExchangeService.accessControl.filter((item) =>
+      authorityRoleIds.includes(item.organizationalUnitId)
     );
 
     const rowData = this.buildRowData(access, authorityPermissionIds, true);
@@ -280,10 +267,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       floatingFilter: true,
       minWidth: 110,
     };
-    const baseOptions =
-      this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
-        components,
-      );
+    const baseOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(components);
     this.authorityGridOptions = {
       ...baseOptions,
       paginationPageSize: 5,
@@ -296,11 +280,11 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     roleDelegates: Array<{
       organizationalUnitId: string;
       adminRoles: string[];
-    }>,
+    }>
   ): void {
     this.delegatedRoleIds = roleDelegates.map((r) => r.organizationalUnitId);
     const delegatedPermissionIds = roleDelegates.flatMap((r) =>
-      r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`),
+      r.adminRoles.map((role) => `${r.organizationalUnitId}-${role}`)
     );
 
     if (this.delegatedRoleIds.length === 0) {
@@ -308,11 +292,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     }
 
     const allAccess = this.kommonitorDataExchangeService.accessControl;
-    this.allDelegatedRowData = this.buildRowData(
-      allAccess,
-      delegatedPermissionIds,
-      false,
-    );
+    this.allDelegatedRowData = this.buildRowData(allAccess, delegatedPermissionIds, false);
 
     const components = this.getComponents();
     this.delegatedColumnDefs = this.buildColumnDefs();
@@ -322,10 +302,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       floatingFilter: true,
       minWidth: 110,
     };
-    const baseOptions =
-      this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
-        components,
-      );
+    const baseOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(components);
     this.delegatedGridOptions = {
       ...baseOptions,
       paginationPageSize: 5,
@@ -346,7 +323,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   private applyDelegatedFilter(): void {
     if (this.delegatedRoleIds.length > 0 && this.activeDelegatedRolesOnly) {
       this.delegatedRowData = this.allDelegatedRowData.filter((row) =>
-        this.delegatedRoleIds.includes(row.organizationalUnitId),
+        this.delegatedRoleIds.includes(row.organizationalUnitId)
       );
     } else {
       this.delegatedRowData = [...this.allDelegatedRowData];
@@ -356,7 +333,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   private buildRowData(
     access: AccessControlMetadata[],
     permissionIds: string[],
-    disabled: boolean,
+    disabled: boolean
   ): AdvancedAccessControlRow[] {
     return access
       .map((item) => {
@@ -382,14 +359,12 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
           setPermissionChecked(
             row,
             groupLevel,
-            permissionIds.includes(`${row.organizationalUnitId}-${groupLevel}`),
+            permissionIds.includes(`${row.organizationalUnitId}-${groupLevel}`)
           );
           setPermissionChecked(
             row,
             subGroupLevel,
-            permissionIds.includes(
-              `${row.organizationalUnitId}-${subGroupLevel}`,
-            ),
+            permissionIds.includes(`${row.organizationalUnitId}-${subGroupLevel}`)
           );
 
           if (isPermissionChecked(row, subGroupLevel)) {
@@ -403,64 +378,57 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
         row.disabled = disabled;
         return row;
       })
-      .sort((a, b) => a.name.localeCompare(b.name, "de"));
+      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
   }
 
   private buildColumnDefs(): ColDef[] {
     return [
       {
-        headerName: "Organisationseinheit",
-        field: "name",
+        headerName: 'Organisationseinheit',
+        field: 'name',
         minWidth: 220,
-        pinned: "left",
+        pinned: 'left',
       },
-      ...ADVANCED_PERMISSION_GROUPS.map(
-        ({ headerName, groupRenderer, subGroupRenderer }) => ({
-          headerName,
-          children: [
-            {
-              headerName: "Diese Gruppe",
-              field: groupRenderer,
-              filter: false,
-              sortable: false,
-              width: 120,
-              cellRenderer: groupRenderer,
-            },
-            {
-              headerName: "Untergruppen",
-              field: subGroupRenderer,
-              filter: false,
-              sortable: false,
-              width: 120,
-              cellRenderer: subGroupRenderer,
-            },
-          ],
-        }),
-      ),
+      ...ADVANCED_PERMISSION_GROUPS.map(({ headerName, groupRenderer, subGroupRenderer }) => ({
+        headerName,
+        children: [
+          {
+            headerName: 'Diese Gruppe',
+            field: groupRenderer,
+            filter: false,
+            sortable: false,
+            width: 120,
+            cellRenderer: groupRenderer,
+          },
+          {
+            headerName: 'Untergruppen',
+            field: subGroupRenderer,
+            filter: false,
+            sortable: false,
+            width: 120,
+            cellRenderer: subGroupRenderer,
+          },
+        ],
+      })),
     ];
   }
 
   private getComponents(): Record<string, unknown> {
     return {
-      checkboxRenderer_UM_group:
-        createAdvancedCheckboxRenderer("unit-users-creator"),
+      checkboxRenderer_UM_group: createAdvancedCheckboxRenderer('unit-users-creator'),
       checkboxRenderer_UM_subGroup: createAdvancedCheckboxRenderer(
-        "client-users-creator",
-        "unit-users-creator",
+        'client-users-creator',
+        'unit-users-creator'
       ),
-      checkboxRenderer_RM_group: createAdvancedCheckboxRenderer(
-        "unit-resources-creator",
-      ),
+      checkboxRenderer_RM_group: createAdvancedCheckboxRenderer('unit-resources-creator'),
       checkboxRenderer_RM_subGroup: createAdvancedCheckboxRenderer(
-        "client-resources-creator",
-        "unit-resources-creator",
+        'client-resources-creator',
+        'unit-resources-creator'
       ),
-      checkboxRenderer_TM_group: createAdvancedCheckboxRenderer(
-        "unit-themes-creator",
-      ),
+      checkboxRenderer_TM_group: createAdvancedCheckboxRenderer('unit-themes-creator'),
       checkboxRenderer_TM_subGroup: createAdvancedCheckboxRenderer(
-        "client-themes-creator",
-        "unit-themes-creator",
+        'client-themes-creator',
+        'unit-themes-creator'
       ),
     };
   }
@@ -473,8 +441,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
         if (
           ADVANCED_PERMISSION_GROUPS.some(
             ({ groupLevel, subGroupLevel }) =>
-              perm.permissionLevel === groupLevel ||
-              perm.permissionLevel === subGroupLevel,
+              perm.permissionLevel === groupLevel || perm.permissionLevel === subGroupLevel
           ) &&
           perm.isChecked
         ) {
@@ -510,8 +477,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
     });
 
     return Array.from(rolesByUnit.entries()).map(([unitId, adminRoles]) => {
-      const unit =
-        this.kommonitorDataExchangeService.getAccessControlById(unitId);
+      const unit = this.kommonitorDataExchangeService.getAccessControlById(unitId);
       return {
         organizationalUnitId: unitId,
         organizationalUnitName: unit?.name || unitId,
@@ -532,7 +498,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
       .subscribe((result) => {
         if (result.success) {
           this.notificationService.showSuccess(
-            `Gruppenrechte für '${this.currentDataset.name}' erfolgreich aktualisiert.`,
+            `Gruppenrechte für '${this.currentDataset.name}' erfolgreich aktualisiert.`
           );
           this.activeModal.close(true);
         } else {
@@ -550,6 +516,6 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   }
 
   close(): void {
-    this.activeModal.dismiss("closed");
+    this.activeModal.dismiss('closed');
   }
 }

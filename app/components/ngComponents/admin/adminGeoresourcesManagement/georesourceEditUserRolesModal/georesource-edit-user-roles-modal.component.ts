@@ -1,10 +1,17 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
-import { GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import {
+  GridOptions,
+  GridApi,
+  ColumnApi,
+  GridReadyEvent,
+  FirstDataRenderedEvent,
+  ColumnResizedEvent,
+} from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -16,9 +23,16 @@ declare const __env: any;
   templateUrl: './georesource-edit-user-roles-modal.component.html',
   styleUrls: ['./georesource-edit-user-roles-modal.component.css'],
   imports: [FormsModule, CommonModule, AgGridAngular],
-  standalone: true
+  standalone: true,
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
+  activeModal = inject(NgbActiveModal);
+  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  kommonitorMultiStepFormHelperService = inject<any>('kommonitorMultiStepFormHelperService' as any);
+  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+
   @ViewChild('roleManagementTable', { static: true }) roleManagementTable!: AgGridAngular;
 
   // Multi-step form
@@ -67,14 +81,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    private roleManagementHelper: RoleManagementDataGridHelperService,
-    private broadcastService: BroadcastService,
-    private http: HttpClient
-  ) {
+  constructor() {
     console.log('GeoresourceEditUserRolesModalComponent constructor initialized');
   }
 
@@ -82,26 +89,28 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     console.log('GeoresourceEditUserRolesModalComponent ngOnInit');
     console.log('kommonitorDataExchangeService:', this.kommonitorDataExchangeService);
     console.log('accessControl:', this.kommonitorDataExchangeService?.accessControl);
-    
+
     this.setupEventListeners();
     this.prepareCreatorList();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private setupEventListeners(): void {
     // Setup broadcast listeners
-    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      if (broadcastMsg) {
-        if (broadcastMsg.msg === 'onEditGeoresourcesUserRoles') {
-          this.onEditGeoresourcesUserRoles(broadcastMsg.values);
-        } else if (broadcastMsg.msg === 'availableRolesUpdate') {
-          this.refreshRoleManagementTable();
+    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
+      (broadcastMsg) => {
+        if (broadcastMsg) {
+          if (broadcastMsg.msg === 'onEditGeoresourcesUserRoles') {
+            this.onEditGeoresourcesUserRoles(broadcastMsg.values);
+          } else if (broadcastMsg.msg === 'availableRolesUpdate') {
+            this.refreshRoleManagementTable();
+          }
         }
       }
-    });
+    );
 
     this.subscriptions.push(broadcastSubscription);
   }
@@ -117,21 +126,23 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
       const creatorRights: string[] = [];
       const creatorRightsChildren: string[] = [];
-      
-      this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
-        const key = roles.split('.')[0];
-        const role = roles.split('.')[1];
 
-        // case unit-resources-creator
-        if (role === 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
-          creatorRights.push(key);
-        }
+      this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach(
+        (roles: string) => {
+          const key = roles.split('.')[0];
+          const role = roles.split('.')[1];
 
-        // case client-resources-creator, gather unit-ids first, then fetch all unit-data
-        if (role === 'client-resources-creator' && !creatorRightsChildren.includes(key)) {
-          creatorRightsChildren.push(key);
+          // case unit-resources-creator
+          if (role === 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
+            creatorRights.push(key);
+          }
+
+          // case client-resources-creator, gather unit-ids first, then fetch all unit-data
+          if (role === 'client-resources-creator' && !creatorRightsChildren.includes(key)) {
+            creatorRightsChildren.push(key);
+          }
         }
-      });
+      );
 
       // gather all children
       this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
@@ -142,7 +153,10 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     }
   }
 
-  private gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]): void {
+  private gatherCreatorRightsChildren(
+    creatorRights: string[],
+    creatorRightsChildren: string[]
+  ): void {
     if (creatorRightsChildren.length > 0) {
       this.kommonitorDataExchangeService.accessControl
         .filter((elem: any) => creatorRightsChildren.includes(elem.name))
@@ -161,8 +175,10 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   refreshRoleManagementTable(): void {
     console.log('refreshRoleManagementTable called');
     console.log('currentGeoresourceDataset:', this.currentGeoresourceDataset);
-    
-    this.permissions = this.currentGeoresourceDataset ? this.currentGeoresourceDataset.permissions : [];
+
+    this.permissions = this.currentGeoresourceDataset
+      ? this.currentGeoresourceDataset.permissions
+      : [];
     console.log('permissions:', this.permissions);
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
@@ -184,25 +200,27 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
     let access = this.kommonitorDataExchangeService.accessControl || [];
     console.log('accessControl before filter:', access);
-    
+
     if (this.permissions.length > 0 && this.activeRolesOnly) {
       access = this.kommonitorDataExchangeService.accessControl.filter((unit: any) => {
-        return unit.permissions.filter((unitPermission: any) => 
-          this.permissions.includes(unitPermission.permissionId)
-        ).length > 0;
+        return (
+          unit.permissions.filter((unitPermission: any) =>
+            this.permissions.includes(unitPermission.permissionId)
+          ).length > 0
+        );
       });
     }
-    
+
     console.log('accessControl after filter:', access);
 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      access, 
-      this.permissions, 
+      'georesourceEditRoleManagementTable',
+      this.roleManagementTableOptions,
+      access,
+      this.permissions,
       true
     );
-    
+
     console.log('roleManagementTableOptions created:', this.roleManagementTableOptions);
   }
 
@@ -218,10 +236,15 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   private refreshRoles(orgUnitId: any): void {
-    const permissionIds_ownerUnit = orgUnitId ? 
-      this.kommonitorDataExchangeService.getAccessControlById(orgUnitId).permissions
-        .filter((permission: any) => permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor')
-        .map((permission: any) => permission.permissionId) : [];
+    const permissionIds_ownerUnit = orgUnitId
+      ? this.kommonitorDataExchangeService
+          .getAccessControlById(orgUnitId)
+          .permissions.filter(
+            (permission: any) =>
+              permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor'
+          )
+          .map((permission: any) => permission.permissionId)
+      : [];
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
     this.kommonitorDataExchangeService.accessControl.forEach((item: any) => {
@@ -233,10 +256,10 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     });
 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
-      'georesourceEditRoleManagementTable', 
-      this.roleManagementTableOptions, 
-      this.kommonitorDataExchangeService.accessControl, 
-      permissionIds_ownerUnit, 
+      'georesourceEditRoleManagementTable',
+      this.roleManagementTableOptions,
+      this.kommonitorDataExchangeService.accessControl,
+      permissionIds_ownerUnit,
       true
     );
   }
@@ -277,8 +300,15 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   // Form actions
   editGeoresourceEditUserRolesForm(): void {
-    if (this.ownerOrganization !== undefined && this.ownerOrganization !== this.currentGeoresourceDataset.ownerId) {
-      if (!confirm('Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?')) {
+    if (
+      this.ownerOrganization !== undefined &&
+      this.ownerOrganization !== this.currentGeoresourceDataset.ownerId
+    ) {
+      if (
+        !confirm(
+          'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?'
+        )
+      ) {
         return;
       }
     }
@@ -292,84 +322,97 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
     const putBody = {
       permissions: this.getSelectedRoleIds(),
-      isPublic: this.currentGeoresourceDataset.isPublic
+      isPublic: this.currentGeoresourceDataset.isPublic,
     };
 
-    this.http.put(
-      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/permissions`,
-      putBody,
-      {
-        headers: {
-          'Content-Type': 'application/json'
+    this.http
+      .put(
+        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/permissions`,
+        putBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      }
-    ).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
-          crudType: 'edit',
-          targetGeoresourceId: this.currentGeoresourceDataset.georesourceId
-        });
-        this.showSuccessAlert();
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 250);
-      },
-      error: (error: any) => {
-        this.errorMessagePart = 'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
-        if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.showErrorAlert();
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 250);
-      }
-    });
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+            crudType: 'edit',
+            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
+          });
+          this.showSuccessAlert();
+          setTimeout(() => {
+            this.loadingData = false;
+          }, 250);
+        },
+        error: (error: any) => {
+          this.errorMessagePart =
+            'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
+          if (error.data) {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
+          } else {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.showErrorAlert();
+          setTimeout(() => {
+            this.loadingData = false;
+          }, 250);
+        },
+      });
   }
 
   putOwnership(): void {
     this.loadingData = true;
 
     const putBody = {
-      ownerId: this.ownerOrganization === undefined ? this.currentGeoresourceDataset.ownerId : this.ownerOrganization
+      ownerId:
+        this.ownerOrganization === undefined
+          ? this.currentGeoresourceDataset.ownerId
+          : this.ownerOrganization,
     };
 
-    this.http.put(
-      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/ownership`,
-      putBody,
-      {
-        headers: {
-          'Content-Type': 'application/json'
+    this.http
+      .put(
+        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/ownership`,
+        putBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      }
-    ).subscribe({
-      next: (_response: any) => {
-        this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
-          crudType: 'edit',
-          targetGeoresourceId: this.currentGeoresourceDataset.georesourceId
-        });
-        this.showSuccessAlert();
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 250);
-      },
-      error: (error: any) => {
-        this.errorMessagePart = 'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
-        if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-        } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.showErrorAlert();
-        setTimeout(() => {
-          this.loadingData = false;
-        }, 250);
-      }
-    });
+      )
+      .subscribe({
+        next: (_response: any) => {
+          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+            crudType: 'edit',
+            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
+          });
+          this.showSuccessAlert();
+          setTimeout(() => {
+            this.loadingData = false;
+          }, 250);
+        },
+        error: (error: any) => {
+          this.errorMessagePart =
+            'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
+          if (error.data) {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
+          } else {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.showErrorAlert();
+          setTimeout(() => {
+            this.loadingData = false;
+          }, 250);
+        },
+      });
   }
 
   resetGeoresourceEditUserRolesForm(): void {
@@ -391,9 +434,11 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     if (!this.ownerOrgFilter) {
       return this.kommonitorDataExchangeService.accessControl || [];
     }
-    return this.kommonitorDataExchangeService.accessControl?.filter((org: any) =>
-      org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
-    ) || [];
+    return (
+      this.kommonitorDataExchangeService.accessControl?.filter((org: any) =>
+        org.name.toLowerCase().includes(this.ownerOrgFilter.toLowerCase())
+      ) || []
+    );
   }
 
   getFilteredCreatorRights(): any[] {
@@ -407,7 +452,9 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
 
   getCurrentOwnerName(): string {
     if (this.currentGeoresourceDataset?.ownerId) {
-      const owner = this.kommonitorDataExchangeService.getAccessControlById(this.currentGeoresourceDataset.ownerId);
+      const owner = this.kommonitorDataExchangeService.getAccessControlById(
+        this.currentGeoresourceDataset.ownerId
+      );
       return owner ? owner.name : '';
     }
     return '';
@@ -417,7 +464,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   private getSelectedRoleIds(): string[] {
     const ids: string[] = [];
     const deselectedIds: string[] = [];
-    
+
     if (this.gridApi) {
       this.gridApi.forEachNode((node: any, _index: number) => {
         if (node.data) {
@@ -435,7 +482,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         }
       });
     }
-    
+
     return ids;
   }
 
@@ -462,4 +509,4 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   cancel(): void {
     this.activeModal.dismiss();
   }
-} 
+}

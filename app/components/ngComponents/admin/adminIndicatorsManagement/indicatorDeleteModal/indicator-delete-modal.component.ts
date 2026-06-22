@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -47,23 +47,28 @@ interface AffectedGeoresourceReference {
   templateUrl: './indicator-delete-modal.component.html',
   styleUrls: ['./indicator-delete-modal.component.css'],
   imports: [FormsModule, CommonModule],
-  standalone: true
+  standalone: true,
 })
 export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
+  activeModal = inject(NgbActiveModal);
+  private http = inject(HttpClient);
+  private dataExchangeService = inject(DataExchangeService);
+  private broadcastService = inject(BroadcastService);
+  angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
 
   indicatorDeleteTypes: IndicatorDeleteType[] = [
     {
-      displayName: "Gesamter Datensatz",
-      apiName: "indicatorDataset"
+      displayName: 'Gesamter Datensatz',
+      apiName: 'indicatorDataset',
     },
     {
-      displayName: "Einzelne Zeitschnitte", 
-      apiName: "indicatorTimestamp"
+      displayName: 'Einzelne Zeitschnitte',
+      apiName: 'indicatorTimestamp',
     },
     {
-      displayName: "Einzelne Raumebenen",
-      apiName: "indicatorSpatialUnit"
-    }
+      displayName: 'Einzelne Raumebenen',
+      apiName: 'indicatorSpatialUnit',
+    },
   ];
 
   indicatorDeleteType: IndicatorDeleteType = this.indicatorDeleteTypes[0];
@@ -93,26 +98,18 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    private http: HttpClient,
-    private dataExchangeService: DataExchangeService,
-    private broadcastService: BroadcastService,
-    @Inject('kommonitorDataExchangeService') public angularJsDataExchangeService: any
-  ) { }
-
   ngOnInit(): void {
     this.resetIndicatorsDeleteForm();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   onChangeSelectIndicatorTimestampEntries(): void {
     this.selectIndicatorTimestampsInput = !this.selectIndicatorTimestampsInput;
 
-    this.currentApplicableDates.forEach(applicableDate => {
+    this.currentApplicableDates.forEach((applicableDate) => {
       applicableDate.isSelected = this.selectIndicatorTimestampsInput;
     });
   }
@@ -120,7 +117,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   onChangeSelectIndicatorSpatialUnitsEntries(): void {
     this.selectIndicatorSpatialUnitsInput = !this.selectIndicatorSpatialUnitsInput;
 
-    this.currentApplicableSpatialUnits.forEach(applicableSpatialUnit => {
+    this.currentApplicableSpatialUnits.forEach((applicableSpatialUnit) => {
       applicableSpatialUnit.isSelected = this.selectIndicatorSpatialUnitsInput;
     });
   }
@@ -128,7 +125,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   onChangeSelectedIndicator(): void {
     if (this.selectedIndicatorDataset) {
       this.currentIndicatorId = this.selectedIndicatorDataset.indicatorId;
-      
+
       this.successfullyDeletedDatasets = [];
       this.successfullyDeletedTimestamps = [];
       this.successfullyDeletedSpatialUnits = [];
@@ -140,18 +137,21 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       for (const timestamp of this.selectedIndicatorDataset.applicableDates) {
         this.currentApplicableDates.push({
           timestamp: timestamp,
-          isSelected: false
+          isSelected: false,
         });
       }
 
       this.currentApplicableSpatialUnits = [];
       for (const spatialUnitMetadata of this.angularJsDataExchangeService.availableSpatialUnits) {
-        if (this.selectedIndicatorDataset.applicableSpatialUnits && 
-            this.selectedIndicatorDataset.applicableSpatialUnits.some((o: any) => o.spatialUnitName === spatialUnitMetadata.spatialUnitLevel)) {
-          
+        if (
+          this.selectedIndicatorDataset.applicableSpatialUnits &&
+          this.selectedIndicatorDataset.applicableSpatialUnits.some(
+            (o: any) => o.spatialUnitName === spatialUnitMetadata.spatialUnitLevel
+          )
+        ) {
           this.currentApplicableSpatialUnits.push({
             spatialUnitMetadata: spatialUnitMetadata,
-            isSelected: false
+            isSelected: false,
           });
         }
       }
@@ -179,7 +179,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     this.affectedScripts = [];
     this.affectedIndicatorReferences = [];
     this.affectedGeoresourceReferences = [];
-    
+
     this.hideSuccessAlert();
     this.hideErrorAlert();
   }
@@ -187,7 +187,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   gatherAffectedScripts(): AffectedScript[] {
     const affectedScripts: AffectedScript[] = [];
 
-    this.angularJsDataExchangeService.availableProcessScripts.forEach(script => {
+    this.angularJsDataExchangeService.availableProcessScripts.forEach((script) => {
       const requiredIndicatorIds = script.requiredIndicatorIds;
 
       for (let i = 0; i < requiredIndicatorIds.length; i++) {
@@ -212,7 +212,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
 
       affectedGeoresourceReferences.push({
         indicatorMetadata: this.selectedIndicatorDataset,
-        georesourceReference: georesourceReference
+        georesourceReference: georesourceReference,
       });
     }
 
@@ -223,27 +223,30 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     const affectedIndicatorReferences: AffectedIndicatorReference[] = [];
 
     // First add all direct references from selected indicator
-    const indicatorReferences_selectedIndicator = this.selectedIndicatorDataset.referencedIndicators;
+    const indicatorReferences_selectedIndicator =
+      this.selectedIndicatorDataset.referencedIndicators;
 
     for (let i = 0; i < indicatorReferences_selectedIndicator.length; i++) {
       const indicatorReference_selectedIndicator = indicatorReferences_selectedIndicator[i];
 
       affectedIndicatorReferences.push({
         indicatorMetadata: this.selectedIndicatorDataset,
-        indicatorReference: indicatorReference_selectedIndicator
+        indicatorReference: indicatorReference_selectedIndicator,
       });
     }
 
-    // Then add all references, where selected indicator is the referencedIndicator 
-    this.angularJsDataExchangeService.availableIndicators.forEach(indicator => {
+    // Then add all references, where selected indicator is the referencedIndicator
+    this.angularJsDataExchangeService.availableIndicators.forEach((indicator) => {
       const indicatorReferences = indicator.referencedIndicators;
 
       for (let i = 0; i < indicatorReferences.length; i++) {
         const indicatorReference = indicatorReferences[i];
-        if (indicatorReference.referencedIndicatorId === this.selectedIndicatorDataset.indicatorId) {
+        if (
+          indicatorReference.referencedIndicatorId === this.selectedIndicatorDataset.indicatorId
+        ) {
           affectedIndicatorReferences.push({
             indicatorMetadata: this.selectedIndicatorDataset,
-            indicatorReference: indicatorReference
+            indicatorReference: indicatorReference,
           });
         }
       }
@@ -263,13 +266,13 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     this.failedSpatialUnitsAndErrors = [];
 
     // Depending on deleteType we must execute different DELETE requests
-    if (this.indicatorDeleteType.apiName === "indicatorDataset") {
+    if (this.indicatorDeleteType.apiName === 'indicatorDataset') {
       // Delete complete dataset
       this.deleteWholeIndicatorDataset();
-    } else if (this.indicatorDeleteType.apiName === "indicatorTimestamp") {
+    } else if (this.indicatorDeleteType.apiName === 'indicatorTimestamp') {
       // Delete all selected timestamps from indicator
       this.deleteSelectedIndicatorTimestamps();
-    } else if (this.indicatorDeleteType.apiName === "indicatorSpatialUnit") {
+    } else if (this.indicatorDeleteType.apiName === 'indicatorSpatialUnit') {
       // Delete all selected spatial units from indicator
       this.deleteSelectedIndicatorSpatialUnits();
     }
@@ -285,10 +288,13 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
         this.successfullyDeletedDatasets.push(this.selectedIndicatorDataset);
 
         // Fetch indicator metadata again as an indicator was deleted
-        this.broadcastService.broadcast("refreshIndicatorOverviewTable", { action: "delete", indicatorId: this.currentIndicatorId });
+        this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+          action: 'delete',
+          indicatorId: this.currentIndicatorId,
+        });
 
         setTimeout(() => {
-          this.broadcastService.broadcast("refreshAdminDashboardDiagrams");
+          this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
         }, 500);
 
         this.showSuccessAlert = true;
@@ -299,14 +305,20 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         if (error.error) {
-          this.failedDatasetsAndErrors.push([this.selectedIndicatorDataset, this.angularJsDataExchangeService.syntaxHighlightJSON(error.error)]);
+          this.failedDatasetsAndErrors.push([
+            this.selectedIndicatorDataset,
+            this.angularJsDataExchangeService.syntaxHighlightJSON(error.error),
+          ]);
         } else {
-          this.failedDatasetsAndErrors.push([this.selectedIndicatorDataset, this.angularJsDataExchangeService.syntaxHighlightJSON(error)]);
+          this.failedDatasetsAndErrors.push([
+            this.selectedIndicatorDataset,
+            this.angularJsDataExchangeService.syntaxHighlightJSON(error),
+          ]);
         }
 
         this.showErrorAlert = true;
         this.loadingData = false;
-      }
+      },
     });
   }
 
@@ -315,7 +327,10 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     for (const applicableDate of this.currentApplicableDates) {
       if (applicableDate.isSelected) {
         for (const applicableSpatialUnit of this.currentApplicableSpatialUnits) {
-          await this.getDeleteTimestampPromise(applicableDate, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId);
+          await this.getDeleteTimestampPromise(
+            applicableDate,
+            applicableSpatialUnit.spatialUnitMetadata.spatialUnitId
+          );
         }
       }
     }
@@ -325,16 +340,19 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       this.showErrorAlert = true;
       this.loadingData = false;
     }
-    
+
     if (this.successfullyDeletedTimestamps.length > 0) {
       this.showSuccessAlert = true;
 
       // Refresh overview table
-      this.broadcastService.broadcast("refreshIndicatorOverviewTable", { action: "edit", indicatorId: this.currentIndicatorId });
+      this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+        action: 'edit',
+        indicatorId: this.currentIndicatorId,
+      });
 
       // Refresh all admin dashboard diagrams due to modified metadata
       setTimeout(() => {
-        this.broadcastService.broadcast("refreshAdminDashboardDiagrams");
+        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
       }, 500);
 
       this.loadingData = false;
@@ -354,19 +372,24 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       this.showErrorAlert = true;
       this.loadingData = false;
     }
-    
+
     if (this.successfullyDeletedSpatialUnits.length > 0) {
       this.showSuccessAlert = true;
 
       // Fetch indicator metadata again as an indicator was modified
-      await this.angularJsDataExchangeService.fetchIndicatorsMetadata(this.angularJsDataExchangeService.currentKeycloakLoginRoles);
-      
+      await this.angularJsDataExchangeService.fetchIndicatorsMetadata(
+        this.angularJsDataExchangeService.currentKeycloakLoginRoles
+      );
+
       // Refresh overview table
-      this.broadcastService.broadcast("refreshIndicatorOverviewTable", { action: "edit", indicatorId: this.currentIndicatorId });
+      this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+        action: 'edit',
+        indicatorId: this.currentIndicatorId,
+      });
 
       // Refresh all admin dashboard diagrams due to modified metadata
       setTimeout(() => {
-        this.broadcastService.broadcast("refreshAdminDashboardDiagrams");
+        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
       }, 500);
 
       this.loadingData = false;
@@ -378,43 +401,61 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     const timestamp = applicableDate.timestamp;
 
     // [yyyy, mm, dd]
-    const timestampComps = timestamp.split("-");
+    const timestampComps = timestamp.split('-');
 
     const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${spatialUnitId}/${timestampComps[0]}/${timestampComps[1]}/${timestampComps[2]}`;
 
-    return this.http.delete(url).toPromise().then(
-      (_response) => {
-        if (!this.successfullyDeletedTimestamps.includes(applicableDate)) {
-          this.successfullyDeletedTimestamps.push(applicableDate);
+    return this.http
+      .delete(url)
+      .toPromise()
+      .then(
+        (_response) => {
+          if (!this.successfullyDeletedTimestamps.includes(applicableDate)) {
+            this.successfullyDeletedTimestamps.push(applicableDate);
+          }
+        },
+        (error) => {
+          if (error.error) {
+            this.failedTimestampsAndErrors.push([
+              applicableDate,
+              this.angularJsDataExchangeService.syntaxHighlightJSON(error.error),
+            ]);
+          } else {
+            this.failedTimestampsAndErrors.push([
+              applicableDate,
+              this.angularJsDataExchangeService.syntaxHighlightJSON(error),
+            ]);
+          }
         }
-      },
-      (error) => {
-        if (error.error) {
-          this.failedTimestampsAndErrors.push([applicableDate, this.angularJsDataExchangeService.syntaxHighlightJSON(error.error)]);
-        } else {
-          this.failedTimestampsAndErrors.push([applicableDate, this.angularJsDataExchangeService.syntaxHighlightJSON(error)]);
-        }
-      }
-    );
+      );
   }
 
   getDeleteSpatialUnitPromise(applicableSpatialUnit: ApplicableSpatialUnit): Promise<void> {
     const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${applicableSpatialUnit.spatialUnitMetadata.spatialUnitId}`;
 
-    return this.http.delete(url).toPromise().then(
-      (_response) => {
-        if (!this.successfullyDeletedSpatialUnits.includes(applicableSpatialUnit)) {
-          this.successfullyDeletedSpatialUnits.push(applicableSpatialUnit);
+    return this.http
+      .delete(url)
+      .toPromise()
+      .then(
+        (_response) => {
+          if (!this.successfullyDeletedSpatialUnits.includes(applicableSpatialUnit)) {
+            this.successfullyDeletedSpatialUnits.push(applicableSpatialUnit);
+          }
+        },
+        (error) => {
+          if (error.error) {
+            this.failedSpatialUnitsAndErrors.push([
+              applicableSpatialUnit,
+              this.angularJsDataExchangeService.syntaxHighlightJSON(error.error),
+            ]);
+          } else {
+            this.failedSpatialUnitsAndErrors.push([
+              applicableSpatialUnit,
+              this.angularJsDataExchangeService.syntaxHighlightJSON(error),
+            ]);
+          }
         }
-      },
-      (error) => {
-        if (error.error) {
-          this.failedSpatialUnitsAndErrors.push([applicableSpatialUnit, this.angularJsDataExchangeService.syntaxHighlightJSON(error.error)]);
-        } else {
-          this.failedSpatialUnitsAndErrors.push([applicableSpatialUnit, this.angularJsDataExchangeService.syntaxHighlightJSON(error)]);
-        }
-      }
-    );
+      );
   }
 
   hideSuccessAlert(): void {
@@ -426,8 +467,8 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   }
 
   getIndicatorsWithPermission(): any[] {
-    return this.angularJsDataExchangeService.availableIndicators.filter(indicator => 
-      indicator.userPermissions.includes("creator")
+    return this.angularJsDataExchangeService.availableIndicators.filter((indicator) =>
+      indicator.userPermissions.includes('creator')
     );
   }
 
@@ -436,7 +477,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     if (!this.indicatorNameFilter) {
       return indicators;
     }
-    return indicators.filter(indicator => 
+    return indicators.filter((indicator) =>
       indicator.indicatorName.toLowerCase().includes(this.indicatorNameFilter.toLowerCase())
     );
   }
@@ -448,4 +489,4 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   close(): void {
     this.activeModal.dismiss();
   }
-} 
+}

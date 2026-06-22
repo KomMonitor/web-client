@@ -1,40 +1,40 @@
-import { WmsResourceType } from "./../../models/services.models";
+import { WmsResourceType } from './../../models/services.models';
 import {
   Component,
   OnInit,
   OnDestroy,
-  Inject,
   ViewChild,
   AfterViewInit,
   DOCUMENT,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { Subscription } from "rxjs";
-import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { BroadcastService } from "../../../../services/broadcast-service/broadcast.service";
-import { KommonitorGeoresourceDataExchangeService } from "../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service";
-import { KommonitorGeoresourceCacheHelperService } from "../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service";
-import { KommonitorGeoresourceDataGridHelperService } from "../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service";
-import { AgGridAngular } from "ag-grid-angular";
-import { GeoresourceAddModalComponent } from "./georesourceAddModal/georesource-add-modal.component";
-import { GeoresourceBatchUpdateModalComponent } from "./georesourceBatchUpdateModal/georesource-batch-update-modal.component";
-import { GeoresourceEditMetadataModalComponent } from "./georesourceEditMetadataModal/georesource-edit-metadata-modal.component";
-import { GeoresourceEditFeaturesModalComponent } from "./georesourceEditFeaturesModal/georesource-edit-features-modal.component";
-import { GeoresourceEditUserRolesModalComponent } from "./georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component";
-import { GeoresourceDeleteModalComponent } from "./georesourceDeleteModal/georesource-delete-modal.component";
-import { WmsSharedComponentsService } from "components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { WmsAdminTableComponent } from "../../common/wms-admin-table/wms-admin-table.component";
-import { FormsModule } from "@angular/forms";
-import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
+  inject,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
+import { KommonitorGeoresourceCacheHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service';
+import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
+import { AgGridAngular } from 'ag-grid-angular';
+import { GeoresourceAddModalComponent } from './georesourceAddModal/georesource-add-modal.component';
+import { GeoresourceBatchUpdateModalComponent } from './georesourceBatchUpdateModal/georesource-batch-update-modal.component';
+import { GeoresourceEditMetadataModalComponent } from './georesourceEditMetadataModal/georesource-edit-metadata-modal.component';
+import { GeoresourceEditFeaturesModalComponent } from './georesourceEditFeaturesModal/georesource-edit-features-modal.component';
+import { GeoresourceEditUserRolesModalComponent } from './georesourceEditUserRolesModal/georesource-edit-user-roles-modal.component';
+import { GeoresourceDeleteModalComponent } from './georesourceDeleteModal/georesource-delete-modal.component';
+import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { WmsAdminTableComponent } from '../../common/wms-admin-table/wms-admin-table.component';
+import { FormsModule } from '@angular/forms';
+import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 
 // Declare jQuery for AdminLTE
 declare const $: any;
 
 @Component({
-  selector: "app-admin-georesources-management",
-  templateUrl: "./admin-georesources-management.component.html",
-  styleUrls: ["./admin-georesources-management.component.css"],
+  selector: 'app-admin-georesources-management',
+  templateUrl: './admin-georesources-management.component.html',
+  styleUrls: ['./admin-georesources-management.component.css'],
   imports: [
     ExpandableBoxComponent,
     AgGridAngular,
@@ -46,12 +46,18 @@ declare const $: any;
   ],
   standalone: true,
 })
-export class AdminGeoresourcesManagementComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
-  @ViewChild("poiGrid", { static: false }) poiGrid!: AgGridAngular;
-  @ViewChild("loiGrid", { static: false }) loiGrid!: AgGridAngular;
-  @ViewChild("aoiGrid", { static: false }) aoiGrid!: AgGridAngular;
+export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, AfterViewInit {
+  private document = inject<Document>(DOCUMENT);
+  private modalService = inject(NgbModal);
+  private broadcastService = inject(BroadcastService);
+  kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
+  private kommonitorCacheHelperService = inject(KommonitorGeoresourceCacheHelperService);
+  private kommonitorDataGridHelperService = inject(KommonitorGeoresourceDataGridHelperService);
+  protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
+
+  @ViewChild('poiGrid', { static: false }) poiGrid!: AgGridAngular;
+  @ViewChild('loiGrid', { static: false }) loiGrid!: AgGridAngular;
+  @ViewChild('aoiGrid', { static: false }) aoiGrid!: AgGridAngular;
 
   public loadingData: boolean = true;
   public tableViewSwitcher: boolean = false;
@@ -67,36 +73,19 @@ export class AdminGeoresourcesManagementComponent
 
   resourceType: WmsResourceType = WmsResourceType.GEORESOURCE;
 
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private modalService: NgbModal,
-    private broadcastService: BroadcastService,
-    public kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService,
-    private kommonitorCacheHelperService: KommonitorGeoresourceCacheHelperService,
-    private kommonitorDataGridHelperService: KommonitorGeoresourceDataGridHelperService,
-    protected wmsSharedComponentsService: WmsSharedComponentsService,
-  ) {}
-
   ngOnInit(): void {
     this.setupEventListeners();
     this.initialize();
 
     // Initialize grid options with the service
-    this.poiGridOptions =
-      this.kommonitorDataGridHelperService.getPoiGridOptions();
-    this.loiGridOptions =
-      this.kommonitorDataGridHelperService.getLoiGridOptions();
-    this.aoiGridOptions =
-      this.kommonitorDataGridHelperService.getAoiGridOptions();
+    this.poiGridOptions = this.kommonitorDataGridHelperService.getPoiGridOptions();
+    this.loiGridOptions = this.kommonitorDataGridHelperService.getLoiGridOptions();
+    this.aoiGridOptions = this.kommonitorDataGridHelperService.getAoiGridOptions();
   }
 
   ngAfterViewInit(): void {
     // Initialize grids after view is ready
-    this.kommonitorDataGridHelperService.initializeGrids(
-      this.poiGrid,
-      this.loiGrid,
-      this.aoiGrid,
-    );
+    this.kommonitorDataGridHelperService.initializeGrids(this.poiGrid, this.loiGrid, this.aoiGrid);
 
     // Set component reference for callbacks
     this.kommonitorDataGridHelperService.setComponentRef(this);
@@ -115,9 +104,7 @@ export class AdminGeoresourcesManagementComponent
     ) {
       // Try to fetch metadata manually
       this.kommonitorDataExchangeService
-        .fetchGeoresourcesMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
-        )
+        .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
         })
@@ -133,47 +120,47 @@ export class AdminGeoresourcesManagementComponent
   private testGridsWithSampleData(): void {
     const testData = [
       {
-        georesourceId: "test-poi-1",
-        datasetName: "Test POI 1",
+        georesourceId: 'test-poi-1',
+        datasetName: 'Test POI 1',
         isPOI: true,
         isLOI: false,
         isAOI: false,
-        poiSymbolColor: "#ff0000",
-        poiSymbolBootstrap3Name: "home",
-        poiMarkerColor: "#0000ff",
+        poiSymbolColor: '#ff0000',
+        poiSymbolBootstrap3Name: 'home',
+        poiMarkerColor: '#0000ff',
         metadata: {
-          description: "Test POI description",
+          description: 'Test POI description',
         },
-        ownerId: "test-owner",
-        userPermissions: ["creator"],
+        ownerId: 'test-owner',
+        userPermissions: ['creator'],
       },
       {
-        georesourceId: "test-loi-1",
-        datasetName: "Test LOI 1",
+        georesourceId: 'test-loi-1',
+        datasetName: 'Test LOI 1',
         isPOI: false,
         isLOI: true,
         isAOI: false,
-        loiColor: "#00ff00",
+        loiColor: '#00ff00',
         loiWidth: 2,
-        loiDashArrayString: "5 5",
+        loiDashArrayString: '5 5',
         metadata: {
-          description: "Test LOI description",
+          description: 'Test LOI description',
         },
-        ownerId: "test-owner",
-        userPermissions: ["creator"],
+        ownerId: 'test-owner',
+        userPermissions: ['creator'],
       },
       {
-        georesourceId: "test-aoi-1",
-        datasetName: "Test AOI 1",
+        georesourceId: 'test-aoi-1',
+        datasetName: 'Test AOI 1',
         isPOI: false,
         isLOI: false,
         isAOI: true,
-        aoiColor: "#ffff00",
+        aoiColor: '#ffff00',
         metadata: {
-          description: "Test AOI description",
+          description: 'Test AOI description',
         },
-        ownerId: "test-owner",
-        userPermissions: ["creator"],
+        ownerId: 'test-owner',
+        userPermissions: ['creator'],
       },
     ];
 
@@ -186,31 +173,26 @@ export class AdminGeoresourcesManagementComponent
 
   private setupEventListeners(): void {
     // Listen for broadcast messages
-    const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe(
-      (data: any) => {
-        if (data.msg === "initialMetadataLoadingCompleted") {
-          setTimeout(() => {
-            this.initializeOrRefreshOverviewTable();
-          }, 250);
-        } else if (data.msg === "initialMetadataLoadingFailed") {
-          this.loadingData = false;
-        } else if (data.msg === "refreshGeoresourceOverviewTable") {
-          this.loadingData = true;
-          this.refreshGeoresourceOverviewTable(
-            data.values.crudType,
-            data.values.targetGeoresourceId,
-          );
-        }
-      },
-    );
+    const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
+      if (data.msg === 'initialMetadataLoadingCompleted') {
+        setTimeout(() => {
+          this.initializeOrRefreshOverviewTable();
+        }, 250);
+      } else if (data.msg === 'initialMetadataLoadingFailed') {
+        this.loadingData = false;
+      } else if (data.msg === 'refreshGeoresourceOverviewTable') {
+        this.loadingData = true;
+        this.refreshGeoresourceOverviewTable(data.values.crudType, data.values.targetGeoresourceId);
+      }
+    });
 
     this.subscriptions.push(broadcastSub);
   }
 
   private initialize(): void {
     // Initialize any adminLTE box widgets
-    if (typeof $ !== "undefined" && $ && $.fn && $.fn.boxWidget) {
-      $(".box").boxWidget();
+    if (typeof $ !== 'undefined' && $ && $.fn && $.fn.boxWidget) {
+      $('.box').boxWidget();
     }
   }
 
@@ -223,9 +205,7 @@ export class AdminGeoresourcesManagementComponent
 
     const georesources = this.initGeoresources();
 
-    this.kommonitorDataGridHelperService.buildDataGrid_georesources(
-      georesources,
-    );
+    this.kommonitorDataGridHelperService.buildDataGrid_georesources(georesources);
 
     setTimeout(() => {
       this.loadingData = false;
@@ -235,106 +215,73 @@ export class AdminGeoresourcesManagementComponent
   private initGeoresources(): any[] {
     if (this.tableViewSwitcher) {
       return this.kommonitorDataExchangeService.availableGeoresources.filter(
-        (e: any) =>
-          !(
-            e.userPermissions.length === 1 &&
-            e.userPermissions.includes("viewer")
-          ),
+        (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
       );
     } else {
       return this.kommonitorDataExchangeService.availableGeoresources;
     }
   }
 
-  public refreshGeoresourceOverviewTable(
-    crudType?: string,
-    targetGeoresourceId?: string,
-  ): void {
+  public refreshGeoresourceOverviewTable(crudType?: string, targetGeoresourceId?: string): void {
     if (!crudType || !targetGeoresourceId) {
       // refetch all metadata from georesources to update table
       this.kommonitorDataExchangeService
-        .fetchGeoresourcesMetadata(
-          this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
-        )
+        .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(
-            "refreshGeoresourceOverviewTableCompleted",
-          );
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           this.loadingData = false;
         })
         .catch((_response: any) => {
           this.loadingData = false;
-          this.broadcastService.broadcast(
-            "refreshGeoresourceOverviewTableCompleted",
-          );
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
         });
     } else if (crudType && targetGeoresourceId) {
-      if (crudType === "add") {
+      if (crudType === 'add') {
         this.kommonitorCacheHelperService
           .fetchSingleGeoresourceMetadata(
             targetGeoresourceId,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
           )
           .then((data: any) => {
-            this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(
-              data,
-            );
+            this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(
-              "refreshGeoresourceOverviewTableCompleted",
-            );
+            this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(
-              "refreshGeoresourceOverviewTableCompleted",
-            );
+            this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           });
-      } else if (crudType === "edit") {
+      } else if (crudType === 'edit') {
         this.kommonitorCacheHelperService
           .fetchSingleGeoresourceMetadata(
             targetGeoresourceId,
-            this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
+            this.kommonitorDataExchangeService.currentKeycloakLoginRoles
           )
           .then((data: any) => {
-            this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(
-              data,
-            );
+            this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(
-              "refreshGeoresourceOverviewTableCompleted",
-            );
+            this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(
-              "refreshGeoresourceOverviewTableCompleted",
-            );
+            this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           });
-      } else if (crudType === "delete") {
+      } else if (crudType === 'delete') {
         // targetGeoresourceId might be array in this case
-        if (targetGeoresourceId && typeof targetGeoresourceId === "string") {
-          this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(
-            targetGeoresourceId,
-          );
+        if (targetGeoresourceId && typeof targetGeoresourceId === 'string') {
+          this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(targetGeoresourceId);
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(
-            "refreshGeoresourceOverviewTableCompleted",
-          );
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           this.loadingData = false;
         } else if (targetGeoresourceId && Array.isArray(targetGeoresourceId)) {
           for (const id of targetGeoresourceId) {
-            this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(
-              id,
-            );
+            this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
           }
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(
-            "refreshGeoresourceOverviewTableCompleted",
-          );
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTableCompleted');
           this.loadingData = false;
         }
       }
@@ -344,25 +291,22 @@ export class AdminGeoresourcesManagementComponent
   // Modal event handlers
   onClickAddGeoresource(): void {
     this.modalService.open(GeoresourceAddModalComponent, {
-      size: "lg",
-      backdrop: "static",
+      size: 'lg',
+      backdrop: 'static',
       keyboard: false,
-      container: "body",
+      container: 'body',
       animation: false,
     });
   }
 
   onClickBatchUpdateGeoresource(): void {
-    const modalRef = this.modalService.open(
-      GeoresourceBatchUpdateModalComponent,
-      {
-        size: "lg",
-        backdrop: "static",
-        keyboard: false,
-        container: "body",
-        animation: false,
-      },
-    );
+    const modalRef = this.modalService.open(GeoresourceBatchUpdateModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false,
+    });
 
     modalRef.result
       .then((result) => {
@@ -376,16 +320,13 @@ export class AdminGeoresourcesManagementComponent
   }
 
   public onClickEditMetadata(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(
-      GeoresourceEditMetadataModalComponent,
-      {
-        size: "lg",
-        backdrop: "static",
-        keyboard: false,
-        container: "body",
-        animation: false,
-      },
-    );
+    const modalRef = this.modalService.open(GeoresourceEditMetadataModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false,
+    });
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
@@ -394,29 +335,23 @@ export class AdminGeoresourcesManagementComponent
       (result) => {
         if (result) {
           // Handle successful edit
-          this.refreshGeoresourceOverviewTable(
-            "edit",
-            georesourceDataset.georesourceId,
-          );
+          this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
         }
       },
       (_reason) => {
         // Modal dismissed
-      },
+      }
     );
   }
 
   public onClickEditFeatures(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(
-      GeoresourceEditFeaturesModalComponent,
-      {
-        size: "xl",
-        backdrop: "static",
-        keyboard: false,
-        container: "body",
-        animation: false,
-      },
-    );
+    const modalRef = this.modalService.open(GeoresourceEditFeaturesModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false,
+    });
 
     // Pass the georesource dataset to the modal
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
@@ -425,68 +360,57 @@ export class AdminGeoresourcesManagementComponent
       (result) => {
         if (result) {
           // Handle successful edit
-          this.refreshGeoresourceOverviewTable(
-            "edit",
-            georesourceDataset.georesourceId,
-          );
+          this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
         }
       },
       (_reason) => {
         // Modal dismissed
-      },
+      }
     );
   }
 
   public onClickEditUserRoles(georesourceDataset: any): void {
-    const modalRef = this.modalService.open(
-      GeoresourceEditUserRolesModalComponent,
-      {
-        size: "xl",
-        backdrop: "static",
-        keyboard: false,
-        container: "body",
-        animation: false,
-      },
-    );
+    const modalRef = this.modalService.open(GeoresourceEditUserRolesModalComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false,
+      container: 'body',
+      animation: false,
+    });
     modalRef.componentInstance.currentGeoresourceDataset = georesourceDataset;
 
     modalRef.result.then(
       (result) => {
         if (result) {
           // Handle successful edit
-          this.refreshGeoresourceOverviewTable(
-            "edit",
-            georesourceDataset.georesourceId,
-          );
+          this.refreshGeoresourceOverviewTable('edit', georesourceDataset.georesourceId);
         }
       },
       (_reason) => {
         // Modal dismissed
-      },
+      }
     );
   }
 
   public onClickDeleteGeoresource(georesourceDataset: any): void {
     const modalRef = this.modalService.open(GeoresourceDeleteModalComponent, {
-      size: "xl",
-      backdrop: "static",
+      size: 'xl',
+      backdrop: 'static',
       keyboard: false,
-      container: "body",
+      container: 'body',
       animation: false,
     });
 
     // Pass the georesource dataset to the modal (as array like original)
-    this.broadcastService.broadcast("onDeleteGeoresources", [
-      georesourceDataset,
-    ]);
+    this.broadcastService.broadcast('onDeleteGeoresources', [georesourceDataset]);
 
     modalRef.result.then(
       (result) => {
-        console.log("Georesource delete modal closed with result:", result);
+        console.log('Georesource delete modal closed with result:', result);
       },
       (reason) => {
-        console.log("Georesource delete modal dismissed with reason:", reason);
-      },
+        console.log('Georesource delete modal dismissed with reason:', reason);
+      }
     );
   }
 
@@ -505,10 +429,7 @@ export class AdminGeoresourcesManagementComponent
 
   // Callback methods for cell renderer
   onEditMetadata(georesourceDataset: any): void {
-    this.broadcastService.broadcast(
-      "onEditGeoresourceMetadata",
-      georesourceDataset,
-    );
+    this.broadcastService.broadcast('onEditGeoresourceMetadata', georesourceDataset);
   }
 
   onEditFeatures(georesourceDataset: any): void {

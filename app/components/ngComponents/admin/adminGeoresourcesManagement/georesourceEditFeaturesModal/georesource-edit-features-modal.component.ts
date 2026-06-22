@@ -1,31 +1,42 @@
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { AgGridAngular } from 'ag-grid-angular';
 import {
-  Component,
-  OnInit,
-  Inject,
-  ViewChild,
-  ElementRef,
-  OnDestroy,
-} from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { HttpClient } from "@angular/common/http";
-import { Subscription } from "rxjs";
-import { AgGridAngular } from "ag-grid-angular";
-import { GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from "ag-grid-community";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { SingleFeatureEditComponent } from "components/ngComponents/common/single-feature-edit/single-feature-edit.component";
+  GridOptions,
+  GridApi,
+  ColumnApi,
+  GridReadyEvent,
+  FirstDataRenderedEvent,
+  ColumnResizedEvent,
+} from 'ag-grid-community';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 
 declare const __env: any;
 
 @Component({
-  selector: "app-georesource-edit-features-modal",
-  templateUrl: "./georesource-edit-features-modal.component.html",
-  styleUrls: ["./georesource-edit-features-modal.component.css"],
+  selector: 'app-georesource-edit-features-modal',
+  templateUrl: './georesource-edit-features-modal.component.html',
+  styleUrls: ['./georesource-edit-features-modal.component.css'],
   imports: [CommonModule, AgGridAngular, FormsModule, SingleFeatureEditComponent],
   standalone: true,
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
+  activeModal = inject(NgbActiveModal);
+  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
+  kommonitorMultiStepFormHelperService = inject<any>('kommonitorMultiStepFormHelperService' as any);
+  kommonitorDataGridHelperService = inject<any>('kommonitorDataGridHelperService' as any);
+  kommonitorImporterHelperService = inject<any>('kommonitorImporterHelperService' as any);
+  kommonitorSingleFeatureMapHelperService = inject<any>(
+    'kommonitorSingleFeatureMapHelperService' as any
+  );
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('dataSourceInput', { static: false }) dataSourceInput!: ElementRef;
   @ViewChild('georesourceFeatureTable', { static: true }) georesourceFeatureTable!: AgGridAngular;
@@ -47,7 +58,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   enableDeleteFeatures = false;
   georesourceFeaturesGeoJSON: any;
   remainingFeatureHeaders: any[] = [];
-  
+
   // AG-Grid configuration
   featureTableGridOptions: GridOptions = {};
   private gridApi!: GridApi;
@@ -67,7 +78,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Multiple feature import variables
   periodOfValidity: any = {
     startDate: '',
-    endDate: ''
+    endDate: '',
   };
   periodOfValidityInvalid = false;
 
@@ -84,7 +95,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   schema: string = '';
   mimeType: string = '';
   datasourceType: any;
-  
+
   // Available options
   availableDatasourceTypes: any[] = [];
   availableSpatialUnits: any[] = [];
@@ -128,16 +139,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    @Inject('kommonitorDataExchangeService') public kommonitorDataExchangeService: any,
-    @Inject('kommonitorMultiStepFormHelperService') public kommonitorMultiStepFormHelperService: any,
-    @Inject('kommonitorDataGridHelperService') public kommonitorDataGridHelperService: any,
-    @Inject('kommonitorImporterHelperService') public kommonitorImporterHelperService: any,
-    @Inject('kommonitorSingleFeatureMapHelperService') public kommonitorSingleFeatureMapHelperService: any,
-    private broadcastService: BroadcastService,
-    private http: HttpClient
-  ) {
+  constructor() {
     console.log('GeoresourceEditFeaturesModalComponent constructor initialized');
     this.initializeDefaultValues();
   }
@@ -150,37 +152,39 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private initializeDefaultValues(): void {
-    this.attributeMapping_attributeType = this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    this.attributeMapping_attributeType =
+      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
     this.availableDatasourceTypes = this.kommonitorImporterHelperService.availableDatasourceTypes;
     this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
   }
 
   private initializeMappingConfigStructure(): void {
-    this.georesourceMappingConfigStructure_pretty = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-      this.kommonitorImporterHelperService.mappingConfigStructure
-    );
+    this.georesourceMappingConfigStructure_pretty =
+      this.kommonitorDataExchangeService.syntaxHighlightJSON(
+        this.kommonitorImporterHelperService.mappingConfigStructure
+      );
   }
 
   private initializeDatePickers(): void {
     setTimeout(() => {
       try {
         if ((window as any).$) {
-          (window as any).$('#georesourceEditFeaturesDatepickerStart').datepicker(
-            this.kommonitorDataExchangeService.datePickerOptions
-          );
-          (window as any).$('#georesourceEditFeaturesDatepickerEnd').datepicker(
-            this.kommonitorDataExchangeService.datePickerOptions
-          );
-          (window as any).$('#georesourceSingleFeatureDatepickerStart').datepicker(
-            this.kommonitorDataExchangeService.datePickerOptions
-          );
-          (window as any).$('#georesourceSingleFeatureDatepickerEnd').datepicker(
-            this.kommonitorDataExchangeService.datePickerOptions
-          );
+          (window as any)
+            .$('#georesourceEditFeaturesDatepickerStart')
+            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+          (window as any)
+            .$('#georesourceEditFeaturesDatepickerEnd')
+            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+          (window as any)
+            .$('#georesourceSingleFeatureDatepickerStart')
+            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+          (window as any)
+            .$('#georesourceSingleFeatureDatepickerEnd')
+            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
         }
       } catch (error) {
         console.warn('Date picker initialization failed:', error);
@@ -190,23 +194,34 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private setupEventListeners(): void {
     // Setup broadcast listeners
-    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      if (broadcastMsg) {
-        if (broadcastMsg.msg === 'onEditGeoresourceFeatures') {
-          this.onEditGeoresourceFeatures(broadcastMsg.values);
-        } else if (broadcastMsg.msg === 'showLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource) {
-          this.loadingData = true;
-        } else if (broadcastMsg.msg === 'hideLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource) {
-          this.loadingData = false;
-        } else if (broadcastMsg.msg === 'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_georesource) {
-          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { 
-            crudType: 'edit', 
-            targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId 
-          });
-          this.refreshGeoresourceEditFeaturesOverviewTable();
+    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
+      (broadcastMsg) => {
+        if (broadcastMsg) {
+          if (broadcastMsg.msg === 'onEditGeoresourceFeatures') {
+            this.onEditGeoresourceFeatures(broadcastMsg.values);
+          } else if (
+            broadcastMsg.msg ===
+            'showLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource
+          ) {
+            this.loadingData = true;
+          } else if (
+            broadcastMsg.msg ===
+            'hideLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource
+          ) {
+            this.loadingData = false;
+          } else if (
+            broadcastMsg.msg ===
+            'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_georesource
+          ) {
+            this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+              crudType: 'edit',
+              targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
+            });
+            this.refreshGeoresourceEditFeaturesOverviewTable();
+          }
         }
       }
-    });
+    );
 
     this.subscriptions.push(broadcastSubscription);
   }
@@ -214,15 +229,17 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   onEditGeoresourceFeatures(georesourceDataset: any): void {
     this.kommonitorMultiStepFormHelperService?.registerClickHandler();
 
-    if (this.currentGeoresourceDataset && 
-        this.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName) {
+    if (
+      this.currentGeoresourceDataset &&
+      this.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName
+    ) {
       return;
     }
 
     this.currentGeoresourceDataset = georesourceDataset;
     this.resetGeoresourceEditFeaturesForm();
     this.buildFeatureTable();
-    
+
     // Load the georesource features
     setTimeout(() => {
       this.refreshGeoresourceEditFeaturesOverviewTable();
@@ -250,14 +267,15 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Feature table management
   private buildFeatureTable(): void {
-    this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
-      "georesourceFeatureTable",
-      [],
-      [],
-      undefined,
-      this.kommonitorDataGridHelperService.resourceType_georesource,
-      this.enableDeleteFeatures
-    );
+    this.featureTableGridOptions =
+      this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+        'georesourceFeatureTable',
+        [],
+        [],
+        undefined,
+        this.kommonitorDataGridHelperService.resourceType_georesource,
+        this.enableDeleteFeatures
+      );
   }
 
   refreshGeoresourceEditFeaturesOverviewTable(): void {
@@ -268,7 +286,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     console.log('Starting refresh of georesource features table...');
     this.loadingData = true;
-    
+
     const url = `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`;
     console.log('Fetching from URL:', url);
 
@@ -280,12 +298,17 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
         // Extract headers from the first feature's properties
         if (this.georesourceFeaturesGeoJSON?.features?.[0]?.properties) {
-          console.log('First feature properties:', this.georesourceFeaturesGeoJSON.features[0].properties);
+          console.log(
+            'First feature properties:',
+            this.georesourceFeaturesGeoJSON.features[0].properties
+          );
           for (const property in this.georesourceFeaturesGeoJSON.features[0].properties) {
-            if (property !== __env.FEATURE_ID_PROPERTY_NAME && 
-                property !== __env.FEATURE_NAME_PROPERTY_NAME && 
-                property !== __env.VALID_START_DATE_PROPERTY_NAME && 
-                property !== __env.VALID_END_DATE_PROPERTY_NAME) {
+            if (
+              property !== __env.FEATURE_ID_PROPERTY_NAME &&
+              property !== __env.FEATURE_NAME_PROPERTY_NAME &&
+              property !== __env.VALID_START_DATE_PROPERTY_NAME &&
+              property !== __env.VALID_END_DATE_PROPERTY_NAME
+            ) {
               tmpRemainingHeaders.push(property);
             }
           }
@@ -294,30 +317,33 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.remainingFeatureHeaders = tmpRemainingHeaders;
         console.log('Remaining headers:', tmpRemainingHeaders);
         console.log('Features count:', this.georesourceFeaturesGeoJSON.features?.length || 0);
-        
+
         // Rebuild the grid options with new data
-        this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
-          "georesourceFeatureTable", 
-          tmpRemainingHeaders, 
-          this.georesourceFeaturesGeoJSON.features, 
-          this.currentGeoresourceDataset.georesourceId, 
-          this.kommonitorDataGridHelperService.resourceType_georesource, 
-          this.enableDeleteFeatures
-        );
+        this.featureTableGridOptions =
+          this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+            'georesourceFeatureTable',
+            tmpRemainingHeaders,
+            this.georesourceFeaturesGeoJSON.features,
+            this.currentGeoresourceDataset.georesourceId,
+            this.kommonitorDataGridHelperService.resourceType_georesource,
+            this.enableDeleteFeatures
+          );
 
         // If grid API is available, update the data directly
         if (this.gridApi) {
           console.log('Updating grid data via API...');
           // Transform the data to match the expected format
-          const transformedData = (this.georesourceFeaturesGeoJSON.features || []).map((feature: any) => {
-            if (feature.properties) {
-              // Add geometry and record ID to properties
-              feature.properties.kommonitorGeometry = feature.geometry;
-              feature.properties.kommonitorRecordId = feature.id;
-              return feature.properties;
+          const transformedData = (this.georesourceFeaturesGeoJSON.features || []).map(
+            (feature: any) => {
+              if (feature.properties) {
+                // Add geometry and record ID to properties
+                feature.properties.kommonitorGeometry = feature.geometry;
+                feature.properties.kommonitorRecordId = feature.id;
+                return feature.properties;
+              }
+              return feature;
             }
-            return feature;
-          });
+          );
           console.log('Transformed data for grid:', transformedData);
           this.gridApi.setRowData(transformedData);
           // Force refresh of the grid
@@ -336,50 +362,61 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         setTimeout(() => {
           this.loadingData = false;
         }, 500); // Increased timeout to show loading state longer
-      }
+      },
     });
   }
 
   onChangeEnableDeleteFeatures(): void {
     // Rebuild the table with updated delete functionality
-    if (this.currentGeoresourceDataset && this.remainingFeatureHeaders && this.georesourceFeaturesGeoJSON) {
-      this.featureTableGridOptions = this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
-        "georesourceFeatureTable",
-        this.remainingFeatureHeaders,
-        this.georesourceFeaturesGeoJSON.features || [],
-        this.currentGeoresourceDataset.georesourceId,
-        this.kommonitorDataGridHelperService.resourceType_georesource,
-        this.enableDeleteFeatures
-      );
-      
-             // Update grid if API is available
-       if (this.gridApi && this.featureTableGridOptions && this.featureTableGridOptions.columnDefs) {
-         // Update column definitions to include/exclude delete buttons
-         this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
-       }
+    if (
+      this.currentGeoresourceDataset &&
+      this.remainingFeatureHeaders &&
+      this.georesourceFeaturesGeoJSON
+    ) {
+      this.featureTableGridOptions =
+        this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+          'georesourceFeatureTable',
+          this.remainingFeatureHeaders,
+          this.georesourceFeaturesGeoJSON.features || [],
+          this.currentGeoresourceDataset.georesourceId,
+          this.kommonitorDataGridHelperService.resourceType_georesource,
+          this.enableDeleteFeatures
+        );
+
+      // Update grid if API is available
+      if (this.gridApi && this.featureTableGridOptions && this.featureTableGridOptions.columnDefs) {
+        // Update column definitions to include/exclude delete buttons
+        this.gridApi.setColumnDefs(this.featureTableGridOptions.columnDefs);
+      }
     }
   }
 
   clearAllGeoresourceFeatures(): void {
     if (!this.enableDeleteFeatures || !this.currentGeoresourceDataset) return;
 
-    if (confirm('Sind Sie sicher, dass Sie alle Features dieser Georessource löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+    if (
+      confirm(
+        'Sind Sie sicher, dass Sie alle Features dieser Georessource löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.'
+      )
+    ) {
       this.loadingData = true;
 
-      this.http.delete(
-        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
-      ).subscribe({
-        next: (_response: any) => {
-          this.loadingData = false;
-          this.refreshGeoresourceEditFeaturesOverviewTable();
-          alert('Alle Features wurden erfolgreich gelöscht.');
-        },
-        error: (error: any) => {
-          this.loadingData = false;
-          console.error('Error deleting features:', error);
-          alert('Fehler beim Löschen der Features.');
-        }
-      });
+      this.http
+        .delete(
+          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
+        )
+        .subscribe({
+          next: (_response: any) => {
+            this.loadingData = false;
+            this.refreshGeoresourceEditFeaturesOverviewTable();
+            alert('Alle Features wurden erfolgreich gelöscht.');
+          },
+          error: (error: any) => {
+            this.loadingData = false;
+            console.error('Error deleting features:', error);
+            alert('Fehler beim Löschen der Features.');
+          },
+        });
     }
   }
 
@@ -401,11 +438,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Validation methods
   checkPeriodOfValidity(): void {
     this.periodOfValidityInvalid = false;
-    
+
     if (this.periodOfValidity.startDate && this.periodOfValidity.endDate) {
       const startDate = new Date(this.periodOfValidity.startDate);
       const endDate = new Date(this.periodOfValidity.endDate);
-      
+
       if (startDate >= endDate) {
         this.periodOfValidityInvalid = true;
       }
@@ -414,20 +451,22 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Attribute mapping methods
   onAddOrUpdateAttributeMapping(): void {
-    if (!this.attributeMapping_sourceAttributeName || 
-        !this.attributeMapping_destinationAttributeName || 
-        !this.attributeMapping_attributeType) {
+    if (
+      !this.attributeMapping_sourceAttributeName ||
+      !this.attributeMapping_destinationAttributeName ||
+      !this.attributeMapping_attributeType
+    ) {
       return;
     }
 
     const existingIndex = this.attributeMappings_adminView.findIndex(
-      mapping => mapping.sourceName === this.attributeMapping_sourceAttributeName
+      (mapping) => mapping.sourceName === this.attributeMapping_sourceAttributeName
     );
 
     const newMapping = {
       sourceName: this.attributeMapping_sourceAttributeName,
       destinationName: this.attributeMapping_destinationAttributeName,
-      dataType: this.attributeMapping_attributeType
+      dataType: this.attributeMapping_attributeType,
     };
 
     if (existingIndex >= 0) {
@@ -441,7 +480,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     // Clear form
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_attributeType = this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+    this.attributeMapping_attributeType =
+      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
   }
 
   onClickEditAttributeMapping(attributeMappingEntry: any): void {
@@ -478,7 +518,8 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         this.parseFromMappingConfigFile(event);
       } catch {
         console.error('Uploaded Mapping Config File cannot be parsed.');
-        this.georesourceMappingConfigImportError = 'Uploaded Mapping Config File cannot be parsed correctly';
+        this.georesourceMappingConfigImportError =
+          'Uploaded Mapping Config File cannot be parsed correctly';
         const preElement = document.getElementById('georesourcesEditFeaturesMappingConfigPre');
         if (preElement) {
           preElement.innerHTML = this.georesourceMappingConfigStructure_pretty;
@@ -517,7 +558,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       validityEndDate: this.validityEndDate_perFeature,
       keepAttributes: this.keepAttributes,
       keepMissingValues: this.keepMissingValues,
-      isPartialUpdate: this.isPartialUpdate
+      isPartialUpdate: this.isPartialUpdate,
     };
 
     const mappingJSON = JSON.stringify(mappingConfig, null, 2);
@@ -554,31 +595,35 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     // Build the request body
     const putBody = this.buildPutBody();
 
-    this.http.put(
-      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
-      putBody
-    ).subscribe({
-      next: (response: any) => {
-        this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-        this.importedFeatures = response.importedFeatures || [];
-        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { 
-          crudType: 'edit', 
-          targetGeoresourceId: this.currentGeoresourceDataset.georesourceId 
-        });
-        this.showSuccessAlert();
-        this.loadingData = false;
-      },
-      error: (error: any) => {
-        if (error.error) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error);
-        } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-        this.importerErrors = error.error?.importerErrors || [];
-        this.showErrorAlert();
-        this.loadingData = false;
-      }
-    });
+    this.http
+      .put(
+        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
+        putBody
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.successMessagePart = this.currentGeoresourceDataset.datasetName;
+          this.importedFeatures = response.importedFeatures || [];
+          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+            crudType: 'edit',
+            targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
+          });
+          this.showSuccessAlert();
+          this.loadingData = false;
+        },
+        error: (error: any) => {
+          if (error.error) {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+              error.error
+            );
+          } else {
+            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          }
+          this.importerErrors = error.error?.importerErrors || [];
+          this.showErrorAlert();
+          this.loadingData = false;
+        },
+      });
   }
 
   private buildPutBody(): any {
@@ -586,20 +631,20 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       geoJsonString: '',
       periodOfValidity: {
         startDate: this.periodOfValidity.startDate,
-        endDate: this.periodOfValidity.endDate
-      }
+        endDate: this.periodOfValidity.endDate,
+      },
     };
 
     // Add converter definition
     putBody.converterDefinition = {
       name: this.converter.name,
-      parameters: this.getConverterParameters()
+      parameters: this.getConverterParameters(),
     };
 
     // Add datasource definition
     putBody.datasourceTypeDefinition = {
       type: this.datasourceType.type,
-      parameters: this.getDatasourceParameters()
+      parameters: this.getDatasourceParameters(),
     };
 
     // Add property mapping
@@ -610,7 +655,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       validityEndDateProperty: this.validityEndDate_perFeature,
       keepAttributes: this.keepAttributes,
       keepMissingValues: this.keepMissingValues,
-      attributeMappings: this.attributeMappings_adminView
+      attributeMappings: this.attributeMappings_adminView,
     };
 
     // Add partial update flag
@@ -621,10 +666,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private getConverterParameters(): any {
     const parameters: any = {};
-    
+
     if (this.converter.parameters) {
       this.converter.parameters.forEach((param: any) => {
-        const element = document.getElementById(`converterParameter_georesourceEditFeatures_${param.name}`);
+        const element = document.getElementById(
+          `converterParameter_georesourceEditFeatures_${param.name}`
+        );
         if (element) {
           parameters[param.name] = (element as HTMLInputElement).value;
         }
@@ -646,7 +693,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     if (this.datasourceType.type === 'FILE') {
       // Handle file upload
-      const fileInput = document.getElementById('georesourceDataSourceInput_editFeatures') as HTMLInputElement;
+      const fileInput = document.getElementById(
+        'georesourceDataSourceInput_editFeatures'
+      ) as HTMLInputElement;
       if (fileInput && fileInput.files && fileInput.files[0]) {
         // File will be handled separately in actual implementation
         parameters.file = fileInput.files[0];
@@ -656,11 +705,27 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       if (this.bboxType === 'ref' && this.bboxRefSpatialUnit) {
         parameters.spatialUnitId = this.bboxRefSpatialUnit.spatialUnitId;
       } else if (this.bboxType === 'literal') {
-        const minx = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_minx') as HTMLInputElement)?.value;
-        const miny = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_miny') as HTMLInputElement)?.value;
-        const maxx = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_maxx') as HTMLInputElement)?.value;
-        const maxy = (document.getElementById('datasourceTypeParameter_georesourceEditFeatures_bbox_maxy') as HTMLInputElement)?.value;
-        
+        const minx = (
+          document.getElementById(
+            'datasourceTypeParameter_georesourceEditFeatures_bbox_minx'
+          ) as HTMLInputElement
+        )?.value;
+        const miny = (
+          document.getElementById(
+            'datasourceTypeParameter_georesourceEditFeatures_bbox_miny'
+          ) as HTMLInputElement
+        )?.value;
+        const maxx = (
+          document.getElementById(
+            'datasourceTypeParameter_georesourceEditFeatures_bbox_maxx'
+          ) as HTMLInputElement
+        )?.value;
+        const maxy = (
+          document.getElementById(
+            'datasourceTypeParameter_georesourceEditFeatures_bbox_maxy'
+          ) as HTMLInputElement
+        )?.value;
+
         parameters.bbox = `${minx},${miny},${maxx},${maxy}`;
       }
     }
@@ -669,7 +734,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (this.datasourceType.parameters) {
       this.datasourceType.parameters.forEach((param: any) => {
         if (param.name !== 'bbox') {
-          const element = document.getElementById(`datasourceTypeParameter_georesourceEditFeatures_${param.name}`);
+          const element = document.getElementById(
+            `datasourceTypeParameter_georesourceEditFeatures_${param.name}`
+          );
           if (element) {
             parameters[param.name] = (element as HTMLTextAreaElement).value;
           }
@@ -696,7 +763,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   resetGeoresourceEditFeaturesForm(): void {
     this.currentStep = 1;
     this.enableDeleteFeatures = false;
-    
+
     // Reset all form fields
     this.converter = undefined;
     this.schema = '';
@@ -706,25 +773,26 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.georesourceDataSourceNameProperty = '';
     this.validityStartDate_perFeature = '';
     this.validityEndDate_perFeature = '';
-    
+
     this.periodOfValidity = {
       startDate: '',
-      endDate: ''
+      endDate: '',
     };
     this.periodOfValidityInvalid = false;
-    
+
     this.isPartialUpdate = false;
     this.keepAttributes = true;
     this.keepMissingValues = true;
-    
+
     this.attributeMappings_adminView = [];
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
-    this.attributeMapping_attributeType = this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
-    
+    this.attributeMapping_attributeType =
+      this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+
     this.bboxType = '';
     this.bboxRefSpatialUnit = undefined;
-    
+
     // Reset messages
     this.successMessagePart = '';
     this.errorMessagePart = '';
@@ -748,7 +816,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   showMappingConfigImportErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesMappingConfigImportErrorAlert');
+    const alertElement = document.getElementById(
+      'georesourceEditFeaturesMappingConfigImportErrorAlert'
+    );
     if (alertElement) {
       alertElement.hidden = false;
     }
@@ -769,7 +839,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   hideMappingConfigErrorAlert(): void {
-    const alertElement = document.getElementById('georesourceEditFeaturesMappingConfigImportErrorAlert');
+    const alertElement = document.getElementById(
+      'georesourceEditFeaturesMappingConfigImportErrorAlert'
+    );
     if (alertElement) {
       alertElement.hidden = true;
     }
@@ -777,13 +849,15 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Validation for form submission
   canSubmitForm(): boolean {
-    return !!this.currentGeoresourceDataset?.datasetName &&
-           !!this.georesourceDataSourceIdProperty &&
-           !!this.georesourceDataSourceNameProperty &&
-           !!this.periodOfValidity.startDate &&
-           !this.periodOfValidityInvalid &&
-           !!this.converter &&
-           !!this.datasourceType;
+    return (
+      !!this.currentGeoresourceDataset?.datasetName &&
+      !!this.georesourceDataSourceIdProperty &&
+      !!this.georesourceDataSourceNameProperty &&
+      !!this.periodOfValidity.startDate &&
+      !this.periodOfValidityInvalid &&
+      !!this.converter &&
+      !!this.datasourceType
+    );
   }
 
   // AG-Grid event handlers
@@ -791,7 +865,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.gridApi = event.api;
     this.columnApi = event.columnApi;
     console.log('Grid is ready, API initialized');
-    
+
     // Auto-size columns to fit content
     this.gridApi.sizeColumnsToFit();
   }
@@ -807,7 +881,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   onCellValueChanged(params: any): void {
     // Handle cell value changes here
     console.log('Cell value changed:', params);
-    
+
     // TODO: Implement API call to update the feature in the backend
     // Similar to the AngularJS version's cell update functionality
   }
@@ -815,9 +889,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private handleError(error: any): void {
     console.error('Error occurred:', error);
     if (error.data) {
-      this.errorMessagePart = this.kommonitorDataExchangeService?.syntaxHighlightJSON(error.data) || 'An error occurred';
+      this.errorMessagePart =
+        this.kommonitorDataExchangeService?.syntaxHighlightJSON(error.data) || 'An error occurred';
     } else {
-      this.errorMessagePart = this.kommonitorDataExchangeService?.syntaxHighlightJSON(error) || 'An error occurred';
+      this.errorMessagePart =
+        this.kommonitorDataExchangeService?.syntaxHighlightJSON(error) || 'An error occurred';
     }
     this.showErrorAlert();
   }
@@ -826,4 +902,4 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   cancel(): void {
     this.activeModal.dismiss();
   }
-} 
+}

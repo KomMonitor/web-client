@@ -1,6 +1,6 @@
-import { Component, OnInit, Input } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { Component, OnInit, Input, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   FormBuilder,
   FormControl,
@@ -8,21 +8,25 @@ import {
   FormsModule,
   ReactiveFormsModule,
   Validators,
-} from "@angular/forms";
-import { AdminTopicsManagementService } from "../admin-topics-management.service";
-import { Topic } from "../admin-topics-management.component";
-import { CommonModule } from "@angular/common";
+} from '@angular/forms';
+import { AdminTopicsManagementService } from '../admin-topics-management.service';
+import { Topic } from '../admin-topics-management.component';
+import { CommonModule } from '@angular/common';
 
 const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
 
 @Component({
-  selector: "app-topic-edit-modal",
-  templateUrl: "./topic-edit-modal.component.html",
-  styleUrls: ["./topic-edit-modal.component.css"],
+  selector: 'app-topic-edit-modal',
+  templateUrl: './topic-edit-modal.component.html',
+  styleUrls: ['./topic-edit-modal.component.css'],
   imports: [FormsModule, CommonModule, ReactiveFormsModule],
   standalone: true,
 })
 export class TopicEditModalComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+  private fb = inject(FormBuilder);
+  private srvc = inject(AdminTopicsManagementService);
+
   @Input({ required: true }) topic!: Topic;
 
   topicForm: FormGroup<{
@@ -30,26 +34,22 @@ export class TopicEditModalComponent implements OnInit {
     description: FormControl<string | null>;
   }>;
   isSubmitting = false;
-  errorMessage = "";
-  successMessage = "";
+  errorMessage = '';
+  successMessage = '';
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private srvc: AdminTopicsManagementService,
-  ) {
+  constructor() {
     this.topicForm = this.fb.group({
-      name: ["", Validators.required],
-      description: ["", Validators.required],
+      name: ['', Validators.required],
+      description: ['', Validators.required],
     });
   }
 
   ngOnInit() {
     if (!this.topic) {
-      console.error("No topic data provided to modal");
+      console.error('No topic data provided to modal');
       return;
     }
-    
+
     this.topicForm.patchValue({
       name: this.topic.topicName,
       description: this.topic.topicDescription,
@@ -58,8 +58,8 @@ export class TopicEditModalComponent implements OnInit {
 
   onSubmit() {
     if (!this.topicForm.valid) {
-      console.warn("Form is invalid:", this.topicForm.errors);
-      Object.keys(this.topicForm.controls).forEach(key => {
+      console.warn('Form is invalid:', this.topicForm.errors);
+      Object.keys(this.topicForm.controls).forEach((key) => {
         this.topicForm.get(key)?.markAsTouched();
       });
       return;
@@ -69,21 +69,21 @@ export class TopicEditModalComponent implements OnInit {
     const description = this.topicForm.value.description;
 
     if (!name || !description) {
-      this.errorMessage = "Name and description are required";
+      this.errorMessage = 'Name and description are required';
       return;
     }
 
     this.isSubmitting = true;
-    this.errorMessage = "";
-    this.successMessage = "";
-    
+    this.errorMessage = '';
+    this.successMessage = '';
+
     this.srvc
       .editTopic(this.topic, name, description)
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.successMessage = "success";
+          this.successMessage = 'success';
           setTimeout(() => {
             this.activeModal.close();
           }, SUCCESS_MESSAGE_TIMEOUT_MS);
@@ -102,18 +102,18 @@ export class TopicEditModalComponent implements OnInit {
     if (error?.message) {
       return error.message;
     }
-    return "Failed to update topic";
+    return 'Failed to update topic';
   }
 
   hideSuccessAlert() {
-    this.successMessage = "";
+    this.successMessage = '';
   }
 
   hideErrorAlert() {
-    this.errorMessage = "";
+    this.errorMessage = '';
   }
 
   cancel() {
-    this.activeModal.dismiss("cancel");
+    this.activeModal.dismiss('cancel');
   }
 }

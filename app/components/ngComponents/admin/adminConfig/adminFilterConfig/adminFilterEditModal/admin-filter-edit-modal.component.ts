@@ -13,54 +13,51 @@ import { MultiStepHelperServiceService } from 'services/multi-step-helper-servic
   standalone: true,
   templateUrl: './admin-filter-edit-modal.component.html',
   styleUrls: ['./admin-filter-edit-modal.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class AdminFilterEditModalComponent implements OnInit {
+  private multiStepHelperService = inject(MultiStepHelperServiceService);
+  private kommonitorDataExchangeService = inject(DataExchangeService);
+  private kommonitorConfigStorageService = inject(ConfigStorageService);
+  private broadcastService = inject(BroadcastService);
+
   activeModal = inject(NgbActiveModal);
 
-  selectedItem:any = undefined;
-  
+  selectedItem: any = undefined;
+
   loadingData = false;
   successMessagePart = undefined;
   errorMessagePart = undefined;
 
-  editIndicatorTableOptions = undefined;	
-  editGeoresourceTableOptions = undefined;	
+  editIndicatorTableOptions = undefined;
+  editGeoresourceTableOptions = undefined;
 
-  selectedIndicatorIds:any[] = [];
-  selectedGeoresourceIds:any[] = [];
+  selectedIndicatorIds: any[] = [];
+  selectedGeoresourceIds: any[] = [];
 
-  preppedGeoresourceData:any[] = [];
-  preppedIndicatorData:any[] = [];
+  preppedGeoresourceData: any[] = [];
+  preppedIndicatorData: any[] = [];
 
-  indicatorTopicsEditTree:any[] = [];
-  selectedIndicatorTopicEditIds:any[] = [];
+  indicatorTopicsEditTree: any[] = [];
+  selectedIndicatorTopicEditIds: any[] = [];
 
-  georesourceTopicsEditTree:any[] = [];
-  selectedGeoresourceTopicEditIds:any[] = [];
+  georesourceTopicsEditTree: any[] = [];
+  selectedGeoresourceTopicEditIds: any[] = [];
 
   showSelectedIndicatorsOnly = false;
   showSelectedGeoresourcesOnly = false;
   showSelectedIndicatorsTopicsOnly = false;
   showSelectedGeoresourcesTopicsOnly = false;
-  
-  filterConfig:any[] = [];
 
-  filterName!:string | undefined;
+  filterConfig: any[] = [];
 
-  constructor(
-    private multiStepHelperService: MultiStepHelperServiceService,
-    private kommonitorDataExchangeService: DataExchangeService,
-    private kommonitorConfigStorageService: ConfigStorageService,
-    private broadcastService: BroadcastService
-  ) {}
+  filterName!: string | undefined;
 
   ngOnInit(): void {
-      
-    this.multiStepHelperService.registerClickHandler("adminFilterEditForm");		
+    this.multiStepHelperService.registerClickHandler('adminFilterEditForm');
   }
 
-	/* 	var addClickListenerToEachCollapseTrigger(){
+  /* 	var addClickListenerToEachCollapseTrigger(){
 
 			setTimeout(function(){
 				$('.list-group-item > .editCollapseTrigger').on('click', function() {
@@ -77,8 +74,8 @@ export class AdminFilterEditModalComponent implements OnInit {
 			}, 500);
 		}; */
 
-		// make sure that initial fetching of availableRoles has happened
-		/* this.$on("initialMetadataLoadingCompleted", (event) {
+  // make sure that initial fetching of availableRoles has happened
+  /* this.$on("initialMetadataLoadingCompleted", (event) {
 
       this.indicatorTopicsEditTree = prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, []);
       this.georesourceTopicsEditTree = prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), 0, []);
@@ -127,362 +124,357 @@ export class AdminFilterEditModalComponent implements OnInit {
       });
 		});  */
 
-    // georesource tree
-    onSelectedGeoresourceEditItemsChange(id,selected) {
-      
-      if(selected===true) {
-        if(!this.selectedGeoresourceTopicEditIds.includes(id))
-          this.selectedGeoresourceTopicEditIds.push(id);
-      } else
-        this.selectedGeoresourceTopicEditIds = this.selectedGeoresourceTopicEditIds.filter(e => e!=id);
+  // georesource tree
+  onSelectedGeoresourceEditItemsChange(id, selected) {
+    if (selected === true) {
+      if (!this.selectedGeoresourceTopicEditIds.includes(id))
+        this.selectedGeoresourceTopicEditIds.push(id);
+    } else
+      this.selectedGeoresourceTopicEditIds = this.selectedGeoresourceTopicEditIds.filter(
+        (e) => e != id
+      );
 
-      if(this.selectedGeoresourceTopicEditIds.length==0)
-        this.showSelectedGeoresourcesTopicsOnly = false;
+    if (this.selectedGeoresourceTopicEditIds.length == 0)
+      this.showSelectedGeoresourcesTopicsOnly = false;
 
-      this.searchGeoresourceItemRecursive(this.georesourceTopicsEditTree, id, selected);
-    }
+    this.searchGeoresourceItemRecursive(this.georesourceTopicsEditTree, id, selected);
+  }
 
-    onShowSelectedIndicatorsOnly() {
-      this.refreshIndicatorsTable();
-    }
-    onShowSelectedGeoresourcesOnly() {
-      this.refreshGeoresourcesTable();
-    }
+  onShowSelectedIndicatorsOnly() {
+    this.refreshIndicatorsTable();
+  }
+  onShowSelectedGeoresourcesOnly() {
+    this.refreshGeoresourcesTable();
+  }
 
-    searchGeoresourceItemRecursive(tree, id, selected) {
+  searchGeoresourceItemRecursive(tree, id, selected) {
+    let ret = false;
 
-      let ret = false;
+    tree.forEach((entry) => {
+      if (entry.topicId == id) {
+        if (selected === true && document.getElementById('editCheckbox-' + id)) {
+          const elem: any = document.getElementById('editCheckbox-' + id);
 
-      tree.forEach(entry => {
-        if(entry.topicId==id) {
-          if(selected===true && document.getElementById('editCheckbox-'+id)) {
+          elem.checked = true;
+          elem.style.display = 'block';
+        }
 
-            const elem:any = document.getElementById('editCheckbox-'+id);
+        this.checkGeoresourceItemsRecursive(entry.subTopics, selected);
 
-            elem.checked = true;
-            elem.style.display = 'block';
-          }
-
-          this.checkGeoresourceItemsRecursive(entry.subTopics, selected);
-
+        ret = true;
+      } else {
+        const itemFound = this.searchGeoresourceItemRecursive(entry.subTopics, id, selected);
+        if (itemFound === true && document.getElementById('editSubTopic-' + entry.topicId)) {
+          const elem: any = document.getElementById('editSubTopic-' + entry.topicId);
+          elem.style.display = 'block';
           ret = true;
-        } else {
-          const itemFound = this.searchGeoresourceItemRecursive(entry.subTopics, id, selected);
-          if(itemFound===true && document.getElementById('editSubTopic-'+entry.topicId)) {
-
-            const elem:any = document.getElementById('editSubTopic-'+entry.topicId);
-            elem.style.display = 'block';
-            ret = true;
-          }
         }
-      });
-
-      return ret;
-    }
-
-    checkGeoresourceItemsRecursive(tree, selected) {
-      tree.forEach(entry => {
-
-        if(document.getElementById('editCheckbox-'+entry.topicId)) {
-
-          const elem:any = document.getElementById('editCheckbox-'+entry.topicId);
-
-          if(selected===true) {
-            elem.checked = true;
-            elem.disabled = true;
-          } else {
-            elem.checked = false;
-            elem.disabled = false;
-          }
-        }
-        
-        // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
-        this.selectedGeoresourceTopicEditIds = this.selectedGeoresourceTopicEditIds.filter(e => e!=entry.topicId);
-
-        if(entry.subTopics.length>0)
-          this.checkGeoresourceItemsRecursive(entry.subTopics, selected);
-      })
-    }
-    // end
-
-    // indicator tree
-    onSelectedIndicatorEditItemsChange(id,selected) {
-
-      if(selected===true) {
-        if(!this.selectedIndicatorTopicEditIds.includes(id))
-          this.selectedIndicatorTopicEditIds.push(id);
-      } else
-        this.selectedIndicatorTopicEditIds = this.selectedIndicatorTopicEditIds.filter(e => e!=id);
-
-      if(this.selectedIndicatorTopicEditIds.length==0)
-        this.showSelectedIndicatorsTopicsOnly = false;
-
-      this.searchIndicatorItemRecursive(this.indicatorTopicsEditTree, id, selected);
-    }
-
-    searchIndicatorItemRecursive(tree, id, selected) {
-
-      let ret = false;
-
-      tree.forEach(entry => {
-        if(entry.topicId==id) {
-          if(selected===true && document.getElementById('editCheckbox-'+id)) {
-
-            const elem:any = document.getElementById('editCheckbox-'+id);
-
-            elem.checked = true;
-            elem.style.display = 'block';
-          }
-
-          this.checkIndicatorItemsRecursive(entry.subTopics, selected);
-
-          ret = true;
-        } else {
-          const itemFound = this.searchIndicatorItemRecursive(entry.subTopics, id, selected);
-          if(itemFound===true && document.getElementById('editSubTopic-'+entry.topicId)) {
-            document.getElementById('editSubTopic-'+entry.topicId)!.style.display = 'block';
-            ret = true;
-          }
-        }
-      });
-
-      return ret;
-    }
-
-    checkIndicatorItemsRecursive(tree, selected) {
-      tree.forEach(entry => {
-
-        if(document.getElementById('editCheckbox-'+entry.topicId)) {
-
-          const elem:any = document.getElementById('editCheckbox-'+entry.topicId);
-
-          if(selected===true) {
-            elem.checked = true;
-            elem.disabled = true;
-          } else {
-            elem.checked = false;
-            elem.disabled = false;
-          }
-        }
-        
-        // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards  
-        this.selectedIndicatorTopicEditIds = this.selectedIndicatorTopicEditIds.filter(e => e!=entry.topicId);
-
-        if(entry.subTopics.length>0)
-          this.checkIndicatorItemsRecursive(entry.subTopics, selected);
-      })
-    }
-    // end
-
-    prepTopicsTree(tree, level, selectedItemIds) {
-      tree.forEach(entry => {
-        entry.level = level;
-        entry.selected = selectedItemIds.includes(entry.topicId);
-
-        if(entry.subTopics.length>0) {
-          const newLevel = level+1;
-          entry.subTopics = this.prepTopicsTree(entry.subTopics, newLevel, selectedItemIds);
-        }
-      });
-
-      return tree;
-    }
-
-    checkGeoresourcesTopicsTreeVisibility(entry) {
-
-      if(this.showSelectedGeoresourcesTopicsOnly===false)
-        return true;
-
-      if(entry.selected)
-        return true;
-      else {
-        if(entry.subTopics.length>0)
-          return this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
-        else
-          return false;
       }
-    }
+    });
 
-    checkIndicatorTopicsTreeVisibility(entry) {
+    return ret;
+  }
 
-      if(this.showSelectedIndicatorsTopicsOnly===false)
-        return true;
+  checkGeoresourceItemsRecursive(tree, selected) {
+    tree.forEach((entry) => {
+      if (document.getElementById('editCheckbox-' + entry.topicId)) {
+        const elem: any = document.getElementById('editCheckbox-' + entry.topicId);
 
-      if(entry.selected)
-        return true;
-      else {
-        if(entry.subTopics.length>0)
-          return this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
-        else
-          return false;
-      }
-    }
-
-    checkTopicsTreeVisibilityRecursive(entries):any {
-
-      let ret = false;
-
-      entries.forEach((entry:any) => {
-        if(entry.selected)
-          ret = true;
-        else {
-          if(entry.subTopics.length>0) {
-            const subRet = this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
-
-            if(ret===false)
-              ret = subRet;
-          } else
-            ret = false;
-        }
-      });
-
-      return ret;
-    }
-
-    resetTreeSelection(tree) {
-      tree.forEach(entry => {
-        
-        if(document.getElementById('editCheckbox-'+entry.topicId)) {
-
-          const elem:any = document.getElementById('editCheckbox-'+entry.topicId);
-
+        if (selected === true) {
+          elem.checked = true;
+          elem.disabled = true;
+        } else {
           elem.checked = false;
           elem.disabled = false;
-
-          elem.style.display = 'none';
-
-          if(entry.subTopics.length>0) 
-            this.resetTreeSelection(entry.subTopics);
         }
-      });
-    }
-
-    refreshGeoresourcesTable() {
-
-      this.kommonitorDataExchangeService.availableGeoresources.forEach((element,index) => {
-        this.preppedGeoresourceData[index] = {
-          id: element.georesourceId,
-          name: element.datasetName,
-          description: element.metadata.description,
-          checked: this.selectedGeoresourceIds.includes(element.georesourceId)
-        }
-      });
-
-      if(this.selectedGeoresourceIds.length==0)
-        this.showSelectedGeoresourcesOnly = false;
-
-      if(this.showSelectedGeoresourcesOnly)
-        this.preppedGeoresourceData = this.preppedGeoresourceData.filter(e => e.checked===true);
-
-			//this.editGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditGeoresourcesTable', this.editGeoresourceTableOptions, this.preppedGeoresourceData, []);	
-		}
-
-		refreshIndicatorsTable() {
-
-      this.kommonitorDataExchangeService.availableIndicators.forEach((element,index) => {
-        this.preppedIndicatorData[index] = {
-          id: element.indicatorId,
-          name: element.indicatorName,
-          description: element.metadata.description,
-          checked: this.selectedIndicatorIds.includes(element.indicatorId)
-        }
-      });
-
-      if(this.selectedIndicatorIds.length==0)
-        this.showSelectedIndicatorsOnly = false;
-
-      if(this.showSelectedIndicatorsOnly)
-        this.preppedIndicatorData = this.preppedIndicatorData.filter(e => e.checked===true);
-
-			//this.editIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditIndicatorsTable', this.editIndicatorTableOptions, this.preppedIndicatorData, []);	
-		}
-
-    async editAdminFilter() {
-
-      //var selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid(this.editIndicatorTableOptions);
-      //var selectedGeoresourceIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid(this.editGeoresourceTableOptions);
-      const selectedIndicatorIds = [];
-      const selectedGeoresourceIds = [];
-
-      this.selectedIndicatorIds = selectedIndicatorIds;
-      this.selectedGeoresourceIds = selectedGeoresourceIds;
-
-      if(!this.filterName)
-          return;
-
-      if(selectedGeoresourceIds.length==0 && selectedIndicatorIds.length==0 && this.selectedIndicatorTopicEditIds.length==0 && this.selectedGeoresourceTopicEditIds.length==0) {
-        if(!confirm("Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?"))
-          return;
       }
 
-      const filterConfig = await this.kommonitorConfigStorageService.getFilterConfig();      
+      // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards
+      this.selectedGeoresourceTopicEditIds = this.selectedGeoresourceTopicEditIds.filter(
+        (e) => e != entry.topicId
+      );
 
-      setTimeout(() => {
-        this.loadingData = true;
-      });
+      if (entry.subTopics.length > 0)
+        this.checkGeoresourceItemsRecursive(entry.subTopics, selected);
+    });
+  }
+  // end
 
-      this.successMessagePart = undefined;
-      this.errorMessagePart = undefined;
+  // indicator tree
+  onSelectedIndicatorEditItemsChange(id, selected) {
+    if (selected === true) {
+      if (!this.selectedIndicatorTopicEditIds.includes(id))
+        this.selectedIndicatorTopicEditIds.push(id);
+    } else
+      this.selectedIndicatorTopicEditIds = this.selectedIndicatorTopicEditIds.filter(
+        (e) => e != id
+      );
 
-      const filterBody = {
-        "name": this.filterName,
-        "indicatorTopics": this.selectedIndicatorTopicEditIds,
-        "indicators": selectedIndicatorIds,
-        "georesourceTopics": this.selectedGeoresourceTopicEditIds,
-        "georesources": selectedGeoresourceIds
+    if (this.selectedIndicatorTopicEditIds.length == 0)
+      this.showSelectedIndicatorsTopicsOnly = false;
+
+    this.searchIndicatorItemRecursive(this.indicatorTopicsEditTree, id, selected);
+  }
+
+  searchIndicatorItemRecursive(tree, id, selected) {
+    let ret = false;
+
+    tree.forEach((entry) => {
+      if (entry.topicId == id) {
+        if (selected === true && document.getElementById('editCheckbox-' + id)) {
+          const elem: any = document.getElementById('editCheckbox-' + id);
+
+          elem.checked = true;
+          elem.style.display = 'block';
+        }
+
+        this.checkIndicatorItemsRecursive(entry.subTopics, selected);
+
+        ret = true;
+      } else {
+        const itemFound = this.searchIndicatorItemRecursive(entry.subTopics, id, selected);
+        if (itemFound === true && document.getElementById('editSubTopic-' + entry.topicId)) {
+          document.getElementById('editSubTopic-' + entry.topicId)!.style.display = 'block';
+          ret = true;
+        }
+      }
+    });
+
+    return ret;
+  }
+
+  checkIndicatorItemsRecursive(tree, selected) {
+    tree.forEach((entry) => {
+      if (document.getElementById('editCheckbox-' + entry.topicId)) {
+        const elem: any = document.getElementById('editCheckbox-' + entry.topicId);
+
+        if (selected === true) {
+          elem.checked = true;
+          elem.disabled = true;
+        } else {
+          elem.checked = false;
+          elem.disabled = false;
+        }
+      }
+
+      // delete all downlevel items if they exists, just in case a level higher up has been checked afterwards
+      this.selectedIndicatorTopicEditIds = this.selectedIndicatorTopicEditIds.filter(
+        (e) => e != entry.topicId
+      );
+
+      if (entry.subTopics.length > 0) this.checkIndicatorItemsRecursive(entry.subTopics, selected);
+    });
+  }
+  // end
+
+  prepTopicsTree(tree, level, selectedItemIds) {
+    tree.forEach((entry) => {
+      entry.level = level;
+      entry.selected = selectedItemIds.includes(entry.topicId);
+
+      if (entry.subTopics.length > 0) {
+        const newLevel = level + 1;
+        entry.subTopics = this.prepTopicsTree(entry.subTopics, newLevel, selectedItemIds);
+      }
+    });
+
+    return tree;
+  }
+
+  checkGeoresourcesTopicsTreeVisibility(entry) {
+    if (this.showSelectedGeoresourcesTopicsOnly === false) return true;
+
+    if (entry.selected) return true;
+    else {
+      if (entry.subTopics.length > 0)
+        return this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
+      else return false;
+    }
+  }
+
+  checkIndicatorTopicsTreeVisibility(entry) {
+    if (this.showSelectedIndicatorsTopicsOnly === false) return true;
+
+    if (entry.selected) return true;
+    else {
+      if (entry.subTopics.length > 0)
+        return this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
+      else return false;
+    }
+  }
+
+  checkTopicsTreeVisibilityRecursive(entries): any {
+    let ret = false;
+
+    entries.forEach((entry: any) => {
+      if (entry.selected) ret = true;
+      else {
+        if (entry.subTopics.length > 0) {
+          const subRet = this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
+
+          if (ret === false) ret = subRet;
+        } else ret = false;
+      }
+    });
+
+    return ret;
+  }
+
+  resetTreeSelection(tree) {
+    tree.forEach((entry) => {
+      if (document.getElementById('editCheckbox-' + entry.topicId)) {
+        const elem: any = document.getElementById('editCheckbox-' + entry.topicId);
+
+        elem.checked = false;
+        elem.disabled = false;
+
+        elem.style.display = 'none';
+
+        if (entry.subTopics.length > 0) this.resetTreeSelection(entry.subTopics);
+      }
+    });
+  }
+
+  refreshGeoresourcesTable() {
+    this.kommonitorDataExchangeService.availableGeoresources.forEach((element, index) => {
+      this.preppedGeoresourceData[index] = {
+        id: element.georesourceId,
+        name: element.datasetName,
+        description: element.metadata.description,
+        checked: this.selectedGeoresourceIds.includes(element.georesourceId),
       };
+    });
 
-      filterConfig[this.selectedItem] = filterBody;
+    if (this.selectedGeoresourceIds.length == 0) this.showSelectedGeoresourcesOnly = false;
 
-      await this.kommonitorConfigStorageService.postFilterConfig(JSON.stringify(filterConfig, null, "    "));	
-      
-      $("#globalFilterEditSucessAlert").show();
-      this.loadingData = false;
+    if (this.showSelectedGeoresourcesOnly)
+      this.preppedGeoresourceData = this.preppedGeoresourceData.filter((e) => e.checked === true);
 
-      this.refreshIndicatorsTable();
-      this.refreshGeoresourcesTable();
+    //this.editGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditGeoresourcesTable', this.editGeoresourceTableOptions, this.preppedGeoresourceData, []);
+  }
 
-      setTimeout(() => {
-        this.broadcastService.broadcast("refreshAdminFilterOverview");
-      }, 500);
+  refreshIndicatorsTable() {
+    this.kommonitorDataExchangeService.availableIndicators.forEach((element, index) => {
+      this.preppedIndicatorData[index] = {
+        id: element.indicatorId,
+        name: element.indicatorName,
+        description: element.metadata.description,
+        checked: this.selectedIndicatorIds.includes(element.indicatorId),
+      };
+    });
 
+    if (this.selectedIndicatorIds.length == 0) this.showSelectedIndicatorsOnly = false;
+
+    if (this.showSelectedIndicatorsOnly)
+      this.preppedIndicatorData = this.preppedIndicatorData.filter((e) => e.checked === true);
+
+    //this.editIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditIndicatorsTable', this.editIndicatorTableOptions, this.preppedIndicatorData, []);
+  }
+
+  async editAdminFilter() {
+    //var selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid(this.editIndicatorTableOptions);
+    //var selectedGeoresourceIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid(this.editGeoresourceTableOptions);
+    const selectedIndicatorIds = [];
+    const selectedGeoresourceIds = [];
+
+    this.selectedIndicatorIds = selectedIndicatorIds;
+    this.selectedGeoresourceIds = selectedGeoresourceIds;
+
+    if (!this.filterName) return;
+
+    if (
+      selectedGeoresourceIds.length == 0 &&
+      selectedIndicatorIds.length == 0 &&
+      this.selectedIndicatorTopicEditIds.length == 0 &&
+      this.selectedGeoresourceTopicEditIds.length == 0
+    ) {
+      if (
+        !confirm(
+          'Sie haben weder Indikator- noch Georesource Daten zur späteren Ansicht ausgewählt. Trotzdem fortfahren?'
+        )
+      )
+        return;
+    }
+
+    const filterConfig = await this.kommonitorConfigStorageService.getFilterConfig();
+
+    setTimeout(() => {
+      this.loadingData = true;
+    });
+
+    this.successMessagePart = undefined;
+    this.errorMessagePart = undefined;
+
+    const filterBody = {
+      name: this.filterName,
+      indicatorTopics: this.selectedIndicatorTopicEditIds,
+      indicators: selectedIndicatorIds,
+      georesourceTopics: this.selectedGeoresourceTopicEditIds,
+      georesources: selectedGeoresourceIds,
     };
 
-		resetAdminFilterEditForm(){
+    filterConfig[this.selectedItem] = filterBody;
 
-      // reset
-      this.filterName = undefined;
-      this.resetTreeSelection(this.indicatorTopicsEditTree);
-      this.resetTreeSelection(this.georesourceTopicsEditTree);
+    await this.kommonitorConfigStorageService.postFilterConfig(
+      JSON.stringify(filterConfig, null, '    ')
+    );
 
-      this.filterConfig.forEach((elem, index) => {
-        if(index==this.selectedItem) {
-          this.filterName = elem.name;
+    $('#globalFilterEditSucessAlert').show();
+    this.loadingData = false;
 
-          this.selectedIndicatorTopicEditIds = elem.indicatorTopics;
-          this.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
+    this.refreshIndicatorsTable();
+    this.refreshGeoresourcesTable();
 
-          this.indicatorTopicsEditTree = this.prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, this.selectedIndicatorTopicEditIds);
-          this.georesourceTopicsEditTree = this.prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0, this.selectedGeoresourceTopicEditIds);
+    setTimeout(() => {
+      this.broadcastService.broadcast('refreshAdminFilterOverview');
+    }, 500);
+  }
 
-          this.selectedIndicatorTopicEditIds.forEach(e => {
-            this.searchIndicatorItemRecursive(this.indicatorTopicsEditTree, e, true);
-          });
+  resetAdminFilterEditForm() {
+    // reset
+    this.filterName = undefined;
+    this.resetTreeSelection(this.indicatorTopicsEditTree);
+    this.resetTreeSelection(this.georesourceTopicsEditTree);
 
-          this.selectedGeoresourceTopicEditIds.forEach(e => {
-            this.searchGeoresourceItemRecursive(this.georesourceTopicsEditTree, e, true);
-          });
-          
-          this.selectedIndicatorIds = elem.indicators;
-          this.selectedGeoresourceIds = elem.georesources;
-          
-          this.refreshIndicatorsTable();
-          this.refreshGeoresourcesTable();
-          
-        }
-      });
+    this.filterConfig.forEach((elem, index) => {
+      if (index == this.selectedItem) {
+        this.filterName = elem.name;
 
-      /* this.filterName = undefined;
+        this.selectedIndicatorTopicEditIds = elem.indicatorTopics;
+        this.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
+
+        this.indicatorTopicsEditTree = this.prepTopicsTree(
+          this.kommonitorDataExchangeService.availableTopics.filter(
+            (e) => e.topicResource == 'indicator'
+          ),
+          0,
+          this.selectedIndicatorTopicEditIds
+        );
+        this.georesourceTopicsEditTree = this.prepTopicsTree(
+          this.kommonitorDataExchangeService.availableTopics.filter(
+            (e) => e.topicResource == 'georesource'
+          ),
+          0,
+          this.selectedGeoresourceTopicEditIds
+        );
+
+        this.selectedIndicatorTopicEditIds.forEach((e) => {
+          this.searchIndicatorItemRecursive(this.indicatorTopicsEditTree, e, true);
+        });
+
+        this.selectedGeoresourceTopicEditIds.forEach((e) => {
+          this.searchGeoresourceItemRecursive(this.georesourceTopicsEditTree, e, true);
+        });
+
+        this.selectedIndicatorIds = elem.indicators;
+        this.selectedGeoresourceIds = elem.georesources;
+
+        this.refreshIndicatorsTable();
+        this.refreshGeoresourcesTable();
+      }
+    });
+
+    /* this.filterName = undefined;
       
       this.editGeoresourceTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditGeoresourcesTable', this.editGeoresourceTableOptions, this.preppedGeoresourceData, []);	
 			this.editIndicatorTableOptions = kommonitorDataGridHelperService.buildSingleSelectGrid('adminFilterEditIndicatorsTable', this.editIndicatorTableOptions, this.preppedIndicatorData, []);	
@@ -499,8 +491,8 @@ export class AdminFilterEditModalComponent implements OnInit {
 			setTimeout(() => {
 				this.$digest();	
 			}, 250); */
-		};
-/* 
+  }
+  /* 
 
 			this.addSpatialUnit = async () {
 
@@ -591,11 +583,11 @@ export class AdminFilterEditModalComponent implements OnInit {
 
  */
 
-  hideSuccessAlert(){
-    $("#globalFilterEditSucessAlert").hide();
-  };
+  hideSuccessAlert() {
+    $('#globalFilterEditSucessAlert').hide();
+  }
 
-  hideErrorAlert(){
-    $("#globalFilterEditErrorAlert").hide();
-  };
+  hideErrorAlert() {
+    $('#globalFilterEditErrorAlert').hide();
+  }
 }

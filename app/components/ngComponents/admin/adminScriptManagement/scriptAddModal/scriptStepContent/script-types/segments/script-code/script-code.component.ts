@@ -1,35 +1,35 @@
-import { Component, ViewChild, ElementRef } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ScriptHelperService } from "services/script-helper-service/script-helper.service";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import CodeMirror from "codemirror";
-import "codemirror/mode/javascript/javascript.js";
+import { Component, ViewChild, ElementRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import CodeMirror from 'codemirror';
+import 'codemirror/mode/javascript/javascript.js';
 
 @Component({
-  selector: "app-script-code",
-  templateUrl: "./script-code.component.html",
-  styleUrls: ["./script-code.component.scss"],
+  selector: 'app-script-code',
+  templateUrl: './script-code.component.html',
+  styleUrls: ['./script-code.component.scss'],
   standalone: true,
   imports: [CommonModule, ExpandableBoxComponent],
 })
 export class ScriptCodeComponent {
-  @ViewChild("scriptCodeMirrorContainer")
+  private scriptHelperService = inject(ScriptHelperService);
+
+  @ViewChild('scriptCodeMirrorContainer')
   scriptCodeMirrorContainerEl?: ElementRef<HTMLElement>;
 
-  rawScriptCode: string = "";
-  indicatorScriptCodeImportError: string = "";
+  rawScriptCode: string = '';
+  indicatorScriptCodeImportError: string = '';
   showScriptCodeErrorAlert: boolean = false;
 
   private codeMirrorEditor: any = null;
 
   private readonly SCRIPT_KEYWORDS = [
-    "KmHelper",
-    "computeIndicator",
-    "aggregateIndicator",
-    "module.exports.computeIndicator",
+    'KmHelper',
+    'computeIndicator',
+    'aggregateIndicator',
+    'module.exports.computeIndicator',
   ];
-
-  constructor(private scriptHelperService: ScriptHelperService) {}
 
   onScriptCodeFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -47,7 +47,7 @@ export class ScriptCodeComponent {
       const result = event.target?.result as string;
       if (!result || !this.fileStringIncludesScriptKeywords(result)) {
         this.indicatorScriptCodeImportError =
-          "Uploaded Script Code File is null or does not follow script template.";
+          'Uploaded Script Code File is null or does not follow script template.';
         this.showScriptCodeErrorAlert = true;
         return;
       }
@@ -67,17 +67,14 @@ export class ScriptCodeComponent {
     if (this.codeMirrorEditor) {
       this.codeMirrorEditor.setValue(code);
     } else {
-      this.codeMirrorEditor = (CodeMirror as any)(
-        this.scriptCodeMirrorContainerEl.nativeElement,
-        {
-          value: code,
-          mode: "javascript",
-          lineNumbers: true,
-          readOnly: true,
-          theme: "panda-syntax",
-          lineWrapping: false,
-        },
-      );
+      this.codeMirrorEditor = (CodeMirror as any)(this.scriptCodeMirrorContainerEl.nativeElement, {
+        value: code,
+        mode: 'javascript',
+        lineNumbers: true,
+        readOnly: true,
+        theme: 'panda-syntax',
+        lineWrapping: false,
+      });
       this.codeMirrorEditor.setSize(null, 450);
     }
   }
