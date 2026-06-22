@@ -1,0 +1,37 @@
+name: CI quality gate
+
+# Runs lint, tests and a production build to protect the green baseline.
+on:
+  pull_request:
+  push:
+    branches: [ master, develop, feature/migration-bootstrap-cleanup ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      # --force is required due to the project's documented peer-dependency conflicts
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
