@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ReachbilityScenarioSetupComponent } from './reachbility-scenario-setup.component';
 
@@ -8,7 +10,11 @@ describe('ReachbilityScenarioSetupComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ReachbilityScenarioSetupComponent]
+      imports: [ReachbilityScenarioSetupComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ]
     });
     fixture = TestBed.createComponent(ReachbilityScenarioSetupComponent);
     component = fixture.componentInstance;

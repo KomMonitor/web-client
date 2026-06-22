@@ -1,6 +1,6 @@
 <div id="kommonitorReachability">
 
-  <app-loading-overlay [loading]="reachabilityCombinerService.loadingState">
+  <app-loading-overlay [loading]="(loading$ | async) ?? false">
 
     <expandable-box [title]="'Schnellberechnung'" [collapsed]="false">
       <b>Einstiegs-Modus</b>
@@ -9,19 +9,10 @@
           <button ngbNavLink (click)="onSinglePointSelection()">Einzelpunkt</button>
           <ng-template ngbNavContent>
             <div class="search-wrapper">
-              <input
-                type="text"
-                [value]="query"
-                (input)="onSearch($any($event.target).value)"
-                placeholder="Adresse suchen"
-                class="form-control"
-              />
+              <input type="text" [value]="query" (input)="onSearch($any($event.target).value)"
+                placeholder="Adresse suchen" class="form-control" />
               <div class="autocomplete" *ngIf="results.length">
-                <div
-                  class="autocomplete-item"
-                  *ngFor="let result of results"
-                  (click)="selectResult(result)"
-                >
+                <div class="autocomplete-item" *ngFor="let result of results" (click)="selectResult(result)">
                   {{ result.label }}
                 </div>
               </div>
@@ -31,7 +22,8 @@
         <li [ngbNavItem]="2">
           <button ngbNavLink (click)="onMapSelection()">Karte</button>
           <ng-template ngbNavContent>
-            <div *ngIf="reachabilityCombinerService.locations.length==0" class="mapSelection_info">Beliebige Standorte auf der Karte wählen</div>
+            <div *ngIf="reachabilityCombinerService.locations.length==0" class="mapSelection_info">Beliebige Standorte
+              auf der Karte wählen</div>
             <div *ngFor="let item of reachabilityCombinerService.locations" class="mapItem">
               <i class="fa-solid fa-trash" (click)="reachabilityCombinerService.deleteLocation(item)"></i>
               <p>{{item.label}}</p>
@@ -44,17 +36,20 @@
             <div class="layerSelectWrapper">
               <div>
                 <b>Layer</b>
-                <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer" (change)="reachabilityCombinerService.onChangePoiResource()"
-                  class="form-control" required>
+                <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"
+                  (change)="reachabilityCombinerService.onChangePoiResource()" class="form-control" required>
                   <option disabled selected value> -- Punkt-Layer w&auml;hlen --</option>
-                  <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources" [ngValue]="poi">{{poi.datasetName}}</option>
+                  <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources"
+                    [ngValue]="poi">{{poi.datasetName}}</option>
                 </select>
               </div>
-              <div *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
+              <div
+                *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
                 <b>Datum</b>
-                <select [(ngModel)]="reachabilityCombinerService.selectedStartDate" (change)="reachabilityCombinerService.fetchPoiResourceGeoJSON()"
-                  class="form-control" required>
-                  <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity" [value]="date.startDate">{{date.startDate}}</option>
+                <select [(ngModel)]="reachabilityCombinerService.selectedStartDate"
+                  (change)="reachabilityCombinerService.fetchPoiResourceGeoJSON()" class="form-control" required>
+                  <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity"
+                    [value]="date.startDate">{{date.startDate}}</option>
                 </select>
               </div>
             </div>
@@ -63,39 +58,49 @@
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
       <br>
-      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()">Berechnung starten</button>
-      <button class="btn btn-primary btn-sm w-100" (click)="createScenario()" [disabled]="!reachabilityCombinerService.isValidCalculation">Als Szenario übernehmen</button>
+      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()">Berechnung
+        starten</button>
+      <button class="btn btn-primary btn-sm w-100" (click)="createScenario()"
+        [disabled]="!reachabilityCombinerService.isValidCalculation">Als Szenario übernehmen</button>
     </expandable-box>
-              
+
     <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">
       <b>Verkehrsmittel</b>
       <div class="modeWrapper">
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'foot-walking'}" (click)="reachabilityCombinerService.setTransitMode('foot-walking')">
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'foot-walking'}"
+          (click)="reachabilityCombinerService.setTransitMode('foot-walking')">
           <i class="fa-solid fa-person-walking"></i>
           Fussgänger
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'cycling-regular'}" (click)="reachabilityCombinerService.setTransitMode('cycling-regular')">
+        <div class="modeItem"
+          [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'cycling-regular'}"
+          (click)="reachabilityCombinerService.setTransitMode('cycling-regular')">
           <i class="fa-solid fa-bicycle"></i>
           Fahrrad
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'driving-car'}" (click)="reachabilityCombinerService.setTransitMode('driving-car')">
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'driving-car'}"
+          (click)="reachabilityCombinerService.setTransitMode('driving-car')">
           <i class="fa-solid fa-car-side"></i>
           PKW
         </div>
       </div>
       <b>Basis der Erreichbarkeit</b>
       <div class="focusWrapper">
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus == 'time'}" (click)="reachabilityCombinerService.setFocusMode('time'); onFocusModeChange()">
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus == 'time'}"
+          (click)="reachabilityCombinerService.setFocusMode('time'); onFocusModeChange()">
           <i class="fa-solid fa-stopwatch"></i>
           Zeit (Min)
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus == 'distance'}" (click)="reachabilityCombinerService.setFocusMode('distance'); onFocusModeChange()">
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus == 'distance'}"
+          (click)="reachabilityCombinerService.setFocusMode('distance'); onFocusModeChange()">
           <i class="fa-solid fa-ruler-horizontal"></i>
           Distanz (m)
         </div>
       </div>
       <b>Mehrfach-Reichweiten</b>
-      <multi-select-slider [range]="sliderRange" [selectedValues]="reachabilityCombinerService.settings.ranges" [unit]="reachabilityCombinerService.settings.focusUnit" (change)="reachabilityCombinerService.startQuickCalculation()"></multi-select-slider>
+      <multi-select-slider [range]="sliderRange" [selectedValues]="reachabilityCombinerService.settings.ranges"
+        [unit]="reachabilityCombinerService.settings.focusUnit"
+        (change)="reachabilityCombinerService.startQuickCalculation()"></multi-select-slider>
     </expandable-box>
 
     <expandable-box [title]="'Szenario-Verwaltung'" [collapsed]="false">
@@ -109,7 +114,7 @@
           Szenarien-Import
         </div>
         <div class="modeItem" (click)="reachabilityScenarioHelperService.exportScenarios()">
-          <i class="fa-solid fa-file-export" ></i>
+          <i class="fa-solid fa-file-export"></i>
           Szenarien-Export
         </div>
         <div class="modeItem red" (click)="removeReachabilityScenarioFromMainMap()">
@@ -139,8 +144,8 @@
                 </div> -->
                 <div>
                   <i title="Editieren" style="cursor: pointer;" class="fa-solid fa-pen"
-                    (click)="openReachabilityScenarioModal(reachabilityScenario)"
-                    data-toggle="modal" data-target="#modal-manage-reachability-scenario"></i>
+                    (click)="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal"
+                    data-target="#modal-manage-reachability-scenario"></i>
                   &nbsp; &nbsp;
                   <i class="fa-solid fa-trash-can" style="cursor: pointer;" title="L&ouml;schen"
                     (click)="reachabilityScenarioHelperService.removeReachabilityScenario(reachabilityScenario)"></i>
@@ -168,7 +173,7 @@
 
         <div class="col-md-8 col-sm-6 col-xs-12">
           <!-- Legend -->
-          <div class="just-padding">									
+          <div class="just-padding">
 
             <div [hidden]="!dataExchangeService.isochroneLegend">
               <div style="text-align: center">
@@ -187,7 +192,7 @@
                   <label>Einheit: </label>&nbsp;
                   {{dataExchangeService.isochroneLegend.cutOffUnit}}
                   <br />
-                	<div *ngFor="let entry of dataExchangeService.isochroneLegend.colorValueEntries">
+                  <div *ngFor="let entry of dataExchangeService.isochroneLegend.colorValueEntries">
                     <i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
                     {{entry.value}}
                   </div>
@@ -198,7 +203,7 @@
         </div>
 
         <div class="col-md-2"></div>
-        
+
       </div>
     </expandable-box>
   </app-loading-overlay>

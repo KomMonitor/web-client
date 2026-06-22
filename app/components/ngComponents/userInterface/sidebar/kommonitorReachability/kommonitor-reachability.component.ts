@@ -23,7 +23,7 @@ import { ReachabilityCombinerService } from 'services/reachability-combiner-serv
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { MultiSelectSliderComponent } from 'components/ngComponents/common/multi-select-slider/multi-select-slider.component';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
-import * as uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
+import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
 
 
 @Component({
@@ -57,6 +57,8 @@ export class KommonitorReachabilityComponent implements OnInit {
   loadingData: boolean = false;
 
   sliderRange: number[] = [1, 300];
+
+  loading$ = this.reachabilityCombinerService.loadingState$;
 
   constructor(
     protected dataExchangeService: DataExchangeService,

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 
 @Component({
   selector: "app-loading-overlay",
@@ -8,7 +8,11 @@ import { Component, Input } from "@angular/core";
   imports: [CommonModule],
   standalone: true,
 })
-export class LoadingOverlayComponent {
-  @Input({required: true}) loading!: boolean;
+export class LoadingOverlayComponent implements OnChanges {
+  @Input({ required: true }) loading!: boolean;
   @Input() message?: string;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes['loading']);
+  }
 }

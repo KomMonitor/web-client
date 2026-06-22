@@ -1,5 +1,5 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import * as L from 'leaflet';
@@ -9,7 +9,7 @@ import { MetadataLoadingState } from 'services/data-exchange-service/data-exchan
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { HttpClient } from '@angular/common/http';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
-import * as uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
+import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 
 export interface ReachabiltySettings {
   ranges: number[];
@@ -53,16 +53,16 @@ export interface GeoJSONFeature {
 export class ReachabilityCombinerService {
 
   private readonly destroyRef = inject(DestroyRef);
-  
+
   // mode to select a point on the map, for quick reachability calc
   manualMapSelectionMode = false;
 
   defaults = {
-    distanceRanges: [100,200,300,400,500],
-    timeRanges: [5,10,15]
+    distanceRanges: [100, 200, 300, 400, 500],
+    timeRanges: [5, 10, 15]
   }
 
-  settings:ReachabiltySettings = {
+  settings: ReachabiltySettings = {
     ranges: this.defaults.distanceRanges,
     focus: 'distance',
     focusUnit: 'm',
@@ -78,8 +78,14 @@ export class ReachabilityCombinerService {
 
   reachabilityMapSubject$ = this.reachabilityMapSubject.asObservable();
 
-  filteredDisplayableGeoresources:any[] = [];
-  filteredAvailablePeriodsOfValidity:any = [];
+  readonly loadingState$ = this.reachabilityMapSubject.asObservable()
+    .pipe(
+      map(x => x.loadingState),
+      distinctUntilChanged()
+    );
+
+  filteredDisplayableGeoresources: any[] = [];
+  filteredAvailablePeriodsOfValidity: any = [];
 
   startPointLayer!: GeoresourcesDataset;
 
@@ -96,7 +102,7 @@ export class ReachabilityCombinerService {
     this.dataExchangeService.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        if(value==MetadataLoadingState.COMPLETE) {
+        if (value == MetadataLoadingState.COMPLETE) {
           this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI);
           this.initEmptyDataset();
         }
@@ -140,12 +146,12 @@ export class ReachabilityCombinerService {
     return this.settings.startPointsSource;
   }
 
-  get scenarioTitle():string {
-    return this.reachabilityMapSubject.value.scenarioTitle!; 
+  get scenarioTitle(): string {
+    return this.reachabilityMapSubject.value.scenarioTitle!;
   }
 
-  set scenarioTitle(title:string) {
-    this.reachabilityMapSubject.value.scenarioTitle = title; 
+  set scenarioTitle(title: string) {
+    this.reachabilityMapSubject.value.scenarioTitle = title;
     this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName = title;
   }
 
@@ -153,23 +159,23 @@ export class ReachabilityCombinerService {
     return this.reachabilityMapSubject.value.isochronesGeoJson;
   }
 
-  get features():GeoJSONFeature[] {
+  get features(): GeoJSONFeature[] {
     return this.reachabilityMapSubject.value.features!;
   }
 
-  set setScenarioState(state:boolean) {
+  set setScenarioState(state: boolean) {
     this.reachabilityMapSubject.value.scenarioState = state;
   }
 
-  get locations():GeoJSONFeature[] {
-    if(this.reachabilityMapSubject.value.features)
+  get locations(): GeoJSONFeature[] {
+    if (this.reachabilityMapSubject.value.features)
       return this.reachabilityMapSubject.value.features;
     else
       return [];
   }
 
-  get selectedStartDate():any {
-    return this.reachabilityMapSubject.value.selectedStartDate; 
+  get selectedStartDate(): any {
+    return this.reachabilityMapSubject.value.selectedStartDate;
   }
 
   set selectedStartDate(layer: any) {
@@ -179,12 +185,12 @@ export class ReachabilityCombinerService {
     });
   }
 
-  get selectedStartPointLayer():any {
-    return this.reachabilityMapSubject.value.selectedStartPointLayer; 
+  get selectedStartPointLayer(): any {
+    return this.reachabilityMapSubject.value.selectedStartPointLayer;
   }
-  
-  get loadingState():boolean {
-    return this.reachabilityMapSubject.value.loadingState; 
+
+  get loadingState(): boolean {
+    return this.reachabilityMapSubject.value.loadingState;
   }
 
   set selectedStartPointLayer(layer: any) {
@@ -194,11 +200,11 @@ export class ReachabilityCombinerService {
     });
   }
 
-  get isValidCalculation():boolean {
-    return (this.reachabilityMapSubject.value.features && 
-            this.reachabilityMapSubject.value.features.length > 0 && 
-            this.reachabilityMapSubject.value.isochronesGeoJson && 
-            !this.reachabilityMapSubject.value.loadingState) || false
+  get isValidCalculation(): boolean {
+    return (this.reachabilityMapSubject.value.features &&
+      this.reachabilityMapSubject.value.features.length > 0 &&
+      this.reachabilityMapSubject.value.isochronesGeoJson &&
+      !this.reachabilityMapSubject.value.loadingState) || false
   }
 
   reset() {
@@ -211,7 +217,7 @@ export class ReachabilityCombinerService {
     this.reachabilityMapSubject.value.scenarioState = false;
   }
 
-  async addLocation(location: GeoJSONFeature, manualSel:boolean = false) {
+  async addLocation(location: GeoJSONFeature, manualSel: boolean = false) {
 
     location.properties = {
       [this.envConfigService.FEATURE_ID_PROPERTY_NAME]: uuidv4(),
@@ -223,9 +229,9 @@ export class ReachabilityCombinerService {
     let current = this.reachabilityMapSubject.value.features;
     current?.push(location);
 
-    if(current) {
+    if (current) {
 
-      if(manualSel) {
+      if (manualSel) {
         let label = await this.locationLookup(location);
         location.label = label;
       }
@@ -246,7 +252,7 @@ export class ReachabilityCombinerService {
   }
 
   deleteLocation(location: GeoJSONFeature) {
-    
+
     const current = this.reachabilityMapSubject.value.features?.filter(loc => loc !== location);
 
     this.reachabilityMapSubject.next({
@@ -256,7 +262,7 @@ export class ReachabilityCombinerService {
 
     this.startQuickCalculation();
   }
-  
+
   setIsochronesGeoJson(isochronesGeoJson: any) {
     this.reachabilityMapSubject.next({
       ...this.reachabilityMapSubject.value,
@@ -264,7 +270,7 @@ export class ReachabilityCombinerService {
     });
   }
 
-  setLoadingState(state:boolean) {
+  setLoadingState(state: boolean) {
     this.reachabilityMapSubject.next({
       ...this.reachabilityMapSubject.value,
       loadingState: state
@@ -273,7 +279,7 @@ export class ReachabilityCombinerService {
 
   async startQuickCalculation() {
 
-    if(this.reachabilityMapSubject.value.features && this.reachabilityMapSubject.value.features.length > 0) {
+    if (this.reachabilityMapSubject.value.features && this.reachabilityMapSubject.value.features.length > 0) {
 
       this.setLoadingState(true);
 
@@ -292,33 +298,33 @@ export class ReachabilityCombinerService {
 
   async locationLookup(e: GeoJSONFeature) {
     const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${e.geometry.coordinates[1]}&lon=${e.geometry.coordinates[0]}&format=json`
-      );
+      `https://nominatim.openstreetmap.org/reverse?lat=${e.geometry.coordinates[1]}&lon=${e.geometry.coordinates[0]}&format=json`
+    );
     const data = await res.json();
-    return `${data.address.road} ${data.address.house_number}, ${data.address.postcode} ${data.address.city || data.address.city_district || data.address.town || data.address.village}`  || 'Unbekannt'; 
+    return `${data.address.road} ${data.address.house_number}, ${data.address.postcode} ${data.address.city || data.address.city_district || data.address.town || data.address.village}` || 'Unbekannt';
   }
 
   prepAvailablePeriods() {
 
-    let tempDates:any[] = [];
+    let tempDates: any[] = [];
     this.filteredAvailablePeriodsOfValidity = this.selectedStartPointLayer.availablePeriodsOfValidity?.filter(e => {
-      
-      if(!tempDates.includes(e.startDate)) {
+
+      if (!tempDates.includes(e.startDate)) {
         tempDates.push(e.startDate);
         return true;
       }
 
       return false;
-    }).sort((a,b) => { 
-      if(a>b)
+    }).sort((a, b) => {
+      if (a > b)
         return -1;
-      else  
+      else
         return 1;
     });
   }
 
   onChangePoiResource() {
-    this.prepAvailablePeriods(); 
+    this.prepAvailablePeriods();
   }
 
   fetchPoiResourceGeoJSON(globalModel = true) {
@@ -331,13 +337,13 @@ export class ReachabilityCombinerService {
     // fetch from management API
     let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.selectedStartPointLayer.georesourceId + "/" + year + "/" + month + "/" + day;
     this.http.get(url).subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
 
-        if(globalModel)
+        if (globalModel)
           this.reachabilityMapSubject.next({
             ...this.reachabilityMapSubject.value,
             features: response.features
-          }); 
+          });
         else {
           this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = response;
           this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = response;
@@ -349,16 +355,16 @@ export class ReachabilityCombinerService {
     });
   }
 
-  setTransitMode(mode:ReachabilityTransitModeTypes) {
+  setTransitMode(mode: ReachabilityTransitModeTypes) {
     this.settings.transitMode = mode;
     this.startQuickCalculation();
   }
-  
 
-  setFocusMode(mode:ReachbilityFocusTypes) {
+
+  setFocusMode(mode: ReachbilityFocusTypes) {
     this.settings.focus = mode;
 
-    if(mode == 'distance') {
+    if (mode == 'distance') {
       this.settings.ranges = this.defaults.distanceRanges;
       this.settings.focusUnit = 'm';
     } else {

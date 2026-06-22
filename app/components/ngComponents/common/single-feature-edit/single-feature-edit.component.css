@@ -1,5 +1,5 @@
 /* Leaflet Draw CSS for icons */
-@import '~leaflet-draw/dist/leaflet.draw.css';
+@import 'leaflet-draw/dist/leaflet.draw.css';
 
 :host {
   
