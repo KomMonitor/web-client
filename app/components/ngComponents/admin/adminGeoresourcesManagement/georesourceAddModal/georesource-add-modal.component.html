@@ -26,7 +26,7 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        @if (!kommonitorDataExchangeService.enableKeycloakSecurity) {
+        @if (!envConfigService.enableKeycloakSecurity) {
           <div>
             <ul id="progressbar">
               <li
@@ -64,7 +64,7 @@
             </ul>
           </div>
         }
-        @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
+        @if (envConfigService.enableKeycloakSecurity) {
           <div>
             <ul id="progressbar">
               <li
@@ -646,10 +646,7 @@
             </div>
             <hr />
             <br />
-            @if (
-              kommonitorDataExchangeService.checkAdminPermission &&
-              kommonitorDataExchangeService.checkAdminPermission()
-            ) {
+            @if (kommonitorDataExchangeService.checkAdminPermission()) {
               <div class="row vertical-align">
                 <div class="col-md-10 col-sm-12 col-xs-12">
                   <div style="text-align: left">
@@ -696,7 +693,7 @@
           </fieldset>
         }
 
-        @if (currentStep === 4 && kommonitorDataExchangeService.enableKeycloakSecurity) {
+        @if (currentStep === 4 && envConfigService.enableKeycloakSecurity) {
           <fieldset>
             <h2 class="fs-title">Zugriffsschutz und Eigentümerschaft</h2>
             <h3 class="fs-subtitle">
@@ -721,10 +718,7 @@
                     name="ownerOrgFilter"
                   />
                 </div>
-                @if (
-                  kommonitorDataExchangeService.checkAdminPermission &&
-                  kommonitorDataExchangeService.checkAdminPermission()
-                ) {
+                @if (kommonitorDataExchangeService.checkAdminPermission()) {
                   <select
                     id="addGeoresourceUserRoleSelect"
                     [(ngModel)]="ownerOrganization"
@@ -738,10 +732,7 @@
                     }
                   </select>
                 }
-                @if (
-                  !kommonitorDataExchangeService.checkAdminPermission ||
-                  !kommonitorDataExchangeService.checkAdminPermission()
-                ) {
+                @if (!kommonitorDataExchangeService.checkAdminPermission()) {
                   <select
                     id="addGeoresourceUserRoleSelect"
                     [(ngModel)]="ownerOrganization"
@@ -818,8 +809,8 @@
         }
 
         @if (
-          (currentStep === 4 && !kommonitorDataExchangeService.enableKeycloakSecurity) ||
-          (currentStep === 5 && kommonitorDataExchangeService.enableKeycloakSecurity)
+          (currentStep === 4 && !envConfigService.enableKeycloakSecurity) ||
+          (currentStep === 5 && envConfigService.enableKeycloakSecurity)
         ) {
           <fieldset>
             <div style="position: absolute">
@@ -1471,7 +1462,7 @@
       periodOfValidityInvalid ||
       !converter ||
       !datasourceType ||
-      (kommonitorDataExchangeService.enableKeycloakSecurity && !ownerOrganization)
+      (envConfigService.enableKeycloakSecurity && !ownerOrganization)
     "
     (click)="addGeoresource()"
   >

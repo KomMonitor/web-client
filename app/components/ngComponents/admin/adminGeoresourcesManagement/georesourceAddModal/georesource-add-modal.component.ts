@@ -1,9 +1,18 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { HttpClient } from '@angular/common/http';
 
 import { FormsModule } from '@angular/forms';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import {
+  LOI_DASH_ARRAY_OBJECTS,
+  POI_MARKER_COLORS,
+} from 'services/data-exchange-service/data-exchange.constants';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 
 @Component({
@@ -15,10 +24,11 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 })
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
-  kommonitorImporterHelperService = inject<any>('kommonitorImporterHelperService' as any);
-  kommonitorMultiStepFormHelperService = inject<any>('kommonitorMultiStepFormHelperService' as any);
-  kommonitorDataGridHelperService = inject<any>('kommonitorDataGridHelperService' as any);
+  kommonitorDataExchangeService = inject(DataExchangeService);
+  kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
+  roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
 
@@ -219,7 +229,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.loadAvailableOptions();
 
     // Adjust total steps based on security settings
-    this.totalSteps = this.kommonitorDataExchangeService.enableKeycloakSecurity ? 5 : 4;
+    this.totalSteps = this.envConfigService.enableKeycloakSecurity ? 5 : 4;
   }
 
   private setupEventListeners(): void {
@@ -235,11 +245,9 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private loadAvailableOptions(): void {
     // Load available options from services
-    this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions || [];
-    this.availablePoiMarkerColors =
-      this.kommonitorDataExchangeService.availablePoiMarkerColors || [];
-    this.availableLoiDashArrayObjects =
-      this.kommonitorDataExchangeService.availableLoiDashArrayObjects || [];
+    this.updateIntervalOptions = this.envConfigService.updateIntervalOptions || [];
+    this.availablePoiMarkerColors = POI_MARKER_COLORS || [];
+    this.availableLoiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS || [];
     this.availableTopics = this.kommonitorDataExchangeService.availableTopics || [];
     this.availableDatasourceTypes =
       this.kommonitorImporterHelperService.availableDatasourceTypes || [];
@@ -254,11 +262,11 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private refreshRoles(): void {
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
       this.roleManagementTableOptions,
       this.kommonitorDataExchangeService.accessControl,
-      this.kommonitorDataExchangeService.getCurrentKomMonitorLoginRoleIds()
+      []
     );
   }
 
@@ -452,7 +460,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     metadataExport.allowedRoles = [];
 
     if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
         this.roleManagementTableOptions
       );
       if (roleIds && Array.isArray(roleIds)) {
@@ -637,7 +645,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     this.datasetName = this.metadataImportSettings.datasetName;
 
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
       this.roleManagementTableOptions,
       this.kommonitorDataExchangeService.accessControl,
@@ -678,7 +686,8 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.aoiColor = this.metadataImportSettings.aoiColor;
     this.selectedPoiIconName = this.metadataImportSettings.poiSymbolBootstrap3Name;
 
-    const topicHierarchy = this.kommonitorDataExchangeService.getTopicHierarchyForTopicId(
+    const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      this.kommonitorDataExchangeService.availableTopics,
       this.metadataImportSettings.topicReference
     );
 
@@ -876,11 +885,11 @@ export class GeoresourceAddModalComponent implements OnInit {
       description: '',
     };
 
-    this.roleManagementTableOptions = this.kommonitorDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
       null,
       this.kommonitorDataExchangeService.accessControl,
-      null
+      []
     );
 
     this.georesourceTopic_mainTopic = null;
@@ -981,7 +990,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     };
 
     if (this.roleManagementTableOptions) {
-      const roleIds = this.kommonitorDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
         this.roleManagementTableOptions
       );
       if (roleIds && Array.isArray(roleIds)) {
@@ -1105,7 +1114,7 @@ export class GeoresourceAddModalComponent implements OnInit {
         this.importedFeatures =
           this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(
             newGeoresourceResponse
-          );
+          ) || [];
 
         this.successMessage = 'Georessource erfolgreich registriert';
         this.activeModal.close(true);
@@ -1113,9 +1122,10 @@ export class GeoresourceAddModalComponent implements OnInit {
         // errors occurred
         this.errorMessagePart =
           'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf';
-        this.importerErrors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
-          newGeoresourceResponse_dryRun
-        );
+        this.importerErrors =
+          this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
+            newGeoresourceResponse_dryRun
+          ) || [];
         this.errorMessage = 'Validierung fehlgeschlagen';
       }
     } catch (error: any) {
@@ -1184,7 +1194,7 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.georesourceDataSourceIdProperty,
       this.validityStartDate_perFeature,
       this.validityEndDate_perFeature,
-      undefined,
+      '',
       this.keepAttributes,
       this.keepMissingValues,
       this.attributeMappings_adminView

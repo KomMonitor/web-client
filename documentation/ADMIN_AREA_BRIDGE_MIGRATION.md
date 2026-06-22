@@ -13,7 +13,11 @@ um einen verifizierten, umsetzbaren Plan.
   (84 passed / 1 skipped, 0 lint-errors); neuer Smoke-Spec ergänzt; die 8 Bestands-Lint-Warnungen
   der Datei (7× `prefer-inject`, 1× `no-console`) bei der Gelegenheit mitbereinigt
   (Konstruktor → `inject()`).
-- ⬜ Modal 1 · `georesource-add-modal` (Porting-Lücke #2 `getCurrentKomMonitorLoginRoleIds`)
+- ✅ **Modal 1 · `georesource-add-modal`** — erledigt (2026-06-22). Verzahnter Rewire (Importer +
+  Role-Grid + Topic-Hierarchie + mehrquellige DataExchange-Aufteilung) inkl. **Porting-Lücke #2**
+  gelöst: `getCurrentKomMonitorLoginRoleIds()` → `[]` (Add-Modal-Muster: neue Ressource hat keine
+  vorausgewählten Rollen). Details unten im Tier-1-Block. Build/Test/Lint grün (85 passed / 1 skipped,
+  0 lint-errors); neuer Smoke-Spec ergänzt.
 - ⬜ Modal 2 · `georesource-edit-features-modal`
 - ⬜ Modal 3 · `indicator-edit-features-modal` (Porting-Lücken #1 + #3)
 
@@ -92,13 +96,22 @@ konsistent mit der laufenden Konsumenten-Migration).
   Entscheidung: so lassen oder auf `NgbModal` ziehen (separater Schritt, nicht Bridge-relevant).
 - 3 Tokens weg, 0 Porting-Lücken. **Niedrigstes Risiko → Referenz-Commit.**
 
-**Modal 1 · `georesource-add-modal`**
-- Repoint Importer → `KommonitorImporterHelperService`; Role-Mgmt → `RoleManagementDataGridHelperService`;
-  MultiStep-Token **ungenutzt** → streichen.
-- DataExchange: `availableTopics`/`availableGeoresources`/`accessControl`/`getTopicHierarchyForTopicId`/
-  `syntaxHighlightJSON`/`availablePoiMarkerColors` → Haupt-Facade ✅. **Aber:** `updateIntervalOptions`/
-  `availableLoiDashArrayObjects`/`enableKeycloakSecurity` → Admin-`KommonitorDataExchangeService` mitinjizieren.
-- **Porting-Lücke:** `getCurrentKomMonitorLoginRoleIds` (#2).
+**Modal 1 · `georesource-add-modal`** — ✅ **erledigt (2026-06-22)**
+- Umgesetzt: Importer → `KommonitorImporterHelperService`; Role-Grid → `RoleManagementDataGridHelperService`
+  (Feld `kommonitorDataGridHelperService` → `roleManagementHelper`); ungenutzten MultiStep-Token gestrichen.
+- DataExchange: `availableTopics`/`availableGeoresources`/`accessControl`/`syntaxHighlightJSON` → Haupt-Facade ✅.
+- **Korrekturen ggü. dem ursprünglichen Plan** (im Code verifiziert):
+  - `getTopicHierarchyForTopicId` ist auf der Facade **`private`** → stattdessen `TopicHierarchyService`
+    (2-arg: `availableTopics` + `topicId`) injiziert.
+  - Config-Flags `enableKeycloakSecurity`/`updateIntervalOptions` → **`EnvConfigService`** (nicht das
+    Admin-`KommonitorDataExchangeService`); `availablePoiMarkerColors`/`availableLoiDashArrayObjects` →
+    **Konstanten** `POI_MARKER_COLORS`/`LOI_DASH_ARRAY_OBJECTS` aus `data-exchange.constants` (Muster der
+    Schwester-Modals). `envConfigService` als `protected` (Template nutzt `enableKeycloakSecurity`).
+- **Porting-Lücke #2** `getCurrentKomMonitorLoginRoleIds()` → `[]` (Add-Modal-Muster: neue Ressource ohne
+  vorausgewählte Rollen, vgl. `indicator-add-modal`).
+- **Von `any` maskierte Typfehler** beim Typisieren mitgefixt (verhaltenswahrend): `null`/`undefined`-Argumente
+  → `[]`/`''`, `|| []` für optionale Importer-Rückgaben, Template-Truthy-Guards `checkAdminPermission && …()`
+  vereinfacht. 7 vorbestehende `console.error`-Warnungen bewusst belassen (legitimes Error-Logging, Prio-8-Backlog).
 
 ### Tier 2 — Rewire + Feature-Table
 
@@ -130,7 +143,7 @@ konsistent mit der laufenden Konsumenten-Migration).
 ## Empfohlene Reihenfolge & Schnitt (1 Commit pro Modal)
 
 1. ~~**Modal 4** (reiner Role-Mgmt-Rewire) → etabliert das Repoint-Rezept, keine Porting-Lücke.~~ ✅ erledigt (2026-06-22)
-2. **Modal 1** (Rewire + Porting-Lücke #2 `getCurrentKomMonitorLoginRoleIds` + Admin-Service-Entscheidung).
+2. ~~**Modal 1** (Rewire + Porting-Lücke #2 `getCurrentKomMonitorLoginRoleIds` + Admin-Service-Entscheidung).~~ ✅ erledigt (2026-06-22)
 3. **Modal 2** (Rewire + Feature-Table spatial, schon vorhanden).
 4. **Modal 3** (Porting #1 Indicator-Feature-Table + #3 `$http`→`HttpClient`) — zuletzt, größter Brocken.
 
