@@ -1,10 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { AdminAppConfigComponent } from './adminConfig/adminAppConfig/admin-app-config.component';
 import { AdminControlsConfigComponent } from './adminConfig/adminControlsConfig/admin-controls-config.component';
-import { AdminDashboardManagementComponent } from './adminDashboardManagement/admin-dashboard-management.component';
 import { AdminFilterConfigComponent } from './adminConfig/adminFilterConfig/admin-filter-config.component';
+import { AdminDashboardManagementComponent } from './adminDashboardManagement/admin-dashboard-management.component';
 import { AdminGeoresourcesManagementComponent } from './adminGeoresourcesManagement/admin-georesources-management.component';
 import { AdminIndicatorsManagementComponent } from './adminIndicatorsManagement/admin-indicators-management.component';
 import { AdminRoleExplanationComponent } from './adminRoleExplanation/admin-role-explanation.component';
@@ -12,12 +11,13 @@ import { AdminSpatialUnitsManagementComponent } from './adminSpatialUnitsManagem
 import { AdminTopicsManagementComponent } from './adminTopicsManagement/admin-topics-management.component';
 
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { DataExchangeService } from '../../../services/data-exchange-service/data-exchange.service';
 import { NotificationComponent } from '../common/notification/notification.component';
+import { SessionValidityComponent } from '../common/userLogin/session-validity/session-validity.component';
+import { UserLoginComponent } from '../common/userLogin/user-login.component';
+import { AdminRoleManagementComponent } from './adminRoleManagement/admin-role-management.component';
 import { AdminScriptExecutionComponent } from './adminScriptExecution/admin-script-execution.component';
 import { AdminScriptManagementComponent } from './adminScriptManagement/admin-script-management.component';
-import { AdminRoleManagementComponent } from './adminRoleManagement/admin-role-management.component';
-import { UserLoginComponent } from '../common/userLogin/user-login.component';
-import { SessionValidityComponent } from '../common/userLogin/session-validity/session-validity.component';
 
 export enum AdminNavItem {
   Overview = 'overview',

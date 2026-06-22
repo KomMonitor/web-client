@@ -1,9 +1,10 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { HttpClient } from '@angular/common/http';
 
 import { FormsModule } from '@angular/forms';
@@ -50,18 +51,13 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   currentStep: number = 1;
   totalSteps: number = 3;
 
-  constructor(
-    private modalService: NgbModal,
-    private broadcastService: BroadcastService,
-    private http: HttpClient,
-    @Inject('kommonitorDataExchangeService') public angularJsDataExchangeService: any,
-    @Inject('kommonitorDataGridHelperService') private angularJsDataGridHelperService: any,
-    @Inject('kommonitorMultiStepFormHelperService')
-    private angularJsMultiStepFormHelperService: any,
-    private dataExchangeService: DataExchangeService,
-    private dataGridHelperService: KommonitorIndicatorDataGridHelperService,
-    private multiStepHelperService: MultiStepHelperServiceService
-  ) {}
+  private modalService = inject(NgbModal);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+  public dataExchangeService = inject(DataExchangeService);
+  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  private multiStepHelperService = inject(MultiStepHelperServiceService);
+  private envConfigService = inject(EnvConfigService);
 
   ngOnInit(): void {
     this.setupEventListeners();
@@ -90,7 +86,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
 
     // Register the multi-step form handler
-    this.angularJsMultiStepFormHelperService.registerClickHandler(
+    this.multiStepHelperService.registerClickHandler(
       'indicatorEditIndicatorSpatialUnitRolesForm'
     );
 
@@ -104,11 +100,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   prepareCreatorList(): void {
-    if (this.angularJsDataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
+    if (this.dataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
       const creatorRights: string[] = [];
       const creatorRightsChildren: string[] = [];
 
-      this.angularJsDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
+      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
         const key = roles.split('.')[0];
         const role = roles.split('.')[1];
 
@@ -126,7 +122,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       // gather all children
       this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
 
-      this.resourcesCreatorRights = this.angularJsDataExchangeService.accessControl.filter(
+      this.resourcesCreatorRights = this.dataExchangeService.accessControl.filter(
         (elem: any) => creatorRights.includes(elem.name)
       );
     }
@@ -134,11 +130,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]): void {
     if (creatorRightsChildren.length > 0) {
-      this.angularJsDataExchangeService.accessControl
+      this.dataExchangeService.accessControl
         .filter((elem: any) => creatorRightsChildren.includes(elem.name))
         .flatMap((res: any) => res.children)
         .forEach((child: any) => {
-          this.angularJsDataExchangeService.accessControl
+          this.dataExchangeService.accessControl
             .filter((elem: any) => elem.organizationalUnitId == child)
             .forEach((childData: any) => {
               creatorRights.push(childData.name);
@@ -166,7 +162,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.permissions = this.currentIndicatorDataset ? this.currentIndicatorDataset.permissions : [];
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.angularJsDataExchangeService.accessControl.forEach((item: any) => {
+    this.dataExchangeService.accessControl.forEach((item: any) => {
       if (this.currentIndicatorDataset) {
         if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
           item.datasetOwner = true;
@@ -180,9 +176,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.activeRolesOnly = false;
     }
 
-    let access = this.angularJsDataExchangeService.accessControl;
+    let access = this.dataExchangeService.accessControl;
     if (this.permissions.length > 0 && this.activeRolesOnly) {
-      access = this.angularJsDataExchangeService.accessControl.filter((unit: any) => {
+      access = this.dataExchangeService.accessControl.filter((unit: any) => {
         return unit.permissions.filter((unitPermission: any) =>
           this.permissions.includes(unitPermission.permissionId)
         ).length > 0
@@ -192,7 +188,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     }
 
     this.roleManagementTableOptions_indicatorMetadata =
-      this.angularJsDataGridHelperService.buildRoleManagementGrid(
+      this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorEditRoleManagementTable',
         this.roleManagementTableOptions_indicatorMetadata,
         access,
@@ -207,12 +203,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         this.activeConnectedRolesOnly = false;
       }
 
-      let connectedAccess = this.angularJsDataExchangeService.accessControl;
+      let connectedAccess = this.dataExchangeService.accessControl;
       if (
         this.targetApplicableSpatialUnit.permissions.length > 0 &&
         this.activeConnectedRolesOnly
       ) {
-        connectedAccess = this.angularJsDataExchangeService.accessControl.filter((unit: any) => {
+        connectedAccess = this.dataExchangeService.accessControl.filter((unit: any) => {
           return unit.permissions.filter((unitPermission: any) =>
             this.targetApplicableSpatialUnit.permissions.includes(unitPermission.permissionId)
           ).length > 0
@@ -222,7 +218,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       }
 
       this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
-        this.angularJsDataGridHelperService.buildRoleManagementGrid(
+        this.roleManagementHelper.buildRoleManagementGrid(
           'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
           this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
           connectedAccess,
@@ -232,10 +228,10 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     } else {
       this.activeConnectedRolesOnly = false;
       this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
-        this.angularJsDataGridHelperService.buildRoleManagementGrid(
+        this.roleManagementHelper.buildRoleManagementGrid(
           'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
           this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-          this.angularJsDataExchangeService.accessControl,
+          this.dataExchangeService.accessControl,
           [],
           true
         );
@@ -252,13 +248,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   onChangeOwner(ownerOrganization: any): void {
     this.ownerOrganization = ownerOrganization;
-    console.log('Target creator role selected to be:', this.ownerOrganization);
     this.refreshRoles(this.ownerOrganization);
   }
 
   refreshRoles(orgUnitId: string): void {
     const permissionIds_ownerUnit = orgUnitId
-      ? this.angularJsDataExchangeService
+      ? this.dataExchangeService
           .getAccessControlById(orgUnitId)
           .permissions.filter(
             (permission: any) =>
@@ -268,7 +263,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       : [];
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.angularJsDataExchangeService.accessControl.forEach((item: any) => {
+    this.dataExchangeService.accessControl.forEach((item: any) => {
       if (item.organizationalUnitId == orgUnitId) {
         item.datasetOwner = true;
       } else {
@@ -277,19 +272,19 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     });
 
     this.roleManagementTableOptions_indicatorMetadata =
-      this.angularJsDataGridHelperService.buildRoleManagementGrid(
+      this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorEditRoleManagementTable',
         this.roleManagementTableOptions_indicatorMetadata,
-        this.angularJsDataExchangeService.accessControl,
+        this.dataExchangeService.accessControl,
         permissionIds_ownerUnit,
         true
       );
 
     this.roleManagementTableOptions_indicatorSpatialUnitTimeseries =
-      this.angularJsDataGridHelperService.buildRoleManagementGrid(
+      this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
         this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-        this.angularJsDataExchangeService.accessControl,
+        this.dataExchangeService.accessControl,
         permissionIds_ownerUnit,
         true
       );
@@ -319,7 +314,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.loadingData = true;
 
     const putBody = {
-      permissions: this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
         this.roleManagementTableOptions_indicatorMetadata
       ),
       isPublic: this.currentIndicatorDataset.isPublic,
@@ -327,7 +322,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
     this.http
       .put(
-        this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
           '/indicators/' +
           this.currentIndicatorDataset.indicatorId +
           '/permissions',
@@ -347,11 +342,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
               error.data
             );
           } else {
-            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
           this.loadingData = false;
@@ -371,7 +366,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
     this.http
       .put(
-        this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
           '/indicators/' +
           this.currentIndicatorDataset.indicatorId +
           '/ownership',
@@ -391,11 +386,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
               error.data
             );
           } else {
-            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
           this.loadingData = false;
@@ -420,7 +415,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
         this.http
           .put(
-            this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+            this.envConfigService.baseUrlToKomMonitorDataAPI +
               '/indicators/' +
               this.currentIndicatorDataset.indicatorId +
               '/' +
@@ -442,12 +437,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
               this.errorMessagePart =
                 'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
               if (error.data) {
-                this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+                this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
                   error.data
                 );
               } else {
                 this.errorMessagePart +=
-                  this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+                  this.dataExchangeService.syntaxHighlightJSON(error);
               }
               this.showErrorAlert();
               this.loadingData = false;
@@ -459,7 +454,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   executeRequest_indicatorSpatialUnitRoles(): void {
     const putBody = {
-      permissions: this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
         this.roleManagementTableOptions_indicatorSpatialUnitTimeseries
       ),
       isPublic: this.targetApplicableSpatialUnit.isPublic,
@@ -469,7 +464,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
     this.http
       .put(
-        this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+        this.envConfigService.baseUrlToKomMonitorDataAPI +
           '/indicators/' +
           this.currentIndicatorDataset.indicatorId +
           '/' +
@@ -492,11 +487,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             this.targetApplicableSpatialUnit.spatialUnitName +
             '. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
               error.data
             );
           } else {
-            this.errorMessagePart += this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
           this.loadingData = false;

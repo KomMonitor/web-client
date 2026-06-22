@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { Subscription } from 'rxjs';
+import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 
 export interface Topic {
   topicDescription: string;
@@ -16,15 +16,15 @@ export type TopicResourceType = 'indicator' | 'georesource';
 export type TopicOrderMode = 'custom' | 'alphabetical';
 
 import { Injectable } from '@angular/core';
-import { AdminTopicsManagementService } from './admin-topics-management.service';
-import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FormsModule } from '@angular/forms';
+import { AdminTopicsManagementService } from './admin-topics-management.service';
 
-import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
-import { TopicListComponent } from './topicList/topicList.component';
-import { AddTopicComponent } from './add-topic/add-topic.component';
-import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
+import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { AddTopicComponent } from './add-topic/add-topic.component';
+import { TopicListComponent } from './topicList/topicList.component';
+import { TopicOrderSelectionComponent } from './topicOrderSelection/topic-order-selection.component';
 
 @Injectable({ providedIn: null })
 export class AdminTopicsManagementErrorHandlingService {

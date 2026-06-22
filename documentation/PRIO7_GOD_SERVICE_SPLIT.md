@@ -84,7 +84,9 @@ Der Grid-Helper ist kleiner, weitgehend zustandslos, hat disjunkte Schnitte und 
 
 ### Folgeprojekt: AngularJS-Bridge-Migration der 4 Admin-Modals
 
-Die 4 Modals werden via `NgbModal.open(KomponenteKlasse)` an Buttons geöffnet und **werfen heute beim Öffnen** (DI-Fehler: kein Provider für die String-Tokens — alle Modals zur Laufzeit kaputt). Jedes braucht eine eigene Migration weg von der toten AngularJS-Bridge (echte Angular-Services verdrahten + Bodies umschreiben). Backend-integriert (Importer = Spatial Insert/Update) → ohne Keycloak + Backend **nicht QA-bar**. Empfehlung: **1 PR pro Modal**.
+> **Verifizierter, umsetzbarer Plan + Fortschritt jetzt in eigener Doc:** [`ADMIN_AREA_BRIDGE_MIGRATION.md`](ADMIN_AREA_BRIDGE_MIGRATION.md). **Modal 4 · `indicator-edit-indicator-spatial-unit-roles-modal` ✅ erledigt (2026-06-22).** Korrektur zur Tabelle unten: Modal 4 öffnet **nicht** via `NgbModal.open`, sondern via Broadcast + jQuery `$('#…').modal('show')` (unverändert gelassen). Offen: Modals 1–3.
+
+Die 4 Modals werden via `NgbModal.open(KomponenteKlasse)` an Buttons geöffnet und **werfen heute beim Öffnen** (DI-Fehler: kein Provider für die String-Tokens — alle Modals zur Laufzeit kaputt). Jedes braucht eine eigene Migration weg von der toten AngularJS-Bridge (echte Angular-Services verdrahten + Bodies umschreiben). Backend-integriert (Importer = Spatial Insert/Update) → ohne Keycloak + Backend **nicht QA-bar**. Empfehlung: **1 Commit pro Modal**.
 
 | Modal | Tote Bridge-Tokens (kein Provider) | Zusätzlich |
 |---|---|---|
