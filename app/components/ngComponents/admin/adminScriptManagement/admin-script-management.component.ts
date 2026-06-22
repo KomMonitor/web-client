@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Subscription } from "rxjs";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AgGridAngular } from "ag-grid-angular";
-import { ColDef, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { ColDef, GridOptions } from "ag-grid-community";
 import { FormsModule } from "@angular/forms";
 import { AdminContentViewComponent } from "../admin-content-view/admin-content-view.component";
 import { ScriptAddModalComponent } from "./scriptAddModal/script-add-modal.component";
@@ -16,7 +16,7 @@ import { ScriptGeoresourcesCellRendererComponent } from "./script-georesources-c
 import { ScriptProcessParametersCellRendererComponent } from "./script-process-parameters-cell-renderer.component";
 
 @Component({
-  selector: "admin-script-management",
+  selector: "app-admin-script-management",
   templateUrl: "./admin-script-management.component.html",
   styleUrls: ["./admin-script-management.component.css"],
   imports: [
@@ -209,7 +209,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
 
   public onClickAddScript(): void {
     // if (!this.dataExchangeService.checkCreatePermission()) return;
-    const modalRef = this.modalService.open(ScriptAddModalComponent, {
+    this.modalService.open(ScriptAddModalComponent, {
       // modalDialogClass: "modal-medium",
       size: "xl",
       backdrop: "static",

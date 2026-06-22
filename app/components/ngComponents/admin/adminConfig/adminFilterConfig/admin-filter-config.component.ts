@@ -130,8 +130,8 @@ export class AdminFilterConfigComponent implements OnInit {
 
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      let title = broadcastMsg.msg;
-      let values: any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
         case "initialMetadataLoadingCompleted":
@@ -272,9 +272,9 @@ export class AdminFilterConfigComponent implements OnInit {
     // Column resized
   }
 
-  onModelUpdated(globalFilterArray: GlobalFilterEntry[]): void {}
+  onModelUpdated(_globalFilterArray: GlobalFilterEntry[]): void {}
 
-  onViewportChanged(globalFilterArray: GlobalFilterEntry[]): void {
+  onViewportChanged(_globalFilterArray: GlobalFilterEntry[]): void {
     /* setTimeout(() => {
       // MathJax rendering if available
       if ((window as any).MathJax && (window as any).MathJax.typesetPromise) {
@@ -301,7 +301,7 @@ export class AdminFilterConfigComponent implements OnInit {
     this.origConfig =
       await this.kommonitorConfigStorageService.getFilterConfig();
 
-    let item = this.mergedFilterConfig.filter((e) => e.filterId == itemId);
+    const item = this.mergedFilterConfig.filter((e) => e.filterId == itemId);
     if (item.length == 1) {
       if (
         confirm(
@@ -310,13 +310,13 @@ export class AdminFilterConfigComponent implements OnInit {
             " sicher dauerhaft löschen?",
         )
       ) {
-        let configNew = this.origConfig
+        const configNew = this.origConfig
           .filter((e, i) => i != itemId)
           .map((e) => {
             delete e.filterId;
             return e;
           });
-        var addConfigResponse =
+        
           await this.kommonitorConfigStorageService.postFilterConfig(
             JSON.stringify(configNew, null, "    "),
           );
@@ -411,7 +411,7 @@ export class AdminFilterConfigComponent implements OnInit {
   }
 
   async reloadCodeEditor() {
-    let confNew = await this.kommonitorConfigStorageService.getFilterConfig();
+    const confNew = await this.kommonitorConfigStorageService.getFilterConfig();
     //this.filterConfigCurrent = JSON.stringify(confNew, null, "    ");
 
     /* document.getElementById('filterConfig_current')!.innerHTML = 
@@ -440,7 +440,7 @@ export class AdminFilterConfigComponent implements OnInit {
 
     this.codeMirrorEditor.setSize(null, 300);
 
-    this.codeMirrorEditor.on("change", (cMirror) => {
+    this.codeMirrorEditor.on("change", (_cMirror) => {
       // get value right from instance
       this.filterConfigTmp = this.codeMirrorEditor.getValue();
     });
@@ -477,7 +477,7 @@ export class AdminFilterConfigComponent implements OnInit {
   }
 
   isConfigSettingInvalid(configString) {
-    var isInvalid = true;
+    let isInvalid = true;
 
     isInvalid = !this.keywordsInConfig.every((keyword) =>
       configString.includes(keyword),
@@ -499,7 +499,7 @@ export class AdminFilterConfigComponent implements OnInit {
   onChangeFilterConfig() {
     // check by searching for keywords
 
-    var configString = this.filterConfigTmp;
+    let configString = this.filterConfigTmp;
 
     if (typeof configString === "object" && configString !== null) {
       configString = JSON.stringify(configString, null, "    ");
@@ -526,10 +526,10 @@ export class AdminFilterConfigComponent implements OnInit {
     this.errorMessagePart = undefined;
 
     try {
-      var addConfigResponse = await this.kommonitorConfigStorageService
+      await this.kommonitorConfigStorageService
         .postFilterConfig(this.filterConfigTmp)
         .subscribe({
-          next: async (response) => {
+          next: async (_response) => {
             $("#filterConfigEditSuccessAlert").show();
             this.loadingData = false;
 

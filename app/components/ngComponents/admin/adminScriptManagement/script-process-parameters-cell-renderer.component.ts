@@ -13,7 +13,7 @@ interface VariableProcessParameter {
 }
 
 @Component({
-  selector: "script-process-parameters-cell-renderer",
+  selector: "app-script-process-parameters-cell-renderer",
   standalone: true,
   imports: [CommonModule],
   template: `

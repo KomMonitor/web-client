@@ -1,10 +1,10 @@
-<admin-content-view
+<app-admin-content-view
   title="Indikatoren-Berechnung"
   description="Anzeige und Ausführung von Prozessierungsjobs"
   [controlsTemplate]="controls"
   [contentTemplate]="content"
 >
-</admin-content-view>
+</app-admin-content-view>
 
 <ng-template #controls>
   <button
@@ -32,68 +32,68 @@
       <div class="box-content">
         <div class="row vertical-align" *ngIf="defaultIndicatorJobHealth">
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.queueStatus"
               descriptionText="Status der Job-Ausführung"
               boxColor="#337ab7"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.newestJobId.toString()"
               descriptionText="neueste Job-Id"
               boxColor="#337ab7"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.succeededJobs.toString()"
               descriptionText="abgeschlossene Jobs"
               boxColor="#00a65a"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.failedJobs.toString()"
               descriptionText="gescheiterte Jobs"
               boxColor="#dd4b39"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
         </div>
 
         <div class="row vertical-align" *ngIf="defaultIndicatorJobHealth">
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.activeJobs.toString()"
               descriptionText="laufende Jobs"
               boxColor="#00c0ef"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.waitingJobs.toString()"
               descriptionText="wartende Jobs"
               boxColor="#FF851B"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="defaultIndicatorJobHealth.delayedJobs.toString()"
               descriptionText="wartende Jobs"
               boxColor="#d2d6de"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
         </div>
 
@@ -125,70 +125,70 @@
       <div class="box-content customized-computation-content">
         <div class="row vertical-align" *ngIf="customizedIndicatorJobHealth">
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="customizedIndicatorJobHealth.queueStatus"
               descriptionText="Status der Job-Ausführung"
               boxColor="#337ab7"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="customizedIndicatorJobHealth.newestJobId.toString()"
               descriptionText="neueste Job-Id"
               boxColor="#337ab7"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="
                 customizedIndicatorJobHealth.succeededJobs.toString()
               "
               descriptionText="abgeschlossene Jobs"
               boxColor="#00a65a"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="customizedIndicatorJobHealth.failedJobs.toString()"
               descriptionText="gescheiterte Jobs"
               boxColor="#dd4b39"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
         </div>
 
         <div class="row vertical-align" *ngIf="customizedIndicatorJobHealth">
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="customizedIndicatorJobHealth!.activeJobs.toString()"
               descriptionText="laufende Jobs"
               boxColor="#00c0ef"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="customizedIndicatorJobHealth!.waitingJobs.toString()"
               descriptionText="wartende Jobs"
               boxColor="#FF851B"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
 
           <div class="col-md-3 col-sm-6 col-xs-12">
-            <small-box
+            <app-small-box
               [titleText]="customizedIndicatorJobHealth!.delayedJobs.toString()"
               descriptionText="wartende Jobs"
               boxColor="#d2d6de"
               iconClass="fas fa-file-code"
-            ></small-box>
+            ></app-small-box>
           </div>
         </div>
 

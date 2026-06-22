@@ -32,7 +32,7 @@ import { AdminContentViewComponent } from "../admin-content-view/admin-content-v
 declare const $: any;
 
 @Component({
-  selector: "admin-georesources-management",
+  selector: "app-admin-georesources-management",
   templateUrl: "./admin-georesources-management.component.html",
   styleUrls: ["./admin-georesources-management.component.css"],
   imports: [
@@ -118,10 +118,10 @@ export class AdminGeoresourcesManagementComponent
         .fetchGeoresourcesMetadata(
           this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
         )
-        .then((response: any) => {
+        .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
         })
-        .catch((error: any) => {
+        .catch((_error: any) => {
           // As a last resort, try with test data to verify grids are working
           this.testGridsWithSampleData();
 
@@ -256,14 +256,14 @@ export class AdminGeoresourcesManagementComponent
         .fetchGeoresourcesMetadata(
           this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
         )
-        .then((response: any) => {
+        .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
           this.broadcastService.broadcast(
             "refreshGeoresourceOverviewTableCompleted",
           );
           this.loadingData = false;
         })
-        .catch((response: any) => {
+        .catch((_response: any) => {
           this.loadingData = false;
           this.broadcastService.broadcast(
             "refreshGeoresourceOverviewTableCompleted",
@@ -286,7 +286,7 @@ export class AdminGeoresourcesManagementComponent
             );
             this.loadingData = false;
           })
-          .catch((response: any) => {
+          .catch((_response: any) => {
             this.loadingData = false;
             this.broadcastService.broadcast(
               "refreshGeoresourceOverviewTableCompleted",
@@ -308,7 +308,7 @@ export class AdminGeoresourcesManagementComponent
             );
             this.loadingData = false;
           })
-          .catch((response: any) => {
+          .catch((_response: any) => {
             this.loadingData = false;
             this.broadcastService.broadcast(
               "refreshGeoresourceOverviewTableCompleted",
@@ -343,7 +343,7 @@ export class AdminGeoresourcesManagementComponent
 
   // Modal event handlers
   onClickAddGeoresource(): void {
-    const modalRef = this.modalService.open(GeoresourceAddModalComponent, {
+    this.modalService.open(GeoresourceAddModalComponent, {
       size: "lg",
       backdrop: "static",
       keyboard: false,
@@ -400,7 +400,7 @@ export class AdminGeoresourcesManagementComponent
           );
         }
       },
-      (reason) => {
+      (_reason) => {
         // Modal dismissed
       },
     );
@@ -431,7 +431,7 @@ export class AdminGeoresourcesManagementComponent
           );
         }
       },
-      (reason) => {
+      (_reason) => {
         // Modal dismissed
       },
     );
@@ -460,7 +460,7 @@ export class AdminGeoresourcesManagementComponent
           );
         }
       },
-      (reason) => {
+      (_reason) => {
         // Modal dismissed
       },
     );

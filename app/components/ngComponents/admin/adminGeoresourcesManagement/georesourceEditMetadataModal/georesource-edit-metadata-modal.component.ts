@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -14,7 +14,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 import { DATE_PICKER_OPTIONS, LOI_DASH_ARRAY_OBJECTS, POI_MARKER_COLORS } from '../../../../../services/data-exchange-service/data-exchange.constants';
 
 @Component({
-  selector: 'georesource-edit-metadata-modal',
+  selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.css'],
   imports: [FormsModule, CommonModule, AdminTopicsManagementComponent],
@@ -418,7 +418,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     fileReader.onload = (event: any) => {
       try {
         this.parseFromMetadataFile(event);
-      } catch (error) {
+      } catch {
         console.error('Uploaded Metadata File cannot be parsed.');
         this.georesourceMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
         const preElement = document.getElementById('georesourcesEditMetadataPre');
@@ -703,7 +703,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       this.envConfigService.baseUrlToKomMonitorDataAPI + '/georesources/' + this.currentGeoresourceDataset.georesourceId,
       patchBody
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.datasetName;
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', { crudType: 'edit', targetGeoresourceId: this.currentGeoresourceDataset.georesourceId });
         this.showSuccessAlert();

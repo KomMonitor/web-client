@@ -13,7 +13,6 @@ import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
-declare const $: any;
 declare const __env: any;
 
 interface BatchListItem {
@@ -36,7 +35,7 @@ interface BatchListItem {
 }
 
 @Component({
-  selector: "indicator-batch-update-modal",
+  selector: "app-indicator-batch-update-modal",
   templateUrl: "./indicator-batch-update-modal.component.html",
   styleUrls: ["./indicator-batch-update-modal.component.css"],
   imports: [FormsModule, CommonModule],
@@ -241,7 +240,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
       console.log('Mapping table selected for index:', index, file);
       
       const reader = new FileReader();
-      reader.onload = (e: any) => {
+      reader.onload = (_e: any) => {
         try {
           // Handle mapping table file content
           console.log('Mapping table file content loaded for index:', index);
@@ -279,7 +278,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     console.log('Opening timeseries mapping modal for index:', index);
   }
 
-  public onDefaultTimeseriesMappingBtnClicked(event: any): void {
+  public onDefaultTimeseriesMappingBtnClicked(_event: any): void {
     // Open default timeseries mapping modal
     console.log('Opening default timeseries mapping modal');
   }
@@ -384,7 +383,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     return mapping[paramName] || null;
   }
 
-  private getConverterObjectByName(name: string): any {
+  private getConverterObjectByName(_name: string): any {
     // Implementation to get converter object by name
     // Access through AngularJS service for now
     // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;
@@ -394,7 +393,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  private getDatasourceTypeObjectByType(type: string): any {
+  private getDatasourceTypeObjectByType(_type: string): any {
     // Implementation to get datasource type object by type
     // Access through AngularJS service for now
     // const angularJsService = (this.kommonitorDataExchangeService as any).angularJsDataExchangeService;

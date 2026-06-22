@@ -31,7 +31,7 @@ interface RefreshBroadcastValues {
 }
 
 @Component({
-  selector: "admin-spatial-units-management",
+  selector: "app-admin-spatial-units-management",
   templateUrl: "./admin-spatial-units-management.component.html",
   styleUrls: ["./admin-spatial-units-management.component.css"],
   imports: [
@@ -381,10 +381,10 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     this.kommonitorDataExchangeService
       .fetchSpatialUnitsMetadata(currentRoles)
       .subscribe({
-        next: (spatialUnits) => {
+        next: (_spatialUnits) => {
           // The data will be handled by the subscription in ngOnInit
         },
-        error: (error) => {
+        error: (_error) => {
           this.loadingData = false;
           this.initializationCompleted = true;
         },
@@ -547,11 +547,11 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
           this.kommonitorDataExchangeService.currentKeycloakLoginRoles,
         )
         .subscribe({
-          next: (response) => {
+          next: (_response) => {
             this.initializeOrRefreshOverviewTable();
             this.loadingData = false;
           },
-          error: (response) => {
+          error: (_response) => {
             this.loadingData = false;
           },
         });
@@ -571,7 +571,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
               this.initializeOrRefreshOverviewTable();
               this.loadingData = false;
             },
-            error: (response) => {
+            error: (_response) => {
               this.loadingData = false;
             },
           });
@@ -590,7 +590,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
               this.initializeOrRefreshOverviewTable();
               this.loadingData = false;
             },
-            error: (response) => {
+            error: (_response) => {
               this.loadingData = false;
             },
           });

@@ -1,62 +1,62 @@
-<admin-content-view
+<app-admin-content-view
   [title]="'ADMIN_DASHBOARD.OVERVIEW' | translate"
   [description]="'ADMIN_DASHBOARD.OVERVIEW_DESCRIPTION' | translate"
   [contentTemplate]="content"
-></admin-content-view>
+></app-admin-content-view>
 <ng-template #content>
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12"></div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <small-box
+      <app-small-box
         [titleText]="organisationCount"
         [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
         boxColor="#00c0ef"
         iconClass="fas fa-users"
-      ></small-box>
+      ></app-small-box>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <small-box
+      <app-small-box
         [titleText]="topicCounts"
         [descriptionText]="topicsLabel"
         boxColor="#d2d6de"
         textColor="#000000"
         iconClass="fas fa-book"
-      ></small-box>
+      ></app-small-box>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12"></div>
   </div>
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <small-box
+      <app-small-box
         [titleText]="spatialUnitCount"
         [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
         boxColor="#337ab7"
         iconClass="fas fa-layer-group"
-      ></small-box>
+      ></app-small-box>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <small-box
+      <app-small-box
         [titleText]="georesourceCount"
         [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
         boxColor="#FF851B"
         iconClass="fas fa-map-marked-alt"
-      ></small-box>
+      ></app-small-box>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <small-box
+      <app-small-box
         [titleText]="indicatorCount"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
         boxColor="#00a65a"
         iconClass="fas fa-sitemap"
-      ></small-box>
+      ></app-small-box>
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      <small-box
+      <app-small-box
         [titleText]="indicatorScriptCount"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
         boxColor="#605ca8"
         iconClass="fas fa-file-code"
-      ></small-box>
+      ></app-small-box>
     </div>
   </div>
   <div class="row vertical-align">

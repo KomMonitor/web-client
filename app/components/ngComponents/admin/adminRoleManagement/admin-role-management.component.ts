@@ -26,7 +26,7 @@ interface AccessControlTableEntry extends AccessControlMetadata {
 }
 
 @Component({
-  selector: "admin-role-management",
+  selector: "app-admin-role-management",
   templateUrl: "./admin-role-management.component.html",
   styleUrls: ["./admin-role-management.component.css"],
   imports: [
@@ -147,9 +147,9 @@ export class AdminRoleManagementComponent implements OnInit {
     if (accessControl && accessControl.length > 0) {
       this.allAccessControl = accessControl.map(
         (dataItem: AccessControlTableEntry) => {
-          let parentId = dataItem.parentId;
+          const parentId = dataItem.parentId;
           let parentName = "";
-          let parentObject = accessControl.filter(
+          const parentObject = accessControl.filter(
             (item) => item.organizationalUnitId == parentId,
           )[0];
           if (parentObject && parentObject.name) {
@@ -159,7 +159,7 @@ export class AdminRoleManagementComponent implements OnInit {
 
           const childrenIds = dataItem.children ?? [];
 
-          let organizationalUnitChildrenUnits = childrenIds
+          const organizationalUnitChildrenUnits = childrenIds
             .map((id) =>
               this.kommonitorDataExchangeService.getAccessControlById(id),
             )

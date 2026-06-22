@@ -9,7 +9,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 @Component({
-  selector: "topic-delete-modal",
+  selector: "app-topic-delete-modal",
   templateUrl: "./topic-delete-modal.component.html",
   styleUrls: ["./topic-delete-modal.component.css"],
   imports: [CommonModule],

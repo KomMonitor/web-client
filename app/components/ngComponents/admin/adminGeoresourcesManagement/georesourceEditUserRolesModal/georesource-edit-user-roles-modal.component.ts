@@ -1,19 +1,18 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
+import { GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'georesource-edit-user-roles-modal',
+  selector: 'app-georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
   styleUrls: ['./georesource-edit-user-roles-modal.component.css'],
   imports: [FormsModule, CommonModule, AgGridAngular],
@@ -268,11 +267,11 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     console.log('Role management grid is ready, API initialized');
   }
 
-  onFirstDataRendered(event: FirstDataRenderedEvent): void {
+  onFirstDataRendered(_event: FirstDataRenderedEvent): void {
     // Handle first data rendered event
   }
 
-  onColumnResized(event: ColumnResizedEvent): void {
+  onColumnResized(_event: ColumnResizedEvent): void {
     // Handle column resize event
   }
 
@@ -305,7 +304,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         }
       }
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.currentGeoresourceDataset.datasetName;
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
           crudType: 'edit',
@@ -347,7 +346,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         }
       }
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.currentGeoresourceDataset.datasetName;
         this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
           crudType: 'edit',
@@ -420,7 +419,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     const deselectedIds: string[] = [];
     
     if (this.gridApi) {
-      this.gridApi.forEachNode((node: any, index: number) => {
+      this.gridApi.forEachNode((node: any, _index: number) => {
         if (node.data) {
           for (const permission of node.data.permissions) {
             if (permission) {

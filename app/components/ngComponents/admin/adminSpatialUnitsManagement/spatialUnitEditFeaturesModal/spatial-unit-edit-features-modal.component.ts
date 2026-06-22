@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
@@ -12,11 +12,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 
-declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'spatial-unit-edit-features-modal',
+  selector: 'app-spatial-unit-edit-features-modal',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
   styleUrls: ['./spatial-unit-edit-features-modal.component.css'],
   imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent],
@@ -234,7 +233,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (!this.kommonitorImporterHelperService?.getAvailableDatasourceTypes()?.length) {
       try {
         await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
-      } catch (error) {
+      } catch {
       }
     }
     
@@ -381,7 +380,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.hideErrorAlert();
   }
 
-  onChangeConverter(schema?: any): void {
+  onChangeConverter(_schema?: any): void {
     if (this.converter) {
       // Initialize defaults like in Add modal
       this.schema = this.converter.schemas ? this.converter.schemas[0] : '';
@@ -496,7 +495,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
 
     this.http.delete(url).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.spatialUnitFeaturesGeoJSON = null;
         this.remainingFeatureHeaders = [];
         this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['edit', this.currentSpatialUnitDataset.spatialUnitId]);
@@ -869,7 +868,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       );
 
       if (!this.kommonitorImporterHelperService?.importerResponseContainsErrors(updateSpatialUnitResponse_dryRun)) {
-        const updateSpatialUnitResponse = await this.kommonitorImporterHelperService?.updateSpatialUnit(
+        await this.kommonitorImporterHelperService?.updateSpatialUnit(
           this.converterDefinition, 
           this.datasourceTypeDefinition, 
           this.propertyMappingDefinition, 
@@ -924,7 +923,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     fileReader.onload = (event: any) => {
       try {
         this.parseFromMappingConfigFile(event);
-      } catch (error) {
+      } catch {
         this.spatialUnitMappingConfigImportError = 'Uploaded MappingConfig File cannot be parsed correctly';
         this.showMappingConfigErrorAlert();
       }
@@ -1212,15 +1211,15 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.gridApi.refreshHeader();
   }
 
-  onFirstDataRendered(event: FirstDataRenderedEvent): void {
+  onFirstDataRendered(_event: FirstDataRenderedEvent): void {
     // Handle first data rendered event
   }
 
-  onColumnResized(event: ColumnResizedEvent): void {
+  onColumnResized(_event: ColumnResizedEvent): void {
     // Handle column resize event
   }
 
-  onCellValueChanged(event: any): void {
+  onCellValueChanged(_event: any): void {
     // Handle cell value changes - this will be called by the grid
     
     // The actual API call and visual feedback is handled in the data grid helper service

@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
-import { ColorEvent } from 'ngx-color';
+
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
 import { KmLinePatternPickerComponent, LinePatternOption } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -16,14 +16,14 @@ import { CommonModule } from '@angular/common';
 // declare var $: any;
 
 @Component({
-  selector: 'spatial-unit-edit-metadata-modal',
+  selector: 'app-spatial-unit-edit-metadata-modal',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
   styleUrls: ['./spatial-unit-edit-metadata-modal.component.css'],
   providers: [],
   imports: [FormsModule, CommonModule, KmColorPickerComponent, KmLinePatternPickerComponent],
   standalone: true,
 })
-export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy {
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
   // Multi-step form
@@ -123,17 +123,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     if (this.currentSpatialUnitDataset) {
       this.resetForm();
     }
-  }
-
-  ngAfterViewInit() {
-    // Remove Bootstrap dropdown initialization - no longer needed for date picker
-    // setTimeout(() => {
-    //   try {
-    //     $('.dropdown-toggle').dropdown();
-    //   } catch (error) {
-    //     // Bootstrap dropdown initialization failed
-    //   }
-    // }, 300);
   }
 
   // Remove manual SVG injection - now handled by Angular templates
@@ -328,8 +317,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
 
-
-
   // Deprecated inline color picker click handler removed
 
   async editSpatialUnitMetadata() {
@@ -374,7 +361,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     this.successMessagePart = '';
 
     try {
-      const response = await this.http.patch(
+      await this.http.patch(
         `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}`,
         patchBody
       ).toPromise();
@@ -448,7 +435,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     fileReader.onload = (event: any) => {
       try {
         this.parseFromMetadataFile(event);
-      } catch (error) {
+      } catch {
         this.spatialUnitMetadataImportError = 'Uploaded Metadata File cannot be parsed correctly';
       }
     };
@@ -600,7 +587,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy,
     const fileName = "Raumebene_Metadaten_Vorlage_Export.json";
     this.downloadFile(metadataJSON, fileName);
   }
-
 
   // km-date-picker handles validation and coercion itself; no blur handler needed
 

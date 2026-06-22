@@ -263,7 +263,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.angularJsDataExchangeService.$http({
       url: url,
       method: "DELETE"
-    }).then((response: any) => {
+    }).then((_response: any) => {
       this.indicatorFeaturesJSON = undefined;
       this.remainingFeatureHeaders = [];
 
@@ -372,7 +372,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           return false;
         }
         return true;
-      } catch (error) {
+      } catch {
         return false;
       }
     };
@@ -435,7 +435,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   buildPropertyMappingDefinition(): any {
-    let timeseriesMappingForImporter = this.timeseriesMappingReference || [];
+    const timeseriesMappingForImporter = this.timeseriesMappingReference || [];
     return this.angularJsImporterHelperService.buildPropertyMapping_indicatorResource(
       this.spatialUnitRefKeyProperty, 
       timeseriesMappingForImporter, 

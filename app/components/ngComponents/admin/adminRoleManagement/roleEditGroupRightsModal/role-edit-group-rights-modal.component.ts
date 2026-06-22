@@ -177,7 +177,7 @@ function createAdvancedCheckboxRenderer(
 }
 
 @Component({
-  selector: "role-edit-group-rights-modal",
+  selector: "app-role-edit-group-rights-modal",
   templateUrl: "./role-edit-group-rights-modal.component.html",
   styleUrls: ["./role-edit-group-rights-modal.component.scss"],
   imports: [

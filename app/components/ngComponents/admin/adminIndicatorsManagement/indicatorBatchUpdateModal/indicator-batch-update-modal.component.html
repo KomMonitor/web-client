@@ -319,13 +319,13 @@
                  <!-- Zeitreihen-Mapping* -->
                  <button class="form-control btn btn-success btn-sm" 
                          (click)="onDefaultTimeseriesMappingBtnClicked($event)"
-                         *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMappings'"
+                         *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.propertyMapping.timeseriesMappings'"
                          style="background-color: #5cb85c;">
                    Hinzufügen/Editieren
                  </button>
 
                  <!-- Datensatz-Quellformat* -->
-                 <select *ngIf="colDefaultFunctionSelectedColumn=='selectedConverter'" 
+                 <select *ngIf="colDefaultFunctionSelectedColumn==='selectedConverter'" 
                          class="form-control" 
                          [(ngModel)]="colDefaultFunctionNewValue">
                    <option [ngValue]="null">-- Quellformat wählen --</option>

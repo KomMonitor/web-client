@@ -19,7 +19,7 @@ import { KommonitorDataGridHelperService } from "../../../../services/adminSpati
 import { LoadingOverlayComponent } from "../../common/loading-overlay/loading-overlay.component";
 
 @Component({
-  selector: "admin-script-execution",
+  selector: "app-admin-script-execution",
   templateUrl: "./admin-script-execution.component.html",
   styleUrls: ["./admin-script-execution.component.scss"],
   imports: [
@@ -63,7 +63,7 @@ export class AdminScriptExecutionComponent implements OnInit {
       maxWidth: 250,
       cellRenderer: (params) => {
         if (params.data.jobData && params.data.jobData.targetIndicatorId) {
-          let indicatorMetadata =
+          const indicatorMetadata =
             this.kommonitorDataExchangeService.getIndicatorMetadataById(
               params.data.jobData.targetIndicatorId,
             );
@@ -76,7 +76,7 @@ export class AdminScriptExecutionComponent implements OnInit {
       filter: "agTextColumnFilter",
       filterValueGetter: (params) => {
         if (params.data.jobData && params.data.jobData.targetIndicatorId) {
-          let indicatorMetadata =
+          const indicatorMetadata =
             this.kommonitorDataExchangeService.getIndicatorMetadataById(
               params.data.jobData.targetIndicatorId,
             );

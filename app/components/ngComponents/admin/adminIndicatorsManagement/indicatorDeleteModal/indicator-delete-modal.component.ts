@@ -8,7 +8,7 @@ import { BroadcastService } from '../../../../../services/broadcast-service/broa
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-declare var __env: any;
+declare let __env: any;
 
 interface IndicatorDeleteType {
   displayName: string;
@@ -281,7 +281,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}`;
 
     this.http.delete(url).subscribe({
-      next: (response) => {
+      next: (_response) => {
         this.successfullyDeletedDatasets.push(this.selectedIndicatorDataset);
 
         // Fetch indicator metadata again as an indicator was deleted
@@ -383,7 +383,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${spatialUnitId}/${timestampComps[0]}/${timestampComps[1]}/${timestampComps[2]}`;
 
     return this.http.delete(url).toPromise().then(
-      (response) => {
+      (_response) => {
         if (!this.successfullyDeletedTimestamps.includes(applicableDate)) {
           this.successfullyDeletedTimestamps.push(applicableDate);
         }
@@ -402,7 +402,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     const url = `${this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI}/indicators/${this.selectedIndicatorDataset.indicatorId}/${applicableSpatialUnit.spatialUnitMetadata.spatialUnitId}`;
 
     return this.http.delete(url).toPromise().then(
-      (response) => {
+      (_response) => {
         if (!this.successfullyDeletedSpatialUnits.includes(applicableSpatialUnit)) {
           this.successfullyDeletedSpatialUnits.push(applicableSpatialUnit);
         }
@@ -441,7 +441,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     );
   }
 
-  trackByIndex(index: number, item: any): number {
+  trackByIndex(index: number, _item: any): number {
     return index;
   }
 

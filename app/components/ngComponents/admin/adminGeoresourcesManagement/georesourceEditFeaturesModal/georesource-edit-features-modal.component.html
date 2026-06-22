@@ -200,10 +200,10 @@
                       <option value="literal"> Manueller Begrenzungsrahmen </option>
                     </select>
 
-                    <div *ngIf="bboxType == 'ref'">
+                    <div *ngIf="bboxType === 'ref'">
                       <!-- select available spatialUnits -->
                       <select id="datasourceTypeParameter_georesourceEditFeatures_bboxRef"
-                        [(ngModel)]="bboxRefSpatialUnit" class="form-control" [required]="bboxType == 'ref'">
+                        [(ngModel)]="bboxRefSpatialUnit" class="form-control" [required]="bboxType === 'ref'">
                         <option disabled selected value> -- Raumebene wählen -- </option>
                         <option *ngFor="let spatialUnit of availableSpatialUnits" [ngValue]="spatialUnit">{{spatialUnit.spatialUnitLevel}}</option>
                       </select>
@@ -212,21 +212,21 @@
                       </div>
                     </div>
                     
-                    <div *ngIf="bboxType == 'literal'">
+                    <div *ngIf="bboxType === 'literal'">
                       <label>Begrenzungsrahmen*</label>
-                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" [required]="bboxType == 'literal'">
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_minx" class="form-control" type="number" lang="us" placeholder="-180" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Minimale x-Koordinate</p>
                       </div>
-                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" [required]="bboxType == 'literal'">
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_miny" class="form-control" type="number" lang="us" placeholder="-90" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Minimale y-Koordinate</p>
                       </div>
-                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" [required]="bboxType == 'literal'">
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxx" class="form-control" type="number" lang="us" placeholder="180" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Maximale x-Koordinate</p>
                       </div>
-                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" [required]="bboxType == 'literal'">
+                      <input id="datasourceTypeParameter_georesourceEditFeatures_bbox_maxy" class="form-control" type="number" lang="us" placeholder="90" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Maximale y-Koordinate</p>
                       </div>

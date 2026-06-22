@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AgGridAngular } from 'ag-grid-angular';
+
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
@@ -59,7 +59,6 @@ export class AdminFilterEditModalComponent implements OnInit {
       
     this.multiStepHelperService.registerClickHandler("adminFilterEditForm");		
   }
-
 
 	/* 	var addClickListenerToEachCollapseTrigger(){
 
@@ -158,7 +157,7 @@ export class AdminFilterEditModalComponent implements OnInit {
         if(entry.topicId==id) {
           if(selected===true && document.getElementById('editCheckbox-'+id)) {
 
-            let elem:any = document.getElementById('editCheckbox-'+id);
+            const elem:any = document.getElementById('editCheckbox-'+id);
 
             elem.checked = true;
             elem.style.display = 'block';
@@ -168,10 +167,10 @@ export class AdminFilterEditModalComponent implements OnInit {
 
           ret = true;
         } else {
-          let itemFound = this.searchGeoresourceItemRecursive(entry.subTopics, id, selected);
+          const itemFound = this.searchGeoresourceItemRecursive(entry.subTopics, id, selected);
           if(itemFound===true && document.getElementById('editSubTopic-'+entry.topicId)) {
 
-            let elem:any = document.getElementById('editSubTopic-'+entry.topicId);
+            const elem:any = document.getElementById('editSubTopic-'+entry.topicId);
             elem.style.display = 'block';
             ret = true;
           }
@@ -186,7 +185,7 @@ export class AdminFilterEditModalComponent implements OnInit {
 
         if(document.getElementById('editCheckbox-'+entry.topicId)) {
 
-          let elem:any = document.getElementById('editCheckbox-'+entry.topicId);
+          const elem:any = document.getElementById('editCheckbox-'+entry.topicId);
 
           if(selected===true) {
             elem.checked = true;
@@ -229,7 +228,7 @@ export class AdminFilterEditModalComponent implements OnInit {
         if(entry.topicId==id) {
           if(selected===true && document.getElementById('editCheckbox-'+id)) {
 
-            let elem:any = document.getElementById('editCheckbox-'+id);
+            const elem:any = document.getElementById('editCheckbox-'+id);
 
             elem.checked = true;
             elem.style.display = 'block';
@@ -239,7 +238,7 @@ export class AdminFilterEditModalComponent implements OnInit {
 
           ret = true;
         } else {
-          let itemFound = this.searchIndicatorItemRecursive(entry.subTopics, id, selected);
+          const itemFound = this.searchIndicatorItemRecursive(entry.subTopics, id, selected);
           if(itemFound===true && document.getElementById('editSubTopic-'+entry.topicId)) {
             document.getElementById('editSubTopic-'+entry.topicId)!.style.display = 'block';
             ret = true;
@@ -255,7 +254,7 @@ export class AdminFilterEditModalComponent implements OnInit {
 
         if(document.getElementById('editCheckbox-'+entry.topicId)) {
 
-          let elem:any = document.getElementById('editCheckbox-'+entry.topicId);
+          const elem:any = document.getElementById('editCheckbox-'+entry.topicId);
 
           if(selected===true) {
             elem.checked = true;
@@ -281,7 +280,7 @@ export class AdminFilterEditModalComponent implements OnInit {
         entry.selected = selectedItemIds.includes(entry.topicId);
 
         if(entry.subTopics.length>0) {
-          let newLevel = level+1;
+          const newLevel = level+1;
           entry.subTopics = this.prepTopicsTree(entry.subTopics, newLevel, selectedItemIds);
         }
       });
@@ -321,14 +320,14 @@ export class AdminFilterEditModalComponent implements OnInit {
 
     checkTopicsTreeVisibilityRecursive(entries):any {
 
-      var ret = false;
+      let ret = false;
 
       entries.forEach((entry:any) => {
         if(entry.selected)
           ret = true;
         else {
           if(entry.subTopics.length>0) {
-            var subRet = this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
+            const subRet = this.checkTopicsTreeVisibilityRecursive(entry.subTopics);
 
             if(ret===false)
               ret = subRet;
@@ -345,7 +344,7 @@ export class AdminFilterEditModalComponent implements OnInit {
         
         if(document.getElementById('editCheckbox-'+entry.topicId)) {
 
-          let elem:any = document.getElementById('editCheckbox-'+entry.topicId);
+          const elem:any = document.getElementById('editCheckbox-'+entry.topicId);
 
           elem.checked = false;
           elem.disabled = false;
@@ -402,8 +401,8 @@ export class AdminFilterEditModalComponent implements OnInit {
 
       //var selectedIndicatorIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid(this.editIndicatorTableOptions);
       //var selectedGeoresourceIds = kommonitorDataGridHelperService.getSelectedIds_singleSelectGrid(this.editGeoresourceTableOptions);
-      var selectedIndicatorIds = [];
-      var selectedGeoresourceIds = [];
+      const selectedIndicatorIds = [];
+      const selectedGeoresourceIds = [];
 
       this.selectedIndicatorIds = selectedIndicatorIds;
       this.selectedGeoresourceIds = selectedGeoresourceIds;
@@ -416,7 +415,7 @@ export class AdminFilterEditModalComponent implements OnInit {
           return;
       }
 
-      let filterConfig = await this.kommonitorConfigStorageService.getFilterConfig();      
+      const filterConfig = await this.kommonitorConfigStorageService.getFilterConfig();      
 
       setTimeout(() => {
         this.loadingData = true;
@@ -425,7 +424,7 @@ export class AdminFilterEditModalComponent implements OnInit {
       this.successMessagePart = undefined;
       this.errorMessagePart = undefined;
 
-      let filterBody = {
+      const filterBody = {
         "name": this.filterName,
         "indicatorTopics": this.selectedIndicatorTopicEditIds,
         "indicators": selectedIndicatorIds,
@@ -435,7 +434,7 @@ export class AdminFilterEditModalComponent implements OnInit {
 
       filterConfig[this.selectedItem] = filterBody;
 
-      var editConfigResponse = await this.kommonitorConfigStorageService.postFilterConfig(JSON.stringify(filterConfig, null, "    "));	
+      await this.kommonitorConfigStorageService.postFilterConfig(JSON.stringify(filterConfig, null, "    "));	
       
       $("#globalFilterEditSucessAlert").show();
       this.loadingData = false;
@@ -448,7 +447,6 @@ export class AdminFilterEditModalComponent implements OnInit {
       }, 500);
 
     };
-
 
 		resetAdminFilterEditForm(){
 
@@ -524,7 +522,6 @@ export class AdminFilterEditModalComponent implements OnInit {
 				}
 				else {
 
-
 					// TODO verify input
 
 					// TODO Create and perform POST Request with loading screen
@@ -591,8 +588,6 @@ export class AdminFilterEditModalComponent implements OnInit {
 				}
 
 			};
-
-
 
  */
 

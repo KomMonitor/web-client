@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -30,7 +30,7 @@ import {
   ],
   standalone: true,
 })
-export class ScriptAddModalComponent implements OnInit, OnDestroy {
+export class ScriptAddModalComponent {
   currentStep: number = 1;
 
   readonly stepperSteps: StepperStep[] = [
@@ -65,10 +65,6 @@ export class ScriptAddModalComponent implements OnInit, OnDestroy {
     public scriptHelperService: ScriptHelperService,
     private broadcastService: BroadcastService,
   ) {}
-
-  ngOnInit(): void {}
-
-  ngOnDestroy(): void {}
 
   resetForm(): void {
     this.currentStep = 1;
@@ -118,7 +114,6 @@ export class ScriptAddModalComponent implements OnInit, OnDestroy {
     const description = this.scriptMetadata.description.trim();
     const associatedIndicatorId =
       this.scriptMetadata.associatedIndicatorId.trim();
-    debugger;
     try {
       await this.scriptHelperService.postNewScript(
         name,

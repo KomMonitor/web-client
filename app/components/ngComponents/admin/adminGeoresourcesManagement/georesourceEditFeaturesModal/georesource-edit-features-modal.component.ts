@@ -11,24 +11,15 @@ import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { AgGridAngular } from "ag-grid-angular";
-import {
-  ColDef,
-  GridOptions,
-  GridApi,
-  ColumnApi,
-  GridReadyEvent,
-  FirstDataRenderedEvent,
-  ColumnResizedEvent,
-} from "ag-grid-community";
+import { GridOptions, GridApi, ColumnApi, GridReadyEvent, FirstDataRenderedEvent, ColumnResizedEvent } from "ag-grid-community";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { SingleFeatureEditComponent } from "components/ngComponents/common/single-feature-edit/single-feature-edit.component";
 
-declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: "georesource-edit-features-modal",
+  selector: "app-georesource-edit-features-modal",
   templateUrl: "./georesource-edit-features-modal.component.html",
   styleUrls: ["./georesource-edit-features-modal.component.css"],
   imports: [CommonModule, AgGridAngular, FormsModule, SingleFeatureEditComponent],
@@ -378,7 +369,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.http.delete(
         `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
       ).subscribe({
-        next: (response: any) => {
+        next: (_response: any) => {
           this.loadingData = false;
           this.refreshGeoresourceEditFeaturesOverviewTable();
           alert('Alle Features wurden erfolgreich gelöscht.');
@@ -485,7 +476,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     fileReader.onload = (event: any) => {
       try {
         this.parseFromMappingConfigFile(event);
-      } catch (error) {
+      } catch {
         console.error('Uploaded Mapping Config File cannot be parsed.');
         this.georesourceMappingConfigImportError = 'Uploaded Mapping Config File cannot be parsed correctly';
         const preElement = document.getElementById('georesourcesEditFeaturesMappingConfigPre');
@@ -805,11 +796,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.gridApi.sizeColumnsToFit();
   }
 
-  onFirstDataRendered(event: FirstDataRenderedEvent): void {
+  onFirstDataRendered(_event: FirstDataRenderedEvent): void {
     // Handle first data rendered event
   }
 
-  onColumnResized(event: ColumnResizedEvent): void {
+  onColumnResized(_event: ColumnResizedEvent): void {
     // Handle column resize event
   }
 

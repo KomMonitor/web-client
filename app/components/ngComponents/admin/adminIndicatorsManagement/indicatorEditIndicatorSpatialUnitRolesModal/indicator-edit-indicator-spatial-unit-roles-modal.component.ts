@@ -102,12 +102,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   prepareCreatorList(): void {
     if (this.angularJsDataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
-      let creatorRights: string[] = [];
-      let creatorRightsChildren: string[] = [];
+      const creatorRights: string[] = [];
+      const creatorRightsChildren: string[] = [];
       
       this.angularJsDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
-        let key = roles.split('.')[0];
-        let role = roles.split('.')[1];
+        const key = roles.split('.')[0];
+        const role = roles.split('.')[1];
 
         // case unit-resources-creator
         if (role == 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
@@ -238,7 +238,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   refreshRoles(orgUnitId: string): void {
-    let permissionIds_ownerUnit = orgUnitId ? 
+    const permissionIds_ownerUnit = orgUnitId ? 
       this.angularJsDataExchangeService.getAccessControlById(orgUnitId).permissions
         .filter((permission: any) => permission.permissionLevel == "viewer" || permission.permissionLevel == "editor")
         .map((permission: any) => permission.permissionId) : [];
@@ -285,7 +285,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   executeRequest_indicatorMetadataRoles(): void {
     this.loadingData = true;
 
-    let putBody = {
+    const putBody = {
       "permissions": this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions_indicatorMetadata),
       "isPublic": this.currentIndicatorDataset.isPublic
     };
@@ -294,7 +294,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/permissions",
       putBody
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
         this.showSuccessAlert();
@@ -316,7 +316,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   executeRequest_indicatorOwnership(): void {
     this.loadingData = true;
 
-    let putBody = {
+    const putBody = {
       "ownerId": this.ownerOrganization === undefined ? this.currentIndicatorDataset.ownerId : this.ownerOrganization
     };
 
@@ -324,7 +324,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/ownership",
       putBody
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
         this.showSuccessAlert();
@@ -348,7 +348,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
     if (this.currentIndicatorDataset.applicableSpatialUnits && this.currentIndicatorDataset.applicableSpatialUnits.length > 0) {
       this.currentIndicatorDataset.applicableSpatialUnits.forEach((indicatorSpatialUnit: any) => {
-        let putBody = {
+        const putBody = {
           "ownerId": this.ownerOrganization === undefined ? this.currentIndicatorDataset.ownerId : this.ownerOrganization
         };
 
@@ -356,7 +356,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/" + indicatorSpatialUnit.spatialUnitId + "/ownership",
           putBody
         ).subscribe({
-          next: (response: any) => {
+          next: (_response: any) => {
             this.successMessagePart = this.currentIndicatorDataset.indicatorName;
             this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
             this.showSuccessAlert();
@@ -378,7 +378,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   executeRequest_indicatorSpatialUnitRoles(): void {
-    let putBody = {
+    const putBody = {
       "permissions": this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(this.roleManagementTableOptions_indicatorSpatialUnitTimeseries),
       "isPublic": this.targetApplicableSpatialUnit.isPublic
     };
@@ -389,7 +389,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId + "/" + this.targetApplicableSpatialUnit.spatialUnitId + "/permissions",
       putBody
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
         this.showSuccessAlert();
         this.loadingData = false;
@@ -407,7 +407,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     });
   }
 
-  onChangeSelectedSpatialUnit(targetApplicableSpatialUnit: any): void {
+  onChangeSelectedSpatialUnit(_targetApplicableSpatialUnit: any): void {
     this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
   }
 

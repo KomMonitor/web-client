@@ -7,7 +7,6 @@ import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
-declare const $: any;
 
 interface AffectedScript {
   scriptId: string;
@@ -32,7 +31,7 @@ interface AffectedIndicatorReference {
 }
 
 @Component({
-  selector: 'georesource-delete-modal',
+  selector: 'app-georesource-delete-modal',
   templateUrl: './georesource-delete-modal.component.html',
   styleUrls: ['./georesource-delete-modal.component.css'],
   imports: [CommonModule],
@@ -167,7 +166,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
     const deletePromises = this.datasetsToDelete.map(dataset => this.getDeleteDatasetPromise(dataset));
 
     forkJoin(deletePromises).subscribe({
-      next: (results) => {
+      next: (_results) => {
         console.log('All delete operations completed');
         this.handleDeleteResults();
       },
@@ -182,7 +181,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
     const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${dataset.georesourceId}`;
     
     return this.http.delete(url).pipe(
-      tap((response) => {
+      tap((_response) => {
         console.log(`Successfully deleted georesource ${dataset.georesourceId}`);
         this.successfullyDeletedDatasets.push(dataset);
         
@@ -270,7 +269,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
   }
 
   // TrackBy function for *ngFor
-  trackByIndex(index: number, item: any): number {
+  trackByIndex(index: number, _item: any): number {
     return index;
   }
 

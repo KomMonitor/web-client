@@ -18,7 +18,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 @Component({
-  selector: "spatial-unit-edit-user-roles-modal",
+  selector: "app-spatial-unit-edit-user-roles-modal",
   templateUrl: "./spatial-unit-edit-user-roles-modal.component.html",
   styleUrls: ["./spatial-unit-edit-user-roles-modal.component.css"],
   imports: [AgGridAngular, CommonModule, FormsModule],
@@ -175,7 +175,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       this.activeRolesOnly = false;
     }
 
-    let access = this.kommonitorDataExchangeService.accessControl;
+    const access = this.kommonitorDataExchangeService.accessControl;
     // Do not filter access here; always pass the full array to the grid helper
 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
@@ -235,11 +235,11 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     this.roleManagementHelper.setGridApi(params.api);
   }
 
-  onRoleManagementFirstDataRendered(event: any): void {
+  onRoleManagementFirstDataRendered(_event: any): void {
     // Handle first data rendered event
   }
 
-  onRoleManagementColumnResized(event: any): void {
+  onRoleManagementColumnResized(_event: any): void {
     // Handle column resized event
   }
 
@@ -373,7 +373,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         isPublic: this.currentSpatialUnitDataset.isPublic
       };
 
-      const response = await this.http.put(
+      await this.http.put(
         `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/permissions`,
         putBody,
         { headers: { 'Content-Type': 'application/json' } }
@@ -410,7 +410,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         ownerId: this.ownerOrganization || this.currentSpatialUnitDataset.ownerId
       };
 
-      const response = await this.http.put(
+      await this.http.put(
         `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/ownership`,
         putBody,
         { headers: { 'Content-Type': 'application/json' } }
@@ -485,13 +485,13 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     } else {
       // Fetch access control data from server
       this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
-        next: (data) => {
+        next: (_data) => {
           // If we have data and a spatial unit dataset, refresh the table
           if (this.currentSpatialUnitDataset) {
             this.refreshRoleManagementTable();
           }
         },
-        error: (error) => {
+        error: (_error) => {
         }
       });
     }

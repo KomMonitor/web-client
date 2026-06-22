@@ -23,8 +23,7 @@ import { AdminContentViewComponent } from "../../admin-content-view/admin-conten
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
-declare var PR: any;
-declare var $: any;
+declare let $: any;
 
 interface CodeMirrorEditor {
   getValue(): string;
@@ -41,7 +40,7 @@ interface LintingIssue {
 }
 
 @Component({
-  selector: "admin-controls-config",
+  selector: "app-admin-controls-config",
   templateUrl: "./admin-controls-config.component.html",
   styleUrls: ["./admin-controls-config.component.css"],
   imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],

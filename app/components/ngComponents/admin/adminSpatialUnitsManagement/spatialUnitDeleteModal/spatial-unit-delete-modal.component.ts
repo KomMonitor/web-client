@@ -6,11 +6,10 @@ import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { CommonModule } from '@angular/common';
 
-declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: 'spatial-unit-delete-modal',
+  selector: 'app-spatial-unit-delete-modal',
   templateUrl: './spatial-unit-delete-modal.component.html',
   styleUrls: ['./spatial-unit-delete-modal.component.css'],
   imports: [CommonModule],
@@ -128,13 +127,11 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
         }, 2000);
       }
 
-    } catch (error) {
+    } catch {
       this.errorMessage = 'Ein unerwarteter Fehler ist aufgetreten.';
       this.loadingData = false;
     }
   }
-
-
 
   hideSuccessAlert(): void {
     this.successMessage = '';

@@ -394,7 +394,7 @@
               [(ngModel)]="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgewählt">
 
             <!-- Gültigkeitszeitraum von* -->
-            <div *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.startDate'" class="input-group date">
+            <div *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.periodOfValidity.startDate'" class="input-group date">
               <div class="input-group-addon">
                 <i class="far fa-calendar-alt"></i>
               </div>
@@ -403,7 +403,7 @@
             </div>
 
             <!-- Gültigkeitszeitraum bis* -->
-            <div *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.endDate'" class="input-group date">
+            <div *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.periodOfValidity.endDate'" class="input-group date">
               <div class="input-group-addon">
                 <i class="far fa-calendar-alt"></i>
               </div>
@@ -412,7 +412,7 @@
             </div>
 
             <!-- Geodaten-Quellformat* -->
-            <select *ngIf="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" 
+            <select *ngIf="colDefaultFunctionSelectedColumn==='selectedConverter'" class="form-control" 
               [(ngModel)]="colDefaultFunctionNewValue">
               <option disabled selected value> -- Geodaten-Quellformat wählen -- </option>
               <option *ngFor="let converter of kommonitorImporterHelperService.availableConverters" 
@@ -420,7 +420,7 @@
             </select>
 
             <!-- Quellformat* -->
-            <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.mimeType'" class="form-control" 
+            <select *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.mimeType'" class="form-control" 
               [(ngModel)]="colDefaultFunctionNewValue" 
               [disabled]="checkColumnsToShow_selectedConverter().length != 1">
               <option disabled selected value> -- Quellformat wählen -- </option>
@@ -429,7 +429,7 @@
             </select>
 
             <!-- Encoding* -->
-            <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.encoding'" class="form-control" 
+            <select *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.encoding'" class="form-control" 
               [(ngModel)]="colDefaultFunctionNewValue" 
               [disabled]="checkColumnsToShow_selectedConverter().length != 1">
               <option disabled selected value> -- Encoding wählen -- </option>
@@ -438,7 +438,7 @@
             </select>
 
             <!-- CRS* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.crs'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.crs'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326"
               [disabled]="!(checkColumnsToShow_selectedConverter().includes('GeoJSON') ||
                           checkColumnsToShow_selectedConverter().includes('Shapefile (ZIP-Ordner mit .shp, .dbf, .prj)') ||
@@ -446,49 +446,49 @@
                           checkColumnsToShow_selectedConverter().includes('WFS_v1'))">
 
             <!-- Hausnummer_Spaltenname* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.hnrColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.hnrColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
 
             <!-- Strasse_Spaltenname* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.streetColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.streetColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten')">
 
             <!-- Adresse_Spaltenname* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.addressColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.addressColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette')">
 
             <!-- Strasse_Hausnummer_Spaltenname* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.streetHnrColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.streetHnrColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt')">
 
             <!-- X_Koordinatenspalte_Rechtswert* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.xCoordColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.xCoordColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
 
             <!-- Y_Koordinatenspalte_Rechtswert* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.yCoordColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.yCoordColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt')">
 
             <!-- Postleitzahl_Spaltenname -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.plzColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.plzColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!(checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
                           checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'))">
 
             <!-- Stadt_Spaltenname -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.cityColumnName'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.cityColumnName'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!(checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
                           checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Strasse_Hausnummer_Stadt'))">
 
             <!-- Schema* -->
-            <select *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" 
+            <select *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.schema'" class="form-control" 
               [(ngModel)]="colDefaultFunctionNewValue" 
               [disabled]="!checkColumnsToShow_selectedConverter().includes('WFS_v1')">
               <option disabled selected value> -- Schema wählen -- </option>
@@ -497,17 +497,17 @@
             </select>
             
             <!-- NAMESPACE -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaNamespace'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.schemaNamespace'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('WFS_v1')">
             
             <!-- SCHEMA LOCATION -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.schemaLocation'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.schemaLocation'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!checkColumnsToShow_selectedConverter().includes('WFS_v1')">
 
             <!-- Trennzeichen -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.converter.separator'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue"
               [disabled]="!(checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_Adresse_strukturierte_Einzelspalten') ||
                           checkColumnsToShow_selectedConverter().includes('Tabelle_Geokodierung_beliebige_Zeichenkette') ||
@@ -515,7 +515,7 @@
                           checkColumnsToShow_selectedConverter().includes('Tabelle_XY_Koordinate_zu_Punkt'))">
             
             <!-- Datenquelltyp* -->
-            <select *ngIf="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" 
+            <select *ngIf="colDefaultFunctionSelectedColumn==='selectedDatasourceType'" class="form-control" 
               [(ngModel)]="colDefaultFunctionNewValue">
               <option disabled selected value> -- Quelltyp wählen -- </option>
               <option *ngFor="let datasourceType of kommonitorImporterHelperService.availableDatasourceTypes" 
@@ -523,27 +523,27 @@
             </select>
             
             <!-- URL* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.dataSource.URL'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue" [disabled]="!checkIfSelectedDatasourceTypeIsHttp()">
             
             <!-- Payload* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.dataSource.payload'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue" [disabled]="!checkIfSelectedDatasourceTypeIsInline()">
             
             <!-- ID Attributname* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.identifierProperty'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.propertyMapping.identifierProperty'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue">
             
             <!-- NAME Attributname* -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.nameProperty'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.propertyMapping.nameProperty'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue">
             
             <!-- Lebenszeit-Beginn Attributname -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validStartDateProperty'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.propertyMapping.validStartDateProperty'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue">
             
             <!-- Lebenszeit-Ende Attributname -->
-            <input *ngIf="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validEndDateProperty'" type="text" class="form-control"
+            <input *ngIf="colDefaultFunctionSelectedColumn==='mappingObj.propertyMapping.validEndDateProperty'" type="text" class="form-control"
               [(ngModel)]="colDefaultFunctionNewValue">
           </div>
         </div>

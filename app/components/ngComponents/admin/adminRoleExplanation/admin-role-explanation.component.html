@@ -1,11 +1,11 @@
-<admin-content-view
+<app-admin-content-view
   [title]="'FAQ zu Mandantenkonzept und Zugriffsschutz auf Datensätze'"
   [description]="
     'Übersicht und Bedienhinweise der ab KomMonitor Version 4 eingeführten Zugriffskontrolle'
   "
   [contentTemplate]="content"
 >
-</admin-content-view>
+</app-admin-content-view>
 <ng-template #content>
   <div class="row">
     <div class="col-md-6" *ngFor="let item of items">

@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit, TemplateRef } from "@angular/core";
+import { Component, Input, TemplateRef } from "@angular/core";
 
 @Component({
-  selector: "admin-content-view",
+  selector: "app-admin-content-view",
   templateUrl: "./admin-content-view.component.html",
   styleUrls: ["./admin-content-view.component.css"],
   imports: [CommonModule],

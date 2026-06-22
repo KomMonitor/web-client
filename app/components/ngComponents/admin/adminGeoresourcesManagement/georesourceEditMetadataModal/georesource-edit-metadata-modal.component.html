@@ -102,7 +102,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle == 'symbol'">
+            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle === 'symbol'">
               <div class="form-group" align="center">
                 <label>Symbol*</label>
                 <br />
@@ -110,7 +110,7 @@
                 <div class="help-block with-errors"></div>
               </div>
             </div>
-            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle == 'text'">
+            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle === 'text'">
               <div class="form-group" align="center">
                 <label>Text*</label>
                 <br />
@@ -124,8 +124,8 @@
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group" align="center">
-                <label *ngIf="selectedPoiMarkerStyle == 'symbol'">Farbe des Punktsymbols*</label>
-                <label *ngIf="selectedPoiMarkerStyle == 'text'">Textfarbe*</label>
+                <label *ngIf="selectedPoiMarkerStyle === 'symbol'">Farbe des Punktsymbols*</label>
+                <label *ngIf="selectedPoiMarkerStyle === 'text'">Textfarbe*</label>
                 <div class="dropdown customColorPicker">
                   <button type="button" class="btn btn-info dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -386,7 +386,7 @@
                       }
                     </style>
 
-                    <admin-topics-management></admin-topics-management>
+                    <app-admin-topics-management></app-admin-topics-management>
                   </div>
                   <!-- /.box-body -->
                 </div>

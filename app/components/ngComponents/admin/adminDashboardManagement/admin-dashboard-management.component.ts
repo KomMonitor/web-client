@@ -88,7 +88,7 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
 };
 
 @Component({
-  selector: "admin-dashboard-management",
+  selector: "app-admin-dashboard-management",
   templateUrl: "./admin-dashboard-management.component.html",
   styleUrls: ["./admin-dashboard-management.component.css"],
   imports: [

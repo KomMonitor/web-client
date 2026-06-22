@@ -15,13 +15,7 @@ import { Subscription } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { NgbDropdownModule, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AgGridAngular } from "ag-grid-angular";
-import {
-  ColDef,
-  GridOptions,
-  GridReadyEvent,
-  RowNode,
-  SelectionChangedEvent,
-} from "ag-grid-community";
+import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from "ag-grid-community";
 import { KommonitorIndicatorCacheHelperService } from "services/adminIndicatorUnit/kommonitor-cache-helper.service";
 import { KommonitorIndicatorDataGridHelperService } from "services/adminIndicatorUnit/kommonitor-data-grid-helper.service";
 import { IndicatorAddModalComponent } from "./indicatorAddModal/indicator-add-modal.component";
@@ -36,11 +30,10 @@ import { AdminContentViewComponent } from "../admin-content-view/admin-content-v
 import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
 import { DataExchangeService } from "../../../../services/data-exchange-service/data-exchange.service";
 
-declare const $: any;
 declare const __env: any;
 
 @Component({
-  selector: "admin-indicators-management",
+  selector: "app-admin-indicators-management",
   templateUrl: "./admin-indicators-management.component.html",
   styleUrls: ["./admin-indicators-management.component.css"],
   imports: [
@@ -99,7 +92,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           patchBody,
         )
         .subscribe({
-          next: (response: any) => {
+          next: (_response: any) => {
             // Success - no action needed
           },
           error: (error: any) => {
@@ -530,7 +523,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.initializeOrRefreshOverviewTable();
           }
         })
-        .catch((error) => {
+        .catch((_error) => {
           // Modal dismissed
         });
     } catch (error) {
@@ -564,7 +557,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.initializeOrRefreshOverviewTable();
           }
         })
-        .catch((error) => {
+        .catch((_error) => {
           // Modal dismissed
         });
     } catch (error) {
@@ -596,7 +589,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.initializeOrRefreshOverviewTable();
           }
         })
-        .catch((error) => {
+        .catch((_error) => {
           // Modal dismissed
         });
     } catch (error) {
@@ -644,10 +637,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     modalRef.componentInstance.onChangeSelectedIndicator();
 
     modalRef.result
-      .then((result) => {
+      .then((_result) => {
         // Delete modal closed with result
       })
-      .catch((error) => {
+      .catch((_error) => {
         // Delete modal dismissed
       });
   }
@@ -677,7 +670,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.initializeOrRefreshOverviewTable();
           }
         })
-        .catch((error) => {
+        .catch((_error) => {
           // Modal dismissed
         });
     } catch (error) {
@@ -718,14 +711,14 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         .fetchIndicatorsMetadata(
           this.dataExchangeService.currentKeycloakLoginRoles,
         )
-        .then((response: any) => {
+        .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
           this.broadcastService.broadcast(
             "refreshIndicatorOverviewTableCompleted",
           );
           this.loadingData = false;
         })
-        .catch((response: any) => {
+        .catch((_response: any) => {
           this.loadingData = false;
           this.broadcastService.broadcast(
             "refreshIndicatorOverviewTableCompleted",
@@ -746,7 +739,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             );
             this.loadingData = false;
           })
-          .catch((response: any) => {
+          .catch((_response: any) => {
             this.loadingData = false;
             this.broadcastService.broadcast(
               "refreshIndicatorOverviewTableCompleted",
@@ -768,7 +761,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             );
             this.loadingData = false;
           })
-          .catch((response: any) => {
+          .catch((_response: any) => {
             this.loadingData = false;
             this.broadcastService.broadcast(
               "refreshIndicatorOverviewTableCompleted",
@@ -933,7 +926,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         patchBody,
       )
       .subscribe({
-        next: (response: any) => {
+        next: (_response: any) => {
           // Display order updated successfully
         },
         error: (error: any) => {

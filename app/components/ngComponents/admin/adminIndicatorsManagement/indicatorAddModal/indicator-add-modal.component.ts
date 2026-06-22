@@ -1,10 +1,10 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
@@ -14,7 +14,7 @@ import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admi
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
-  selector: 'indicator-add-modal',
+  selector: 'app-indicator-add-modal',
   templateUrl: './indicator-add-modal.component.html',
   styleUrls: ['./indicator-add-modal.component.css'],
   imports: [CommonModule, FormsModule, AdminTopicsManagementComponent, NgbCollapseModule],
@@ -164,7 +164,6 @@ export class IndicatorAddModalComponent implements OnInit {
   filteredRoles: any[] = [];
   selectedRoles: any[] = [];
 
-
   
   // Advanced access control
   enableTimeRestrictedAccess = false;
@@ -310,7 +309,7 @@ export class IndicatorAddModalComponent implements OnInit {
     this.colorbrewerPalettes = [];
     
     for (const key in this.colorbrewerSchemes) {
-      if (this.colorbrewerSchemes.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(this.colorbrewerSchemes, key)) {
         const colorPalettes = this.colorbrewerSchemes[key];
         
         const paletteEntry = {
@@ -339,8 +338,6 @@ export class IndicatorAddModalComponent implements OnInit {
       });
     }
   }
-
-
 
   // Reference management methods
   onAddOrUpdateIndicatorReference() {

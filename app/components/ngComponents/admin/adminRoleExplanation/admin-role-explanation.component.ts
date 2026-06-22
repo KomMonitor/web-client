@@ -11,7 +11,7 @@ interface AccordionItem {
 }
 
 @Component({
-  selector: "admin-role-explanation",
+  selector: "app-admin-role-explanation",
   templateUrl: "./admin-role-explanation.component.html",
   styleUrls: ["./admin-role-explanation.component.css"],
   imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],

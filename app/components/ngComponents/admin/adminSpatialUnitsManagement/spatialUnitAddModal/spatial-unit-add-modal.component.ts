@@ -1,19 +1,5 @@
-import {
-  Component,
-  OnInit,
-  Inject,
-  ViewChild,
-  ElementRef,
-  HostListener,
-  Injectable,
-} from "@angular/core";
-import {
-  NgbActiveModal,
-  NgbDatepicker,
-  NgbDateParserFormatter,
-  NgbDateStruct,
-  NgbDateAdapter,
-} from "@ng-bootstrap/ng-bootstrap";
+import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
+import { NgbActiveModal, NgbDatepicker } from "@ng-bootstrap/ng-bootstrap";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { HttpClient } from "@angular/common/http";
 import { KommonitorImporterHelperService } from "../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service";
@@ -21,13 +7,13 @@ import { RoleManagementDataGridHelperService } from 'services/role-management-da
 import { KommonitorDataExchangeService } from "../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service";
 import { AgGridAngular } from "ag-grid-angular";
 import { ColDef, GridOptions, GridApi, ColumnApi } from "ag-grid-community";
-import { ColorEvent } from "ngx-color";
+
 import { KmColorPickerComponent } from "../../../customElements/color-picker/km-color-picker.component";
 import {
   KmLinePatternPickerComponent,
   LinePatternOption,
 } from "../../../customElements/line-pattern-picker/km-line-pattern-picker.component";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { DomSanitizer } from "@angular/platform-browser";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { KmDatePickerComponent } from "../../../customElements/date-picker/km-date-picker.component";
@@ -35,7 +21,7 @@ import { KmDatePickerComponent } from "../../../customElements/date-picker/km-da
 // Removed in favor of standalone km-date-picker component providers
 
 @Component({
-  selector: "spatial-unit-add-modal",
+  selector: "app-spatial-unit-add-modal",
   templateUrl: "./spatial-unit-add-modal.component.html",
   styleUrls: ["./spatial-unit-add-modal.component.css"],
   imports: [
@@ -199,11 +185,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
   }
 
   // Additional grid event handlers to match parent component
-  onRoleManagementFirstDataRendered(event: any): void {
+  onRoleManagementFirstDataRendered(_event: any): void {
     this.roleManagementHeaderHeightSetter();
   }
 
-  onRoleManagementColumnResized(event: any): void {
+  onRoleManagementColumnResized(_event: any): void {
     this.roleManagementHeaderHeightSetter();
   }
 
@@ -311,7 +297,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Ensure importer resources are fetched before reading converters/datasource types
     try {
       await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
-    } catch (error) {
+    } catch {
       
     }
 
@@ -333,11 +319,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
     } else {
       // Fetch access control data from server
       this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
-        next: (data) => {
+        next: (_data) => {
           this.prepareCreatorList();
           this.loadingData = false;
         },
-        error: (error) => {
+        error: (_error) => {
           // Set empty arrays to avoid errors
           this.resourcesCreatorRights = [];
           this.loadingData = false;
@@ -408,11 +394,11 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   prepareCreatorList() {
     if (this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
-      let creatorRights: string[] = [];
+      const creatorRights: string[] = [];
       
       this.kommonitorDataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
-        let key = roles.split('.')[0];
-        let role = roles.split('.')[1];
+        const key = roles.split('.')[0];
+        const role = roles.split('.')[1];
 
         if (role === 'unit-resources-creator' && !creatorRights.includes(key)) {
           creatorRights.push(key);
@@ -587,7 +573,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     }
   }
 
-  onChangeConverter(schema?: any) {
+  onChangeConverter(_schema?: any) {
     this.schema = this.converter.schemas ? this.converter.schemas[0] : undefined;
     this.mimeType = this.converter.mimeTypes ? this.converter.mimeTypes[0] : undefined;
     this.converterParameterValues = {};
@@ -627,7 +613,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // No need to update dropdown display or close dropdown - handled by km-line-pattern-picker
   }
 
-
   // Color picker logic removed; handled by km-color-picker
 
   // Date picker methods
@@ -635,7 +620,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Ensure valid date or set to today's date on blur
   // Date normalization handled by km-date-picker
-
 
   // Importer object building methods
   async buildImporterObjects() {
@@ -953,7 +937,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     fileReader.onload = (event: any) => {
       try {
         this.parseFromMetadataFile(event);
-      } catch (error) {
+      } catch {
         this.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
       }
     };
@@ -967,7 +951,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     fileReader.onload = (event: any) => {
       try {
         this.parseFromMappingConfigFile(event);
-      } catch (error) {
+      } catch {
         this.spatialUnitMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
       }
     };

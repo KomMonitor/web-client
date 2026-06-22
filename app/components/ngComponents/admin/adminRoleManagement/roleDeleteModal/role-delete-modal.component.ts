@@ -8,7 +8,7 @@ import { NotificationService } from "../../../common/notification/notification.s
 import { LoadingOverlayComponent } from "components/ngComponents/common/loading-overlay/loading-overlay.component";
 
 @Component({
-  selector: "role-delete-modal",
+  selector: "app-role-delete-modal",
   templateUrl: "./role-delete-modal.component.html",
   imports: [CommonModule, LoadingOverlayComponent],
   standalone: true,

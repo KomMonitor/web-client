@@ -9,7 +9,7 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
 }
 
 @Component({
-  selector: "role-actions-cell-renderer",
+  selector: "app-role-actions-cell-renderer",
   standalone: true,
   template: `
     <div class="btn-group btn-group-sm">

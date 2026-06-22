@@ -34,7 +34,7 @@ export class AdminTopicsManagementErrorHandlingService {
 }
 
 @Component({
-  selector: "admin-topics-management",
+  selector: "app-admin-topics-management",
   templateUrl: "./admin-topics-management.component.html",
   styleUrls: ["./admin-topics-management.component.css"],
   providers: [AdminTopicsManagementErrorHandlingService],

@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'georesource-batch-update-modal',
+  selector: 'app-georesource-batch-update-modal',
   templateUrl: './georesource-batch-update-modal.component.html',
   styleUrls: ['./georesource-batch-update-modal.component.css'],
   imports: [FormsModule, CommonModule],
@@ -177,12 +177,12 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
         }
         
         // set selectedConverter
-        if (newBatchList[i].mappingObj.converter && newBatchList[i].mappingObj.converter.hasOwnProperty('name')) {
+        if (newBatchList[i].mappingObj.converter && Object.prototype.hasOwnProperty.call(newBatchList[i].mappingObj.converter, 'name')) {
           row.selectedConverter = this.kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
         }
         
         // set selectedDatasourceType
-        if (newBatchList[i].mappingObj.dataSource && newBatchList[i].mappingObj.dataSource.hasOwnProperty('type')) {
+        if (newBatchList[i].mappingObj.dataSource && Object.prototype.hasOwnProperty.call(newBatchList[i].mappingObj.dataSource, 'type')) {
           row.selectedDatasourceType = this.kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
         }
       }
@@ -205,7 +205,7 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
     this.kommonitorBatchUpdateHelperService.onChangeSelectAllRows(this.allRowsSelected, this.batchList);
   }
 
-  onGeoresourceSelected(georesource: any, index: number): void {
+  onGeoresourceSelected(georesource: any, _index: number): void {
     this.kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(georesource);
   }
 

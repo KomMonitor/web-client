@@ -11,7 +11,7 @@ import { NotificationService } from "../../../common/notification/notification.s
 import { LoadingOverlayComponent } from "components/ngComponents/common/loading-overlay/loading-overlay.component";
 
 @Component({
-  selector: "role-edit-metadata-modal",
+  selector: "app-role-edit-metadata-modal",
   templateUrl: "./role-edit-metadata-modal.component.html",
   styleUrls: ["./role-edit-metadata-modal.component.scss"],
   imports: [CommonModule, FormsModule, LoadingOverlayComponent],

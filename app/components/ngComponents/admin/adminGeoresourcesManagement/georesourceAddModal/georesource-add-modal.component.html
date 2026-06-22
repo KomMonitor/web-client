@@ -106,7 +106,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle == 'symbol'">
+            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle === 'symbol'">
               <div class="form-group" align="center">
                 <label>Symbol*</label>
                 <br />
@@ -114,7 +114,7 @@
                 <div class="help-block with-errors"></div>
               </div>
             </div>
-            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle == 'text'">
+            <div class="col-md-3 col-sm-6 col-xs-12" *ngIf="selectedPoiMarkerStyle === 'text'">
               <div class="form-group" align="center">
                 <label>Text*</label>
                 <br />
@@ -130,8 +130,8 @@
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
               <div class="form-group" align="center">
-                <label *ngIf="selectedPoiMarkerStyle == 'symbol'">Farbe des Punktsymbols*</label>
-                <label *ngIf="selectedPoiMarkerStyle == 'text'">Textfarbe*</label>
+                <label *ngIf="selectedPoiMarkerStyle === 'symbol'">Farbe des Punktsymbols*</label>
+                <label *ngIf="selectedPoiMarkerStyle === 'text'">Textfarbe*</label>
                 <div class="dropdown customColorPicker">
                   <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i [style.background]="selectedPoiSymbolColor?.colorValue || '#ccc'"></i>
@@ -370,7 +370,7 @@
                         display: none;
                       }
                     </style>
-                    <admin-topics-management></admin-topics-management>
+                    <app-admin-topics-management></app-admin-topics-management>
                   </div>
                 </div>
               </div>
@@ -543,9 +543,9 @@
                       <option value="literal"> Manueller Begrenzungsrahmen </option>
                     </select>
 
-                    <div *ngIf="bboxType == 'ref'">
+                    <div *ngIf="bboxType === 'ref'">
                       <select [id]="'datasourceTypeParameter_georesourceAdd_bboxRef'" [(ngModel)]="bboxRefSpatialUnit" name="bboxRefSpatialUnit"
-                        class="form-control" [required]="bboxType == 'ref'">
+                        class="form-control" [required]="bboxType === 'ref'">
                         <option disabled selected value> -- Raumebene wählen -- </option>
                         <option *ngFor="let spatialUnit of kommonitorDataExchangeService.availableSpatialUnits" 
                           [value]="spatialUnit.spatialUnitId">{{spatialUnit.spatialUnitLevel}}</option>
@@ -555,25 +555,25 @@
                       </div>
                     </div>
                     
-                    <div *ngIf="bboxType == 'literal'">
+                    <div *ngIf="bboxType === 'literal'">
                       <label>Begrenzungsrahmen*</label>
                       <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_minx'" class="form-control" type="number" lang="us" 
-                        placeholder="-180" [required]="bboxType == 'literal'">
+                        placeholder="-180" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Minimale x-Koordinate (Longitude)</p>
                       </div>
                       <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_miny'" class="form-control" type="number" lang="us" 
-                        placeholder="-90" [required]="bboxType == 'literal'">
+                        placeholder="-90" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Minimale y-Koordinate (Latitude)</p>
                       </div>
                       <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxx'" class="form-control" type="number" lang="us" 
-                        placeholder="180" [required]="bboxType == 'literal'">
+                        placeholder="180" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Maximale x-Koordinate (Longitude)</p>
                       </div>
                       <input [id]="'datasourceTypeParameter_georesourceAdd_bbox_maxy'" class="form-control" type="number" lang="us" 
-                        placeholder="90" [required]="bboxType == 'literal'">
+                        placeholder="90" [required]="bboxType === 'literal'">
                       <div class="help-block">
                         <p>Maximale y-Koordinate (Latitude)</p>
                       </div>

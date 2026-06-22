@@ -13,7 +13,7 @@ import { FormsModule } from "@angular/forms";
 import { AdminTopicsManagementComponent } from "../../adminTopicsManagement/admin-topics-management.component";
 
 @Component({
-  selector: "georesource-add-modal",
+  selector: "app-georesource-add-modal",
   templateUrl: "./georesource-add-modal.component.html",
   styleUrls: ["./georesource-add-modal.component.css"],
   imports: [CommonModule, FormsModule, AdminTopicsManagementComponent],
@@ -228,7 +228,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
   private setupEventListeners(): void {
     // Listen for broadcast messages
-    const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
+    this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === 'availableRolesUpdate') {
         this.refreshRoles();
       } else if (data.msg === 'initialMetadataLoadingCompleted') {

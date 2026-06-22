@@ -17,12 +17,11 @@ import { EnvConfigService } from "../../../../../services/env-config-service/env
 import { TopicHierarchyService } from "../../../../../services/topic-hierarchy-service/topic-hierarchy.service";
 import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
-declare const $: any;
 declare const __env: any;
 declare const colorbrewer: any;
 
 @Component({
-  selector: "indicator-edit-metadata-modal",
+  selector: "app-indicator-edit-metadata-modal",
   templateUrl: "./indicator-edit-metadata-modal.component.html",
   styleUrls: ["./indicator-edit-metadata-modal.component.css"],
   imports: [FormsModule, CommonModule, FilterPipe],
@@ -233,7 +232,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
     }
 
     for (const key in colorbrewerExtended) {
-      if (colorbrewerExtended.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(colorbrewerExtended, key)) {
         const colorPalettes = colorbrewerExtended[key];
         
         const paletteEntry = {
@@ -483,7 +482,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       
       // apply breaks for spatial units:
       for (let i = 0; i < this.spatialUnitClassification.length; i++) {
-        for (let item of this.currentIndicatorDataset.defaultClassificationMapping.items) {
+        for (const item of this.currentIndicatorDataset.defaultClassificationMapping.items) {
           if (item.spatialUnitId == this.spatialUnitClassification[i].spatialUnitId) {
             this.spatialUnitClassification[i] = item;
             this.onBreaksChanged(i);
@@ -730,7 +729,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       this.envConfigService.baseUrlToKomMonitorDataAPI + "/indicators/" + this.currentIndicatorDataset.indicatorId,
       patchBody
     ).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessagePart = this.datasetName;
         this.broadcastService.broadcast('refreshIndicatorOverviewTable', { crudType: 'edit', targetIndicatorId: this.currentIndicatorDataset.indicatorId });
         this.loadingData = false;

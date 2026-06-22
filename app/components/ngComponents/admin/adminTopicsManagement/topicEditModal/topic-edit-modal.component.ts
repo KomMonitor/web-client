@@ -16,7 +16,7 @@ import { CommonModule } from "@angular/common";
 const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
 
 @Component({
-  selector: "topic-edit-modal",
+  selector: "app-topic-edit-modal",
   templateUrl: "./topic-edit-modal.component.html",
   styleUrls: ["./topic-edit-modal.component.css"],
   imports: [FormsModule, CommonModule, ReactiveFormsModule],

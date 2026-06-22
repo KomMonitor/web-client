@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ElementRef,
-  ViewChild,
-  AfterViewInit,
-  Inject,
-} from "@angular/core";
+import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 import { ConfigStorageService } from "../../../../../services/config-storage-service/config-storage.service";
@@ -25,7 +18,7 @@ import { AdminContentViewComponent } from "../../admin-content-view/admin-conten
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
-declare var $: any;
+declare let $: any;
 
 interface CodeMirrorEditor {
   getValue(): string;
@@ -42,13 +35,13 @@ interface LintingIssue {
 }
 
 @Component({
-  selector: "admin-app-config",
+  selector: "app-admin-app-config",
   templateUrl: "./admin-app-config.component.html",
   styleUrls: ["./admin-app-config.component.css"],
   imports: [ExpandableBoxComponent, CommonModule, AdminContentViewComponent],
   standalone: true,
 })
-export class AdminAppConfigComponent implements OnInit, AfterViewInit {
+export class AdminAppConfigComponent implements OnInit {
   @ViewChild("appConfigEditor") appConfigEditor!: ElementRef;
 
   loadingData = true;
@@ -127,11 +120,6 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
     this.init();
   }
 
-  ngAfterViewInit() {
-    // Initialize any adminLTE box widgets
-    //$('.box').boxWidget();
-  }
-
   async init() {
     try {
       if (!this.kommonitorScriptHelperService) {
@@ -197,7 +185,7 @@ export class AdminAppConfigComponent implements OnInit, AfterViewInit {
       },
     });
     this.codeMirrorEditor.setSize(null, 450);
-    this.codeMirrorEditor.on("change", (cMirror: any) => {
+    this.codeMirrorEditor.on("change", (_cMirror: any) => {
       this.appConfigTmp = this.codeMirrorEditor.getValue();
     });
     this.codeMirrorEditor.setValue(this.appConfigCurrent);

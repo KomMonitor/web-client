@@ -179,7 +179,7 @@ function createAdvancedCheckboxRenderer(
 }
 
 @Component({
-  selector: "role-add-modal",
+  selector: "app-role-add-modal",
   templateUrl: "./role-add-modal.component.html",
   styleUrls: ["./role-add-modal.component.scss"],
   imports: [

@@ -10,7 +10,7 @@ import { FormsModule } from "@angular/forms";
 import { DataExchangeService } from "../../../../../services/data-exchange-service/data-exchange.service";
 
 @Component({
-  selector: "admin-add-topic",
+  selector: "app-admin-add-topic",
   templateUrl: "./add-topic.component.html",
   styleUrls: ["./add-topic.component.css"],
   imports: [FormsModule],

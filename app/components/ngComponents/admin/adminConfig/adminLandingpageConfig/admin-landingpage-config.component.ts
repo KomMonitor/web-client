@@ -1,8 +1,8 @@
-import { Component, AfterViewInit, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { ConfigStorageService, LandingpageConfig } from '../../../../../services/config-storage-service/config-storage.service';
-import { firstValueFrom } from 'rxjs';
+
 import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files 
@@ -14,20 +14,13 @@ import { PipesModule } from "../../../../../pipes.module";
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
-declare var $: any;
+declare let $: any;
 
 interface CodeMirrorEditor {
   getValue(): string;
   setValue(value: string): void;
   setSize(width: number | null, height: number): void;
   on(event: string, callback: (cm: any) => void): void;
-}
-
-interface LintingIssue {
-  severity: 'error' | 'warning';
-  message: string;
-  from: { line: number; ch: number };
-  to: { line: number; ch: number };
 }
 
 @Component({
@@ -37,7 +30,7 @@ interface LintingIssue {
   imports: [PipesModule],
   standalone: true
 })
-export class AdminLandingpageConfigComponent implements AfterViewInit { 
+export class AdminLandingpageConfigComponent implements AfterViewInit {
 
   loadingData = true;
   codeMirrorEditor!: CodeMirrorEditor;
@@ -57,10 +50,6 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
     private ajskommonitorDataExchangeService: DataExchangeService,
   ) {}
 
-
-  ngOnInit() {
-  }
-
   ngAfterViewInit() {
     this.init();
   }
@@ -76,7 +65,7 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
           this.initCodeEditor();
           this.onChangeAppConfig();
         },
-        error: error => {
+        error: _error => {
           console.error('Default landingpageConfig not set, reverting to template');
         }
       });
@@ -108,7 +97,7 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
       mode: 'htmlmixed'
     });
     this.codeMirrorEditor.setSize(null, 450);
-    this.codeMirrorEditor.on('change', (cMirror: any) => {
+    this.codeMirrorEditor.on('change', (_cMirror: any) => {
       this.appConfigTmp = this.codeMirrorEditor.getValue();
       this.onChangeAppConfig();
     });

@@ -89,10 +89,10 @@ export class AdminComponent implements OnInit {
     if (this.dataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
       this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(
         (roles) => {
-          let key = roles.split(".")[0];
-          let role = roles.split(".")[1];
+          const key = roles.split(".")[0];
+          const role = roles.split(".")[1];
 
-          if (!this.userRoleInformation.hasOwnProperty(key)) {
+          if (!Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)) {
             this.userRoleInformation[key] = [];
           }
 
@@ -104,7 +104,7 @@ export class AdminComponent implements OnInit {
     if (this.dataExchangeService.currentKeycloakLoginGroups.length > 0) {
       this.dataExchangeService.currentKeycloakLoginGroups.forEach(
         (group, index) => {
-          let parts = group.split("/");
+          const parts = group.split("/");
           this.userGroupInformation[index] = [];
 
           parts.forEach((part) => {

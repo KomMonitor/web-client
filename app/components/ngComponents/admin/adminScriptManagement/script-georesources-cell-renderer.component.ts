@@ -5,7 +5,7 @@ import { ICellRendererParams } from "ag-grid-community";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 
 @Component({
-  selector: "script-georesources-cell-renderer",
+  selector: "app-script-georesources-cell-renderer",
   standalone: true,
   imports: [CommonModule],
   template: `
