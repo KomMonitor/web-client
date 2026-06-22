@@ -18,7 +18,9 @@ um einen verifizierten, umsetzbaren Plan.
   gelöst: `getCurrentKomMonitorLoginRoleIds()` → `[]` (Add-Modal-Muster: neue Ressource hat keine
   vorausgewählten Rollen). Details unten im Tier-1-Block. Build/Test/Lint grün (85 passed / 1 skipped,
   0 lint-errors); neuer Smoke-Spec ergänzt.
-- ⬜ Modal 2 · `georesource-edit-features-modal`
+- ✅ **Modal 2 · `georesource-edit-features-modal`** — erledigt (2026-06-22). Feature-Table-Rewire über
+  `FeatureTableDataGridHelperService` (A2), keine echte Porting-Lücke. Details unten im Tier-2-Block.
+  Build/Test/Lint grün (86 passed / 1 skipped, 0 lint-errors); neuer Smoke-Spec ergänzt.
 - ⬜ Modal 3 · `indicator-edit-features-modal` (Porting-Lücken #1 + #3)
 
 ## Ausgangslage (im Code verifiziert)
@@ -115,13 +117,20 @@ konsistent mit der laufenden Konsumenten-Migration).
 
 ### Tier 2 — Rewire + Feature-Table
 
-**Modal 2 · `georesource-edit-features-modal`**
-- Importer → `KommonitorImporterHelperService`; Feature-Table (`buildDataGrid_featureTable_spatialResource`,
-  `resourceType_georesource`) → `FeatureTableDataGridHelperService` ✅; MultiStep- & SingleFeatureMap-Token
-  **ungenutzt** → streichen.
-- DataExchange: `getBaseUrlToKomMonitorDataAPI_spatialResource`/`baseUrlToKomMonitorDataAPI`/
-  `syntaxHighlightJSON`/`availableSpatialUnits` ✅; `datePickerOptions` → Admin-Service.
-- Keine fehlende Methode außer der `datePickerOptions`-Quelle.
+**Modal 2 · `georesource-edit-features-modal`** — ✅ **erledigt (2026-06-22)**
+- Umgesetzt: Importer → `KommonitorImporterHelperService`; Feature-Table (`buildDataGrid_featureTable_spatialResource`,
+  `resourceType_georesource`, `featureTable_georesource_lastUpdate_timestamp_success/_failure`) →
+  `FeatureTableDataGridHelperService` (Feld `featureTableHelper`); DataExchange (`availableSpatialUnits`,
+  `syntaxHighlightJSON`, `getBaseUrlToKomMonitorDataAPI_spatialResource()`) → Facade ✅.
+- **Korrekturen ggü. dem ursprünglichen Plan** (im Code verifiziert):
+  - `kommonitorMultiStepFormHelperService` ist **doch genutzt** (Z. 230) → auf `MultiStepHelperServiceService`
+    umgestellt (`registerClickHandler(undefined)` — echte Methode verlangt 1 Param). Nur `SingleFeatureMap`-Token
+    war ungenutzt → gelöscht.
+  - `datePickerOptions` → **Konstante `DATE_PICKER_OPTIONS`** aus `data-exchange.constants` (nicht ein Admin-Service);
+    `baseUrlToKomMonitorDataAPI` → **`EnvConfigService`** (nicht auf der Facade).
+  - 3 zusätzliche Stellen mit optionalem Chaining (`?.resourceType_georesource`) nachgezogen. Keine weiteren
+    maskierten Typfehler (Grid-Call-Sites typkonform).
+- Legacy-jQuery-`datepicker`/`modal`-Muster unverändert (nur die Optionsquelle wechselt).
 
 ### Tier 3 — echtes Porting
 
@@ -144,7 +153,7 @@ konsistent mit der laufenden Konsumenten-Migration).
 
 1. ~~**Modal 4** (reiner Role-Mgmt-Rewire) → etabliert das Repoint-Rezept, keine Porting-Lücke.~~ ✅ erledigt (2026-06-22)
 2. ~~**Modal 1** (Rewire + Porting-Lücke #2 `getCurrentKomMonitorLoginRoleIds` + Admin-Service-Entscheidung).~~ ✅ erledigt (2026-06-22)
-3. **Modal 2** (Rewire + Feature-Table spatial, schon vorhanden).
+3. ~~**Modal 2** (Rewire + Feature-Table spatial, schon vorhanden).~~ ✅ erledigt (2026-06-22)
 4. **Modal 3** (Porting #1 Indicator-Feature-Table + #3 `$http`→`HttpClient`) — zuletzt, größter Brocken.
 
 **Vorab zu klären (Designentscheidung):** UI-Config-Getter der Georesource-Modals —

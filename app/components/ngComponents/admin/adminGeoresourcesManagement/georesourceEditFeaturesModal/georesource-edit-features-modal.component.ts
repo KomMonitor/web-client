@@ -1,20 +1,26 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
-  GridOptions,
-  GridApi,
   ColumnApi,
-  GridReadyEvent,
-  FirstDataRenderedEvent,
   ColumnResizedEvent,
+  FirstDataRenderedEvent,
+  GridApi,
+  GridOptions,
+  GridReadyEvent,
 } from 'ag-grid-community';
+import { Subscription } from 'rxjs';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 import { FormsModule } from '@angular/forms';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { DATE_PICKER_OPTIONS } from 'services/data-exchange-service/data-exchange.constants';
+import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 
 declare const __env: any;
 
@@ -27,13 +33,11 @@ declare const __env: any;
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
-  kommonitorMultiStepFormHelperService = inject<any>('kommonitorMultiStepFormHelperService' as any);
-  kommonitorDataGridHelperService = inject<any>('kommonitorDataGridHelperService' as any);
-  kommonitorImporterHelperService = inject<any>('kommonitorImporterHelperService' as any);
-  kommonitorSingleFeatureMapHelperService = inject<any>(
-    'kommonitorSingleFeatureMapHelperService' as any
-  );
+  kommonitorDataExchangeService = inject(DataExchangeService);
+  kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
+  featureTableHelper = inject(FeatureTableDataGridHelperService);
+  private multiStepHelperService = inject(MultiStepHelperServiceService);
+  private envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
 
@@ -175,16 +179,16 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         if ((window as any).$) {
           (window as any)
             .$('#georesourceEditFeaturesDatepickerStart')
-            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+            .datepicker(DATE_PICKER_OPTIONS);
           (window as any)
             .$('#georesourceEditFeaturesDatepickerEnd')
-            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+            .datepicker(DATE_PICKER_OPTIONS);
           (window as any)
             .$('#georesourceSingleFeatureDatepickerStart')
-            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+            .datepicker(DATE_PICKER_OPTIONS);
           (window as any)
             .$('#georesourceSingleFeatureDatepickerEnd')
-            .datepicker(this.kommonitorDataExchangeService.datePickerOptions);
+            .datepicker(DATE_PICKER_OPTIONS);
         }
       } catch (error) {
         console.warn('Date picker initialization failed:', error);
@@ -201,17 +205,17 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
             this.onEditGeoresourceFeatures(broadcastMsg.values);
           } else if (
             broadcastMsg.msg ===
-            'showLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource
+            'showLoadingIcon_' + this.featureTableHelper.resourceType_georesource
           ) {
             this.loadingData = true;
           } else if (
             broadcastMsg.msg ===
-            'hideLoadingIcon_' + this.kommonitorDataGridHelperService?.resourceType_georesource
+            'hideLoadingIcon_' + this.featureTableHelper.resourceType_georesource
           ) {
             this.loadingData = false;
           } else if (
             broadcastMsg.msg ===
-            'onDeleteFeatureEntry_' + this.kommonitorDataGridHelperService?.resourceType_georesource
+            'onDeleteFeatureEntry_' + this.featureTableHelper.resourceType_georesource
           ) {
             this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
               crudType: 'edit',
@@ -227,7 +231,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   onEditGeoresourceFeatures(georesourceDataset: any): void {
-    this.kommonitorMultiStepFormHelperService?.registerClickHandler();
+    this.multiStepHelperService.registerClickHandler(undefined);
 
     if (
       this.currentGeoresourceDataset &&
@@ -268,12 +272,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Feature table management
   private buildFeatureTable(): void {
     this.featureTableGridOptions =
-      this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+      this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
         'georesourceFeatureTable',
         [],
         [],
         undefined,
-        this.kommonitorDataGridHelperService.resourceType_georesource,
+        this.featureTableHelper.resourceType_georesource,
         this.enableDeleteFeatures
       );
   }
@@ -320,12 +324,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
         // Rebuild the grid options with new data
         this.featureTableGridOptions =
-          this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+          this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
             'georesourceFeatureTable',
             tmpRemainingHeaders,
             this.georesourceFeaturesGeoJSON.features,
             this.currentGeoresourceDataset.georesourceId,
-            this.kommonitorDataGridHelperService.resourceType_georesource,
+            this.featureTableHelper.resourceType_georesource,
             this.enableDeleteFeatures
           );
 
@@ -374,12 +378,12 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
       this.georesourceFeaturesGeoJSON
     ) {
       this.featureTableGridOptions =
-        this.kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource(
+        this.featureTableHelper.buildDataGrid_featureTable_spatialResource(
           'georesourceFeatureTable',
           this.remainingFeatureHeaders,
           this.georesourceFeaturesGeoJSON.features || [],
           this.currentGeoresourceDataset.georesourceId,
-          this.kommonitorDataGridHelperService.resourceType_georesource,
+          this.featureTableHelper.resourceType_georesource,
           this.enableDeleteFeatures
         );
 
@@ -403,7 +407,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
       this.http
         .delete(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
+          `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`
         )
         .subscribe({
           next: (_response: any) => {
@@ -597,7 +601,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     this.http
       .put(
-        `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
+        `${this.envConfigService.baseUrlToKomMonitorDataAPI}/georesources/${this.currentGeoresourceDataset.georesourceId}/features`,
         putBody
       )
       .subscribe({
