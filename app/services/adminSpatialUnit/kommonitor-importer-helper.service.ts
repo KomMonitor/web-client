@@ -1,7 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 
 // TypeScript interfaces for better type safety
 export interface ConverterDefinition {
@@ -249,10 +247,12 @@ export class KommonitorImporterHelperService {
     "attributes": []
   };
 
-  constructor(private http: HttpClient) {
+  private http = inject(HttpClient);
+
+  constructor() {
     // Get the target URL from environment or configuration
     this.targetUrlToImporterService = (window as any).__env?.targetUrlToImporterService || '/api/importer/';
-    
+
     // Initialize resources
     this.fetchResourcesFromImporter();
   }
@@ -591,6 +591,21 @@ export class KommonitorImporterHelperService {
       "timeseriesMappings": timeseriesMappings,
       "keepMissingOrNullValueIndicator": keepMissingOrNullValueIndicator,
       "attributeMappings": undefined
+    };
+  }
+
+  /**
+   * Build the PUT body for an indicator update (ported from legacy
+   * KommonitorImporterHelperService — see ADMIN_AREA_BRIDGE_MIGRATION.md, Modal 3).
+   */
+  buildPutBody_indicators(scopeProperties: any): any {
+    return {
+      "indicatorValues": [],
+      "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
+      "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
+      "permissions": scopeProperties.permissions,
+      "ownerId": scopeProperties.ownerId,
+      "isPublic": scopeProperties.isPublic
     };
   }
 

@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import {
-  GridOptions,
   GridApi,
+  GridOptions,
   GridReadyEvent
 } from 'ag-grid-community';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 // Declare environment variables
 declare const __env: any;
@@ -30,6 +30,9 @@ export class FeatureTableDataGridHelperService {
   // Store current resource ID for delete handlers
   private currentResourceId: string | undefined;
 
+  // Store current spatial unit ID for indicator delete/edit handlers
+  private currentSpatialUnitId: string | undefined;
+
   // Resource type constants
   readonly resourceType_spatialUnit = 'spatialUnit';
   readonly resourceType_georesource = 'georesource';
@@ -43,11 +46,9 @@ export class FeatureTableDataGridHelperService {
   featureTable_indicator_lastUpdate_timestamp_success: Date | undefined = undefined;
   featureTable_indicator_lastUpdate_timestamp_failure: Date | undefined = undefined;
 
-  constructor(
-    private broadcastService: BroadcastService,
-    private kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private http: HttpClient
-  ) {}
+  private broadcastService = inject(BroadcastService);
+  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private http = inject(HttpClient);
 
   /**
    * Build feature table data grid for spatial resources
@@ -368,7 +369,7 @@ export class FeatureTableDataGridHelperService {
 
     // Make DELETE request
     this.http.delete(url).subscribe({
-      next: (response: any) => {
+      next: () => {
 
 
         // Update timestamps
@@ -385,7 +386,7 @@ export class FeatureTableDataGridHelperService {
           recordId
         });
       },
-      error: (error) => {
+      error: () => {
 
 
         // Broadcast hide loading event
@@ -544,7 +545,7 @@ export class FeatureTableDataGridHelperService {
         'Content-Type': 'application/json'
       }
     }).subscribe({
-      next: (response: any) => {
+      next: () => {
 
 
         // On success: mark grid cell with green background
@@ -564,7 +565,7 @@ export class FeatureTableDataGridHelperService {
           this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
         }
       },
-      error: (error) => {
+      error: () => {
 
 
         // Reset cell value as an error occurred
@@ -586,6 +587,270 @@ export class FeatureTableDataGridHelperService {
         } else {
           this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
         }
+      }
+    });
+  }
+
+  /**
+   * Build feature table data grid for indicator resources.
+   * @param spatialUnitId - target spatial unit the indicator timeseries belongs to
+   */
+  buildDataGrid_featureTable_indicatorResource(
+    tableId: string,
+    headers: string[],
+    features: any[] = [],
+    resourceId?: string,
+    resourceType?: string,
+    enableDelete: boolean = false,
+    spatialUnitId?: string
+  ): GridOptions {
+    this.currentResourceId = resourceId;
+    this.currentSpatialUnitId = spatialUnitId;
+
+    const gridContainer = document.querySelector('#' + tableId);
+    if (!gridContainer) {
+      return this.buildIndicatorFeatureTableGridOptions(
+        headers, features, resourceId, resourceType, enableDelete, spatialUnitId
+      );
+    }
+
+    if (this.dataGridOptions_featureTable && this.gridApi_featureTable && gridContainer.childElementCount > 0) {
+      const newRowData = this.buildIndicatorFeatureTableRowData(features);
+      this.gridApi_featureTable.setRowData(newRowData);
+    } else {
+      this.dataGridOptions_featureTable = this.buildIndicatorFeatureTableGridOptions(
+        headers, features, resourceId, resourceType, enableDelete, spatialUnitId
+      );
+    }
+
+    return this.dataGridOptions_featureTable!;
+  }
+
+  private buildIndicatorFeatureTableGridOptions(
+    headers: string[],
+    features: any[],
+    resourceId?: string,
+    resourceType?: string,
+    enableDelete: boolean = false,
+    spatialUnitId?: string
+  ): any {
+    const columnDefs = this.buildIndicatorFeatureTableColumnConfig(headers, enableDelete, resourceId, spatialUnitId);
+    const rowData = this.buildIndicatorFeatureTableRowData(features);
+
+    return {
+      defaultColDef: {
+        editable: true,
+        sortable: true,
+        flex: 1,
+        minWidth: 150,
+        filter: true,
+        floatingFilter: true,
+        resizable: true,
+        wrapText: true,
+        autoHeight: true,
+        cellEditor: 'agLargeTextCellEditor',
+        cellStyle: {
+          'font-size': '12px',
+          'white-space': 'normal !important',
+          'line-height': '20px !important',
+          'word-break': 'break-word !important',
+          'padding-top': '17px',
+          'padding-bottom': '17px'
+        },
+        onCellValueChanged: (newValueParams: any) => {
+          this.handleIndicatorCellValueChanged(newValueParams, resourceId, spatialUnitId);
+        }
+      },
+      columnDefs: columnDefs,
+      rowData: rowData,
+      undoRedoCellEditing: true,
+      undoRedoCellEditingLimit: 10,
+      enableCellChangeFlash: true,
+      suppressRowClickSelection: true,
+      enableCellTextSelection: true,
+      ensureDomOrder: true,
+      pagination: true,
+      paginationPageSize: 20,
+      paginationPageSizeSelector: [10, 20, 50, 100],
+      suppressColumnVirtualisation: true,
+      onFirstDataRendered: () => {
+        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
+      },
+      onGridReady: (params: GridReadyEvent) => {
+        this.gridApi_featureTable = params.api;
+      },
+      onRowDataChanged: () => {
+        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
+      },
+      onModelUpdated: () => {
+        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
+      },
+      onViewportChanged: () => {
+        this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
+      }
+    };
+  }
+
+  private buildIndicatorFeatureTableColumnConfig(
+    headers: string[],
+    enableDelete: boolean,
+    datasetId?: string,
+    spatialUnitId?: string
+  ): any[] {
+    const columnDefs: any[] = [
+      {
+        headerName: 'DB-Record-Id',
+        field: 'fid',
+        pinned: 'left',
+        editable: false,
+        cellClass: 'grid-non-editable',
+        maxWidth: 125,
+        cellRenderer: (params: any) => {
+          const featureId = params.data[__env.FEATURE_ID_PROPERTY_NAME] || '';
+          let html =
+            `<button id="btn__indicator__deleteFeatureEntry__${datasetId}__${spatialUnitId}__${featureId}__${params.data.fid}" ` +
+            `class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" ` +
+            `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
+            `<i class="fas fa-trash"></i></button>`;
+          html += '&nbsp;&nbsp;';
+          html += params.data.fid ?? '';
+          return html;
+        }
+      },
+      { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: 'grid-non-editable', maxWidth: 125 },
+      { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 200, editable: false, cellClass: 'grid-non-editable' },
+      { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 125, editable: false, cellClass: 'grid-non-editable' },
+      { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, minWidth: 125, editable: false, cellClass: 'grid-non-editable' }
+    ];
+
+    // Date-keyed value columns are the only editable ones
+    for (const header of headers) {
+      columnDefs.push({ headerName: '' + header, field: '' + header, minWidth: 125 });
+    }
+
+    return columnDefs;
+  }
+
+  private buildIndicatorFeatureTableRowData(features: any[]): any[] {
+    if (!features || !Array.isArray(features)) {
+      return [];
+    }
+    return features.map(dataItem => {
+      // arisenFrom is currently never used
+      delete dataItem.arisenFrom;
+      return dataItem;
+    });
+  }
+
+  private registerIndicatorFeatureTableClickHandlers(resourceType?: string, enableDelete?: boolean): void {
+    if (!enableDelete) return;
+
+    setTimeout(() => {
+      const deleteButtons = document.querySelectorAll('.indicatorDeleteFeatureRecordBtn');
+      deleteButtons.forEach(button => {
+        button.removeEventListener('click', this.handleIndicatorFeatureDeleteClick);
+        button.addEventListener('click', this.handleIndicatorFeatureDeleteClick);
+      });
+    }, 100);
+  }
+
+  private handleIndicatorFeatureDeleteClick = (event: Event): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const button = event.target as HTMLElement;
+    const buttonElement = button.closest('button') || button;
+
+    // id: btn__indicator__deleteFeatureEntry__{datasetId}__{spatialUnitId}__{featureId}__{recordId}
+    const idParts = buttonElement.id.split('__');
+    if (idParts.length < 7) {
+      return;
+    }
+
+    const resourceType = idParts[1]; // 'indicator'
+    const datasetId = idParts[3];
+    const spatialUnitId = idParts[4];
+    const featureId = idParts[5];
+    const recordId = idParts[6];
+
+    this.broadcastService.broadcast(`showLoadingIcon_${resourceType}`, {});
+
+    const url =
+      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}` +
+      `/indicators/${datasetId}/${spatialUnitId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
+
+    this.http.delete(url).subscribe({
+      next: () => {
+        this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {
+          datasetId,
+          spatialUnitId,
+          featureId,
+          recordId
+        });
+      },
+      error: () => {
+        this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
+        this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+      }
+    });
+  };
+
+  private handleIndicatorCellValueChanged(newValueParams: any, datasetId?: string, spatialUnitId?: string): void {
+    // Only the indicator's feature id, the DB record id (fid) and the date-prefixed
+    // value columns are sent on update.
+    const json: any = JSON.parse(JSON.stringify(newValueParams.data));
+    const allowedProperties = [__env.FEATURE_ID_PROPERTY_NAME, 'fid'];
+
+    for (const key in json) {
+      if (Object.prototype.hasOwnProperty.call(json, key)) {
+        if (!key.includes(__env.indicatorDatePrefix) && !allowedProperties.includes(key)) {
+          delete json[key];
+        }
+      }
+    }
+    delete json[__env.VALID_START_DATE_PROPERTY_NAME];
+    delete json[__env.VALID_END_DATE_PROPERTY_NAME];
+    delete json[__env.FEATURE_NAME_PROPERTY_NAME];
+
+    // Empty value cells are transmitted as null
+    for (const key in json) {
+      if (Object.prototype.hasOwnProperty.call(json, key)) {
+        if (key.includes(__env.indicatorDatePrefix) && json[key] === '') {
+          json[key] = null;
+        }
+      }
+    }
+
+    const url =
+      `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}` +
+      `/indicators/${datasetId}/${spatialUnitId}/singleFeature/` +
+      `${newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME]}/singleFeatureRecord/${newValueParams.data.fid}`;
+
+    this.http.put(url, json, {
+      headers: { 'Content-Type': 'application/json' }
+    }).subscribe({
+      next: () => {
+        newValueParams.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === newValueParams.node.id ? { 'background-color': '#9DC89F' } : '';
+        newValueParams.api.refreshCells({
+          force: true,
+          columns: [newValueParams.column.getId()],
+          rowNodes: [newValueParams.node]
+        });
+        this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+      },
+      error: () => {
+        newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+        newValueParams.colDef.cellStyle = (p: any) =>
+          p.rowIndex.toString() === newValueParams.node.id ? { 'background-color': '#E79595' } : '';
+        newValueParams.api.refreshCells({
+          force: true,
+          columns: [newValueParams.column.getId()],
+          rowNodes: [newValueParams.node]
+        });
+        this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
       }
     });
   }

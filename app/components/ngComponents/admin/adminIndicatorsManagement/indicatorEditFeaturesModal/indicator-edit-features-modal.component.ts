@@ -1,13 +1,18 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AgGridAngular } from 'ag-grid-angular';
+import { GridOptions } from 'ag-grid-community';
+import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
-import { FormsModule } from '@angular/forms';
+import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 declare const $: any;
 
@@ -15,22 +20,21 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.css'],
-  imports: [FormsModule, FilterPipe],
+  imports: [FormsModule, FilterPipe, AgGridAngular],
   standalone: true,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
-  angularJsDataGridHelperService = inject<any>('kommonitorDataGridHelperService' as any);
-  angularJsImporterHelperService = inject<any>('kommonitorImporterHelperService' as any);
-  private angularJsMultiStepFormHelperService = inject<any>(
-    'kommonitorMultiStepFormHelperService' as any
-  );
-  private dataExchangeService = inject(DataExchangeService);
-  private dataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
+  private http = inject(HttpClient);
+  dataExchangeService = inject(DataExchangeService);
+  importerHelperService = inject(KommonitorImporterHelperService);
+  featureTableHelper = inject(FeatureTableDataGridHelperService);
+  private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
-  private envConfigService = inject(EnvConfigService);
+  protected envConfigService = inject(EnvConfigService);
+
+  featureTableGridOptions: GridOptions = {};
 
   @ViewChild('modal') modal!: ElementRef;
 
@@ -98,7 +102,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.timeseriesMappingReference = data.mapping;
       } else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
         if (this.currentIndicatorDataset) {
-          this.currentIndicatorDataset = this.angularJsDataExchangeService.getIndicatorMetadataById(
+          this.currentIndicatorDataset = this.dataExchangeService.getIndicatorMetadataById(
             this.currentIndicatorDataset.indicatorId
           );
         }
@@ -130,14 +134,15 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
     this.currentIndicatorDataset = indicatorDataset;
     this.resetIndicatorEditFeaturesForm();
-    this.angularJsDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
-      'indicatorFeatureTable',
-      [],
-      []
-    );
+    this.featureTableGridOptions =
+      this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
+        'indicatorFeatureTable',
+        [],
+        []
+      );
 
     // Register multi-step form handlers
-    this.angularJsMultiStepFormHelperService.registerClickHandler('indicatorEditFeaturesForm');
+    this.multiStepHelperService.registerClickHandler('indicatorEditFeaturesForm');
   }
 
   closeModal(): void {
@@ -151,9 +156,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.enableDeleteFeatures = false;
 
     // Reset edit banners
-    this.angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success =
+    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success =
       undefined;
-    this.angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure =
+    this.featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure =
       undefined;
 
     this.indicatorFeaturesJSON = undefined;
@@ -161,7 +166,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.overviewTableTargetSpatialUnitMetadata = undefined;
 
     // Set default spatial unit
-    for (const spatialUnitMetadataEntry of this.angularJsDataExchangeService
+    for (const spatialUnitMetadataEntry of this.dataExchangeService
       .availableSpatialUnits) {
       if (
         this.currentIndicatorDataset?.applicableSpatialUnits?.some(
@@ -173,10 +178,10 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       }
     }
 
-    this.roleManagementTableOptions = this.angularJsDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'indicatorEditFeaturesRoleManagementTable',
       this.roleManagementTableOptions,
-      this.angularJsDataExchangeService.accessControl,
+      this.dataExchangeService.accessControl,
       [],
       true
     );
@@ -217,20 +222,16 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.loadingData = true;
 
     const url =
-      this.angularJsDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       '/indicators/' +
       this.currentIndicatorDataset.indicatorId +
       '/' +
       this.overviewTableTargetSpatialUnitMetadata.spatialUnitId +
       '/without-geometry';
 
-    this.angularJsDataExchangeService
-      .$http({
-        url: url,
-        method: 'GET',
-      })
-      .then((response: any) => {
-        this.indicatorFeaturesJSON = response.data;
+    this.http.get(url).subscribe({
+      next: (response: any) => {
+        this.indicatorFeaturesJSON = response;
 
         const tmpRemainingHeaders: string[] = [];
 
@@ -246,27 +247,29 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
         this.remainingFeatureHeaders = tmpRemainingHeaders;
 
-        this.angularJsDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
-          'indicatorFeatureTable',
-          tmpRemainingHeaders,
-          this.indicatorFeaturesJSON,
-          this.currentIndicatorDataset.indicatorId,
-          this.angularJsDataGridHelperService.resourceType_indicator,
-          this.enableDeleteFeatures,
-          this.overviewTableTargetSpatialUnitMetadata.spatialUnitId
-        );
+        this.featureTableGridOptions =
+          this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
+            'indicatorFeatureTable',
+            tmpRemainingHeaders,
+            this.indicatorFeaturesJSON,
+            this.currentIndicatorDataset.indicatorId,
+            this.featureTableHelper.resourceType_indicator,
+            this.enableDeleteFeatures,
+            this.overviewTableTargetSpatialUnitMetadata.spatialUnitId
+          );
 
         this.loadingData = false;
-      })
-      .catch((error: any) => {
-        if (error.data) {
-          this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
+      },
+      error: (error: any) => {
+        if (error.error) {
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.error);
         } else {
-          this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
         }
         this.showErrorAlert();
         this.loadingData = false;
-      });
+      },
+    });
   }
 
   clearAllIndicatorFeatures(): void {
@@ -277,18 +280,14 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.loadingData = true;
 
     const url =
-      this.angularJsDataExchangeService.baseUrlToKomMonitorDataAPI +
+      this.envConfigService.baseUrlToKomMonitorDataAPI +
       '/indicators/' +
       this.currentIndicatorDataset.indicatorId +
       '/' +
       this.overviewTableTargetSpatialUnitMetadata.spatialUnitId;
 
-    this.angularJsDataExchangeService
-      .$http({
-        url: url,
-        method: 'DELETE',
-      })
-      .then((_response: any) => {
+    this.http.delete(url).subscribe({
+      next: () => {
         this.indicatorFeaturesJSON = undefined;
         this.remainingFeatureHeaders = [];
 
@@ -298,25 +297,27 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         });
 
         // Force empty feature overview table on successful deletion of entries
-        this.angularJsDataGridHelperService.buildDataGrid_featureTable_indicatorResource(
-          'indicatorFeatureTable',
-          [],
-          []
-        );
+        this.featureTableGridOptions =
+          this.featureTableHelper.buildDataGrid_featureTable_indicatorResource(
+            'indicatorFeatureTable',
+            [],
+            []
+          );
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.showSuccessAlert();
         this.loadingData = false;
-      })
-      .catch((error: any) => {
-        if (error.data) {
-          this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
+      },
+      error: (error: any) => {
+        if (error.error) {
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.error);
         } else {
-          this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
         }
         this.showErrorAlert();
         this.loadingData = false;
-      });
+      },
+    });
   }
 
   onChangeSelectedSpatialUnit(targetSpatialUnitMetadata: any): void {
@@ -338,9 +339,11 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       : [];
 
     if (this.currentIndicatorDataset) {
-      const permissionIds_ownerUnit = this.angularJsDataExchangeService
-        .getAccessControlById(this.currentIndicatorDataset.ownerId)
-        .permissions.filter(
+      const ownerAccessControl = this.dataExchangeService.getAccessControlById(
+        this.currentIndicatorDataset.ownerId
+      );
+      const permissionIds_ownerUnit = (ownerAccessControl?.permissions || [])
+        .filter(
           (permission: any) =>
             permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'
         )
@@ -350,7 +353,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     }
 
     // Set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.angularJsDataExchangeService.accessControl.forEach((item: any) => {
+    this.dataExchangeService.accessControl.forEach((item: any) => {
       if (this.currentIndicatorDataset) {
         if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
           item.datasetOwner = true;
@@ -360,10 +363,10 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       }
     });
 
-    this.roleManagementTableOptions = this.angularJsDataGridHelperService.buildRoleManagementGrid(
+    this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'indicatorEditFeaturesRoleManagementTable',
       this.roleManagementTableOptions,
-      this.angularJsDataExchangeService.accessControl,
+      this.dataExchangeService.accessControl,
       permissions,
       true
     );
@@ -420,12 +423,18 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     };
   }
 
+  get filteredConverters(): any[] {
+    return (this.importerHelperService.availableConverters || []).filter(
+      this.importerHelperService.filterConverters('indicator')
+    );
+  }
+
   async buildImporterObjects(): Promise<boolean> {
     this.converterDefinition = this.buildConverterDefinition();
     this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
     this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
 
-    const roleIds = this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+    const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
       this.roleManagementTableOptions
     );
 
@@ -442,7 +451,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     };
 
     this.putBody_indicators =
-      this.angularJsImporterHelperService.buildPutBody_indicators(scopeProperties);
+      this.importerHelperService.buildPutBody_indicators(scopeProperties);
 
     if (
       !this.converterDefinition ||
@@ -457,7 +466,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   buildConverterDefinition(): any {
-    return this.angularJsImporterHelperService.buildConverterDefinition(
+    return this.importerHelperService.buildConverterDefinition(
       this.converter,
       'converterParameter_indicatorEditFeatures_',
       this.schema,
@@ -467,16 +476,16 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      return await this.angularJsImporterHelperService.buildDatasourceTypeDefinition(
+      return await this.importerHelperService.buildDatasourceTypeDefinition(
         this.datasourceType,
         'datasourceTypeParameter_indicatorEditFeatures_',
         'indicatorDataSourceInput_editFeatures'
       );
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
       }
       this.showErrorAlert();
       this.loadingData = false;
@@ -486,7 +495,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   buildPropertyMappingDefinition(): any {
     const timeseriesMappingForImporter = this.timeseriesMappingReference || [];
-    return this.angularJsImporterHelperService.buildPropertyMapping_indicatorResource(
+    return this.importerHelperService.buildPropertyMapping_indicatorResource(
       this.spatialUnitRefKeyProperty,
       timeseriesMappingForImporter,
       this.keepMissingValues
@@ -512,7 +521,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     try {
       // Dry run first
       const updateIndicatorResponse_dryRun =
-        await this.angularJsImporterHelperService.updateIndicator(
+        await this.importerHelperService.updateIndicator(
           this.converterDefinition,
           this.datasourceTypeDefinition,
           this.propertyMappingDefinition,
@@ -522,12 +531,12 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         );
 
       if (
-        !this.angularJsImporterHelperService.importerResponseContainsErrors(
+        !this.importerHelperService.importerResponseContainsErrors(
           updateIndicatorResponse_dryRun
         )
       ) {
         // All good, really execute the request to import data against data management API
-        const updateIndicatorResponse = await this.angularJsImporterHelperService.updateIndicator(
+        const updateIndicatorResponse = await this.importerHelperService.updateIndicator(
           this.converterDefinition,
           this.datasourceTypeDefinition,
           this.propertyMappingDefinition,
@@ -543,9 +552,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
         this.successMessagePart = this.currentIndicatorDataset.indicatorName;
         this.importedFeatures =
-          this.angularJsImporterHelperService.getImportedFeaturesFromImporterResponse(
+          this.importerHelperService.getImportedFeaturesFromImporterResponse(
             updateIndicatorResponse
-          );
+          ) || [];
 
         this.showSuccessAlert();
         this.loadingData = false;
@@ -553,18 +562,19 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         // Errors occurred
         this.errorMessagePart =
           'Einige der zu importierenden Zeitreihen des Datensatzes weisen kritische Fehler auf';
-        this.importerErrors = this.angularJsImporterHelperService.getErrorsFromImporterResponse(
-          updateIndicatorResponse_dryRun
-        );
+        this.importerErrors =
+          this.importerHelperService.getErrorsFromImporterResponse(
+            updateIndicatorResponse_dryRun
+          ) || [];
 
         this.showErrorAlert();
         this.loadingData = false;
       }
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart = this.angularJsDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
       }
 
       this.showErrorAlert();
@@ -588,7 +598,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         permissions: [],
       };
 
-      const roleIds = this.angularJsDataGridHelperService.getSelectedRoleIds_roleManagementGrid(
+      const roleIds = this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
         this.roleManagementTableOptions
       );
       mappingConfigExport.permissions = roleIds;

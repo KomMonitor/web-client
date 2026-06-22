@@ -63,7 +63,7 @@
                         >
                           <option disabled selected value>-- Ziel-Raumebene wählen --</option>
                           @for (
-                            spatialUnit of angularJsDataExchangeService.availableSpatialUnits
+                            spatialUnit of dataExchangeService.availableSpatialUnits
                               | filter: filterOverviewTargetSpatialUnits();
                             track spatialUnit
                           ) {
@@ -140,32 +140,36 @@
                   </div>
                   <div>
                     @if (
-                      angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success
+                      featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success
                     ) {
                       <div style="background-color: #9dc89f">
                         <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
                         {{
-                          angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success
+                          featureTableHelper.featureTable_indicator_lastUpdate_timestamp_success
                         }}
                       </div>
                     }
                     @if (
-                      angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure
+                      featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure
                     ) {
                       <div style="background-color: #e79595">
                         <b>Letztes gescheitertes Update eines Einzeleintrags</b>
                         {{
-                          angularJsDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure
+                          featureTableHelper.featureTable_indicator_lastUpdate_timestamp_failure
                         }}
                       </div>
                     }
                   </div>
                   <div class="admin-table-wrapper featureTableWrapper">
-                    <table
+                    <ag-grid-angular
                       id="indicatorFeatureTable"
                       style="height: 50vh; width: 100%"
                       class="ag-theme-alpine"
-                    ></table>
+                      [gridOptions]="featureTableGridOptions"
+                      [rowData]="featureTableGridOptions.rowData || []"
+                      [columnDefs]="featureTableGridOptions.columnDefs || []"
+                    >
+                    </ag-grid-angular>
                   </div>
                   <input
                     type="button"
@@ -227,12 +231,7 @@
                           required
                         >
                           <option disabled selected value>-- Quellformat wählen --</option>
-                          @for (
-                            converter of angularJsImporterHelperService.availableConverters
-                              | filter
-                                : angularJsImporterHelperService.filterConverters('indicator');
-                            track converter
-                          ) {
+                          @for (converter of filteredConverters; track converter) {
                             <option [value]="converter">
                               {{ converter.name }}
                             </option>
@@ -348,7 +347,7 @@
                               >
                                 <option disabled selected value>-- Quelltyp wählen --</option>
                                 @for (
-                                  datasourceType of angularJsImporterHelperService.availableDatasourceTypes;
+                                  datasourceType of importerHelperService.availableDatasourceTypes;
                                   track datasourceType
                                 ) {
                                   <option [value]="datasourceType">
@@ -430,7 +429,7 @@
                         >
                           <option disabled selected value>-- Ziel-Raumebene wählen --</option>
                           @for (
-                            spatialUnit of angularJsDataExchangeService.availableSpatialUnits;
+                            spatialUnit of dataExchangeService.availableSpatialUnits;
                             track spatialUnit
                           ) {
                             <option [value]="spatialUnit">
@@ -442,7 +441,7 @@
                       </div>
                     </div>
                   </div>
-                  @if (angularJsDataExchangeService.enableKeycloakSecurity) {
+                  @if (envConfigService.enableKeycloakSecurity) {
                     <div>
                       <hr />
                       <br />

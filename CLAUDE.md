@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Agent workflow (read this)
 
 - **Never commit on your own.** Make the changes, run build/test/lint, and stop — leave staging and committing to the user. Only `git add`/`git commit` when explicitly asked.
+- **Always write commit messages in English** (even though much of the existing docs/history is German).
 - **Keep plan descriptions short** — concise, scannable bullets over long prose.
 
 ## What this is
@@ -125,6 +126,7 @@ The client is non-functional without these backends (configured via the runtime 
 - Path imports are baseUrl-relative to `app/` (e.g. `import { StartupService } from 'services/startup-service/startup.service'`), not just relative paths.
 - jQuery and Bootstrap JS are globals (set up in `main.ts` and loaded via `angular.json`); some components and vendored libs rely on `window.$`.
 - i18n via `@ngx-translate` (default language `de`, files in `app/assets/i18n/`) is set up but inconsistently used — many German labels are still hardcoded.
+- **Always write code comments in English**, regardless of any surrounding German comments.
 
 ## Branching
 
