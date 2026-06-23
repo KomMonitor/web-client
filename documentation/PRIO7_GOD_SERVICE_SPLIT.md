@@ -149,7 +149,7 @@ Konsumenten blieben durchgängig unverändert. Test-Baseline: 83 Suites / 124 Te
 
 **Offene Folgeprojekte (separat, nicht Teil des Splits):**
 - Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6) → **eigener Abschnitt unten**.
-- AngularJS-Bridge-Migration der 4 Admin-Modals (A1d-1).
+- ~~AngularJS-Bridge-Migration der 4 Admin-Modals (A1d-1).~~ ✅ **erledigt (2026-06-22)** — siehe Folgeprojekt-Abschnitt oben. ⚠️ Backend-Smoke-Test der Indikator-Feature-Tabelle (Modal 3) vor Release noch offen.
 - Optional: State-Felder auf Signals/`computed()` heben (v. a. B7-Aggregate).
 - Latenter Feature-Table-Header-Height-Bug (A1d-3).
 

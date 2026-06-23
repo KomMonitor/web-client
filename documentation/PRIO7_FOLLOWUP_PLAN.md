@@ -1,0 +1,88 @@
+# Prio 7 — Folgeprojekte nach dem God-Service-Split
+
+Plan für die verbleibende Arbeit nach Abschluss von Teil A + Teil B (siehe `PRIO7_GOD_SERVICE_SPLIT.md`).
+Stand: 2026-06-23, Branch `feature/migration-bootstrap-cleanup`.
+
+## Ausgangslage
+
+Der strukturelle Split ist vollständig ✅. `DataExchangeService` und der schlanke
+`KommonitorDataGridHelperService` delegieren extrahierte Member nur noch per Wrapper/Getter;
+Konsumenten rufen weiterhin `dataExchangeService.X`. Der Fan-in (~108 Konsumenten) ist daher
+unverändert. Die Bridge-Migration der 4 Admin-Modals ist seit 2026-06-22 erledigt.
+
+**Test-Baseline halten:** `npm run build` (EXIT 0) + `npm test` + `npm run lint` (0 errors)
+nach jedem Schritt. Node 24 (`.nvmrc`). Aktuell 83 Suites / 124 Tests.
+
+---
+
+## Hauptarbeit: Konsumenten-Migration (Facade-Wrapper abbauen)
+
+**Ziel:** Konsumenten direkt auf die Sub-Services hängen, danach Facade-Wrapper entfernen.
+Erst damit sinkt der Fan-in und die Facade kann letztlich verschwinden.
+
+**Rezept pro Sub-Service (1 PR):**
+1. `git grep "dataExchangeService\.<member>"` → Konsumentenliste.
+2. Betroffene Komponenten: Sub-Service injizieren, `this.dataExchangeService.X` → `this.<store>.X`
+   (Sichtbarkeit + HTML-Bindings mitziehen).
+3. `git grep` bestätigt 0 verbleibende Wrapper-Nutzer → Wrapper/Getter aus der Facade löschen.
+4. Build + Test + Lint grün.
+
+### Phase 1 — Reine Pass-through-Stores (risikoarm, mechanisch)
+
+In aufsteigender Konsumentenzahl:
+
+- [ ] **B6b `ProcessScriptMetadataStoreService`** (4 Konsumenten) — Pilot, etabliert das Muster.
+- [ ] **B2 `MetadataExportService`** (0–3 Konsumenten).
+- [ ] **B6c `TopicMetadataStoreService`** (11).
+- [ ] **B6e `GeoresourceMetadataStoreService`** (13) — inkl. WMS/WFS.
+- [ ] **B6d `IndicatorMetadataStoreService`** (15) — Glue beachten:
+      `modifyIndicatorApplicableSpatialUnitsForLoginRoles` setzt zusätzlich B4-State
+      `displayableIndicators_keywordFiltered` → Wrapper mitmigrieren oder bewusst behalten.
+- [ ] **B6a `SpatialUnitMetadataStoreService`** (23).
+
+### Phase 2 — B1 `IndicatorValueService` (Glue beachten)
+
+- [ ] Parameterlose Utilities direkt umhängen: `indicatorValueIsNoData`, `syntaxHighlightJSON` (25!),
+      `formatIndicatorNameForLabel`, `createDualListInputArray`.
+- [ ] Precision-Formatter (`getIndicatorValue_asNumber/_asFormattedText/_asFixedPrecisionNumber`,
+      `getIndicatorValueFromArray_asNumber`) brauchen `SelectionStateService.resolveSelectedPrecision`.
+      → Konsument Precision selbst auflösen lassen **oder** als dünne Facade behalten.
+
+### Phase 3 — Breit gestreute State-Felder (Smoke-Test nötig)
+
+- [ ] **B3 `AccessControlService`** — `accessControl` (18 Leser) u. a. ⚠️ Auth-kritisch,
+      ohne Keycloak nicht laufzeit-QA-bar.
+- [ ] **B7 `SelectionStateService`** — `selectedIndicator` (21), `selectedDate` (18),
+      `selectedSpatialUnit` (14). ⚠️ Karte/Diagramme betroffen → Smoke-Test vor Release.
+- [ ] **B5 `TopicHierarchyStoreService`** — Builder-Wrapper (`buildTopic*Hierarchy`) lesen
+      Facade-State und reichen ihn durch → mitmigrieren oder bewusst behalten.
+
+**Glue-Wrapper, die nicht 1:1 umhängbar sind** (mitmigrieren oder bewusst behalten):
+Precision-Formatter, `modifyIndicatorApplicableSpatialUnitsForLoginRoles`, B5-Builder-Wrapper.
+
+---
+
+## Begleitende Aufräumarbeiten
+
+- [x] **Doku-Korrektur:** In `PRIO7_GOD_SERVICE_SPLIT.md` den veralteten Eintrag „AngularJS-Bridge-
+      Migration der 4 Admin-Modals (A1d-1)" aus der Liste offener Folgeprojekte (Z. 152) als erledigt
+      markiert — seit 2026-06-22 erledigt. ✅ (2026-06-23)
+- [ ] **Backend-Smoke-Test** der Indikator-Feature-Tabelle (Bridge-Modal 3) vor Release —
+      backend-/Keycloak-gebunden, noch nicht QA-bar.
+
+## Optionale / spätere Arbeiten
+
+- [ ] **State-Felder auf Signals/`computed()` heben** — v. a. die B7-Aggregate
+      (`allFeatures*`/`selectedFeatures*`). Bisher plain Fields (verhaltensgleich, niedrigstes Risiko).
+- [ ] **Latenter Feature-Table-Header-Height-Bug** (A1d-3) — `headerHeightSetter` sollte vermutlich
+      `gridApi_featureTable` statt des entfernten `gridApi_spatialUnits` setzen; Header-Höhe der
+      Feature-Tabelle wurde nie angewendet. Echte Verhaltensänderung → separater Bugfix.
+
+---
+
+## Empfohlene Reihenfolge
+
+1. Doku-Korrektur (Z. 152) — trivial, sofort.
+2. Phase 1, beginnend mit `ProcessScript` als Pilot.
+3. Phase 2 (B1), dann Phase 3 (B3/B7/B5) mit Smoke-Tests.
+4. Optionale Arbeiten nach Bedarf.
