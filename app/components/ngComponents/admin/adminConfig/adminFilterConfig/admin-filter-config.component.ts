@@ -21,6 +21,7 @@ import { ScriptHelperService } from '../../../../../services/script-helper-servi
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
 import { NotificationService } from '../../../common/notification/notification.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
+import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 
 @Component({
   selector: 'app-admin-filter-config',
