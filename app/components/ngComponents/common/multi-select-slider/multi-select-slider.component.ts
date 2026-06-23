@@ -1,5 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as noUiSlider from 'nouislider';
 
@@ -8,10 +20,9 @@ import * as noUiSlider from 'nouislider';
   selector: 'multi-select-slider',
   templateUrl: './multi-select-slider.component.html',
   styleUrls: ['./multi-select-slider.component.scss'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
-
   @ViewChild('sliderContainer') sliderContainer!: ElementRef;
 
   @Input() range: number[] = [0, 100];
@@ -25,32 +36,30 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
   defaultStartPosition: number = 0.25; // index (between 0 and 1, as there is only min and max)
   selectedValue!: number;
 
-  constructor(
-    private cdr: ChangeDetectorRef
-  ) { }
+  private cdr = inject(ChangeDetectorRef);
 
   ngAfterViewInit() {
     this.sliderInstance = noUiSlider.create(this.sliderContainer.nativeElement, {
       behaviour: 'drag',
       range: {
         min: 0,
-        max: this.range.length - 1
+        max: this.range.length - 1,
       },
       start: this.defaultStartPosition,
       tooltips: false,
-      connect: false
+      connect: false,
     });
 
     this.selectedValue = Math.ceil(this.range[1] * this.defaultStartPosition);
 
     this.sliderInstance.on('change', (values, handle, unencoded) => {
       this.selectedValue = Math.ceil(this.range[1] * unencoded[0]);
-      this.cdr.detectChanges()
+      this.cdr.detectChanges();
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['range']) {
+    if (changes['range'] && this.sliderInstance) {
       this.sliderInstance.updateOptions({
         start: this.defaultStartPosition,
       });
@@ -62,12 +71,11 @@ export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
   addSelectedValue() {
     let value = this.selectedValue;
 
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       value = parseInt(value);
     }
 
-    if (this.selectedValues.includes(value))
-      return;
+    if (this.selectedValues.includes(value)) return;
 
     this.selectedValues.push(value);
     this.selectedValues.sort((a, b) => a - b);
