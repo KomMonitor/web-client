@@ -27,7 +27,7 @@ declare const __env: any;
 @Component({
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
-  styleUrls: ['./georesource-edit-features-modal.component.css'],
+  styleUrls: ['./georesource-edit-features-modal.component.scss'],
   imports: [AgGridAngular, FormsModule, SingleFeatureEditComponent],
   standalone: true,
 })

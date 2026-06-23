@@ -30,7 +30,7 @@ interface BatchListItem {
 @Component({
   selector: 'app-indicator-batch-update-modal',
   templateUrl: './indicator-batch-update-modal.component.html',
-  styleUrls: ['./indicator-batch-update-modal.component.css'],
+  styleUrls: ['./indicator-batch-update-modal.component.scss'],
   imports: [FormsModule, CommonModule],
   standalone: true,
 })

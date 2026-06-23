@@ -18,7 +18,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 @Component({
   selector: 'app-georesource-add-modal',
   templateUrl: './georesource-add-modal.component.html',
-  styleUrls: ['./georesource-add-modal.component.css'],
+  styleUrls: ['./georesource-add-modal.component.scss'],
   imports: [FormsModule, AdminTopicsManagementComponent],
   standalone: true,
 })

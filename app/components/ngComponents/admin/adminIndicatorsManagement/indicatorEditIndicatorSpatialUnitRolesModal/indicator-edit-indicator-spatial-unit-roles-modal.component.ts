@@ -15,7 +15,7 @@ declare const $: any;
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
-  styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.css'],
+  styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.scss'],
   imports: [FormsModule, FilterPipe],
   standalone: true,
 })

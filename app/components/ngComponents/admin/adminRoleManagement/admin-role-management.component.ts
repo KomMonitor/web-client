@@ -28,7 +28,7 @@ interface AccessControlTableEntry extends AccessControlMetadata {
 @Component({
   selector: 'app-admin-role-management',
   templateUrl: './admin-role-management.component.html',
-  styleUrls: ['./admin-role-management.component.css'],
+  styleUrls: ['./admin-role-management.component.scss'],
   imports: [
     FormsModule,
     AgGridAngular,

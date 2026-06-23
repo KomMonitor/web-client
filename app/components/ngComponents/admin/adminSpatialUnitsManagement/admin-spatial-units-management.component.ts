@@ -28,7 +28,7 @@ interface RefreshBroadcastValues {
 @Component({
   selector: 'app-admin-spatial-units-management',
   templateUrl: './admin-spatial-units-management.component.html',
-  styleUrls: ['./admin-spatial-units-management.component.css'],
+  styleUrls: ['./admin-spatial-units-management.component.scss'],
   imports: [ExpandableBoxComponent, AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
 })

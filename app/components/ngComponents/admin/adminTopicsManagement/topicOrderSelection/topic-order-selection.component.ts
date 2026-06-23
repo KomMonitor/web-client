@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-topic-order-selection',
   templateUrl: './topic-order-selection.component.html',
-  styleUrls: ['./topic-order-selection.component.css'],
+  styleUrls: ['./topic-order-selection.component.scss'],
   imports: [FormsModule],
   standalone: true,
 })

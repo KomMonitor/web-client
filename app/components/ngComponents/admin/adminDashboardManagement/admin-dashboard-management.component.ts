@@ -90,7 +90,7 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
 @Component({
   selector: 'app-admin-dashboard-management',
   templateUrl: './admin-dashboard-management.component.html',
-  styleUrls: ['./admin-dashboard-management.component.css'],
+  styleUrls: ['./admin-dashboard-management.component.scss'],
   imports: [SmallBoxComponent, TranslateModule, NgxEchartsDirective, AdminContentViewComponent],
   providers: [provideEchartsCore({ echarts })],
   standalone: true,

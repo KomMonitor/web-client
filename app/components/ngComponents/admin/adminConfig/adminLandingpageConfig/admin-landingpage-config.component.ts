@@ -29,7 +29,7 @@ interface CodeMirrorEditor {
 @Component({
   selector: 'app-admin-landingpage-config',
   templateUrl: './admin-landingpage-config.component.html',
-  styleUrls: ['./admin-landingpage-config.component.css'],
+  styleUrls: ['./admin-landingpage-config.component.scss'],
   imports: [PipesModule],
   standalone: true,
 })

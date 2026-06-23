@@ -4,7 +4,7 @@ import { Component, Input, TemplateRef } from '@angular/core';
 @Component({
   selector: 'app-admin-content-view',
   templateUrl: './admin-content-view.component.html',
-  styleUrls: ['./admin-content-view.component.css'],
+  styleUrls: ['./admin-content-view.component.scss'],
   imports: [CommonModule],
   standalone: true,
 })

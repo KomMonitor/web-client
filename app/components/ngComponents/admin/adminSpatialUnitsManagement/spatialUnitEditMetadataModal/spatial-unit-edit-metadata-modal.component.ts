@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-spatial-unit-edit-metadata-modal',
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-metadata-modal.component.css'],
+  styleUrls: ['./spatial-unit-edit-metadata-modal.component.scss'],
   providers: [],
   imports: [FormsModule, CommonModule, KmColorPickerComponent, KmLinePatternPickerComponent],
   standalone: true,

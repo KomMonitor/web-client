@@ -13,7 +13,7 @@ export interface ScriptMetadata {
 @Component({
   selector: 'app-script-step-metadata',
   templateUrl: './script-step-metadata.component.html',
-  styleUrls: ['./script-step-metadata.component.css'],
+  styleUrls: ['./script-step-metadata.component.scss'],
   standalone: true,
   imports: [FormsModule],
 })

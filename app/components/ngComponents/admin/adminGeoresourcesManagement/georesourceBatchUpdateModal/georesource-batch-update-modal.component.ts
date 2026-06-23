@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-georesource-batch-update-modal',
   templateUrl: './georesource-batch-update-modal.component.html',
-  styleUrls: ['./georesource-batch-update-modal.component.css'],
+  styleUrls: ['./georesource-batch-update-modal.component.scss'],
   imports: [FormsModule],
   standalone: true,
 })

@@ -37,7 +37,7 @@ interface LintingIssue {
 @Component({
   selector: 'app-admin-app-config',
   templateUrl: './admin-app-config.component.html',
-  styleUrls: ['./admin-app-config.component.css'],
+  styleUrls: ['./admin-app-config.component.scss'],
   imports: [ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
 })
