@@ -12,6 +12,7 @@ import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
 
 interface PieSeriesDataItem {
   name: string;
@@ -98,6 +99,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private translateService = inject(TranslateService);
   protected dataExchange = inject(DataExchangeService);
+  private processScriptStore = inject(ProcessScriptMetadataStoreService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -166,7 +168,7 @@ export class AdminDashboardManagementComponent implements OnInit {
     this.indicatorCount.set(String(d.availableIndicators?.length ?? 0));
     this.georesourceCount.set(String(d.availableGeoresources?.length ?? 0));
     this.spatialUnitCount.set(String(d.availableSpatialUnits?.length ?? 0));
-    this.indicatorScriptCount.set(String(d.availableProcessScripts?.length ?? 0));
+    this.indicatorScriptCount.set(String(this.processScriptStore.availableProcessScripts?.length ?? 0));
 
     const mainTopics = (d.availableTopics ?? []).filter((t: any) => t.topicType === 'main');
     const subTopics = collectSubTopics(mainTopics);

@@ -274,11 +274,6 @@ export class DataExchangeService {
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
-  // Prio7 B6b: process-script metadata lives in ProcessScriptMetadataStoreService; facade getter keeps consumers unchanged
-  get availableProcessScripts(): any[] {
-    return this.processScriptStore.availableProcessScripts;
-  }
-
   topicIndicatorHierarchy_forOrderView: any[] = [];
 
   availablePoiMarkerColors = [
@@ -776,7 +771,7 @@ export class DataExchangeService {
   }
 
   async fetchIndicatorScriptsMetadata() {
-    this.setProcessScripts(
+    this.processScriptStore.setProcessScripts(
       await this.cacheHelperService.fetchProcessScriptsMetadata(this.currentKeycloakLoginRoles)
     );
   }
@@ -813,10 +808,6 @@ export class DataExchangeService {
 
   deleteSingleGeoresourceMetadata(georesourceId) {
     this.georesourceStore.deleteSingleGeoresourceMetadata(georesourceId);
-  }
-
-  setProcessScripts(scriptsArray) {
-    this.processScriptStore.setProcessScripts(scriptsArray);
   }
 
   setIndicators(indicatorsArray) {
@@ -912,7 +903,7 @@ export class DataExchangeService {
   private buildComputationIndicatorHierarchy() {
     this.topicHierarchyStore.buildComputationIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
-      this.availableProcessScripts
+      this.processScriptStore.availableProcessScripts
     );
   }
 
@@ -941,7 +932,7 @@ export class DataExchangeService {
   private buildHeadlineIndicatorHierarchy() {
     this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
-      this.availableProcessScripts
+      this.processScriptStore.availableProcessScripts
     );
   }
 

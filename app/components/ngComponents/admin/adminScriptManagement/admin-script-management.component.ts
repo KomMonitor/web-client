@@ -10,6 +10,7 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { ScriptIndicatorsCellRendererComponent } from './script-indicators-cell-renderer.component';
 import { ScriptGeoresourcesCellRendererComponent } from './script-georesources-cell-renderer.component';
@@ -27,6 +28,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
   dataExchangeService = inject(DataExchangeService);
+  private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
@@ -138,7 +140,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   }
 
   public initializeOrRefreshOverviewTable(): void {
-    const scripts = this.dataExchangeService.availableProcessScripts;
+    const scripts = this.processScriptStore.availableProcessScripts;
     if (scripts && scripts.length >= 0) {
       this.loadingData = false;
       this.initializationCompleted = true;
@@ -163,11 +165,11 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     } else if (crudType === 'delete') {
       const idsToDelete = Array.isArray(scriptId) ? scriptId : [scriptId];
       for (const id of idsToDelete) {
-        const idx = this.dataExchangeService.availableProcessScripts.findIndex(
+        const idx = this.processScriptStore.availableProcessScripts.findIndex(
           (s: any) => s.scriptId === id
         );
         if (idx > -1) {
-          this.dataExchangeService.availableProcessScripts.splice(idx, 1);
+          this.processScriptStore.availableProcessScripts.splice(idx, 1);
         }
       }
       this.initializeOrRefreshOverviewTable();

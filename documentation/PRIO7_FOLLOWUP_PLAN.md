@@ -31,7 +31,12 @@ Erst damit sinkt der Fan-in und die Facade kann letztlich verschwinden.
 
 In aufsteigender Konsumentenzahl:
 
-- [ ] **B6b `ProcessScriptMetadataStoreService`** (4 Konsumenten) — Pilot, etabliert das Muster.
+- [x] **B6b `ProcessScriptMetadataStoreService`** ✅ (2026-06-23) — Pilot. Nur **2 Live-Konsumenten**
+      (`admin-script-management`, `admin-dashboard-management`) direkt auf den Store umgehängt;
+      facade-interne Reads (Hierarchie-Builder + `fetchIndicatorScriptsMetadata`) repointet, Getter +
+      `setProcessScripts`-Wrapper aus der Facade entfernt. Übersprungen (tot): `indicator-delete-modal`
+      (providerloser Bridge-Token `'kommonitorDataExchangeService'` → Bridge-Cleanup) +
+      `kommonitor-individual-indicator-computation` (AngularJS reference-only). Build/Test/Lint grün.
 - [ ] **B2 `MetadataExportService`** (0–3 Konsumenten).
 - [ ] **B6c `TopicMetadataStoreService`** (11).
 - [ ] **B6e `GeoresourceMetadataStoreService`** (13) — inkl. WMS/WFS.
