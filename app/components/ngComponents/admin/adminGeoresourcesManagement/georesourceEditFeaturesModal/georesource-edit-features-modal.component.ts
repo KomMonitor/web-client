@@ -18,6 +18,7 @@ import { SingleFeatureEditComponent } from 'components/ngComponents/common/singl
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { DATE_PICKER_OPTIONS } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
@@ -34,6 +35,7 @@ declare const __env: any;
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
@@ -163,7 +165,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.attributeMapping_attributeType =
       this.kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
     this.availableDatasourceTypes = this.kommonitorImporterHelperService.availableDatasourceTypes;
-    this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+    this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
   }
 
   private initializeMappingConfigStructure(): void {

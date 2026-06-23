@@ -993,7 +993,7 @@
                               >
                                 <option disabled selected value>-- Raumebene wählen --</option>
                                 @for (
-                                  spatialUnit of kommonitorDataExchangeService.availableSpatialUnits;
+                                  spatialUnit of spatialUnitStore.availableSpatialUnits;
                                   track spatialUnit
                                 ) {
                                   <option [value]="spatialUnit.spatialUnitId">

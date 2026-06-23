@@ -56,7 +56,7 @@
                   >
                     <option disabled selected value>-- Ziel-Raumebene wählen --</option>
                     @for (
-                      spatialUnit of dataExchangeService.availableSpatialUnits
+                      spatialUnit of spatialUnitStore.availableSpatialUnits
                         | filter: filterOverviewTargetSpatialUnits();
                       track spatialUnit
                     ) {
@@ -409,7 +409,7 @@
                   >
                     <option disabled selected value>-- Ziel-Raumebene wählen --</option>
                     @for (
-                      spatialUnit of dataExchangeService.availableSpatialUnits;
+                      spatialUnit of spatialUnitStore.availableSpatialUnits;
                       track spatialUnit
                     ) {
                       <option [value]="spatialUnit">

@@ -11,6 +11,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 declare const __env: any;
 declare const colorbrewer: any;
@@ -31,6 +32,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   protected envConfigService = inject(EnvConfigService);
   protected dataExchangeService = inject(DataExchangeService);
   protected topicStore = inject(TopicMetadataStoreService);
+  protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
   @ViewChild('modal') modal!: ElementRef;
 
@@ -252,8 +254,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   onNumClassesChanged(numClasses: number): void {
     this.numClassesPerSpatialUnit = numClasses;
-    for (let i = 0; i < this.dataExchangeService.availableSpatialUnits.length; i++) {
-      const spatialUnit = this.dataExchangeService.availableSpatialUnits[i];
+    for (let i = 0; i < this.spatialUnitStore.availableSpatialUnits.length; i++) {
+      const spatialUnit = this.spatialUnitStore.availableSpatialUnits[i];
       this.spatialUnitClassification[i] = {
         spatialUnitId: spatialUnit.spatialUnitId,
         breaks: [],
@@ -404,8 +406,8 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     this.indicatorLowestSpatialUnitMetadataObjectForComputation = null;
 
-    for (let i = 0; i < this.dataExchangeService.availableSpatialUnits.length; i++) {
-      const spatialUnitMetadata = this.dataExchangeService.availableSpatialUnits[i];
+    for (let i = 0; i < this.spatialUnitStore.availableSpatialUnits.length; i++) {
+      const spatialUnitMetadata = this.spatialUnitStore.availableSpatialUnits[i];
       if (
         spatialUnitMetadata.spatialUnitLevel ===
         this.currentIndicatorDataset.lowestSpatialUnitForComputation

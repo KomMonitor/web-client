@@ -58,7 +58,17 @@ In aufsteigender Konsumentenzahl:
 - [ ] **B6d `IndicatorMetadataStoreService`** (15) — Glue beachten:
       `modifyIndicatorApplicableSpatialUnitsForLoginRoles` setzt zusätzlich B4-State
       `displayableIndicators_keywordFiltered` → Wrapper mitmigrieren oder bewusst behalten.
-- [ ] **B6a `SpatialUnitMetadataStoreService`** (23).
+- [x] **B6a `SpatialUnitMetadataStoreService`** ✅ (2026-06-23). **14 Dateien** auf `spatialUnitStore`
+      umgehängt: admin-dashboard, georesource-add-modal (+HTML), georesource-edit-features-modal,
+      indicator-add-modal (nur Service-Präfix), indicator-batch-update-modal (+HTML),
+      indicator-edit-features-modal (+HTML), indicator-edit-metadata-modal (+HTML, inkl.
+      `getSpatialUnitMetadataById`), kommonitor-legend, kommonitor-map, indicator-add, data-setup
+      (service + component), kommonitor-filter. Facade-interne Reads + `setSpatialUnits`-Call repointet;
+      Getter `availableSpatialUnits` + Wrapper `setSpatialUnits`/`getSpatialUnitMetadataById` entfernt.
+      **Korrektur zum Katalog:** admin-spatial-units-management + spatial-unit-add/edit-features/edit-metadata-modal
+      **NICHT** umgehängt — ihr Feld `kommonitorDataExchangeService` injiziert die **andere** Klasse
+      `adminSpatialUnit/KommonitorDataExchangeService` (eigener `availableSpatialUnits`-Getter), nicht die Facade.
+      Übersprungen (tot): indicator-delete-modal (Bridge-Token). Build/Test/Lint grün.
 
 ### Phase 2 — B1 `IndicatorValueService` (Glue beachten)
 

@@ -84,10 +84,6 @@ export class DataExchangeService {
   set selectedIndicator(v: IndicatorsDataset) {
     this.selectionState.selectedIndicator = v;
   }
-  // Prio7 B6a: spatial-unit metadata lives in SpatialUnitMetadataStoreService; facade getter keeps consumers unchanged
-  get availableSpatialUnits(): SpatialUnit[] {
-    return this.spatialUnitStore.availableSpatialUnits;
-  }
   // Prio7 B6e: georesource/WMS/WFS state lives in GeoresourceMetadataStoreService; facade getters keep consumers unchanged
   get availableWmsDatasets(): WmsDataset[] {
     return this.georesourceStore.availableWmsDatasets;
@@ -749,7 +745,7 @@ export class DataExchangeService {
   }
 
   async fetchSpatialUnitsMetadata(keycloakRolesArray) {
-    this.setSpatialUnits(
+    this.spatialUnitStore.setSpatialUnits(
       await this.cacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray)
     );
   }
@@ -822,10 +818,6 @@ export class DataExchangeService {
     this.georesourceStore.setGeoresources(georesourcesArray);
   }
 
-  setSpatialUnits(spatialUnitsArray) {
-    this.spatialUnitStore.setSpatialUnits(spatialUnitsArray);
-  }
-
   addSingleIndicatorMetadata(indicatorMetadata) {
     this.indicatorStore.addSingleIndicatorMetadata(indicatorMetadata);
   }
@@ -852,10 +844,6 @@ export class DataExchangeService {
 
   getGeoresourceMetadataById(georesourceId) {
     return this.georesourceStore.getGeoresourceMetadataById(georesourceId);
-  }
-
-  getSpatialUnitMetadataById(spatialUnitId) {
-    return this.spatialUnitStore.getSpatialUnitMetadataById(spatialUnitId);
   }
 
   deleteSingleIndicatorMetadata(indicatorId) {
@@ -909,7 +897,7 @@ export class DataExchangeService {
 
   modifyIndicatorApplicableSpatialUnitsForLoginRoles() {
     this.indicatorStore.modifyIndicatorApplicableSpatialUnitsForLoginRoles(
-      this.availableSpatialUnits
+      this.spatialUnitStore.availableSpatialUnits
     );
     // displayableIndicators_keywordFiltered is B4 state and stays in the facade
     this.displayableIndicators_keywordFiltered = JSON.parse(
@@ -989,7 +977,7 @@ export class DataExchangeService {
   async createMetadataPDF_indicator(indicator) {
     return this.metadataExportService.createMetadataPDF_indicator(
       indicator,
-      this.availableSpatialUnits,
+      this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
   }
@@ -1008,7 +996,7 @@ export class DataExchangeService {
       fileEnding,
       jsZipOptions,
       this.selectedIndicator,
-      this.availableSpatialUnits,
+      this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
   }
@@ -1016,7 +1004,7 @@ export class DataExchangeService {
   async generateIndicatorMetadataPdf_asBlob() {
     return this.metadataExportService.generateIndicatorMetadataPdf_asBlob(
       this.selectedIndicator,
-      this.availableSpatialUnits,
+      this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
   }
@@ -1025,7 +1013,7 @@ export class DataExchangeService {
     return this.metadataExportService.generateIndicatorMetadataPdf(
       indicatorMetadata,
       pdfName,
-      this.availableSpatialUnits,
+      this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
   }

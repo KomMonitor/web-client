@@ -5,6 +5,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 declare const __env: any;
 
@@ -37,6 +38,7 @@ interface BatchListItem {
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private broadcastService = inject(BroadcastService);
   protected dataExchangeService = inject(DataExchangeService);
+  protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef;
   @Input() modalRef?: NgbModalRef;
@@ -405,8 +407,8 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   private getSpatialUnitObjectByName(name: string): any {
     // Implementation to get spatial unit object by name
-    if (this.dataExchangeService.availableSpatialUnits) {
-      return this.dataExchangeService.availableSpatialUnits.find(
+    if (this.spatialUnitStore.availableSpatialUnits) {
+      return this.spatialUnitStore.availableSpatialUnits.find(
         (s) => s.spatialUnitLevel === name
       );
     }

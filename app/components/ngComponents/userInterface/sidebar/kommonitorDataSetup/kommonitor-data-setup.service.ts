@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
+import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { MapService } from "services/map-service/map.service";
 import {
@@ -20,6 +21,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly metadataExportService = inject(MetadataExportService);
   private readonly broadcastService = inject(BroadcastService);
   private readonly mapService = inject(MapService);
@@ -164,7 +166,7 @@ export class KommonitorDataSetupService {
     const applicableSpatialUnits =
       this.dataExchangeService.selectedIndicator.applicableSpatialUnits;
 
-    for (const spatialUnitEntry of this.dataExchangeService.availableSpatialUnits) {
+    for (const spatialUnitEntry of this.spatialUnitStore.availableSpatialUnits) {
       if (
         applicableSpatialUnits.some(
           (o) => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel,

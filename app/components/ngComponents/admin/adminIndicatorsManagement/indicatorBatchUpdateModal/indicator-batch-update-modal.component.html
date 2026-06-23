@@ -314,7 +314,7 @@
                     >
                       <option [ngValue]="null">-- Raumebene wählen --</option>
                       @for (
-                        spatialUnit of dataExchangeService.availableSpatialUnits;
+                        spatialUnit of spatialUnitStore.availableSpatialUnits;
                         track spatialUnit
                       ) {
                         <option [ngValue]="spatialUnit">

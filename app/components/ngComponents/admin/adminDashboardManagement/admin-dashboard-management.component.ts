@@ -13,6 +13,7 @@ import { BroadcastService } from '../../../../services/broadcast-service/broadca
 import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 
 interface PieSeriesDataItem {
@@ -102,6 +103,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   protected dataExchange = inject(DataExchangeService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -169,7 +171,7 @@ export class AdminDashboardManagementComponent implements OnInit {
     this.organisationCount.set(String(d.accessControl?.length ?? 0));
     this.indicatorCount.set(String(d.availableIndicators?.length ?? 0));
     this.georesourceCount.set(String(d.availableGeoresources?.length ?? 0));
-    this.spatialUnitCount.set(String(d.availableSpatialUnits?.length ?? 0));
+    this.spatialUnitCount.set(String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0));
     this.indicatorScriptCount.set(String(this.processScriptStore.availableProcessScripts?.length ?? 0));
 
     const mainTopics = (this.topicStore.availableTopics ?? []).filter((t: any) => t.topicType === 'main');
@@ -234,7 +236,7 @@ export class AdminDashboardManagementComponent implements OnInit {
       }
     }
 
-    const data: PieSeriesDataItem[] = (this.dataExchange.availableSpatialUnits ?? [])
+    const data: PieSeriesDataItem[] = (this.spatialUnitStore.availableSpatialUnits ?? [])
       .filter((su: any) => countMap.has(su.spatialUnitLevel))
       .map((su: any) => ({
         name: su.spatialUnitLevel,

@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
 import { MapService } from "services/map-service/map.service";
 import { IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
@@ -39,6 +40,7 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
 })
 export class KommonitorDataSetupComponent implements OnInit {
   protected readonly dataExchangeService = inject(DataExchangeService);
+  private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly broadcastService = inject(BroadcastService);
   private readonly elementVisibilityHelperService = inject(
     ElementVisibilityHelperService,
@@ -193,7 +195,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         this.dataExchangeService.selectedIndicator;
 
       // set spatialUnit
-      for (const spatialUnitEntry of this.dataExchangeService
+      for (const spatialUnitEntry of this.spatialUnitStore
         .availableSpatialUnits) {
         if (
           spatialUnitEntry.spatialUnitLevel ===

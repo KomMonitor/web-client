@@ -3,6 +3,7 @@ import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 
@@ -24,6 +25,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -223,9 +225,9 @@ export class IndicatorAddModalComponent implements OnInit {
     // Load available spatial units
     if (
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableSpatialUnits
+      this.spatialUnitStore.availableSpatialUnits
     ) {
-      this.availableSpatialUnits = this.kommonitorDataExchangeService.availableSpatialUnits;
+      this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
       this.indicatorLowestSpatialUnitMetadataObjectForComputation =
         this.availableSpatialUnits.length > 0 ? this.availableSpatialUnits[0] : null;
     }

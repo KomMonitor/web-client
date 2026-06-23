@@ -4,6 +4,7 @@ import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import jStat from 'jstat';
@@ -161,6 +162,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private spatialUnitStore: SpatialUnitMetadataStoreService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
     private visualStyleHelperService: VisualStyleHelperServiceNew,
@@ -785,7 +787,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   initSpatialUnitOutlineLayer() {
 
-    for (let spatialUnit of this.dataExchangeService.availableSpatialUnits) {
+    for (let spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
       if (spatialUnit.isOutlineLayer) {
 
         let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
@@ -1202,7 +1204,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
     innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
-    for (let option of this.dataExchangeService.availableSpatialUnits) {
+    for (let option of this.spatialUnitStore.availableSpatialUnits) {
 
       if (this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(option)) {
         innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;

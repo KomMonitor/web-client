@@ -9,6 +9,7 @@ import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { MultiStepHelperServiceService } from '../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
@@ -29,6 +30,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   dataExchangeService = inject(DataExchangeService);
+  spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   importerHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -161,7 +163,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.overviewTableTargetSpatialUnitMetadata = undefined;
 
     // Set default spatial unit
-    for (const spatialUnitMetadataEntry of this.dataExchangeService.availableSpatialUnits) {
+    for (const spatialUnitMetadataEntry of this.spatialUnitStore.availableSpatialUnits) {
       if (
         this.currentIndicatorDataset?.applicableSpatialUnits?.some(
           (o: any) => o.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel

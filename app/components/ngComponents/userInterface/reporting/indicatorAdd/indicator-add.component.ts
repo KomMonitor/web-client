@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
@@ -180,6 +181,7 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected spatialUnitStore: SpatialUnitMetadataStoreService,
     protected metadataExportService: MetadataExportService,
     protected labelService: LabelService,
     private broadcastSerice: BroadcastService,
@@ -1589,13 +1591,13 @@ export class IndicatorAddComponent implements OnInit {
       // Indicator might not be selected at this point
       // We get information about all available spatial units (instead of applicable ones)
       // Then we select the highest one by default
-      let spatialUnits:any = this.dataExchangeService.availableSpatialUnits;
+      let spatialUnits:any = this.spatialUnitStore.availableSpatialUnits;
       this.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
       let highestSpatialUnit = spatialUnits.filter( unit => {
         return unit.nextUpperHierarchyLevel === null;
       });
       if(!this.selectedSpatialUnit) {
-        this.selectedSpatialUnit = this.dataExchangeService.availableSpatialUnits[0];
+        this.selectedSpatialUnit = this.spatialUnitStore.availableSpatialUnits[0];
         this.spatialUnitSelect = new FormControl(this.selectedSpatialUnit);
         await this.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
       }
@@ -1904,7 +1906,7 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       
       // set spatial unit to highest available one
-      let spatialUnits = this.dataExchangeService.availableSpatialUnits;
+      let spatialUnits = this.spatialUnitStore.availableSpatialUnits;
 
       // go from highest to lowest spatial unit and check if it is available.
       for(let spatialUnit of spatialUnits) {

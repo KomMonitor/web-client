@@ -10,6 +10,7 @@ import {
   POI_MARKER_COLORS,
 } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -26,6 +27,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);

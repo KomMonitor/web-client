@@ -3,6 +3,7 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import * as noUiSlider from 'nouislider';
@@ -138,6 +139,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private spatialUnitStore: SpatialUnitMetadataStoreService,
     protected filterHelperService: FilterHelperService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
@@ -253,7 +255,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       return spatialUnitEntry.spatialUnitId;									
     });
     
-    this.higherSpatialUnits = JSON.parse(JSON.stringify(this.dataExchangeService.availableSpatialUnits));
+    this.higherSpatialUnits = JSON.parse(JSON.stringify(this.spatialUnitStore.availableSpatialUnits));
     
     // only show those spatial units that are actually visible according to keycloak role
     // and associated to the current indicator as well
