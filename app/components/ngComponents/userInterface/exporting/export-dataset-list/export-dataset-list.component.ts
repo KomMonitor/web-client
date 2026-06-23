@@ -14,7 +14,7 @@ import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
 @Component({
   selector: "app-export-dataset-list",
   templateUrl: "./export-dataset-list.component.html",
-  styleUrls: ["./export-dataset-list.component.css"],
+  styleUrls: ["./export-dataset-list.component.scss"],
   imports: [
     CommonModule,
     ExportItemTimeSelectionComponent,

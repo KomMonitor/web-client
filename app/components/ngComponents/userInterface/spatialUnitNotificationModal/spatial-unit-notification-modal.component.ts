@@ -8,7 +8,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   selector: 'spatial-unit-notification-modal',
   standalone: true,
   templateUrl: './spatial-unit-notification-modal.component.html',
-  styleUrls: ['./spatial-unit-notification-modal.component.css'],
+  styleUrls: ['./spatial-unit-notification-modal.component.scss'],
   imports: [CommonModule, SafeHtmlPipe]
 })
 export class SpatialUnitNotificationModalComponent implements OnInit {

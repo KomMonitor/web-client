@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-generate-report',
   standalone: true,
   templateUrl: './generate-report.component.html',
-  styleUrls: ['./generate-report.component.css'],
+  styleUrls: ['./generate-report.component.scss'],
   imports: [CommonModule]
 })
 export class GenerateReportComponent implements OnInit {

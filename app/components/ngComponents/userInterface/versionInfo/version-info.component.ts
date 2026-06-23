@@ -5,7 +5,7 @@ NgbAccordionModule
 @Component({
   selector: 'versionInfo',
   templateUrl: './version-info.component.html',
-  styleUrls: ['./version-info.component.css'],
+  styleUrls: ['./version-info.component.scss'],
   imports: [NgbAccordionModule],
   standalone: true
 })

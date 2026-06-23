@@ -7,7 +7,7 @@ import { ExportingStateService } from "../exporting-state.service";
 @Component({
   selector: "app-export-menu-button",
   templateUrl: "./export-menu-button.component.html",
-  styleUrls: ["./export-menu-button.component.css"],
+  styleUrls: ["./export-menu-button.component.scss"],
   standalone: true,
   imports: [CommonModule],
 })

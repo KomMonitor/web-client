@@ -20,7 +20,7 @@ export interface StepperStep {
 @Component({
   selector: "app-stepper",
   templateUrl: "./stepper.component.html",
-  styleUrls: ["./stepper.component.css"],
+  styleUrls: ["./stepper.component.scss"],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],

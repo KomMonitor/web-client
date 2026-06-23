@@ -7,7 +7,7 @@ declare const $: any;
 @Component({
   selector: 'app-language-switcher',
   templateUrl: './language-switcher.component.html',
-  styleUrls: ['./language-switcher.component.css']
+  styleUrls: ['./language-switcher.component.scss']
 })
 export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewInit {
   

@@ -16,7 +16,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 @Component({
   selector: 'app-kommonitor-diagrams',
   templateUrl: './kommonitor-diagrams.component.html',
-  styleUrls: ['./kommonitor-diagrams.component.css'],
+  styleUrls: ['./kommonitor-diagrams.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, NgbCollapse, ExpandableBoxComponent]
 })

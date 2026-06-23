@@ -12,7 +12,7 @@ import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-s
 @Component({
   selector: 'app-wms-edit-modal',
   templateUrl: './wms-edit-modal.component.html',
-  styleUrls: ['./wms-edit-modal.component.css'],
+  styleUrls: ['./wms-edit-modal.component.scss'],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent],
   standalone: true
 })

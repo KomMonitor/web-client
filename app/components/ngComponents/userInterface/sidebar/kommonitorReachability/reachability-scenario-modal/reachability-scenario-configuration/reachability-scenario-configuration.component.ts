@@ -13,7 +13,7 @@ import { ReachabilityCombinerService } from 'services/reachability-combiner-serv
   selector: 'app-reachability-scenario-configuration',
   standalone: true,
   templateUrl: './reachability-scenario-configuration.component.html',
-  styleUrls: ['./reachability-scenario-configuration.component.css'],
+  styleUrls: ['./reachability-scenario-configuration.component.scss'],
   imports: [CommonModule, FormsModule, LoadingOverlayComponent]
 })
 export class ReachabilityScenarioConfigurationComponent implements OnInit {

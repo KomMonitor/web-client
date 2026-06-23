@@ -6,7 +6,7 @@ import { Classification } from 'components/ngComponents/models/classification.mo
 @Component({
   selector: 'app-classification-method-select',
   templateUrl: './classification-method-select.component.html',
-  styleUrls: ['./classification-method-select.component.css'],
+  styleUrls: ['./classification-method-select.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule]
 })

@@ -78,7 +78,7 @@ export class NgbDateStringAdapter extends NgbDateAdapter<string> {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, NgbDatepickerModule],
   templateUrl: './km-date-picker.component.html',
-  styleUrls: ['./km-date-picker.component.css'],
+  styleUrls: ['./km-date-picker.component.scss'],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => KmDatePickerComponent), multi: true },
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => KmDatePickerComponent), multi: true },

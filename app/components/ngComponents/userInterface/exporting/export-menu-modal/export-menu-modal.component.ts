@@ -67,7 +67,7 @@ function buildTargetTime(
 @Component({
   selector: "app-export-menu-modal",
   templateUrl: "./export-menu-modal.component.html",
-  styleUrls: ["./export-menu-modal.component.css"],
+  styleUrls: ["./export-menu-modal.component.scss"],
   standalone: true,
   imports: [
     CommonModule,

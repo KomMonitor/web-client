@@ -13,7 +13,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
   standalone: true,
   selector: 'app-reachbility-scenario-setup',
   templateUrl: './reachbility-scenario-setup.component.html',
-  styleUrls: ['./reachbility-scenario-setup.component.css'],
+  styleUrls: ['./reachbility-scenario-setup.component.scss'],
   imports: [
     CommonModule,
     FormsModule

@@ -8,7 +8,7 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 @Component({
   selector: 'app-wms-delete-modal',
   templateUrl: './wms-delete-modal.component.html',
-  styleUrls: ['./wms-delete-modal.component.css'],
+  styleUrls: ['./wms-delete-modal.component.scss'],
   imports: [CommonModule],
   standalone: true
 })

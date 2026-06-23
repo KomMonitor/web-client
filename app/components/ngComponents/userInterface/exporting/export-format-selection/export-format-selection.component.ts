@@ -15,7 +15,7 @@ export const FORMAT_CONFIG: Record<ExportType, ExportFormat[]> = {
 @Component({
   selector: "app-export-format-selection",
   templateUrl: "./export-format-selection.component.html",
-  styleUrls: ["./export-format-selection.component.css"],
+  styleUrls: ["./export-format-selection.component.scss"],
   imports: [CommonModule],
   standalone: true,
 })

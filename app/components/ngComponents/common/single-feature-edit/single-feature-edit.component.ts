@@ -13,7 +13,7 @@ import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-single-feature-edit',
   templateUrl: './single-feature-edit.component.html',
-  styleUrls: ['./single-feature-edit.component.css'],
+  styleUrls: ['./single-feature-edit.component.scss'],
   imports: [CommonModule, FormsModule, NgbDatepickerModule],
   standalone: true,
 })

@@ -16,7 +16,7 @@ import { ExpandableBoxComponent } from "../expandable-box/expandable-box.compone
 @Component({
   selector: 'app-wms-admin-table',
   templateUrl: './wms-admin-table.component.html',
-  styleUrls: ['./wms-admin-table.component.css'],
+  styleUrls: ['./wms-admin-table.component.scss'],
   imports: [ExpandableBoxComponent, AgGridAngular],
   standalone: true,
 })

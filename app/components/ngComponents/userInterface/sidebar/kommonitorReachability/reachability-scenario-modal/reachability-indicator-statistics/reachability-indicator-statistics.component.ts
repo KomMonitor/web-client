@@ -15,7 +15,7 @@ import { MetadataLoadingState } from 'services/data-exchange-service/data-exchan
   selector: 'app-reachability-indicator-statistics',
   standalone: true,
   templateUrl: './reachability-indicator-statistics.component.html',
-  styleUrls: ['./reachability-indicator-statistics.component.css'],
+  styleUrls: ['./reachability-indicator-statistics.component.scss'],
   imports: [CommonModule, FormsModule]
 })
 export class ReachabilityIndicatorStatisticsComponent implements OnInit {

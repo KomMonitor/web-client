@@ -13,7 +13,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 	selector: 'ngbd-modal-content',
 	standalone: true,
 	templateUrl: 'info-modal.component.html',
-  styleUrls: ['info-modal.component.css'],
+  styleUrls: ['info-modal.component.scss'],
   imports: [CommonModule, VersionInfoComponent, SafeHtmlPipe]
 })
 export class InfoModal implements OnInit {

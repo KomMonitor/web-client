@@ -8,7 +8,7 @@ export type ExportItemKind = "indicator" | "georessource";
 @Component({
   selector: "app-export-item-checkbox",
   templateUrl: "./export-item-checkbox.component.html",
-  styleUrls: ["./export-item-checkbox.component.css"],
+  styleUrls: ["./export-item-checkbox.component.scss"],
   imports: [CommonModule],
   standalone: true,
 })

@@ -15,7 +15,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 @Component({
   selector: 'app-wms-edit-user-roles-modal',
   templateUrl: './wms-edit-user-roles-modal.component.html',
-  styleUrls: ['./wms-edit-user-roles-modal.component.css'],
+  styleUrls: ['./wms-edit-user-roles-modal.component.scss'],
   imports: [AgGridAngular, FormsModule, CommonModule],
   standalone: true
 })

@@ -16,7 +16,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 @Component({
   selector: 'app-wms-add-modal',
   templateUrl: './wms-add-modal.component.html',
-  styleUrls: ['./wms-add-modal.component.css'],
+  styleUrls: ['./wms-add-modal.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, AgGridAngular, CommonModule],
   standalone: true
 })

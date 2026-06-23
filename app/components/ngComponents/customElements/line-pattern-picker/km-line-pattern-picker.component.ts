@@ -13,7 +13,7 @@ export interface LinePatternOption {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './km-line-pattern-picker.component.html',
-  styleUrls: ['./km-line-pattern-picker.component.css']
+  styleUrls: ['./km-line-pattern-picker.component.scss']
 })
 export class KmLinePatternPickerComponent implements OnInit {
   @Input() selectedPattern: LinePatternOption | null = null;

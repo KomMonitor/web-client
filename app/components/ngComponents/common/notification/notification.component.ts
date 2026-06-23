@@ -6,7 +6,7 @@ import { CommonModule } from "@angular/common";
 @Component({
   selector: "app-notification",
   templateUrl: "./notification.component.html",
-  styleUrls: ["./notification.component.css"],
+  styleUrls: ["./notification.component.scss"],
   imports: [NgbToastModule, CommonModule],
   standalone: true,
 })

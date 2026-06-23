@@ -23,7 +23,7 @@ const CUSTOM_VALUE = -1;
 @Component({
   selector: "app-epsg-selector",
   templateUrl: "./epsg-selector.component.html",
-  styleUrls: ["./epsg-selector.component.css"],
+  styleUrls: ["./epsg-selector.component.scss"],
   standalone: true,
   imports: [CommonModule, FormsModule],
 })

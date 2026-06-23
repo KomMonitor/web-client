@@ -13,7 +13,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 @Component({
   selector: 'app-indicator-radar',
   templateUrl: './indicator-radar.component.html',
-  styleUrls: ['./indicator-radar.component.css'],
+  styleUrls: ['./indicator-radar.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, IndicatorNameFilter, ExpandableBoxComponent]
 }) export class IndicatorRadarComponent implements OnInit {

@@ -5,7 +5,7 @@ import { ExportingStateService, ExportType } from "../exporting-state.service";
 @Component({
   selector: "app-export-typ-selection",
   templateUrl: "./export-typ-selection.component.html",
-  styleUrls: ["./export-typ-selection.component.css"],
+  styleUrls: ["./export-typ-selection.component.scss"],
   imports: [CommonModule],
   standalone: true,
 })

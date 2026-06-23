@@ -15,7 +15,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 @Component({
   selector: 'app-kommonitor-balance',
   templateUrl: './kommonitor-balance.component.html',
-  styleUrls: ['./kommonitor-balance.component.css'],
+  styleUrls: ['./kommonitor-balance.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, ExpandableBoxComponent]
 })

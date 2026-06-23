@@ -7,7 +7,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
   standalone: true,
   imports: [CommonModule, ColorSketchModule],
   templateUrl: './km-color-picker.component.html',
-  styleUrls: ['./km-color-picker.component.css']
+  styleUrls: ['./km-color-picker.component.scss']
 })
 export class KmColorPickerComponent {
   @Input() color: string = '#000000';

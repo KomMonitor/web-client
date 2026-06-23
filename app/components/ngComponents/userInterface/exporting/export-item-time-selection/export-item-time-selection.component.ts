@@ -6,7 +6,7 @@ import { ExportItem, sortTimestamps } from "../models";
 @Component({
   selector: "app-export-item-time-selection",
   templateUrl: "./export-item-time-selection.component.html",
-  styleUrls: ["./export-item-time-selection.component.css"],
+  styleUrls: ["./export-item-time-selection.component.scss"],
   imports: [NgbNavModule, CommonModule],
   standalone: true,
 })

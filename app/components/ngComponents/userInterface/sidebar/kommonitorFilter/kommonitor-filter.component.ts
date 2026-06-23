@@ -18,7 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-kommonitor-filter',
   templateUrl: './kommonitor-filter.component.html',
-  styleUrls: ['./kommonitor-filter.component.css'],
+  styleUrls: ['./kommonitor-filter.component.scss'],
   standalone: true,
   imports: [
     CommonModule, 

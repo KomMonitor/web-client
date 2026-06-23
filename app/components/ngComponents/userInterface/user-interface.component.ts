@@ -27,7 +27,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'user-interface-new',
   templateUrl: './user-interface.component.html',
-  styleUrls: ['./user-interface.component.css'],
+  styleUrls: ['./user-interface.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
