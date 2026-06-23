@@ -1,25 +1,25 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
-import 'codemirror/mode/xml/xml.js';
-import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/xml/xml.js';
 
 // import 'codemirror/addon/display/autoRefresh.js';
 import { HttpClient } from '@angular/common/http';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
-import { KommonitorFilterDataGridHelperService } from 'services/adminFilterConfig/kommonitor-data-grid-helper.service';
-import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
-import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
+import { KommonitorFilterDataGridHelperService } from '../../../../../services/adminFilterConfig/kommonitor-data-grid-helper.service';
+import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
+import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
+import { NotificationService } from '../../../common/notification/notification.service';
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 
 @Component({
@@ -37,6 +37,7 @@ export class AdminFilterConfigComponent implements OnInit {
   private httpClient = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
+  private notificationService = inject(NotificationService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
@@ -45,9 +46,6 @@ export class AdminFilterConfigComponent implements OnInit {
   public rowData: any[] = [];
   public gridOptions: GridOptions = {};
   public selectedRows: any[] = [];
-
-  // initialize any adminLTE box widgets
-  //$('.box').boxWidget();
 
   loadingData = true;
   codeMirrorEditor: any = undefined;
@@ -66,8 +64,6 @@ export class AdminFilterConfigComponent implements OnInit {
   mergedFilterConfig: any = undefined;
 
   configSettingInvalid = false;
-
-  errorMessagePart;
 
   async ngOnInit() {
     this.httpClient
@@ -471,12 +467,10 @@ export class AdminFilterConfigComponent implements OnInit {
       this.loadingData = true;
     });
 
-    this.errorMessagePart = undefined;
-
     try {
       await this.kommonitorConfigStorageService.postFilterConfig(this.filterConfigTmp).subscribe({
         next: async (_response) => {
-          $('#filterConfigEditSuccessAlert').show();
+          this.notificationService.showSuccess('Filter-Konfiguration gespeichert.');
           this.loadingData = false;
 
           this.filterConfigCurrent = this.filterConfigTmp;
@@ -491,22 +485,13 @@ export class AdminFilterConfigComponent implements OnInit {
         },
       });
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-
-      $('#filterConfigEditErrorAlert').show();
+      console.error('Error editing filter config:', error);
+      this.notificationService.showError(
+        'Speichern der Filter-Konfiguration gescheitert: ' +
+          (error?.error?.message || error?.data || error?.message || 'Unbekannter Fehler'),
+        { autohide: false }
+      );
       this.loadingData = false;
     }
-  }
-
-  hideSuccessAlert() {
-    $('#filterConfigEditSuccessAlert').hide();
-  }
-
-  hideErrorAlert() {
-    $('#filterConfigEditErrorAlert').hide();
   }
 }

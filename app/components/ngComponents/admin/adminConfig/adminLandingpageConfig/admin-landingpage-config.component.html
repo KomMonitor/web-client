@@ -91,43 +91,6 @@
           </div>
         </div>
         <!-- /.box-body -->
-
-        <div
-          id="appLandingpageConfigEditSuccessAlert"
-          style="position: absolute; bottom: 0px; width: 100%"
-          hidden
-          class="alert alert-success alert-dismissable"
-        >
-          <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-            &times;
-          </button>
-          <h4>
-            <i class="icon fa fa-check"></i>Startseiten-Konfiguration in Config Storage Server
-            gespeichert
-          </h4>
-          <p>
-            Die neuen Inhalte werden beim n&auml;chsten Start der Anwendung vom Config Storage
-            Server geladen und verwendet.
-          </p>
-        </div>
-
-        <div
-          id="appLandingpageConfigEditErrorAlert"
-          style="position: absolute; bottom: 0px; width: 100%"
-          hidden
-          class="alert alert-danger alert-dismissable"
-        >
-          <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-            &times;
-          </button>
-          <h4>
-            <i class="icon fa fa-ban"></i>Speichern der Startseiten-Konfiguration in Config Storage
-            Server gescheitert
-          </h4>
-          Fehlermeldung:
-          <br />
-          <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-        </div>
       </div>
       <!-- /.box -->
     </div>

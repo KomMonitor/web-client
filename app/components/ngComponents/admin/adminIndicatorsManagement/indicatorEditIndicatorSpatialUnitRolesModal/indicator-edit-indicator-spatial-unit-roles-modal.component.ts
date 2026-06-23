@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -9,8 +9,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
-
-declare const $: any;
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
@@ -20,10 +19,6 @@ declare const $: any;
   standalone: true,
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
-  @ViewChild('modal') modal!: ElementRef;
-
-  private modalRef?: NgbModalRef;
-
   // Form data
   currentIndicatorDataset: any;
   targetApplicableSpatialUnit: any;
@@ -51,13 +46,14 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   currentStep: number = 1;
   totalSteps: number = 3;
 
-  private modalService = inject(NgbModal);
+  activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   public dataExchangeService = inject(DataExchangeService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private envConfigService = inject(EnvConfigService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.setupEventListeners();
@@ -65,11 +61,8 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   private setupEventListeners(): void {
-    // Listen for edit indicator spatial unit roles event
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'onEditIndicatorSpatialUnitRoles') {
-        this.openModal(data.values);
-      } else if (data.msg === 'availableRolesUpdate') {
+      if (data.msg === 'availableRolesUpdate') {
         this.refreshRoleManagementTable_indicatorMetadata();
         this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
       }
@@ -80,6 +73,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
   }
 
+  // Called by the parent after opening the modal via NgbModal to set up the form data.
   openModal(indicatorDataset: any): void {
     this.currentIndicatorDataset = indicatorDataset;
     this.prepareCreatorList();
@@ -87,14 +81,10 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
     // Register the multi-step form handler
     this.multiStepHelperService.registerClickHandler('indicatorEditIndicatorSpatialUnitRolesForm');
-
-    // Show the modal using jQuery (since this is a legacy modal)
-    $('#modal-edit-indicator-spatial-unit-roles').modal('show');
   }
 
   closeModal(): void {
-    // Hide the modal using jQuery (since this is a legacy modal)
-    $('#modal-edit-indicator-spatial-unit-roles').modal('hide');
+    this.activeModal.dismiss();
   }
 
   prepareCreatorList(): void {
@@ -152,8 +142,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
     this.successMessagePart = '';
     this.errorMessagePart = '';
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
   }
 
   refreshRoleManagementTable_indicatorMetadata(): void {
@@ -251,9 +239,8 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   refreshRoles(orgUnitId: string): void {
     const permissionIds_ownerUnit = orgUnitId
-      ? this.dataExchangeService
-          .getAccessControlById(orgUnitId)
-          .permissions.filter(
+      ? (this.dataExchangeService.getAccessControlById(orgUnitId)?.permissions ?? [])
+          .filter(
             (permission: any) =>
               permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'
           )
@@ -513,18 +500,22 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   // Alert management
   showSuccessAlert(): void {
-    $('#indicatorEditIndicatorSpatialUnitRolesSuccessAlert').show();
-  }
-
-  hideSuccessAlert(): void {
-    $('#indicatorEditIndicatorSpatialUnitRolesSuccessAlert').hide();
+    let message = `Zugriffsschutz und Eigentümerschaft für Indikator '${this.currentIndicatorDataset?.indicatorName}' aktualisiert.`;
+    if (this.targetApplicableSpatialUnit?.spatialUnitName) {
+      message += ` Verknüpfte Raumebene '${this.targetApplicableSpatialUnit.spatialUnitName}' wurde ebenfalls aktualisiert.`;
+    }
+    this.notificationService.showSuccess(message);
   }
 
   showErrorAlert(): void {
-    $('#indicatorEditIndicatorSpatialUnitRolesErrorAlert').show();
-  }
-
-  hideErrorAlert(): void {
-    $('#indicatorEditIndicatorSpatialUnitRolesErrorAlert').hide();
+    // errorMessagePart may contain HTML (syntax-highlighted JSON); reduce it to plain text for the toast
+    const tmp = document.createElement('div');
+    tmp.innerHTML = this.errorMessagePart || '';
+    const detail = (tmp.textContent || '').trim();
+    this.notificationService.showError(
+      'Aktualisierung des Zugriffsschutzes und der Eigentümerschaft gescheitert.' +
+        (detail ? ' ' + detail : ''),
+      { autohide: false }
+    );
   }
 }

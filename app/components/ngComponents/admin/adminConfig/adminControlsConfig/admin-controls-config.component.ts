@@ -1,23 +1,22 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
-import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
-import { firstValueFrom } from 'rxjs';
-import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import { HttpClient } from '@angular/common/http';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import CodeMirror from 'codemirror';
+import { firstValueFrom } from 'rxjs';
+import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
-import 'codemirror/mode/xml/xml.js';
-import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
-import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/xml/xml.js';
 
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 
 // import 'codemirror/addon/display/autoRefresh.js';
-
-declare let $: any;
+import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
+import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
+import { NotificationService } from '../../../common/notification/notification.service';
 
 interface CodeMirrorEditor {
   getValue(): string;
@@ -45,7 +44,7 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   private kommonitorDataExchangeService = inject(DataExchangeService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
-  private ajskommonitorDataExchangeService = inject(DataExchangeService);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('controlsConfigEditor') controlsConfigEditor!: ElementRef;
   @ViewChild('templateCodeMirror') templateCodeMirrorElement!: ElementRef;
@@ -83,7 +82,6 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   controlsConfigCurrent: string = '';
   controlsConfigNew: string = '';
   configSettingInvalid = false;
-  errorMessagePart: string = '';
   lintingIssues: LintingIssue[] = [];
   private dataLoaded = false;
 
@@ -98,7 +96,6 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    //$('.box').boxWidget();
     this.waitForDataAndInitEditors();
   }
 
@@ -151,16 +148,13 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
           this.kommonitorScriptHelperService.prettifyScriptCodePreview('controlsConfig_current');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error initializing controls config:', error);
-      if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-          error.error
-        );
-      } else {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-      $('#controlsConfigEditErrorAlert').show();
+      this.notificationService.showError(
+        'Laden der Controls-Konfiguration gescheitert: ' +
+          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        { autohide: false }
+      );
     } finally {
       this.loadingData = false;
       this.dataLoaded = true;
@@ -299,7 +293,6 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
 
   async editControlsConfig() {
     this.loadingData = true;
-    this.errorMessagePart = '';
     try {
       await firstValueFrom(
         this.kommonitorConfigStorageService.postControlsConfig(this.controlsConfigTmp)
@@ -315,27 +308,16 @@ export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
       if (this.currentCodeMirrorEditor) {
         this.currentCodeMirrorEditor.setValue(this.controlsConfigCurrent);
       }
-      $('#controlsConfigEditSuccessAlert').show();
-    } catch (error) {
+      this.notificationService.showSuccess('Controls-Konfiguration gespeichert.');
+    } catch (error: any) {
       console.error('Error editing controls config:', error);
-      if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-          error.error
-        );
-      } else {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-      $('#controlsConfigEditErrorAlert').show();
+      this.notificationService.showError(
+        'Speichern der Controls-Konfiguration gescheitert: ' +
+          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        { autohide: false }
+      );
     } finally {
       this.loadingData = false;
     }
-  }
-
-  hideSuccessAlert() {
-    $('#controlsConfigEditSuccessAlert').hide();
-  }
-
-  hideErrorAlert() {
-    $('#controlsConfigEditErrorAlert').hide();
   }
 }

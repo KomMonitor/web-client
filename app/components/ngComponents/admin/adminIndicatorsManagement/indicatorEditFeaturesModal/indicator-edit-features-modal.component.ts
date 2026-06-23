@@ -4,15 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions } from 'ag-grid-community';
-import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
-import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
+import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
+import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
+import { MultiStepHelperServiceService } from '../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
+import { RoleManagementDataGridHelperService } from '../../../../../services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
+import { NotificationService } from '../../../common/notification/notification.service';
 
 declare const $: any;
 
@@ -33,6 +34,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   protected envConfigService = inject(EnvConfigService);
+  private notificationService = inject(NotificationService);
 
   featureTableGridOptions: GridOptions = {};
 
@@ -74,7 +76,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   successMessagePart: string = '';
   errorMessagePart: string = '';
   importerErrors: any[] = [];
-  indicatorMappingConfigImportError: string = '';
 
   // Loading states
   loadingData: boolean = false;
@@ -198,13 +199,8 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.successMessagePart = '';
     this.errorMessagePart = '';
     this.importerErrors = [];
-    this.indicatorMappingConfigImportError = '';
 
     this.broadcastService.broadcast('resetTimeseriesMapping');
-
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
-    this.hideMappingConfigErrorAlert();
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
@@ -572,7 +568,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   }
 
   onImportIndicatorEditFeaturesMappingConfig(): void {
-    this.indicatorMappingConfigImportError = '';
     $('#indicatorMappingConfigEditFeaturesImportFile').files = [];
     $('#indicatorMappingConfigEditFeaturesImportFile').click();
   }
@@ -634,22 +629,25 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
 
   // Alert management
   showSuccessAlert(): void {
-    $('#indicatorEditFeaturesSuccessAlert').show();
-  }
-
-  hideSuccessAlert(): void {
-    $('#indicatorEditFeaturesSuccessAlert').hide();
+    let message = `Fortführen der Zeitreihen des Indikators mit Namen ${this.successMessagePart} war erfolgreich.`;
+    if (this.importedFeatures && this.importedFeatures.length > 0) {
+      message += ` ${this.importedFeatures.length} Zeitreihen wurden dabei importiert.`;
+    }
+    this.notificationService.showSuccess(message);
   }
 
   showErrorAlert(): void {
-    $('#indicatorEditFeaturesErrorAlert').show();
-  }
-
-  hideErrorAlert(): void {
-    $('#indicatorEditFeaturesErrorAlert').hide();
-  }
-
-  hideMappingConfigErrorAlert(): void {
-    $('#indicatorEditFeaturesMappingConfigImportErrorAlert').hide();
+    // errorMessagePart may contain HTML (syntax-highlighted JSON); reduce it to plain text for the toast
+    const tmp = document.createElement('div');
+    tmp.innerHTML = this.errorMessagePart || '';
+    const detail = (tmp.textContent || '').trim();
+    let message = 'Zeitreihen fortführen gescheitert.';
+    if (detail) {
+      message += ' ' + detail;
+    }
+    if (this.importerErrors && this.importerErrors.length > 0) {
+      message += ` (${this.importerErrors.length} Zeitreihen mit Importfehlern)`;
+    }
+    this.notificationService.showError(message, { autohide: false });
   }
 }

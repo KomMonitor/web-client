@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
+import { ConfigStorageService } from '../../../../../../services/config-storage-service/config-storage.service';
+import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
+import { MultiStepHelperServiceService } from '../../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
+import { NotificationService } from '../../../../common/notification/notification.service';
 
 @Component({
   selector: 'app-admin-filter-edit-modal',
@@ -19,6 +19,7 @@ export class AdminFilterEditModalComponent implements OnInit {
   private kommonitorDataExchangeService = inject(DataExchangeService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private broadcastService = inject(BroadcastService);
+  private notificationService = inject(NotificationService);
 
   activeModal = inject(NgbActiveModal);
 
@@ -418,7 +419,7 @@ export class AdminFilterEditModalComponent implements OnInit {
       JSON.stringify(filterConfig, null, '    ')
     );
 
-    $('#globalFilterEditSucessAlert').show();
+    this.notificationService.showSuccess('Filter gespeichert.');
     this.loadingData = false;
 
     this.refreshIndicatorsTable();
@@ -581,12 +582,4 @@ export class AdminFilterEditModalComponent implements OnInit {
 			};
 
  */
-
-  hideSuccessAlert() {
-    $('#globalFilterEditSucessAlert').hide();
-  }
-
-  hideErrorAlert() {
-    $('#globalFilterEditErrorAlert').hide();
-  }
 }

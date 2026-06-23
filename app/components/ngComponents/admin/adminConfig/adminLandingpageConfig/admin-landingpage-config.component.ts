@@ -1,6 +1,5 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { HttpClient } from '@angular/common/http';
+import { AfterViewInit, Component } from '@angular/core';
 import {
   ConfigStorageService,
   LandingpageConfig,
@@ -9,15 +8,14 @@ import {
 import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
-import 'codemirror/mode/xml/xml.js';
-import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/xml/xml.js';
 import { PipesModule } from '../../../../../pipes.module';
 
 // import 'codemirror/addon/display/autoRefresh.js';
-
-declare let $: any;
+import { NotificationService } from '../../../common/notification/notification.service';
 
 interface CodeMirrorEditor {
   getValue(): string;
@@ -43,13 +41,12 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   appConfigTmp: string = '';
   appConfigCurrent: string = '';
   appConfigNew: string = '';
-  errorMessagePart: string = '';
   configLoaded = false;
 
   constructor(
     private http: HttpClient,
     private kommonitorConfigStorageService: ConfigStorageService,
-    private ajskommonitorDataExchangeService: DataExchangeService
+    private notificationService: NotificationService
   ) {}
 
   ngAfterViewInit() {
@@ -70,16 +67,13 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
           console.error('Default landingpageConfig not set, reverting to template');
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error initializing landing page config:', error);
-      if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-          error.error
-        );
-      } else {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-      $('#appConfigEditErrorAlert').show();
+      this.notificationService.showError(
+        'Laden der Landingpage-Konfiguration gescheitert: ' +
+          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        { autohide: false }
+      );
     } finally {
       this.loadingData = false;
     }
@@ -118,7 +112,6 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
 
   async editAppConfig() {
     this.loadingData = true;
-    this.errorMessagePart = '';
     try {
       const config: LandingpageConfig = {
         startPage: JSON.stringify(this.appConfigTmp),
@@ -132,40 +125,26 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
           if (this.currentCodeMirrorEditor) {
             this.currentCodeMirrorEditor.setValue(newCurrentConfig);
           }
-          $('#appLandingpageConfigEditSuccessAlert').show();
+          this.notificationService.showSuccess('Landingpage-Konfiguration gespeichert.');
           this.loadingData = false;
         },
         error: (error: any) => {
-          if (error.data) {
-            this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
-          } else {
-            this.errorMessagePart =
-              this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-          }
-          $('#appLandingpageConfigEditErrorAlert').show();
+          this.showSaveError(error);
           this.loadingData = false;
         },
       });
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-          error.data
-        );
-      } else {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-      $('#appLandingpageConfigEditErrorAlert').show();
+      this.showSaveError(error);
       this.loadingData = false;
     }
   }
 
-  hideSuccessAlert() {
-    $('#appLandingpageConfigEditSuccessAlert').hide();
-  }
-
-  hideErrorAlert() {
-    $('#appLandingpageConfigEditErrorAlert').hide();
+  private showSaveError(error: any): void {
+    console.error('Error saving landing page config:', error);
+    this.notificationService.showError(
+      'Speichern der Landingpage-Konfiguration gescheitert: ' +
+        (error?.error?.message || error?.data || error?.message || 'Unbekannter Fehler'),
+      { autohide: false }
+    );
   }
 }

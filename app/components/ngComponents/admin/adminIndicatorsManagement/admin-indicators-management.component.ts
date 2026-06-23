@@ -20,6 +20,7 @@ import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-mo
 import { IndicatorBatchUpdateModalComponent } from './indicatorBatchUpdateModal/indicator-batch-update-modal.component';
 import { IndicatorDeleteModalComponent } from './indicatorDeleteModal/indicator-delete-modal.component';
 import { IndicatorEditFeaturesModalComponent } from './indicatorEditFeaturesModal/indicator-edit-features-modal.component';
+import { IndicatorEditIndicatorSpatialUnitRolesModalComponent } from './indicatorEditIndicatorSpatialUnitRolesModal/indicator-edit-indicator-spatial-unit-roles-modal.component';
 import { IndicatorEditMetadataModalComponent } from './indicatorEditMetadataModal/indicator-edit-metadata-modal.component';
 
 declare const __env: any;
@@ -214,10 +215,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       } else if (data.msg === 'onEditIndicatorFeatures') {
         this.zone.run(() => {
           this.onClickEditFeatures(data.values);
-        });
-      } else if (data.msg === 'onEditIndicatorSpatialUnitRoles') {
-        this.zone.run(() => {
-          this.onClickEditIndicatorSpatialUnitRoles(data.values);
         });
       } else if (data.msg === 'onDeleteIndicators') {
         this.zone.run(() => {
@@ -551,8 +548,30 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   onClickEditIndicatorSpatialUnitRoles(indicatorMetadata: any): void {
     try {
-      // Broadcast the event to open the modal
-      this.broadcastService.broadcast('onEditIndicatorSpatialUnitRoles', indicatorMetadata);
+      const modalRef = this.modalService.open(
+        IndicatorEditIndicatorSpatialUnitRolesModalComponent,
+        {
+          size: 'xl',
+          backdrop: 'static',
+          keyboard: false,
+          container: 'body',
+          animation: false,
+        }
+      );
+
+      const modalComponent =
+        modalRef.componentInstance as IndicatorEditIndicatorSpatialUnitRolesModalComponent;
+      modalComponent.openModal(indicatorMetadata);
+
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            this.initializeOrRefreshOverviewTable();
+          }
+        })
+        .catch((_error) => {
+          // Modal dismissed
+        });
     } catch (error) {
       console.error('Error opening edit indicator spatial unit roles modal:', error);
     }

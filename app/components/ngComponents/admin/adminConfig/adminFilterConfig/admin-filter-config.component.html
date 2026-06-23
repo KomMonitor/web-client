@@ -141,40 +141,4 @@
       </div>
     </div>
   </expandable-box>
-
-  <div
-    id="filterConfigEditSuccessAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    hidden
-    class="alert alert-success alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-check"></i>Filter-Konfiguration in Config Storage Server gespeichert
-    </h4>
-    <p>
-      Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage
-      Server geladen und verwendet.
-    </p>
-  </div>
-
-  <div
-    id="filterConfigEditErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    hidden
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4>
-      <i class="icon fa fa-ban"></i>Speichern der Filter-Konfiguration in Config Storage Server
-      gescheitert
-    </h4>
-    Fehlermeldung:
-    <br />
-    <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-  </div>
 </ng-template>

@@ -1,24 +1,22 @@
-import { Component, OnInit, ElementRef, ViewChild, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
-import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
+import { HttpClient } from '@angular/common/http';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
+import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
+import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 import CodeMirror from 'codemirror';
 
-// CodeMirror module is not loaded properly (why?!), reload necessary files
-import 'codemirror/mode/xml/xml.js';
-import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
-import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/xml/xml.js';
 
 import { AdminContentViewComponent } from '../../admin-content-view/admin-content-view.component';
 
 // import 'codemirror/addon/display/autoRefresh.js';
-
-declare let $: any;
+import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
+import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
+import { NotificationService } from '../../../common/notification/notification.service';
 
 interface CodeMirrorEditor {
   getValue(): string;
@@ -46,7 +44,7 @@ export class AdminAppConfigComponent implements OnInit {
   private kommonitorDataExchangeService = inject(DataExchangeService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
-  private ajskommonitorDataExchangeService = inject(DataExchangeService);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('appConfigEditor') appConfigEditor!: ElementRef;
 
@@ -107,7 +105,6 @@ export class AdminAppConfigComponent implements OnInit {
   appConfigCurrent: string = '';
   appConfigNew: string = '';
   configSettingInvalid = false;
-  errorMessagePart: string = '';
   lintingIssues: LintingIssue[] = [];
 
   constructor() {
@@ -145,16 +142,13 @@ export class AdminAppConfigComponent implements OnInit {
         this.initCodeEditor();
         this.onChangeAppConfig();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error initializing app config:', error);
-      if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-          error.error
-        );
-      } else {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-      $('#appConfigEditErrorAlert').show();
+      this.notificationService.showError(
+        'Laden der App-Konfiguration gescheitert: ' +
+          (error?.error?.message || error?.message || 'Unbekannter Fehler'),
+        { autohide: false }
+      );
     } finally {
       this.loadingData = false;
     }
@@ -269,7 +263,6 @@ export class AdminAppConfigComponent implements OnInit {
 
   async editAppConfig() {
     this.loadingData = true;
-    this.errorMessagePart = '';
     try {
       await this.kommonitorConfigStorageService.postAppConfig(this.appConfigTmp).toPromise();
       this.kommonitorConfigStorageService.getAppConfig().subscribe({
@@ -278,41 +271,29 @@ export class AdminAppConfigComponent implements OnInit {
           if (this.currentCodeMirrorEditor) {
             this.currentCodeMirrorEditor.setValue(newCurrentConfig);
           }
-          $('#appConfigEditSuccessAlert').show();
+          this.notificationService.showSuccess(
+            'App-Konfiguration gespeichert. Die neue Parametrisierung wird beim nächsten Start der Anwendung geladen.'
+          );
           this.loadingData = false;
         },
         error: (error: any) => {
-          if (error.data) {
-            this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
-          } else {
-            this.errorMessagePart =
-              this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-          }
-          $('#appConfigEditErrorAlert').show();
+          this.showSaveError(error);
           this.loadingData = false;
         },
       });
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
-          error.data
-        );
-      } else {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-      $('#appConfigEditErrorAlert').show();
+      this.showSaveError(error);
       this.loadingData = false;
     }
   }
 
-  hideSuccessAlert() {
-    $('#appConfigEditSuccessAlert').hide();
-  }
-
-  hideErrorAlert() {
-    $('#appConfigEditErrorAlert').hide();
+  private showSaveError(error: any): void {
+    console.error('Error saving app config:', error);
+    this.notificationService.showError(
+      'Speichern der App-Konfiguration in Config Storage Server gescheitert: ' +
+        (error?.error?.message || error?.data || error?.message || 'Unbekannter Fehler'),
+      { autohide: false }
+    );
   }
 }
 
