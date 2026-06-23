@@ -237,21 +237,21 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   onSinglePointSelection() {
+    this.reachabilityCombinerService.resetLocations();
     this.reachabilityCombinerService.startPointsSource = 'manual';
     this.reachabilityCombinerService.manualMapSelectionMode = false;
-    this.reachabilityCombinerService.resetLocations();
   }
 
   onMapSelection() {
+    this.reachabilityCombinerService.resetLocations();
     this.reachabilityCombinerService.startPointsSource = 'manual';
     this.reachabilityCombinerService.manualMapSelectionMode = true;
-    this.reachabilityCombinerService.resetLocations();
   }
 
   onLayerSelection() {
+    this.reachabilityCombinerService.resetLocations();
     this.reachabilityCombinerService.startPointsSource = 'fromLayer';
     this.reachabilityCombinerService.manualMapSelectionMode = false;
-    this.reachabilityCombinerService.resetLocations();
   }
 
   onFocusModeChange() {

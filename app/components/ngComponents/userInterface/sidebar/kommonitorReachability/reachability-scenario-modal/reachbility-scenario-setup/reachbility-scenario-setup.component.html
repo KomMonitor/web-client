@@ -5,8 +5,7 @@
 <div class="row vertical-align">
   <div class="col-md-6 col-sm-6 col-xs-12">
     <div class="form-group">
-      <input
-        [(ngModel)]="reachabilityCombinerService.scenarioTitle"
+      <input [(ngModel)]="reachabilityCombinerService.scenarioTitle"
         placeholder="sprechender Name, der Szenario passend umschreibt">
 
       <div class="help-block">
@@ -27,25 +26,30 @@
       <div class="row vertical-align" style="margin-right:0px;">
 
         <div class="col-md-6 col-sm-6 col-xs-6">
-          <div class="horizontal-align" *ngIf="reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability">
+          @if (reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability) {
+          <div class="horizontal-align">
             <p><b>{{reachabilityCombinerService.selectedStartPointLayer.geoJSON_reachability.features.length}}</b>
               Startpunkte im
               selektierten Layer</p>
           </div>
+          }
 
           <div class="horizontal-align" *ngIf="!reachabilityCombinerService.selectedStartPointLayer">
             <p>noch kein Layer selektiert</p>
           </div>
 
-          <div class="horizontal-align" *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability">
+          <div class="horizontal-align"
+            *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.geoJSON_reachability">
             <p style="color: red;">zum angegebenen Zeitwert konnten keine
               validen Feature-Daten abgerufen werden</p>
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
-          <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer" (change)="onChangePoiResource()" [compareWith]="compareLayers" class="form-control" required>
+          <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"
+            (change)="onChangePoiResource()" [compareWith]="compareLayers" class="form-control" required>
             <option disabled value> -- Punkt-Layer w&auml;hlen --</option>
-            <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources" [ngValue]="poi">{{poi.datasetName}}</option>
+            <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources" [ngValue]="poi">
+              {{poi.datasetName}}</option>
           </select>
 
           <div *ngIf="reachabilityHelperService.settings.selectedStartPointLayer?.isNewReachabilityDataSource">
@@ -55,12 +59,13 @@
 
           </div>
 
-          <div *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
+          <div
+            *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
             <select style="font-size: 11px; width:135px; padding: 0px;"
-              [(ngModel)]="reachabilityCombinerService.selectedStartDate"
-              (change)="fetchPoiResourceGeoJSON()"
+              [(ngModel)]="reachabilityCombinerService.selectedStartDate" (change)="fetchPoiResourceGeoJSON()"
               class="form-control" required>
-              <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity; let i = index" [value]="date.startDate">{{date.startDate}}</option>
+              <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity; let i = index"
+                [value]="date.startDate">{{date.startDate}}</option>
             </select>
           </div>
         </div>

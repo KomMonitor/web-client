@@ -215,6 +215,8 @@ export class ReachabilityCombinerService {
     this.reachabilityMapSubject.value.selectedStartDate = undefined;
     this.reachabilityMapSubject.value.loadingState = false;
     this.reachabilityMapSubject.value.scenarioState = false;
+
+
   }
 
   async addLocation(location: GeoJSONFeature, manualSel: boolean = false) {
@@ -247,7 +249,10 @@ export class ReachabilityCombinerService {
     this.reachabilityMapSubject.next({
       ...this.reachabilityMapSubject.value,
       features: [],
-      isochronesGeoJson: null
+      isochronesGeoJson: null,
+      selectedStartDate: undefined,
+      selectedStartPointLayer: undefined,
+      scenarioState: false
     });
   }
 
@@ -321,6 +326,13 @@ export class ReachabilityCombinerService {
       else
         return 1;
     });
+
+    this.reachabilityMapSubject.next({
+      ...this.reachabilityMapSubject.value,
+      selectedStartDate: this.filteredAvailablePeriodsOfValidity[0].startDate
+    });
+
+    this.fetchPoiResourceGeoJSON();
   }
 
   onChangePoiResource() {

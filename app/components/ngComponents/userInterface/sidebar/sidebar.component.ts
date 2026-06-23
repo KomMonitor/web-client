@@ -18,8 +18,8 @@ import { KommonitorReachabilityComponent } from './kommonitorReachability/kommon
   styleUrls: ['./sidebar.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    KommonitorDataSetupComponent, 
+    CommonModule,
+    KommonitorDataSetupComponent,
     PoiComponent,
     KommonitorFilterComponent,
     KommonitorBalanceComponent,
@@ -29,9 +29,9 @@ import { KommonitorReachabilityComponent } from './kommonitorReachability/kommon
     KommonitorDataImportComponent,
     KommonitorReachabilityComponent]
 })
-export class SidebarComponent implements OnInit{
+export class SidebarComponent implements OnInit {
 
-  @Input() element:any = undefined;
+  @Input() element: any = undefined;
   @Output() sidebarClosed = new EventEmitter<any>(undefined);
 
   expandedWidthElements = [
@@ -43,16 +43,16 @@ export class SidebarComponent implements OnInit{
   constructor(
     private broadcastService: BroadcastService,
     private mapService: MapService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // default open
-    this.element = 'sidebarReachabilityCollapse';
+    //this.element = 'sidebarReachabilityCollapse';
   }
 
   closeSidebar() {
     this.element = undefined;
-    this.mapService.setMapRecenterState({recenter: true, resize: true});
+    this.mapService.setMapRecenterState({ recenter: true, resize: true });
     this.sidebarClosed.emit(true);
   }
 }

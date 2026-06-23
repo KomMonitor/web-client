@@ -177,7 +177,7 @@ export class ReachabilityMapHelperService {
   addDataLayertoSingleFeatureGeoMap(geoJSON: any, domId: string) {
     const mapParts = this.mapPartsMap.get(domId);
     if (mapParts) {
-        mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, mapParts.map, undefined, "", this.onEachFeature_isochrones, undefined, this.styleIsochrones);
+      mapParts.dataLayer = this.genericMapHelperService.addDataLayer(geoJSON, mapParts.map, undefined, "", this.onEachFeature_isochrones, undefined, this.styleIsochrones);
     }
   }
 
@@ -241,8 +241,8 @@ export class ReachabilityMapHelperService {
     const colors = ["green", "yellow", "orange", "red", "brown"];
     const sortedCutoffs = [...cutOffValues].sort((a, b) => a - b);
     this.dataExchangeService.isochroneLegend.colorValueEntries = sortedCutoffs.map((value, index) => ({
-        color: colors[index % colors.length],
-        value: value
+      color: colors[index % colors.length],
+      value: value
     })).reverse();
 
     if (useMultipleStartPoints && dissolveIsochrones) {
@@ -250,7 +250,7 @@ export class ReachabilityMapHelperService {
     }
 
     geoJSON.features.sort((a: any, b: any) => a.properties.value - b.properties.value);
-  
+
     for (let i = geoJSON.features.length - 1; i >= 0; i--) {
       const feature = geoJSON.features[i];
       const styleIndex = this.getStyleIndexForFeature(feature, this.dataExchangeService.isochroneLegend.colorValueEntries, reachMode);
@@ -310,10 +310,10 @@ export class ReachabilityMapHelperService {
   removeReachabilityLayers(domId: string) {
     const mapParts = this.mapPartsMap.get(domId);
     if (mapParts) {
-        this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.isochroneLayers.markerLayer);
-        this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.isochroneLayers.isochroneLayer);
-        this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.isochroneLayers.markerLayer);
-        this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.isochroneLayers.isochroneLayer);
+      this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.isochroneLayers.markerLayer);
+      this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.isochroneLayers.isochroneLayer);
+      this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.isochroneLayers.markerLayer);
+      this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.isochroneLayers.isochroneLayer);
     }
   }
 
@@ -409,18 +409,18 @@ export class ReachabilityMapHelperService {
   removeOldLayers_reachabilityIndicatorStatistics(domId: string) {
     const mapParts = this.mapPartsMap.get(domId);
     if (mapParts && mapParts.indicatorStatistics) {
-        if (mapParts.indicatorStatistics.poiLayer) {
-            this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.indicatorStatistics.poiLayer);
-            this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.indicatorStatistics.poiLayer);
-        }
-        if (mapParts.indicatorStatistics.poiIsochroneLayer) {
-            this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.indicatorStatistics.poiIsochroneLayer);
-            this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.indicatorStatistics.poiIsochroneLayer);
-        }
-        if (mapParts.indicatorStatistics.indicatorLayer) {
-            this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.indicatorStatistics.indicatorLayer);
-            this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.indicatorStatistics.indicatorLayer);
-        }
+      if (mapParts.indicatorStatistics.poiLayer) {
+        this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.indicatorStatistics.poiLayer);
+        this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.indicatorStatistics.poiLayer);
+      }
+      if (mapParts.indicatorStatistics.poiIsochroneLayer) {
+        this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.indicatorStatistics.poiIsochroneLayer);
+        this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.indicatorStatistics.poiIsochroneLayer);
+      }
+      if (mapParts.indicatorStatistics.indicatorLayer) {
+        this.genericMapHelperService.removeLayerFromMap(mapParts.map, mapParts.indicatorStatistics.indicatorLayer);
+        this.genericMapHelperService.removeLayerFromLayerControl(mapParts.layerControl, mapParts.indicatorStatistics.indicatorLayer);
+      }
     }
     if (mapParts && mapParts.indicatorLegendControl) {
       this.genericMapHelperService.removeControlFromMap(mapParts.map, mapParts.indicatorLegendControl);

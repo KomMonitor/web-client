@@ -60,8 +60,12 @@
       <br>
       <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()">Berechnung
         starten</button>
-      <button class="btn btn-primary btn-sm w-100" (click)="createScenario()"
-        [disabled]="!reachabilityCombinerService.isValidCalculation">Als Szenario übernehmen</button>
+      <div class="button-wrapper">
+        <button class="btn btn-primary btn-sm w-100" (click)="createScenario()"
+          [disabled]="!reachabilityCombinerService.isValidCalculation">Als Szenario übernehmen</button>
+        <button class="btn btn-danger btn-sm w-100"
+          (click)="reachabilityCombinerService.resetLocations()">Zurücksetzen</button>
+      </div>
     </expandable-box>
 
     <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">

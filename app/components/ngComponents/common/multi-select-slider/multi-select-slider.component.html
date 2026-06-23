@@ -1,8 +1,10 @@
 <div class="valuesWrapper">
-  <div *ngFor="let item of selectedValues" class="valueItem">
+  @for (item of selectedValues; track $index) {
+  <div class="valueItem">
     <p>{{item}} {{unit}}</p>
     <i class="fa-solid fa-x" (click)="removeValue(item)"></i>
   </div>
+  }
 </div>
 <div class="sliderWrapper">
   <div #sliderContainer class="slider"></div>
