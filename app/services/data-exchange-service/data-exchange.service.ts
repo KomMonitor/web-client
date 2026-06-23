@@ -246,10 +246,6 @@ export class DataExchangeService {
   }
 
   // todo topics hirarchy interface ?!
-  // Prio7 B6c: topic metadata lives in TopicMetadataStoreService; facade getter keeps consumers unchanged
-  get availableTopics(): any[] {
-    return this.topicStore.availableTopics;
-  }
 
   anySideBarIsShown = false;
 
@@ -749,7 +745,7 @@ export class DataExchangeService {
   } */
 
   async fetchTopicsMetadata(keycloakRolesArray) {
-    this.setTopics(await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
+    this.topicStore.setTopics(await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
   }
 
   async fetchSpatialUnitsMetadata(keycloakRolesArray) {
@@ -826,10 +822,6 @@ export class DataExchangeService {
     this.georesourceStore.setGeoresources(georesourcesArray);
   }
 
-  setTopics(topicsArray) {
-    this.topicStore.setTopics(topicsArray);
-  }
-
   setSpatialUnits(spatialUnitsArray) {
     this.spatialUnitStore.setSpatialUnits(spatialUnitsArray);
   }
@@ -891,7 +883,7 @@ export class DataExchangeService {
 
   private buildTopicGeoresourceHierarchy(filter: any = undefined) {
     this.topicHierarchyStore.buildTopicGeoresourceHierarchy(
-      this.availableTopics,
+      this.topicStore.availableTopics,
       this.displayableGeoresources_keywordFiltered,
       this.wmsDatasets_keywordFiltered,
       this.wfsDatasets_keywordFiltered,
@@ -909,7 +901,7 @@ export class DataExchangeService {
 
   private buildTopicIndicatorHierarchy() {
     this.topicHierarchyStore.buildTopicIndicatorHierarchy(
-      this.availableTopics,
+      this.topicStore.availableTopics,
       this.displayableIndicators_keywordFiltered,
       this.getAvailableIndiWmsDatasets()
     );
@@ -982,7 +974,7 @@ export class DataExchangeService {
   async downloadMetadataPDF_georesource(georesourceMetadata) {
     return this.metadataExportService.downloadMetadataPDF_georesource(
       georesourceMetadata,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
@@ -990,7 +982,7 @@ export class DataExchangeService {
     return this.metadataExportService.createMetadataPDF_georesource(
       georesource,
       pdfName,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
@@ -998,13 +990,13 @@ export class DataExchangeService {
     return this.metadataExportService.createMetadataPDF_indicator(
       indicator,
       this.availableSpatialUnits,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
   private getTopicHierarchyForTopicId(topicReferenceId) {
     return this.topicHierarchyStore.getTopicHierarchyForTopicId(
-      this.availableTopics,
+      this.topicStore.availableTopics,
       topicReferenceId
     );
   }
@@ -1017,7 +1009,7 @@ export class DataExchangeService {
       jsZipOptions,
       this.selectedIndicator,
       this.availableSpatialUnits,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
@@ -1025,7 +1017,7 @@ export class DataExchangeService {
     return this.metadataExportService.generateIndicatorMetadataPdf_asBlob(
       this.selectedIndicator,
       this.availableSpatialUnits,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
@@ -1034,7 +1026,7 @@ export class DataExchangeService {
       indicatorMetadata,
       pdfName,
       this.availableSpatialUnits,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
@@ -1206,14 +1198,14 @@ export class DataExchangeService {
       fileName,
       fileEnding,
       jsZipOptions,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 
   async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata) {
     return this.metadataExportService.generateGeoresourceMetadataPdf_asBlob(
       georesourceMetadata,
-      this.availableTopics
+      this.topicStore.availableTopics
     );
   }
 

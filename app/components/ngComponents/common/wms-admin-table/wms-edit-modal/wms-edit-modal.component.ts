@@ -4,6 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
 import { CommonModule } from '@angular/common';
@@ -63,11 +64,12 @@ export class WmsEditModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
+    private topicStore: TopicMetadataStoreService,
     private ogcService: OgcService,
     protected dataGridHelperService: OgcDataGridHelperService,
     private topicHierarchyService: TopicHierarchyService,
   ) {
-    this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource=='georesource');
+    this.availableTopics = this.topicStore.availableTopics.filter(e => e.topicResource=='georesource');
   }
 
   reInit() {
@@ -87,7 +89,7 @@ export class WmsEditModalComponent {
 
     // Set topic hierarchy
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
-      this.dataExchangeService.availableTopics,
+      this.topicStore.availableTopics,
       this.currentGeoresourceDataset.topicReference
     );
 

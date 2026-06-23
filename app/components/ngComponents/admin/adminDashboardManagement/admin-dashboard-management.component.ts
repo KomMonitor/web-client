@@ -13,6 +13,7 @@ import { BroadcastService } from '../../../../services/broadcast-service/broadca
 import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 
 interface PieSeriesDataItem {
   name: string;
@@ -100,6 +101,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private translateService = inject(TranslateService);
   protected dataExchange = inject(DataExchangeService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private topicStore = inject(TopicMetadataStoreService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -170,7 +172,7 @@ export class AdminDashboardManagementComponent implements OnInit {
     this.spatialUnitCount.set(String(d.availableSpatialUnits?.length ?? 0));
     this.indicatorScriptCount.set(String(this.processScriptStore.availableProcessScripts?.length ?? 0));
 
-    const mainTopics = (d.availableTopics ?? []).filter((t: any) => t.topicType === 'main');
+    const mainTopics = (this.topicStore.availableTopics ?? []).filter((t: any) => t.topicType === 'main');
     const subTopics = collectSubTopics(mainTopics);
 
     this.topicCounts.set(`${mainTopics.length}/${subTopics.length}`);

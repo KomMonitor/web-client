@@ -6,6 +6,7 @@ import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
 import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
@@ -80,13 +81,14 @@ export class WmsAddModalComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
+    private topicStore: TopicMetadataStoreService,
     private ogcService: OgcService,
     protected roleManagementHelper: RoleManagementDataGridHelperService,
     protected envConfigService: EnvConfigService
   ) {}
 
   ngOnInit(): void {
-    this.availableTopics = this.dataExchangeService.availableTopics.filter(e => e.topicResource==this.resourceType);
+    this.availableTopics = this.topicStore.availableTopics.filter(e => e.topicResource==this.resourceType);
   }
 
   // Multi-step form navigation

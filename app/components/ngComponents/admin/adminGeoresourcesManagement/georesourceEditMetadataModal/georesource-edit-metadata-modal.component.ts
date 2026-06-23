@@ -4,6 +4,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +28,7 @@ import {
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
   kommonitorMultiStepFormHelperService = inject(MultiStepHelperServiceService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
@@ -265,7 +267,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     // Set topic hierarchy
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
-      this.kommonitorDataExchangeService.availableTopics,
+      this.topicStore.availableTopics,
       this.currentGeoresourceDataset.topicReference
     );
 
@@ -543,7 +545,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     // Set topic hierarchy
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
-      this.kommonitorDataExchangeService.availableTopics,
+      this.topicStore.availableTopics,
       this.metadataImportSettings.topicReference
     );
 
@@ -800,7 +802,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // Get filtered topics for georesource
   getMainTopicsForGeoresource(): any[] {
-    return this.kommonitorDataExchangeService.availableTopics.filter(
+    return this.topicStore.availableTopics.filter(
       (topic: any) => topic.topicType === 'main' && topic.topicResource === 'georesource'
     );
   }

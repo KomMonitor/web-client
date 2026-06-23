@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementService } from './admin-topics-management.service';
 
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { AddTopicComponent } from './add-topic/add-topic.component';
@@ -51,6 +52,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   private topicSrvc = inject(AdminTopicsManagementService);
   private broadcastService = inject(BroadcastService);
   private dataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
 
   showTopicIds = false;
   loadingData = false;
@@ -61,13 +63,13 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   private subscription: Subscription | undefined;
 
   get filteredIndicatorTopics(): Topic[] {
-    return this.dataExchangeService.availableTopics.filter(
+    return this.topicStore.availableTopics.filter(
       (t) => t.topicType === 'main' && t.topicResource === 'indicator'
     );
   }
 
   get filteredGeoRessourceTopics(): Topic[] {
-    return this.dataExchangeService.availableTopics.filter(
+    return this.topicStore.availableTopics.filter(
       (t) => t.topicType === 'main' && t.topicResource === 'georesource'
     );
   }

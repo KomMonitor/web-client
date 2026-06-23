@@ -46,7 +46,14 @@ In aufsteigender Konsumentenzahl:
       `createMetadataPDF_*`, `generate*MetadataPdf_asBlob`) — sie reichen `availableTopics`/
       `availableSpatialUnits`/`selectedIndicator` durch; Umhängen würde State-Beschaffung in UI/Export
       streuen (Doc: „nicht 1:1 umhängbar"). Build/Test/Lint grün.
-- [ ] **B6c `TopicMetadataStoreService`** (11).
+- [x] **B6c `TopicMetadataStoreService`** ✅ (2026-06-23). **Korrektur:** real **13 Dateien** (nicht 11) —
+      Konsumenten injizieren dieselbe `DataExchangeService` unter verschiedenen Feldnamen
+      (`kommonitorDataExchangeService`, `angularJsDataExchangeService`, `d`). Alle direkt auf
+      `topicStore.availableTopics` umgehängt: admin-filter-config, admin-filter-edit-modal (6×),
+      admin-topics-management, admin-dashboard, indicator-edit-metadata-modal (+HTML), wms-add/edit-modal,
+      georesource-add/edit-metadata-modal, indicator-add-modal, ogc-/adminIndicatorUnit-/adminGeoresourceUnit-
+      Helper. Facade-interne Reads (Hierarchie-Builder + Glue-PDF/ZIP-Wrapper + fetchTopicsMetadata) repointet;
+      `availableTopics`-Getter + `setTopics`-Wrapper entfernt. Build/Test/Lint grün.
 - [ ] **B6e `GeoresourceMetadataStoreService`** (13) — inkl. WMS/WFS.
 - [ ] **B6d `IndicatorMetadataStoreService`** (15) — Glue beachten:
       `modifyIndicatorApplicableSpatialUnitsForLoginRoles` setzt zusätzlich B4-State

@@ -16,6 +16,7 @@ import { KommonitorFilterDataGridHelperService } from '../../../../../services/a
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
@@ -32,6 +33,7 @@ import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.
 })
 export class AdminFilterConfigComponent implements OnInit {
   private kommonitorDataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorDataGridHelperService = inject(KommonitorFilterDataGridHelperService);
@@ -332,7 +334,7 @@ export class AdminFilterConfigComponent implements OnInit {
         filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
           this.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] =
             this.searchTopicRecursive(
-              this.kommonitorDataExchangeService.availableTopics.filter(
+              this.topicStore.availableTopics.filter(
                 (e) => e.topicResource == 'indicator'
               ),
               indicatorTopicElement
@@ -341,7 +343,7 @@ export class AdminFilterConfigComponent implements OnInit {
         filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
           this.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] =
             this.searchTopicRecursive(
-              this.kommonitorDataExchangeService.availableTopics.filter(
+              this.topicStore.availableTopics.filter(
                 (e) => e.topicResource == 'georesource'
               ),
               georesourceTopicElement

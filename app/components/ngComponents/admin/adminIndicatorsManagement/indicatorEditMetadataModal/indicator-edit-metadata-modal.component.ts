@@ -10,6 +10,7 @@ import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 
 declare const __env: any;
 declare const colorbrewer: any;
@@ -29,6 +30,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   protected dataExchangeService = inject(DataExchangeService);
+  protected topicStore = inject(TopicMetadataStoreService);
 
   @ViewChild('modal') modal!: ElementRef;
 
@@ -421,7 +423,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     // Set topic hierarchy
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
-      this.dataExchangeService.availableTopics,
+      this.topicStore.availableTopics,
       this.currentIndicatorDataset.topicReference
     );
 

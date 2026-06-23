@@ -10,6 +10,7 @@ import {
   POI_MARKER_COLORS,
 } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
@@ -25,6 +26,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private topicHierarchyService = inject(TopicHierarchyService);
@@ -248,7 +250,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.updateIntervalOptions = this.envConfigService.updateIntervalOptions || [];
     this.availablePoiMarkerColors = POI_MARKER_COLORS || [];
     this.availableLoiDashArrayObjects = LOI_DASH_ARRAY_OBJECTS || [];
-    this.availableTopics = this.kommonitorDataExchangeService.availableTopics || [];
+    this.availableTopics = this.topicStore.availableTopics || [];
     this.availableDatasourceTypes =
       this.kommonitorImporterHelperService.availableDatasourceTypes || [];
 
@@ -687,7 +689,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.selectedPoiIconName = this.metadataImportSettings.poiSymbolBootstrap3Name;
 
     const topicHierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
-      this.kommonitorDataExchangeService.availableTopics,
+      this.topicStore.availableTopics,
       this.metadataImportSettings.topicReference
     );
 

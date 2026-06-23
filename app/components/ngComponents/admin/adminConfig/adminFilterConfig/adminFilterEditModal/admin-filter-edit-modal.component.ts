@@ -4,6 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from '../../../../../../services/config-storage-service/config-storage.service';
 import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from '../../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { MultiStepHelperServiceService } from '../../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
 import { NotificationService } from '../../../../common/notification/notification.service';
 
@@ -17,6 +18,7 @@ import { NotificationService } from '../../../../common/notification/notificatio
 export class AdminFilterEditModalComponent implements OnInit {
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private kommonitorDataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
@@ -77,8 +79,8 @@ export class AdminFilterEditModalComponent implements OnInit {
   // make sure that initial fetching of availableRoles has happened
   /* this.$on("initialMetadataLoadingCompleted", (event) {
 
-      this.indicatorTopicsEditTree = prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, []);
-      this.georesourceTopicsEditTree = prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'), 0, []);
+      this.indicatorTopicsEditTree = prepTopicsTree(this.topicStore.availableTopics.filter(e => e.topicResource=='indicator'), 0, []);
+      this.georesourceTopicsEditTree = prepTopicsTree(this.topicStore.availableTopics.filter(e => e.topicResource=='georesource'), 0, []);
 			addClickListenerToEachCollapseTrigger();
 		}); 
 
@@ -100,8 +102,8 @@ export class AdminFilterEditModalComponent implements OnInit {
           this.selectedIndicatorTopicEditIds = elem.indicatorTopics;
           this.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
 
-          this.indicatorTopicsEditTree = prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='indicator'), 0, this.selectedIndicatorTopicEditIds);
-          this.georesourceTopicsEditTree = prepTopicsTree(this.kommonitorDataExchangeService.availableTopics.filter(e => e.topicResource=='georesource'),0, this.selectedGeoresourceTopicEditIds);
+          this.indicatorTopicsEditTree = prepTopicsTree(this.topicStore.availableTopics.filter(e => e.topicResource=='indicator'), 0, this.selectedIndicatorTopicEditIds);
+          this.georesourceTopicsEditTree = prepTopicsTree(this.topicStore.availableTopics.filter(e => e.topicResource=='georesource'),0, this.selectedGeoresourceTopicEditIds);
 
           this.selectedIndicatorTopicEditIds.forEach(e => {
             searchIndicatorItemRecursive(this.indicatorTopicsEditTree, e, true);
@@ -444,14 +446,14 @@ export class AdminFilterEditModalComponent implements OnInit {
         this.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
 
         this.indicatorTopicsEditTree = this.prepTopicsTree(
-          this.kommonitorDataExchangeService.availableTopics.filter(
+          this.topicStore.availableTopics.filter(
             (e) => e.topicResource == 'indicator'
           ),
           0,
           this.selectedIndicatorTopicEditIds
         );
         this.georesourceTopicsEditTree = this.prepTopicsTree(
-          this.kommonitorDataExchangeService.availableTopics.filter(
+          this.topicStore.availableTopics.filter(
             (e) => e.topicResource == 'georesource'
           ),
           0,

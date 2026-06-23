@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
 @Injectable({
@@ -8,6 +9,7 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
 })
 export class KommonitorGeoresourceDataExchangeService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
 
   // Private subjects for reactive updates if needed in the future
@@ -103,7 +105,7 @@ export class KommonitorGeoresourceDataExchangeService {
    */
   getTopicHierarchyDisplayString(topicReference: any): string {
     return this.topicHierarchyService.getTopicHierarchyDisplayString(
-      this.angularJsDataExchangeService.availableTopics,
+      this.topicStore.availableTopics,
       topicReference
     );
   }

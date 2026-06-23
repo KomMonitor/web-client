@@ -3,6 +3,7 @@ import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
@@ -23,6 +24,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private kommonitorMultiStepFormHelperService = inject(MultiStepHelperServiceService);
@@ -257,8 +259,8 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Load available topics
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.availableTopics) {
-      this.availableTopics = this.kommonitorDataExchangeService.availableTopics;
+    if (this.kommonitorDataExchangeService && this.topicStore.availableTopics) {
+      this.availableTopics = this.topicStore.availableTopics;
     }
 
     // Load access control
