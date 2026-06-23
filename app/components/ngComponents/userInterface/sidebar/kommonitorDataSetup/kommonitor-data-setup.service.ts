@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { MapService } from "services/map-service/map.service";
 import {
@@ -19,6 +20,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly metadataExportService = inject(MetadataExportService);
   private readonly broadcastService = inject(BroadcastService);
   private readonly mapService = inject(MapService);
 
@@ -179,7 +181,7 @@ export class KommonitorDataSetupService {
     return indicatorDates
       .map((dateStr) => {
         const dateComponents = dateStr.split("-");
-        return this.dataExchangeService.dateToTS(
+        return this.metadataExportService.dateToTS(
           new Date(
             Number(dateComponents[0]),
             Number(dateComponents[1]) - 1,

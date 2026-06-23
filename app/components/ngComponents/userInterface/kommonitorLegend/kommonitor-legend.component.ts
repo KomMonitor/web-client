@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { LabelService } from 'services/label-service/label.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -71,6 +72,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected metadataExportService: MetadataExportService,
     protected labelService: LabelService,
     private elementVisibilityService: ElementVisibilityHelperService,
     private shareHelperService: ShareHelperService,

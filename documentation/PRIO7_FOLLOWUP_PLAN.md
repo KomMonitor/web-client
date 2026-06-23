@@ -37,7 +37,15 @@ In aufsteigender Konsumentenzahl:
       `setProcessScripts`-Wrapper aus der Facade entfernt. Übersprungen (tot): `indicator-delete-modal`
       (providerloser Bridge-Token `'kommonitorDataExchangeService'` → Bridge-Cleanup) +
       `kommonitor-individual-indicator-computation` (AngularJS reference-only). Build/Test/Lint grün.
-- [ ] **B2 `MetadataExportService`** (0–3 Konsumenten).
+- [~] **B2 `MetadataExportService`** ⚠️ **teilweise** (2026-06-23). Plan-Schätzung „0–3 Konsumenten"
+      war falsch — gemischter Service. **Erledigt: reine Utilities** (`tsToDate_withOptionalUpdateInterval`,
+      `dateToTS`, `getIndicatorStringFromIndicatorType`, `getImageDimensions`) direkt umgehängt
+      (Konsumenten: legend-HTML 4×, indicator-add, data-setup, adminIndicatorUnit-Grid-Helper) +
+      diese 4 Wrapper aus der Facade entfernt. **Bewusst behalten: Glue-PDF/ZIP-Wrapper**
+      (`downloadMetadataPDF_georesource`, `generateAndDownload*ZIP`, `generateIndicatorMetadataPdf*`,
+      `createMetadataPDF_*`, `generate*MetadataPdf_asBlob`) — sie reichen `availableTopics`/
+      `availableSpatialUnits`/`selectedIndicator` durch; Umhängen würde State-Beschaffung in UI/Export
+      streuen (Doc: „nicht 1:1 umhängbar"). Build/Test/Lint grün.
 - [ ] **B6c `TopicMetadataStoreService`** (11).
 - [ ] **B6e `GeoresourceMetadataStoreService`** (13) — inkl. WMS/WFS.
 - [ ] **B6d `IndicatorMetadataStoreService`** (15) — Glue beachten:

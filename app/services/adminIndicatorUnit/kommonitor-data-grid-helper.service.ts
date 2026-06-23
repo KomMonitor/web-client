@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import * as agGrid from 'ag-grid-community';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../env-config-service/env-config.service';
@@ -12,6 +13,7 @@ declare const $: any;
 })
 export class KommonitorIndicatorDataGridHelperService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private metadataExportService = inject(MetadataExportService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private envConfigService = inject(EnvConfigService);
 
@@ -132,7 +134,7 @@ export class KommonitorIndicatorDataGridHelperService {
         headerName: 'Indikator-Typ',
         minWidth: 200,
         cellRenderer: (params: any) => {
-          return this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(
+          return this.metadataExportService.getIndicatorStringFromIndicatorType(
             params.data.indicatorType
           );
         },
@@ -140,7 +142,7 @@ export class KommonitorIndicatorDataGridHelperService {
         filterValueGetter: (params: any) => {
           return (
             '' +
-            this.angularJsDataExchangeService.getIndicatorStringFromIndicatorType(
+            this.metadataExportService.getIndicatorStringFromIndicatorType(
               params.data.indicatorType
             )
           );

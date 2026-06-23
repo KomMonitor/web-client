@@ -1002,25 +1002,6 @@ export class DataExchangeService {
     );
   }
 
-  getImageDimensions(file) {
-    return this.metadataExportService.getImageDimensions(file);
-  }
-
-  getIndicatorStringFromIndicatorType(indicatorType) {
-    return this.metadataExportService.getIndicatorStringFromIndicatorType(indicatorType);
-  }
-
-  tsToDate_withOptionalUpdateInterval(ts, updateIntervalApiName: any = undefined) {
-    return this.metadataExportService.tsToDate_withOptionalUpdateInterval(
-      ts,
-      updateIntervalApiName
-    );
-  }
-
-  dateToTS(date) {
-    return this.metadataExportService.dateToTS(date);
-  }
-
   private getTopicHierarchyForTopicId(topicReferenceId) {
     return this.topicHierarchyStore.getTopicHierarchyForTopicId(
       this.availableTopics,

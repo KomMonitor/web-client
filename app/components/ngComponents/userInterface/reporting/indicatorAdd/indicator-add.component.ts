@@ -8,6 +8,7 @@ import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
@@ -179,6 +180,7 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected metadataExportService: MetadataExportService,
     protected labelService: LabelService,
     private broadcastSerice: BroadcastService,
     private diagramHelperService: DiagramHelperServiceService,
@@ -3943,7 +3945,7 @@ console.log('init all diagrams')
     for (let i=0; i < indicatorDates.length; i++){
       // year-month-day
       var dateComponents = indicatorDates[i].split("-");
-      datesAsMs.push(this.dataExchangeService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
+      datesAsMs.push(this.metadataExportService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
     }
     return datesAsMs;
   }
@@ -3994,7 +3996,7 @@ console.log('init all diagrams')
   }
 
   prettifyDateSliderLabels(dateAsMs) {
-    return this.dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, this.selectedIndicator.metadata.updateInterval);
+    return this.metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsMs, this.selectedIndicator.metadata.updateInterval);
   }
 
 

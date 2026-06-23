@@ -77,17 +77,17 @@
               <p [innerHTML]="dataExchangeService.selectedIndicator.metadata.description"></p>							
               
               <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
-                <em>Darstellung der Indikatorenwerte {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
+                <em>Darstellung der Indikatorenwerte {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
                 <div *ngIf="dataExchangeService.selectedIndicator.referenceDateNote">
                   <em><b>Hinweis Referenzdatum:</b> {{dataExchangeService.selectedIndicator.referenceDateNote}}</em>
                 </div>
               </div>
               <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') && ! dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
-                <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
+                <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
               </div>
               <div *ngIf="dataExchangeService.isMeasureOfValueChecked">
                 <em>Schwellwert-Klassifizierung</em>
-                <em>Gew&auml;hlter Zeitpunkt: </em> {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}
+                <em>Gew&auml;hlter Zeitpunkt: </em> {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}
                 <em>aktueller Schwellwert: </em> {{dataExchangeService.measureOfValue}}
               </div>
               <div *ngIf="dataExchangeService.isBalanceChecked">
@@ -472,7 +472,7 @@
     </expandable-box>
   
     <expandable-box [title]="'Indikatoren-Statistik'" [collapsed]="true">
-      <em>Referenzzeitpunkt {{dataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
+      <em>Referenzzeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
       <table id="statisticalValuesDisplayTable" class="table">
         <thead>
           <tr>
