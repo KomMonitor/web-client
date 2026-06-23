@@ -1,25 +1,17 @@
-import { Injectable } from '@angular/core';
-import { BroadcastService } from '../broadcast-service/broadcast.service';
+import { Injectable, inject } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
-import { 
-  GridOptions,
-  ColDef,
-  ColumnApi,
-  ICellRendererParams,
-  ICellRendererComp,
-  GridReadyEvent,
-  RowSelectedEvent,
-  CellClickedEvent
-} from 'ag-grid-community';
+import { GridOptions, ColDef } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 import { OgcService } from 'services/ogcServices/ogc.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OgcDataGridHelperService {
+  private dataExchangeService = inject(DataExchangeService);
+  private ogcService = inject(OgcService);
 
   // Store the data grid options
   private dataGridOptions_wms: GridOptions | null = null;
@@ -29,11 +21,6 @@ export class OgcDataGridHelperService {
 
   // Component reference for callbacks
   private componentRef: any = null;
-
-  constructor(
-    private dataExchangeService: DataExchangeService,
-    private ogcService: OgcService
-  ) { }
 
   /**
    * Initialize the grid references
@@ -47,7 +34,7 @@ export class OgcDataGridHelperService {
    */
   setComponentRef(componentRef: any): void {
     this.componentRef = componentRef;
-    
+
     // Update column definitions with the component reference for all grids
     this.updateColumnDefinitions();
   }
@@ -56,7 +43,6 @@ export class OgcDataGridHelperService {
    * Update column definitions with the current component reference
    */
   private updateColumnDefinitions(): void {
-
     if (this.wmsGrid && this.wmsGrid.api) {
       const wmsColumnDefs = this.getWmsColumnDefinitions();
       this.wmsGrid.api.setColumnDefs(wmsColumnDefs);
@@ -84,13 +70,12 @@ export class OgcDataGridHelperService {
     if (!this.wmsGrid) {
       return;
     }
-    
+
     const columnDefs = this.getWmsColumnDefinitions();
-    
+
     try {
       this.wmsGrid.api?.setRowData(georesourcesArray);
       this.wmsGrid.api?.setColumnDefs(columnDefs);
-      
     } catch (error) {
       console.error('Error updating POI grid:', error);
     }
@@ -102,7 +87,7 @@ export class OgcDataGridHelperService {
   getWmsGridOptions(): any {
     return {
       components: {
-        displayEditButtons_WMSgeoresources: this.displayEditButtons_WMSgeoresources
+        displayEditButtons_WMSgeoresources: this.displayEditButtons_WMSgeoresources,
       },
       defaultColDef: {
         editable: false,
@@ -111,7 +96,7 @@ export class OgcDataGridHelperService {
         floatingFilter: true,
         resizable: true,
         wrapText: true,
-        autoHeight: true
+        autoHeight: true,
       },
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
@@ -119,7 +104,7 @@ export class OgcDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
-      suppressColumnVirtualisation: true
+      suppressColumnVirtualisation: true,
     };
   }
 
@@ -127,16 +112,18 @@ export class OgcDataGridHelperService {
    * Simple function-based cell renderer for edit buttons (like original)
    */
   private displayEditButtons_WMSgeoresources = (params: any) => {
-     if (!params.data || !params.data.id) {
+    if (!params.data || !params.data.id) {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
 
     // Check user permissions (handle both array and potential undefined)
     const userPermissions = params.data.userPermissions || [];
-    const hasEditorPermission = Array.isArray(userPermissions) ? 
-      (userPermissions.includes("editor") || userPermissions.includes("creator")) : false;
-    const hasCreatorPermission = Array.isArray(userPermissions) ? 
-      userPermissions.includes("creator") : false;
+    const hasEditorPermission = Array.isArray(userPermissions)
+      ? userPermissions.includes('editor') || userPermissions.includes('creator')
+      : false;
+    const hasCreatorPermission = Array.isArray(userPermissions)
+      ? userPermissions.includes('creator')
+      : false;
 
     const buttonWrapper = document.createElement('div');
 
@@ -145,9 +132,9 @@ export class OgcDataGridHelperService {
     buttonWrapper.appendChild(this.buildDeleteButton(params, hasCreatorPermission));
 
     return buttonWrapper;
-  }
+  };
 
-  buildEditButton(params:any, hasEditorPermission:boolean){
+  buildEditButton(params: any, hasEditorPermission: boolean) {
     const button = document.createElement('button');
     button.title = 'Zugriffsschutz und Eigentümerschaft editieren';
     button.className = 'btn btn-warning btn-sm';
@@ -176,7 +163,7 @@ export class OgcDataGridHelperService {
     return button;
   }
 
-  buildEditUserRolesButton(params:any, hasCreatorPermission:boolean){
+  buildEditUserRolesButton(params: any, hasCreatorPermission: boolean) {
     const button = document.createElement('button');
     button.title = 'Metadaten editieren';
     button.className = 'btn btn-warning btn-sm';
@@ -204,7 +191,7 @@ export class OgcDataGridHelperService {
     return button;
   }
 
-  buildDeleteButton(params:any, hasCreatorPermission:boolean){
+  buildDeleteButton(params: any, hasCreatorPermission: boolean) {
     const button = document.createElement('button');
     button.title = 'WMS entfernen';
     button.className = 'btn btn-danger btn-sm';
@@ -235,53 +222,55 @@ export class OgcDataGridHelperService {
 
   /**
    * Get WMS column definitions
-  */
+   */
   private getWmsColumnDefinitions(): ColDef[] {
     return [
-      { 
-        headerName: 'Editierfunktionen', 
-        maxWidth: 200, 
+      {
+        headerName: 'Editierfunktionen',
+        maxWidth: 200,
         minWidth: 180,
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
+        checkboxSelection: false,
+        headerCheckboxSelection: false,
+        headerCheckboxSelectionFilteredOnly: true,
+        filter: false,
+        sortable: false,
         cellRenderer: 'displayEditButtons_WMSgeoresources',
-        flex: 1
+        flex: 1,
       },
-      { 
-        headerName: 'Id', 
-        field: "id", 
+      {
+        headerName: 'Id',
+        field: 'id',
         maxWidth: 125,
-        flex: 1 },
-      { 
-        headerName: 'Name', 
-        field: "title", 
+        flex: 1,
+      },
+      {
+        headerName: 'Name',
+        field: 'title',
         minWidth: 300,
-        flex: 1 },
-      { 
-        headerName: 'Legende', 
+        flex: 1,
+      },
+      {
+        headerName: 'Legende',
         minWidth: 400,
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
           return `<img src="${this.ogcService.buildLegendUrl(params.data.connectionDetails.baseUrl, params.data.connectionDetails.layerName)}">`;
         },
-        flex: 1
+        flex: 1,
       },
-      { 
-        headerName: 'Beschreibung', 
+      {
+        headerName: 'Beschreibung',
         cellRenderer: (params: any) => {
           return params.data.description || '';
         },
-        flex: 1
+        flex: 1,
       },
-      { 
-        headerName: 'Themenhierarchie', 
+      {
+        headerName: 'Themenhierarchie',
         cellRenderer: this.translateTopicsReferences,
-        flex: 1
-      }
+        flex: 1,
+      },
     ];
   }
 
@@ -289,13 +278,13 @@ export class OgcDataGridHelperService {
     if (!params.data || !params.data.topicReference) {
       return '<div class="btn-group btn-group-sm">No data</div>';
     }
-    
-    const topic:Topic = this.dataExchangeService.availableTopics.find((e:Topic) => e.topicId==params.data.topicReference);
 
-    if(!topic)
-      return 'Topic not found';
+    const topic: Topic = this.dataExchangeService.availableTopics.find(
+      (e: Topic) => e.topicId == params.data.topicReference
+    );
+
+    if (!topic) return 'Topic not found';
 
     return topic.topicName;
-  }
-
+  };
 }

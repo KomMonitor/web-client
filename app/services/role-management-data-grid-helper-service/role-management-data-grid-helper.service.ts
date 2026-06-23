@@ -122,7 +122,9 @@ export class RoleManagementDataGridHelperService {
         try {
           this.gridApi?.refreshCells({ force: true });
           this.gridApi?.redrawRows();
-        } catch (e) {}
+        } catch {
+          /* grid may have been destroyed before the timeout fires; ignore refresh errors */
+        }
       }, 0);
     } else {
       // Create new grid options
@@ -380,7 +382,7 @@ export class RoleManagementDataGridHelperService {
     }
 
     checkedHandler(e: any) {
-      let checked = e.target.checked;
+      const checked = e.target.checked;
 
       for (const permission of this.params.data.permissions) {
         if (permission.permissionLevel == "viewer"){
@@ -447,7 +449,7 @@ export class RoleManagementDataGridHelperService {
     }
 
     checkedHandler(e: any) {
-      let checked = e.target.checked;
+      const checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
         if (permission.permissionLevel == "viewer"){
           if (checked){
@@ -532,7 +534,7 @@ export class RoleManagementDataGridHelperService {
     }
 
     checkedHandler(e: any) {
-      let checked = e.target.checked;
+      const checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
         if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
           permission.isChecked = checked;

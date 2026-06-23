@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { PdfExportService } from "services/pdf-export-service/pdf-export.service";
+import { Injectable, inject } from '@angular/core';
+import { PdfExportService } from 'services/pdf-export-service/pdf-export.service';
 
 /**
  * Metadata PDF/ZIP export delegations extracted from DataExchangeService
@@ -10,16 +10,15 @@ import { PdfExportService } from "services/pdf-export-service/pdf-export.service
  * are passed in by the DataExchangeService facade, so this service holds no shared state.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class MetadataExportService {
-
-  constructor(private pdfExportService: PdfExportService) {}
+  private pdfExportService = inject(PdfExportService);
 
   async downloadMetadataPDF_georesource(georesourceMetadata, availableTopics) {
     return this.pdfExportService.downloadMetadataPDF_georesource(
       georesourceMetadata,
-      availableTopics,
+      availableTopics
     );
   }
 
@@ -27,7 +26,7 @@ export class MetadataExportService {
     return this.pdfExportService.createMetadataPDF_georesource(
       georesource,
       pdfName,
-      availableTopics,
+      availableTopics
     );
   }
 
@@ -35,28 +34,20 @@ export class MetadataExportService {
     return this.pdfExportService.createMetadataPDF_indicator(
       indicator,
       availableSpatialUnits,
-      availableTopics,
+      availableTopics
     );
   }
 
   getImageDimensions(file) {
-    return this.pdfExportService["_getImageDimensions"](file);
+    return this.pdfExportService['_getImageDimensions'](file);
   }
 
   getIndicatorStringFromIndicatorType(indicatorType) {
-    return this.pdfExportService.getIndicatorStringFromIndicatorType(
-      indicatorType,
-    );
+    return this.pdfExportService.getIndicatorStringFromIndicatorType(indicatorType);
   }
 
-  tsToDate_withOptionalUpdateInterval(
-    ts,
-    updateIntervalApiName: any = undefined,
-  ) {
-    return this.pdfExportService.tsToDate_withOptionalUpdateInterval(
-      ts,
-      updateIntervalApiName,
-    );
+  tsToDate_withOptionalUpdateInterval(ts, updateIntervalApiName: any = undefined) {
+    return this.pdfExportService.tsToDate_withOptionalUpdateInterval(ts, updateIntervalApiName);
   }
 
   dateToTS(date) {
@@ -70,7 +61,7 @@ export class MetadataExportService {
     jsZipOptions,
     selectedIndicator,
     availableSpatialUnits,
-    availableTopics,
+    availableTopics
   ) {
     return this.pdfExportService.generateAndDownloadIndicatorZIP(
       indicatorData,
@@ -79,19 +70,19 @@ export class MetadataExportService {
       jsZipOptions,
       selectedIndicator,
       availableSpatialUnits,
-      availableTopics,
+      availableTopics
     );
   }
 
   async generateIndicatorMetadataPdf_asBlob(
     selectedIndicator,
     availableSpatialUnits,
-    availableTopics,
+    availableTopics
   ) {
     return this.pdfExportService.generateIndicatorMetadataPdf_asBlob(
       selectedIndicator,
       availableSpatialUnits,
-      availableTopics,
+      availableTopics
     );
   }
 
@@ -99,13 +90,13 @@ export class MetadataExportService {
     indicatorMetadata,
     pdfName,
     availableSpatialUnits,
-    availableTopics,
+    availableTopics
   ) {
     return this.pdfExportService.generateIndicatorMetadataPdf(
       indicatorMetadata,
       pdfName,
       availableSpatialUnits,
-      availableTopics,
+      availableTopics
     );
   }
 
@@ -115,7 +106,7 @@ export class MetadataExportService {
     fileName,
     fileEnding,
     jsZipOptions,
-    availableTopics,
+    availableTopics
   ) {
     return this.pdfExportService.generateAndDownloadGeoresourceZIP(
       georesourceMetadata,
@@ -123,14 +114,14 @@ export class MetadataExportService {
       fileName,
       fileEnding,
       jsZipOptions,
-      availableTopics,
+      availableTopics
     );
   }
 
   async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata, availableTopics) {
     return this.pdfExportService.generateGeoresourceMetadataPdf_asBlob(
       georesourceMetadata,
-      availableTopics,
+      availableTopics
     );
   }
 }

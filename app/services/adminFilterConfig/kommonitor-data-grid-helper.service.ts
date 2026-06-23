@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as agGrid from 'ag-grid-community';
@@ -6,49 +6,42 @@ import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminFilterEditModalComponent } from 'components/ngComponents/admin/adminConfig/adminFilterConfig/adminFilterEditModal/admin-filter-edit-modal.component';
 
-declare const $: any;
-declare const MathJax: any;
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorFilterDataGridHelperService {
-
-
-
-  constructor(
-    private angularJsDataExchangeService: DataExchangeService,
-    private modalService: NgbModal
-  ) {}
+  private angularJsDataExchangeService = inject(DataExchangeService);
+  private modalService = inject(NgbModal);
 
   /**
    * Builds data grid for indicators - now returns column definitions and row data for AG Grid Angular
    */
-  buildDataGrid_filters(globalFilterArray: GlobalFilterEntry[]): { columnDefs: ColDef[], rowData: any[] } {
+  buildDataGrid_filters(globalFilterArray: GlobalFilterEntry[]): {
+    columnDefs: ColDef[];
+    rowData: any[];
+  } {
     const columnDefs = this.buildDataGridColumnConfig_filters(globalFilterArray);
     const rowData = this.buildDataGridRowData_filters(globalFilterArray);
 
     return { columnDefs, rowData };
   }
 
-
-
   /**
    * Builds column configuration for indicators
    */
-  buildDataGridColumnConfig_filters(globalFilterArray: GlobalFilterEntry[]): any[] {
+  buildDataGridColumnConfig_filters(_globalFilterArray: GlobalFilterEntry[]): any[] {
     const columnDefs = [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 150, 
-        checkboxSelection: false, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: (params: any) => this.displayEditButtons_filters(params)
+      {
+        headerName: 'Editierfunktionen',
+        pinned: 'left',
+        maxWidth: 150,
+        checkboxSelection: false,
+        filter: false,
+        sortable: false,
+        cellRenderer: (params: any) => this.displayEditButtons_filters(params),
       },
-      { headerName: 'Name', field: "name", pinned: 'left', minWidth: 300 },
-      { headerName: 'Indikatoren', field: "indicators", minWidth: 200 }
+      { headerName: 'Name', field: 'name', pinned: 'left', minWidth: 300 },
+      { headerName: 'Indikatoren', field: 'indicators', minWidth: 200 },
     ];
 
     return columnDefs;
@@ -65,11 +58,10 @@ export class KommonitorFilterDataGridHelperService {
    * Display edit buttons component for indicators
    */
   displayEditButtons_filters = (params: any) => {
-     // Safety check for data
-    if (!params)
-      return '<div class="btn-group btn-group-sm">No data</div>';
+    // Safety check for data
+    if (!params) return '<div class="btn-group btn-group-sm">No data</div>';
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
 
     const editButton = document.createElement('button');
     editButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
@@ -77,11 +69,13 @@ export class KommonitorFilterDataGridHelperService {
     editButton.title = 'Filter editieren';
 
     editButton.addEventListener('click', () => {
-      const modalRef = this.modalService.open(AdminFilterEditModalComponent, {windowClass: 'modal-holder', centered: true});
+      const modalRef = this.modalService.open(AdminFilterEditModalComponent, {
+        windowClass: 'modal-holder',
+        centered: true,
+      });
       modalRef.componentInstance.filterName = params.data.name;
     });
 
-    
     const deleteButton = document.createElement('button');
     deleteButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
     deleteButton.className = 'btn btn-danger btn-sm';
@@ -102,9 +96,7 @@ export class KommonitorFilterDataGridHelperService {
    */
   private headerHeightGetter(): number {
     const columnHeaderTexts = Array.from(document.querySelectorAll('.ag-header-cell-text'));
-    const clientHeights = columnHeaderTexts.map(
-      (headerText: any) => headerText.clientHeight
-    );
+    const clientHeights = columnHeaderTexts.map((headerText: any) => headerText.clientHeight);
     const tallestHeaderTextHeight = Math.max(...clientHeights);
 
     return tallestHeaderTextHeight;
@@ -132,9 +124,9 @@ export class KommonitorFilterDataGridHelperService {
    */
   private restoreGridStore(gridOptions: any): void {
     if ((window as any).colState) {
-      gridOptions.columnApi.applyColumnState({ 
-        state: (window as any).colState, 
-        applyOrder: true 
+      gridOptions.columnApi.applyColumnState({
+        state: (window as any).colState,
+        applyOrder: true,
       });
     }
 
@@ -148,8 +140,8 @@ export class KommonitorFilterDataGridHelperService {
    */
   private broadcastEvent(eventName: string, data: any): void {
     // Create a custom event that the Angular component can listen to
-    const event = new CustomEvent(eventName, { 
-      detail: { values: data } 
+    const event = new CustomEvent(eventName, {
+      detail: { values: data },
     });
     document.dispatchEvent(event);
   }
@@ -165,10 +157,14 @@ export class KommonitorFilterDataGridHelperService {
   /**
    * Gets reference values from regional reference values management grid - delegates to AngularJS service
    */
-  getReferenceValues_regionalReferenceValuesManagementGrid(regionalReferenceValuesManagementTableOptions){
-    let regionalReferenceValuesList:any[] = [];
-    if (regionalReferenceValuesManagementTableOptions && regionalReferenceValuesManagementTableOptions.api){
-
+  getReferenceValues_regionalReferenceValuesManagementGrid(
+    regionalReferenceValuesManagementTableOptions
+  ) {
+    const regionalReferenceValuesList: any[] = [];
+    if (
+      regionalReferenceValuesManagementTableOptions &&
+      regionalReferenceValuesManagementTableOptions.api
+    ) {
       /*
           regionalReferenceValuesList: 
           [
@@ -187,9 +183,9 @@ export class KommonitorFilterDataGridHelperService {
           ]
           
       */
-      regionalReferenceValuesManagementTableOptions.api.forEachNode((node, index) => {            
-        regionalReferenceValuesList.push(node.data);           
-      })               
+      regionalReferenceValuesManagementTableOptions.api.forEachNode((node, _index) => {
+        regionalReferenceValuesList.push(node.data);
+      });
     }
     return regionalReferenceValuesList;
   }
@@ -198,13 +194,16 @@ export class KommonitorFilterDataGridHelperService {
    * Builds reference values management grid - delegates to AngularJS service
    */
   buildReferenceValuesManagementGrid(domElementId, applicableDates, regionalReferenceValuesList) {
+    // typed as `any` to match the original implicit-any local; the inferred grid-options
+    // shape is not directly assignable to ag-grid's GridOptions (loose ColDef literals).
+    const dataGridOptions_regionalReferenceValues: any =
+      this.buildDataGridOptions_regionalReferenceValues(
+        applicableDates,
+        regionalReferenceValuesList
+      );
 
-    let dataGridOptions_regionalReferenceValues;
-
-    dataGridOptions_regionalReferenceValues = this.buildDataGridOptions_regionalReferenceValues(applicableDates, regionalReferenceValuesList);
-    
-    let gridDiv:any = document.querySelector('#' + domElementId);
-    if(gridDiv) {
+    const gridDiv: any = document.querySelector('#' + domElementId);
+    if (gridDiv) {
       while (gridDiv.firstChild) {
         gridDiv.removeChild(gridDiv!.firstChild);
       }
@@ -214,19 +213,25 @@ export class KommonitorFilterDataGridHelperService {
     return dataGridOptions_regionalReferenceValues;
   }
 
-  buildDataGridOptions_regionalReferenceValues(applicableDates, regionalReferenceValuesList){
-    let columnDefs = this.buildDataGridColumnConfig_regionalReferenceValues(applicableDates, regionalReferenceValuesList);
-    let rowData = this.buildDataGridRowData_regionalReferenceValues(applicableDates, regionalReferenceValuesList);
+  buildDataGridOptions_regionalReferenceValues(applicableDates, regionalReferenceValuesList) {
+    const columnDefs = this.buildDataGridColumnConfig_regionalReferenceValues(
+      applicableDates,
+      regionalReferenceValuesList
+    );
+    const rowData = this.buildDataGridRowData_regionalReferenceValues(
+      applicableDates,
+      regionalReferenceValuesList
+    );
 
-    let gridOptions = {
+    const gridOptions = {
       defaultColDef: {
-        editable: true,            
+        editable: true,
         cellEditor: 'agNumberCellEditor',
         cellEditorParams: {
           precision: 2,
           step: 0.25,
-          showStepperButtons: true
-        },              
+          showStepperButtons: true,
+        },
         sortable: true,
         flex: 1,
         minWidth: 200,
@@ -238,7 +243,14 @@ export class KommonitorFilterDataGridHelperService {
         resizable: true,
         wrapText: true,
         autoHeight: true,
-        cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+        cellStyle: {
+          'font-size': '12px;',
+          'white-space': 'normal !important',
+          'line-height': '20px !important',
+          'word-break': 'break-word !important',
+          'padding-top': '17px',
+          'padding-bottom': '17px',
+        },
         headerComponentParams: {
           template:
             '<div class="ag-cell-label-container" role="presentation">' +
@@ -268,7 +280,7 @@ export class KommonitorFilterDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
-      suppressColumnVirtualisation: true,          
+      suppressColumnVirtualisation: true,
       // onFirstDataRendered: function () {
       //   headerHeightSetter(this);
       // },
@@ -276,51 +288,75 @@ export class KommonitorFilterDataGridHelperService {
       //   headerHeightSetter(this);
       // }
       onRowDataChanged: function () {
-      },  
-      onModelUpdated: function () {
-        
-      }, 
-      onViewportChanged: function () {                  
+        /* intentionally empty */
       },
-
+      onModelUpdated: function () {
+        /* intentionally empty */
+      },
+      onViewportChanged: function () {
+        /* intentionally empty */
+      },
     };
 
-    return gridOptions;        
+    return gridOptions;
   }
 
-  buildDataGridColumnConfig_regionalReferenceValues(applicableDates, regionalReferenceValuesList){
+  buildDataGridColumnConfig_regionalReferenceValues(_applicableDates, _regionalReferenceValuesList) {
     const columnDefs = [
-      { headerName: 'Zeitpunkt', field: "referenceDate", pinned: 'left', cellDataType: 'text', editable: false, cellClass: "grid-non-editable", maxWidth: 150
+      {
+        headerName: 'Zeitpunkt',
+        field: 'referenceDate',
+        pinned: 'left',
+        cellDataType: 'text',
+        editable: false,
+        cellClass: 'grid-non-editable',
+        maxWidth: 150,
       },
-      { headerName: 'regionale Gesamtsumme', field: "regionalSum", cellDataType: 'number', 
-        cellEditor: 'agNumberCellEditor', cellEditorParams: {
+      {
+        headerName: 'regionale Gesamtsumme',
+        field: 'regionalSum',
+        cellDataType: 'number',
+        cellEditor: 'agNumberCellEditor',
+        cellEditorParams: {
           precision: 2,
           step: 0.01,
-          showStepperButtons: true
-        }, 
-        tooltipValueGetter: (p) =>
-          "mit Enter bestätigen", maxWidth: 175 },
-      { headerName: 'regionaler Mittelwert', field: "regionalAverage", cellDataType: 'number', cellEditor: 'agNumberCellEditor', cellEditorParams: {
-        precision: 2,
-        step: 0.01,
-        showStepperButtons: true
-      }, tooltipValueGetter: (p) =>
-        "mit Enter bestätigen",
-      maxWidth: 175 },
-      { headerName: 'räumlich nicht zuordenbar', field: "spatiallyUnassignable", cellDataType: 'number', cellEditor: 'agNumberCellEditor', cellEditorParams: {
-        precision: 2,
-        step: 0.01,
-        showStepperButtons: true
-      }, tooltipValueGetter: (p) =>
-        "mit Enter bestätigen", maxWidth: 175 }, 
-      
+          showStepperButtons: true,
+        },
+        tooltipValueGetter: (_p) => 'mit Enter bestätigen',
+        maxWidth: 175,
+      },
+      {
+        headerName: 'regionaler Mittelwert',
+        field: 'regionalAverage',
+        cellDataType: 'number',
+        cellEditor: 'agNumberCellEditor',
+        cellEditorParams: {
+          precision: 2,
+          step: 0.01,
+          showStepperButtons: true,
+        },
+        tooltipValueGetter: (_p) => 'mit Enter bestätigen',
+        maxWidth: 175,
+      },
+      {
+        headerName: 'räumlich nicht zuordenbar',
+        field: 'spatiallyUnassignable',
+        cellDataType: 'number',
+        cellEditor: 'agNumberCellEditor',
+        cellEditorParams: {
+          precision: 2,
+          step: 0.01,
+          showStepperButtons: true,
+        },
+        tooltipValueGetter: (_p) => 'mit Enter bestätigen',
+        maxWidth: 175,
+      },
     ];
 
     return columnDefs;
   }
 
-  buildDataGridRowData_regionalReferenceValues(applicableDates, regionalReferenceValuesList){
-    
+  buildDataGridRowData_regionalReferenceValues(applicableDates, regionalReferenceValuesList) {
     /*
       regionalReferenceValuesList: 
         [
@@ -339,40 +375,40 @@ export class KommonitorFilterDataGridHelperService {
         ]
     */
 
-      let dataArray:any[] = [];
+    const dataArray: any[] = [];
 
-    if(applicableDates && applicableDates.length > 0){
-
+    if (applicableDates && applicableDates.length > 0) {
       for (const availableDate of applicableDates) {
         let item = {
-          "referenceDate": availableDate,
-          "regionalSum": undefined,
-          "regionalAverage": undefined,
-          "spatiallyUnassignable": undefined
+          referenceDate: availableDate,
+          regionalSum: undefined,
+          regionalAverage: undefined,
+          spatiallyUnassignable: undefined,
         };
 
-        if(regionalReferenceValuesList && regionalReferenceValuesList.length > 0){
+        if (regionalReferenceValuesList && regionalReferenceValuesList.length > 0) {
           for (const regionalReferenceValuesListEntry of regionalReferenceValuesList) {
-            if(regionalReferenceValuesListEntry.referenceDate == availableDate){
+            if (regionalReferenceValuesListEntry.referenceDate == availableDate) {
               item = regionalReferenceValuesListEntry;
               break;
             }
           }
         }
-        
 
         dataArray.push(item);
       }
-      
     }
-    
+
     return dataArray;
   }
 
   /**
    * Build role management grid row data
    */
-  private buildRoleManagementGridRowData(accessControlMetadata: any[], permissionIds: string[]): any[] {
+  private buildRoleManagementGridRowData(
+    accessControlMetadata: any[],
+    permissionIds: string[]
+  ): any[] {
     // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
     const data = JSON.parse(JSON.stringify(accessControlMetadata));
     for (const elem of data) {
@@ -420,53 +456,60 @@ export class KommonitorFilterDataGridHelperService {
 
   private buildRoleManagementGridColumnConfig(reducedRoleManagement: boolean = false): any[] {
     const columnDefs = [
-      { 
-        headerName: 'Organisationseinheit', 
-        field: 'name', 
+      {
+        headerName: 'Organisationseinheit',
+        field: 'name',
         minWidth: 200,
-        cellClass: 'user-roles-normal'
+        cellClass: 'user-roles-normal',
       },
-      { 
-        headerName: 'Lesen', 
-        field: 'viewer', 
-        filter: false, 
-        sortable: false, 
-        width: 100, 
+      {
+        headerName: 'Lesen',
+        field: 'viewer',
+        filter: false,
+        sortable: false,
+        width: 100,
         cellRenderer: 'CheckboxRenderer_viewer',
-        editable: true
+        editable: true,
       },
-      { 
-        headerName: 'Editieren', 
-        field: 'editor', 
-        filter: false, 
-        sortable: false, 
-        width: 100, 
+      {
+        headerName: 'Editieren',
+        field: 'editor',
+        filter: false,
+        sortable: false,
+        width: 100,
         cellRenderer: 'CheckboxRenderer_editor',
-        editable: true
-      }
+        editable: true,
+      },
     ];
     if (!reducedRoleManagement) {
-      columnDefs.push({ 
-        headerName: 'Löschen', 
-        field: 'creator', 
-        filter: false, 
-        sortable: false, 
-        width: 100, 
+      columnDefs.push({
+        headerName: 'Löschen',
+        field: 'creator',
+        filter: false,
+        sortable: false,
+        width: 100,
         cellRenderer: 'CheckboxRenderer_creator',
-        editable: true
+        editable: true,
       });
     }
     return columnDefs;
   }
 
-  private buildRoleManagementGridOptions(accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
+  private buildRoleManagementGridOptions(
+    accessControlMetadata: any[],
+    selectedPermissionIds: string[],
+    reducedRoleManagement: boolean = false
+  ): any {
     const columnDefs = this.buildRoleManagementGridColumnConfig(reducedRoleManagement);
-    const rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+    const rowData = this.buildRoleManagementGridRowData(
+      accessControlMetadata,
+      selectedPermissionIds
+    );
     const gridOptions = {
       components: {
         CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
         CheckboxRenderer_editor: this.CheckboxRenderer_editor,
-        CheckboxRenderer_creator: this.CheckboxRenderer_creator
+        CheckboxRenderer_creator: this.CheckboxRenderer_creator,
       },
       defaultColDef: {
         editable: false,
@@ -478,13 +521,13 @@ export class KommonitorFilterDataGridHelperService {
         resizable: true,
         wrapText: true,
         autoHeight: true,
-        cellStyle: { 
-          'font-size': '12px', 
-          'white-space': 'normal !important', 
-          'line-height': '20px !important', 
-          'word-break': 'break-word !important', 
-          'padding-top': '17px', 
-          'padding-bottom': '17px' 
+        cellStyle: {
+          'font-size': '12px',
+          'white-space': 'normal !important',
+          'line-height': '20px !important',
+          'word-break': 'break-word !important',
+          'padding-top': '17px',
+          'padding-bottom': '17px',
         },
         headerComponentParams: {
           template:
@@ -510,7 +553,7 @@ export class KommonitorFilterDataGridHelperService {
       pagination: true,
       paginationPageSize: 10,
       suppressColumnVirtualisation: true,
-     /*  onFirstDataRendered: () => {
+      /*  onFirstDataRendered: () => {
         this.headerHeightSetter();
       },
       onColumnResized: () => {
@@ -533,22 +576,22 @@ export class KommonitorFilterDataGridHelperService {
 
     init(params: any) {
       this.params = params;
-      
+
       let isChecked = false;
       let exists = false;
       let className;
       if (params && params.data) {
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "viewer"){
+          if (permission.permissionLevel == 'viewer') {
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
             break;
           }
-        }  
+        }
       }
-      
-      if(exists){
+
+      if (exists) {
         const input = document.createElement('input') as HTMLInputElement;
         this.eGui = input;
         input.className = className;
@@ -556,7 +599,11 @@ export class KommonitorFilterDataGridHelperService {
         input.checked = isChecked;
 
         // Disable viewer if dataset owner or if editor/creator selection implies viewer
-        if (this.params.data.datasetOwner === true || this.params.data._viewerDisabledBecauseOfEditor === true || this.params.data._viewerDisabledBecauseOfCreator === true) {
+        if (
+          this.params.data.datasetOwner === true ||
+          this.params.data._viewerDisabledBecauseOfEditor === true ||
+          this.params.data._viewerDisabledBecauseOfCreator === true
+        ) {
           input.disabled = true;
         } else {
           input.disabled = false;
@@ -571,22 +618,24 @@ export class KommonitorFilterDataGridHelperService {
     }
 
     checkedHandler(e: any) {
-      let checked = e.target.checked;
+      const checked = e.target.checked;
 
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "viewer"){            
+        if (permission.permissionLevel == 'viewer') {
           permission.isChecked = checked;
           break;
         }
-      }  
+      }
     }
 
-    getGui() { return this.eGui; }
+    getGui() {
+      return this.eGui;
+    }
 
     destroy() {
-      if(this.eGui && this.boundCheckedHandler){
+      if (this.eGui && this.boundCheckedHandler) {
         this.eGui.removeEventListener('click', this.boundCheckedHandler);
-      }        
+      }
     }
   };
 
@@ -606,24 +655,27 @@ export class KommonitorFilterDataGridHelperService {
       let className;
       if (params && params.data) {
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "editor"){
+          if (permission.permissionLevel == 'editor') {
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
             break;
           }
-        }  
+        }
       }
 
-      if(exists){
+      if (exists) {
         const input = document.createElement('input') as HTMLInputElement;
         this.eGui = input;
         input.className = className;
         input.type = 'checkbox';
         input.checked = isChecked;
-        
+
         // Disable editor if dataset owner or if creator selection implies editor
-        if (this.params.data.datasetOwner === true || this.params.data._editorDisabledBecauseOfCreator === true) {
+        if (
+          this.params.data.datasetOwner === true ||
+          this.params.data._editorDisabledBecauseOfCreator === true
+        ) {
           input.disabled = true;
         } else {
           input.disabled = false;
@@ -638,24 +690,23 @@ export class KommonitorFilterDataGridHelperService {
     }
 
     checkedHandler(e: any) {
-      let checked = e.target.checked;
+      const checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "viewer"){    
-          if (checked){
+        if (permission.permissionLevel == 'viewer') {
+          if (checked) {
             permission.isChecked = true;
           } else {
             permission.isChecked = false;
           }
-        }
-        else if (permission.permissionLevel == "editor"){            
+        } else if (permission.permissionLevel == 'editor') {
           permission.isChecked = checked;
         }
-      }  
+      }
       // If editor is checked, enforce viewer checked+disabled
       if (checked) {
         this.params.data._viewerDisabledBecauseOfEditor = true;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "viewer"){
+          if (permission.permissionLevel == 'viewer') {
             permission.isChecked = true;
           }
         }
@@ -668,12 +719,14 @@ export class KommonitorFilterDataGridHelperService {
       }
     }
 
-    getGui() { return this.eGui; }
+    getGui() {
+      return this.eGui;
+    }
 
     destroy() {
-      if(this.eGui && this.boundCheckedHandler){
+      if (this.eGui && this.boundCheckedHandler) {
         this.eGui.removeEventListener('click', this.boundCheckedHandler);
-      }  
+      }
     }
   };
 
@@ -692,21 +745,21 @@ export class KommonitorFilterDataGridHelperService {
       let exists = false;
       let className;
       for (const permission of params.data.permissions) {
-        if (permission.permissionLevel == "creator"){
+        if (permission.permissionLevel == 'creator') {
           exists = true;
           isChecked = permission.isChecked;
           className = permission.permissionId;
           break;
         }
-      }  
+      }
 
-      if(exists){
+      if (exists) {
         const input = document.createElement('input') as HTMLInputElement;
         this.eGui = input;
         input.className = className;
         input.type = 'checkbox';
         input.checked = isChecked;
-        
+
         // Disable creator if dataset owner is true
         if (this.params.data.datasetOwner === true) {
           input.disabled = true;
@@ -723,18 +776,22 @@ export class KommonitorFilterDataGridHelperService {
     }
 
     checkedHandler(e: any) {
-      let checked = e.target.checked;
+      const checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){            
+        if (
+          permission.permissionLevel == 'creator' ||
+          permission.permissionLevel == 'editor' ||
+          permission.permissionLevel == 'viewer'
+        ) {
           permission.isChecked = checked;
         }
-      }  
+      }
       // If creator is checked, enforce editor and viewer checked+disabled
       if (checked) {
         this.params.data._editorDisabledBecauseOfCreator = true;
         this.params.data._viewerDisabledBecauseOfCreator = true;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
+          if (permission.permissionLevel == 'editor' || permission.permissionLevel == 'viewer') {
             permission.isChecked = true;
           }
         }
@@ -748,12 +805,14 @@ export class KommonitorFilterDataGridHelperService {
       }
     }
 
-    getGui() { return this.eGui; }
+    getGui() {
+      return this.eGui;
+    }
 
     destroy() {
-      if(this.eGui && this.boundCheckedHandler){
+      if (this.eGui && this.boundCheckedHandler) {
         this.eGui.removeEventListener('click', this.boundCheckedHandler);
-      }  
+      }
     }
   };
-} 
+}

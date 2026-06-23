@@ -1,81 +1,82 @@
 import { AuthService } from 'services/auth-service/auth.service';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SpatialDataProcessorHelperService {
+  private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
-  targetUrlToSpatialDataProcessorInstance = this.envConfigService.targetUrlToSpatialDataProcessorInstance;
-  targetProcessName_indicatorReachabilityStatistics = this.envConfigService.spatialDataProcessor_processName_indicatorReachabilityStatistics;
+  targetUrlToSpatialDataProcessorInstance =
+    this.envConfigService.targetUrlToSpatialDataProcessorInstance;
+  targetProcessName_indicatorReachabilityStatistics =
+    this.envConfigService.spatialDataProcessor_processName_indicatorReachabilityStatistics;
 
-  constructor(
-    private authService: AuthService,
-    private http: HttpClient,
-    private envConfigService: EnvConfigService
-  ) { }
+  postNewIsochroneStatistic(
+    indicatorIdArray,
+    isochroneGeoJson,
+    spatialUnitId,
+    targetDate,
+    weighting
+  ): Promise<string> {
+    // get auth token to make authenticated requests
+    const bearerToken = this.authService.getToken();
 
- postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weighting):Promise<string> {
-    try {
-      // get auth token to make authenticated requests
-      let bearerToken = this.authService.getToken();
+    /*
+    {
+      "name": "isochrone-prune",
+      "isochrones": {},
+      "spatialUnit": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "indicator": [
+        "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      ],
+      "date": "2023-07-12",
+      "weighting": "simple"
+    }
+    */
 
-      /*
-      {
-        "name": "isochrone-prune",
-        "isochrones": {},
-        "spatialUnit": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "indicator": [
-          "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-        ],
-        "date": "2023-07-12",
-        "weighting": "simple"
-      }
-      */
+    // remove any olf relics from isochrone geoJSON document
+    for (const poiFeature of isochroneGeoJson.features) {
+      // ensure that each poi does not hold old information from another scenario
+      delete poiFeature.properties.individualIsochrones;
+      delete poiFeature.properties.individualIsochronePruneResults;
+    }
 
-      // remove any olf relics from isochrone geoJSON document
-      for (const poiFeature of isochroneGeoJson.features) {
-        // ensure that each poi does not hold old information from another scenario
-        delete poiFeature.properties.individualIsochrones;
-        delete poiFeature.properties.individualIsochronePruneResults;
-      }       
+    const body = {
+      name: 'isochrone-prune',
+      isochrones: JSON.stringify(isochroneGeoJson),
+      spatialUnit: spatialUnitId,
+      indicator: indicatorIdArray,
+      date: targetDate,
+      weighting: weighting,
+    };
 
-      let body = {
-        "name": "isochrone-prune",
-        "isochrones": JSON.stringify(isochroneGeoJson),
-        "spatialUnit": spatialUnitId,
-        "indicator": indicatorIdArray,
-        "date": targetDate,
-        "weighting": weighting
-      };
+    const headers = {
+      Accept: 'application/json',
+    };
+    if (bearerToken) {
+      headers['Authorization'] = 'Bearer ' + bearerToken; // Note the appropriate header
+    }
 
-      let headers = {
-        'Accept': 'application/json',
-        
-      };
-      if (bearerToken){
-        headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
-      }
-
-      return new Promise(resolve => {
-        this.http.post(this.targetUrlToSpatialDataProcessorInstance + "jobs", body,{headers: headers}).subscribe({
-          next: (response:any) => {
+    return new Promise((resolve) => {
+      this.http
+        .post(this.targetUrlToSpatialDataProcessorInstance + 'jobs', body, { headers: headers })
+        .subscribe({
+          next: (response: any) => {
             resolve(response);
           },
-          error: error => {
-            console.error("Error while posting isochrone statistic request.");
+          error: (error) => {
+            console.error('Error while posting isochrone statistic request.');
             throw error;
-          }
+          },
         });
-      });
-     
-    } catch (error) {
-      throw error;
-    }
-  };
+    });
+  }
 
   /*
     {
@@ -86,33 +87,31 @@ export class SpatialDataProcessorHelperService {
     }
   */
   async getJobStatus(jobId) {
-    try {
-      // get auth token to make authenticated requests
-      let bearerToken = this.authService.getToken();
+    // get auth token to make authenticated requests
+    const bearerToken = this.authService.getToken();
 
-      let headers = {
-        'Accept': 'application/json',
-        
-      };
-      if (bearerToken){
-        headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
-      }
-
-      /*
-      returns
-        {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "process": "string",
-          "timestamp": "2023-07-12T21:16:34.843Z",
-          "status": "queued"
-        }
-      */
-
-      return await firstValueFrom(this.http.get(this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId, {headers: headers}));
-
-    } catch (error) {
-      throw error;
+    const headers = {
+      Accept: 'application/json',
+    };
+    if (bearerToken) {
+      headers['Authorization'] = 'Bearer ' + bearerToken; // Note the appropriate header
     }
+
+    /*
+    returns
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "process": "string",
+        "timestamp": "2023-07-12T21:16:34.843Z",
+        "status": "queued"
+      }
+    */
+
+    return await firstValueFrom(
+      this.http.get(this.targetUrlToSpatialDataProcessorInstance + 'jobs/' + jobId, {
+        headers: headers,
+      })
+    );
   }
 
   /*
@@ -171,13 +170,12 @@ export class SpatialDataProcessorHelperService {
   async getJobResult(jobId) {
     try {
       // get auth token to make authenticated requests
-      let bearerToken = this.authService.getToken();
-      let headers = {
-        'Accept': 'application/json',
-        
+      const bearerToken = this.authService.getToken();
+      const headers = {
+        Accept: 'application/json',
       };
-      if (bearerToken){
-        headers['Authorization'] = "Bearer " + bearerToken // Note the appropriate header
+      if (bearerToken) {
+        headers['Authorization'] = 'Bearer ' + bearerToken; // Note the appropriate header
       }
 
       /*
@@ -186,10 +184,12 @@ export class SpatialDataProcessorHelperService {
       */
 
       return await firstValueFrom(
-        this.http.get(this.targetUrlToSpatialDataProcessorInstance + "jobs/" + jobId + "/result", { headers: headers })
+        this.http.get(this.targetUrlToSpatialDataProcessorInstance + 'jobs/' + jobId + '/result', {
+          headers: headers,
+        })
       );
     } catch (error) {
-      console.error("Error while fetching job result.", error);
+      console.error('Error while fetching job result.', error);
       throw error;
     }
   }

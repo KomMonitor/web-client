@@ -1,33 +1,35 @@
-import { Injectable } from "@angular/core";
-import { DEFAULT_POI_SIZE, LOI_DASH_ARRAY_OBJECTS, MetadataLoadingState, POI_SIZES, PoiSize } from "./data-exchange.constants";
-import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
+import { Injectable, inject } from '@angular/core';
+import {
+  DEFAULT_POI_SIZE,
+  LOI_DASH_ARRAY_OBJECTS,
+  MetadataLoadingState,
+  PoiSize,
+} from './data-exchange.constants';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
-} from "components/ngComponents/models/indicators.models";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
-import { IndicatorValueService } from "services/indicator-value-service/indicator-value.service";
-import { AccessControlService } from "services/access-control-service/access-control.service";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
-import { ProcessScriptMetadataStoreService } from "services/process-script-metadata-store-service/process-script-metadata-store.service";
-import { TopicMetadataStoreService } from "services/topic-metadata-store-service/topic-metadata-store.service";
-import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
-import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
-import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
-import { BehaviorSubject, forkJoin } from "rxjs";
-import { AuthService } from "services/auth-service/auth.service";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
-import {
-  WmsResourceType,
-  WmsDataset,
-} from "components/ngComponents/models/services.models";
-import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
-import { AccessControlMetadata } from "components/ngComponents/models/permissions.models";
-import { KeycloakProfile } from "keycloak-js";
-import { GeoresourcesImportDataset } from "components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component";
+} from 'components/ngComponents/models/indicators.models';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { BehaviorSubject, forkJoin } from 'rxjs';
+import { AuthService } from 'services/auth-service/auth.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
+import { KeycloakProfile } from 'keycloak-js';
+import { GeoresourcesImportDataset } from 'components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component';
 
 export interface SpatialUnit {
   spatialUnitLevel: string;
@@ -40,33 +42,68 @@ export interface SpatialUnit {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class DataExchangeService {
+  private authService = inject(AuthService);
+  private cacheHelperService = inject(CacheHelperServiceService);
+  private broadcastService = inject(BroadcastService);
+  private envConfigService = inject(EnvConfigService);
+  private metadataExportService = inject(MetadataExportService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private accessControlService = inject(AccessControlService);
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private metadataFilterService = inject(MetadataFilterService);
+  private selectionState = inject(SelectionStateService);
 
-  private metadataLoadingSubject = new BehaviorSubject<MetadataLoadingState>(MetadataLoadingState.NONE);
+  private metadataLoadingSubject = new BehaviorSubject<MetadataLoadingState>(
+    MetadataLoadingState.NONE
+  );
   metadataLoading$ = this.metadataLoadingSubject.asObservable();
 
   // Prio7 B7: selectedDate stream lives in SelectionStateService
-  get selectedDate$() { return this.selectionState.selectedDate$; }
+  get selectedDate$() {
+    return this.selectionState.selectedDate$;
+  }
 
   selectedDateInit = false;
 
   showDiagramExportButtons = true;
   showGeoresourceExportButtons = true;
-  configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || "both";
+  configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
 
   // Prio7 B7: selection state lives in SelectionStateService; facade get/set keeps consumers unchanged
-  get selectedIndicator(): IndicatorsDataset { return this.selectionState.selectedIndicator; }
-  set selectedIndicator(v: IndicatorsDataset) { this.selectionState.selectedIndicator = v; }
+  get selectedIndicator(): IndicatorsDataset {
+    return this.selectionState.selectedIndicator;
+  }
+  set selectedIndicator(v: IndicatorsDataset) {
+    this.selectionState.selectedIndicator = v;
+  }
   // Prio7 B6a: spatial-unit metadata lives in SpatialUnitMetadataStoreService; facade getter keeps consumers unchanged
-  get availableSpatialUnits(): SpatialUnit[] { return this.spatialUnitStore.availableSpatialUnits; }
+  get availableSpatialUnits(): SpatialUnit[] {
+    return this.spatialUnitStore.availableSpatialUnits;
+  }
   // Prio7 B6e: georesource/WMS/WFS state lives in GeoresourceMetadataStoreService; facade getters keep consumers unchanged
-  get availableWmsDatasets(): WmsDataset[] { return this.georesourceStore.availableWmsDatasets; }
-  get selectedDate(): any { return this.selectionState.selectedDate; }
-  set selectedDate(v: any) { this.selectionState.selectedDate = v; }
-  get selectedSpatialUnit(): SpatialUnit { return this.selectionState.selectedSpatialUnit; }
-  set selectedSpatialUnit(v: SpatialUnit) { this.selectionState.selectedSpatialUnit = v; }
+  get availableWmsDatasets(): WmsDataset[] {
+    return this.georesourceStore.availableWmsDatasets;
+  }
+  get selectedDate(): any {
+    return this.selectionState.selectedDate;
+  }
+  set selectedDate(v: any) {
+    this.selectionState.selectedDate = v;
+  }
+  get selectedSpatialUnit(): SpatialUnit {
+    return this.selectionState.selectedSpatialUnit;
+  }
+  set selectedSpatialUnit(v: SpatialUnit) {
+    this.selectionState.selectedSpatialUnit = v;
+  }
   disableIndicatorDatePicker!: boolean;
   isBalanceChecked!: boolean;
   indicatorAndMetadataAsBalance: any;
@@ -74,41 +111,85 @@ export class DataExchangeService {
   measureOfValue: any;
   isMeasureOfValueChecked: boolean = false;
   // Prio7 B7: feature aggregates live in SelectionStateService; facade getters keep consumers unchanged
-  get allFeaturesRegionalMean(): any { return this.selectionState.allFeaturesRegionalMean; }
-  get allFeaturesMean(): any { return this.selectionState.allFeaturesMean; }
-  get allFeaturesNumberOfFeatures(): any { return this.selectionState.allFeaturesNumberOfFeatures; }
-  get selectedFeaturesNumberOfFeatures(): any { return this.selectionState.selectedFeaturesNumberOfFeatures; }
-  get allFeaturesSum(): any { return this.selectionState.allFeaturesSum; }
-  get allFeaturesRegionalSum(): any { return this.selectionState.allFeaturesRegionalSum; }
-  get selectedFeaturesSum(): any { return this.selectionState.selectedFeaturesSum; }
-  get selectedFeaturesMean(): any { return this.selectionState.selectedFeaturesMean; }
-  get allFeaturesMin(): any { return this.selectionState.allFeaturesMin; }
-  get selectedFeaturesMin(): any { return this.selectionState.selectedFeaturesMin; }
-  get allFeaturesMax(): any { return this.selectionState.allFeaturesMax; }
-  get selectedFeaturesMax(): any { return this.selectionState.selectedFeaturesMax; }
-  get allFeaturesRegionalSpatiallyUnassignable(): any { return this.selectionState.allFeaturesRegionalSpatiallyUnassignable; }
+  get allFeaturesRegionalMean(): any {
+    return this.selectionState.allFeaturesRegionalMean;
+  }
+  get allFeaturesMean(): any {
+    return this.selectionState.allFeaturesMean;
+  }
+  get allFeaturesNumberOfFeatures(): any {
+    return this.selectionState.allFeaturesNumberOfFeatures;
+  }
+  get selectedFeaturesNumberOfFeatures(): any {
+    return this.selectionState.selectedFeaturesNumberOfFeatures;
+  }
+  get allFeaturesSum(): any {
+    return this.selectionState.allFeaturesSum;
+  }
+  get allFeaturesRegionalSum(): any {
+    return this.selectionState.allFeaturesRegionalSum;
+  }
+  get selectedFeaturesSum(): any {
+    return this.selectionState.selectedFeaturesSum;
+  }
+  get selectedFeaturesMean(): any {
+    return this.selectionState.selectedFeaturesMean;
+  }
+  get allFeaturesMin(): any {
+    return this.selectionState.allFeaturesMin;
+  }
+  get selectedFeaturesMin(): any {
+    return this.selectionState.selectedFeaturesMin;
+  }
+  get allFeaturesMax(): any {
+    return this.selectionState.allFeaturesMax;
+  }
+  get selectedFeaturesMax(): any {
+    return this.selectionState.selectedFeaturesMax;
+  }
+  get allFeaturesRegionalSpatiallyUnassignable(): any {
+    return this.selectionState.allFeaturesRegionalSpatiallyUnassignable;
+  }
   selectedIndicatorBackup!: IndicatorsDataset;
   // Prio7 B6d: indicator metadata lives in IndicatorMetadataStoreService; facade getters keep consumers unchanged
-  get displayableIndicators(): any { return this.indicatorStore.displayableIndicators; }
+  get displayableIndicators(): any {
+    return this.indicatorStore.displayableIndicators;
+  }
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
   // Prio7 B4: indicator keyword filter lives in MetadataFilterService; facade get/set keeps consumers + the B6d wrapper unchanged
-  get displayableIndicators_keywordFiltered(): any { return this.metadataFilterService.displayableIndicators_keywordFiltered; }
-  set displayableIndicators_keywordFiltered(v: any) { this.metadataFilterService.displayableIndicators_keywordFiltered = v; }
-  get displayableGeoresources_keywordFiltered(): any { return this.georesourceStore.displayableGeoresources_keywordFiltered; }
+  get displayableIndicators_keywordFiltered(): any {
+    return this.metadataFilterService.displayableIndicators_keywordFiltered;
+  }
+  set displayableIndicators_keywordFiltered(v: any) {
+    this.metadataFilterService.displayableIndicators_keywordFiltered = v;
+  }
+  get displayableGeoresources_keywordFiltered(): any {
+    return this.georesourceStore.displayableGeoresources_keywordFiltered;
+  }
   wmsLegendImage: any;
-  get displayableGeoresources_keywordFiltered_forAlphabeticalDisplay(): any { return this.georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay; }
+  get displayableGeoresources_keywordFiltered_forAlphabeticalDisplay(): any {
+    return this.georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay;
+  }
   rangeFilterData: any;
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName: any;
   simplifyGeometries: any;
   FEATURE_NAME_PROPERTY_NAME: any;
-  get availableGeoresources(): GeoresourcesDataset[] { return this.georesourceStore.availableGeoresources; }
-  get availableIndicators(): any { return this.indicatorStore.availableIndicators; }
+  get availableGeoresources(): GeoresourcesDataset[] {
+    return this.georesourceStore.availableGeoresources;
+  }
+  get availableIndicators(): any {
+    return this.indicatorStore.availableIndicators;
+  }
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any = false;
-  get displayableGeoresources(): any { return this.georesourceStore.displayableGeoresources; }
-  set displayableGeoresources(v: any) { this.georesourceStore.displayableGeoresources = v; }
+  get displayableGeoresources(): any {
+    return this.georesourceStore.displayableGeoresources;
+  }
+  set displayableGeoresources(v: any) {
+    this.georesourceStore.displayableGeoresources = v;
+  }
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
@@ -121,86 +202,126 @@ export class DataExchangeService {
 
   // --- Prio7 B3: access-control state lives in AccessControlService; these
   // facade get/set keep consumers + the auth/fetch orchestration unchanged ---
-  get isRealmAdmin(): boolean { return this.accessControlService.isRealmAdmin; }
-  set isRealmAdmin(v: boolean) { this.accessControlService.isRealmAdmin = v; }
-  get currentKeycloakLoginGroupNames(): any { return this.accessControlService.currentKeycloakLoginGroupNames; }
-  set currentKeycloakLoginGroupNames(v: any) { this.accessControlService.currentKeycloakLoginGroupNames = v; }
-  get currentKeycloakLoginRoles(): any[] { return this.accessControlService.currentKeycloakLoginRoles; }
-  set currentKeycloakLoginRoles(v: any[]) { this.accessControlService.currentKeycloakLoginRoles = v; }
-  get currentKeycloakLoginGroups(): any[] { return this.accessControlService.currentKeycloakLoginGroups; }
-  set currentKeycloakLoginGroups(v: any[]) { this.accessControlService.currentKeycloakLoginGroups = v; }
-  get currentKomMonitorLoginRoleNames(): any[] { return this.accessControlService.currentKomMonitorLoginRoleNames; }
-  set currentKomMonitorLoginRoleNames(v: any[]) { this.accessControlService.currentKomMonitorLoginRoleNames = v; }
-  get currentKomMonitorLoginOrganizationalUnits(): any[] { return this.accessControlService.currentKomMonitorLoginOrganizationalUnits; }
-  set currentKomMonitorLoginOrganizationalUnits(v: any[]) { this.accessControlService.currentKomMonitorLoginOrganizationalUnits = v; }
-  get accessControl(): any[] { return this.accessControlService.accessControl; }
-  set accessControl(v: any[]) { this.accessControlService.accessControl = v; }
+  get isRealmAdmin(): boolean {
+    return this.accessControlService.isRealmAdmin;
+  }
+  set isRealmAdmin(v: boolean) {
+    this.accessControlService.isRealmAdmin = v;
+  }
+  get currentKeycloakLoginGroupNames(): any {
+    return this.accessControlService.currentKeycloakLoginGroupNames;
+  }
+  set currentKeycloakLoginGroupNames(v: any) {
+    this.accessControlService.currentKeycloakLoginGroupNames = v;
+  }
+  get currentKeycloakLoginRoles(): any[] {
+    return this.accessControlService.currentKeycloakLoginRoles;
+  }
+  set currentKeycloakLoginRoles(v: any[]) {
+    this.accessControlService.currentKeycloakLoginRoles = v;
+  }
+  get currentKeycloakLoginGroups(): any[] {
+    return this.accessControlService.currentKeycloakLoginGroups;
+  }
+  set currentKeycloakLoginGroups(v: any[]) {
+    this.accessControlService.currentKeycloakLoginGroups = v;
+  }
+  get currentKomMonitorLoginRoleNames(): any[] {
+    return this.accessControlService.currentKomMonitorLoginRoleNames;
+  }
+  set currentKomMonitorLoginRoleNames(v: any[]) {
+    this.accessControlService.currentKomMonitorLoginRoleNames = v;
+  }
+  get currentKomMonitorLoginOrganizationalUnits(): any[] {
+    return this.accessControlService.currentKomMonitorLoginOrganizationalUnits;
+  }
+  set currentKomMonitorLoginOrganizationalUnits(v: any[]) {
+    this.accessControlService.currentKomMonitorLoginOrganizationalUnits = v;
+  }
+  get accessControl(): any[] {
+    return this.accessControlService.accessControl;
+  }
+  set accessControl(v: any[]) {
+    this.accessControlService.accessControl = v;
+  }
 
   // todo topics hirarchy interface ?!
   // Prio7 B6c: topic metadata lives in TopicMetadataStoreService; facade getter keeps consumers unchanged
-  get availableTopics(): any[] { return this.topicStore.availableTopics; }
+  get availableTopics(): any[] {
+    return this.topicStore.availableTopics;
+  }
 
   anySideBarIsShown = false;
 
   tmpIndicatorGeoJSON = undefined;
 
-  get wmsDatasets(): WmsDataset[] { return this.georesourceStore.wmsDatasets; }
-  get wfsDatasets(): any { return this.georesourceStore.wfsDatasets; }
-  get wmsDatasets_keywordFiltered(): WmsDataset[] { return this.georesourceStore.wmsDatasets_keywordFiltered; }
-  get wfsDatasets_keywordFiltered(): any { return this.georesourceStore.wfsDatasets_keywordFiltered; }
+  get wmsDatasets(): WmsDataset[] {
+    return this.georesourceStore.wmsDatasets;
+  }
+  get wfsDatasets(): any {
+    return this.georesourceStore.wfsDatasets;
+  }
+  get wmsDatasets_keywordFiltered(): WmsDataset[] {
+    return this.georesourceStore.wmsDatasets_keywordFiltered;
+  }
+  get wfsDatasets_keywordFiltered(): any {
+    return this.georesourceStore.wfsDatasets_keywordFiltered;
+  }
 
-  get allFeaturesPropertyUnit(): any { return this.selectionState.allFeaturesPropertyUnit; }
+  get allFeaturesPropertyUnit(): any {
+    return this.selectionState.allFeaturesPropertyUnit;
+  }
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
   // Prio7 B6b: process-script metadata lives in ProcessScriptMetadataStoreService; facade getter keeps consumers unchanged
-  get availableProcessScripts(): any[] { return this.processScriptStore.availableProcessScripts; }
-
-
+  get availableProcessScripts(): any[] {
+    return this.processScriptStore.availableProcessScripts;
+  }
 
   topicIndicatorHierarchy_forOrderView: any[] = [];
 
   availablePoiMarkerColors = [
     {
-      "colorName" : "red",
-      "colorValue" : "rgb(205,59,40)"
+      colorName: 'red',
+      colorValue: 'rgb(205,59,40)',
     },
     {
-      "colorName" : "white",
-      "colorValue" : "rgb(255,255,255)"
+      colorName: 'white',
+      colorValue: 'rgb(255,255,255)',
     },
     {
-      "colorName" : "orange",
-      "colorValue" : "rgb(235,144,46)"
+      colorName: 'orange',
+      colorValue: 'rgb(235,144,46)',
     },
     {
-      "colorName" : "beige",
-      "colorValue" : "rgb(255,198,138)"
+      colorName: 'beige',
+      colorValue: 'rgb(255,198,138)',
     },
     {
-      "colorName" : "green",
-      "colorValue" : "rgb(108,166,36)"
+      colorName: 'green',
+      colorValue: 'rgb(108,166,36)',
     },
     {
-      "colorName" : "blue",
-      "colorValue" : "rgb(53,161,209)"
+      colorName: 'blue',
+      colorValue: 'rgb(53,161,209)',
     },
     {
-      "colorName" : "purple",
-      "colorValue" : "rgb(198,77,175)"
+      colorName: 'purple',
+      colorValue: 'rgb(198,77,175)',
     },
     {
-      "colorName" : "pink",
-      "colorValue" : "rgb(255,138,232)"
+      colorName: 'pink',
+      colorValue: 'rgb(255,138,232)',
     },
     {
-      "colorName" : "gray",
-      "colorValue" : "rgb(163,163,163)"
+      colorName: 'gray',
+      colorValue: 'rgb(163,163,163)',
     },
     {
-      "colorName" : "black",
-      "colorValue" : "rgb(47,47,47)"
-    }
+      colorName: 'black',
+      colorValue: 'rgb(47,47,47)',
+    },
   ];
 
   /* reportingDefaultTemplatePageElements = [
@@ -404,32 +525,26 @@ export class DataExchangeService {
 ]; */
 
   // Prio7 B5: hierarchy results live in TopicHierarchyStoreService; facade getters keep consumers unchanged
-  get headlineIndicatorHierarchy(): any[] { return this.topicHierarchyStore.headlineIndicatorHierarchy; }
-  get computationIndicatorHierarchy(): any[] { return this.topicHierarchyStore.computationIndicatorHierarchy; }
-  get topicIndicatorHierarchy(): IndicatorsTopicsHierarchy[] { return this.topicHierarchyStore.topicIndicatorHierarchy; }
-  get topicGeoresourceHierarchy(): any[] { return this.topicHierarchyStore.topicGeoresourceHierarchy; }
-  get topicGeoresourceHierarchy_unmappedEntries(): any { return this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries; }
-  get georesourceMapKey_forUnmappedTopicReferences(): string { return this.georesourceStore.georesourceMapKey_forUnmappedTopicReferences; }
+  get headlineIndicatorHierarchy(): any[] {
+    return this.topicHierarchyStore.headlineIndicatorHierarchy;
+  }
+  get computationIndicatorHierarchy(): any[] {
+    return this.topicHierarchyStore.computationIndicatorHierarchy;
+  }
+  get topicIndicatorHierarchy(): IndicatorsTopicsHierarchy[] {
+    return this.topicHierarchyStore.topicIndicatorHierarchy;
+  }
+  get topicGeoresourceHierarchy(): any[] {
+    return this.topicHierarchyStore.topicGeoresourceHierarchy;
+  }
+  get topicGeoresourceHierarchy_unmappedEntries(): any {
+    return this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries;
+  }
+  get georesourceMapKey_forUnmappedTopicReferences(): string {
+    return this.georesourceStore.georesourceMapKey_forUnmappedTopicReferences;
+  }
 
   currentKeycloakUser!: KeycloakProfile;
-
-  public constructor(
-    private authService: AuthService,
-    private cacheHelperService: CacheHelperServiceService,
-    private broadcastService: BroadcastService,
-    private envConfigService: EnvConfigService,
-    private metadataExportService: MetadataExportService,
-    private indicatorValueService: IndicatorValueService,
-    private accessControlService: AccessControlService,
-    private topicHierarchyStore: TopicHierarchyStoreService,
-    private spatialUnitStore: SpatialUnitMetadataStoreService,
-    private processScriptStore: ProcessScriptMetadataStoreService,
-    private topicStore: TopicMetadataStoreService,
-    private indicatorStore: IndicatorMetadataStoreService,
-    private georesourceStore: GeoresourceMetadataStoreService,
-    private metadataFilterService: MetadataFilterService,
-    private selectionState: SelectionStateService,
-  ) {}
 
   /**
    * Resolve the effective decimal precision from the explicit argument or the
@@ -440,7 +555,7 @@ export class DataExchangeService {
     return this.selectionState.resolveSelectedPrecision(precision);
   }
 
-  setSelectedDate(dateString:string | undefined) {
+  setSelectedDate(dateString: string | undefined) {
     this.selectionState.setSelectedDate(dateString);
   }
 
@@ -449,7 +564,7 @@ export class DataExchangeService {
   }
 
   hideErrorAlert() {
-    $(".mapApplicationErrorAlert").hide();
+    $('.mapApplicationErrorAlert').hide();
   }
 
   isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata: any) {
@@ -461,111 +576,87 @@ export class DataExchangeService {
       return false;
     }
 
-    var filteredApplicableUnits =
-      this.selectedIndicator.applicableSpatialUnits.filter(function (
-        applicableSpatialUnit: any,
-      ) {
-        if (
-          applicableSpatialUnit.spatialUnitId ===
-          spatialUnitMetadata.spatialUnitId
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      });
+    const filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (
+      applicableSpatialUnit: any
+    ) {
+      if (applicableSpatialUnit.spatialUnitId === spatialUnitMetadata.spatialUnitId) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
     return filteredApplicableUnits.length > 0;
   }
 
   async fetchAllMetadata(filter = undefined) {
-
     this.setMetadataState(MetadataLoadingState.INPROGRESS);
 
     await this.cacheHelperService.init();
-    console.log("fetching all metadata from management component");
+    console.log('fetching all metadata from management component');
 
     if (this.authService.isAuthenticated()) {
       const loadUser$ = this.authService.loadUserProfile();
       if (!loadUser$) {
-        console.log("User profile is not available");
+        console.log('User profile is not available');
         return;
       }
       await loadUser$
         .then((profile) => {
           // set user profile
           this.currentKeycloakUser = profile;
-          console.log("User logged in with email: " + profile.email);
+          console.log('User logged in with email: ' + profile.email);
 
           const tokenParsed = this.authService.getTokenParsed();
-          if (
-            tokenParsed &&
-            tokenParsed.realm_access &&
-            tokenParsed.realm_access.roles
-          ) {
+          if (tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles) {
             this.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
             if (
               this.currentKeycloakLoginRoles.includes(
-                this.envConfigService.keycloakKomMonitorAdminRoleName,
+                this.envConfigService.keycloakKomMonitorAdminRoleName
               )
             ) {
               this.isRealmAdmin = true;
               // this.currentKeycloakLoginRoles = this.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
             }
-            if (tokenParsed["groups"]) {
-              this.currentKeycloakLoginGroups = tokenParsed["groups"];
+            if (tokenParsed['groups']) {
+              this.currentKeycloakLoginGroups = tokenParsed['groups'];
             }
-            this.currentKeycloakLoginGroupNames =
-              this.currentKeycloakLoginGroups.map(
-                (groupPath) =>
-                  groupPath.split("/")[groupPath.split("/").length - 1],
-              );
+            this.currentKeycloakLoginGroupNames = this.currentKeycloakLoginGroups.map(
+              (groupPath) => groupPath.split('/')[groupPath.split('/').length - 1]
+            );
           } else {
             this.currentKeycloakLoginRoles = [];
             this.currentKeycloakLoginGroups = [];
           }
         })
         .catch(function () {
-          console.log("Failed to load user profile");
+          console.log('Failed to load user profile');
         });
-      var promise = await this.fetchAccessControlMetadata(
-        this.currentKeycloakLoginRoles,
-      );
+      await this.fetchAccessControlMetadata(this.currentKeycloakLoginRoles);
     }
 
     // revise metadata fecthing for protected endpoints
     forkJoin({
       // scriptsPromise: this.fetchIndicatorScriptsMetadata(),
       topicsPromise: this.fetchTopicsMetadata(this.currentKeycloakLoginRoles),
-      spatialUnitsPromise: this.fetchSpatialUnitsMetadata(
-        this.currentKeycloakLoginRoles,
-      ),
-      georesourcesPromise: this.fetchGeoresourcesMetadata(
-        this.currentKeycloakLoginRoles,
-        filter,
-      ),
-      indicatorsPromise: this.fetchIndicatorsMetadata(
-        this.currentKeycloakLoginRoles,
-        filter,
-      ),
-      servicePromises: this.fetchServices(
-        this.currentKeycloakLoginRoles,
-        filter,
-      ),
+      spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles),
+      georesourcesPromise: this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter),
+      indicatorsPromise: this.fetchIndicatorsMetadata(this.currentKeycloakLoginRoles, filter),
+      servicePromises: this.fetchServices(this.currentKeycloakLoginRoles, filter),
     }).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
         this.buildHeadlineIndicatorHierarchy();
         this.buildTopicIndicatorHierarchy();
         this.topicIndicatorHierarchy_forOrderView = JSON.parse(
-          JSON.stringify(this.topicIndicatorHierarchy),
+          JSON.stringify(this.topicIndicatorHierarchy)
         );
         this.buildComputationIndicatorHierarchy();
 
         this.buildTopicGeoresourceHierarchy(filter);
 
-        console.log("Metadata fetched. Call initialize event.");
+        console.log('Metadata fetched. Call initialize event.');
 
         this.setMetadataState(MetadataLoadingState.COMPLETE);
         this.onMetadataLoadingCompleted();
@@ -573,11 +664,9 @@ export class DataExchangeService {
       error: (error) => {
         // todo error handling
         this.displayMapApplicationError(
-          "Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.",
+          'Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.'
         );
-        this.broadcastService.broadcast("initialMetadataLoadingFailed", [
-          error,
-        ]);
+        this.broadcastService.broadcast('initialMetadataLoadingFailed', [error]);
       },
     });
 
@@ -665,49 +754,35 @@ export class DataExchangeService {
   } */
 
   async fetchTopicsMetadata(keycloakRolesArray) {
-    this.setTopics(
-      await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray),
-    );
+    this.setTopics(await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
   }
 
   async fetchSpatialUnitsMetadata(keycloakRolesArray) {
     this.setSpatialUnits(
-      await this.cacheHelperService.fetchSpatialUnitsMetadata(
-        keycloakRolesArray,
-      ),
+      await this.cacheHelperService.fetchSpatialUnitsMetadata(keycloakRolesArray)
     );
   }
 
   async fetchGeoresourcesMetadata(keycloakRolesArray, filter) {
     this.setGeoresources(
-      await this.cacheHelperService.fetchGeoresourceMetadata(
-        keycloakRolesArray,
-        filter,
-      ),
+      await this.cacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter)
     );
   }
 
   async fetchIndicatorsMetadata(keycloakRolesArray, filter: any = undefined) {
     this.setIndicators(
-      await this.cacheHelperService.fetchIndicatorsMetadata(
-        keycloakRolesArray,
-        filter,
-      ),
+      await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter)
     );
   }
 
   async fetchIndicatorScriptsMetadata() {
     this.setProcessScripts(
-      await this.cacheHelperService.fetchProcessScriptsMetadata(
-        this.currentKeycloakLoginRoles,
-      ),
+      await this.cacheHelperService.fetchProcessScriptsMetadata(this.currentKeycloakLoginRoles)
     );
   }
 
   async fetchServices(keycloakRolesArray, filter = undefined) {
-    this.setServices(
-      await this.cacheHelperService.fetchServices(keycloakRolesArray, filter),
-    );
+    this.setServices(await this.cacheHelperService.fetchServices(keycloakRolesArray, filter));
   }
 
   async reinitServices(): Promise<void> {
@@ -733,7 +808,7 @@ export class DataExchangeService {
       }
     }
 
-    return "";
+    return '';
   }
 
   deleteSingleGeoresourceMetadata(georesourceId) {
@@ -813,12 +888,12 @@ export class DataExchangeService {
   }
 
   onMetadataLoadingCompleted() {
-    this.broadcastService.broadcast("initialMetadataLoadingCompleted");
+    this.broadcastService.broadcast('initialMetadataLoadingCompleted');
 
     setTimeout(() => {
-      $("option").each(function (index, element) {
-        var text = $(element).text();
-        $(element).attr("title", text);
+      $('option').each(function (index, element) {
+        const text = $(element).text();
+        $(element).attr('title', text);
       });
     }, 1000);
   }
@@ -830,14 +905,14 @@ export class DataExchangeService {
       this.wmsDatasets_keywordFiltered,
       this.wfsDatasets_keywordFiltered,
       this.georesourceMapKey_forUnmappedTopicReferences,
-      filter,
+      filter
     );
   }
 
   private buildComputationIndicatorHierarchy() {
     this.topicHierarchyStore.buildComputationIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
-      this.availableProcessScripts,
+      this.availableProcessScripts
     );
   }
 
@@ -845,17 +920,17 @@ export class DataExchangeService {
     this.topicHierarchyStore.buildTopicIndicatorHierarchy(
       this.availableTopics,
       this.displayableIndicators_keywordFiltered,
-      this.getAvailableIndiWmsDatasets(),
+      this.getAvailableIndiWmsDatasets()
     );
   }
 
   modifyIndicatorApplicableSpatialUnitsForLoginRoles() {
     this.indicatorStore.modifyIndicatorApplicableSpatialUnitsForLoginRoles(
-      this.availableSpatialUnits,
+      this.availableSpatialUnits
     );
     // displayableIndicators_keywordFiltered is B4 state and stays in the facade
     this.displayableIndicators_keywordFiltered = JSON.parse(
-      JSON.stringify(this.displayableIndicators),
+      JSON.stringify(this.displayableIndicators)
     );
   }
 
@@ -866,7 +941,7 @@ export class DataExchangeService {
   private buildHeadlineIndicatorHierarchy() {
     this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
-      this.availableProcessScripts,
+      this.availableProcessScripts
     );
   }
 
@@ -876,9 +951,7 @@ export class DataExchangeService {
 
   async fetchAccessControlMetadata(keycloakRolesArray) {
     this.setAccessControl(
-      await this.cacheHelperService.fetchAccessControlMetadata(
-        keycloakRolesArray,
-      ),
+      await this.cacheHelperService.fetchAccessControlMetadata(keycloakRolesArray)
     );
     this.setCurrentKomMonitorLoginRoleNames();
     this.setCurrentKomMonitorLoginOrganizationalUnits();
@@ -918,7 +991,7 @@ export class DataExchangeService {
   async downloadMetadataPDF_georesource(georesourceMetadata) {
     return this.metadataExportService.downloadMetadataPDF_georesource(
       georesourceMetadata,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
@@ -926,7 +999,7 @@ export class DataExchangeService {
     return this.metadataExportService.createMetadataPDF_georesource(
       georesource,
       pdfName,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
@@ -934,7 +1007,7 @@ export class DataExchangeService {
     return this.metadataExportService.createMetadataPDF_indicator(
       indicator,
       this.availableSpatialUnits,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
@@ -943,18 +1016,13 @@ export class DataExchangeService {
   }
 
   getIndicatorStringFromIndicatorType(indicatorType) {
-    return this.metadataExportService.getIndicatorStringFromIndicatorType(
-      indicatorType,
-    );
+    return this.metadataExportService.getIndicatorStringFromIndicatorType(indicatorType);
   }
 
-  tsToDate_withOptionalUpdateInterval(
-    ts,
-    updateIntervalApiName: any = undefined,
-  ) {
+  tsToDate_withOptionalUpdateInterval(ts, updateIntervalApiName: any = undefined) {
     return this.metadataExportService.tsToDate_withOptionalUpdateInterval(
       ts,
-      updateIntervalApiName,
+      updateIntervalApiName
     );
   }
 
@@ -965,16 +1033,11 @@ export class DataExchangeService {
   private getTopicHierarchyForTopicId(topicReferenceId) {
     return this.topicHierarchyStore.getTopicHierarchyForTopicId(
       this.availableTopics,
-      topicReferenceId,
+      topicReferenceId
     );
   }
 
-  async generateAndDownloadIndicatorZIP(
-    indicatorData,
-    fileName,
-    fileEnding,
-    jsZipOptions,
-  ) {
+  async generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions) {
     return this.metadataExportService.generateAndDownloadIndicatorZIP(
       indicatorData,
       fileName,
@@ -982,7 +1045,7 @@ export class DataExchangeService {
       jsZipOptions,
       this.selectedIndicator,
       this.availableSpatialUnits,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
@@ -990,7 +1053,7 @@ export class DataExchangeService {
     return this.metadataExportService.generateIndicatorMetadataPdf_asBlob(
       this.selectedIndicator,
       this.availableSpatialUnits,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
@@ -999,14 +1062,14 @@ export class DataExchangeService {
       indicatorMetadata,
       pdfName,
       this.availableSpatialUnits,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
   getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asFormattedText(
       indicatorValue,
-      this.resolveSelectedPrecision(precision),
+      this.resolveSelectedPrecision(precision)
     );
   }
 
@@ -1022,9 +1085,9 @@ export class DataExchangeService {
       }
 
       // $rootScope.$apply();
-      this.broadcastService.broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast('hideLoadingIconOnMap');
 
-      $(".mapApplicationErrorAlert").show();
+      $('.mapApplicationErrorAlert').show();
     }, 1000);
   }
 
@@ -1049,7 +1112,7 @@ export class DataExchangeService {
     showLOI,
     showAOI,
     showWMS,
-    showWFS,
+    showWFS
   ) {
     this.georesourceStore.onChangeGeoresourceKeywordFilter(
       georesourceNameFilter,
@@ -1057,7 +1120,7 @@ export class DataExchangeService {
       showLOI,
       showAOI,
       showWMS,
-      showWFS,
+      showWFS
     );
   }
 
@@ -1068,7 +1131,7 @@ export class DataExchangeService {
     showLOI,
     showAOI,
     showWMS,
-    showWFS,
+    showWFS
   ) {
     return this.georesourceStore.getGeoresourceDatasets(
       topic,
@@ -1077,59 +1140,42 @@ export class DataExchangeService {
       showLOI,
       showAOI,
       showWMS,
-      showWFS,
+      showWFS
     );
   }
 
   getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS) {
-    return this.georesourceStore.getAvailableWfsDatasets(
-      topic,
-      georesourceNameFilter,
-      showWFS,
-    );
+    return this.georesourceStore.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
   }
 
   getAvailableTopicWmsDatasets(topic, georesourceNameFilter, showWMS) {
     return this.georesourceStore.getAvailableTopicWmsDatasets(
       topic,
       georesourceNameFilter,
-      showWMS,
+      showWMS
     );
   }
 
   filterByGeoresourceNamesToHide(filteredGeoresources) {
-    return this.georesourceStore.filterByGeoresourceNamesToHide(
-      filteredGeoresources,
-    );
+    return this.georesourceStore.filterByGeoresourceNamesToHide(filteredGeoresources);
   }
 
-  getAvailableGeoresources(
-    topic,
-    georesourceNameFilter,
-    showPOI,
-    showLOI,
-    showAOI,
-  ) {
+  getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI) {
     return this.georesourceStore.getAvailableGeoresources(
       topic,
       georesourceNameFilter,
       showPOI,
       showLOI,
-      showAOI,
+      showAOI
     );
   }
 
-  filterGeoresourcesByTypes(
-    georesourceMetadataArray,
-    showPOI,
-    showLOI,
-    showAOI,
-  ) {
+  filterGeoresourcesByTypes(georesourceMetadataArray, showPOI, showLOI, showAOI) {
     return this.georesourceStore.filterGeoresourcesByTypes(
       georesourceMetadataArray,
       showPOI,
       showLOI,
-      showAOI,
+      showAOI
     );
   }
 
@@ -1140,48 +1186,38 @@ export class DataExchangeService {
   getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
-      this.resolveSelectedPrecision(precision),
+      this.resolveSelectedPrecision(precision)
     );
   }
 
-  getIndicatorValueFromArray_asNumber(
-    propertiesArray,
-    targetDateString,
-    precision = undefined,
-  ) {
+  getIndicatorValueFromArray_asNumber(propertiesArray, targetDateString, precision = undefined) {
     return this.indicatorValueService.getIndicatorValueFromArray_asNumber(
       propertiesArray,
       targetDateString,
-      this.resolveSelectedPrecision(precision),
+      this.resolveSelectedPrecision(precision)
     );
   }
 
   setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName) {
-    this.selectionState.setAllFeaturesProperty(
-      indicatorMetadataAndGeoJSON,
-      propertyName,
-    );
+    this.selectionState.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName);
   }
 
   setSelectedFeatureProperty(selectedFeaturesMap, propertyName) {
-    this.selectionState.setSelectedFeatureProperty(
-      selectedFeaturesMap,
-      propertyName,
-    );
+    this.selectionState.setSelectedFeatureProperty(selectedFeaturesMap, propertyName);
   }
 
   selectedSpatialUnitIsRaster() {
-    var spatialUnitName = this.selectedSpatialUnit
+    const spatialUnitName = this.selectedSpatialUnit
       ? this.selectedSpatialUnit.spatialUnitLevel
-      : "";
+      : '';
 
     return (
-      spatialUnitName.includes("raster") ||
-      spatialUnitName.includes("Raster") ||
-      spatialUnitName.includes("RASTER") ||
-      spatialUnitName.includes("grid") ||
-      spatialUnitName.includes("GRID") ||
-      spatialUnitName.includes("Grid")
+      spatialUnitName.includes('raster') ||
+      spatialUnitName.includes('Raster') ||
+      spatialUnitName.includes('RASTER') ||
+      spatialUnitName.includes('grid') ||
+      spatialUnitName.includes('GRID') ||
+      spatialUnitName.includes('Grid')
     );
   }
 
@@ -1190,7 +1226,7 @@ export class DataExchangeService {
     georesourceData,
     fileName,
     fileEnding,
-    jsZipOptions,
+    jsZipOptions
   ) {
     return this.metadataExportService.generateAndDownloadGeoresourceZIP(
       georesourceMetadata,
@@ -1198,23 +1234,19 @@ export class DataExchangeService {
       fileName,
       fileEnding,
       jsZipOptions,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
   async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata) {
     return this.metadataExportService.generateGeoresourceMetadataPdf_asBlob(
       georesourceMetadata,
-      this.availableTopics,
+      this.availableTopics
     );
   }
 
   createDualListInputArray(array, nameProperty, idProperty): any[] {
-    return this.indicatorValueService.createDualListInputArray(
-      array,
-      nameProperty,
-      idProperty,
-    );
+    return this.indicatorValueService.createDualListInputArray(array, nameProperty, idProperty);
   }
 
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
@@ -1226,10 +1258,7 @@ export class DataExchangeService {
   }
 
   formatIndicatorNameForLabel(indicatorName, maxCharsPerLine) {
-    return this.indicatorValueService.formatIndicatorNameForLabel(
-      indicatorName,
-      maxCharsPerLine,
-    );
+    return this.indicatorValueService.formatIndicatorNameForLabel(indicatorName, maxCharsPerLine);
   }
 
   filterIndicators() {
@@ -1243,12 +1272,12 @@ export class DataExchangeService {
   getIndicatorValue_asFixedPrecisionNumber(indicatorValue, precision) {
     return this.indicatorValueService.getIndicatorValue_asFixedPrecisionNumber(
       indicatorValue,
-      this.resolveSelectedPrecision(precision),
+      this.resolveSelectedPrecision(precision)
     );
   }
 
   getIndicatorAbbreviationFromIndicatorId(indicatorId) {
-    for (var indicatorMetadata of this.availableIndicators) {
+    for (const indicatorMetadata of this.availableIndicators) {
       if (indicatorMetadata.indicatorId === indicatorId) {
         return indicatorMetadata.abbreviation;
       }

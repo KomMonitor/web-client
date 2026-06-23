@@ -387,9 +387,7 @@ export class TopicHierarchyService {
   getTopicHierarchyForTopicId(availableTopics: any[], topicReferenceId: any): any[] {
     const topicHierarchyArray: any[] = [];
 
-    for (let i = 0; i < availableTopics.length; i++) {
-      const mainTopicCandidate = availableTopics[i];
-
+    for (const mainTopicCandidate of availableTopics) {
       if (mainTopicCandidate.topicId === topicReferenceId) {
         topicHierarchyArray.push(mainTopicCandidate);
         break;
@@ -403,9 +401,7 @@ export class TopicHierarchyService {
   }
 
   private addSubTopicHierarchy(topicHierarchyArray: any[], topicReferenceId: any, subTopicsArray: any[]): any[] {
-    for (let index = 0; index < subTopicsArray.length; index++) {
-      const subTopicCandidate = subTopicsArray[index];
-
+    for (const subTopicCandidate of subTopicsArray) {
       if (subTopicCandidate.topicId === topicReferenceId) {
         topicHierarchyArray.push(subTopicCandidate);
         break;

@@ -1,4 +1,4 @@
-import { Injectable, Inject, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   Observable,
@@ -6,11 +6,9 @@ import {
   throwError,
   of,
   timer,
-  combineLatest,
   catchError,
   retry,
   shareReplay,
-  switchMap,
   tap,
   map,
   filter,
@@ -71,6 +69,9 @@ export interface AccessControlMetadata {
   providedIn: 'root',
 })
 export class KommonitorDataExchangeService implements OnDestroy {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+
   // Reactive subjects for state management
   private spatialUnitsSubject = new BehaviorSubject<SpatialUnitMetadata[]>([]);
   private accessControlSubject = new BehaviorSubject<AccessControlMetadata[]>([]);
@@ -124,10 +125,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   // Environment configuration
   private readonly env: any;
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {
+  constructor() {
     // Get environment configuration
     this.env = (window as any).__env;
     this.baseUrl = this.getBaseApiUrl();
@@ -164,7 +162,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         map(() => this.authService.isAuthenticated()),
-        filter((isAuth, index) => {
+        filter((isAuth, _index) => {
           const currentState = this.authenticationStateSubject.value;
           return isAuth !== currentState; // Only emit when state changes
         })
@@ -239,7 +237,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
 
       const roles = tokenParsed.realm_access.roles;
       return roles;
-    } catch (error) {
+    } catch {
       return [];
     }
   }
@@ -461,7 +459,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Fetches spatial units metadata with caching and error handling
    */
-  fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
+  fetchSpatialUnitsMetadata(_keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
     // Check cache first
     if (this.isCacheValid(this.spatialUnitsCache)) {
       this.spatialUnitsSubject.next(this.spatialUnitsCache!.data);
@@ -529,7 +527,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Fetches indicators metadata
    */
-  fetchIndicatorsMetadata(keycloakRolesArray: string[]): Observable<any[]> {
+  fetchIndicatorsMetadata(_keycloakRolesArray: string[]): Observable<any[]> {
     this.setLoading(true);
     this.clearError();
 
@@ -537,7 +535,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const url = `${this.baseUrl}${endpoint}`;
 
     return this.http.get<any[]>(url).pipe(
-      tap((data) => {
+      tap(() => {
         this.setLoading(false);
       }),
       catchError((error) => {
@@ -675,7 +673,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     }
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return json.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
       function (match) {
         let cls = 'number';
         if (/^"/.test(match)) {
@@ -1149,7 +1147,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
       const url = `${this.baseUrl}/spatial-units/${spatialUnitId}`;
       await this.http.delete(url).toPromise();
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

@@ -1,17 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   Observable,
   BehaviorSubject,
   throwError,
   of,
-  timer,
   catchError,
-  retry,
-  shareReplay,
-  switchMap,
   tap,
-  map,
 } from 'rxjs';
 
 // TypeScript interfaces for better type safety
@@ -60,6 +55,8 @@ export interface SpatialUnitMetadata {
   providedIn: 'root',
 })
 export class KommonitorCacheHelperService {
+  private http = inject(HttpClient);
+
   private baseUrlToKomMonitorDataAPI: string = '';
   private lastDatabaseModificationInfo: DatabaseModificationInfo | null = null;
 
@@ -84,7 +81,7 @@ export class KommonitorCacheHelperService {
   public error$ = this.errorSubject.asObservable();
   public lastModification$ = this.lastModificationSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.initializeService();
   }
 
@@ -260,7 +257,7 @@ export class KommonitorCacheHelperService {
       const parsedData = JSON.parse(cachedData);
 
       return parsedData;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

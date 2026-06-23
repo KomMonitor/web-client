@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
+import { Injectable, inject } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
  * Pure indicator value / formatting utilities extracted from DataExchangeService
@@ -11,36 +11,31 @@ import { EnvConfigService } from "services/env-config-service/env-config.service
  * this service never touches shared selection state.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class IndicatorValueService {
-
-  constructor(private envConfigService: EnvConfigService) {}
+  private envConfigService = inject(EnvConfigService);
 
   indicatorValueIsNoData(indicatorValue) {
-    if (
-      Number.isNaN(indicatorValue) ||
-      indicatorValue === null ||
-      indicatorValue === undefined
-    ) {
+    if (Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined) {
       return true;
     }
     return false;
   }
 
   getIndicatorValue_asFormattedText(indicatorValue, precision: any = undefined) {
-    var maximumDecimals = this.envConfigService.numberOfDecimals;
-    var minimumDecimals = 0;
+    let maximumDecimals = this.envConfigService.numberOfDecimals;
+    let minimumDecimals = 0;
     if (precision !== undefined) {
       maximumDecimals = precision;
       minimumDecimals = precision;
     }
 
-    var value;
+    let value;
     if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
+      value = 'NoData';
     } else {
-      value = Number(indicatorValue).toLocaleString("de-DE", {
+      value = Number(indicatorValue).toLocaleString('de-DE', {
         maximumFractionDigits: maximumDecimals,
         minimumFractionDigits: minimumDecimals,
       });
@@ -48,7 +43,7 @@ export class IndicatorValueService {
 
     // if the original value is greater than zero but would be rounded as 0 then we must return the original result
     if (Number(value) == 0 && indicatorValue > 0) {
-      value = Number(indicatorValue).toLocaleString("de-DE", {
+      value = Number(indicatorValue).toLocaleString('de-DE', {
         minimumFractionDigits: minimumDecimals,
         maximumFractionDigits: maximumDecimals,
       });
@@ -58,14 +53,14 @@ export class IndicatorValueService {
   }
 
   getIndicatorValue_asNumber(indicatorValue, precision: any = undefined) {
-    var maximumDecimals = this.envConfigService.numberOfDecimals;
+    let maximumDecimals = this.envConfigService.numberOfDecimals;
     if (precision !== undefined) {
       maximumDecimals = precision;
     }
 
-    var value;
+    let value;
     if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
+      value = 'NoData';
     } else {
       value = +Number(indicatorValue).toFixed(maximumDecimals);
     }
@@ -81,16 +76,15 @@ export class IndicatorValueService {
   getIndicatorValueFromArray_asNumber(
     propertiesArray,
     targetDateString,
-    precision: any = undefined,
+    precision: any = undefined
   ) {
     if (!targetDateString.includes(this.envConfigService.indicatorDatePrefix)) {
-      targetDateString =
-        this.envConfigService.indicatorDatePrefix + targetDateString;
+      targetDateString = this.envConfigService.indicatorDatePrefix + targetDateString;
     }
-    var indicatorValue = propertiesArray[targetDateString];
-    var value;
+    const indicatorValue = propertiesArray[targetDateString];
+    let value;
     if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
+      value = 'NoData';
     } else {
       value = this.getIndicatorValue_asNumber(indicatorValue, precision);
     }
@@ -99,24 +93,24 @@ export class IndicatorValueService {
   }
 
   getIndicatorValue_asFixedPrecisionNumber(indicatorValue, precision: any = undefined) {
-    var maximumDecimals = this.envConfigService.numberOfDecimals;
-    var minimumDecimals = 0;
+    let maximumDecimals = this.envConfigService.numberOfDecimals;
+    let minimumDecimals = 0;
     if (precision !== undefined) {
       maximumDecimals = precision;
       minimumDecimals = precision;
     }
 
-    var value;
+    let value;
     if (this.indicatorValueIsNoData(indicatorValue)) {
-      value = "NoData";
+      value = 'NoData';
     } else {
       // value = string with . as separator, without "," as thounsand-sep
       value = indicatorValue
-        .toLocaleString("en-GB", {
+        .toLocaleString('en-GB', {
           maximumFractionDigits: maximumDecimals,
           minimumFractionDigits: minimumDecimals,
         })
-        .replace(",", "");
+        .replace(',', '');
     }
 
     // if the original value is greater than zero but would be rounded as 0 then we must return the original result
@@ -128,36 +122,33 @@ export class IndicatorValueService {
   }
 
   syntaxHighlightJSON(json) {
-    if (typeof json != "string") {
+    if (typeof json != 'string') {
       json = JSON.stringify(json, undefined, 2);
     }
-    json = json
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return json.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
       function (match) {
-        var cls = "number";
+        let cls = 'number';
         if (/^"/.test(match)) {
           if (/:$/.test(match)) {
-            cls = "key";
+            cls = 'key';
           } else {
-            cls = "string";
+            cls = 'string';
           }
         } else if (/true|false/.test(match)) {
-          cls = "boolean";
+          cls = 'boolean';
         } else if (/null/.test(match)) {
-          cls = "null";
+          cls = 'null';
         }
-        return '<span class="' + cls + '">' + match + "</span>";
-      },
+        return '<span class="' + cls + '">' + match + '</span>';
+      }
     );
   }
 
   formatIndicatorNameForLabel(indicatorName, maxCharsPerLine) {
-    var arr: any[] = [];
-    var space = /\s/;
+    const arr: any[] = [];
+    const space = /\s/;
 
     const words = indicatorName.split(space);
     // push first word into new array
@@ -172,19 +163,19 @@ export class IndicatorValueService {
         arr.push(words[i]);
       }
     }
-    return arr.join("\n");
+    return arr.join('\n');
   }
 
   createDualListInputArray(array, nameProperty, idProperty): any[] {
-    var result: any[] = [];
+    const result: any[] = [];
 
     if (array && Array.isArray(array)) {
-      for (var i = 0; i < array.length; i++) {
-        var obj = {};
-        obj["category"] = array[i][nameProperty];
-        obj["name"] = array[i][nameProperty];
-        if (idProperty && array[i][idProperty] !== undefined) {
-          obj["id"] = array[i][idProperty];
+      for (const item of array) {
+        const obj = {};
+        obj['category'] = item[nameProperty];
+        obj['name'] = item[nameProperty];
+        if (idProperty && item[idProperty] !== undefined) {
+          obj['id'] = item[idProperty];
         }
         result.push(obj);
       }

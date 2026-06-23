@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
@@ -9,16 +9,13 @@ export interface LandingpageConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class ConfigStorageService  {
+export class ConfigStorageService {
+  private httpClient = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
 
-  controlsConfig:any;
-  
-  public constructor(
-      private httpClient: HttpClient,
-      private envConfigService: EnvConfigService,
-  ) {}
+  controlsConfig: any;
 
   getConfigs() {
     this.getControlsConfig();
@@ -26,86 +23,120 @@ export class ConfigStorageService  {
     this.getKeycloakConfig();
   }
 
-  postKeycloakConfig(jsonString):Observable<any> {
-    console.log("Trying to POST to config storage service to upload new keycloak config.");
-    var formdata = new FormData();
-    formdata.append("appConfig", new Blob([jsonString], { type: "application/json" }));
+  postKeycloakConfig(jsonString): Observable<any> {
+    console.log('Trying to POST to config storage service to upload new keycloak config.');
+    const formdata = new FormData();
+    formdata.append('appConfig', new Blob([jsonString], { type: 'application/json' }));
 
-    let headers = new HttpHeaders({ "Content-Type": '*', "Accept": "text/plain" });
+    const headers = new HttpHeaders({ 'Content-Type': '*', Accept: 'text/plain' });
 
-    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig, formdata, {headers: headers});
+    return this.httpClient.post(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig,
+      formdata,
+      { headers: headers }
+    );
   }
 
-  postControlsConfig(jsonString):Observable<any> {
-    console.log("Trying to POST to config storage service to upload new controls config.");
-    var formdata = new FormData();
-    formdata.append("appConfig", new Blob([jsonString], { type: "application/json" }));
+  postControlsConfig(jsonString): Observable<any> {
+    console.log('Trying to POST to config storage service to upload new controls config.');
+    const formdata = new FormData();
+    formdata.append('appConfig', new Blob([jsonString], { type: 'application/json' }));
 
-    let headers = new HttpHeaders({"Accept": "text/plain" });
+    const headers = new HttpHeaders({ Accept: 'text/plain' });
 
-    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig, formdata, {headers: headers});
+    return this.httpClient.post(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig,
+      formdata,
+      { headers: headers }
+    );
   }
 
-  postAppConfig(jsString):Observable<any> {
-    console.log("Trying to POST to config storage service to upload new app config.");
-    var formdata = new FormData();
-    formdata.append("appConfig", new Blob([jsString], { type: "application/javascript" }));
+  postAppConfig(jsString): Observable<any> {
+    console.log('Trying to POST to config storage service to upload new app config.');
+    const formdata = new FormData();
+    formdata.append('appConfig', new Blob([jsString], { type: 'application/javascript' }));
 
-    let headers = new HttpHeaders({"Accept": "text/plain" });
+    const headers = new HttpHeaders({ Accept: 'text/plain' });
 
-    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig, formdata, {headers: headers});
+    return this.httpClient.post(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
+      formdata,
+      { headers: headers }
+    );
   }
 
-  postFilterConfig(jsonString):Observable<any> {     
+  postFilterConfig(jsonString): Observable<any> {
+    console.log('Trying to POST to config storage service to upload new filter config.');
+    const formdata = new FormData();
+    formdata.append('appConfig', new Blob([jsonString], { type: 'application/json' }));
 
-    console.log("Trying to POST to config storage service to upload new filter config.");
-    var formdata = new FormData();
-    formdata.append("appConfig", new Blob([jsonString], { type: "application/json"}));  
-    
-    let headers = new HttpHeaders({"Accept": "text/plain" });
+    const headers = new HttpHeaders({ Accept: 'text/plain' });
 
-    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig, formdata, {headers: headers});
+    return this.httpClient.post(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig,
+      formdata,
+      { headers: headers }
+    );
   }
 
   postLandingpageConfig(landingpageConfig: LandingpageConfig) {
-
-    console.log("Trying to POST to config storage service to upload new landingpage config.");
-    var formdata = new FormData();
-    formdata.append("startPage", new Blob([landingpageConfig.startPage], { type: "application/json"}));  
-    // only if set 
+    console.log('Trying to POST to config storage service to upload new landingpage config.');
+    const formdata = new FormData();
+    formdata.append(
+      'startPage',
+      new Blob([landingpageConfig.startPage], { type: 'application/json' })
+    );
+    // only if set
     // formdata.append("pageName", '');
-    
-    let headers = new HttpHeaders({"Accept": "text/plain" });
 
-    return this.httpClient.post(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig, formdata, {headers: headers});
+    const headers = new HttpHeaders({ Accept: 'text/plain' });
+
+    return this.httpClient.post(
+      this.envConfigService.configStorageServerConfig
+        .targetUrlToConfigStorageServer_landingpageConfig,
+      formdata,
+      { headers: headers }
+    );
   }
 
-  getKeycloakConfig():Observable<any> {
-
-    return this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig);
+  getKeycloakConfig(): Observable<any> {
+    return this.httpClient.get(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig
+    );
   }
 
   getControlsConfig() {
-    
-    this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_controlsConfig).subscribe({
-      next: response => {
-        this.controlsConfig = response;
-      },
-      error: error => {
-        console.error(error);
-      }
-    });
+    this.httpClient
+      .get(
+        this.envConfigService.configStorageServerConfig
+          .targetUrlToConfigStorageServer_controlsConfig
+      )
+      .subscribe({
+        next: (response) => {
+          this.controlsConfig = response;
+        },
+        error: (error) => {
+          console.error(error);
+        },
+      });
   }
 
-  getAppConfig():Observable<any> {
-    return this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig);
+  getAppConfig(): Observable<any> {
+    return this.httpClient.get(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig
+    );
   }
 
-  getFilterConfig(){
-    return this.httpClient.get(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig);
-  };
+  getFilterConfig() {
+    return this.httpClient.get(
+      this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_filterConfig
+    );
+  }
 
   getLandingpageConfig() {
-    return this.httpClient.get<any>(this.envConfigService.configStorageServerConfig.targetUrlToConfigStorageServer_landingpageConfig);
+    return this.httpClient.get<any>(
+      this.envConfigService.configStorageServerConfig
+        .targetUrlToConfigStorageServer_landingpageConfig
+    );
   }
 }

@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
+import { Injectable, inject } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
  * Indicator metadata store extracted from DataExchangeService
@@ -13,21 +13,18 @@ import { EnvConfigService } from "services/env-config-service/env-config.service
  * displayableIndicators via getters so its consumers stay unchanged.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class IndicatorMetadataStoreService {
+  private envConfigService = inject(EnvConfigService);
 
   availableIndicators: any = [];
   availableIndicators_map = new Map();
   displayableIndicators: any;
 
-  constructor(private envConfigService: EnvConfigService) {}
-
   setIndicators(indicatorsArray) {
     this.availableIndicators = this.modifyIndicators(indicatorsArray);
-    this.availableIndicators_map = new Map(
-      this.availableIndicators.map((i) => [i.indicatorId, i]),
-    );
+    this.availableIndicators_map = new Map(this.availableIndicators.map((i) => [i.indicatorId, i]));
   }
 
   addSingleIndicatorMetadata(indicatorMetadata) {
@@ -39,7 +36,7 @@ export class IndicatorMetadataStoreService {
   replaceSingleIndicatorMetadata(indicatorMetadata) {
     const modified = this.modifySingleIndicator(indicatorMetadata);
     const index = this.availableIndicators.findIndex(
-      (i) => i.indicatorId === indicatorMetadata.indicatorId,
+      (i) => i.indicatorId === indicatorMetadata.indicatorId
     );
     if (index !== -1) this.availableIndicators[index] = modified;
     this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
@@ -50,20 +47,18 @@ export class IndicatorMetadataStoreService {
   }
 
   deleteSingleIndicatorMetadata(indicatorId) {
-    const index = this.availableIndicators.findIndex(
-      (i) => i.indicatorId === indicatorId,
-    );
+    const index = this.availableIndicators.findIndex((i) => i.indicatorId === indicatorId);
     if (index !== -1) this.availableIndicators.splice(index, 1);
     this.availableIndicators_map.delete(indicatorId);
   }
 
   modifySingleIndicator(indicator) {
-    var temp = this.modifyIndicators([indicator]);
+    const temp = this.modifyIndicators([indicator]);
     return temp[0];
   }
 
   modifyIndicators(indicators) {
-    var decimalDefault = 2;
+    let decimalDefault = 2;
     if (this.envConfigService.numberOfDecimals !== undefined)
       decimalDefault = this.envConfigService.numberOfDecimals;
 
@@ -84,27 +79,25 @@ export class IndicatorMetadataStoreService {
    * derived by the facade afterwards.
    */
   modifyIndicatorApplicableSpatialUnitsForLoginRoles(availableSpatialUnits) {
-    var availableSpatialUnitNames: any[] = [];
+    const availableSpatialUnitNames: any[] = [];
     for (const spatialUnit of availableSpatialUnits) {
       availableSpatialUnitNames.push(spatialUnit.spatialUnitLevel);
     }
     for (const indicator of this.availableIndicators) {
-      indicator.applicableSpatialUnits =
-        indicator.applicableSpatialUnits.filter((applicableSpatialUnit) =>
-          availableSpatialUnitNames.includes(
-            applicableSpatialUnit.spatialUnitName,
-          ),
-        );
+      indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(
+        (applicableSpatialUnit) =>
+          availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)
+      );
     }
 
     this.displayableIndicators = this.availableIndicators.filter((item) =>
-      this.isDisplayableIndicator(item),
+      this.isDisplayableIndicator(item)
     );
   }
 
   isDisplayableIndicator(item) {
     // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
-    var arrayOfNameSubstringsForHidingIndicators =
+    const arrayOfNameSubstringsForHidingIndicators =
       this.envConfigService.arrayOfNameSubstringsForHidingIndicators;
 
     // this is an item from i.e. indicatorRadar, that has a different structure
@@ -121,10 +114,9 @@ export class IndicatorMetadataStoreService {
       )
         return false;
 
-      var isIndicatorThatShallNotBeDisplayed =
-        arrayOfNameSubstringsForHidingIndicators.some((substring) =>
-          String(item.indicatorMetadata.indicatorName).includes(substring),
-        );
+      const isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(
+        (substring) => String(item.indicatorMetadata.indicatorName).includes(substring)
+      );
 
       if (isIndicatorThatShallNotBeDisplayed) {
         return false;
@@ -132,22 +124,14 @@ export class IndicatorMetadataStoreService {
 
       return true;
     } else {
-      if (
-        item.applicableDates == undefined ||
-        item.applicableDates.length === 0
-      )
+      if (item.applicableDates == undefined || item.applicableDates.length === 0) return false;
+
+      if (item.applicableSpatialUnits == undefined || item.applicableSpatialUnits.length === 0)
         return false;
 
-      if (
-        item.applicableSpatialUnits == undefined ||
-        item.applicableSpatialUnits.length === 0
-      )
-        return false;
-
-      var isIndicatorThatShallNotBeDisplayed2 =
-        arrayOfNameSubstringsForHidingIndicators.some((substring) =>
-          String(item.indicatorName).includes(substring),
-        );
+      const isIndicatorThatShallNotBeDisplayed2 = arrayOfNameSubstringsForHidingIndicators.some(
+        (substring) => String(item.indicatorName).includes(substring)
+      );
 
       if (isIndicatorThatShallNotBeDisplayed2) {
         return false;

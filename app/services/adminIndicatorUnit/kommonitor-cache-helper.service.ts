@@ -1,19 +1,22 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorIndicatorCacheHelperService {
-
-  constructor(
-    private angularJsCacheHelperService: CacheHelperServiceService
-  ) {}
+  private angularJsCacheHelperService = inject(CacheHelperServiceService);
 
   /**
    * Fetches single indicator metadata - delegates to AngularJS service
    */
-  async fetchSingleIndicatorMetadata(indicatorId: string, keycloakRolesArray: string[]): Promise<any> {
-    return this.angularJsCacheHelperService.fetchSingleIndicatorMetadata(indicatorId, keycloakRolesArray);
+  async fetchSingleIndicatorMetadata(
+    indicatorId: string,
+    keycloakRolesArray: string[]
+  ): Promise<any> {
+    return this.angularJsCacheHelperService.fetchSingleIndicatorMetadata(
+      indicatorId,
+      keycloakRolesArray
+    );
   }
-} 
+}

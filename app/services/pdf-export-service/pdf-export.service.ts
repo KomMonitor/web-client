@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { UPDATE_INTERVAL_LABELS } from 'services/data-exchange-service/data-exchange.constants';
@@ -12,10 +12,8 @@ import domtoimage from 'dom-to-image-more';
   providedIn: 'root',
 })
 export class PdfExportService {
-  constructor(
-    private envConfigService: EnvConfigService,
-    private topicHierarchyService: TopicHierarchyService,
-  ) {}
+  private envConfigService = inject(EnvConfigService);
+  private topicHierarchyService = inject(TopicHierarchyService);
 
   // ─── Public date utilities (also delegated to from DataExchangeService) ─────
 
@@ -36,7 +34,7 @@ export class PdfExportService {
       if (interval === 'yearly') {
         return date.getFullYear();
       } else if (interval === 'half_yearly' || interval === 'monthly') {
-        return (date.getMonth() + 1) + '/' + date.getFullYear();
+        return date.getMonth() + 1 + '/' + date.getFullYear();
       } else if (interval === 'quarterly') {
         const year = date.getFullYear();
         const month = date.getMonth();
@@ -65,13 +63,24 @@ export class PdfExportService {
 
   // ─── Georesource PDF ─────────────────────────────────────────────────────────
 
-  async downloadMetadataPDF_georesource(georesourceMetadata: any, availableTopics: any[]): Promise<void> {
+  async downloadMetadataPDF_georesource(
+    georesourceMetadata: any,
+    availableTopics: any[]
+  ): Promise<void> {
     const pdfName = georesourceMetadata.datasetName + '.pdf';
-    const doc = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName, availableTopics);
+    const doc = await this.createMetadataPDF_georesource(
+      georesourceMetadata,
+      pdfName,
+      availableTopics
+    );
     doc.save(pdfName);
   }
 
-  async createMetadataPDF_georesource(georesource: any, pdfName: string, availableTopics: any[]): Promise<any> {
+  async createMetadataPDF_georesource(
+    georesource: any,
+    pdfName: string,
+    availableTopics: any[]
+  ): Promise<any> {
     const doc: any = new jsPDF({ unit: 'mm', format: 'a4' });
 
     const img = new Image();
@@ -86,7 +95,9 @@ export class PdfExportService {
 
     let initialStartY = 30;
     if (titleArray.length > 1) {
-      titleArray.forEach(() => { initialStartY += 5; });
+      titleArray.forEach(() => {
+        initialStartY += 5;
+      });
     }
 
     const headStyles = { fontStyle: 'bold', fontSize: 12, fillColor: '#337ab7', cellWidth: 'auto' };
@@ -101,11 +112,13 @@ export class PdfExportService {
 
     doc.autoTable({
       head: [['Themenfeld', 'Datentyp', 'letzte Aktualisierung']],
-      body: [[
-        topicsString,
-        category,
-        this.tsToDate_withOptionalUpdateInterval(this.dateToTS(georesource.metadata.lastUpdate)),
-      ]],
+      body: [
+        [
+          topicsString,
+          category,
+          this.tsToDate_withOptionalUpdateInterval(this.dateToTS(georesource.metadata.lastUpdate)),
+        ],
+      ],
       theme: 'grid',
       headStyles,
       bodyStyles,
@@ -122,7 +135,10 @@ export class PdfExportService {
         ['Datenquelle', georesource.metadata.datasource || '-'],
         ['Datenhalter und Kontakt', georesource.metadata.contact || '-'],
         ['Bemerkung', georesource.metadata.note || '-'],
-        ['Zeitbezug / Fortführungsintervall', UPDATE_INTERVAL_LABELS.get(georesource.metadata.updateInterval.toUpperCase())],
+        [
+          'Zeitbezug / Fortführungsintervall',
+          UPDATE_INTERVAL_LABELS.get(georesource.metadata.updateInterval.toUpperCase()),
+        ],
         ['Verfügbare Gültigkeitszeiträume', datesString],
         ['Quellen / Literatur', georesource.metadata.literature || '-'],
       ],
@@ -143,9 +159,16 @@ export class PdfExportService {
     return doc;
   }
 
-  async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata: any, availableTopics: any[]): Promise<Blob> {
+  async generateGeoresourceMetadataPdf_asBlob(
+    georesourceMetadata: any,
+    availableTopics: any[]
+  ): Promise<Blob> {
     const pdfName = georesourceMetadata.datasetName + '.pdf';
-    const doc = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName, availableTopics);
+    const doc = await this.createMetadataPDF_georesource(
+      georesourceMetadata,
+      pdfName,
+      availableTopics
+    );
     return doc.output('blob', { filename: pdfName });
   }
 
@@ -155,9 +178,12 @@ export class PdfExportService {
     fileName: string,
     fileEnding: string,
     jsZipOptions: any,
-    availableTopics: any[],
+    availableTopics: any[]
   ): Promise<void> {
-    const metadataPdf = await this.generateGeoresourceMetadataPdf_asBlob(georesourceMetadata, availableTopics);
+    const metadataPdf = await this.generateGeoresourceMetadataPdf_asBlob(
+      georesourceMetadata,
+      availableTopics
+    );
     const zip = new JSZip();
     zip.file(fileName + fileEnding, georesourceData, jsZipOptions);
     zip.file(fileName + '_Metadata.pdf', metadataPdf);
@@ -171,7 +197,7 @@ export class PdfExportService {
   async createMetadataPDF_indicator(
     indicator: any,
     availableSpatialUnits: any[],
-    availableTopics: any[],
+    availableTopics: any[]
   ): Promise<any> {
     const doc: any = new jsPDF({ unit: 'mm', format: 'a4' });
 
@@ -198,7 +224,9 @@ export class PdfExportService {
 
     let initialStartY = 30;
     if (titleArray.length > 1) {
-      titleArray.forEach(() => { initialStartY += 5; });
+      titleArray.forEach(() => {
+        initialStartY += 5;
+      });
     }
     if (hasCharacteristic) initialStartY += 5;
 
@@ -211,12 +239,14 @@ export class PdfExportService {
 
     doc.autoTable({
       head: [['Themenfeld', 'Kategorie', 'Typ', 'Kennzeichen']],
-      body: [[
-        topicsString,
-        category,
-        this.getIndicatorStringFromIndicatorType(indicator.indicatorType),
-        indicator.abbreviation || '-',
-      ]],
+      body: [
+        [
+          topicsString,
+          category,
+          this.getIndicatorStringFromIndicatorType(indicator.indicatorType),
+          indicator.abbreviation || '-',
+        ],
+      ],
       theme: 'grid',
       headStyles,
       bodyStyles,
@@ -226,12 +256,12 @@ export class PdfExportService {
     const linkedIndicatorsString = this._buildLinkedItemsString(
       indicator.referencedIndicators,
       'referencedIndicatorName',
-      'referencedIndicatorDescription',
+      'referencedIndicatorDescription'
     );
     const linkedGeoresourcesString = this._buildLinkedItemsString(
       indicator.referencedGeoresources,
       'referencedGeoresourceName',
-      'referencedGeoresourceDescription',
+      'referencedGeoresourceDescription'
     );
 
     const spatialUnitsString = this._buildSpatialUnitsString(indicator, availableSpatialUnits);
@@ -245,8 +275,12 @@ export class PdfExportService {
       const node = document.querySelector('#indicatorProcessDescription');
       await domtoimage
         .toJpeg(node, { quality: 1.0 })
-        .then((dataUrl: any) => { imgData = dataUrl; })
-        .catch((error: any) => { console.error(error); });
+        .then((dataUrl: any) => {
+          imgData = dataUrl;
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
 
       if (imgData) {
         const dimensions: any = await this._getImageDimensions(imgData);
@@ -272,20 +306,35 @@ export class PdfExportService {
       columnStyles,
       startY: doc.autoTable.previous.finalY + 10,
       willDrawCell: function (data: any) {
-        if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
+        if (
+          imgData &&
+          data.row.index === 2 &&
+          data.column.index === 1 &&
+          data.cell.section === 'body'
+        ) {
           data.row.height = 2.5 * data.cell.height;
           data.row.maxCellHeight = 2.5 * data.cell.height;
           data.cell.height = 2.5 * data.cell.height;
           data.cell.text = '';
         }
-        if (imgData && data.row.index === 2 && data.column.index === 0 && data.cell.section === 'body') {
+        if (
+          imgData &&
+          data.row.index === 2 &&
+          data.column.index === 0 &&
+          data.cell.section === 'body'
+        ) {
           data.row.height = 2.5 * data.cell.height;
           data.row.maxCellHeight = 2.5 * data.cell.height;
           data.cell.height = 2.5 * data.cell.height;
         }
       },
       didDrawCell: function (data: any) {
-        if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
+        if (
+          imgData &&
+          data.row.index === 2 &&
+          data.column.index === 1 &&
+          data.cell.section === 'body'
+        ) {
           const cellHeight = data.cell.height - data.cell.padding('vertical');
           const cellWidth = data.cell.width - data.cell.padding('horizontal');
           const imgScale = cellHeight / imgHeight;
@@ -303,10 +352,16 @@ export class PdfExportService {
         ['Datenhalter und Kontakt', indicator.metadata.contact || '-'],
         ['Bemerkung', indicator.metadata.note || '-'],
         ['Raumbezug', spatialUnitsString],
-        ['Zeitbezug / Fortführungsintervall', UPDATE_INTERVAL_LABELS.get(indicator.metadata.updateInterval.toUpperCase())],
+        [
+          'Zeitbezug / Fortführungsintervall',
+          UPDATE_INTERVAL_LABELS.get(indicator.metadata.updateInterval.toUpperCase()),
+        ],
         ['Hinweise zum Referenzdatum', indicator.referenceDateNote || '-'],
         ['Verfügbare Zeitreihen', datesString],
-        ['Datum der letzten Aktualisierung', this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.metadata.lastUpdate))],
+        [
+          'Datum der letzten Aktualisierung',
+          this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.metadata.lastUpdate)),
+        ],
         ['Quellen / Literatur', indicator.metadata.literature || '-'],
       ],
       theme: 'grid',
@@ -323,9 +378,13 @@ export class PdfExportService {
     indicatorMetadata: any,
     pdfName: string,
     availableSpatialUnits: any[],
-    availableTopics: any[],
+    availableTopics: any[]
   ): Promise<any> {
-    const doc = await this.createMetadataPDF_indicator(indicatorMetadata, availableSpatialUnits, availableTopics);
+    const doc = await this.createMetadataPDF_indicator(
+      indicatorMetadata,
+      availableSpatialUnits,
+      availableTopics
+    );
     doc.setProperties({
       title: 'KomMonitor Indikatorenblatt',
       subject: pdfName,
@@ -339,10 +398,15 @@ export class PdfExportService {
   async generateIndicatorMetadataPdf_asBlob(
     indicatorMetadata: any,
     availableSpatialUnits: any[],
-    availableTopics: any[],
+    availableTopics: any[]
   ): Promise<Blob> {
     const pdfName = indicatorMetadata.indicatorName + '.pdf';
-    const doc = await this.generateIndicatorMetadataPdf(indicatorMetadata, pdfName, availableSpatialUnits, availableTopics);
+    const doc = await this.generateIndicatorMetadataPdf(
+      indicatorMetadata,
+      pdfName,
+      availableSpatialUnits,
+      availableTopics
+    );
     return doc.output('blob', { filename: pdfName });
   }
 
@@ -353,9 +417,13 @@ export class PdfExportService {
     jsZipOptions: any,
     selectedIndicator: any,
     availableSpatialUnits: any[],
-    availableTopics: any[],
+    availableTopics: any[]
   ): Promise<void> {
-    const metadataPdf = await this.generateIndicatorMetadataPdf_asBlob(selectedIndicator, availableSpatialUnits, availableTopics);
+    const metadataPdf = await this.generateIndicatorMetadataPdf_asBlob(
+      selectedIndicator,
+      availableSpatialUnits,
+      availableTopics
+    );
     const zip = new JSZip();
     zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
     zip.file(fileName + '_Metadata.pdf', metadataPdf);
@@ -375,19 +443,20 @@ export class PdfExportService {
   }
 
   private _buildTopicsString(topicReferenceId: any, availableTopics: any[]): string {
-    const hierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(availableTopics, topicReferenceId);
+    const hierarchy = this.topicHierarchyService.getTopicHierarchyForTopicId(
+      availableTopics,
+      topicReferenceId
+    );
     return hierarchy
       .map((topic: any, index: number) =>
-        index === 0 ? topic.topicName : ' '.repeat(2 * index) + topic.topicName,
+        index === 0 ? topic.topicName : ' '.repeat(2 * index) + topic.topicName
       )
       .join('\n');
   }
 
   private _buildLinkedItemsString(items: any[], nameKey: string, descKey: string): string {
     if (!items || items.length === 0) return '-';
-    return items
-      .map((item: any) => `${item[nameKey]} - \n   ${item[descKey]}`)
-      .join('\n\n');
+    return items.map((item: any) => `${item[nameKey]} - \n   ${item[descKey]}`).join('\n\n');
   }
 
   private _buildSpatialUnitsString(indicator: any, availableSpatialUnits: any[]): string {
@@ -406,9 +475,12 @@ export class PdfExportService {
     if (periods.length <= 10) {
       return periods
         .map((period: any) => {
-          const start = this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(period.startDate)));
+          const start = this.tsToDate_withOptionalUpdateInterval(
+            this.dateToTS(new Date(period.startDate))
+          );
           const end = period.endDate
-            ? ' - ' + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(period.endDate)))
+            ? ' - ' +
+              this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(period.endDate)))
             : "- 'null' (demnach gültig bis auf weiteres)";
           return 'Zeitspanne: ' + start + end;
         })
@@ -430,9 +502,14 @@ export class PdfExportService {
       }
     }
 
-    result += 'frühestes Startdatum: ' + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(earliest)) + '\n';
+    result +=
+      'frühestes Startdatum: ' +
+      this.tsToDate_withOptionalUpdateInterval(this.dateToTS(earliest)) +
+      '\n';
     result += latest
-      ? 'spätestes Enddatum: ' + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(latest)) + '\n'
+      ? 'spätestes Enddatum: ' +
+        this.tsToDate_withOptionalUpdateInterval(this.dateToTS(latest)) +
+        '\n'
       : 'spätestes Enddatum: ohne explizites Enddatum (demnach gültig bis auf weiteres)\n';
 
     return result;
@@ -445,14 +522,22 @@ export class PdfExportService {
     if (dates.length <= 20) {
       return dates
         .map((d: string) =>
-          this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(d)), interval),
+          this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(d)), interval)
         )
         .join('    ');
     }
 
     let result = `Zeitreihe umfasst insgesamt ${dates.length} Zeitpunkte\n\n`;
-    result += 'frühester Zeitpunkt: ' + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(dates[0])), interval) + '\n';
-    result += 'spätester Zeitpunkt: ' + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(dates[dates.length - 1])), interval);
+    result +=
+      'frühester Zeitpunkt: ' +
+      this.tsToDate_withOptionalUpdateInterval(this.dateToTS(new Date(dates[0])), interval) +
+      '\n';
+    result +=
+      'spätester Zeitpunkt: ' +
+      this.tsToDate_withOptionalUpdateInterval(
+        this.dateToTS(new Date(dates[dates.length - 1])),
+        interval
+      );
     return result;
   }
 }

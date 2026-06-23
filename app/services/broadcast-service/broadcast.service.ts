@@ -6,7 +6,9 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class BroadcastService {
 
-  constructor() { }
+  constructor() {
+    /* intentionally empty */
+  }
 
   broadcastMsg = new BehaviorSubject<any>({msg: '', values: undefined});
 

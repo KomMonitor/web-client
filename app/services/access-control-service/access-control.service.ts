@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { AccessControlMetadata } from "components/ngComponents/models/permissions.models";
+import { Injectable, inject } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 
 /**
  * Permissions / roles / access-control state and logic extracted from
@@ -13,9 +13,11 @@ import { AccessControlMetadata } from "components/ngComponents/models/permission
  * so its consumers and the remaining auth/fetch orchestration stay unchanged.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AccessControlService {
+  private envConfigService = inject(EnvConfigService);
+  private broadcastService = inject(BroadcastService);
 
   isRealmAdmin: boolean = false;
   currentKeycloakLoginGroupNames: any;
@@ -34,22 +36,17 @@ export class AccessControlService {
 
   availableRoles: any[] = [];
 
-  constructor(
-    private envConfigService: EnvConfigService,
-    private broadcastService: BroadcastService,
-  ) {}
-
   checkDeletePermission() {
     if (this.checkAdminPermission()) {
       return true;
     }
 
     for (const role of this.currentKeycloakLoginRoles) {
-      let roleNameParts = role.split(".");
+      const roleNameParts = role.split('.');
       const permissionLevel = roleNameParts[roleNameParts.length - 1];
       if (
-        permissionLevel === "client-resources-creator" ||
-        permissionLevel === "unit-resources-creator"
+        permissionLevel === 'client-resources-creator' ||
+        permissionLevel === 'unit-resources-creator'
       ) {
         return true;
       }
@@ -58,40 +55,33 @@ export class AccessControlService {
   }
 
   getAllowedRolesString(allowedPermissionIds) {
-    var permissions: any[] = [];
+    const permissions: any[] = [];
     for (const organizationalUnit of this.accessControl) {
       for (const permission of organizationalUnit.permissions) {
         if (allowedPermissionIds.includes(permission.permissionId)) {
-          permissions.push(
-            organizationalUnit.name + "-" + permission.permissionLevel,
-          );
+          permissions.push(organizationalUnit.name + '-' + permission.permissionLevel);
         }
       }
     }
-    return permissions.join(", ");
+    return permissions.join(', ');
   }
 
   getRoleTitle(organizationalUnitId) {
-    var roles = this.accessControl.filter(
-      (e) => e.organizationalUnitId == organizationalUnitId,
-    );
+    const roles = this.accessControl.filter((e) => e.organizationalUnitId == organizationalUnitId);
     if (roles && roles.length > 0) {
       return roles[0].name;
     }
-    return "";
+    return '';
   }
 
   getAccessControlById(id: string): AccessControlMetadata | null {
-    return (
-      this.accessControl.find((unit) => unit.organizationalUnitId === id) ||
-      null
-    );
+    return this.accessControl.find((unit) => unit.organizationalUnitId === id) || null;
   }
 
   setCurrentKomMonitorLoginOrganizationalUnits() {
     // now iterate once over all possible KomMonitor orgas and check if user belongs to this orga via its keycloak group
-    this.currentKomMonitorLoginOrganizationalUnits = this.accessControl.filter(
-      (org) => this.currentKeycloakLoginGroupNames.includes(org.name),
+    this.currentKomMonitorLoginOrganizationalUnits = this.accessControl.filter((org) =>
+      this.currentKeycloakLoginGroupNames.includes(org.name)
     );
   }
 
@@ -101,31 +91,25 @@ export class AccessControlService {
       window.__env.keycloakKomMonitorThemesEditRoleNames = ["client-themes-creator", "unit-themes-creator"];
       window.__env.keycloakKomMonitorGeodataEditRoleNames = ["client-resources-creator", "unit-resources-creator"];
     */
-    let roleSuffixes =
-      this.envConfigService.keycloakKomMonitorGroupsEditRoleNames
-        .concat(this.envConfigService.keycloakKomMonitorThemesEditRoleNames)
-        .concat(this.envConfigService.keycloakKomMonitorGeodataEditRoleNames);
-    var possibleRoles = ["kommonitor-creator"];
+    const roleSuffixes = this.envConfigService.keycloakKomMonitorGroupsEditRoleNames
+      .concat(this.envConfigService.keycloakKomMonitorThemesEditRoleNames)
+      .concat(this.envConfigService.keycloakKomMonitorGeodataEditRoleNames);
+    const possibleRoles = ['kommonitor-creator'];
     this.accessControl.forEach((organizationalUnit) => {
       for (const roleSuffix of roleSuffixes) {
-        possibleRoles.push(organizationalUnit.name + "." + roleSuffix);
+        possibleRoles.push(organizationalUnit.name + '.' + roleSuffix);
       }
     });
-    this.currentKomMonitorLoginRoleNames =
-      this.currentKeycloakLoginRoles.filter((role) =>
-        possibleRoles.includes(role),
-      );
+    this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter((role) =>
+      possibleRoles.includes(role)
+    );
   }
 
   setAccessControl(input) {
-    this.accessControl_map = new Map(
-      input.map((e) => [e.organizationalUnitId, e]),
-    );
+    this.accessControl_map = new Map(input.map((e) => [e.organizationalUnitId, e]));
     this.accessControl = Array.from(this.accessControl_map.values());
     this.updateAvailableRoles();
-    this.allowedAccessControl = this.filterAllowedAccessControl(
-      this.accessControl,
-    );
+    this.allowedAccessControl = this.filterAllowedAccessControl(this.accessControl);
   }
 
   private filterAllowedAccessControl(acArray) {
@@ -133,15 +117,15 @@ export class AccessControlService {
       return acArray;
     }
 
-    var clientUserRoles = this.filterClientUserAdminRoles();
-    var filtered: any[] = [];
-    var existingOrgaIds: any[] = [];
+    const clientUserRoles = this.filterClientUserAdminRoles();
+    const filtered: any[] = [];
+    const existingOrgaIds: any[] = [];
 
     acArray.forEach((orga) => {
       const currentOrga = orga;
       while (orga) {
         clientUserRoles.forEach((role) => {
-          let roleNameParts = role.split(".");
+          const roleNameParts = role.split('.');
           const orgaName = roleNameParts[roleNameParts.length - 2];
 
           if (
@@ -160,9 +144,9 @@ export class AccessControlService {
 
   filterClientUserAdminRoles() {
     return this.currentKeycloakLoginRoles.filter((role) => {
-      let roleNameParts = role.split(".");
+      const roleNameParts = role.split('.');
       const permissionLevel = roleNameParts[roleNameParts.length - 1];
-      if (permissionLevel === "client-users-creator") {
+      if (permissionLevel === 'client-users-creator') {
         return true;
       }
       return false;
@@ -171,9 +155,7 @@ export class AccessControlService {
 
   checkAdminPermission() {
     if (
-      this.currentKeycloakLoginRoles.includes(
-        this.envConfigService.keycloakKomMonitorAdminRoleName,
-      )
+      this.currentKeycloakLoginRoles.includes(this.envConfigService.keycloakKomMonitorAdminRoleName)
     ) {
       return true;
     }
@@ -183,20 +165,20 @@ export class AccessControlService {
   updateAvailableRoles() {
     this.availableRoles = [];
 
-    for (let elem of this.accessControl) {
-      for (let permission of elem.permissions) {
-        let available = {
+    for (const elem of this.accessControl) {
+      for (const permission of elem.permissions) {
+        const available = {
           ...permission,
           ...{
             organizationalUnit: elem,
-            roleName: elem.name + "-" + permission.permissionLevel,
+            roleName: elem.name + '-' + permission.permissionLevel,
           },
         };
         this.availableRoles.push(available);
       }
     }
     // we need to refresh all modals as roles have changed
-    this.broadcastService.broadcast("availableRolesUpdate");
+    this.broadcastService.broadcast('availableRolesUpdate');
   }
 
   checkCreatePermission() {
@@ -205,11 +187,11 @@ export class AccessControlService {
     }
 
     for (const role of this.currentKeycloakLoginRoles) {
-      let roleNameParts = role.split(".");
+      const roleNameParts = role.split('.');
       const permissionLevel = roleNameParts[roleNameParts.length - 1];
       if (
-        permissionLevel === "client-resources-creator" ||
-        permissionLevel === "unit-resources-creator"
+        permissionLevel === 'client-resources-creator' ||
+        permissionLevel === 'unit-resources-creator'
       ) {
         return true;
       }
@@ -223,11 +205,11 @@ export class AccessControlService {
     }
 
     for (const role of this.currentKeycloakLoginRoles) {
-      let roleNameParts = role.split(".");
+      const roleNameParts = role.split('.');
       const permissionLevel = roleNameParts[roleNameParts.length - 1];
       if (
-        permissionLevel === "client-resources-creator" ||
-        permissionLevel === "unit-resources-creator"
+        permissionLevel === 'client-resources-creator' ||
+        permissionLevel === 'unit-resources-creator'
       ) {
         return true;
       }
@@ -237,21 +219,19 @@ export class AccessControlService {
 
   getRoleTitles() {
     return this.currentKeycloakLoginRoles.map(
-      (role) => role.split(".")[role.split(".").length - 1],
+      (role) => role.split('.')[role.split('.').length - 1]
     );
   }
 
   checkGroupsEditPermission() {
     if (this.checkAdminPermission()) return true;
 
-    let splitRoles = this.getRoleTitles();
+    const splitRoles = this.getRoleTitles();
     let ret = false;
 
-    this.envConfigService.keycloakKomMonitorGroupsEditRoleNames.forEach(
-      (targetRole) => {
-        if (splitRoles.includes(targetRole)) ret = true;
-      },
-    );
+    this.envConfigService.keycloakKomMonitorGroupsEditRoleNames.forEach((targetRole) => {
+      if (splitRoles.includes(targetRole)) ret = true;
+    });
 
     return ret;
   }
@@ -259,14 +239,12 @@ export class AccessControlService {
   checkThemesEditPermission() {
     if (this.checkAdminPermission()) return true;
 
-    let splitRoles = this.getRoleTitles();
+    const splitRoles = this.getRoleTitles();
     let ret = false;
 
-    this.envConfigService.keycloakKomMonitorThemesEditRoleNames.forEach(
-      (targetRole) => {
-        if (splitRoles.includes(targetRole)) ret = true;
-      },
-    );
+    this.envConfigService.keycloakKomMonitorThemesEditRoleNames.forEach((targetRole) => {
+      if (splitRoles.includes(targetRole)) ret = true;
+    });
 
     return ret;
   }
@@ -274,14 +252,12 @@ export class AccessControlService {
   checkResourcesEditPermission() {
     if (this.checkAdminPermission()) return true;
 
-    let splitRoles = this.getRoleTitles();
+    const splitRoles = this.getRoleTitles();
     let ret = false;
 
-    this.envConfigService.keycloakKomMonitorGeodataEditRoleNames.forEach(
-      (targetRole) => {
-        if (splitRoles.includes(targetRole)) ret = true;
-      },
-    );
+    this.envConfigService.keycloakKomMonitorGeodataEditRoleNames.forEach((targetRole) => {
+      if (splitRoles.includes(targetRole)) ret = true;
+    });
 
     return ret;
   }

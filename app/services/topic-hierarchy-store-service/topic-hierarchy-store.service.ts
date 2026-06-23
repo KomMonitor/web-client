@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { TopicHierarchyService } from "services/topic-hierarchy-service/topic-hierarchy.service";
-import { IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
+import { Injectable, inject } from '@angular/core';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 
 /**
  * Holds the built topic/indicator/georesource hierarchies extracted from
@@ -12,9 +12,10 @@ import { IndicatorsTopicsHierarchy } from "components/ngComponents/models/indica
  * and keeps the resulting hierarchy fields, which the facade re-exposes via getters.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class TopicHierarchyStoreService {
+  private topicHierarchyService = inject(TopicHierarchyService);
 
   topicIndicatorHierarchy: IndicatorsTopicsHierarchy[] = [];
   headlineIndicatorHierarchy: any[] = [];
@@ -22,15 +23,13 @@ export class TopicHierarchyStoreService {
   topicGeoresourceHierarchy: any[] = [];
   topicGeoresourceHierarchy_unmappedEntries: any = {};
 
-  constructor(private topicHierarchyService: TopicHierarchyService) {}
-
   buildTopicGeoresourceHierarchy(
     availableTopics,
     displayableGeoresources_keywordFiltered,
     wmsDatasets_keywordFiltered,
     wfsDatasets_keywordFiltered,
     georesourceMapKey_forUnmappedTopicReferences,
-    filter: any = undefined,
+    filter: any = undefined
   ) {
     const result = this.topicHierarchyService.buildTopicGeoresourceHierarchy(
       availableTopics,
@@ -38,7 +37,7 @@ export class TopicHierarchyStoreService {
       wmsDatasets_keywordFiltered,
       wfsDatasets_keywordFiltered,
       georesourceMapKey_forUnmappedTopicReferences,
-      filter,
+      filter
     );
     this.topicGeoresourceHierarchy = result.hierarchy;
     this.topicGeoresourceHierarchy_unmappedEntries = result.unmappedEntries;
@@ -46,43 +45,38 @@ export class TopicHierarchyStoreService {
 
   buildComputationIndicatorHierarchy(
     displayableIndicators_keywordFiltered,
-    availableProcessScripts,
+    availableProcessScripts
   ) {
     this.computationIndicatorHierarchy =
       this.topicHierarchyService.buildComputationIndicatorHierarchy(
         displayableIndicators_keywordFiltered,
-        availableProcessScripts,
+        availableProcessScripts
       );
   }
 
   buildTopicIndicatorHierarchy(
     availableTopics,
     displayableIndicators_keywordFiltered,
-    indiWmsDatasets,
+    indiWmsDatasets
   ) {
-    this.topicIndicatorHierarchy =
-      this.topicHierarchyService.buildTopicIndicatorHierarchy(
-        availableTopics,
-        displayableIndicators_keywordFiltered,
-        indiWmsDatasets,
-      );
+    this.topicIndicatorHierarchy = this.topicHierarchyService.buildTopicIndicatorHierarchy(
+      availableTopics,
+      displayableIndicators_keywordFiltered,
+      indiWmsDatasets
+    );
   }
 
-  buildHeadlineIndicatorHierarchy(
-    displayableIndicators_keywordFiltered,
-    availableProcessScripts,
-  ) {
-    this.headlineIndicatorHierarchy =
-      this.topicHierarchyService.buildHeadlineIndicatorHierarchy(
-        displayableIndicators_keywordFiltered,
-        availableProcessScripts,
-      );
+  buildHeadlineIndicatorHierarchy(displayableIndicators_keywordFiltered, availableProcessScripts) {
+    this.headlineIndicatorHierarchy = this.topicHierarchyService.buildHeadlineIndicatorHierarchy(
+      displayableIndicators_keywordFiltered,
+      availableProcessScripts
+    );
   }
 
   getTopicHierarchyForTopicId(availableTopics, topicReferenceId) {
     return this.topicHierarchyService.getTopicHierarchyForTopicId(
       availableTopics,
-      topicReferenceId,
+      topicReferenceId
     );
   }
 }

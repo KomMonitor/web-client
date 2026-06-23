@@ -1,19 +1,19 @@
-import { Inject, Injectable, ViewChild } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 export interface MapRefreshObject {
-  values: MapRefreshValues,
+  values: MapRefreshValues;
   error: boolean;
   errorMsg?: string[] | undefined;
 }
 
 export interface MapRefreshValues {
-  indicator: any | undefined, 
-  spatialUnit: any | undefined,
-  date: any | undefined,
-  justRestyling?: boolean | undefined,
-  customComputation?: boolean | undefined,
+  indicator: any | undefined;
+  spatialUnit: any | undefined;
+  date: any | undefined;
+  justRestyling?: boolean | undefined;
+  customComputation?: boolean | undefined;
 }
 
 export interface MapRecenterObject {
@@ -28,74 +28,83 @@ export interface DateSliderObject {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MapService {
+  private broadcastService = inject(BroadcastService);
 
   private mapRefreshStateSubject = new BehaviorSubject<MapRefreshObject>({
     values: {
-      indicator: undefined, 
+      indicator: undefined,
       spatialUnit: undefined,
-      date: undefined
+      date: undefined,
     },
-    error: false
+    error: false,
   });
   mapRefreshState$ = this.mapRefreshStateSubject.asObservable();
 
   private replaceIndicatorLayerSubject = new Subject<{
-    indicator: any,
-    spatialUnitName: string,
-    date: string,
-    isCustomComputation: boolean
+    indicator: any;
+    spatialUnitName: string;
+    date: string;
+    isCustomComputation: boolean;
   }>();
   replaceIndicatorLayerSubject$ = this.replaceIndicatorLayerSubject.asObservable();
- 
+
   private mapRecenterSubject = new BehaviorSubject<MapRecenterObject>({
-   resize: false,
-   recenter: false
+    resize: false,
+    recenter: false,
   });
   mapRecenter$ = this.mapRecenterSubject.asObservable();
 
   private dateSliderSubject = new BehaviorSubject<DateSliderObject>({
     data: undefined,
     selected: undefined,
-    disabled: undefined
+    disabled: undefined,
   });
   dateSlider$ = this.dateSliderSubject.asObservable();
-  
-  public constructor(
-      private broadcastService: BroadcastService
-  ) { }
 
-  replaceIndicatorLayer(indicator: any, spatialUnitName: string, date: string, isCustomComputation: boolean) {
-    this.replaceIndicatorLayerSubject.next({ indicator, spatialUnitName, date, isCustomComputation });
+  replaceIndicatorLayer(
+    indicator: any,
+    spatialUnitName: string,
+    date: string,
+    isCustomComputation: boolean
+  ) {
+    this.replaceIndicatorLayerSubject.next({
+      indicator,
+      spatialUnitName,
+      date,
+      isCustomComputation,
+    });
   }
 
   setDateSliderValues(patch: Partial<DateSliderObject>) {
     this.dateSliderSubject.next({
       ...this.dateSliderSubject.value,
-      ...patch
+      ...patch,
     });
   }
 
   setMapRecenterState(patch: Partial<MapRecenterObject>) {
     this.mapRecenterSubject.next({
       ...this.mapRecenterSubject.value,
-      ...patch
+      ...patch,
     });
   }
 
-  setMapRefreshValues(values:MapRefreshValues) {
+  setMapRefreshValues(values: MapRefreshValues) {
     this.mapRefreshStateSubject.next({
-      ...this.mapRefreshStateSubject.value, 
-      values: values
+      ...this.mapRefreshStateSubject.value,
+      values: values,
     });
   }
 
-  readyForRefresh():boolean {
-    if(this.mapRefreshStateSubject.value.values.indicator!==undefined && 
-        this.mapRefreshStateSubject.value.values.spatialUnit!==undefined && 
-        this.mapRefreshStateSubject.value.values.date!==undefined)
+  readyForRefresh(): boolean {
+    if (
+      this.mapRefreshStateSubject.value.values.indicator !== undefined &&
+      this.mapRefreshStateSubject.value.values.spatialUnit !== undefined &&
+      this.mapRefreshStateSubject.value.values.date !== undefined
+    )
       return true;
 
     return false;
@@ -104,13 +113,13 @@ export class MapService {
   resetMapRefreshState() {
     this.mapRefreshStateSubject.next({
       values: {
-        indicator: undefined, 
+        indicator: undefined,
         spatialUnit: undefined,
         date: undefined,
         justRestyling: false,
         customComputation: false,
       },
-      error: false
+      error: false,
     });
   }
 
@@ -119,12 +128,12 @@ export class MapService {
   }
 
   removeWfsLayerFromMap(wfs) {
-    this.broadcastService.broadcast("removeWfsLayerFromMap",[wfs]);
+    this.broadcastService.broadcast('removeWfsLayerFromMap', [wfs]);
   }
 
   addWfsLayerToMap(wfs, opacity, useCluster) {
-    console.log("addWfsLayerToMap");
-    this.broadcastService.broadcast("addWfsLayerToMap",[wfs, opacity, useCluster]);
+    console.log('addWfsLayerToMap');
+    this.broadcastService.broadcast('addWfsLayerToMap', [wfs, opacity, useCluster]);
   }
 
   removeLoiGeoresource(loiGeoresource) {
@@ -132,64 +141,80 @@ export class MapService {
   }
 
   addWmsLayerToMap(dataset, opacity) {
-    console.log("addWmsLayerToMap");
+    console.log('addWmsLayerToMap');
     this.broadcastService.broadcast('addWmsLayerToMap', [dataset, opacity]);
   }
 
   removeWmsLayerFromMap(dataset) {
-    this.broadcastService.broadcast("removeWmsLayerFromMap", [dataset]);
+    this.broadcastService.broadcast('removeWmsLayerFromMap', [dataset]);
   }
 
   adjustOpacityForWmsLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForWmsLayer(dataset, opacity);
-    this.broadcastService.broadcast("adjustOpacityForWmsLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustOpacityForWmsLayer', [dataset, opacity]);
   }
 
   adjustOpacityForAoiLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForAoiLayer(dataset, opacity);
-    this.broadcastService.broadcast("adjustOpacityForAoiLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustOpacityForAoiLayer', [dataset, opacity]);
   }
 
   adjustOpacityForPoiLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForPoiLayer(dataset, opacity);
-    this.broadcastService.broadcast("adjustOpacityForPoiLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustOpacityForPoiLayer', [dataset, opacity]);
   }
 
   adjustOpacityForLoiLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForLoiLayer(dataset, opacity);
-    this.broadcastService.broadcast("adjustOpacityForLoiLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustOpacityForLoiLayer', [dataset, opacity]);
   }
 
   adjustOpacityForWfsLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast("adjustOpacityForWfsLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustOpacityForWfsLayer', [dataset, opacity]);
   }
 
   adjustColorForWfsLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast("adjustColorForWfsLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustColorForWfsLayer', [dataset, opacity]);
   }
 
   restyleCurrentLayer() {
     //this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
-    this.broadcastService.broadcast("restyleCurrentLayer",[false]);
+    this.broadcastService.broadcast('restyleCurrentLayer', [false]);
   }
 
-  replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation=false) {
+  replaceIndicatorGeoJSON(
+    indicatorMetadataAndGeoJSON,
+    spatialUnitName,
+    date,
+    justRestyling,
+    isCustomComputation = false
+  ) {
     //this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
-    this.broadcastService.broadcast("replaceIndicatorAsGeoJSON", [indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]);
+    this.broadcastService.broadcast('replaceIndicatorAsGeoJSON', [
+      indicatorMetadataAndGeoJSON,
+      spatialUnitName,
+      date,
+      justRestyling,
+      isCustomComputation,
+    ]);
   }
 
   addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
-    this.broadcastService.broadcast("addPoiGeoresourceAsGeoJSON", [poiGeoresource, date, useCluster]);
+    this.broadcastService.broadcast('addPoiGeoresourceAsGeoJSON', [
+      poiGeoresource,
+      date,
+      useCluster,
+    ]);
   }
 
   addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
-    this.broadcastService.broadcast("addAoiGeoresourceAsGeoJSON", [aoiGeoresource, date]);
+    this.broadcastService.broadcast('addAoiGeoresourceAsGeoJSON', [aoiGeoresource, date]);
   }
 
   addLoiGeoresourceGeoJSON(loiGeoresource, date) {
-    this.broadcastService.broadcast("addLoiGeoresourceAsGeoJSON", [loiGeoresource, date]);
+    this.broadcastService.broadcast('addLoiGeoresourceAsGeoJSON', [loiGeoresource, date]);
   }
 
   removeAoiGeoresource(aoiGeoresource) {
@@ -197,26 +222,26 @@ export class MapService {
   }
 
   replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    this.broadcastService.broadcast("replaceReachabilityScenarioOnMainMap", [reachabilityScenario]);
+    this.broadcastService.broadcast('replaceReachabilityScenarioOnMainMap', [reachabilityScenario]);
   }
 
   removeReachabilityScenarioFromMainMap() {
-    this.broadcastService.broadcast("removeReachabilityScenarioFromMainMap");
+    this.broadcastService.broadcast('removeReachabilityScenarioFromMainMap');
   }
 
-  addFileLayerToMap(dataset, opacity) {
-    this.broadcastService.broadcast("addFileLayerToMap",[dataset]);
+  addFileLayerToMap(dataset, _opacity) {
+    this.broadcastService.broadcast('addFileLayerToMap', [dataset]);
   }
 
   removeFileLayerFromMap(dataset) {
-    this.broadcastService.broadcast("removeFileLayerFromMap", [dataset]);
+    this.broadcastService.broadcast('removeFileLayerFromMap', [dataset]);
   }
 
   adjustOpacityForFileLayer(dataset, opacity) {
-    this.broadcastService.broadcast("adjustOpacityForFileLayer",[dataset, opacity]);
+    this.broadcastService.broadcast('adjustOpacityForFileLayer', [dataset, opacity]);
   }
 
   adjustColorForFileLayer(dataset) {
-    this.broadcastService.broadcast("adjustColorForFileLayer",dataset);
+    this.broadcastService.broadcast('adjustColorForFileLayer', dataset);
   }
 }

@@ -1,5 +1,5 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { LabelService } from 'services/label-service/label.service';
 import { HttpClient } from '@angular/common/http';
@@ -10,11 +10,17 @@ import * as turf from '@turf/turf';
 import * as ecStat from 'echarts-stat';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DiagramHelperServiceService {
-  
-  pipedData:any;
+  private broadcastService = inject(BroadcastService);
+  private dataExchangeService = inject(DataExchangeService);
+  private filterHelperService = inject(FilterHelperService);
+  private http = inject(HttpClient);
+  private labelService = inject(LabelService);
+  private envConfigService = inject(EnvConfigService);
+
+  pipedData: any;
   indicatorPropertiesForCurrentSpatialUnitAndTime;
   filterSameUnitAndSameTime = false;
 
@@ -29,95 +35,72 @@ export class DiagramHelperServiceService {
   private defaultColorForOutliers_high = this.envConfigService.defaultColorForOutliers_high;
   private defaultColorForOutliers_low = this.envConfigService.defaultColorForOutliers_low;
 
-  indicatorPropertyName = "";
+  indicatorPropertyName = '';
 
   barChartOptions = {};
-  lineChartOptions = {series: [{name:''}]};
+  lineChartOptions = { series: [{ name: '' }] };
   histogramChartOptions = {};
   radarChartOptions = {};
   regressionChartOptions = {};
   geoMapChartOptions = {};
 
-  public constructor(
-    private broadcastService: BroadcastService,
-    private dataExchangeService: DataExchangeService,
-    private filterHelperService: FilterHelperService,
-    private http: HttpClient,
-    private labelService: LabelService,
-    private envConfigService: EnvConfigService
-  ) { }
-
   setCustomFontFamily() {
-  
-    var elem:any = document.querySelector('#fontFamily-reference');
-    var style = getComputedStyle(elem);
+    const elem: any = document.querySelector('#fontFamily-reference');
+    const style = getComputedStyle(elem);
     return style.fontFamily;
   }
 
-  customFontFamily = this.setCustomFontFamily(); 
+  customFontFamily = this.setCustomFontFamily();
 
   prepCustomStyling(customFontFamilyEnabled, options) {
-
-    if(customFontFamilyEnabled===true)
-      options.textStyle = {fontFamily: this.customFontFamily};
+    if (customFontFamilyEnabled === true) options.textStyle = { fontFamily: this.customFontFamily };
 
     return options;
   }
 
-  isCloserToTargetDate(date, closestDate, targetDate){
-    var targetYear = targetDate.split("-")[0];
-    var targetMonth = targetDate.split("-")[1];
-    var targetDay = targetDate.split("-")[2];
+  isCloserToTargetDate(date, closestDate, targetDate) {
+    const targetMonth = targetDate.split('-')[1];
+    const targetDay = targetDate.split('-')[2];
 
-    var closestDateComps = closestDate.split("-");
-    var closestDateYear = closestDateComps[0];
-    var closestDateMonth = closestDateComps[1];
-    var closestDateDay = closestDateComps[2];
+    const closestDateComps = closestDate.split('-');
+    const closestDateMonth = closestDateComps[1];
+    const closestDateDay = closestDateComps[2];
 
-    var dateComps = date.split("-");
-    var year = dateComps[0];
-    var month = dateComps[1];
-    var day = dateComps[2];
+    const dateComps = date.split('-');
+    const month = dateComps[1];
+    const day = dateComps[2];
 
-    var monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
-    var monthDiff_date = Math.abs(targetMonth - month);
+    const monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
+    const monthDiff_date = Math.abs(targetMonth - month);
 
-    if(monthDiff_date <= monthDiff_closestDate){
-      var dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
-      var dayDiff_date = Math.abs(targetDay - day);
+    if (monthDiff_date <= monthDiff_closestDate) {
+      const dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
+      const dayDiff_date = Math.abs(targetDay - day);
 
-      if(dayDiff_date < dayDiff_closestDate){
+      if (dayDiff_date < dayDiff_closestDate) {
         return true;
       }
     }
     return false;
-  };
+  }
 
-  findClostestTimestamForTargetDate(indicatorForRadar, targetDate){
-    var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
+  findClostestTimestamForTargetDate(indicatorForRadar, targetDate) {
+    const applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
 
-    var targetYear = targetDate.split("-")[0];
-    var targetMonth = targetDate.split("-")[1];
-    var targetDay = targetDate.split("-")[2];
+    let closestDate = undefined;
 
-    var closestDate = undefined;
+    for (const date of applicableDates) {
+      const dateComps = date.split('-');
+      const year = dateComps[0];
 
-    for (var date of applicableDates) {
-      var dateComps = date.split("-");
-      var year = dateComps[0];
-      var month = dateComps[1];
-      var day = dateComps[2];
-
-      if(targetDate.includes(year)){
-        if(! closestDate){
+      if (targetDate.includes(year)) {
+        if (!closestDate) {
           closestDate = date;
-        }
-        else{
-          if(this.isCloserToTargetDate(date, closestDate, targetDate)){
+        } else {
+          if (this.isCloserToTargetDate(date, closestDate, targetDate)) {
             closestDate = date;
           }
         }
-
       }
     }
 
@@ -125,18 +108,18 @@ export class DiagramHelperServiceService {
   }
 
   setupIndicatorPropertiesForCurrentSpatialUnitAndTime(filterBySameUnitAndSameTime = false) {
-    
-   this.broadcastService.broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin");
+    this.broadcastService.broadcast(
+      'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin'
+    );
 
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
-    this.dataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
-      let targetYear = this.dataExchangeService.selectedDate.split("-")[0];
-      let indicatorCandidateYears:any = []
-      indicatorMetadata.applicableDates.forEach((date, i) => {
-        indicatorCandidateYears.push(date.split("-")[0]);
+    this.dataExchangeService.displayableIndicators.forEach((indicatorMetadata) => {
+      const targetYear = this.dataExchangeService.selectedDate.split('-')[0];
+      const indicatorCandidateYears: any = [];
+      indicatorMetadata.applicableDates.forEach((date, _i) => {
+        indicatorCandidateYears.push(date.split('-')[0]);
       });
-
 
       // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName ===  kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
       //   var selectableIndicatorEntry = {};
@@ -148,38 +131,46 @@ export class DiagramHelperServiceService {
 
       //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
       // }
-      
-      if (indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName === this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
-        var canBeAdded = true;
 
-        if(filterBySameUnitAndSameTime){
-          if(indicatorCandidateYears.includes(targetYear)){
+      if (
+        indicatorMetadata.applicableSpatialUnits.some(
+          (o) => o.spatialUnitName === this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel
+        )
+      ) {
+        let canBeAdded = true;
+
+        if (filterBySameUnitAndSameTime) {
+          if (indicatorCandidateYears.includes(targetYear)) {
             canBeAdded = true;
-          }
-          else{
+          } else {
             canBeAdded = false;
           }
         }
 
-        if (canBeAdded){
-          var selectableIndicatorEntry:any = {};
+        if (canBeAdded) {
+          const selectableIndicatorEntry: any = {};
           selectableIndicatorEntry.indicatorProperties = null;
           // per default show no indicators on radar
           selectableIndicatorEntry.isSelected = false;
           selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
-          selectableIndicatorEntry.selectedDate = indicatorMetadata.applicableDates[indicatorMetadata.applicableDates.length-1];
+          selectableIndicatorEntry.selectedDate =
+            indicatorMetadata.applicableDates[indicatorMetadata.applicableDates.length - 1];
           // selectableIndicatorEntry.closestTimestamp = undefined;
 
           this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
         }
-        
       }
     });
-   this.broadcastService.broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
+    this.broadcastService.broadcast(
+      'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed'
+    );
   }
-  
+
   fetchIndicatorPropertiesIfNotExists(index) {
-    if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
+    if (
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null ||
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined
+    ) {
       // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
       //
       // 	var year = dateComps[0];
@@ -190,101 +181,138 @@ export class DiagramHelperServiceService {
   }
 
   setIndicatorProperties(index) {
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId + "/" + this.dataExchangeService.selectedSpatialUnit.spatialUnitId + "/without-geometry";
+    const url =
+      this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      '/indicators/' +
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId +
+      '/' +
+      this.dataExchangeService.selectedSpatialUnit.spatialUnitId +
+      '/without-geometry';
     return this.http.get(url).subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = response;
       },
-      error: error => {
+      error: (error) => {
         this.dataExchangeService.displayMapApplicationError(error);
-      }
+      },
     });
   }
 
   fetchIndicatorProperties(indicatorMetadata, spatialUnitId) {
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry";
+    const url =
+      this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      '/indicators/' +
+      indicatorMetadata.indicatorId +
+      '/' +
+      spatialUnitId +
+      '/without-geometry';
     return this.http.get(url).subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
         return response;
       },
-      error: error => {
+      error: (error) => {
         this.dataExchangeService.displayMapApplicationError(error);
-      }
+      },
     });
   }
 
-  getColorForFeature(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
-    var color;
+  getColorForFeature(
+    feature,
+    indicatorMetadataAndGeoJSON,
+    targetDate,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue
+  ) {
+    let color;
 
-    if(!targetDate.includes(this.INDICATOR_DATE_PREFIX)){
+    if (!targetDate.includes(this.INDICATOR_DATE_PREFIX)) {
       targetDate = this.INDICATOR_DATE_PREFIX + targetDate;
     }
 
-    if(this.dataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])){
+    if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])) {
       color = this.defaultColorForNoDataValues;
-    }
-    else if(this.filterHelperService.featureIsCurrentlyFiltered(feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])){
+    } else if (
+      this.filterHelperService.featureIsCurrentlyFiltered(
+        feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+      )
+    ) {
       color = this.defaultColorForFilteredValues;
-    }
-    else if(this.envConfigService.classifyZeroSeparately && this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0 ){
+    } else if (
+      this.envConfigService.classifyZeroSeparately &&
+      this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+        feature.properties,
+        targetDate
+      ) == 0
+    ) {
       color = this.defaultColorForZeroValues;
-    }
-    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.envConfigService.useOutlierDetectionOnIndicator){
+    } else if (
+      feature.properties['outlier'] !== undefined &&
+      feature.properties['outlier'].includes('low') &&
+      this.envConfigService.useOutlierDetectionOnIndicator
+    ) {
       color = this.defaultColorForOutliers_low;
-    }
-    else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.envConfigService.useOutlierDetectionOnIndicator){
+    } else if (
+      feature.properties['outlier'] !== undefined &&
+      feature.properties['outlier'].includes('high') &&
+      this.envConfigService.useOutlierDetectionOnIndicator
+    ) {
       color = this.defaultColorForOutliers_high;
-    }
-    else if(isMeasureOfValueChecked){
-
-      if(this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(this.numberOfDecimals)){
-        color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
-      }
-      else {
+    } else if (isMeasureOfValueChecked) {
+      if (
+        this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+          feature.properties,
+          targetDate
+        ) >= +Number(measureOfValue).toFixed(this.numberOfDecimals)
+      ) {
+        color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);
+      } else {
         color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
       }
-
-    }
-    else{
-      if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
-
-        if(feature.properties[targetDate] < 0){
-          
+    } else {
+      if (indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')) {
+        if (feature.properties[targetDate] < 0) {
           color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-        }
-        else{
+        } else {
           color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
         }
-
-      }
-      else{
-
-        if(this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
-          if(this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-            if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
+      } else {
+        if (this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)) {
+          if (
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0
+          ) {
+            if (
+              this.envConfigService.classifyZeroSeparately &&
+              this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
+                0
+            ) {
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
               //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
               // }
-            }
-            else{
+            } else {
               color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
             }
-          }
-          else{
-            if(this.envConfigService.classifyZeroSeparately && (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0)){
+          } else {
+            if (
+              this.envConfigService.classifyZeroSeparately &&
+              this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
+                0
+            ) {
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
               //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
               // }
-            }
-            else{
+            } else {
               color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
             }
           }
-        }
-        else{
-          color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
+        } else {
+          color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);
         }
       }
     }
@@ -293,16 +321,15 @@ export class DiagramHelperServiceService {
   }
 
   containsNegativeValues(geoJSON, date) {
+    let propertyName = date;
 
-    var propertyName = date;
-
-    if(! propertyName.includes(this.dataExchangeService.indicatorDatePrefix)){
+    if (!propertyName.includes(this.dataExchangeService.indicatorDatePrefix)) {
       propertyName = this.dataExchangeService.indicatorDatePrefix + propertyName;
     }
 
-    var containsNegativeValues = false;
-    for (var i = 0; i < geoJSON.features.length; i++) {
-      if (geoJSON.features[i].properties[propertyName] < 0) {
+    let containsNegativeValues = false;
+    for (const feature of geoJSON.features) {
+      if (feature.properties[propertyName] < 0) {
         containsNegativeValues = true;
         break;
       }
@@ -311,30 +338,36 @@ export class DiagramHelperServiceService {
     return containsNegativeValues;
   }
 
-  getColorFromBrewInstance(brewInstance, feature, targetDate){
-    var color;
-    for (var index=0; index < brewInstance.breaks.length; index++){
-
-      if(this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.dataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index])){
-        if(index < brewInstance.breaks.length -1){
+  getColorFromBrewInstance(brewInstance, feature, targetDate) {
+    let color;
+    for (let index = 0; index < brewInstance.breaks.length; index++) {
+      if (
+        this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+          feature.properties,
+          targetDate
+        ) == this.dataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index])
+      ) {
+        if (index < brewInstance.breaks.length - 1) {
           // min value
-          color =  brewInstance.colors[index];
+          color = brewInstance.colors[index];
           break;
-        }
-        else {
+        } else {
           //max value
-          if (brewInstance.colors[index]){
-            color =  brewInstance.colors[index];
-          }
-          else{
-            color =  brewInstance.colors[index - 1];
+          if (brewInstance.colors[index]) {
+            color = brewInstance.colors[index];
+          } else {
+            color = brewInstance.colors[index - 1];
           }
           break;
         }
-      }
-      else{
-        if(this.dataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.dataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
-          color =  brewInstance.colors[index];
+      } else {
+        if (
+          this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+            feature.properties,
+            targetDate
+          ) < this.dataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])
+        ) {
+          color = brewInstance.colors[index];
           break;
         }
       }
@@ -342,7 +375,7 @@ export class DiagramHelperServiceService {
 
     return color;
   }
-  
+
   getBarChartOptions(customFontFamilyEnabled = false) {
     return this.prepCustomStyling(customFontFamilyEnabled, this.barChartOptions);
   }
@@ -357,232 +390,399 @@ export class DiagramHelperServiceService {
 
   getLineChartOptions(customFontFamilyEnabled = false) {
     return this.prepCustomStyling(customFontFamilyEnabled, this.lineChartOptions);
-  };
-
-  prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
-    this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, false);
   }
 
-  prepareAllDiagramResources_forReportingIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
-    this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true, true);      
+  prepareAllDiagramResources_forCurrentMapIndicator(
+    indicatorMetadataAndGeoJSON,
+    spatialUnitName,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue,
+    filterOutFutureDates
+  ) {
+    this.prepareAllDiagramResources(
+      indicatorMetadataAndGeoJSON,
+      spatialUnitName,
+      date,
+      defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      filterOutFutureDates,
+      false
+    );
   }
 
-  prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries, fixedPrecision = false) {
+  prepareAllDiagramResources_forReportingIndicator(
+    indicatorMetadataAndGeoJSON,
+    spatialUnitName,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue,
+    filterOutFutureDates
+  ) {
+    this.prepareAllDiagramResources(
+      indicatorMetadataAndGeoJSON,
+      spatialUnitName,
+      date,
+      defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      filterOutFutureDates,
+      true,
+      true
+    );
+  }
 
+  prepareAllDiagramResources(
+    indicatorMetadataAndGeoJSON,
+    spatialUnitName,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue,
+    filterOutFutureDates,
+    forceUseSubmittedIndicatorForTimeseries,
+    fixedPrecision = false
+  ) {
     this.indicatorPropertyName = this.INDICATOR_DATE_PREFIX + date;
 
-    var featureNamesArray = new Array();
-    var indicatorValueArray = new Array();
-    var indicatorValueBarChartArray = new Array();
+    const featureNamesArray: any[] = [];
+    const indicatorValueArray: any[] = [];
+    const indicatorValueBarChartArray: any[] = [];
 
     //sort array of features
-    var cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
-    cartographicFeatures.sort((a,b) => this.compareFeaturesByIndicatorValue(a,b));
+    const cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
+    cartographicFeatures.sort((a, b) => this.compareFeaturesByIndicatorValue(a, b));
 
-    for (let j = 0; j < cartographicFeatures.length; j++) {
+    for (const cartographicFeature of cartographicFeatures) {
       // diff occurs when balance mode is activated
       // then, cartographicFeatures display balance over time period, which shall be reflected in bar chart and histogram
       // the other diagrams must use the "normal" unbalanced indicator instead --> selectedFeatures
-      var cartographicFeature = cartographicFeatures[j];
 
-      var indicatorValue;
-      if (this.dataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[this.indicatorPropertyName])) {
+      let indicatorValue;
+      if (
+        this.dataExchangeService.indicatorValueIsNoData(
+          cartographicFeature.properties[this.indicatorPropertyName]
+        )
+      ) {
         indicatorValue = null;
-      }
-      else { 
-        if(!fixedPrecision)
-          indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
+      } else {
+        if (!fixedPrecision)
+          indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(
+            cartographicFeature.properties[this.indicatorPropertyName]
+          );
         else
-          indicatorValue = this.dataExchangeService.getIndicatorValue_asFixedPrecisionNumber(cartographicFeature.properties[this.indicatorPropertyName],indicatorMetadataAndGeoJSON.precision);  
+          indicatorValue = this.dataExchangeService.getIndicatorValue_asFixedPrecisionNumber(
+            cartographicFeature.properties[this.indicatorPropertyName],
+            indicatorMetadataAndGeoJSON.precision
+          );
 
-        indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[this.indicatorPropertyName]);  
+        indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(
+          cartographicFeature.properties[this.indicatorPropertyName]
+        );
       }
 
-      var featureName = cartographicFeature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]
+      const featureName =
+        cartographicFeature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       featureNamesArray.push(featureName);
       indicatorValueArray.push(indicatorValue);
 
-      var color = this.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+      const color = this.getColorForFeature(
+        cartographicFeature,
+        indicatorMetadataAndGeoJSON,
+        date,
+        defaultBrew,
+        gtMeasureOfValueBrew,
+        ltMeasureOfValueBrew,
+        dynamicIncreaseBrew,
+        dynamicDecreaseBrew,
+        isMeasureOfValueChecked,
+        measureOfValue
+      );
 
-      var seriesItem = {
+      const seriesItem = {
         value: indicatorValue,
         name: featureName,
         itemStyle: {
           color: color,
           // borderWidth: 1,
           // borderColor: 'black'
-        }
+        },
       };
 
       indicatorValueBarChartArray.push(seriesItem);
-
     }
 
     // TIMESERIES
-    var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
+    let indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
 
-    if(filterOutFutureDates){
+    if (filterOutFutureDates) {
       // remove all timestamps that are newer than the given date
-      var dateInDateFormat = Date.parse(date);
-      indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter( t => {
-        var tInDateFormat = Date.parse(t);
+      const dateInDateFormat = Date.parse(date);
+      indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter((t) => {
+        const tInDateFormat = Date.parse(t);
         if (tInDateFormat <= dateInDateFormat) {
           return true;
         } else {
           return false;
         }
       });
-    }  
-    var indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
-    var indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
-    var indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
-    var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
+    }
+    const indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
 
-    var indicatorTimeSeriesRegionalMeanArray = new Array(indicatorTimeSeriesDatesArray.length);
-    var indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(indicatorTimeSeriesDatesArray.length);
-    let regionalReferencesMap = new Map();
+    const indicatorTimeSeriesRegionalMeanArray = new Array(indicatorTimeSeriesDatesArray.length);
+    const indicatorTimeSeriesRegionalSpatiallyUnassignableArray = new Array(
+      indicatorTimeSeriesDatesArray.length
+    );
+    const regionalReferencesMap = new Map();
 
-    if (indicatorMetadataAndGeoJSON.regionalReferenceValues){
+    if (indicatorMetadataAndGeoJSON.regionalReferenceValues) {
       for (const entry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
         regionalReferencesMap.set(entry.referenceDate, entry);
       }
     }
-    
 
     // initialize timeSeries arrays
-    for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+    for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
       indicatorTimeSeriesAverageArray[i] = 0;
       indicatorTimeSeriesCountArray[i] = 0;
     }
-  
+
     let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
-    if(!forceUseSubmittedIndicatorForTimeseries && this.dataExchangeService.isBalanceChecked){
+    if (!forceUseSubmittedIndicatorForTimeseries && this.dataExchangeService.isBalanceChecked) {
       indicatorMetadataForTimeseries = this.dataExchangeService.selectedIndicator;
     }
     // we must use the original selectedIndicator in case balance mode is active
-    // otherwise balance timestamp will have balance values          
-    for (var t = 0; t < indicatorMetadataForTimeseries.geoJSON.features.length; t++) {
-      var indicatorFeature = indicatorMetadataForTimeseries.geoJSON.features[t];
+    // otherwise balance timestamp will have balance values
+    for (const indicatorFeature of indicatorMetadataForTimeseries.geoJSON.features) {
       // continue timeSeries arrays by adding and counting all time series values
-      for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-        var datePropertyName = this.INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-        if (!this.dataExchangeService.indicatorValueIsNoData(indicatorFeature.properties[datePropertyName])) {
+      for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+        const datePropertyName = this.INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
+        if (
+          !this.dataExchangeService.indicatorValueIsNoData(
+            indicatorFeature.properties[datePropertyName]
+          )
+        ) {
           // indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
           indicatorTimeSeriesAverageArray[i] += indicatorFeature.properties[datePropertyName];
           indicatorTimeSeriesCountArray[i]++;
 
           // min stack
-          if (indicatorTimeSeriesMinArray[i] === undefined || indicatorTimeSeriesMinArray[i] === null){
+          if (
+            indicatorTimeSeriesMinArray[i] === undefined ||
+            indicatorTimeSeriesMinArray[i] === null
+          ) {
             indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
-          }
-          else{
-            if(indicatorFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]){
+          } else {
+            if (indicatorFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]) {
               indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
             }
           }
 
           // max stack
-          if (indicatorTimeSeriesMaxArray[i] === undefined || indicatorTimeSeriesMaxArray[i] === null){
+          if (
+            indicatorTimeSeriesMaxArray[i] === undefined ||
+            indicatorTimeSeriesMaxArray[i] === null
+          ) {
             indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
-          }
-          else{
-            if(indicatorFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]){
+          } else {
+            if (indicatorFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]) {
               indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
             }
           }
 
           // regional reference values
           // als map auslagern und dann hier prüfen, ob ein element in der map drin ist.
-          // falls nicht, dann null setzen, 
-          if (regionalReferencesMap.has(indicatorTimeSeriesDatesArray[i])){
-            let regionalAverage = regionalReferencesMap.get(indicatorTimeSeriesDatesArray[i]).regionalAverage;
-            if (regionalAverage && typeof(regionalAverage) == "number"){
+          // falls nicht, dann null setzen,
+          if (regionalReferencesMap.has(indicatorTimeSeriesDatesArray[i])) {
+            const regionalAverage = regionalReferencesMap.get(
+              indicatorTimeSeriesDatesArray[i]
+            ).regionalAverage;
+            if (regionalAverage && typeof regionalAverage == 'number') {
               indicatorTimeSeriesRegionalMeanArray[i] = regionalAverage;
-            }
-            else{
+            } else {
               indicatorTimeSeriesRegionalMeanArray[i] = null;
             }
 
-            let regionalSpatiallyUnassignable = regionalReferencesMap.get(indicatorTimeSeriesDatesArray[i]).spatiallyUnassignable;
-            if (regionalSpatiallyUnassignable && typeof(regionalSpatiallyUnassignable) == "number"){
-              indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = regionalSpatiallyUnassignable;
-            }
-            else{
+            const regionalSpatiallyUnassignable = regionalReferencesMap.get(
+              indicatorTimeSeriesDatesArray[i]
+            ).spatiallyUnassignable;
+            if (regionalSpatiallyUnassignable && typeof regionalSpatiallyUnassignable == 'number') {
+              indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] =
+                regionalSpatiallyUnassignable;
+            } else {
               indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
             }
-            
-          }
-          else{
+          } else {
             indicatorTimeSeriesRegionalMeanArray[i] = null;
             indicatorTimeSeriesRegionalSpatiallyUnassignableArray[i] = null;
           }
-
         }
       }
     }
 
     // finish timeSeries arrays by computing averages of all time series values
-    for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-      indicatorTimeSeriesAverageArray[i] = this.dataExchangeService.getIndicatorValue_asNumber(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]);
+    for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
+      indicatorTimeSeriesAverageArray[i] = this.dataExchangeService.getIndicatorValue_asNumber(
+        indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]
+      );
     }
 
-    let meanLineLabel = "rechnerischer Durchschnitt";
-    let arithmMeanValueIndex = indicatorTimeSeriesDatesArray.indexOf(date);
+    let meanLineLabel = 'rechnerischer Durchschnitt';
+    const arithmMeanValueIndex = indicatorTimeSeriesDatesArray.indexOf(date);
     // replace formatted string like "12.506,32" to 12506.32 in order to parse the correct number
-    let meanLineValue = parseFloat(indicatorTimeSeriesAverageArray[arithmMeanValueIndex]); 
+    let meanLineValue = parseFloat(indicatorTimeSeriesAverageArray[arithmMeanValueIndex]);
     let regionalMeanValueUsed = false;
     let enableHorizontalMeanLine = true;
 
-    if (indicatorMetadataForTimeseries.regionalReferenceValues){
+    if (indicatorMetadataForTimeseries.regionalReferenceValues) {
       for (const regionalReferenceValuesEntry of indicatorMetadataForTimeseries.regionalReferenceValues) {
-        if (regionalReferenceValuesEntry.referenceDate && regionalReferenceValuesEntry.referenceDate == date){    
-          if(regionalReferenceValuesEntry.regionalAverage && (typeof regionalReferenceValuesEntry.regionalAverage == 'number')){
+        if (
+          regionalReferenceValuesEntry.referenceDate &&
+          regionalReferenceValuesEntry.referenceDate == date
+        ) {
+          if (
+            regionalReferenceValuesEntry.regionalAverage &&
+            typeof regionalReferenceValuesEntry.regionalAverage == 'number'
+          ) {
             meanLineValue = regionalReferenceValuesEntry.regionalAverage;
-            // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.')); 
-            meanLineLabel = "gesamtregionaler Durchschnitt";
+            // meanLineValue = parseFloat(kommonitorDataExchangeService.allFeaturesRegionalMean.replace(/\./g, '').replace(/,/g, '.'));
+            meanLineLabel = 'gesamtregionaler Durchschnitt';
             regionalMeanValueUsed = true;
-          }                       
+          }
         }
       }
     }
 
-    if (! regionalMeanValueUsed && this.dataExchangeService.configMeanDataDisplay == 'regionalMeanOrNone'){
+    if (
+      !regionalMeanValueUsed &&
+      this.dataExchangeService.configMeanDataDisplay == 'regionalMeanOrNone'
+    ) {
       enableHorizontalMeanLine = false;
     }
 
     // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
-    this.setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date);
+    this.setLineChartOptions(
+      indicatorMetadataAndGeoJSON,
+      indicatorTimeSeriesDatesArray,
+      indicatorTimeSeriesAverageArray,
+      indicatorTimeSeriesMaxArray,
+      indicatorTimeSeriesMinArray,
+      indicatorTimeSeriesRegionalMeanArray,
+      indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+      spatialUnitName,
+      date
+    );
 
-    this.setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine);
+    this.setBarChartOptions(
+      indicatorMetadataAndGeoJSON,
+      featureNamesArray,
+      indicatorValueBarChartArray,
+      spatialUnitName,
+      date,
+      defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue,
+      meanLineLabel,
+      meanLineValue,
+      enableHorizontalMeanLine
+    );
 
-    this.setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+    this.setGeoMapChartOptions(
+      indicatorMetadataAndGeoJSON,
+      featureNamesArray,
+      indicatorValueBarChartArray,
+      spatialUnitName,
+      date,
+      defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue
+    );
   }
 
-  
-
-  setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
-
-    indicatorMetadataAndGeoJSON.geoJSON.features.forEach(feature => {
-      feature.properties.name= feature.properties[this.dataExchangeService.FEATURE_NAME_PROPERTY_NAME];
+  setGeoMapChartOptions(
+    indicatorMetadataAndGeoJSON,
+    featureNamesArray,
+    indicatorValueBarChartArray,
+    spatialUnitName,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue
+  ) {
+    indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
+      feature.properties.name =
+        feature.properties[this.dataExchangeService.FEATURE_NAME_PROPERTY_NAME];
     });
 
-    var uniqueMapRef = 'geoMapChart';
+    const uniqueMapRef = 'geoMapChart';
 
     echarts.registerMap(uniqueMapRef, indicatorMetadataAndGeoJSON.geoJSON);
 
     // specify chart configuration item and data
 
-    var legendConfig = this.setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+    const legendConfig = this.setupVisualMap(
+      indicatorMetadataAndGeoJSON,
+      featureNamesArray,
+      indicatorValueBarChartArray,
+      spatialUnitName,
+      date,
+      defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue
+    );
 
     // default fontSize of echarts
-    var fontSize = 18;
-    var geoMapChartTitel = indicatorMetadataAndGeoJSON.indicatorName + ' - ' + spatialUnitName + ' - ' + date;
+    const fontSize = 18;
+    const geoMapChartTitel =
+      indicatorMetadataAndGeoJSON.indicatorName + ' - ' + spatialUnitName + ' - ' + date;
 
-    var seriesData:any = [];
+    const seriesData: any = [];
 
     for (let index = 0; index < featureNamesArray.length; index++) {
-      var featureName = featureNamesArray[index];
+      const featureName = featureNamesArray[index];
 
       /*
       var seriesItem = {
@@ -594,27 +794,28 @@ export class DiagramHelperServiceService {
         }
       };
       */
-      var featureValue = indicatorValueBarChartArray[index].value;
-      
+      const featureValue = indicatorValueBarChartArray[index].value;
+
       seriesData.push({
         name: featureName,
-        value: featureValue
+        value: featureValue,
       });
     }
 
     // needed for reporting
-    for(let feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
-      bbox = turf.bbox(feature); // calculate bbox for each feature
-      feature.properties.bbox = bbox;
+    for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
+      feature.properties.bbox = turf.bbox(feature); // calculate bbox for each feature
     }
-    var bbox = this.calculateOverallBoundingBoxFromGeoJSON(indicatorMetadataAndGeoJSON.geoJSON.features)
+    let bbox = this.calculateOverallBoundingBoxFromGeoJSON(
+      indicatorMetadataAndGeoJSON.geoJSON.features
+    );
     // change format of bbox to match the format needed for echarts
     bbox = [
       [bbox[0], bbox[3]], // north-west lon lat
-      [bbox[2], bbox[1]] // south-east lon lat
-    ]
+      [bbox[2], bbox[1]], // south-east lon lat
+    ];
 
-    var geoMapOption = {
+    const geoMapOption = {
       // grid get rid of whitespace around chart
       // grid: {
       //   left: '4%',
@@ -627,9 +828,9 @@ export class DiagramHelperServiceService {
         text: geoMapChartTitel,
         left: 'center',
         textStyle: {
-          fontSize: fontSize
+          fontSize: fontSize,
         },
-        show: true
+        show: true,
         // top: 15
       },
       tooltip: {
@@ -638,9 +839,9 @@ export class DiagramHelperServiceService {
         showDelay: 0,
         transitionDuration: 0.2,
         formatter: (params) => {
-          var value = this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
-          return "" + params.name + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]";
-        }           
+          const value = this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
+          return '' + params.name + ': ' + value + ' [' + indicatorMetadataAndGeoJSON.unit + ']';
+        },
       },
       toolbox: {
         show: true,
@@ -648,65 +849,84 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons,
+            readOnly: true,
+            title: 'Datenansicht',
+            lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'],
+            optionToContent: (opt) => {
+              const dataTableId = 'geoMapDataTable_' + Math.random();
+              const tableExportName =
+                indicatorMetadataAndGeoJSON.indicatorName + ' - ' + opt.title[0].text;
 
-              var dataTableId = "geoMapDataTable_" + Math.random();
-              var tableExportName = indicatorMetadataAndGeoJSON.indicatorName + " - " + opt.title[0].text;
-
-              var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-              htmlString += "<thead>";
-              htmlString += "<tr>";
+              let htmlString =
+                '<table id="' +
+                dataTableId +
+                '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+              htmlString += '<thead>';
+              htmlString += '<tr>';
               htmlString += "<th style='text-align:center;'>Feature-Name</th>";
-              htmlString += "<th style='text-align:center;'>" + indicatorMetadataAndGeoJSON.indicatorName + " [" + indicatorMetadataAndGeoJSON.indicatorName + "]</th>";
-              htmlString += "</tr>";
-              htmlString += "</thead>";
+              htmlString +=
+                "<th style='text-align:center;'>" +
+                indicatorMetadataAndGeoJSON.indicatorName +
+                ' [' +
+                indicatorMetadataAndGeoJSON.indicatorName +
+                ']</th>';
+              htmlString += '</tr>';
+              htmlString += '</thead>';
 
-              htmlString += "<tbody>";
+              htmlString += '<tbody>';
 
-              for (var i = 0; i < seriesData.length; i++) {
-                var value = this.dataExchangeService.getIndicatorValue_asFormattedText(seriesData[i].value);
-                htmlString += "<tr>";
-                htmlString += "<td>" + seriesData[i].name + "</td>";
-                htmlString += "<td>" + value + "</td>";
-                htmlString += "</tr>";
+              for (const seriesItem of seriesData) {
+                const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                  seriesItem.value
+                );
+                htmlString += '<tr>';
+                htmlString += '<td>' + seriesItem.name + '</td>';
+                htmlString += '<td>' + value + '</td>';
+                htmlString += '</tr>';
               }
 
-              htmlString += "</tbody>";
-              htmlString += "</table>";
+              htmlString += '</tbody>';
+              htmlString += '</table>';
 
-              this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+                dataTableId,
+                tableExportName,
+              ]);
 
               return htmlString;
-            }
+            },
           },
-          restore: { show: false, title: "Erneuern" },
-          saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
-        }
+          restore: { show: false, title: 'Erneuern' },
+          saveAsImage: { show: true, title: 'Export', pixelRatio: 4 },
+        },
       },
       // legend: {
       // 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
       // },
       visualMap: {
         left: 'left',
-        type: "piecewise",
+        type: 'piecewise',
         pieces: legendConfig,
         // selectedMode: 'multiple',
         precision: indicatorMetadataAndGeoJSON.precision,
-        show: true
-    },
-      series: [{
-        name: indicatorMetadataAndGeoJSON.indicatorName,
-        type: 'map',
-        roam: true,
-        boundingCoords: bbox,
-        map: uniqueMapRef,
-        emphasis: {
+        show: true,
+      },
+      series: [
+        {
+          name: indicatorMetadataAndGeoJSON.indicatorName,
+          type: 'map',
+          roam: true,
+          boundingCoords: bbox,
+          map: uniqueMapRef,
+          emphasis: {
             label: {
-                show: true
-            }
+              show: true,
+            },
+          },
+          data: seriesData,
         },
-        data: seriesData
-      }]
+      ],
     };
 
     // use configuration item and data specified to show chart
@@ -714,85 +934,118 @@ export class DiagramHelperServiceService {
   }
 
   calculateOverallBoundingBoxFromGeoJSON(features) {
-    let result:any = [];
-    for(var i=0; i<features.length; i++) {
-       // check if we have to modify our overall bbox (result)
-       if(result.length === 0) { // for first feature
-        result.push(...features[i].properties.bbox);
+    const result: any = [];
+    for (const feature of features) {
+      // check if we have to modify our overall bbox (result)
+      if (result.length === 0) {
+        // for first feature
+        result.push(...feature.properties.bbox);
       } else {
         // all other features
-        let bbox = features[i].properties.bbox;
-        result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
-        result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
-        result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
-        result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
+        const bbox = feature.properties.bbox;
+        result[0] = bbox[0] < result[0] ? bbox[0] : result[0];
+        result[1] = bbox[1] < result[1] ? bbox[1] : result[1];
+        result[2] = bbox[2] > result[2] ? bbox[2] : result[2];
+        result[3] = bbox[3] > result[3] ? bbox[3] : result[3];
       }
     }
     return result;
   }
-  
-  setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, meanLineLabel, meanLineValue, enableHorizontalMeanLine) {
 
+  setBarChartOptions(
+    indicatorMetadataAndGeoJSON,
+    featureNamesArray,
+    indicatorValueBarChartArray,
+    spatialUnitName,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue,
+    meanLineLabel,
+    meanLineValue,
+    enableHorizontalMeanLine
+  ) {
     // specify chart configuration item and data
-    var labelOption_singleBars = {
+    const labelOption_singleBars = {
       show: this.envConfigService.showBarChartLabel,
-        position: 'insideBottom',
-        align: 'left',
-        verticalAlign: 'middle',
-        rotate: 90,
-        formatter: (params) => {
-          return params.name + "  " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
-        }
-        // formatter: '{b} {c}'
+      position: 'insideBottom',
+      align: 'left',
+      verticalAlign: 'middle',
+      rotate: 90,
+      formatter: (params) => {
+        return (
+          params.name +
+          '  ' +
+          this.dataExchangeService.getIndicatorValue_asFormattedText(params.value)
+        );
+      },
+      // formatter: '{b} {c}'
     };
 
     // default fontSize of echarts
-    var fontSize = 18;
-    var barChartTitel = 'Ranking - ' + spatialUnitName + ' - ';
+    let fontSize = 18;
+    let barChartTitel = 'Ranking - ' + spatialUnitName + ' - ';
     if (indicatorMetadataAndGeoJSON.fromDate) {
-      barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
+      barChartTitel +=
+        'Bilanz ' +
+        indicatorMetadataAndGeoJSON.fromDate +
+        ' - ' +
+        indicatorMetadataAndGeoJSON.toDate;
       fontSize = 14;
-    }
-    else {
+    } else {
       barChartTitel += date;
     }
 
-    var legendConfig = this.setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray,
-              indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew,
-              ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked,
-              measureOfValue);
+    const legendConfig = this.setupVisualMap(
+      indicatorMetadataAndGeoJSON,
+      featureNamesArray,
+      indicatorValueBarChartArray,
+      spatialUnitName,
+      date,
+      defaultBrew,
+      gtMeasureOfValueBrew,
+      ltMeasureOfValueBrew,
+      dynamicIncreaseBrew,
+      dynamicDecreaseBrew,
+      isMeasureOfValueChecked,
+      measureOfValue
+    );
 
-    var barOption:any = {
+    const barOption: any = {
       // grid get rid of whitespace around chart
       grid: {
         left: '4%',
         top: 32,
         right: '4%',
         bottom: 32,
-        containLabel: true
+        containLabel: true,
       },
       title: {
         text: barChartTitel,
         left: 'center',
         textStyle: {
-          fontSize: fontSize
+          fontSize: fontSize,
         },
-        show: false
+        show: false,
         // top: 15
       },
       tooltip: {
         trigger: 'item',
         confine: 'true',
-        formatter:  (params, ticket, callback) => {
-          var value = this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
-          return "" + params.name + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]";
+        formatter: (params, _ticket, _callback) => {
+          const value = this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
+          return '' + params.name + ': ' + value + ' [' + indicatorMetadataAndGeoJSON.unit + ']';
         },
         axisPointer: {
           type: 'line',
           crossStyle: {
-            color: '#999'
-          }
-        }
+            color: '#999',
+          },
+        },
       },
       toolbox: {
         show: true,
@@ -800,43 +1053,59 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons,
+            readOnly: true,
+            title: 'Datenansicht',
+            lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'],
+            optionToContent: (opt) => {
+              const barData = opt.series[0].data;
+              const featureNames = opt.xAxis[0].data;
 
-              var barData = opt.series[0].data;
-              var featureNames = opt.xAxis[0].data;
+              const dataTableId = 'barDataTable_' + Math.random();
+              const tableExportName = opt.xAxis[0].name + ' - ' + opt.title[0].text;
 
-              var dataTableId = "barDataTable_" + Math.random();
-              var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
-
-              var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-              htmlString += "<thead>";
-              htmlString += "<tr>";
+              let htmlString =
+                '<table id="' +
+                dataTableId +
+                '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+              htmlString += '<thead>';
+              htmlString += '<tr>';
               htmlString += "<th style='text-align:center;'>Feature-Name</th>";
-              htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + " [" + opt.yAxis[0].name + "]</th>";
-              htmlString += "</tr>";
-              htmlString += "</thead>";
+              htmlString +=
+                "<th style='text-align:center;'>" +
+                opt.xAxis[0].name +
+                ' [' +
+                opt.yAxis[0].name +
+                ']</th>';
+              htmlString += '</tr>';
+              htmlString += '</thead>';
 
-              htmlString += "<tbody>";
+              htmlString += '<tbody>';
 
-              for (var i = 0; i < barData.length; i++) {
-                var value = this.dataExchangeService.getIndicatorValue_asFormattedText(barData[i].value);
-                htmlString += "<tr>";
-                htmlString += "<td>" + featureNames[i] + "</td>";
-                htmlString += "<td>" + value + "</td>";
-                htmlString += "</tr>";
+              for (let i = 0; i < barData.length; i++) {
+                const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                  barData[i].value
+                );
+                htmlString += '<tr>';
+                htmlString += '<td>' + featureNames[i] + '</td>';
+                htmlString += '<td>' + value + '</td>';
+                htmlString += '</tr>';
               }
 
-              htmlString += "</tbody>";
-              htmlString += "</table>";
+              htmlString += '</tbody>';
+              htmlString += '</table>';
 
-              this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+                dataTableId,
+                tableExportName,
+              ]);
 
               return htmlString;
-            }
+            },
           },
-          restore: { show: false, title: "Erneuern" },
-          saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
-        }
+          restore: { show: false, title: 'Erneuern' },
+          saveAsImage: { show: true, title: 'Export', pixelRatio: 4 },
+        },
       },
       xAxis: {
         name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -846,67 +1115,67 @@ export class DiagramHelperServiceService {
           rotate: 90,
           interval: 0,
           inside: true,
-          show: false
+          show: false,
         },
         axisTick: {
-          show: false
+          show: false,
         },
         z: 6,
         zlevel: 6,
-        data: featureNamesArray
+        data: featureNamesArray,
       },
       yAxis: {
         type: 'value',
         name: indicatorMetadataAndGeoJSON.unit,
         axisLabel: {
-          formatter: (value, index) => {
+          formatter: (value, _index) => {
             return this.dataExchangeService.getIndicatorValue_asFormattedText(value);
-          }
-        }
+          },
+        },
         // splitArea: {
         //     show: true
         // }
       },
       label: labelOption_singleBars,
-      series: [{
-        name: "Ranking",
-        type: 'bar',
-        emphasis: {
-          itemStyle: {
-            borderWidth: 4,
-            borderColor: this.defaultColorForClickedFeatures
-          }
-        },            
-        data: indicatorValueBarChartArray          
-        }
+      series: [
+        {
+          name: 'Ranking',
+          type: 'bar',
+          emphasis: {
+            itemStyle: {
+              borderWidth: 4,
+              borderColor: this.defaultColorForClickedFeatures,
+            },
+          },
+          data: indicatorValueBarChartArray,
+        },
       ],
-      visualMap: [{
+      visualMap: [
+        {
           left: 'left',
-          type: "piecewise",
+          type: 'piecewise',
           pieces: legendConfig,
           precision: indicatorMetadataAndGeoJSON.precision,
-          show: false
-      }]
+          show: false,
+        },
+      ],
     };
 
-    if (enableHorizontalMeanLine){
-      barOption.series[0].markLine = 
-        {
+    if (enableHorizontalMeanLine) {
+      barOption.series[0].markLine = {
+        name: meanLineLabel,
+        data: [{ yAxis: meanLineValue, name: meanLineLabel }],
+        label: {
+          position: 'insideStartTop',
+          rotate: 0,
+          fontStyle: 'italic',
+          fontWeight: 'bold',
           name: meanLineLabel,
-          data: [
-            {yAxis: meanLineValue, name: meanLineLabel}
-          ],
-          label: {
-            position: 'insideStartTop',
-            rotate: 0,
-            fontStyle: 'italic',
-            fontWeight: 'bold',
-            name: meanLineLabel          
-          },
-          lineStyle: {
-            color: 'gray'
-          }
-        }
+        },
+        lineStyle: {
+          color: 'gray',
+        },
+      };
     }
 
     // if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50) {
@@ -916,25 +1185,34 @@ export class DiagramHelperServiceService {
 
     // use configuration item and data specified to show chart
     this.barChartOptions = barOption;
-  };
-  
-  setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, indicatorTimeSeriesRegionalMeanArray, indicatorTimeSeriesRegionalSpatiallyUnassignableArray, spatialUnitName, date) {
+  }
 
-    var lineOption:any = {
+  setLineChartOptions(
+    indicatorMetadataAndGeoJSON,
+    indicatorTimeSeriesDatesArray,
+    indicatorTimeSeriesAverageArray,
+    indicatorTimeSeriesMaxArray,
+    indicatorTimeSeriesMinArray,
+    indicatorTimeSeriesRegionalMeanArray,
+    indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
+    spatialUnitName,
+    _date
+  ) {
+    const lineOption: any = {
       // grid get rid of whitespace around chart
       grid: {
         left: '4%',
         top: 32,
         right: '4%',
         bottom: 55,
-        containLabel: true
+        containLabel: true,
       },
       title: {
         text: 'Zeitreihe - ' + spatialUnitName,
         left: 'center',
         show: false,
         textStyle: {
-          fontSize: 18
+          fontSize: 18,
         },
         // top: 15
       },
@@ -942,15 +1220,22 @@ export class DiagramHelperServiceService {
         trigger: 'axis',
         confine: 'true',
         formatter: (params) => {
-
-          var string = "" + params[0].axisValueLabel + "<br/>";
+          let string = '' + params[0].axisValueLabel + '<br/>';
 
           params.forEach((paramObj) => {
-
-            if(! paramObj.seriesName.includes("Stack")){
-              var value = this.dataExchangeService.getIndicatorValue_asFormattedText(paramObj.value);
-              string += paramObj.seriesName + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]" + "<br/>";
-            }                
+            if (!paramObj.seriesName.includes('Stack')) {
+              const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                paramObj.value
+              );
+              string +=
+                paramObj.seriesName +
+                ': ' +
+                value +
+                ' [' +
+                indicatorMetadataAndGeoJSON.unit +
+                ']' +
+                '<br/>';
+            }
           });
 
           return string;
@@ -958,9 +1243,9 @@ export class DiagramHelperServiceService {
         axisPointer: {
           type: 'line',
           crossStyle: {
-            color: '#999'
-          }
-        }
+            color: '#999',
+          },
+        },
       },
       toolbox: {
         show: true,
@@ -968,8 +1253,11 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
-
+            show: this.dataExchangeService.showDiagramExportButtons,
+            readOnly: true,
+            title: 'Datenansicht',
+            lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'],
+            optionToContent: (opt) => {
               // 	<table class="table table-condensed table-hover">
               // 	<thead>
               // 		<tr>
@@ -985,52 +1273,65 @@ export class DiagramHelperServiceService {
               // 	</tbody>
               // </table>
 
-              var lineSeries = opt.series;
-              var timestamps = opt.xAxis[0].data;
+              const lineSeries = opt.series;
+              const timestamps = opt.xAxis[0].data;
 
-              var dataTableId = "lineDataTable_" + Math.random();
-              var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+              const dataTableId = 'lineDataTable_' + Math.random();
+              const tableExportName = opt.xAxis[0].name + ' - ' + opt.title[0].text;
 
-              var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-              htmlString += "<thead>";
-              htmlString += "<tr>";
+              let htmlString =
+                '<table id="' +
+                dataTableId +
+                '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+              htmlString += '<thead>';
+              htmlString += '<tr>';
               htmlString += "<th style='text-align:center;'>Zeitpunkt</th>";
 
-              for (var i = 0; i < lineSeries.length; i++) {
-                htmlString += "<th style='text-align:center;'>" + lineSeries[i].name + " [" + opt.yAxis[0].name + "]</th>";
+              for (const lineSeriesItem of lineSeries) {
+                htmlString +=
+                  "<th style='text-align:center;'>" +
+                  lineSeriesItem.name +
+                  ' [' +
+                  opt.yAxis[0].name +
+                  ']</th>';
               }
 
-              htmlString += "</tr>";
-              htmlString += "</thead>";
+              htmlString += '</tr>';
+              htmlString += '</thead>';
 
-              htmlString += "<tbody>";
+              htmlString += '<tbody>';
 
-              for (var j = 0; j < timestamps.length; j++) {
-                htmlString += "<tr>";
-                htmlString += "<td>" + timestamps[j] + "</td>";
-                for (var k = 0; k < lineSeries.length; k++) {
-                  var value = this.dataExchangeService.getIndicatorValue_asFormattedText(lineSeries[k].data[j]);
-                  htmlString += "<td>" + value + "</td>";
+              for (let j = 0; j < timestamps.length; j++) {
+                htmlString += '<tr>';
+                htmlString += '<td>' + timestamps[j] + '</td>';
+                for (const lineSeriesItem of lineSeries) {
+                  const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                    lineSeriesItem.data[j]
+                  );
+                  htmlString += '<td>' + value + '</td>';
                 }
-                htmlString += "</tr>";
+                htmlString += '</tr>';
               }
 
-              htmlString += "</tbody>";
-              htmlString += "</table>";
+              htmlString += '</tbody>';
+              htmlString += '</table>';
 
-              this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+                dataTableId,
+                tableExportName,
+              ]);
 
               return htmlString;
-            }
+            },
           },
-          restore: { show: false, title: "Erneuern" },
-          saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
-        }
+          restore: { show: false, title: 'Erneuern' },
+          saveAsImage: { show: true, title: 'Export', pixelRatio: 4 },
+        },
       },
       legend: {
-        type: "scroll",
+        type: 'scroll',
         bottom: 0,
-        data: []
+        data: [],
       },
       xAxis: {
         name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -1045,165 +1346,168 @@ export class DiagramHelperServiceService {
         // zlevel: 6,
         type: 'category',
         axisTick: {
-          show: false
+          show: false,
         },
-        data: indicatorTimeSeriesDatesArray
+        data: indicatorTimeSeriesDatesArray,
       },
       yAxis: {
         type: 'value',
         name: indicatorMetadataAndGeoJSON.unit,
         axisLabel: {
-          formatter: (value, index) => {
+          formatter: (value, _index) => {
             return this.dataExchangeService.getIndicatorValue_asFormattedText(value);
-          }
-        }
-        
+          },
+        },
+
         // splitArea: {
         //     show: true
         // }
       },
-      series: [          
-      
-      ]
+      series: [],
     };
 
-
-    let meanLine = {
+    const meanLine = {
       name: this.labelService.rankingChartAverageLabel,
       type: 'line',
       data: indicatorTimeSeriesAverageArray,
       symbolSize: 6,
-      symbol: "emptyCircle",
+      symbol: 'emptyCircle',
       lineStyle: {
         normal: {
           color: 'gray',
           width: 2,
-          type: 'dashed'
-        }
+          type: 'dashed',
+        },
       },
       itemStyle: {
         normal: {
           borderWidth: 3,
-          color: 'gray'
-        }
-      }
+          color: 'gray',
+        },
+      },
     };
 
-    let regionalMeanLine = {
+    const regionalMeanLine = {
       name: this.labelService.rankingChartRegionalReferenceValueLabel,
       type: 'line',
       symbolSize: 8,
-      symbol: "circle",
+      symbol: 'circle',
       data: indicatorTimeSeriesRegionalMeanArray,
       lineStyle: {
         normal: {
           color: 'gray',
           width: 2,
-          type: 'dashed'
-        }
+          type: 'dashed',
+        },
       },
       itemStyle: {
         normal: {
           borderWidth: 3,
-          color: 'gray'
-        }
-      }
-    };           
+          color: 'gray',
+        },
+      },
+    };
 
     let regionalMeanUsed = false;
 
     // only add regional mean line if it contains at least one meaningful entry
-    if(indicatorTimeSeriesRegionalMeanArray.some(el => el !== null)){
+    if (indicatorTimeSeriesRegionalMeanArray.some((el) => el !== null)) {
       lineOption.series.push(regionalMeanLine);
       lineOption.legend.data.push(this.labelService.rankingChartRegionalReferenceValueLabel);
       regionalMeanUsed = true;
     }
 
-    if(this.dataExchangeService.configMeanDataDisplay == "both" || (regionalMeanUsed == false && this.dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')){
+    if (
+      this.dataExchangeService.configMeanDataDisplay == 'both' ||
+      (regionalMeanUsed == false &&
+        this.dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')
+    ) {
       lineOption.series.push(meanLine);
       lineOption.legend.data.push(this.labelService.rankingChartAverageLabel);
-    }     
+    }
 
     // SETTING FOR MIN AND MAX STACK
 
     // default for min value of 0
-    var minStack:any = {
-      name: "MinStack",
+    const minStack: any = {
+      name: 'MinStack',
       type: 'line',
       data: indicatorTimeSeriesMinArray,
-      stack: "MinMax",
+      stack: 'MinMax',
       // areaStyle:{
       //   color: "#d6d6d6"
       // },
       lineStyle: {
-        opacity: 0
+        opacity: 0,
       },
       itemStyle: {
-        opacity: 0
+        opacity: 0,
       },
-      silent: true
+      silent: true,
     };
 
-    var minLine = {
-      name: "Min",
+    const minLine = {
+      name: 'Min',
       type: 'line',
       data: indicatorTimeSeriesMinArray,
       lineStyle: {
         opacity: 0,
-        color: "#d6d6d6"
+        color: '#d6d6d6',
       },
       itemStyle: {
-        opacity: 0
-      }
+        opacity: 0,
+      },
     };
 
-    var maxStack =  {
-      name: "MaxStack",
+    const maxStack = {
+      name: 'MaxStack',
       type: 'line',
       data: indicatorTimeSeriesMaxArray,
-      stack: "MinMax",
-      areaStyle:{
-        color: "#d6d6d6"
+      stack: 'MinMax',
+      areaStyle: {
+        color: '#d6d6d6',
       },
       lineStyle: {
-        opacity: 0
+        opacity: 0,
       },
       itemStyle: {
-        opacity: 0
+        opacity: 0,
       },
-      silent: true
+      silent: true,
     };
 
-    var maxLine =  {
-      name: "Max",
+    const maxLine = {
+      name: 'Max',
       type: 'line',
       data: indicatorTimeSeriesMaxArray,
       lineStyle: {
         opacity: 0,
-        color: "#d6d6d6"
+        color: '#d6d6d6',
       },
       itemStyle: {
-        opacity: 0
-      }
+        opacity: 0,
+      },
     };
 
     // perform checks if there are negative values or only > 0 values
     // then stacks must be adjusted to be correctly displayed
-    var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
-    if(minStack_minValue < 0){
+    const minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
+    if (minStack_minValue < 0) {
       minStack.areaStyle = {
-          color: "#d6d6d6"
+        color: '#d6d6d6',
       };
     }
 
-    let indicatorTimeSeriesMaxArray_copy = JSON.parse(JSON.stringify(indicatorTimeSeriesMaxArray));
+    const indicatorTimeSeriesMaxArray_copy = JSON.parse(
+      JSON.stringify(indicatorTimeSeriesMaxArray)
+    );
 
-    if ((indicatorTimeSeriesMinArray.filter(item => item > 0))){
+    if (indicatorTimeSeriesMinArray.filter((item) => item > 0)) {
       for (let index = 0; index < indicatorTimeSeriesMaxArray_copy.length; index++) {
-
-        if(indicatorTimeSeriesMinArray[index] > 0){
-          indicatorTimeSeriesMaxArray_copy[index] = indicatorTimeSeriesMaxArray_copy[index] - indicatorTimeSeriesMinArray[index];
-        }            
+        if (indicatorTimeSeriesMinArray[index] > 0) {
+          indicatorTimeSeriesMaxArray_copy[index] =
+            indicatorTimeSeriesMaxArray_copy[index] - indicatorTimeSeriesMinArray[index];
+        }
       }
       maxStack.data = indicatorTimeSeriesMaxArray_copy;
     }
@@ -1214,47 +1518,64 @@ export class DiagramHelperServiceService {
     lineOption.series.push(maxStack);
 
     // spatially unassignable
-    let regionalSpatiallyUnassignableLine = {
-      name: "räumlich nicht zuordenbare",
+    const regionalSpatiallyUnassignableLine = {
+      name: 'räumlich nicht zuordenbare',
       type: 'line',
-      symbol: "diamond",
+      symbol: 'diamond',
       symbolSize: 10,
       data: indicatorTimeSeriesRegionalSpatiallyUnassignableArray,
       lineStyle: {
         normal: {
           color: 'gray',
           width: 2,
-          type: 'dashed'
-        }
+          type: 'dashed',
+        },
       },
       itemStyle: {
         normal: {
           borderWidth: 3,
-          color: 'gray'
-        }
-      }
+          color: 'gray',
+        },
+      },
     };
     // only add regional spatially unassignable line if it contains at least one meaningful entry
-    if(indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some(el => el !== null)){
+    if (indicatorTimeSeriesRegionalSpatiallyUnassignableArray.some((el) => el !== null)) {
       lineOption.series.push(regionalSpatiallyUnassignableLine);
-      lineOption.legend.data.push("räumlich nicht zuordenbare");
-    };
-    
+      lineOption.legend.data.push('räumlich nicht zuordenbare');
+    }
 
     // use configuration item and data specified to show chart
     this.lineChartOptions = lineOption;
   }
 
   compareFeaturesByIndicatorValue(featureA, featureB) {
-    if (featureA.properties[this.indicatorPropertyName] < featureB.properties[this.indicatorPropertyName])
+    if (
+      featureA.properties[this.indicatorPropertyName] <
+      featureB.properties[this.indicatorPropertyName]
+    )
       return -1;
-    if (featureA.properties[this.indicatorPropertyName] > featureB.properties[this.indicatorPropertyName])
+    if (
+      featureA.properties[this.indicatorPropertyName] >
+      featureB.properties[this.indicatorPropertyName]
+    )
       return 1;
     return 0;
-  };
+  }
 
-  
-  setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+  setupVisualMap(
+    indicatorMetadataAndGeoJSON,
+    featureNamesArray,
+    indicatorValueBarChartArray,
+    spatialUnitName,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    _measureOfValue
+  ) {
     /*
     pieces: [
           // Range of a piece can be specified by property min and max,
@@ -1272,253 +1593,230 @@ export class DiagramHelperServiceService {
       ]
     */
 
-    var indicatorType = indicatorMetadataAndGeoJSON.indicatorType;
+    const indicatorType = indicatorMetadataAndGeoJSON.indicatorType;
 
-    var pieces:any = [];
+    const pieces: any = [];
 
-    if(this.containsZeroValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
+    if (this.containsZeroValues(indicatorMetadataAndGeoJSON.geoJSON, date)) {
       pieces.push({
-        min: 0,  
-        opacity: 0.8,     
-        max: 0,           
-        color: this.defaultColorForZeroValues
+        min: 0,
+        opacity: 0.8,
+        max: 0,
+        color: this.defaultColorForZeroValues,
       });
     }
 
-    let outliers = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => feature.properties["outlier"] !== undefined);
+    const outliers = indicatorMetadataAndGeoJSON.geoJSON.features.filter(
+      (feature) => feature.properties['outlier'] !== undefined
+    );
 
-    if (this.envConfigService.useOutlierDetectionOnIndicator && outliers.length > 0){
-      outliers.sort((a,b) => this.compareFeaturesByIndicatorValue(a,b));
-      let smallestValue = outliers[0].properties[this.indicatorPropertyName];
-      let highestValue = outliers[outliers.length - 1].properties[this.indicatorPropertyName];
+    if (this.envConfigService.useOutlierDetectionOnIndicator && outliers.length > 0) {
+      outliers.sort((a, b) => this.compareFeaturesByIndicatorValue(a, b));
+      const smallestValue = outliers[0].properties[this.indicatorPropertyName];
+      const highestValue = outliers[outliers.length - 1].properties[this.indicatorPropertyName];
 
       pieces.push({
-        min: smallestValue,  
-        opacity: 0.8,                          
-        color: this.defaultColorForOutliers_low
+        min: smallestValue,
+        opacity: 0.8,
+        color: this.defaultColorForOutliers_low,
       });
 
       pieces.push({
-        max: highestValue,  
-        opacity: 0.8,                          
-        color: this.defaultColorForOutliers_high
+        max: highestValue,
+        opacity: 0.8,
+        color: this.defaultColorForOutliers_high,
       });
     }
 
     // if(containsOutlierValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
     //   pieces.push({
-    //     min: 0,  
-    //     opacity: 0.8,     
-    //     max: 0,           
+    //     min: 0,
+    //     opacity: 0.8,
+    //     max: 0,
     //     color: defaultColorForZeroValues
     //   });
     // }
 
-    if(isMeasureOfValueChecked){
-
-      if(gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors){
+    if (isMeasureOfValueChecked) {
+      if (gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors) {
         // measure of value brew
-      var gtBreaks = gtMeasureOfValueBrew.breaks;
-      var gtColors = gtMeasureOfValueBrew.colors;          
+        const gtBreaks = gtMeasureOfValueBrew.breaks;
+        const gtColors = gtMeasureOfValueBrew.colors;
 
-          for (var j = 0; j < gtColors.length; j++) {
-
-            var legendItem_gtMov:any = {
-              min: gtBreaks[j],     
-              opacity: 0.8,             
-              color: gtColors[j]
-            };
-            if(gtBreaks[j + 1]){
-              legendItem_gtMov.max = gtBreaks[j + 1];
-            }
-
-            pieces.push(legendItem_gtMov);
-
+        for (let j = 0; j < gtColors.length; j++) {
+          const legendItem_gtMov: any = {
+            min: gtBreaks[j],
+            opacity: 0.8,
+            color: gtColors[j],
+          };
+          if (gtBreaks[j + 1]) {
+            legendItem_gtMov.max = gtBreaks[j + 1];
           }
+
+          pieces.push(legendItem_gtMov);
+        }
       }
 
-      if(ltMeasureOfValueBrew && ltMeasureOfValueBrew.breaks && ltMeasureOfValueBrew.colors){
-        var ltBreaks = ltMeasureOfValueBrew.breaks;
-        var ltColors = ltMeasureOfValueBrew.colors;
+      if (ltMeasureOfValueBrew && ltMeasureOfValueBrew.breaks && ltMeasureOfValueBrew.colors) {
+        const ltBreaks = ltMeasureOfValueBrew.breaks;
+        const ltColors = ltMeasureOfValueBrew.colors;
 
-        for (var j = 0; j < ltColors.length; j++) {
-
-          var legendItem_ltMov:any = {
-            min: ltBreaks[j],         
-            opacity: 0.8,         
-            color: ltColors[ltColors.length - 1 - j]
+        for (let j = 0; j < ltColors.length; j++) {
+          const legendItem_ltMov: any = {
+            min: ltBreaks[j],
+            opacity: 0.8,
+            color: ltColors[ltColors.length - 1 - j],
           };
-          if(ltBreaks[j + 1]){
+          if (ltBreaks[j + 1]) {
             legendItem_ltMov.max = ltBreaks[j + 1];
           }
 
           pieces.push(legendItem_ltMov);
-
         }
       }
-      
+    } else if (indicatorType.includes('DYNAMIC')) {
+      // dynamic brew
 
-          
-    }
-    else if(indicatorType.includes("DYNAMIC")){
-      // dynamic brew   
-      
-      if(dynamicDecreaseBrew){
-        var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
-        var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
+      if (dynamicDecreaseBrew) {
+        const dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
+        const dynamicDecreaseColors = dynamicDecreaseBrew.colors;
 
-        for (var j = 0; j < dynamicDecreaseColors.length; j++) {
-
-          var legendItem_dynamicDecreaseMov:any = {
-            min: dynamicDecreaseBreaks[j],                  
+        for (let j = 0; j < dynamicDecreaseColors.length; j++) {
+          const legendItem_dynamicDecreaseMov: any = {
+            min: dynamicDecreaseBreaks[j],
             opacity: 0.8,
             // color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
-            color: dynamicDecreaseColors[j]
+            color: dynamicDecreaseColors[j],
           };
-          if(dynamicDecreaseBreaks[j + 1]){
+          if (dynamicDecreaseBreaks[j + 1]) {
             legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
-            legendItem_dynamicDecreaseMov.label = "" + dynamicDecreaseBreaks[j] + " - < " + dynamicDecreaseBreaks[j + 1];
+            legendItem_dynamicDecreaseMov.label =
+              '' + dynamicDecreaseBreaks[j] + ' - < ' + dynamicDecreaseBreaks[j + 1];
 
             // in negative scala we must ensure that smallest value near 0 (here max) is included in range
-            if(j == dynamicDecreaseColors.length - 1){
+            if (j == dynamicDecreaseColors.length - 1) {
               legendItem_dynamicDecreaseMov.max = -0.01;
             }
-          }
-          else{
+          } else {
             legendItem_dynamicDecreaseMov.max = -0.01;
             legendItem_dynamicDecreaseMov.label = dynamicDecreaseBreaks[j];
           }
 
           pieces.push(legendItem_dynamicDecreaseMov);
-
         }
       }
 
-      if(dynamicIncreaseBrew){
-          var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
-          var dynamicIncreaseColors = dynamicIncreaseBrew.colors;
+      if (dynamicIncreaseBrew) {
+        const dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
+        const dynamicIncreaseColors = dynamicIncreaseBrew.colors;
 
-          for (var j = 0; j < dynamicIncreaseColors.length; j++) {
-
-            var legendItem_dynamicIncreaseMov:any = {
-              min: dynamicIncreaseBreaks[j],   
-              opacity: 0.8,               
-              color: dynamicIncreaseColors[j]
-            };
-            if(dynamicIncreaseBreaks[j + 1]){
-              legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
-              legendItem_dynamicIncreaseMov.label = "" + dynamicIncreaseBreaks[j] + " - < " + dynamicIncreaseBreaks[j + 1];
-            }
-            else{
-              legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
-            }
-
-            pieces.push(legendItem_dynamicIncreaseMov);
-
+        for (let j = 0; j < dynamicIncreaseColors.length; j++) {
+          const legendItem_dynamicIncreaseMov: any = {
+            min: dynamicIncreaseBreaks[j],
+            opacity: 0.8,
+            color: dynamicIncreaseColors[j],
+          };
+          if (dynamicIncreaseBreaks[j + 1]) {
+            legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+            legendItem_dynamicIncreaseMov.label =
+              '' + dynamicIncreaseBreaks[j] + ' - < ' + dynamicIncreaseBreaks[j + 1];
+          } else {
+            legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
           }
-      }  
-      
-    }
-    else {
+
+          pieces.push(legendItem_dynamicIncreaseMov);
+        }
+      }
+    } else {
       // default brew
 
-      if(this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
-        // dynamic brew            
-        if(dynamicDecreaseBrew){
-          var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
-          var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
+      if (this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)) {
+        // dynamic brew
+        if (dynamicDecreaseBrew) {
+          const dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
+          const dynamicDecreaseColors = dynamicDecreaseBrew.colors;
 
-          for (var j = 0; j < dynamicDecreaseColors.length; j++) {
-
-            legendItem_dynamicDecreaseMov = {
+          for (let j = 0; j < dynamicDecreaseColors.length; j++) {
+            const legendItem_dynamicDecreaseMov: any = {
               min: dynamicDecreaseBreaks[j],
-              opacity: 0.8,                  
+              opacity: 0.8,
               // color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
-              color: dynamicDecreaseColors[j]
+              color: dynamicDecreaseColors[j],
             };
-            if(dynamicDecreaseBreaks[j + 1]){
+            if (dynamicDecreaseBreaks[j + 1]) {
               legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
-              legendItem_dynamicDecreaseMov.label = "" + dynamicDecreaseBreaks[j] + " - < " + dynamicDecreaseBreaks[j + 1];
+              legendItem_dynamicDecreaseMov.label =
+                '' + dynamicDecreaseBreaks[j] + ' - < ' + dynamicDecreaseBreaks[j + 1];
 
               // in negative scala we must ensure that smallest value near 0 (here max) is included in range
-              if(j == dynamicDecreaseColors.length - 1){
+              if (j == dynamicDecreaseColors.length - 1) {
                 legendItem_dynamicDecreaseMov.max = -0.01;
               }
-            }
-            else{
+            } else {
               legendItem_dynamicDecreaseMov.max = -0.01;
               legendItem_dynamicDecreaseMov.label = dynamicDecreaseBreaks[j];
             }
 
             pieces.push(legendItem_dynamicDecreaseMov);
-
           }
         }
-      
-        if(dynamicIncreaseBrew){
-          var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
-          var dynamicIncreaseColors = dynamicIncreaseBrew.colors;
 
-          for (var j = 0; j < dynamicIncreaseColors.length; j++) {
+        if (dynamicIncreaseBrew) {
+          const dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
+          const dynamicIncreaseColors = dynamicIncreaseBrew.colors;
 
-            legendItem_dynamicIncreaseMov = {
-              min: dynamicIncreaseBreaks[j], 
-              opacity: 0.8,                 
-              color: dynamicIncreaseColors[j]
+          for (let j = 0; j < dynamicIncreaseColors.length; j++) {
+            const legendItem_dynamicIncreaseMov: any = {
+              min: dynamicIncreaseBreaks[j],
+              opacity: 0.8,
+              color: dynamicIncreaseColors[j],
             };
-            if(dynamicIncreaseBreaks[j + 1]){
+            if (dynamicIncreaseBreaks[j + 1]) {
               legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
-              legendItem_dynamicIncreaseMov.label = "" + dynamicIncreaseBreaks[j] + " - < " + dynamicIncreaseBreaks[j + 1];
-            }
-            else{
+              legendItem_dynamicIncreaseMov.label =
+                '' + dynamicIncreaseBreaks[j] + ' - < ' + dynamicIncreaseBreaks[j + 1];
+            } else {
               legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j];
             }
 
             pieces.push(legendItem_dynamicIncreaseMov);
-
           }
         }
-        
+      } else {
+        if (defaultBrew && defaultBrew.breaks && defaultBrew.colors) {
+          const breaks = defaultBrew.breaks;
+          const colors = defaultBrew.colors;
+
+          for (let j = 0; j < colors.length; j++) {
+            const legendItem_default = {
+              min: breaks[j],
+              opacity: 0.8,
+              max: breaks[j + 1],
+              color: colors[j],
+            };
+
+            pieces.push(legendItem_default);
+          }
+        }
       }
-      else{
-        if(defaultBrew && defaultBrew.breaks && defaultBrew.colors){
-          var breaks = defaultBrew.breaks;
-          var colors = defaultBrew.colors;
-
-            for (var j = 0; j < colors.length; j++) {
-
-              var legendItem_default = {
-                min: breaks[j],
-                opacity: 0.8,
-                max: breaks[j + 1],
-                color: colors[j]
-              };
-
-              pieces.push(legendItem_default);
-
-            } 
-       }
-           
-      }
-
-      
     }
 
     return pieces;
-
   }
 
   containsZeroValues(geoJSON, date) {
+    let propertyName = date;
 
-    var propertyName = date;
-
-    if(! propertyName.includes(this.dataExchangeService.indicatorDatePrefix)){
+    if (!propertyName.includes(this.dataExchangeService.indicatorDatePrefix)) {
       propertyName = this.dataExchangeService.indicatorDatePrefix + propertyName;
     }
 
-    var containsZeroValues = false;
-    for (var i = 0; i < geoJSON.features.length; i++) {
-      if (geoJSON.features[i].properties[propertyName] === 0 || geoJSON.features[i].properties[propertyName] === "0") {
+    let containsZeroValues = false;
+    for (const feature of geoJSON.features) {
+      if (
+        feature.properties[propertyName] === 0 ||
+        feature.properties[propertyName] === '0'
+      ) {
         containsZeroValues = true;
         break;
       }
@@ -1528,7 +1826,6 @@ export class DiagramHelperServiceService {
   }
 
   onlyContainsPositiveNumbers(indicatorValueArray) {
-
     let ret = true;
     indicatorValueArray.forEach((element) => {
       if (element < 0) {
@@ -1537,44 +1834,58 @@ export class DiagramHelperServiceService {
     });
 
     return ret;
-  };
+  }
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (var feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
-      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
+    for (const feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+      if (
+        feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
+        spatialUnitFeatureName
+      ) {
         return feature.properties;
       }
     }
   }
 
   getSeriesIndexByFeatureName(featureName) {
-    for (var index = 0; index < this.lineChartOptions.series.length; index++) {
-      if (this.lineChartOptions.series[index].name === featureName)
-        return index;
+    for (let index = 0; index < this.lineChartOptions.series.length; index++) {
+      if (this.lineChartOptions.series[index].name === featureName) return index;
     }
 
     //return -1 if none was found
     return -1;
   }
 
-  makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date){
-    return poiGeoresource.datasetName + " - " + date + " (" + geoJSONFeatureCollection.features.length + ")";
-  };
+  makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date) {
+    return (
+      poiGeoresource.datasetName +
+      ' - ' +
+      date +
+      ' (' +
+      geoJSONFeatureCollection.features.length +
+      ')'
+    );
+  }
 
-  createInitialReachabilityAnalysisPieOptions(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
-    var option = {
+  createInitialReachabilityAnalysisPieOptions(
+    poiGeoresource,
+    geoJSONFeatureCollection,
+    rangeValue,
+    date
+  ) {
+    const option = {
       grid: {
         left: '4%',
         top: 0,
         right: '4%',
         bottom: 30,
-        containLabel: true
+        containLabel: true,
       },
       title: {
         text: 'Analyse Einzugsgebiet ' + rangeValue,
         left: 'center',
         fontSize: '10',
-        show: false
+        show: false,
         // top: 15
       },
       toolbox: {
@@ -1584,455 +1895,528 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet ' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+            show: this.dataExchangeService.showDiagramExportButtons,
+            readOnly: true,
+            title: 'Datenansicht',
+            lang: [
+              'Datenansicht - Punkte im Einzugsgebiet ' + rangeValue,
+              'schlie&szlig;en',
+              'refresh',
+            ],
+            optionToContent: (opt) => {
+              const poiData = opt.series[0].data;
 
-              var poiData = opt.series[0].data;
+              const dataTableId = 'poiInIsochroneTable_' + Math.random();
+              const tableExportName = opt.title[0].text;
 
-              var dataTableId = "poiInIsochroneTable_" + Math.random();
-              var tableExportName = opt.title[0].text;
-
-              var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-              htmlString += "<thead>";
-              htmlString += "<tr>";
+              let htmlString =
+                '<table id="' +
+                dataTableId +
+                '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+              htmlString += '<thead>';
+              htmlString += '<tr>';
               htmlString += "<th style='text-align:center;'>Punktlayer</th>";
               htmlString += "<th style='text-align:center;'>Anzahl Punkte im Einzugsgebiet</th>";
-              htmlString += "</tr>";
-              htmlString += "</thead>";
+              htmlString += '</tr>';
+              htmlString += '</thead>';
 
-              htmlString += "<tbody>";
+              htmlString += '<tbody>';
 
-              for (var i = 0; i < poiData.length; i++) {
-                htmlString += "<tr>";
-                htmlString += "<td>" + poiData[i].name + "</td>";
-                htmlString += "<td>" + poiData[i].value + "</td>";
-                htmlString += "</tr>";
+              for (const poiItem of poiData) {
+                htmlString += '<tr>';
+                htmlString += '<td>' + poiItem.name + '</td>';
+                htmlString += '<td>' + poiItem.value + '</td>';
+                htmlString += '</tr>';
               }
 
-              htmlString += "</tbody>";
-              htmlString += "</table>";
+              htmlString += '</tbody>';
+              htmlString += '</table>';
 
-              this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+                dataTableId,
+                tableExportName,
+              ]);
 
               return htmlString;
-            }
+            },
           },
-          restore: { show: false, title: "Erneuern" },
-          saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
-        }
+          restore: { show: false, title: 'Erneuern' },
+          saveAsImage: { show: true, title: 'Export', pixelRatio: 4 },
+        },
       },
       tooltip: {
-          show: false,
-          trigger: 'item',
-          formatter: '{a} <br/>{b}: {c} ({d}%)',
-          fontSize: '10',
-          confine: true
+        show: false,
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: {c} ({d}%)',
+        fontSize: '10',
+        confine: true,
       },
       legend: {
-          orient: 'vertical',
-          type: "scroll",
-          fontSize: '8',
-          left: 0,
-          data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
-          // data: [legendText]
+        orient: 'vertical',
+        type: 'scroll',
+        fontSize: '8',
+        left: 0,
+        data: [
+          this.makeFeatureNameForPoiInIsochroneDiagram(
+            poiGeoresource,
+            geoJSONFeatureCollection,
+            date
+          ),
+        ],
+        // data: [legendText]
       },
       series: [
-          {
-              name: "Punkte im Einzugsgebiet " + rangeValue,
-              type: 'pie',
-              radius: ['20%', '30%'],
-              center: ["50%", "80%"],
-              avoidLabelOverlap: true,
-              label: {
-                  show: false,
-                  position: 'center',
-                  fontSize: '10'
-              },
-              
-              emphasis: {
-                  label: {
-                      show: true,
-                      fontSize: '10',
-                      // fontWeight: 'bold'
-                  }
-              },
-              labelLine: {
-                  show: true
-              },
-              data: [
-                  {value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)}
-              ]
-          }
-      ]
+        {
+          name: 'Punkte im Einzugsgebiet ' + rangeValue,
+          type: 'pie',
+          radius: ['20%', '30%'],
+          center: ['50%', '80%'],
+          avoidLabelOverlap: true,
+          label: {
+            show: false,
+            position: 'center',
+            fontSize: '10',
+          },
+
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: '10',
+              // fontWeight: 'bold'
+            },
+          },
+          labelLine: {
+            show: true,
+          },
+          data: [
+            {
+              value: geoJSONFeatureCollection.features.length,
+              name: this.makeFeatureNameForPoiInIsochroneDiagram(
+                poiGeoresource,
+                geoJSONFeatureCollection,
+                date
+              ),
+            },
+          ],
+        },
+      ],
     };
 
     return option;
   }
 
-  appendToReachabilityAnalysisOptions(poiGeoresource, geoJSONFeatureCollection, eChartsOptions, date){
-    eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date));
-    eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)});
+  appendToReachabilityAnalysisOptions(
+    poiGeoresource,
+    geoJSONFeatureCollection,
+    eChartsOptions,
+    date
+  ) {
+    eChartsOptions.legend[0].data.push(
+      this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)
+    );
+    eChartsOptions.series[0].data.push({
+      value: geoJSONFeatureCollection.features.length,
+      name: this.makeFeatureNameForPoiInIsochroneDiagram(
+        poiGeoresource,
+        geoJSONFeatureCollection,
+        date
+      ),
+    });
 
     return eChartsOptions;
   }
 
-  removePoiFromReachabilityAnalysisOption(eChartOptions, poiGeoresource){
+  removePoiFromReachabilityAnalysisOption(eChartOptions, poiGeoresource) {
     for (let index = 0; index < eChartOptions.legend[0].data.length; index++) {
       const legendItem = eChartOptions.legend[0].data[index];
-      if(legendItem.includes(poiGeoresource.datasetName)){
+      if (legendItem.includes(poiGeoresource.datasetName)) {
         eChartOptions.legend[0].data.splice(index, 1);
       }
     }
 
     for (let index2 = 0; index2 < eChartOptions.series[0].data.length; index2++) {
       const dataItem = eChartOptions.series[0].data[index2];
-      if(dataItem.name.includes(poiGeoresource.datasetName)){
+      if (dataItem.name.includes(poiGeoresource.datasetName)) {
         eChartOptions.series[0].data.splice(index2, 1);
       }
     }
-    
+
     return eChartOptions;
   }
 
-  makeTrendChartOptions_forAllFeatures(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType, trendEnabled, customFontFamilyEnabled = false){
-      // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
+  makeTrendChartOptions_forAllFeatures(
+    indicatorMetadataAndGeoJSON,
+    fromDateAsPropertyString,
+    toDateAsPropertyString,
+    showMinMax,
+    showCompleteTimeseries,
+    computationType,
+    trendEnabled,
+    customFontFamilyEnabled = false
+  ) {
+    // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
 
-      var timeseriesOptions = jQuery.extend(true, {}, this.getLineChartOptions(customFontFamilyEnabled));
+    const timeseriesOptions = jQuery.extend(
+      true,
+      {},
+      this.getLineChartOptions(customFontFamilyEnabled)
+    );
 
-      // remove any additional lines for concrete features
-      timeseriesOptions.series.length = 5;
+    // remove any additional lines for concrete features
+    timeseriesOptions.series.length = 5;
 
-      // add markedAreas for periods out of scope
+    // add markedAreas for periods out of scope
 
-      var fromDateString = fromDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
-      var fromDate_date = new Date(fromDateString);
-      var toDateString = toDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
-      var toDate_date = new Date(toDateString);
-      
-      if(showCompleteTimeseries){
-        timeseriesOptions.series[0].markArea = {
-          silent: true,
-          itemStyle: {
-              color: '#b50b0b',
-              opacity: 0.3
-          },
-          data: [[{
-              xAxis: indicatorMetadataAndGeoJSON.applicableDates[0]
-          }, {
-              xAxis: fromDateString
-          }],
-          [{
-              xAxis: toDateString
-          }, {
-              xAxis: indicatorMetadataAndGeoJSON.applicableDates[indicatorMetadataAndGeoJSON.applicableDates.length - 1]
-          }]]
-        };
-      }          
+    const fromDateString = fromDateAsPropertyString.split(
+      this.envConfigService.indicatorDatePrefix
+    )[1];
+    const fromDate_date = new Date(fromDateString);
+    const toDateString = toDateAsPropertyString.split(this.envConfigService.indicatorDatePrefix)[1];
+    const toDate_date = new Date(toDateString);
 
-      // hide data points
-      timeseriesOptions.series[0].itemStyle = {opacity: 0, width: 3, type: "solid"};  
-      
-      var trendData:any = [];
+    if (showCompleteTimeseries) {
+      timeseriesOptions.series[0].markArea = {
+        silent: true,
+        itemStyle: {
+          color: '#b50b0b',
+          opacity: 0.3,
+        },
+        data: [
+          [
+            {
+              xAxis: indicatorMetadataAndGeoJSON.applicableDates[0],
+            },
+            {
+              xAxis: fromDateString,
+            },
+          ],
+          [
+            {
+              xAxis: toDateString,
+            },
+            {
+              xAxis:
+                indicatorMetadataAndGeoJSON.applicableDates[
+                  indicatorMetadataAndGeoJSON.applicableDates.length - 1
+                ],
+            },
+          ],
+        ],
+      };
+    }
 
-      var timeseriesData = timeseriesOptions.series[0].data;  
-      var minSeriesData = timeseriesOptions.series[1].data;  
-      var maxSeriesData = timeseriesOptions.series[2].data;           
+    // hide data points
+    timeseriesOptions.series[0].itemStyle = { opacity: 0, width: 3, type: 'solid' };
 
-      if(! showCompleteTimeseries){
-        var xData:any = [];
-        var timeData:any = [];
-        var minData:any = [];
-        var maxData:any = [];
-        for (let index = 0; index < timeseriesData.length; index++) {
-          var date_candidate = new Date(indicatorMetadataAndGeoJSON.applicableDates[index]);
-          if(date_candidate >= fromDate_date && date_candidate <= toDate_date){
-            const value = timeseriesData[index];
-            // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
+    const trendData: any = [];
 
-            timeData.push(value);
-            xData.push(indicatorMetadataAndGeoJSON.applicableDates[index]);  
-            minData.push(minSeriesData[index]);
-            maxData.push(maxSeriesData[index]);             
-          }            
-        }
+    let timeseriesData = timeseriesOptions.series[0].data;
+    const minSeriesData = timeseriesOptions.series[1].data;
+    const maxSeriesData = timeseriesOptions.series[2].data;
 
-        timeseriesOptions.series[0].data = timeData;
-        timeseriesOptions.series[1].data = minData;
-        timeseriesOptions.series[2].data = maxData;
-
-        timeseriesOptions.xAxis.data = xData;
-      }     
-
-      // update value if it has changed
-      timeseriesData = timeseriesOptions.series[0].data;
-      var xAxisData = timeseriesOptions.xAxis.data;
+    if (!showCompleteTimeseries) {
+      const xData: any = [];
+      const timeData: any = [];
+      const minData: any = [];
+      const maxData: any = [];
       for (let index = 0; index < timeseriesData.length; index++) {
-        var dateCandidate = new Date(xAxisData[index]);
-        if(dateCandidate >= fromDate_date && dateCandidate <= toDate_date){
+        const date_candidate = new Date(indicatorMetadataAndGeoJSON.applicableDates[index]);
+        if (date_candidate >= fromDate_date && date_candidate <= toDate_date) {
           const value = timeseriesData[index];
           // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
 
-          trendData.push([index, value]);
-        }            
+          timeData.push(value);
+          xData.push(indicatorMetadataAndGeoJSON.applicableDates[index]);
+          minData.push(minSeriesData[index]);
+          maxData.push(maxSeriesData[index]);
+        }
       }
 
-      // add regression line according to option          
-      if (trendEnabled) {
-        var trendLine; 
-        if (computationType.includes("linear")){
-          trendLine = ecStat.regression('linear', trendData,0);
-        }
-        else if (computationType.includes("exponential")){
-          trendLine = ecStat.regression('exponential', trendData,0);
-        }
-        else if (computationType.includes("polynomial_3")){
-          trendLine = ecStat.regression('polynomial', trendData, 3);
-        }
-        else{
-          trendLine = ecStat.regression('linear', trendData,0);
-        }
+      timeseriesOptions.series[0].data = timeData;
+      timeseriesOptions.series[1].data = minData;
+      timeseriesOptions.series[2].data = maxData;
 
-        timeseriesOptions.legend.data.push("Trendlinie");
+      timeseriesOptions.xAxis.data = xData;
+    }
 
-        // make array of numeric values for series
-        let trendLineNumbers:any = [];
-        let trendLinePointsMap:any = new Map();
-        for (const trendLineItem of trendLine.points) {
-          trendLinePointsMap.set(trendLineItem[0], trendLineItem[1]);
-        }
-        for (let index = 0; index < timeseriesData.length; index++) {
-          if(trendLinePointsMap.has(index)){
-            trendLineNumbers.push(trendLinePointsMap.get(index));
-          }
-          else{
-            trendLineNumbers.push(NaN);
-          }
-        }
-        
+    // update value if it has changed
+    timeseriesData = timeseriesOptions.series[0].data;
+    const xAxisData = timeseriesOptions.xAxis.data;
+    for (let index = 0; index < timeseriesData.length; index++) {
+      const dateCandidate = new Date(xAxisData[index]);
+      if (dateCandidate >= fromDate_date && dateCandidate <= toDate_date) {
+        const value = timeseriesData[index];
+        // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
 
-        timeseriesOptions.series.push({
-          name: 'Trendlinie',
-          type: 'line',
-          showSymbol: false,
-          data: trendLineNumbers,
-          lineStyle: {
-            normal: {
-              color: 'red',
-              width: 4,
-              type: 'dashed'
-            }
+        trendData.push([index, value]);
+      }
+    }
+
+    // add regression line according to option
+    if (trendEnabled) {
+      let trendLine;
+      if (computationType.includes('linear')) {
+        trendLine = ecStat.regression('linear', trendData, 0);
+      } else if (computationType.includes('exponential')) {
+        trendLine = ecStat.regression('exponential', trendData, 0);
+      } else if (computationType.includes('polynomial_3')) {
+        trendLine = ecStat.regression('polynomial', trendData, 3);
+      } else {
+        trendLine = ecStat.regression('linear', trendData, 0);
+      }
+
+      timeseriesOptions.legend.data.push('Trendlinie');
+
+      // make array of numeric values for series
+      const trendLineNumbers: any = [];
+      const trendLinePointsMap: any = new Map();
+      for (const trendLineItem of trendLine.points) {
+        trendLinePointsMap.set(trendLineItem[0], trendLineItem[1]);
+      }
+      for (let index = 0; index < timeseriesData.length; index++) {
+        if (trendLinePointsMap.has(index)) {
+          trendLineNumbers.push(trendLinePointsMap.get(index));
+        } else {
+          trendLineNumbers.push(NaN);
+        }
+      }
+
+      timeseriesOptions.series.push({
+        name: 'Trendlinie',
+        type: 'line',
+        showSymbol: false,
+        data: trendLineNumbers,
+        lineStyle: {
+          normal: {
+            color: 'red',
+            width: 4,
+            type: 'dashed',
           },
+        },
+        itemStyle: {
+          normal: {
+            borderWidth: 3,
+            color: 'red',
+            opacity: 0,
+          },
+        },
+        markPoint: {
           itemStyle: {
             normal: {
-              borderWidth: 3,
-              color: 'red',
-              opacity: 0
-            }
+              color: 'transparent',
+            },
           },
-          markPoint: {
-              itemStyle: {
-                  normal: {
-                      color: 'transparent'
-                  }
-              },
-              // label: {
-              //     normal: {
-              //         show: true,
-              //         position: 'left',
-              //         formatter: trendLine.expression,
-              //         textStyle: {
-              //             color: '#333',
-              //             fontSize: 14
-              //         }
-              //     }
-              // },
-              data: [{
-                  coord: trendLine.points[trendLine.points.length - 1]
-              }]
-          }
-        });
-      }
-      
+          // label: {
+          //     normal: {
+          //         show: true,
+          //         position: 'left',
+          //         formatter: trendLine.expression,
+          //         textStyle: {
+          //             color: '#333',
+          //             fontSize: 14
+          //         }
+          //     }
+          // },
+          data: [
+            {
+              coord: trendLine.points[trendLine.points.length - 1],
+            },
+          ],
+        },
+      });
+    }
 
-    if(! showMinMax){
+    if (!showMinMax) {
       timeseriesOptions.series.splice(1, 4);
     }
 
-      return timeseriesOptions;
-  };
+    return timeseriesOptions;
+  }
 
   // Returns an image.
   // Attribution has to be converted to an image anyway for report generation.
   createReportingReachabilityMapAttribution() {
-    let attributionText = "Leaflet | Map data @ OpenStreetMap contributors"
-    let canvas = document.createElement("canvas")
+    const attributionText = 'Leaflet | Map data @ OpenStreetMap contributors';
+    let canvas = document.createElement('canvas');
     canvas.width = 800;
-    let ctx = canvas.getContext('2d')
-    if(ctx) {
-      ctx.font = "8pt Arial";
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.font = '8pt Arial';
       ctx.textBaseline = 'top';
-      ctx.fillStyle = "rgb(60, 60, 60)";
+      ctx.fillStyle = 'rgb(60, 60, 60)';
       ctx.fillText(attributionText, 0, 0);
     }
-    canvas = this.trimCanvas(canvas, 5)
+    canvas = this.trimCanvas(canvas, 5);
 
-    let image = new Image(canvas.width, canvas.height)
-    image.style.backgroundColor = "white";
-    return new Promise( (resolve, reject) => {
-      image.onload = function() {
+    const image = new Image(canvas.width, canvas.height);
+    image.style.backgroundColor = 'white';
+    return new Promise((resolve, _reject) => {
+      image.onload = function () {
         resolve(image);
-      }
+      };
       image.src = canvas.toDataURL();
     });
   }
 
   // Returns an image.
   // Legend has to be converted to an image anyway for report generation.
-  createReportingReachabilityMapLegend(echartsOptions, selectedSpatialUnit, isochronesRangeType, isochronesRangeUnits) {
-    let legendEntries:any = [];
+  createReportingReachabilityMapLegend(
+    echartsOptions,
+    selectedSpatialUnit,
+    isochronesRangeType,
+    isochronesRangeUnits
+  ) {
+    const legendEntries: any = [];
     let isochronesHeadingAdded = false;
-    for(let i=0; i<echartsOptions.series.length; i++) {
-      let series = echartsOptions.series[i];
-
-      if(series.name === "spatialUnitBoundaries") {
+    for (const series of echartsOptions.series) {
+      if (series.name === 'spatialUnitBoundaries') {
         legendEntries.push({
-          label: selectedSpatialUnit.spatialUnitName ? selectedSpatialUnit.spatialUnitName : selectedSpatialUnit.spatialUnitLevel,
+          label: selectedSpatialUnit.spatialUnitName
+            ? selectedSpatialUnit.spatialUnitName
+            : selectedSpatialUnit.spatialUnitLevel,
           iconColor: series.itemStyle.borderColor,
           iconHeight: 4,
-          isGroupHeading: false
+          isGroupHeading: false,
         });
       }
 
-      if(series.name.includes("isochrones")) {
-
-        if(!isochronesHeadingAdded) { // add heading above first isochrone entry
+      if (series.name.includes('isochrones')) {
+        if (!isochronesHeadingAdded) {
+          // add heading above first isochrone entry
           legendEntries.push({
-            label: "Erreichbarkeit",
-            isGroupHeading: true
-          })
+            label: 'Erreichbarkeit',
+            isGroupHeading: true,
+          });
           isochronesHeadingAdded = true;
         }
 
-        let value = series.data[0].value;
+        const value = series.data[0].value;
         legendEntries.push({
           label: value,
           iconColor: series.data[0].itemStyle.areaColor,
           iconOpacity: series.data[0].itemStyle.opacity,
           iconHeight: 12,
           isGroupHeading: false,
-          isIsochroneEntry: true
-        })
+          isIsochroneEntry: true,
+        });
       }
     }
 
-    let canvas = document.createElement("canvas")
+    let canvas = document.createElement('canvas');
     canvas.width = 800;
     canvas.height = 800;
-    let ctx = canvas.getContext('2d')
-    let fontStyle = "8pt Arial";
-    if(ctx)
-      ctx.font = fontStyle
-    let xPos = 5
-    let yPos = 5
-    let rowHeight = 20
-    let iconWidth = 30
-    
-    for(let entry of legendEntries) {
-      if(entry.isGroupHeading) {
-        let isochronesRangeTypeMapping = {
-          "time": "Zeit",
-          "distance": "Distanz"
-        }
+    const ctx = canvas.getContext('2d');
+    const fontStyle = '8pt Arial';
+    if (ctx) ctx.font = fontStyle;
+    const xPos = 5;
+    let yPos = 5;
+    const rowHeight = 20;
+    const iconWidth = 30;
+
+    for (const entry of legendEntries) {
+      if (entry.isGroupHeading) {
+        const isochronesRangeTypeMapping = {
+          time: 'Zeit',
+          distance: 'Distanz',
+        };
         // only draw label
-        ctx!.font = "bold " + fontStyle;
-        ctx!.fillStyle = "black";
-        ctx!.textBaseline = "top";
-        let text = entry.label + " [" + isochronesRangeTypeMapping[isochronesRangeType] + "]"
-        ctx!.fillText(text , xPos, yPos);
-        yPos += rowHeight
+        ctx!.font = 'bold ' + fontStyle;
+        ctx!.fillStyle = 'black';
+        ctx!.textBaseline = 'top';
+        const text = entry.label + ' [' + isochronesRangeTypeMapping[isochronesRangeType] + ']';
+        ctx!.fillText(text, xPos, yPos);
+        yPos += rowHeight;
       } else {
         // icon
-        if(entry.isIsochroneEntry) {
-          let isochroneEntries = legendEntries.filter( entry => {
-            return entry.isIsochroneEntry
+        if (entry.isIsochroneEntry) {
+          const isochroneEntries = legendEntries.filter((entry) => {
+            return entry.isIsochroneEntry;
           });
           // layer isochrone icons on top of each other unitl we reach the current one
-          for(let isochroneEntry of isochroneEntries.reverse()) {
-            if(isochroneEntry === entry) {
+          for (const isochroneEntry of isochroneEntries.reverse()) {
+            if (isochroneEntry === entry) {
               break;
             }
             ctx!.fillStyle = isochroneEntry.iconColor;
             ctx!.globalAlpha = isochroneEntry.iconOpacity;
-            ctx!.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, isochroneEntry.iconHeight)
+            ctx!.fillRect(
+              xPos,
+              yPos + (12 - entry.iconHeight) / 2,
+              iconWidth,
+              isochroneEntry.iconHeight
+            );
             ctx!.globalAlpha = 1;
           }
         }
 
         ctx!.fillStyle = entry.iconColor;
         ctx!.globalAlpha = entry.iconOpacity ? entry.iconOpacity : 1;
-        ctx!.fillRect(xPos, yPos + ( (12-entry.iconHeight) / 2), iconWidth, entry.iconHeight)
+        ctx!.fillRect(xPos, yPos + (12 - entry.iconHeight) / 2, iconWidth, entry.iconHeight);
         ctx!.globalAlpha = 1;
         // and label
         ctx!.font = fontStyle;
-        ctx!.fillStyle = "black";
-        ctx!.textBaseline = "top";
-        if(entry.isIsochroneEntry) {
-          let text = entry.label + " " + isochronesRangeUnits
-          ctx!.fillText(text, xPos + iconWidth + 5, yPos)
+        ctx!.fillStyle = 'black';
+        ctx!.textBaseline = 'top';
+        if (entry.isIsochroneEntry) {
+          const text = entry.label + ' ' + isochronesRangeUnits;
+          ctx!.fillText(text, xPos + iconWidth + 5, yPos);
         } else {
-          ctx!.fillText(entry.label, xPos + iconWidth + 5, yPos)
+          ctx!.fillText(entry.label, xPos + iconWidth + 5, yPos);
         }
-        yPos += rowHeight
+        yPos += rowHeight;
       }
     }
 
-    canvas = this.trimCanvas(canvas, 5)
-    let image = new Image(canvas.width, canvas.height)
-    image.style.backgroundColor = "white";
-    return new Promise( (resolve, reject) => {
-      image.onload = function() {
+    canvas = this.trimCanvas(canvas, 5);
+    const image = new Image(canvas.width, canvas.height);
+    image.style.backgroundColor = 'white';
+    return new Promise((resolve, _reject) => {
+      image.onload = function () {
         resolve(image);
-      }
+      };
       image.src = canvas.toDataURL();
     });
   }
 
-  trimCanvas(canvas, padding=0) {
+  trimCanvas(canvas, padding = 0) {
     function rowBlank(imageData, width, y) {
-        for (var x = 0; x < width; ++x) {
-            if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
-        }
-        return true;
+      for (let x = 0; x < width; ++x) {
+        if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
+      }
+      return true;
     }
- 
+
     function columnBlank(imageData, width, x, top, bottom) {
-        for (var y = top; y < bottom; ++y) {
-            if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
-        }
-        return true;
+      for (let y = top; y < bottom; ++y) {
+        if (imageData.data[y * width * 4 + x * 4 + 3] !== 0) return false;
+      }
+      return true;
     }
- 
- 
-        var ctx = canvas.getContext("2d");
-        var width = canvas.width;
-        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        var top = 0, bottom = imageData.height, left = 0, right = imageData.width;
- 
-        while (top < bottom && rowBlank(imageData, width, top)) ++top;
-        while (bottom - 1 > top && rowBlank(imageData, width, bottom - 1)) --bottom;
-        while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
-        while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
- 
-        var trimmed = ctx.getImageData(left, top, right - left, bottom - top);
-        var copy = canvas.ownerDocument.createElement("canvas");
-        var copyCtx = copy.getContext("2d");
-        copy.width = trimmed.width + padding*2;
-        copy.height = trimmed.height + padding*2;
-        copyCtx.putImageData(trimmed, padding, padding);
- 
-        return copy;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let top = 0,
+      bottom = imageData.height,
+      left = 0,
+      right = imageData.width;
+
+    while (top < bottom && rowBlank(imageData, width, top)) ++top;
+    while (bottom - 1 > top && rowBlank(imageData, width, bottom - 1)) --bottom;
+    while (left < right && columnBlank(imageData, width, left, top, bottom)) ++left;
+    while (right - 1 > left && columnBlank(imageData, width, right - 1, top, bottom)) --right;
+
+    const trimmed = ctx.getImageData(left, top, right - left, bottom - top);
+    const copy = canvas.ownerDocument.createElement('canvas');
+    const copyCtx = copy.getContext('2d');
+    copy.width = trimmed.width + padding * 2;
+    copy.height = trimmed.height + padding * 2;
+    copyCtx.putImageData(trimmed, padding, padding);
+
+    return copy;
   }
-  
-/* 
+
+  /* 
   setHistogramChartOptions = function (indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date) {
     var bins;
     try {
@@ -2252,5 +2636,4 @@ export class DiagramHelperServiceService {
 
     self.histogramChartOptions = histogramOption;
   }; */
-
 }

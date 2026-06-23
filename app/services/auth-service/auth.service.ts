@@ -1,66 +1,54 @@
-import { Injectable } from "@angular/core";
-import Keycloak, {
-  KeycloakLoginOptions,
-  KeycloakTokenParsed,
-} from "keycloak-js";
-import { BehaviorSubject, Observable } from "rxjs";
-import { NotificationService } from "../../components/ngComponents/common/notification/notification.service";
+import { Injectable, inject } from '@angular/core';
+import Keycloak, { KeycloakLoginOptions, KeycloakTokenParsed } from 'keycloak-js';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { NotificationService } from '../../components/ngComponents/common/notification/notification.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
-const ADMIN_ROLE_SUFFIXES = ["-creator", "-publisher", "-editor"] as const;
+const ADMIN_ROLE_SUFFIXES = ['-creator', '-publisher', '-editor'] as const;
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AuthService {
+  private notificationSrvc = inject(NotificationService);
+  private envConfigService = inject(EnvConfigService);
+
   private auth: Keycloak | undefined;
 
-  private readonly _tokenExpirationMs$ = new BehaviorSubject<number>(
-    30 * 60 * 1000,
-  );
-  readonly tokenExpirationMs$: Observable<number> =
-    this._tokenExpirationMs$.asObservable();
-
-  constructor(
-    private notificationSrvc: NotificationService,
-    private envConfigService: EnvConfigService,
-  ) {}
+  private readonly _tokenExpirationMs$ = new BehaviorSubject<number>(30 * 60 * 1000);
+  readonly tokenExpirationMs$: Observable<number> = this._tokenExpirationMs$.asObservable();
 
   async initKeycloak(): Promise<void> {
     if (this.envConfigService.enableKeycloakSecurity) {
       const keycloakAdapter = new Keycloak(
         this.envConfigService.configStorageServerConfig
-          .targetUrlToConfigStorageServer_keycloakConfig,
+          .targetUrlToConfigStorageServer_keycloakConfig
       );
 
       // https://www.keycloak.org/docs/latest/securing_apps/#session-status-iframe
       // https://www.keycloak.org/docs/latest/securing_apps/#_modern_browsers
       return await keycloakAdapter
         .init({
-          onLoad: "check-sso",
+          onLoad: 'check-sso',
           checkLoginIframe: false,
           silentCheckSsoFallback: false,
         })
         .then((authenticated) => {
-          console.log(
-            authenticated
-              ? "User is authenticated!"
-              : "User is not authenticated!",
-          );
+          console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
           this.auth = keycloakAdapter;
           this.startCheckSessionExpiration();
           try {
-            console.debug("Trying to bootstrap application.");
+            console.debug('Trying to bootstrap application.');
           } catch (e) {
-            console.error("Application bootstrapping failed.");
+            console.error('Application bootstrapping failed.');
             console.error(e);
           }
         })
         .catch(function () {
           console.log(
-            "Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security",
+            'Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security'
           );
           alert(
-            "Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security",
+            'Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security'
           );
         });
     }
@@ -76,7 +64,7 @@ export class AuthService {
       tokenParsed.realm_access &&
       tokenParsed.realm_access.roles &&
       tokenParsed.realm_access.roles.some((role) =>
-        ADMIN_ROLE_SUFFIXES.some((suffix) => role.endsWith(suffix)),
+        ADMIN_ROLE_SUFFIXES.some((suffix) => role.endsWith(suffix))
       )
     );
   }
@@ -126,10 +114,10 @@ export class AuthService {
         ms = 0;
         clearInterval(intervalId);
         this.notificationSrvc.showError(
-          "Ihre aktuelle Login-Session ist abgelaufen. Sie müssen sich neu einloggen. Nutzen Sie dazu das User-Menü oben rechts.",
+          'Ihre aktuelle Login-Session ist abgelaufen. Sie müssen sich neu einloggen. Nutzen Sie dazu das User-Menü oben rechts.',
           {
             autohide: false,
-          },
+          }
         );
       }
       this._tokenExpirationMs$.next(ms);

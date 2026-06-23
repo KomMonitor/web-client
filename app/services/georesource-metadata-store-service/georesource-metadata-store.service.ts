@@ -1,13 +1,10 @@
-import { Injectable } from "@angular/core";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
-import { TopicHierarchyService } from "services/topic-hierarchy-service/topic-hierarchy.service";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { TopicMetadataStoreService } from "services/topic-metadata-store-service/topic-metadata-store.service";
-import {
-  WmsResourceType,
-  WmsDataset,
-} from "components/ngComponents/models/services.models";
-import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
+import { Injectable, inject } from '@angular/core';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { WmsResourceType, WmsDataset } from 'components/ngComponents/models/services.models';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 /**
  * Georesource / WMS / WFS metadata store + filtering, extracted from DataExchangeService
@@ -20,9 +17,13 @@ import { GeoresourcesDataset } from "components/ngComponents/models/georesources
  * fields via getters so its consumers stay unchanged.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class GeoresourceMetadataStoreService {
+  private envConfigService = inject(EnvConfigService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
+  private topicStore = inject(TopicMetadataStoreService);
 
   availableGeoresources: GeoresourcesDataset[] = [];
   availableGeoresources_map = new Map();
@@ -30,23 +31,14 @@ export class GeoresourceMetadataStoreService {
 
   availableWmsDatasets: WmsDataset[] = [];
   wmsDatasets!: WmsDataset[];
-  wfsDatasets = this.envConfigService.wfsDatasets.sort((a, b) =>
-    a.title > b.title ? 1 : -1,
-  );
+  wfsDatasets = this.envConfigService.wfsDatasets.sort((a, b) => (a.title > b.title ? 1 : -1));
   wmsDatasets_keywordFiltered!: WmsDataset[];
   wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
   displayableGeoresources_keywordFiltered: any;
   displayableGeoresources_keywordFiltered_forAlphabeticalDisplay: any = {};
 
-  georesourceMapKey_forUnmappedTopicReferences = "unmapped";
-
-  constructor(
-    private envConfigService: EnvConfigService,
-    private topicHierarchyService: TopicHierarchyService,
-    private topicHierarchyStore: TopicHierarchyStoreService,
-    private topicStore: TopicMetadataStoreService,
-  ) {}
+  georesourceMapKey_forUnmappedTopicReferences = 'unmapped';
 
   setServices(servicesArray: WmsDataset[]) {
     this.availableWmsDatasets = servicesArray;
@@ -56,31 +48,20 @@ export class GeoresourceMetadataStoreService {
   }
 
   addSingleGeoresourceMetadata(georesourceMetadata) {
-    this.availableGeoresources_map.set(
-      georesourceMetadata.georesourceId,
-      georesourceMetadata,
-    );
-    this.availableGeoresources = [
-      georesourceMetadata,
-      ...this.availableGeoresources,
-    ];
+    this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+    this.availableGeoresources = [georesourceMetadata, ...this.availableGeoresources];
   }
 
   replaceSingleGeoresourceMetadata(georesourceMetadata) {
     const index = this.availableGeoresources.findIndex(
-      (g) => g.georesourceId === georesourceMetadata.georesourceId,
+      (g) => g.georesourceId === georesourceMetadata.georesourceId
     );
     if (index !== -1) this.availableGeoresources[index] = georesourceMetadata;
-    this.availableGeoresources_map.set(
-      georesourceMetadata.georesourceId,
-      georesourceMetadata,
-    );
+    this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
   }
 
   deleteSingleGeoresourceMetadata(georesourceId) {
-    const index = this.availableGeoresources.findIndex(
-      (g) => g.georesourceId === georesourceId,
-    );
+    const index = this.availableGeoresources.findIndex((g) => g.georesourceId === georesourceId);
     if (index !== -1) this.availableGeoresources.splice(index, 1);
     this.availableGeoresources_map.delete(georesourceId);
   }
@@ -91,78 +72,55 @@ export class GeoresourceMetadataStoreService {
 
   getAvailableGeoWmsDatasets(): WmsDataset[] {
     return this.availableWmsDatasets.filter(
-      (e) => e.serviceResource == WmsResourceType.GEORESOURCE,
+      (e) => e.serviceResource == WmsResourceType.GEORESOURCE
     );
   }
 
   getAvailableIndiWmsDatasets(): WmsDataset[] {
-    return this.availableWmsDatasets.filter(
-      (e) => e.serviceResource == WmsResourceType.INDICATOR,
-    );
+    return this.availableWmsDatasets.filter((e) => e.serviceResource == WmsResourceType.INDICATOR);
   }
 
   setGeoresources(georesourcesArray) {
     // wms are not part of availableGeoresources anymore, maybe add again. But no use-case for the time beeing
-    this.availableGeoresources_map = new Map(
-      georesourcesArray.map((g) => [g.georesourceId, g]),
-    );
-    this.availableGeoresources = Array.from(
-      this.availableGeoresources_map.values(),
-    );
+    this.availableGeoresources_map = new Map(georesourcesArray.map((g) => [g.georesourceId, g]));
+    this.availableGeoresources = Array.from(this.availableGeoresources_map.values());
 
     this.displayableGeoresources = this.availableGeoresources.filter((item) =>
-      this.isDisplayableGeoresource(item),
+      this.isDisplayableGeoresource(item)
     );
     this.displayableGeoresources_keywordFiltered = JSON.parse(
-      JSON.stringify(this.displayableGeoresources),
+      JSON.stringify(this.displayableGeoresources)
     );
 
     //this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
     this.wmsDatasets_keywordFiltered = this.getAvailableGeoWmsDatasets();
-    this.wfsDatasets_keywordFiltered = JSON.parse(
-      JSON.stringify(this.wfsDatasets),
-    );
+    this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
     this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
-      poiData: this.displayableGeoresources_keywordFiltered.filter(
-        (item) => item.isPOI,
-      ),
-      loiData: this.displayableGeoresources_keywordFiltered.filter(
-        (item) => item.isLOI,
-      ),
-      aoiData: this.displayableGeoresources_keywordFiltered.filter(
-        (item) => item.isAOI,
-      ),
+      poiData: this.displayableGeoresources_keywordFiltered.filter((item) => item.isPOI),
+      loiData: this.displayableGeoresources_keywordFiltered.filter((item) => item.isLOI),
+      aoiData: this.displayableGeoresources_keywordFiltered.filter((item) => item.isAOI),
       wmsData: this.wmsDatasets_keywordFiltered,
       wfsData: this.wfsDatasets_keywordFiltered,
     };
 
-    var enabledGeoresources =
-      this.envConfigService.enabledGeoresourcesInfrastructure.concat(
-        this.envConfigService.enabledGeoresourcesGeoservices,
-      );
-
-    var showPOI = enabledGeoresources.indexOf("poi") !== -1;
-    var showLOI = enabledGeoresources.indexOf("loi") !== -1;
-    var showAOI = enabledGeoresources.indexOf("aoi") !== -1;
-    var showWMS = enabledGeoresources.indexOf("wms") !== -1;
-    var showWFS = enabledGeoresources.indexOf("wfs") !== -1;
-
-    this.onChangeGeoresourceKeywordFilter(
-      undefined,
-      showPOI,
-      showLOI,
-      showAOI,
-      showWMS,
-      showWFS,
+    const enabledGeoresources = this.envConfigService.enabledGeoresourcesInfrastructure.concat(
+      this.envConfigService.enabledGeoresourcesGeoservices
     );
+
+    const showPOI = enabledGeoresources.indexOf('poi') !== -1;
+    const showLOI = enabledGeoresources.indexOf('loi') !== -1;
+    const showAOI = enabledGeoresources.indexOf('aoi') !== -1;
+    const showWMS = enabledGeoresources.indexOf('wms') !== -1;
+    const showWFS = enabledGeoresources.indexOf('wfs') !== -1;
+
+    this.onChangeGeoresourceKeywordFilter(undefined, showPOI, showLOI, showAOI, showWMS, showWFS);
   }
 
   private filterArrayObjectsByValue(array, string) {
     return array.filter((o) => {
       return Object.keys(o).some((k) => {
-        if (typeof o[k] === "string")
-          return o[k].toLowerCase().includes(string.toLowerCase());
+        if (typeof o[k] === 'string') return o[k].toLowerCase().includes(string.toLowerCase());
         return false;
       });
     });
@@ -174,44 +132,35 @@ export class GeoresourceMetadataStoreService {
     showLOI,
     showAOI,
     showWMS,
-    showWFS,
+    showWFS
   ) {
     this.wmsDatasets_keywordFiltered = this.getAvailableGeoWmsDatasets();
-    this.wfsDatasets_keywordFiltered = JSON.parse(
-      JSON.stringify(this.wfsDatasets),
-    );
+    this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
 
     this.displayableGeoresources_keywordFiltered = JSON.parse(
-      JSON.stringify(this.displayableGeoresources),
+      JSON.stringify(this.displayableGeoresources)
     );
 
-    if (georesourceNameFilter && georesourceNameFilter != "") {
-      this.displayableGeoresources_keywordFiltered =
-        this.filterArrayObjectsByValue(
-          this.displayableGeoresources_keywordFiltered,
-          georesourceNameFilter,
-        );
+    if (georesourceNameFilter && georesourceNameFilter != '') {
+      this.displayableGeoresources_keywordFiltered = this.filterArrayObjectsByValue(
+        this.displayableGeoresources_keywordFiltered,
+        georesourceNameFilter
+      );
 
       this.wmsDatasets_keywordFiltered = this.filterArrayObjectsByValue(
         this.wmsDatasets_keywordFiltered,
-        georesourceNameFilter,
+        georesourceNameFilter
       );
       this.wfsDatasets_keywordFiltered = this.filterArrayObjectsByValue(
         this.wfsDatasets_keywordFiltered,
-        georesourceNameFilter,
+        georesourceNameFilter
       );
     }
 
     this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
-      poiData: this.displayableGeoresources_keywordFiltered.filter(
-        (item) => item.isPOI,
-      ),
-      loiData: this.displayableGeoresources_keywordFiltered.filter(
-        (item) => item.isLOI,
-      ),
-      aoiData: this.displayableGeoresources_keywordFiltered.filter(
-        (item) => item.isAOI,
-      ),
+      poiData: this.displayableGeoresources_keywordFiltered.filter((item) => item.isPOI),
+      loiData: this.displayableGeoresources_keywordFiltered.filter((item) => item.isLOI),
+      aoiData: this.displayableGeoresources_keywordFiltered.filter((item) => item.isAOI),
       wmsData: this.wmsDatasets_keywordFiltered,
       wfsData: this.wfsDatasets_keywordFiltered,
     };
@@ -246,7 +195,7 @@ export class GeoresourceMetadataStoreService {
       this.displayableGeoresources_keywordFiltered,
       this.wmsDatasets_keywordFiltered,
       this.wfsDatasets_keywordFiltered,
-      this.georesourceMapKey_forUnmappedTopicReferences,
+      this.georesourceMapKey_forUnmappedTopicReferences
     );
   }
 
@@ -257,29 +206,19 @@ export class GeoresourceMetadataStoreService {
     showLOI,
     showAOI,
     showWMS,
-    showWFS,
+    showWFS
   ) {
-    var availableGeoresources: any = this.getAvailableGeoresources(
+    const availableGeoresources: any = this.getAvailableGeoresources(
       topic,
       georesourceNameFilter,
       showPOI,
       showLOI,
-      showAOI,
+      showAOI
     );
-    var wmsDatasets = this.getAvailableTopicWmsDatasets(
-      topic,
-      georesourceNameFilter,
-      showWMS,
-    );
-    var wfsDatasets = this.getAvailableWfsDatasets(
-      topic,
-      georesourceNameFilter,
-      showWFS,
-    );
+    const wmsDatasets = this.getAvailableTopicWmsDatasets(topic, georesourceNameFilter, showWMS);
+    const wfsDatasets = this.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
 
-    var datasets = availableGeoresources
-      .concat(wmsDatasets)
-      .concat(wfsDatasets);
+    const datasets = availableGeoresources.concat(wmsDatasets).concat(wfsDatasets);
     return datasets;
   }
 
@@ -288,14 +227,14 @@ export class GeoresourceMetadataStoreService {
       return [];
     }
 
-    var wfsDatasets: any[] = [];
+    const wfsDatasets: any[] = [];
 
-    var filteredWfsDatasets = this.wfsDatasets;
+    let filteredWfsDatasets = this.wfsDatasets;
 
-    if (georesourceNameFilter && georesourceNameFilter != "") {
+    if (georesourceNameFilter && georesourceNameFilter != '') {
       filteredWfsDatasets = this.filterArrayObjectsByValue(
         filteredWfsDatasets,
-        georesourceNameFilter,
+        georesourceNameFilter
       );
     }
 
@@ -313,14 +252,14 @@ export class GeoresourceMetadataStoreService {
       return [];
     }
 
-    var wmsDatasets: any[] = [];
+    const wmsDatasets: any[] = [];
 
-    var filteredWmsDatasets = this.getAvailableGeoWmsDatasets();
+    let filteredWmsDatasets = this.getAvailableGeoWmsDatasets();
 
-    if (georesourceNameFilter && georesourceNameFilter != "") {
+    if (georesourceNameFilter && georesourceNameFilter != '') {
       filteredWmsDatasets = this.filterArrayObjectsByValue(
         filteredWmsDatasets,
-        georesourceNameFilter,
+        georesourceNameFilter
       );
     }
 
@@ -337,7 +276,7 @@ export class GeoresourceMetadataStoreService {
     return this.topicHierarchyService.topicHierarchyContainsGeoresource(
       this.topicStore.availableTopics,
       topic,
-      georesourceMetadata,
+      georesourceMetadata
     );
   }
 
@@ -345,7 +284,7 @@ export class GeoresourceMetadataStoreService {
     return this.topicHierarchyService.topicHierarchyContainsWms(
       this.topicStore.availableTopics,
       topic,
-      wmsMetadata,
+      wmsMetadata
     );
   }
 
@@ -355,24 +294,17 @@ export class GeoresourceMetadataStoreService {
     });
   }
 
-  getAvailableGeoresources(
-    topic,
-    georesourceNameFilter,
-    showPOI,
-    showLOI,
-    showAOI,
-  ) {
-    var georesources: any[] = [];
+  getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI) {
+    const georesources: any[] = [];
 
-    var filteredGeoresources = this.availableGeoresources;
+    let filteredGeoresources = this.availableGeoresources;
 
-    filteredGeoresources =
-      this.filterByGeoresourceNamesToHide(filteredGeoresources);
+    filteredGeoresources = this.filterByGeoresourceNamesToHide(filteredGeoresources);
 
-    if (georesourceNameFilter && georesourceNameFilter != "") {
+    if (georesourceNameFilter && georesourceNameFilter != '') {
       filteredGeoresources = this.filterArrayObjectsByValue(
         filteredGeoresources,
-        georesourceNameFilter,
+        georesourceNameFilter
       );
     }
 
@@ -380,7 +312,7 @@ export class GeoresourceMetadataStoreService {
       filteredGeoresources,
       showPOI,
       showLOI,
-      showAOI,
+      showAOI
     );
 
     for (const georesourceMetadata of filteredGeoresources) {
@@ -392,12 +324,7 @@ export class GeoresourceMetadataStoreService {
     return georesources;
   }
 
-  filterGeoresourcesByTypes(
-    georesourceMetadataArray,
-    showPOI,
-    showLOI,
-    showAOI,
-  ) {
+  filterGeoresourcesByTypes(georesourceMetadataArray, showPOI, showLOI, showAOI) {
     if (!showPOI && !showLOI && !showAOI) {
       return [];
     }
@@ -427,12 +354,12 @@ export class GeoresourceMetadataStoreService {
     });
   }
 
-  removeAoiGeoresource(aoiGeoresource) {
+  removeAoiGeoresource(_aoiGeoresource) {
     //return this.ajskommonitorDataExchangeServiceeProvider.removeAoiGeoresource(aoiGeoresource);
   }
 
   isDisplayableGeoresource(item) {
-    var arrayOfNameSubstringsForHidingGeoresources =
+    const arrayOfNameSubstringsForHidingGeoresources =
       this.envConfigService.arrayOfNameSubstringsForHidingGeoresources;
 
     if (
@@ -441,10 +368,9 @@ export class GeoresourceMetadataStoreService {
     )
       return false;
 
-    var isGeoresourceThatShallNotBeDisplayed =
-      arrayOfNameSubstringsForHidingGeoresources.some((substring) =>
-        String(item.datasetName).includes(substring),
-      );
+    const isGeoresourceThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingGeoresources.some(
+      (substring) => String(item.datasetName).includes(substring)
+    );
 
     if (isGeoresourceThatShallNotBeDisplayed) {
       return false;
@@ -454,13 +380,13 @@ export class GeoresourceMetadataStoreService {
 
   setWmsLayerActive(dataset: WmsDataset) {
     this.wmsDatasets = this.wmsDatasets.map((e) =>
-      e.id === dataset.id ? { ...e, isSelected: true } : e,
+      e.id === dataset.id ? { ...e, isSelected: true } : e
     );
   }
 
   setWmsLayerInactive(dataset: WmsDataset) {
     this.wmsDatasets = this.wmsDatasets.map((e) =>
-      e.id === dataset.id ? { ...e, isSelected: false } : e,
+      e.id === dataset.id ? { ...e, isSelected: false } : e
     );
   }
 }

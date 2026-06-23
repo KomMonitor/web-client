@@ -1,5 +1,5 @@
-import { Injectable, Inject } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
@@ -7,14 +7,12 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
   providedIn: 'root',
 })
 export class KommonitorGeoresourceDataExchangeService {
+  private angularJsDataExchangeService = inject(DataExchangeService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+
   // Private subjects for reactive updates if needed in the future
   private georesourcesSubject = new BehaviorSubject<any[]>([]);
   public georesources$ = this.georesourcesSubject.asObservable();
-
-  constructor(
-    private angularJsDataExchangeService: DataExchangeService,
-    private topicHierarchyService: TopicHierarchyService
-  ) {}
 
   /**
    * Get available georesources -

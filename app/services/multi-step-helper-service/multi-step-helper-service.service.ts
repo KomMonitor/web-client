@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
-import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +8,9 @@ export class MultiStepHelperServiceService {
   constructor(
   /*   private singleFeatureMapHelperService: SingleFeatureMapHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService */
-  ) { }
+  ) {
+    /* intentionally empty */
+  }
 
   /*
   MULTI STEP FORM STUFF
@@ -32,12 +32,11 @@ export class MultiStepHelperServiceService {
   registerProgressBarItemClick(domId){
 
     setTimeout(() => {
-      let progressBar_listItems:any = $("#" + domId + " #progressbar > li");
+      const progressBar_listItems:any = $("#" + domId + " #progressbar > li");
       progressBar_listItems.click((item:any) => {
         
-        let newIndex = progressBar_listItems.index(item.target);
-        let oldIndex;
-        let allFs:any = $($(item.target).parent().parent().parent().children("fieldset"));
+        const newIndex = progressBar_listItems.index(item.target);
+        const allFs:any = $($(item.target).parent().parent().parent().children("fieldset"));
         let activeFs;
 
         for (const fsCandidate of allFs) {
@@ -49,7 +48,7 @@ export class MultiStepHelperServiceService {
             fsCandidate.style["display"] = "none"
           }
         }
-        oldIndex = allFs.index(activeFs);
+        const oldIndex = allFs.index(activeFs);
 
         this.current_fs = $(allFs.get(oldIndex));
         

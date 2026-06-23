@@ -1,11 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 import shp from 'shpjs';
 import Papa from 'papaparse';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BehaviorSubject } from 'rxjs';
-import { GeoresourcesDataset, GeoresourcesMetadata } from 'components/ngComponents/models/georesources.models.js';
-
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models.js';
 
 export interface FileUploadSubject {
   state: FileUploadState;
@@ -17,34 +16,31 @@ export enum FileUploadState {
   GEOJSON,
   CSV,
   SUCCESS,
-  ERROR
+  ERROR,
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FileHelperService {
+  private broadcastService = inject(BroadcastService);
 
-  private fileImportSubject = new BehaviorSubject<FileUploadSubject>({state: FileUploadState.NONE, value: undefined});
+  private fileImportSubject = new BehaviorSubject<FileUploadSubject>({
+    state: FileUploadState.NONE,
+    value: undefined,
+  });
   fileImport$ = this.fileImportSubject.asObservable();
 
-  constructor(
-    private broadcastService: BroadcastService
-  ) { }
-
   setValue(state: FileUploadState, value: any) {
-    this.fileImportSubject.next({state: state, value: value});
+    this.fileImportSubject.next({ state: state, value: value });
   }
 
   getFeatureSchema_fromGeoJSON(geoJSON) {
     // if there are any existing properties, then use the first entry
-    let schema:any = [];
-    if (geoJSON && geoJSON.features && geoJSON.features[0] &&
-      geoJSON.features[0].properties) {
-      for (var property in geoJSON.features[0].properties) {
-        schema.push(
-          property
-        );
+    const schema: any = [];
+    if (geoJSON && geoJSON.features && geoJSON.features[0] && geoJSON.features[0].properties) {
+      for (const property in geoJSON.features[0].properties) {
+        schema.push(property);
       }
     }
 
@@ -53,13 +49,10 @@ export class FileHelperService {
 
   getFeatureSchema_fromCsvRows(rows) {
     // if there are any existing properties, then use the first entry
-    let schema:any = [];
+    const schema: any = [];
     if (rows && rows[0]) {
-      for (var property in rows[0]) {
-        schema.push(
-          property
-        );
-
+      for (const property in rows[0]) {
+        schema.push(property);
       }
     }
 
@@ -69,39 +62,54 @@ export class FileHelperService {
   transformFileToKomMonitorGeoressource(file, customColor, customMarkerColor) {
     let tmpKommonitorGeoresource;
 
-    var fileEnding = file.name.split('.').pop();
+    const fileEnding = file.name.split('.').pop();
 
-    if (fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()) {
-      console.log("Potential GeoJSON file identified")
-      tmpKommonitorGeoresource = this.processFileInput_georesource_geoJson(file, customColor, customMarkerColor);
-    }
-    else if (fileEnding.toUpperCase() === "zip".toUpperCase()) {
-      console.log("Potential Shapefile file identified")
-      tmpKommonitorGeoresource = this.processFileInput_georesource_shape(file, customColor, customMarkerColor);
-    }
-    else if (fileEnding.toUpperCase() === "csv".toUpperCase()) {
-      console.log("Potential CSV file identified")
-      tmpKommonitorGeoresource = this.processFileInput_georesource_csv(file, customColor, customMarkerColor);
-    }
-    else {
-      let fileLayerError = "Dateiformat kann nicht verarbeitet werden";
-      //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", fileLayerError);
+    if (
+      fileEnding.toUpperCase() === 'json'.toUpperCase() ||
+      fileEnding.toUpperCase() === 'geojson'.toUpperCase()
+    ) {
+      console.log('Potential GeoJSON file identified');
+      tmpKommonitorGeoresource = this.processFileInput_georesource_geoJson(
+        file,
+        customColor,
+        customMarkerColor
+      );
+    } else if (fileEnding.toUpperCase() === 'zip'.toUpperCase()) {
+      console.log('Potential Shapefile file identified');
+      tmpKommonitorGeoresource = this.processFileInput_georesource_shape(
+        file,
+        customColor,
+        customMarkerColor
+      );
+    } else if (fileEnding.toUpperCase() === 'csv'.toUpperCase()) {
+      console.log('Potential CSV file identified');
+      tmpKommonitorGeoresource = this.processFileInput_georesource_csv(
+        file,
+        customColor,
+        customMarkerColor
+      );
+    } else {
+      //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", "Dateiformat kann nicht verarbeitet werden");
     }
 
     return tmpKommonitorGeoresource;
   }
 
-  makeGeoresourceMetadata(file, customColor, customMarkerColor, type, geoJSON):GeoresourcesDataset {
-    let tmpKommonitorGeoresource:GeoresourcesDataset = {
-      permissions: [
-
-      ],
+  makeGeoresourceMetadata(
+    file,
+    customColor,
+    customMarkerColor,
+    type,
+    geoJSON
+  ): GeoresourcesDataset {
+    let tmpKommonitorGeoresource: GeoresourcesDataset = {
+      permissions: [],
       aoiColor: customColor,
       availablePeriodsOfValidity: [
         {
           endDate: undefined,
-          startDate: undefined
-        }
+          startDate: undefined,
+        },
       ],
       datasetName: file.name,
       georesourceId: uuidv4(),
@@ -110,28 +118,26 @@ export class FileHelperService {
       isLOI: false,
       isPOI: false,
       loiColor: customColor,
-      loiDashArrayString: "10",
+      loiDashArrayString: '10',
       loiWidth: 1,
       metadata: {
-        contact: "",
-        databasis: "",
-        datasource: "",
-        description: "",
-        lastUpdate: "",
-        literature: "",
-        note: "",
+        contact: '',
+        databasis: '',
+        datasource: '',
+        description: '',
+        lastUpdate: '',
+        literature: '',
+        note: '',
         sridEPSG: 0,
-        updateInterval: "ARBITRARY"
+        updateInterval: 'ARBITRARY',
       },
       poiMarkerColor: customMarkerColor.colorName,
-      poiSymbolBootstrap3Name: "thumbtack",
-      poiSymbolColor: "white",
-      topicReference: "",
-      userPermissions: [
-
-      ],
-      wfsUrl: "",
-      wmsUrl: "",
+      poiSymbolBootstrap3Name: 'thumbtack',
+      poiSymbolColor: 'white',
+      topicReference: '',
+      userPermissions: [],
+      wfsUrl: '',
+      wmsUrl: '',
       geoJSON: geoJSON,
       isTmpDataLayer: true,
       isSelected: true,
@@ -142,9 +148,8 @@ export class FileHelperService {
       ownerId: undefined,
       poiMarkerStyle: undefined,
       poiMarkerText: undefined,
-      selectedDate: undefined
-    }
-
+      selectedDate: undefined,
+    };
 
     tmpKommonitorGeoresource.featureSchema = this.getFeatureSchema_fromGeoJSON(geoJSON);
 
@@ -152,33 +157,40 @@ export class FileHelperService {
     if (geoJSON.features) {
       // featureCollection
       if (geoJSON.features[0].geometry) {
-        tmpKommonitorGeoresource = this.setGeometryType(tmpKommonitorGeoresource, geoJSON.features[0].geometry);
-
+        tmpKommonitorGeoresource = this.setGeometryType(
+          tmpKommonitorGeoresource,
+          geoJSON.features[0].geometry
+        );
       }
-    }
-    else if (geoJSON.geometry) {
+    } else if (geoJSON.geometry) {
       // single object
       tmpKommonitorGeoresource = this.setGeometryType(tmpKommonitorGeoresource, geoJSON.geometry);
-    }
-    else if (geoJSON.geometries) {
+    } else if (geoJSON.geometries) {
       // geometryCollection
-      tmpKommonitorGeoresource = this.setGeometryType(tmpKommonitorGeoresource, geoJSON.geometries[0]);
+      tmpKommonitorGeoresource = this.setGeometryType(
+        tmpKommonitorGeoresource,
+        geoJSON.geometries[0]
+      );
     }
 
     return tmpKommonitorGeoresource;
   }
 
-  makeGeoresourceMetadata_fromCsvRows(file, customColor, customMarkerColor, type, rows):GeoresourcesDataset {
-    let tmpKommonitorGeoresource:GeoresourcesDataset = {
-      permissions: [
-
-      ],
+  makeGeoresourceMetadata_fromCsvRows(
+    file,
+    customColor,
+    customMarkerColor,
+    type,
+    rows
+  ): GeoresourcesDataset {
+    const tmpKommonitorGeoresource: GeoresourcesDataset = {
+      permissions: [],
       aoiColor: customColor,
       availablePeriodsOfValidity: [
         {
           endDate: undefined,
-          startDate: undefined
-        }
+          startDate: undefined,
+        },
       ],
       datasetName: file.name,
       georesourceId: uuidv4(),
@@ -186,55 +198,51 @@ export class FileHelperService {
       isLOI: false,
       isPOI: true,
       loiColor: customColor,
-      loiDashArrayString: "10",
+      loiDashArrayString: '10',
       loiWidth: 1,
       metadata: {
-        contact: "",
-        databasis: "",
-        datasource: "",
-        description: "",
-        lastUpdate: "",
-        literature: "",
-        note: "",
+        contact: '',
+        databasis: '',
+        datasource: '',
+        description: '',
+        lastUpdate: '',
+        literature: '',
+        note: '',
         sridEPSG: 0,
-        updateInterval: "ARBITRARY"
+        updateInterval: 'ARBITRARY',
       },
       poiMarkerColor: customMarkerColor.colorName,
-      poiSymbolBootstrap3Name: "thumbtack",
-      poiSymbolColor: "white",
-      topicReference: "",
-      userPermissions: [
-
-      ],
-      wfsUrl: "",
-      wmsUrl: "",
-      georesourceName: undefined, 
-      geoJSON: undefined, 
-      isPublic: false, 
+      poiSymbolBootstrap3Name: 'thumbtack',
+      poiSymbolColor: 'white',
+      topicReference: '',
+      userPermissions: [],
+      wfsUrl: '',
+      wmsUrl: '',
+      georesourceName: undefined,
+      geoJSON: undefined,
+      isPublic: false,
       isTmpDataLayer: true,
       isSelected: true,
       displayColor: customColor,
       type: type,
-      transparency:0,
+      transparency: 0,
       dataRows: rows,
       featureSchema: this.getFeatureSchema_fromCsvRows(rows),
-      ownerId: undefined, 
-      poiMarkerStyle: undefined, 
-      poiMarkerText: undefined, 
-      selectedDate: undefined
-    }
+      ownerId: undefined,
+      poiMarkerStyle: undefined,
+      poiMarkerText: undefined,
+      selectedDate: undefined,
+    };
 
     return tmpKommonitorGeoresource;
   }
 
   setGeometryType(kommonitorGeoresource, geoJSON_geometry) {
-    if (geoJSON_geometry.type == "LineString" || geoJSON_geometry.type == "MultiLineString") {
+    if (geoJSON_geometry.type == 'LineString' || geoJSON_geometry.type == 'MultiLineString') {
       kommonitorGeoresource.isLOI = true;
-    }
-    else if (geoJSON_geometry.type == "Point" || geoJSON_geometry.type == "MultiPoint") {
+    } else if (geoJSON_geometry.type == 'Point' || geoJSON_geometry.type == 'MultiPoint') {
       kommonitorGeoresource.isPOI = true;
-    }
-    else if (geoJSON_geometry.type == "Polygon" || geoJSON_geometry.type == "MultiPolygon") {
+    } else if (geoJSON_geometry.type == 'Polygon' || geoJSON_geometry.type == 'MultiPolygon') {
       kommonitorGeoresource.isAOI = true;
     }
 
@@ -242,11 +250,17 @@ export class FileHelperService {
   }
 
   processFileInput_georesource_geoJson(file, customColor, customMarkerColor) {
-    var fileReader = new FileReader();
+    const fileReader = new FileReader();
 
-    fileReader.onload = (event:any) => {
-      var geoJSON = JSON.parse(event.target.result);
-      let tmpKommonitorGeoresource = this.makeGeoresourceMetadata(file, customColor, customMarkerColor, "GeoJSON", geoJSON);
+    fileReader.onload = (event: any) => {
+      const geoJSON = JSON.parse(event.target.result);
+      const tmpKommonitorGeoresource = this.makeGeoresourceMetadata(
+        file,
+        customColor,
+        customMarkerColor,
+        'GeoJSON',
+        geoJSON
+      );
       this.setValue(FileUploadState.GEOJSON, tmpKommonitorGeoresource);
     };
 
@@ -259,72 +273,89 @@ export class FileHelperService {
     // var zip = shp.parseZip(dataset.content);
     return await shp(arrayBuffer).then(
       function (geojson) {
-        console.log("Shapefile parsed successfully");
+        console.log('Shapefile parsed successfully');
 
         return geojson;
       },
       function (reason) {
-        console.error("Error while parsing Shapefile");
+        console.error('Error while parsing Shapefile');
         console.error(reason);
         //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", reason);
       }
     );
-  }
+  };
 
   processFileInput_georesource_shape(file, customColor, customMarkerColor) {
-    var fileReader = new FileReader();
+    const fileReader = new FileReader();
 
-    fileReader.onload = async (event:any) => {
-      var arrayBuffer = event.target.result;
+    fileReader.onload = async (event: any) => {
+      const arrayBuffer = event.target.result;
 
-      let geoJSON = await this.getGeoJSON_fromShape(arrayBuffer);
+      const geoJSON = await this.getGeoJSON_fromShape(arrayBuffer);
 
-      let tmpKommonitorGeoresource = this.makeGeoresourceMetadata(file, customColor, customMarkerColor, "GeoJSON", geoJSON);
+      const tmpKommonitorGeoresource = this.makeGeoresourceMetadata(
+        file,
+        customColor,
+        customMarkerColor,
+        'GeoJSON',
+        geoJSON
+      );
       this.setValue(FileUploadState.GEOJSON, tmpKommonitorGeoresource);
     };
 
     fileReader.readAsArrayBuffer(file);
-  };
+  }
 
   processFileInput_georesource_csv(file, customColor, customMarkerColor) {
-    var fileReader = new FileReader();
+    const fileReader = new FileReader();
 
-    fileReader.onload = (event:any) => {
+    fileReader.onload = (event: any) => {
       // Key data by field name instead of index/position
-      let results = Papa.parse(event.target.result, {
+      const results = Papa.parse(event.target.result, {
         header: true,
         skipEmptyLines: true,
       });
 
-      let tmpKommonitorGeoresource = this.makeGeoresourceMetadata_fromCsvRows(file, customColor, customMarkerColor, "CSV", results.data);
+      const tmpKommonitorGeoresource = this.makeGeoresourceMetadata_fromCsvRows(
+        file,
+        customColor,
+        customMarkerColor,
+        'CSV',
+        results.data
+      );
       this.setValue(FileUploadState.CSV, tmpKommonitorGeoresource);
     };
 
     fileReader.readAsText(file);
   }
 
-  makeIndicatorReferenceValuesObjects(rows){
-    let indicatorRegionalReferenceValuesObject = {
-      "dataRows": rows,
-      "featureSchema": this.getFeatureSchema_indicatorRegionalReferenceValues(rows)
+  makeIndicatorReferenceValuesObjects(rows) {
+    const indicatorRegionalReferenceValuesObject = {
+      dataRows: rows,
+      featureSchema: this.getFeatureSchema_indicatorRegionalReferenceValues(rows),
     };
 
     return indicatorRegionalReferenceValuesObject;
-  };
+  }
 
-  transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file){
-    var fileReader = new FileReader();
+  transformFileToKomMonitorIndicatorRegionalReferenceValuesObject(file) {
+    const fileReader = new FileReader();
 
-    fileReader.onload = (event:any) => {
+    fileReader.onload = (event: any) => {
       // Key data by field name instead of index/position
-      let results = Papa.parse(event.target.result, {
+      const results = Papa.parse(event.target.result, {
         header: true,
         skipEmptyLines: true,
       });
 
-      let indicatorRegionalReferenceValuesObject = this.makeIndicatorReferenceValuesObjects(results.data);
+      const indicatorRegionalReferenceValuesObject = this.makeIndicatorReferenceValuesObjects(
+        results.data
+      );
 
-      this.broadcastService.broadcast("CSVFromFileFinished_indicatorRegionalReferenceValues", indicatorRegionalReferenceValuesObject);
+      this.broadcastService.broadcast(
+        'CSVFromFileFinished_indicatorRegionalReferenceValues',
+        indicatorRegionalReferenceValuesObject
+      );
     };
 
     fileReader.readAsText(file);
@@ -332,13 +363,10 @@ export class FileHelperService {
 
   getFeatureSchema_indicatorRegionalReferenceValues(rows) {
     // if there are any existing properties, then use the first entry
-    let schema:any = [];
+    const schema: any = [];
     if (rows && rows[0]) {
-      for (var property in rows[0]) {
-        schema.push(
-          property
-        );
-
+      for (const property in rows[0]) {
+        schema.push(property);
       }
     }
 

@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { KommonitorDataExchangeService } from '../../data-exchange/kommonitor-data-exchange.service';
 import { KommonitorReachabilityHelperService } from '../kommonitor-reachability-helper/kommonitor-reachability-helper.service';
 import { KommonitorReachabilityMapHelperService } from '../kommonitor-reachability-map-helper/kommonitor-reachability-map-helper.service';
@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 // Assuming dom-to-image-more is imported or available globally
-declare var domtoimage: any;
+declare let _domtoimage: any;
 
 @Injectable({
   providedIn: 'root'
@@ -67,14 +67,12 @@ export class KommonitorReachabilityCoverageReportsHelperService {
 
   private nextLineY = this.initY;
 
-  constructor(
-    private kommonitorDataExchangeService: KommonitorDataExchangeService,
-    private kommonitorReachabilityHelperService: KommonitorReachabilityHelperService,
-    private kommonitorReachabilityMapHelperService: KommonitorReachabilityMapHelperService,
-    private zone: NgZone
-  ) { }
+  private kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
+  private kommonitorReachabilityHelperService = inject(KommonitorReachabilityHelperService);
+  private kommonitorReachabilityMapHelperService = inject(KommonitorReachabilityMapHelperService);
+  private zone = inject(NgZone);
 
-  generateReachabilityIndicatorStatisticsReport_focusSpatialUnitCoverage(indicatorStatistic: any): void {
+  generateReachabilityIndicatorStatisticsReport_focusSpatialUnitCoverage(_indicatorStatistic: any): void {
     // write pdf report with several sections:
     // 1. first page with general information and total overview (map of whole indicator area and all isochrones and all points)
     // 2. for each indicator area create one page to focus that specific area (all points whose isochrones intersect with it)
@@ -111,7 +109,9 @@ export class KommonitorReachabilityCoverageReportsHelperService {
 
   async generateTotalCoverageReport_focusPoiCoverage(reachabilityScenario: any, indicatorStatistic: any): Promise<void> {
     this.reportInProgress_totalCoverage = true;
-    this.zone.run(() => { });
+    this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
 
     const doc = this.setupDoc();
     this.insertLogo(doc);
@@ -136,7 +136,9 @@ export class KommonitorReachabilityCoverageReportsHelperService {
     doc.save("KomMonitor-Report_Erreichbarkeits_Coverage_Gesamtgebiet.pdf");
 
     this.reportInProgress_totalCoverage = false;
-    this.zone.run(() => { });
+    this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
   }
 
   async addCoverageInformation_totalCoverage(doc: jsPDF, reachabilityScenario: any, indicatorStatistic: any): Promise<jsPDF> {
@@ -225,7 +227,7 @@ export class KommonitorReachabilityCoverageReportsHelperService {
     doc.setFontSize(this.fontSize_default);
 
     this.nextLineY = this.initY;
-    for (const item of titleArray) {
+    for (const _item of titleArray) {
       this.nextLineY += 10;
     }
 
@@ -288,7 +290,9 @@ export class KommonitorReachabilityCoverageReportsHelperService {
   async generateFeatureCoverageReport_focusPoiCoverage(reachabilityScenario: any, indicatorStatistic: any): Promise<void> {
     this.reportInProgress_poiCoverage = true;
     this.progressText_poiCoverage = "0 / " + this.kommonitorReachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability.features.length;
-    this.zone.run(() => { });
+    this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
 
     const doc = this.setupDoc();
 
@@ -312,7 +316,9 @@ export class KommonitorReachabilityCoverageReportsHelperService {
       await this.insertPoiIndividualPage(doc, reachabilityScenario, indicatorStatistic, markerLayer, leafletMapDomId);
 
       this.progressText_poiCoverage = `${index + 1} / ${poiLayer_array.length}`;
-      this.zone.run(() => { });
+      this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
 
       if (index < poiLayer_array.length - 1) {
         doc.addPage();
@@ -323,7 +329,9 @@ export class KommonitorReachabilityCoverageReportsHelperService {
     doc.save("KomMonitor-Report_Erreichbarkeits_Coverage_Einzelpunkte-Karte.pdf");
 
     this.reportInProgress_poiCoverage = false;
-    this.zone.run(() => { });
+    this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
   }
 
   sortPoiLayer_byTotalCoverageDesc(poiLayer: any): any[] {
@@ -576,11 +584,15 @@ export class KommonitorReachabilityCoverageReportsHelperService {
     document.getElementById(domId)?.remove();
   }
 
-  async generateCoverageDataTableReport_focusPoiCoverage(doc: jsPDF, indicatorStatistic: any): Promise<void> { }
+  async generateCoverageDataTableReport_focusPoiCoverage(_doc: jsPDF, _indicatorStatistic: any): Promise<void> {
+    /* intentionally empty: no-op placeholder for future data-table report */
+  }
 
   async generateFeatureCoverageReport_focusSpatialUnitCoverage(reachabilityScenario: any, indicatorStatistic: any): Promise<void> {
     this.reportInProgress_spatialUnitCoverage = true;
-    this.zone.run(() => { });
+    this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
 
     const doc = this.setupDoc();
     this.insertLogo(doc);
@@ -614,7 +626,9 @@ export class KommonitorReachabilityCoverageReportsHelperService {
     doc.save("KomMonitor-Report_Erreichbarkeits_Coverage_Raumebenen-Karte.pdf");
 
     this.reportInProgress_spatialUnitCoverage = false;
-    this.zone.run(() => { });
+    this.zone.run(() => {
+      /* intentionally empty: trigger change detection only */
+    });
   }
 
   aggregatePoisForSpatialUnits(indicatorLayer: any, poiLayer: any): any[] {
@@ -629,7 +643,7 @@ export class KommonitorReachabilityCoverageReportsHelperService {
     const indicatorArray: any[] = [];
     for (const indicatorLayerKey in indicatorLayer._layers) {
       if (Object.prototype.hasOwnProperty.call(indicatorLayer._layers, indicatorLayerKey)) {
-        let layer = indicatorLayer._layers[indicatorLayerKey];
+        const layer = indicatorLayer._layers[indicatorLayerKey];
         let indicatorFeature = layer.feature;
         indicatorFeature = this.aggregatePoiCoverage(indicatorFeature, poiArray);
         layer.feature = indicatorFeature;

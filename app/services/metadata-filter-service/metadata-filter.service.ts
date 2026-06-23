@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
-import { TopicMetadataStoreService } from "services/topic-metadata-store-service/topic-metadata-store.service";
-import { ProcessScriptMetadataStoreService } from "services/process-script-metadata-store-service/process-script-metadata-store.service";
-import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
+import { Injectable, inject } from '@angular/core';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 
 /**
  * Indicator keyword/type filtering extracted from DataExchangeService
@@ -15,45 +15,41 @@ import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-servi
  * DataExchangeService facade re-exposes displayableIndicators_keywordFiltered + the methods.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class MetadataFilterService {
+  private indicatorStore = inject(IndicatorMetadataStoreService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
 
   displayableIndicators_keywordFiltered: any;
 
-  constructor(
-    private indicatorStore: IndicatorMetadataStoreService,
-    private topicStore: TopicMetadataStoreService,
-    private processScriptStore: ProcessScriptMetadataStoreService,
-    private georesourceStore: GeoresourceMetadataStoreService,
-    private topicHierarchyStore: TopicHierarchyStoreService,
-  ) {}
-
   onChangeIndicatorKeywordFilter(indicatorNameFilter) {
     this.displayableIndicators_keywordFiltered = JSON.parse(
-      JSON.stringify(this.indicatorStore.displayableIndicators),
+      JSON.stringify(this.indicatorStore.displayableIndicators)
     );
 
-    if (indicatorNameFilter && indicatorNameFilter != "") {
-      this.displayableIndicators_keywordFiltered =
-        this.filterArrayObjectsByValue(
-          this.displayableIndicators_keywordFiltered,
-          indicatorNameFilter,
-        );
+    if (indicatorNameFilter && indicatorNameFilter != '') {
+      this.displayableIndicators_keywordFiltered = this.filterArrayObjectsByValue(
+        this.displayableIndicators_keywordFiltered,
+        indicatorNameFilter
+      );
     }
 
     this.topicHierarchyStore.buildTopicIndicatorHierarchy(
       this.topicStore.availableTopics,
       this.displayableIndicators_keywordFiltered,
-      this.georesourceStore.getAvailableIndiWmsDatasets(),
+      this.georesourceStore.getAvailableIndiWmsDatasets()
     );
     this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
-      this.processScriptStore.availableProcessScripts,
+      this.processScriptStore.availableProcessScripts
     );
     this.topicHierarchyStore.buildComputationIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
-      this.processScriptStore.availableProcessScripts,
+      this.processScriptStore.availableProcessScripts
     );
   }
 
@@ -66,8 +62,7 @@ export class MetadataFilterService {
   private filterArrayObjectsByValue(array, string) {
     return array.filter((o) => {
       return Object.keys(o).some((k) => {
-        if (typeof o[k] === "string")
-          return o[k].toLowerCase().includes(string.toLowerCase());
+        if (typeof o[k] === 'string') return o[k].toLowerCase().includes(string.toLowerCase());
         return false;
       });
     });

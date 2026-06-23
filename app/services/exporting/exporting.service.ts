@@ -1,10 +1,10 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
-export type TargetTimeMode = "START_END" | "SINGLE" | "ALL";
-export type DownloadFormat = "GEOPACKAGE" | "GEOJSON" | "EXCEL" | "CSV";
+export type TargetTimeMode = 'START_END' | 'SINGLE' | 'ALL';
+export type DownloadFormat = 'GEOPACKAGE' | 'GEOJSON' | 'EXCEL' | 'CSV';
 
 export interface TargetTime {
   mode: TargetTimeMode;
@@ -69,22 +69,18 @@ export interface ExportResponse {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ExportingService {
-  private readonly SINGLE_EXPORT_PATH = "processes/SingleExport/execution";
-  private readonly SPATIAL_UNIT_EXPORT_PATH =
-    "processes/SpatialUnitExport/execution";
-  private readonly MULTIPLE_EXPORT_PATH = "processes/MultipleExport/execution";
+  private http = inject(HttpClient);
+  private envConfigService = inject(EnvConfigService);
+
+  private readonly SINGLE_EXPORT_PATH = 'processes/SingleExport/execution';
+  private readonly SPATIAL_UNIT_EXPORT_PATH = 'processes/SpatialUnitExport/execution';
+  private readonly MULTIPLE_EXPORT_PATH = 'processes/MultipleExport/execution';
 
   // TODO: get from config
-  private readonly url =
-    "https://demo.kommonitor.de.52north.org/processes-api/";
-
-  constructor(
-    private http: HttpClient,
-    private envConfigService: EnvConfigService,
-  ) {}
+  private readonly url = 'https://demo.kommonitor.de.52north.org/processes-api/';
 
   executeSingleExport(params: SingleExportParams): Observable<ExportResponse> {
     console.log(params);
@@ -96,13 +92,11 @@ export class ExportingService {
         },
       },
     };
-    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<ExportResponse>(url, body, { headers });
   }
 
-  executeSpatialUnitExport(
-    params: SpatialUnitExportParams,
-  ): Observable<ExportResponse> {
+  executeSpatialUnitExport(params: SpatialUnitExportParams): Observable<ExportResponse> {
     const url = `${this.url}${this.SPATIAL_UNIT_EXPORT_PATH}`;
     const body = {
       inputs: {
@@ -111,13 +105,11 @@ export class ExportingService {
         },
       },
     };
-    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<ExportResponse>(url, body, { headers });
   }
 
-  executeMultipleExport(
-    params: MultipleExportParams,
-  ): Observable<ExportResponse> {
+  executeMultipleExport(params: MultipleExportParams): Observable<ExportResponse> {
     const url = `${this.url}${this.MULTIPLE_EXPORT_PATH}`;
     const body = {
       inputs: {
@@ -126,7 +118,7 @@ export class ExportingService {
         },
       },
     };
-    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<ExportResponse>(url, body, { headers });
   }
 }

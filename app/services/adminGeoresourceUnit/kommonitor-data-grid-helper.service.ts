@@ -1,23 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
 import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import {
-  GridOptions,
-  ColDef,
-  GridApi,
-  ColumnApi,
-  ICellRendererParams,
-  ICellRendererComp,
-  GridReadyEvent,
-  RowSelectedEvent,
-  CellClickedEvent,
-} from 'ag-grid-community';
+import { ColDef, GridApi } from 'ag-grid-community';
 
 @Injectable({
   providedIn: 'root',
 })
 export class KommonitorGeoresourceDataGridHelperService {
+  private broadcastService = inject(BroadcastService);
+  private kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
+
   // Grid references
   private poiGrid: AgGridAngular | null = null;
   private loiGrid: AgGridAngular | null = null;
@@ -25,11 +18,6 @@ export class KommonitorGeoresourceDataGridHelperService {
 
   // Component reference for callbacks
   private componentRef: any = null;
-
-  constructor(
-    private broadcastService: BroadcastService,
-    private kommonitorDataExchangeService: KommonitorGeoresourceDataExchangeService
-  ) {}
 
   private displayEditButtons_georesources = (params: any) => {
     if (!params.data || !params.data.georesourceId) {
@@ -212,7 +200,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   /**
    * Register click handlers for georesource buttons
    */
-  private registerClickHandler_georesources(georesourceMetadataArray: any[]): void {
+  private registerClickHandler_georesources(_georesourceMetadataArray: any[]): void {
     // Edit Metadata Button
     const editMetadataButtons = document.querySelectorAll('.georesourceEditMetadataBtn');
     editMetadataButtons.forEach((button: any) => {

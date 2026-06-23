@@ -1,11 +1,11 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class KommonitorGeoresourceCacheHelperService {
-  constructor(private angularJsCacheHelperService: CacheHelperServiceService) {}
+  private angularJsCacheHelperService = inject(CacheHelperServiceService);
 
   /**
    * Fetches single georesource metadata - delegates to AngularJS service

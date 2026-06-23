@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-import { IndicatorValueService } from "services/indicator-value-service/indicator-value.service";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
  * Selection state + derived feature aggregates, extracted from DataExchangeService
@@ -13,9 +13,11 @@ import { EnvConfigService } from "services/env-config-service/env-config.service
  * consumers stay unchanged. (Plain fields for now; signals/computed remain an optional later step.)
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class SelectionStateService {
+  private indicatorValueService = inject(IndicatorValueService);
+  private envConfigService = inject(EnvConfigService);
 
   selectedIndicator: any;
   selectedSpatialUnit: any;
@@ -40,11 +42,6 @@ export class SelectionStateService {
   // object to share changes on selectedDate, still needs the "real" 'selectedDate' as numerous components use it
   private selectedDateSubject = new BehaviorSubject<Date | undefined>(undefined);
   selectedDate$ = this.selectedDateSubject.asObservable();
-
-  constructor(
-    private indicatorValueService: IndicatorValueService,
-    private envConfigService: EnvConfigService,
-  ) {}
 
   /**
    * Resolve the effective decimal precision from the explicit argument or the currently
@@ -76,10 +73,10 @@ export class SelectionStateService {
 
     for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
       if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
-        let value = this.indicatorValueService.getIndicatorValueFromArray_asNumber(
+        const value = this.indicatorValueService.getIndicatorValueFromArray_asNumber(
           feature.properties,
           propertyName,
-          this.resolveSelectedPrecision(),
+          this.resolveSelectedPrecision()
         );
         sum += value;
         if (value < min) min = value;
@@ -107,10 +104,8 @@ export class SelectionStateService {
           regionalReferenceValuesEntry.referenceDate &&
           regionalReferenceValuesEntry.referenceDate == this.selectedDate
         ) {
-          this.allFeaturesRegionalSum =
-            regionalReferenceValuesEntry.regionalSum;
-          this.allFeaturesRegionalMean =
-            regionalReferenceValuesEntry.regionalAverage;
+          this.allFeaturesRegionalSum = regionalReferenceValuesEntry.regionalSum;
+          this.allFeaturesRegionalMean = regionalReferenceValuesEntry.regionalAverage;
           this.allFeaturesRegionalSpatiallyUnassignable =
             regionalReferenceValuesEntry.spatiallyUnassignable;
         }
@@ -124,12 +119,12 @@ export class SelectionStateService {
     let min = Number.MAX_VALUE;
     let max = Number.MIN_VALUE;
 
-    selectedFeaturesMap.forEach((feature, key, map) => {
+    selectedFeaturesMap.forEach((feature, _key, _map) => {
       if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
-        let value = this.indicatorValueService.getIndicatorValueFromArray_asNumber(
+        const value = this.indicatorValueService.getIndicatorValueFromArray_asNumber(
           feature.properties,
           propertyName,
-          this.resolveSelectedPrecision(),
+          this.resolveSelectedPrecision()
         );
         sum += value;
         if (value < min) min = value;
@@ -154,19 +149,16 @@ export class SelectionStateService {
   }
 
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
-    let propertyName = this.buildIndicatorPropertyName();
+    const propertyName = this.buildIndicatorPropertyName();
 
     setTimeout(() => {
-      this.setSelectedFeatureProperty(
-        selectedIndicatorFeatureIds,
-        propertyName,
-      );
+      this.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
     });
   }
 
   buildIndicatorPropertyName() {
     const INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
-    let propertyName = INDICATOR_DATE_PREFIX + this.selectedDate;
+    const propertyName = INDICATOR_DATE_PREFIX + this.selectedDate;
     return propertyName;
   }
 }
