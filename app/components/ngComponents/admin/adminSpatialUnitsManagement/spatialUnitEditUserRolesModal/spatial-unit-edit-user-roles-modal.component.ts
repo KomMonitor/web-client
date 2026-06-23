@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-spatial-unit-edit-user-roles-modal',
   templateUrl: './spatial-unit-edit-user-roles-modal.component.html',
-  styleUrls: ['./spatial-unit-edit-user-roles-modal.component.css'],
+  styleUrls: ['./spatial-unit-edit-user-roles-modal.component.scss'],
   imports: [AgGridAngular, FormsModule],
   standalone: true,
 })

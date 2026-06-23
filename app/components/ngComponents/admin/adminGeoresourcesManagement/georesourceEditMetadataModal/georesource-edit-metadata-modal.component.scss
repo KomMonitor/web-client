@@ -24,7 +24,7 @@
 .multiStepForm .fs-title {
   font-size: 15px;
   text-transform: uppercase;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
 }
 
@@ -55,11 +55,11 @@
 }
 
 #progressbar li:hover {
-  color: #27AE60;
+  color: #27ae60;
 }
 
 #progressbar li:hover:before {
-  background: #27AE60;
+  background: #27ae60;
   transform: scale(1.1);
 }
 
@@ -79,13 +79,13 @@
 
 #progressbar li.active:before,
 #progressbar li.active:after {
-  background: #27AE60;
+  background: #27ae60;
 }
 
 /* Action buttons */
 .action-button {
   width: 100px;
-  background: #27AE60;
+  background: #27ae60;
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -109,12 +109,16 @@
 
 .action-button:hover,
 .action-button:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #27ae60;
 }
 
 .action-button-previous:hover,
 .action-button-previous:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #616161;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #616161;
 }
 
 /* Color picker styles */
@@ -169,8 +173,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Form adjustments */
@@ -246,10 +254,10 @@
   .vertical-align {
     display: block;
   }
-  
+
   .col-md-3,
   .col-md-4,
   .col-md-6 {
     margin-bottom: 15px;
   }
-} 
+}

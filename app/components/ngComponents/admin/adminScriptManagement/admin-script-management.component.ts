@@ -18,7 +18,7 @@ import { ScriptProcessParametersCellRendererComponent } from './script-process-p
 @Component({
   selector: 'app-admin-script-management',
   templateUrl: './admin-script-management.component.html',
-  styleUrls: ['./admin-script-management.component.css'],
+  styleUrls: ['./admin-script-management.component.scss'],
   imports: [AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
 })

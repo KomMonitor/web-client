@@ -1,16 +1,19 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
-import { ConfigStorageService, LandingpageConfig } from '../../../../../services/config-storage-service/config-storage.service';
+import {
+  ConfigStorageService,
+  LandingpageConfig,
+} from '../../../../../services/config-storage-service/config-storage.service';
 
 import CodeMirror from 'codemirror';
 
-// CodeMirror module is not loaded properly (why?!), reload necessary files 
+// CodeMirror module is not loaded properly (why?!), reload necessary files
 import 'codemirror/mode/xml/xml.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/css/css.js';
 import 'codemirror/mode/htmlmixed/htmlmixed.js';
-import { PipesModule } from "../../../../../pipes.module";
+import { PipesModule } from '../../../../../pipes.module';
 
 // import 'codemirror/addon/display/autoRefresh.js';
 
@@ -26,18 +29,17 @@ interface CodeMirrorEditor {
 @Component({
   selector: 'app-admin-landingpage-config',
   templateUrl: './admin-landingpage-config.component.html',
-  styleUrls: ['./admin-landingpage-config.component.css'],
+  styleUrls: ['./admin-landingpage-config.component.scss'],
   imports: [PipesModule],
-  standalone: true
+  standalone: true,
 })
 export class AdminLandingpageConfigComponent implements AfterViewInit {
-
   loadingData = true;
   codeMirrorEditor!: CodeMirrorEditor;
   templateCodeMirrorEditor!: CodeMirrorEditor;
   currentCodeMirrorEditor!: CodeMirrorEditor;
   newCodeMirrorEditor!: CodeMirrorEditor;
- 
+
   appConfigTmp: string = '';
   appConfigCurrent: string = '';
   appConfigNew: string = '';
@@ -47,7 +49,7 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   constructor(
     private http: HttpClient,
     private kommonitorConfigStorageService: ConfigStorageService,
-    private ajskommonitorDataExchangeService: DataExchangeService,
+    private ajskommonitorDataExchangeService: DataExchangeService
   ) {}
 
   ngAfterViewInit() {
@@ -55,36 +57,36 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   }
 
   async init() {
-
     try {
       await this.kommonitorConfigStorageService.getLandingpageConfig().subscribe({
-        next: response => {
+        next: (response) => {
           this.appConfigCurrent = response;
           this.appConfigNew = response;
-          
+
           this.initCodeEditor();
           this.onChangeAppConfig();
         },
-        error: _error => {
+        error: (_error) => {
           console.error('Default landingpageConfig not set, reverting to template');
-        }
+        },
       });
     } catch (error) {
       console.error('Error initializing landing page config:', error);
       if (error instanceof HttpErrorResponse) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error.error);
+        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
+          error.error
+        );
       } else {
         this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
-      $("#appConfigEditErrorAlert").show();
+      $('#appConfigEditErrorAlert').show();
     } finally {
       this.loadingData = false;
     }
   }
 
   initCodeEditor() {
-
-    const editorElement = document.getElementById("appLandingpageEditor");
+    const editorElement = document.getElementById('appLandingpageEditor');
     if (!editorElement) {
       console.error('Could not find appLandingpageEditor element');
       return;
@@ -94,7 +96,7 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
     this.codeMirrorEditor = CodeMirror.fromTextArea(editorElement, {
       lineNumbers: true,
       autoRefresh: true,
-      mode: 'htmlmixed'
+      mode: 'htmlmixed',
     });
     this.codeMirrorEditor.setSize(null, 450);
     this.codeMirrorEditor.on('change', (_cMirror: any) => {
@@ -102,7 +104,6 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
       this.onChangeAppConfig();
     });
     this.codeMirrorEditor.setValue(this.appConfigCurrent);
-    
   }
 
   onChangeAppConfig() {
@@ -119,11 +120,10 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
     this.loadingData = true;
     this.errorMessagePart = '';
     try {
-
       const config: LandingpageConfig = {
         startPage: JSON.stringify(this.appConfigTmp),
-        pageName: ''
-      }
+        pageName: '',
+      };
 
       await this.kommonitorConfigStorageService.postLandingpageConfig(config).toPromise();
       this.kommonitorConfigStorageService.getLandingpageConfig().subscribe({
@@ -132,36 +132,40 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
           if (this.currentCodeMirrorEditor) {
             this.currentCodeMirrorEditor.setValue(newCurrentConfig);
           }
-          $("#appLandingpageConfigEditSuccessAlert").show();
+          $('#appLandingpageConfigEditSuccessAlert').show();
           this.loadingData = false;
         },
         error: (error: any) => {
           if (error.data) {
-            this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+            this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
+              error.data
+            );
           } else {
-            this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart =
+              this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
           }
-          $("#appLandingpageConfigEditErrorAlert").show();
-          this.loadingData = false; 
-        }
-      }
-     );
+          $('#appLandingpageConfigEditErrorAlert').show();
+          this.loadingData = false;
+        },
+      });
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(
+          error.data
+        );
       } else {
         this.errorMessagePart = this.ajskommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
-      $("#appLandingpageConfigEditErrorAlert").show();
+      $('#appLandingpageConfigEditErrorAlert').show();
       this.loadingData = false;
     }
   }
 
   hideSuccessAlert() {
-    $("#appLandingpageConfigEditSuccessAlert").hide();
+    $('#appLandingpageConfigEditSuccessAlert').hide();
   }
 
   hideErrorAlert() {
-    $("#appLandingpageConfigEditErrorAlert").hide();
+    $('#appLandingpageConfigEditErrorAlert').hide();
   }
 }

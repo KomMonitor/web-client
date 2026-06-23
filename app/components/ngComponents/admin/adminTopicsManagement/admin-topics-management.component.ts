@@ -34,7 +34,7 @@ export class AdminTopicsManagementErrorHandlingService {
 @Component({
   selector: 'app-admin-topics-management',
   templateUrl: './admin-topics-management.component.html',
-  styleUrls: ['./admin-topics-management.component.css'],
+  styleUrls: ['./admin-topics-management.component.scss'],
   providers: [AdminTopicsManagementErrorHandlingService],
   imports: [
     ExpandableBoxComponent,

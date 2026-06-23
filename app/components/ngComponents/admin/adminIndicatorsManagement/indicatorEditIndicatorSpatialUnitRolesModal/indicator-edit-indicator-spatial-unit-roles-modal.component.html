@@ -249,8 +249,7 @@
                         >
                           <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
                           @for (
-                            org of dataExchangeService.accessControl
-                              | filter: ownerOrgFilter;
+                            org of dataExchangeService.accessControl | filter: ownerOrgFilter;
                             track org
                           ) {
                             <option [value]="org.organizationalUnitId">{{ org.name }}</option>
@@ -277,9 +276,8 @@
                       <label>aktuelle Eigentümer-Organisationseinheit</label>
                       <p>
                         {{
-                          dataExchangeService.getAccessControlById(
-                            currentIndicatorDataset?.ownerId
-                          )?.name
+                          dataExchangeService.getAccessControlById(currentIndicatorDataset?.ownerId)
+                            ?.name
                         }}
                       </p>
                       @if (ownerOrganization != currentIndicatorDataset?.ownerId) {

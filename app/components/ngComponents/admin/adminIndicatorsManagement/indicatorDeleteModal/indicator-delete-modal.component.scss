@@ -264,7 +264,11 @@
   border-radius: 0.25rem;
   cursor: pointer;
   text-decoration: none;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 .btn:hover {
@@ -336,12 +340,12 @@
     flex: 0 0 50%;
     max-width: 50%;
   }
-  
+
   .col-md-10 {
     flex: 0 0 83.33333%;
     max-width: 83.33333%;
   }
-  
+
   .col-md-12 {
     flex: 0 0 100%;
     max-width: 100%;
@@ -353,7 +357,7 @@
     flex: 0 0 50%;
     max-width: 50%;
   }
-  
+
   .col-sm-12 {
     flex: 0 0 100%;
     max-width: 100%;
@@ -370,7 +374,7 @@
   .admin-table-wrapper {
     font-size: 0.625rem;
   }
-  
+
   .table th,
   .table td {
     padding: 0.25rem;
@@ -456,4 +460,4 @@ li {
 
 .mt-2 {
   margin-top: 0.5rem;
-} 
+}

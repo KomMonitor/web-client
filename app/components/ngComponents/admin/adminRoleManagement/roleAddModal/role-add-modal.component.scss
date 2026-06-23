@@ -111,7 +111,7 @@ label,
 
 .switchslider::before {
   position: absolute;
-  content: "";
+  content: '';
   height: 22px;
   width: 22px;
   left: 4px;
@@ -120,15 +120,15 @@ label,
   transition: 0.2s ease;
 }
 
-.switch input:checked+.switchslider {
+.switch input:checked + .switchslider {
   background-color: #3c8dbc;
 }
 
-.switch input:focus+.switchslider {
+.switch input:focus + .switchslider {
   box-shadow: 0 0 1px #3c8dbc;
 }
 
-.switch input:checked+.switchslider::before {
+.switch input:checked + .switchslider::before {
   transform: translateX(26px);
 }
 

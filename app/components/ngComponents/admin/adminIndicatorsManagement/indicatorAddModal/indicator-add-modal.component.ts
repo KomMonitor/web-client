@@ -16,7 +16,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 @Component({
   selector: 'app-indicator-add-modal',
   templateUrl: './indicator-add-modal.component.html',
-  styleUrls: ['./indicator-add-modal.component.css'],
+  styleUrls: ['./indicator-add-modal.component.scss'],
   imports: [CommonModule, FormsModule, AdminTopicsManagementComponent, NgbCollapseModule],
   standalone: true,
 })

@@ -12,7 +12,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 @Component({
   selector: 'app-topic-delete-modal',
   templateUrl: './topic-delete-modal.component.html',
-  styleUrls: ['./topic-delete-modal.component.css'],
+  styleUrls: ['./topic-delete-modal.component.scss'],
   imports: [LoadingOverlayComponent],
   standalone: true,
 })

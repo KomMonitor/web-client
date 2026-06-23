@@ -16,7 +16,7 @@ import { StepperComponent, StepperStep } from '../../../common/stepper/stepper.c
 @Component({
   selector: 'app-script-add-modal',
   templateUrl: './script-add-modal.component.html',
-  styleUrls: ['./script-add-modal.component.css'],
+  styleUrls: ['./script-add-modal.component.scss'],
   imports: [
     FormsModule,
     StepperComponent,

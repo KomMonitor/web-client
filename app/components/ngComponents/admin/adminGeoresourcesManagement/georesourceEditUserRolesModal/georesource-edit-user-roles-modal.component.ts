@@ -20,7 +20,7 @@ declare const __env: any;
 @Component({
   selector: 'app-georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
-  styleUrls: ['./georesource-edit-user-roles-modal.component.css'],
+  styleUrls: ['./georesource-edit-user-roles-modal.component.scss'],
   imports: [FormsModule, AgGridAngular],
   standalone: true,
 })

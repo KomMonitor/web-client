@@ -19,7 +19,7 @@ declare const $: any;
 @Component({
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
-  styleUrls: ['./indicator-edit-features-modal.component.css'],
+  styleUrls: ['./indicator-edit-features-modal.component.scss'],
   imports: [FormsModule, FilterPipe, AgGridAngular],
   standalone: true,
 })

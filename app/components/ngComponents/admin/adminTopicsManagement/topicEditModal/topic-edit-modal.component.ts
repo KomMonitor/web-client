@@ -17,7 +17,7 @@ const SUCCESS_MESSAGE_TIMEOUT_MS = 1500;
 @Component({
   selector: 'app-topic-edit-modal',
   templateUrl: './topic-edit-modal.component.html',
-  styleUrls: ['./topic-edit-modal.component.css'],
+  styleUrls: ['./topic-edit-modal.component.scss'],
   imports: [FormsModule, ReactiveFormsModule],
   standalone: true,
 })

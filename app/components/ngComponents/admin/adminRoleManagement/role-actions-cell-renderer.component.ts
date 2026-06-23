@@ -1,7 +1,7 @@
-import { Component } from "@angular/core";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
-import { AccessControlMetadata } from "services/adminSpatialUnit/kommonitor-data-exchange.service";
+import { Component } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { ICellRendererParams } from 'ag-grid-community';
+import { AccessControlMetadata } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 
 export interface RoleActionsCellRendererParams extends ICellRendererParams<AccessControlMetadata> {
   onEditMetadata: (dataset: AccessControlMetadata) => void;
@@ -9,7 +9,7 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
 }
 
 @Component({
-  selector: "app-role-actions-cell-renderer",
+  selector: 'app-role-actions-cell-renderer',
   standalone: true,
   template: `
     <div class="btn-group btn-group-sm">
@@ -21,12 +21,7 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
       >
         <i class="fas fa-pencil-alt"></i>
       </button>
-      <button
-        class="btn btn-warning btn-sm"
-        type="button"
-        title="Löschen"
-        (click)="onDelete()"
-      >
+      <button class="btn btn-warning btn-sm" type="button" title="Löschen" (click)="onDelete()">
         <i class="fas fa-user-lock"></i>
       </button>
     </div>

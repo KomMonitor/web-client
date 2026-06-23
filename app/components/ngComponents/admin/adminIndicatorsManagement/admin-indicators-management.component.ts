@@ -27,7 +27,7 @@ declare const __env: any;
 @Component({
   selector: 'app-admin-indicators-management',
   templateUrl: './admin-indicators-management.component.html',
-  styleUrls: ['./admin-indicators-management.component.css'],
+  styleUrls: ['./admin-indicators-management.component.scss'],
   imports: [
     ExpandableBoxComponent,
     AgGridAngular,

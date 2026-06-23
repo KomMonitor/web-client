@@ -34,7 +34,7 @@ declare const $: any;
 @Component({
   selector: 'app-admin-georesources-management',
   templateUrl: './admin-georesources-management.component.html',
-  styleUrls: ['./admin-georesources-management.component.css'],
+  styleUrls: ['./admin-georesources-management.component.scss'],
   imports: [
     ExpandableBoxComponent,
     AgGridAngular,

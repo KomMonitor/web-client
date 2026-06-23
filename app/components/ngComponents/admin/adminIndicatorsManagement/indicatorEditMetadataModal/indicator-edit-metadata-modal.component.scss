@@ -43,7 +43,9 @@
 .form-control {
   border-radius: 0.25rem;
   border: 1px solid #ced4da;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 .form-control:focus {
@@ -311,21 +313,21 @@ h6 {
   .modal-body {
     max-height: 60vh;
   }
-  
+
   .color-palette-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 0.5rem;
   }
-  
+
   .color-palette-item {
     padding: 0.25rem;
   }
-  
+
   .color-sample {
     width: 15px;
     height: 15px;
   }
-  
+
   .palette-name {
     font-size: 0.75rem;
   }
@@ -368,4 +370,4 @@ h6 {
 
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
-} 
+}

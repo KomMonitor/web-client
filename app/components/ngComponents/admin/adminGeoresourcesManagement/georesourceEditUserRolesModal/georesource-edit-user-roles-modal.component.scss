@@ -47,7 +47,7 @@
 .fs-title {
   font-size: 24px;
   text-transform: uppercase;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
   text-align: center;
 }
@@ -63,7 +63,7 @@
 /* Action buttons */
 .action-button-previous {
   width: 100px;
-  background: #C5C5F1;
+  background: #c5c5f1;
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -75,7 +75,9 @@
 
 .action-button-previous:hover,
 .action-button-previous:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #C5C5F1;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #c5c5f1;
 }
 
 /* Loading overlay */
@@ -103,8 +105,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Vertical alignment helper */
@@ -177,4 +183,4 @@ select.form-control {
 .modal-body {
   position: relative;
   padding: 15px;
-} 
+}

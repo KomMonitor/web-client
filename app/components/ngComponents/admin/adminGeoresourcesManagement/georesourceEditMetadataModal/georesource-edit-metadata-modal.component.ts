@@ -20,7 +20,7 @@ import {
 @Component({
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
-  styleUrls: ['./georesource-edit-metadata-modal.component.css'],
+  styleUrls: ['./georesource-edit-metadata-modal.component.scss'],
   imports: [FormsModule, AdminTopicsManagementComponent],
   standalone: true,
 })

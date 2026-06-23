@@ -27,8 +27,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Multi-step Form Styles */
@@ -36,7 +40,6 @@
   position: relative;
   margin-top: 30px;
 }
-
 
 /* Fieldset Styles */
 fieldset {
@@ -50,7 +53,7 @@ fieldset {
 
 .fs-title {
   font-size: 25px;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
   font-weight: bold;
   text-align: left;
@@ -74,7 +77,7 @@ fieldset {
 }
 
 .form-control:focus {
-  border-color: #27AE60;
+  border-color: #27ae60;
   box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
 }
 
@@ -99,13 +102,13 @@ fieldset {
 .nav-tabs > li.active > a:focus,
 .nav-tabs > li.active > a:hover {
   border: none;
-  color: #27AE60;
+  color: #27ae60;
   background-color: transparent;
-  border-bottom: 2px solid #27AE60;
+  border-bottom: 2px solid #27ae60;
 }
 
 .nav-tabs > li.tab-completed > a {
-  color: #27AE60;
+  color: #27ae60;
 }
 
 .nav-tabs > li.tab-error > a {
@@ -145,8 +148,8 @@ fieldset {
 }
 
 .btn-primary {
-  background-color: #27AE60;
-  border-color: #27AE60;
+  background-color: #27ae60;
+  border-color: #27ae60;
 }
 
 .btn-primary:hover {
@@ -165,8 +168,8 @@ fieldset {
 }
 
 .btn-success {
-  background-color: #27AE60;
-  border-color: #27AE60;
+  background-color: #27ae60;
+  border-color: #27ae60;
 }
 
 .btn-success:hover {
@@ -249,7 +252,7 @@ fieldset {
   .modal-xl {
     max-width: 95%;
   }
-  
+
   .col-xs-12 {
     margin-bottom: 15px;
   }
@@ -298,7 +301,7 @@ fieldset {
 
 /* Topic Hierarchy */
 .topic-hierarchy {
-  border-left: 3px solid #27AE60;
+  border-left: 3px solid #27ae60;
   padding-left: 15px;
   margin-left: 10px;
 }
@@ -309,7 +312,7 @@ fieldset {
 
 .topic-level-main {
   font-weight: bold;
-  color: #2C3E50;
+  color: #2c3e50;
 }
 
 .topic-level-sub {
@@ -350,12 +353,12 @@ fieldset {
 }
 
 .color-palette-item:hover {
-  border-color: #27AE60;
+  border-color: #27ae60;
   transform: translateY(-2px);
 }
 
 .color-palette-item.selected {
-  border-color: #27AE60;
+  border-color: #27ae60;
   background-color: #f8fff9;
 }
 
@@ -463,12 +466,12 @@ fieldset {
   .color-palette-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
-  
+
   .class-break-input {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .class-break-input label {
     min-width: auto;
   }
@@ -525,7 +528,7 @@ fieldset {
 }
 
 .preview-color.green {
-  background-color: #27AE60;
+  background-color: #27ae60;
 }
 
 .preview-color.yellow {
@@ -561,18 +564,17 @@ fieldset {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .threshold-item label {
     min-width: auto;
   }
-  
+
   .preview-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
   }
 }
-  
 
 /* Step 7: Access Control and Ownership Styles */
 .role-selection-container {
@@ -683,16 +685,16 @@ fieldset {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .role-checkbox {
     margin-bottom: 5px;
   }
-  
+
   .selected-roles-container {
     flex-direction: column;
   }
-  
+
   .selected-role-item {
     justify-content: space-between;
   }
-} 
+}

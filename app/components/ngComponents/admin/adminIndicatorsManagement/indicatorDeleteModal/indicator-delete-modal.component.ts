@@ -44,7 +44,7 @@ interface AffectedGeoresourceReference {
 @Component({
   selector: 'app-indicator-delete-modal',
   templateUrl: './indicator-delete-modal.component.html',
-  styleUrls: ['./indicator-delete-modal.component.css'],
+  styleUrls: ['./indicator-delete-modal.component.scss'],
   imports: [FormsModule],
   standalone: true,
 })

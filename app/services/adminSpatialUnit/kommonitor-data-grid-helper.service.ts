@@ -1,14 +1,10 @@
 import { Injectable } from '@angular/core';
-import {
-  GridOptions,
-  ColDef
-} from 'ag-grid-community';
+import { GridOptions, ColDef } from 'ag-grid-community';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorDataGridHelperService {
-
   // Store the data grid options
   private dataGridOptions_spatialUnits: GridOptions | null = null;
 
@@ -32,8 +28,8 @@ export class KommonitorDataGridHelperService {
         'line-height': '20px !important',
         'word-break': 'break-word !important',
         'padding-top': '17px',
-        'padding-bottom': '17px'
-      }
+        'padding-bottom': '17px',
+      },
     };
   }
 
@@ -48,7 +44,7 @@ export class KommonitorDataGridHelperService {
       ensureDomOrder: true,
       pagination: true,
       paginationPageSize: 10,
-      suppressColumnVirtualisation: true
+      suppressColumnVirtualisation: true,
     };
   }
 

@@ -12,7 +12,7 @@ import { DataExchangeService } from '../../../../../services/data-exchange-servi
 @Component({
   selector: 'app-admin-add-topic',
   templateUrl: './add-topic.component.html',
-  styleUrls: ['./add-topic.component.css'],
+  styleUrls: ['./add-topic.component.scss'],
   imports: [FormsModule],
   standalone: true,
 })

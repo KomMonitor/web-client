@@ -1,16 +1,10 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  TemplateRef,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: "app-script-definition-wrapper",
-  templateUrl: "./script-definition-wrapper.component.html",
-  styleUrls: ["./script-definition-wrapper.component.css"],
+  selector: 'app-script-definition-wrapper',
+  templateUrl: './script-definition-wrapper.component.html',
+  styleUrls: ['./script-definition-wrapper.component.scss'],
   standalone: true,
   imports: [CommonModule],
 })

@@ -8,8 +8,8 @@
     <h4><b>Sollen die folgenden Raumebenen wirklich gelöscht werden?</b></h4>
 
     <p>
-      Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus dem
-      System entfernt.
+      Dabei werden auch sämtliche Indikatoren-Datensätze der angezeigten Raumebenen dauerhaft aus
+      dem System entfernt.
     </p>
 
     @if (datasetsToDelete.length > 0) {
@@ -24,7 +24,9 @@
 
     @if (!datasetsToDelete.length) {
       <div>
-        <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+        <pre>
+kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
+        >
       </div>
     }
   </app-loading-overlay>

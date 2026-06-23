@@ -25,7 +25,7 @@ import { AdminContentViewComponent } from '../../admin-content-view/admin-conten
 @Component({
   selector: 'app-admin-filter-config',
   templateUrl: './admin-filter-config.component.html',
-  styleUrls: ['./admin-filter-config.component.css'],
+  styleUrls: ['./admin-filter-config.component.scss'],
   imports: [AgGridAngular, ExpandableBoxComponent, AdminContentViewComponent],
   standalone: true,
 })

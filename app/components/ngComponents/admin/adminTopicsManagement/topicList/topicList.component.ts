@@ -19,7 +19,7 @@ export class ExpandedService {
 @Component({
   selector: 'app-topic-list',
   templateUrl: './topicList.component.html',
-  styleUrls: ['./topicList.component.css'],
+  styleUrls: ['./topicList.component.scss'],
   imports: [AddTopicComponent, SortByOrderPipe, CdkDropList, NgbCollapseModule, CdkDrag],
   standalone: true,
 })

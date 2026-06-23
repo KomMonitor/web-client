@@ -17,7 +17,7 @@ declare const colorbrewer: any;
 @Component({
   selector: 'app-indicator-edit-metadata-modal',
   templateUrl: './indicator-edit-metadata-modal.component.html',
-  styleUrls: ['./indicator-edit-metadata-modal.component.css'],
+  styleUrls: ['./indicator-edit-metadata-modal.component.scss'],
   imports: [FormsModule, FilterPipe],
   standalone: true,
 })

@@ -32,7 +32,7 @@ interface AffectedIndicatorReference {
 @Component({
   selector: 'app-georesource-delete-modal',
   templateUrl: './georesource-delete-modal.component.html',
-  styleUrls: ['./georesource-delete-modal.component.css'],
+  styleUrls: ['./georesource-delete-modal.component.scss'],
   imports: [LoadingOverlayComponent],
   standalone: true,
 })

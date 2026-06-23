@@ -128,24 +128,16 @@
           </div>
 
           <div>
-            @if (
-              featureTableHelper.featureTable_georesource_lastUpdate_timestamp_success
-            ) {
+            @if (featureTableHelper.featureTable_georesource_lastUpdate_timestamp_success) {
               <div style="background-color: #9dc89f">
                 <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
-                {{
-                  featureTableHelper.featureTable_georesource_lastUpdate_timestamp_success
-                }}
+                {{ featureTableHelper.featureTable_georesource_lastUpdate_timestamp_success }}
               </div>
             }
-            @if (
-              featureTableHelper.featureTable_georesource_lastUpdate_timestamp_failure
-            ) {
+            @if (featureTableHelper.featureTable_georesource_lastUpdate_timestamp_failure) {
               <div style="background-color: #e79595">
                 <b>Letztes gescheitertes Update eines Einzeleintrags</b>
-                {{
-                  featureTableHelper.featureTable_georesource_lastUpdate_timestamp_failure
-                }}
+                {{ featureTableHelper.featureTable_georesource_lastUpdate_timestamp_failure }}
               </div>
             }
           </div>

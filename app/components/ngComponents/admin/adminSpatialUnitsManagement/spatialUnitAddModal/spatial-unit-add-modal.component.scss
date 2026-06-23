@@ -30,7 +30,9 @@
   color: #495057;
   background-color: #fff;
   background-clip: padding-box;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 .form-control:focus {
@@ -82,8 +84,12 @@ textarea.form-control {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Alerts */
@@ -106,7 +112,6 @@ textarea.form-control {
   background-color: #fff3cd;
   border-color: #ffeaa7;
 }
-
 
 /* Progress Bar Styles */
 #progressbar {
@@ -149,14 +154,15 @@ textarea.form-control {
   position: absolute;
   left: -50%;
   top: 9px;
-  z-index: -1; 
+  z-index: -1;
 }
 
 #progressbar li:first-child:after {
   content: none;
 }
 
-#progressbar li.active:before, #progressbar li.active:after {
+#progressbar li.active:before,
+#progressbar li.active:after {
   background: var(--kommonitor-primary);
   color: white;
 }
@@ -180,7 +186,7 @@ textarea.form-control {
   width: 100%;
   height: 100%;
   position: absolute;
-  background-color: rgb(128,128,128);
+  background-color: rgb(128, 128, 128);
   top: 0;
   left: 0;
   border-radius: 5px;
@@ -226,17 +232,20 @@ textarea.form-control {
   width: 100%;
 }
 
-.multiStepForm input, .multiStepForm textarea, .multiStepForm select {
+.multiStepForm input,
+.multiStepForm textarea,
+.multiStepForm select {
   border: 1px solid #ccc;
   border-radius: 0px;
   margin-bottom: 10px;
   width: 100%;
   box-sizing: border-box;
-  color: #2C3E50;
+  color: #2c3e50;
   font-size: 13px;
 }
 
-.multiStepForm input:focus, .multiStepForm textarea:focus {
+.multiStepForm input:focus,
+.multiStepForm textarea:focus {
   box-shadow: none !important;
   border: 1px solid var(--kommonitor-primary);
   outline-width: 0;
@@ -255,8 +264,11 @@ textarea.form-control {
   margin: 10px 5px;
 }
 
-.multiStepForm .action-button:hover, .multiStepForm .action-button:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px var(--kommonitor-primary);
+.multiStepForm .action-button:hover,
+.multiStepForm .action-button:focus {
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px var(--kommonitor-primary);
 }
 
 .multiStepForm .action-button-previous {
@@ -271,8 +283,11 @@ textarea.form-control {
   margin: 10px 5px;
 }
 
-.multiStepForm .action-button-previous:hover, .multiStepForm .action-button-previous:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #C5C5F1;
+.multiStepForm .action-button-previous:hover,
+.multiStepForm .action-button-previous:focus {
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #c5c5f1;
 }
 
 .button-container {
@@ -284,7 +299,7 @@ textarea.form-control {
 .fs-title {
   font-size: 18px;
   text-transform: uppercase;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
   letter-spacing: 2px;
   font-weight: bold;
@@ -330,7 +345,7 @@ textarea.form-control {
 
 .form-group {
   margin-bottom: 1.5rem;
-} 
+}
 
 .owner-filter-group {
   display: flex;

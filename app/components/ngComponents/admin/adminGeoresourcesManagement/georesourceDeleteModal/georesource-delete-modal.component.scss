@@ -14,8 +14,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Modal styling */
@@ -147,7 +151,8 @@
 }
 
 /* Typography */
-h3, h4 {
+h3,
+h4 {
   margin-top: 20px;
   margin-bottom: 10px;
 }
@@ -180,4 +185,4 @@ ul {
     overflow-x: auto;
     border: 1px solid #ddd;
   }
-} 
+}

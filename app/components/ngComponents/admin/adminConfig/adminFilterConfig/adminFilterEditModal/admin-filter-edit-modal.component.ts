@@ -11,7 +11,7 @@ import { MultiStepHelperServiceService } from 'services/multi-step-helper-servic
   selector: 'app-admin-filter-edit-modal',
   standalone: true,
   templateUrl: './admin-filter-edit-modal.component.html',
-  styleUrls: ['./admin-filter-edit-modal.component.css'],
+  styleUrls: ['./admin-filter-edit-modal.component.scss'],
   imports: [FormsModule],
 })
 export class AdminFilterEditModalComponent implements OnInit {

@@ -12,7 +12,7 @@ import { ScriptGenericComponent } from './script-types/script-generic/script-gen
 @Component({
   selector: 'app-script-step-content',
   templateUrl: './script-step-content.component.html',
-  styleUrls: ['./script-step-content.component.css'],
+  styleUrls: ['./script-step-content.component.scss'],
   imports: [
     FormsModule,
     ScriptDefinitionWrapperComponent,

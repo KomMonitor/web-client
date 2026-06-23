@@ -1,10 +1,10 @@
 import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { 
-  Observable, 
-  BehaviorSubject, 
-  throwError, 
-  of, 
+import {
+  Observable,
+  BehaviorSubject,
+  throwError,
+  of,
   timer,
   combineLatest,
   catchError,
@@ -15,7 +15,7 @@ import {
   map,
   filter,
   takeUntil,
-  Subject
+  Subject,
 } from 'rxjs';
 import { AuthService } from '../auth-service/auth.service';
 
@@ -68,7 +68,7 @@ export interface AccessControlMetadata {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorDataExchangeService implements OnDestroy {
   // Reactive subjects for state management
@@ -118,7 +118,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     spatialUnitsPublic: '/public/spatial-units',
     accessControl: '/organizationalUnits',
     indicators: '/indicators',
-    indicatorsPublic: '/public/indicators'
+    indicatorsPublic: '/public/indicators',
   };
 
   // Environment configuration
@@ -131,7 +131,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     // Get environment configuration
     this.env = (window as any).__env;
     this.baseUrl = this.getBaseApiUrl();
-    
+
     // Initialize the service
     this.initializeService();
   }
@@ -147,10 +147,10 @@ export class KommonitorDataExchangeService implements OnDestroy {
   private initializeService(): void {
     // Set up authentication listeners
     this.setupAuthenticationListeners();
-    
+
     // Initial role extraction (with retry logic for race conditions)
     this.extractAndSetRolesWithRetry();
-    
+
     // Set up periodic role checking to handle token refreshes
     this.setupPeriodicRoleCheck();
   }
@@ -169,9 +169,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
           return isAuth !== currentState; // Only emit when state changes
         })
       )
-      .subscribe(isAuthenticated => {
+      .subscribe((isAuthenticated) => {
         this.authenticationStateSubject.next(isAuthenticated);
-        
+
         if (isAuthenticated) {
           // User just authenticated, extract roles
           this.extractAndSetRoles();
@@ -191,7 +191,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
 
     const attemptRoleExtraction = () => {
       const roles = this.extractRolesFromKeycloak();
-      
+
       if (roles.length > 0 || retryCount >= maxRetries) {
         this.setCurrentKeycloakLoginRoles(roles);
       } else {
@@ -215,7 +215,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
       .subscribe(() => {
         const currentRoles = this.currentRolesSubject.value;
         const newRoles = this.extractRolesFromKeycloak();
-        
+
         // Only update if roles have changed
         if (JSON.stringify(currentRoles) !== JSON.stringify(newRoles)) {
           this.setCurrentKeycloakLoginRoles(newRoles);
@@ -264,7 +264,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const roleSuffixes = [
       ...(this.env?.keycloakKomMonitorGroupsEditRoleNames || []),
       ...(this.env?.keycloakKomMonitorThemesEditRoleNames || []),
-      ...(this.env?.keycloakKomMonitorGeodataEditRoleNames || [])
+      ...(this.env?.keycloakKomMonitorGeodataEditRoleNames || []),
     ];
 
     // Always include admin role
@@ -272,15 +272,15 @@ export class KommonitorDataExchangeService implements OnDestroy {
 
     // Add organizational unit roles based on access control data
     const accessControl = this.accessControlSubject.value;
-    accessControl.forEach(organizationalUnit => {
+    accessControl.forEach((organizationalUnit) => {
       for (const roleSuffix of roleSuffixes) {
-        possibleRoles.push(organizationalUnit.name + "." + roleSuffix);
+        possibleRoles.push(organizationalUnit.name + '.' + roleSuffix);
       }
     });
 
     // Filter roles to only include KomMonitor-specific ones
-    const komMonitorRoles = allRoles.filter(role => possibleRoles.includes(role));
-    
+    const komMonitorRoles = allRoles.filter((role) => possibleRoles.includes(role));
+
     return komMonitorRoles;
   }
 
@@ -330,7 +330,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   get availableSpatialUnits_map(): Map<string, SpatialUnitMetadata> {
     const spatialUnits = this.availableSpatialUnits;
     const map = new Map<string, SpatialUnitMetadata>();
-    spatialUnits.forEach(unit => {
+    spatialUnits.forEach((unit) => {
       map.set(unit.spatialUnitId, unit);
     });
     return map;
@@ -357,7 +357,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
   getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
     // For now, we'll use "/public" as the default path for spatial resources
     // This should be configurable based on authentication state
-    const spatialResourcePath = this.authService.isAuthenticated() ? "" : "/public";
+    const spatialResourcePath = this.authService.isAuthenticated() ? '' : '/public';
     return this.baseUrl + spatialResourcePath;
   }
 
@@ -379,7 +379,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
       todayHighlight: true,
       assumeNearbyYear: true,
       startView: 2,
-      minView: 2
+      minView: 2,
     };
   }
 
@@ -389,33 +389,33 @@ export class KommonitorDataExchangeService implements OnDestroy {
   get updateIntervalOptions(): any[] {
     return [
       {
-        displayName: "jährlich",
-        apiName: "YEARLY"
+        displayName: 'jährlich',
+        apiName: 'YEARLY',
       },
       {
-        displayName: "halbjährlich",
-        apiName: "HALF_YEARLY"
+        displayName: 'halbjährlich',
+        apiName: 'HALF_YEARLY',
       },
       {
-        displayName: "vierteljährlich",
-        apiName: "QUARTERLY"
+        displayName: 'vierteljährlich',
+        apiName: 'QUARTERLY',
       },
       {
-        displayName: "monatlich",
-        apiName: "MONTHLY"
+        displayName: 'monatlich',
+        apiName: 'MONTHLY',
       },
       {
-        displayName: "wöchentlich",
-        apiName: "WEEKLY"
+        displayName: 'wöchentlich',
+        apiName: 'WEEKLY',
       },
       {
-        displayName: "täglich",
-        apiName: "DAILY"
+        displayName: 'täglich',
+        apiName: 'DAILY',
       },
       {
-        displayName: "beliebig",
-        apiName: "ARBITRARY"
-      }
+        displayName: 'beliebig',
+        apiName: 'ARBITRARY',
+      },
     ];
   }
 
@@ -428,28 +428,33 @@ export class KommonitorDataExchangeService implements OnDestroy {
       {
         label: 'Durchgezogen',
         dashArrayValue: '',
-        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>'
+        svgString:
+          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
       },
       {
         label: 'Gestrichelt (20)',
         dashArrayValue: '20',
-        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>'
+        svgString:
+          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
       },
       {
         label: 'Gestrichelt (20 10)',
         dashArrayValue: '20 10',
-        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>'
+        svgString:
+          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
       },
       {
         label: 'Strich-Punkt (20 10 5 10)',
         dashArrayValue: '20 10 5 10',
-        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>'
+        svgString:
+          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
       },
       {
         label: 'Gepunktet (5)',
         dashArrayValue: '5',
-        svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>'
-      }
+        svgString:
+          '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
+      },
     ];
   }
 
@@ -457,7 +462,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Fetches spatial units metadata with caching and error handling
    */
   fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
-    
     // Check cache first
     if (this.isCacheValid(this.spatialUnitsCache)) {
       this.spatialUnitsSubject.next(this.spatialUnitsCache!.data);
@@ -471,12 +475,12 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const url = `${this.baseUrl}${endpoint}`;
 
     return this.http.get<SpatialUnitMetadata[]>(url).pipe(
-      tap(data => {
+      tap((data) => {
         this.spatialUnitsSubject.next(data);
         this.updateSpatialUnitsCache(data);
         this.setLoading(false);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.setError(this.handleHttpError(error));
         this.setLoading(false);
         return throwError(() => error);
@@ -502,17 +506,17 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const url = `${this.baseUrl}${this.endpoints.accessControl}`;
 
     return this.http.get<AccessControlMetadata[]>(url).pipe(
-      tap(data => {
+      tap((data) => {
         this.accessControlSubject.next(data);
         this.updateAccessControlCache(data);
-        
+
         // Update KomMonitor roles after access control is loaded
         this.updateKomMonitorRoles();
-        
+
         // Reset loading state after successful fetch
         this.setLoading(false);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.setError(this.handleHttpError(error));
         this.setLoading(false);
         return throwError(() => error);
@@ -526,7 +530,6 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Fetches indicators metadata
    */
   fetchIndicatorsMetadata(keycloakRolesArray: string[]): Observable<any[]> {
-    
     this.setLoading(true);
     this.clearError();
 
@@ -534,10 +537,10 @@ export class KommonitorDataExchangeService implements OnDestroy {
     const url = `${this.baseUrl}${endpoint}`;
 
     return this.http.get<any[]>(url).pipe(
-      tap(data => {
+      tap((data) => {
         this.setLoading(false);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.setError(this.handleHttpError(error));
         this.setLoading(false);
         return throwError(() => error);
@@ -551,7 +554,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   getSpatialUnitMetadataById(spatialUnitId: string): SpatialUnitMetadata | null {
     const spatialUnits = this.availableSpatialUnits;
-    return spatialUnits.find(unit => unit.spatialUnitId === spatialUnitId) || null;
+    return spatialUnits.find((unit) => unit.spatialUnitId === spatialUnitId) || null;
   }
 
   /**
@@ -561,9 +564,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
     // Ensure userPermissions is always an array
     const metadataWithDefaults = {
       ...spatialUnitMetadata,
-      userPermissions: spatialUnitMetadata.userPermissions || []
+      userPermissions: spatialUnitMetadata.userPermissions || [],
     };
-    
+
     const currentSpatialUnits = [...this.availableSpatialUnits];
     currentSpatialUnits.unshift(metadataWithDefaults);
     this.spatialUnitsSubject.next(currentSpatialUnits);
@@ -577,12 +580,14 @@ export class KommonitorDataExchangeService implements OnDestroy {
     // Ensure userPermissions is always an array
     const metadataWithDefaults = {
       ...spatialUnitMetadata,
-      userPermissions: spatialUnitMetadata.userPermissions || []
+      userPermissions: spatialUnitMetadata.userPermissions || [],
     };
-    
+
     const currentSpatialUnits = [...this.availableSpatialUnits];
-    const index = currentSpatialUnits.findIndex(unit => unit.spatialUnitId === spatialUnitMetadata.spatialUnitId);
-    
+    const index = currentSpatialUnits.findIndex(
+      (unit) => unit.spatialUnitId === spatialUnitMetadata.spatialUnitId
+    );
+
     if (index !== -1) {
       currentSpatialUnits[index] = metadataWithDefaults;
       this.spatialUnitsSubject.next(currentSpatialUnits);
@@ -595,8 +600,8 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   deleteSingleSpatialUnitMetadata(spatialUnitId: string): void {
     const currentSpatialUnits = [...this.availableSpatialUnits];
-    const index = currentSpatialUnits.findIndex(unit => unit.spatialUnitId === spatialUnitId);
-    
+    const index = currentSpatialUnits.findIndex((unit) => unit.spatialUnitId === spatialUnitId);
+
     if (index !== -1) {
       currentSpatialUnits.splice(index, 1);
       this.spatialUnitsSubject.next(currentSpatialUnits);
@@ -618,15 +623,15 @@ export class KommonitorDataExchangeService implements OnDestroy {
   checkCreatePermission(): boolean {
     const roles = this.currentKeycloakLoginRoles;
     const komMonitorRoles = this.currentKomMonitorLoginRoleNames;
-    
+
     // Check for admin role
     if (roles.includes(this.env?.keycloakKomMonitorAdminRoleName || 'kommonitor-creator')) {
       return true;
     }
-    
+
     // Check for creator roles
-    const hasCreatorRole = komMonitorRoles.some(role => role.endsWith('-creator'));
-    
+    const hasCreatorRole = komMonitorRoles.some((role) => role.endsWith('-creator'));
+
     return hasCreatorRole;
   }
 
@@ -637,18 +642,18 @@ export class KommonitorDataExchangeService implements OnDestroy {
     if (!permissions || !Array.isArray(permissions)) {
       return '';
     }
-    
+
     const accessControl = this.accessControl;
     const roleNames = permissions.map((permissionId: string) => {
       for (const unit of accessControl) {
-        const permission = unit.permissions.find(p => p.permissionId === permissionId);
+        const permission = unit.permissions.find((p) => p.permissionId === permissionId);
         if (permission) {
           return unit.name + '.' + permission.permissionLevel;
         }
       }
       return permissionId;
     });
-    
+
     return roleNames.join(', ');
   }
 
@@ -657,7 +662,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   getRoleTitle(roleId: string): string {
     const accessControl = this.accessControl;
-    const unit = accessControl.find(u => u.organizationalUnitId === roleId);
+    const unit = accessControl.find((u) => u.organizationalUnitId === roleId);
     return unit ? unit.name : roleId;
   }
 
@@ -669,21 +674,24 @@ export class KommonitorDataExchangeService implements OnDestroy {
       json = JSON.stringify(json, null, 2);
     }
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-      let cls = 'number';
-      if (/^"/.test(match)) {
-        if (/:$/.test(match)) {
-          cls = 'key';
-        } else {
-          cls = 'string';
+    return json.replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      function (match) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key';
+          } else {
+            cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
         }
-      } else if (/true|false/.test(match)) {
-        cls = 'boolean';
-      } else if (/null/.test(match)) {
-        cls = 'null';
+        return '<span class="' + cls + '">' + match + '</span>';
       }
-      return '<span class="' + cls + '">' + match + '</span>';
-    });
+    );
   }
 
   /**
@@ -713,9 +721,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Get the appropriate spatial units endpoint based on authentication
    */
   private getSpatialUnitsEndpoint(): string {
-    const endpoint = this.enableKeycloakSecurity ? 
-      this.endpoints.spatialUnits : 
-      this.endpoints.spatialUnitsPublic;
+    const endpoint = this.enableKeycloakSecurity
+      ? this.endpoints.spatialUnits
+      : this.endpoints.spatialUnitsPublic;
     return endpoint;
   }
 
@@ -723,9 +731,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Get the appropriate indicators endpoint based on authentication
    */
   private getIndicatorsEndpoint(): string {
-    const endpoint = this.enableKeycloakSecurity ? 
-      this.endpoints.indicators : 
-      this.endpoints.indicatorsPublic;
+    const endpoint = this.enableKeycloakSecurity
+      ? this.endpoints.indicators
+      : this.endpoints.indicatorsPublic;
     return endpoint;
   }
 
@@ -743,7 +751,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     this.spatialUnitsCache = {
       data: [...data],
       timestamp: Date.now(),
-      expiresAt: Date.now() + this.CACHE_DURATION
+      expiresAt: Date.now() + this.CACHE_DURATION,
     };
   }
 
@@ -754,7 +762,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     this.accessControlCache = {
       data: [...data],
       timestamp: Date.now(),
-      expiresAt: Date.now() + this.CACHE_DURATION
+      expiresAt: Date.now() + this.CACHE_DURATION,
     };
   }
 
@@ -800,7 +808,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   private handleHttpError(error: HttpErrorResponse): string {
     let errorMessage = 'An error occurred';
-    
+
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
@@ -811,7 +819,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
         errorMessage += `\nDetails: ${JSON.stringify(error.error)}`;
       }
     }
-    
+
     return errorMessage;
   }
 
@@ -821,11 +829,11 @@ export class KommonitorDataExchangeService implements OnDestroy {
   checkAdminPermission(): boolean {
     const currentRoles = this.currentRolesSubject.value;
     const adminRoleName = this.env?.keycloakKomMonitorAdminRoleName;
-    
+
     if (!adminRoleName || !currentRoles || currentRoles.length === 0) {
       return false;
     }
-    
+
     return currentRoles.includes(adminRoleName);
   }
 
@@ -833,33 +841,44 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Get access control metadata by organizational unit ID
    */
   getAccessControlById(id: string): AccessControlMetadata | undefined {
-    return this.accessControl.find(unit => unit.organizationalUnitId === id);
+    return this.accessControl.find((unit) => unit.organizationalUnitId === id);
   }
 
   /**
    * Get access control metadata by organizational unit name
    */
   getAccessControlByName(name: string): AccessControlMetadata | null {
-    return this.accessControl.find(unit => unit.name === name) || null;
+    return this.accessControl.find((unit) => unit.name === name) || null;
   }
 
   /**
    * Filter child or self organizational units
    */
-  filterChildOrSelfOrganizationalUnits(organizationalUnitReferenceItem: AccessControlMetadata | null): (organizationalUnit: AccessControlMetadata) => boolean {
+  filterChildOrSelfOrganizationalUnits(
+    organizationalUnitReferenceItem: AccessControlMetadata | null
+  ): (organizationalUnit: AccessControlMetadata) => boolean {
     return (organizationalUnit: AccessControlMetadata) => {
       if (!organizationalUnitReferenceItem) {
         return true;
       }
 
-      if (organizationalUnit.organizationalUnitId === organizationalUnitReferenceItem.organizationalUnitId) {
+      if (
+        organizationalUnit.organizationalUnitId ===
+        organizationalUnitReferenceItem.organizationalUnitId
+      ) {
         return false;
       }
 
-      if (organizationalUnitReferenceItem.children && organizationalUnitReferenceItem.children.length > 0) {
-        return !this.isDescendantOfReferenceItem(organizationalUnitReferenceItem, organizationalUnit);
+      if (
+        organizationalUnitReferenceItem.children &&
+        organizationalUnitReferenceItem.children.length > 0
+      ) {
+        return !this.isDescendantOfReferenceItem(
+          organizationalUnitReferenceItem,
+          organizationalUnit
+        );
       }
-      
+
       return true;
     };
   }
@@ -867,8 +886,16 @@ export class KommonitorDataExchangeService implements OnDestroy {
   /**
    * Check if an organizational unit is a descendant of a reference item
    */
-  isDescendantOfReferenceItem(organizationalUnitReferenceItem: AccessControlMetadata, organizationalUnitCandidate: AccessControlMetadata): boolean {
-    if (organizationalUnitReferenceItem.children && organizationalUnitReferenceItem.children.includes(organizationalUnitCandidate.organizationalUnitId)) {
+  isDescendantOfReferenceItem(
+    organizationalUnitReferenceItem: AccessControlMetadata,
+    organizationalUnitCandidate: AccessControlMetadata
+  ): boolean {
+    if (
+      organizationalUnitReferenceItem.children &&
+      organizationalUnitReferenceItem.children.includes(
+        organizationalUnitCandidate.organizationalUnitId
+      )
+    ) {
       return true;
     }
 
@@ -876,21 +903,30 @@ export class KommonitorDataExchangeService implements OnDestroy {
     if (organizationalUnitReferenceItem.children) {
       for (const childOrganizationalUnitId of organizationalUnitReferenceItem.children) {
         const childOrganizationalUnit = this.getAccessControlById(childOrganizationalUnitId);
-        if (childOrganizationalUnit && childOrganizationalUnit.children && childOrganizationalUnit.children.length > 0) {
-          if (this.isDescendantOfReferenceItem(childOrganizationalUnit, organizationalUnitCandidate)) {
+        if (
+          childOrganizationalUnit &&
+          childOrganizationalUnit.children &&
+          childOrganizationalUnit.children.length > 0
+        ) {
+          if (
+            this.isDescendantOfReferenceItem(childOrganizationalUnit, organizationalUnitCandidate)
+          ) {
             return true;
           }
         }
       }
     }
-    
+
     return false;
   }
 
   /**
    * Validate spatial unit metadata form data
    */
-  validateSpatialUnitMetadata(metadata: any, spatialUnitLevel: string): { isValid: boolean; errors: string[] } {
+  validateSpatialUnitMetadata(
+    metadata: any,
+    spatialUnitLevel: string
+  ): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     // Check required fields
@@ -906,7 +942,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -935,20 +971,23 @@ export class KommonitorDataExchangeService implements OnDestroy {
       metadata: {
         note: this.convertEmptyToNull(metadata.note),
         literature: this.convertEmptyToNull(metadata.literature),
-        updateInterval: metadata.updateInterval && metadata.updateInterval.apiName ? metadata.updateInterval.apiName : null,
+        updateInterval:
+          metadata.updateInterval && metadata.updateInterval.apiName
+            ? metadata.updateInterval.apiName
+            : null,
         sridEPSG: metadata.sridEPSG || 4326,
         datasource: this.convertEmptyToNull(metadata.datasource),
         contact: this.convertEmptyToNull(metadata.contact),
         lastUpdate: this.convertEmptyToNull(metadata.lastUpdate),
         description: this.convertEmptyToNull(metadata.description),
-        databasis: this.convertEmptyToNull(metadata.databasis)
+        databasis: this.convertEmptyToNull(metadata.databasis),
       },
       nextLowerHierarchyLevel,
       nextUpperHierarchyLevel,
       isOutlineLayer,
       outlineColor: outlineColor || '#bf3d2c',
       outlineWidth: outlineWidth || 2,
-      outlineDashArrayString
+      outlineDashArrayString,
     };
   }
 
@@ -975,7 +1014,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
         contact: this.convertEmptyToNull(metadata.contact),
         lastUpdate: this.convertEmptyToNull(metadata.lastUpdate),
         description: this.convertEmptyToNull(metadata.description),
-        databasis: this.convertEmptyToNull(metadata.databasis)
+        databasis: this.convertEmptyToNull(metadata.databasis),
       },
       allowedRoles: ['roleId'],
       spatialUnitLevel: spatialUnitLevel || null,
@@ -984,7 +1023,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
       isOutlineLayer,
       outlineColor,
       outlineWidth,
-      outlineDashArrayString
+      outlineDashArrayString,
     };
   }
 
@@ -993,28 +1032,31 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   get spatialUnitMetadataStructure() {
     return {
-      "metadata": {
-        "note": "an optional note",
-        "literature": "optional text about literature",
-        "updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
-        "sridEPSG": 4326,
-        "datasource": "text about data source",
-        "contact": "text about contact details",
-        "lastUpdate": "YYYY-MM-DD",
-        "description": "description about spatial unit dataset",
-        "databasis": "text about data basis"
+      metadata: {
+        note: 'an optional note',
+        literature: 'optional text about literature',
+        updateInterval: 'YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY',
+        sridEPSG: 4326,
+        datasource: 'text about data source',
+        contact: 'text about contact details',
+        lastUpdate: 'YYYY-MM-DD',
+        description: 'description about spatial unit dataset',
+        databasis: 'text about data basis',
       },
-      "allowedRoles": ['roleId'],
-      "nextLowerHierarchyLevel": "Name of lower hierarchy level",
-      "spatialUnitLevel": "Name of spatial unit dataset",
-      "nextUpperHierarchyLevel": "Name of upper hierarchy level"
+      allowedRoles: ['roleId'],
+      nextLowerHierarchyLevel: 'Name of lower hierarchy level',
+      spatialUnitLevel: 'Name of spatial unit dataset',
+      nextUpperHierarchyLevel: 'Name of upper hierarchy level',
     };
   }
 
   /**
    * Validate period of validity dates
    */
-  validatePeriodOfValidity(startDate: string, endDate: string): { isValid: boolean; error?: string } {
+  validatePeriodOfValidity(
+    startDate: string,
+    endDate: string
+  ): { isValid: boolean; error?: string } {
     if (!startDate || !endDate) {
       return { isValid: true }; // Both dates are optional
     }
@@ -1032,7 +1074,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
     if (startTime >= endTime) {
       return {
         isValid: false,
-        error: 'Start date must be before end date and they cannot be the same'
+        error: 'Start date must be before end date and they cannot be the same',
       };
     }
 
@@ -1065,7 +1107,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
 
     const komMonitorProperties = ['ID', 'NAME', 'validStartDate', 'validEndDate'];
     return Object.keys(firstFeature.properties).filter(
-      property => !komMonitorProperties.includes(property)
+      (property) => !komMonitorProperties.includes(property)
     );
   }
 
@@ -1082,7 +1124,7 @@ export class KommonitorDataExchangeService implements OnDestroy {
       converter: converterDefinition,
       dataSource: datasourceTypeDefinition,
       propertyMapping: propertyMappingDefinition,
-      periodOfValidity
+      periodOfValidity,
     };
   }
 
@@ -1091,9 +1133,9 @@ export class KommonitorDataExchangeService implements OnDestroy {
    */
   validateMappingConfigImport(config: any): { isValid: boolean; error?: string } {
     if (!config.converter || !config.dataSource || !config.propertyMapping) {
-      return { 
-        isValid: false, 
-        error: 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.' 
+      return {
+        isValid: false,
+        error: 'Struktur der Datei stimmt nicht mit erwartetem Muster überein.',
       };
     }
     return { isValid: true };
@@ -1126,11 +1168,11 @@ export class KommonitorDataExchangeService implements OnDestroy {
    * Bulk delete spatial units with error handling
    */
   async bulkDeleteSpatialUnits(spatialUnitIds: string[]): Promise<{
-    successful: string[],
-    failed: Array<{ id: string, error: string }>
+    successful: string[];
+    failed: Array<{ id: string; error: string }>;
   }> {
     const successful: string[] = [];
-    const failed: Array<{ id: string, error: string }> = [];
+    const failed: Array<{ id: string; error: string }> = [];
 
     for (const id of spatialUnitIds) {
       try {
@@ -1149,4 +1191,4 @@ export class KommonitorDataExchangeService implements OnDestroy {
 
     return { successful, failed };
   }
-} 
+}

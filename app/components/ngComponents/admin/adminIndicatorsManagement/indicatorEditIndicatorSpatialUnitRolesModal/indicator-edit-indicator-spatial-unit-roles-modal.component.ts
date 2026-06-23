@@ -15,7 +15,7 @@ declare const $: any;
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
-  styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.css'],
+  styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.scss'],
   imports: [FormsModule, FilterPipe],
   standalone: true,
 })
@@ -86,9 +86,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
 
     // Register the multi-step form handler
-    this.multiStepHelperService.registerClickHandler(
-      'indicatorEditIndicatorSpatialUnitRolesForm'
-    );
+    this.multiStepHelperService.registerClickHandler('indicatorEditIndicatorSpatialUnitRolesForm');
 
     // Show the modal using jQuery (since this is a legacy modal)
     $('#modal-edit-indicator-spatial-unit-roles').modal('show');
@@ -122,8 +120,8 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       // gather all children
       this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
 
-      this.resourcesCreatorRights = this.dataExchangeService.accessControl.filter(
-        (elem: any) => creatorRights.includes(elem.name)
+      this.resourcesCreatorRights = this.dataExchangeService.accessControl.filter((elem: any) =>
+        creatorRights.includes(elem.name)
       );
     }
   }
@@ -342,9 +340,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
           } else {
             this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
           }
@@ -386,9 +382,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
           } else {
             this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
           }
@@ -437,12 +431,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
               this.errorMessagePart =
                 'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
               if (error.data) {
-                this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
-                  error.data
-                );
+                this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
               } else {
-                this.errorMessagePart +=
-                  this.dataExchangeService.syntaxHighlightJSON(error);
+                this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
               }
               this.showErrorAlert();
               this.loadingData = false;
@@ -487,9 +478,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             this.targetApplicableSpatialUnit.spatialUnitName +
             '. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(
-              error.data
-            );
+            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
           } else {
             this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
           }

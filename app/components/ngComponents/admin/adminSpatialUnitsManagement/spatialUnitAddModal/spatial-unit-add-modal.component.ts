@@ -23,7 +23,7 @@ import { KmDatePickerComponent } from '../../../customElements/date-picker/km-da
 @Component({
   selector: 'app-spatial-unit-add-modal',
   templateUrl: './spatial-unit-add-modal.component.html',
-  styleUrls: ['./spatial-unit-add-modal.component.css'],
+  styleUrls: ['./spatial-unit-add-modal.component.scss'],
   imports: [
     FormsModule,
     KmColorPickerComponent,
