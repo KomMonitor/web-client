@@ -40,7 +40,13 @@ export class GenericMapHelperService {
     captionOffset: 5,
     // callback for manually edit map if have warn: "May be map size very big on that zoom level, we have error"
     // and screenshot not created
-    onPixelDataFail: async function ({ node: _node, plugin, error: _error, mapPane: _mapPane, domtoimageOptions }) {
+    onPixelDataFail: async function ({
+      node: _node,
+      plugin,
+      error: _error,
+      mapPane: _mapPane,
+      domtoimageOptions,
+    }) {
       // Solutions:
       // decrease size of map
       // or decrease zoom level

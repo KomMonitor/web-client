@@ -1,14 +1,11 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MultiStepHelperServiceService {
-
-  constructor(
-  /*   private singleFeatureMapHelperService: SingleFeatureMapHelperService,
-    private reachabilityMapHelperService: ReachabilityMapHelperService */
-  ) {
+  constructor /*   private singleFeatureMapHelperService: SingleFeatureMapHelperService,
+    private reachabilityMapHelperService: ReachabilityMapHelperService */() {
     /* intentionally empty */
   }
 
@@ -16,90 +13,84 @@ export class MultiStepHelperServiceService {
   MULTI STEP FORM STUFF
   */
   //jQuery time
-  current_fs; 
-  next_fs; 
+  current_fs;
+  next_fs;
   previous_fs; //fieldsets
-  opacity; 
+  opacity;
   scale; //fieldset properties which we will animate
   animating; //flag to prevent quick multi-click glitches
 
-  registerClickHandler(domId){
+  registerClickHandler(domId) {
     this.registerNextButtonClick();
     this.registerPreviousButtonClick();
     this.registerProgressBarItemClick(domId);
-  };
+  }
 
-  registerProgressBarItemClick(domId){
-
+  registerProgressBarItemClick(domId) {
     setTimeout(() => {
-      const progressBar_listItems:any = $("#" + domId + " #progressbar > li");
-      progressBar_listItems.click((item:any) => {
-        
+      const progressBar_listItems: any = $('#' + domId + ' #progressbar > li');
+      progressBar_listItems.click((item: any) => {
         const newIndex = progressBar_listItems.index(item.target);
-        const allFs:any = $($(item.target).parent().parent().parent().children("fieldset"));
+        const allFs: any = $($(item.target).parent().parent().parent().children('fieldset'));
         let activeFs;
 
         for (const fsCandidate of allFs) {
-          if($(fsCandidate).is(":visible")){
+          if ($(fsCandidate).is(':visible')) {
             activeFs = fsCandidate;
-            fsCandidate.style["display"] = "block";
-          }
-          else{
-            fsCandidate.style["display"] = "none"
+            fsCandidate.style['display'] = 'block';
+          } else {
+            fsCandidate.style['display'] = 'none';
           }
         }
         const oldIndex = allFs.index(activeFs);
 
         this.current_fs = $(allFs.get(oldIndex));
-        
-        if(newIndex == oldIndex){
+
+        if (newIndex == oldIndex) {
           return;
-        }
-        else if(newIndex < oldIndex){
-          
+        } else if (newIndex < oldIndex) {
           this.previous_fs = $(allFs.get(newIndex));
-          
+
           //de-activate current step on progressbar
           for (let index = JSON.parse(JSON.stringify(oldIndex)); index > newIndex; index--) {
-            $(progressBar_listItems.get(index)).removeClass("active");						
+            $(progressBar_listItems.get(index)).removeClass('active');
           }
-          
+
           //show the previous fieldset
-          this.previous_fs.show(); 
+          this.previous_fs.show();
 
           this.previous_fs.css({
-            'position': 'relative'
+            position: 'relative',
           });
           this.current_fs.css({
-            'position': 'absolute'
+            position: 'absolute',
           });
 
           this.current_fs.hide();
-        }
-        else {
-          this.animating = true;					
+        } else {
+          this.animating = true;
           this.next_fs = $(allFs.get(newIndex));
-          
+
           //activate next step on progressbar using the index of this.next_fs
-          for (let index = JSON.parse(JSON.stringify(oldIndex)); index <= newIndex; index++) {		
-            $(progressBar_listItems.get(index)).addClass("active");		
-          }			
-          
+          for (let index = JSON.parse(JSON.stringify(oldIndex)); index <= newIndex; index++) {
+            $(progressBar_listItems.get(index)).addClass('active');
+          }
+
           //show the next fieldset
-          this.next_fs.show(); 
+          this.next_fs.show();
 
           this.next_fs.css({
-            'position': 'relative'
+            position: 'relative',
           });
           this.current_fs.css({
-            'position': 'absolute'
+            position: 'absolute',
           });
 
           this.current_fs.hide();
         }
 
         // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
-      /*   this.singleFeatureMapHelperService.invalidateMap();
+        /*   this.singleFeatureMapHelperService.invalidateMap();
         this.singleFeatureMapHelperService.zoomToDataLayer();
 
         this.reachabilityMapHelperService.invalidateMaps();
@@ -107,75 +98,66 @@ export class MultiStepHelperServiceService {
 
         item.stopImmediatePropagation();
       });
-
     }, 500);
-  };
+  }
 
-
-  registerNextButtonClick(){
+  registerNextButtonClick() {
     setTimeout(() => {
-
-      $(".next").click((item) => {
-        
+      $('.next').click((item) => {
         this.current_fs = $(item.target).parent();
         this.next_fs = $(item.target).parent().next();
-        
+
         //activate next step on progressbar using the index of this.next_fs
-        $("#progressbar li").eq($("fieldset").index(this.next_fs)).addClass("active");
-        
+        $('#progressbar li').eq($('fieldset').index(this.next_fs)).addClass('active');
+
         //show the next fieldset
-        this.next_fs.show();  
+        this.next_fs.show();
 
         this.next_fs.css({
-          'position': 'relative'
+          position: 'relative',
         });
         this.current_fs.css({
-          'position': 'absolute'
+          position: 'absolute',
         });
 
         this.current_fs.hide();
 
         // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
-       /*  this.singleFeatureMapHelperService.invalidateMap();
+        /*  this.singleFeatureMapHelperService.invalidateMap();
         this.singleFeatureMapHelperService.zoomToDataLayer();
 
         this.reachabilityMapHelperService.invalidateMaps();
         this.reachabilityMapHelperService.zoomToIsochroneLayers(); */
       });
-
     }, 500);
-  };
+  }
 
-  registerPreviousButtonClick(){
+  registerPreviousButtonClick() {
     setTimeout(() => {
-
-      $(".previous").click((item) => {
-        
+      $('.previous').click((item) => {
         this.current_fs = $(item.target).parent();
         this.previous_fs = $(item.target).parent().prev();
-        
+
         //de-activate current step on progressbar
-        $("#progressbar li").eq($("fieldset").index(this.current_fs)).removeClass("active");
-        
+        $('#progressbar li').eq($('fieldset').index(this.current_fs)).removeClass('active');
+
         //show the previous fieldset
         this.previous_fs.show();
         this.previous_fs.css({
-          'position': 'relative'
+          position: 'relative',
         });
         this.current_fs.css({
-          'position': 'absolute'
+          position: 'absolute',
         });
-        this.current_fs.hide(); 
+        this.current_fs.hide();
 
         // should any page be shown, where there is a single feature edit map then we must ensure that content is zoomed to
-      /*   this.singleFeatureMapHelperService.invalidateMap(); */
-      /*   this.singleFeatureMapHelperService.zoomToDataLayer(); */
+        /*   this.singleFeatureMapHelperService.invalidateMap(); */
+        /*   this.singleFeatureMapHelperService.zoomToDataLayer(); */
 
-      /*   this.reachabilityMapHelperService.invalidateMaps(); */
-      /*   this.reachabilityMapHelperService.zoomToIsochroneLayers(); */
+        /*   this.reachabilityMapHelperService.invalidateMaps(); */
+        /*   this.reachabilityMapHelperService.zoomToIsochroneLayers(); */
       });
-
     }, 500);
-  };
-			
+  }
 }

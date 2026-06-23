@@ -339,18 +339,12 @@ export class VisualStyleHelperServiceNew {
 
   setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values) {
     for (const feature of geoJSON.features) {
-      if (
-        this.dataExchangeService.indicatorValueIsNoData(
-          feature.properties[propertyName]
-        )
-      )
+      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName]))
         continue;
 
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(
-          feature.properties[propertyName]
-        ) == 0
+        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         continue;
       }
@@ -366,15 +360,11 @@ export class VisualStyleHelperServiceNew {
 
       if (
         !values.includes(
-          this.dataExchangeService.getIndicatorValue_asNumber(
-            feature.properties[propertyName]
-          )
+          this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
         )
       ) {
         values.push(
-          this.dataExchangeService.getIndicatorValue_asNumber(
-            feature.properties[propertyName]
-          )
+          this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
         );
       }
     }
@@ -529,18 +519,12 @@ export class VisualStyleHelperServiceNew {
 
   setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue) {
     for (const feature of geoJSON.features) {
-      if (
-        this.dataExchangeService.indicatorValueIsNoData(
-          feature.properties[propertyName]
-        )
-      )
+      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName]))
         continue;
 
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(
-          feature.properties[propertyName]
-        ) == 0
+        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         continue;
       }
@@ -553,35 +537,26 @@ export class VisualStyleHelperServiceNew {
       ) {
         continue;
       } else if (
-        this.dataExchangeService.getIndicatorValue_asNumber(
-          feature.properties[propertyName]
-        ) >= this.dataExchangeService.getIndicatorValue_asNumber(measureOfValue)
+        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
+        this.dataExchangeService.getIndicatorValue_asNumber(measureOfValue)
       ) {
         if (
           !this.greaterThanValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.greaterThanValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       } else {
         if (
           !this.lesserThanValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.lesserThanValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       }
@@ -790,18 +765,12 @@ export class VisualStyleHelperServiceNew {
 
   setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName) {
     for (const feature of geoJSON.features) {
-      if (
-        this.dataExchangeService.indicatorValueIsNoData(
-          feature.properties[propertyName]
-        )
-      )
+      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName]))
         continue;
 
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(
-          feature.properties[propertyName]
-        ) == 0
+        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         continue;
       }
@@ -814,39 +783,27 @@ export class VisualStyleHelperServiceNew {
       ) {
         continue;
       } else if (
-        this.dataExchangeService.getIndicatorValue_asNumber(
-          feature.properties[propertyName]
-        ) >= 0
+        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
       ) {
         if (
           !this.positiveValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.positiveValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       } else if (
-        this.dataExchangeService.getIndicatorValue_asNumber(
-          feature.properties[propertyName]
-        ) < 0
+        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < 0
       ) {
         if (
           !this.negativeValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.negativeValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(
-              feature.properties[propertyName]
-            )
+            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       }

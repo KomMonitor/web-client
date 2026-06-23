@@ -2,7 +2,7 @@ export enum MetadataLoadingState {
   NONE,
   INPROGRESS,
   COMPLETE,
-  ERROR
+  ERROR,
 }
 
 export interface PoiSize {
@@ -33,23 +33,28 @@ export const DEFAULT_POI_SIZE: PoiSize = POI_SIZES[2];
 
 export const LOI_DASH_ARRAY_OBJECTS: LoiDashArrayObject[] = [
   {
-    svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
+    svgString:
+      '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
     dashArrayValue: '',
   },
   {
-    svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
+    svgString:
+      '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
     dashArrayValue: '20',
   },
   {
-    svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
+    svgString:
+      '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
     dashArrayValue: '20 10',
   },
   {
-    svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
+    svgString:
+      '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
     dashArrayValue: '20 10 5 10',
   },
   {
-    svgString: '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
+    svgString:
+      '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
     dashArrayValue: '5',
   },
 ];

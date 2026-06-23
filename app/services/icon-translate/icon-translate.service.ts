@@ -6,12 +6,10 @@ export interface IconTranslation {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IconTranslateService {
-
   private readonly iconMap: IconTranslation[] = [
-
     // Core
     { glyphicon: 'asterisk', fontAwesome: 'asterisk' },
     { glyphicon: 'plus', fontAwesome: 'plus' },
@@ -226,22 +224,19 @@ export class IconTranslateService {
     { glyphicon: 'bed', fontAwesome: 'bed' },
     { glyphicon: 'tent', fontAwesome: 'campground' },
     { glyphicon: 'ice', fontAwesome: 'ice-cream' },
-    { glyphicon: 'ice-lolly', fontAwesome: 'ice-cream' }
-    
+    { glyphicon: 'ice-lolly', fontAwesome: 'ice-cream' },
   ];
 
   translate(glyphicon: string): string {
     const normalized = glyphicon?.toLowerCase();
 
-    const match = this.iconMap.find(
-      i => i.glyphicon === normalized
-    );
+    const match = this.iconMap.find((i) => i.glyphicon === normalized);
 
     return match?.fontAwesome ?? this.getFallback(glyphicon);
   }
 
   private getFallback(glyphicon): string {
-    console.log('missing glyphicon-icon: '+ glyphicon);
+    console.log('missing glyphicon-icon: ' + glyphicon);
     return 'question-circle';
   }
 }

@@ -1,8 +1,8 @@
-import { TestBed } from "@angular/core/testing";
+import { TestBed } from '@angular/core/testing';
 
-import { ProcessScriptMetadataStoreService } from "./process-script-metadata-store.service";
+import { ProcessScriptMetadataStoreService } from './process-script-metadata-store.service';
 
-describe("ProcessScriptMetadataStoreService", () => {
+describe('ProcessScriptMetadataStoreService', () => {
   let service: ProcessScriptMetadataStoreService;
 
   beforeEach(() => {
@@ -10,16 +10,13 @@ describe("ProcessScriptMetadataStoreService", () => {
     service = TestBed.inject(ProcessScriptMetadataStoreService);
   });
 
-  it("should be created", () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it("setProcessScripts populates the array and the id map", () => {
-    service.setProcessScripts([
-      { scriptId: "p1" },
-      { scriptId: "p2" },
-    ]);
+  it('setProcessScripts populates the array and the id map', () => {
+    service.setProcessScripts([{ scriptId: 'p1' }, { scriptId: 'p2' }]);
     expect(service.availableProcessScripts.length).toBe(2);
-    expect(service.availableProcessScripts_map.get("p1")).toEqual({ scriptId: "p1" });
+    expect(service.availableProcessScripts_map.get('p1')).toEqual({ scriptId: 'p1' });
   });
 });

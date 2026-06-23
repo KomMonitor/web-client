@@ -1,11 +1,11 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 /**
  * Centralized access to runtime environment configuration (window.__env).
  * Inject this service instead of reading window.__env directly.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class EnvConfigService {
   // --- Branding & UI ---
@@ -441,8 +441,7 @@ export class EnvConfigService {
     return window.__env.targetUrlToSpatialDataProcessorInstance;
   }
   get spatialDataProcessor_processName_indicatorReachabilityStatistics(): any {
-    return window.__env
-      .spatialDataProcessor_processName_indicatorReachabilityStatistics;
+    return window.__env.spatialDataProcessor_processName_indicatorReachabilityStatistics;
   }
 
   // --- Computed ---

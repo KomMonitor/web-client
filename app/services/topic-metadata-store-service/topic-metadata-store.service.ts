@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 /**
  * Topic metadata store extracted from DataExchangeService
@@ -8,10 +8,9 @@ import { Injectable } from "@angular/core";
  * availableTopics via a getter so its consumers stay unchanged.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class TopicMetadataStoreService {
-
   availableTopics: any[] = [];
 
   setTopics(topicsArray) {

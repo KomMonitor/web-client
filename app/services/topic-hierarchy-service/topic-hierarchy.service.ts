@@ -8,10 +8,9 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
  * DataExchangeService uses this service and assigns results back to its own properties.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TopicHierarchyService {
-
   // ---------------------------------------------------------------------------
   // Georesource hierarchy
   // ---------------------------------------------------------------------------
@@ -24,9 +23,9 @@ export class TopicHierarchyService {
     unmappedKey: string,
     filter?: any
   ): { hierarchy: any[]; unmappedEntries: any } {
-
-    const georesourceTopics = JSON.parse(JSON.stringify(availableTopics))
-      .filter(topic => topic.topicResource === 'georesource');
+    const georesourceTopics = JSON.parse(JSON.stringify(availableTopics)).filter(
+      (topic) => topic.topicResource === 'georesource'
+    );
     const topicsMap = this.buildTopicsMap_georesources(georesourceTopics, unmappedKey);
 
     // PROCESS GEORESOURCES
@@ -36,18 +35,24 @@ export class TopicHierarchyService {
 
         // catch any freshly created reachability scenario data sources as they are handled differently
         if (georesourceMetadata.isNewReachabilityDataSource) continue;
-        else if (georesourceMetadata.isPOI) georesourceDatasets.poiDatasets.push(georesourceMetadata);
-        else if (georesourceMetadata.isLOI) georesourceDatasets.loiDatasets.push(georesourceMetadata);
-        else if (georesourceMetadata.isAOI) georesourceDatasets.aoiDatasets.push(georesourceMetadata);
+        else if (georesourceMetadata.isPOI)
+          georesourceDatasets.poiDatasets.push(georesourceMetadata);
+        else if (georesourceMetadata.isLOI)
+          georesourceDatasets.loiDatasets.push(georesourceMetadata);
+        else if (georesourceMetadata.isAOI)
+          georesourceDatasets.aoiDatasets.push(georesourceMetadata);
 
         topicsMap.set(georesourceMetadata.topicReference, georesourceDatasets);
       } else {
         const georesourceDatasets_unmapped = topicsMap.get(unmappedKey);
 
         if (georesourceMetadata.isNewReachabilityDataSource) continue;
-        else if (georesourceMetadata.isPOI) georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
-        else if (georesourceMetadata.isLOI) georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
-        else if (georesourceMetadata.isAOI) georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
+        else if (georesourceMetadata.isPOI)
+          georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
+        else if (georesourceMetadata.isLOI)
+          georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
+        else if (georesourceMetadata.isAOI)
+          georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
 
         topicsMap.set(unmappedKey, georesourceDatasets_unmapped);
       }
@@ -83,27 +88,55 @@ export class TopicHierarchyService {
       }
     }
 
-    const { topicsArray, unmappedEntries } = this.addGeoresourceDataToTopicHierarchy(georesourceTopics, topicsMap, unmappedKey);
+    const { topicsArray, unmappedEntries } = this.addGeoresourceDataToTopicHierarchy(
+      georesourceTopics,
+      topicsMap,
+      unmappedKey
+    );
     return { hierarchy: topicsArray, unmappedEntries };
   }
 
-  private buildTopicsMap_georesources(georesourceTopics: any[], unmappedKey: string): Map<any, any> {
+  private buildTopicsMap_georesources(
+    georesourceTopics: any[],
+    unmappedKey: string
+  ): Map<any, any> {
     let topicsMap = new Map<any, any>();
 
     for (const topic of georesourceTopics) {
-      topicsMap.set(topic.topicId, { poiDatasets: [], loiDatasets: [], aoiDatasets: [], wmsDatasets: [], wfsDatasets: [] });
+      topicsMap.set(topic.topicId, {
+        poiDatasets: [],
+        loiDatasets: [],
+        aoiDatasets: [],
+        wmsDatasets: [],
+        wfsDatasets: [],
+      });
       if (topic.subTopics.length > 0) {
         topicsMap = this.addSubTopicsToMap_georesources(topic.subTopics, topicsMap);
       }
     }
 
-    topicsMap.set(unmappedKey, { poiDatasets: [], loiDatasets: [], aoiDatasets: [], wmsDatasets: [], wfsDatasets: [] });
+    topicsMap.set(unmappedKey, {
+      poiDatasets: [],
+      loiDatasets: [],
+      aoiDatasets: [],
+      wmsDatasets: [],
+      wfsDatasets: [],
+    });
     return topicsMap;
   }
 
-  private addSubTopicsToMap_georesources(subTopicsArray: any[], topicsMap: Map<any, any>): Map<any, any> {
+  private addSubTopicsToMap_georesources(
+    subTopicsArray: any[],
+    topicsMap: Map<any, any>
+  ): Map<any, any> {
     for (const subTopic of subTopicsArray) {
-      topicsMap.set(subTopic.topicId, { poiDatasets: [], loiDatasets: [], aoiDatasets: [], wmsDatasets: [], wfsDatasets: [] });
+      topicsMap.set(subTopic.topicId, {
+        poiDatasets: [],
+        loiDatasets: [],
+        aoiDatasets: [],
+        wmsDatasets: [],
+        wfsDatasets: [],
+      });
       if (subTopic.subTopics.length > 0) {
         topicsMap = this.addSubTopicsToMap_georesources(subTopic.subTopics, topicsMap);
       }
@@ -112,9 +145,10 @@ export class TopicHierarchyService {
   }
 
   private addGeoresourceDataToTopicHierarchy(
-    topicsArray: any[], topicsMap: Map<any, any>, unmappedKey: string
+    topicsArray: any[],
+    topicsMap: Map<any, any>,
+    unmappedKey: string
   ): { topicsArray: any[]; unmappedEntries: any } {
-
     for (let topic of topicsArray) {
       const topicsDataEntry = topicsMap.get(topic.topicId);
       topic.poiData = topicsDataEntry.poiDatasets;
@@ -127,7 +161,8 @@ export class TopicHierarchyService {
       topic.wmsCount = topicsDataEntry.wmsDatasets.length;
       topic.wfsData = topicsDataEntry.wfsDatasets;
       topic.wfsCount = topicsDataEntry.wfsDatasets.length;
-      topic.totalCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
+      topic.totalCount =
+        topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
       topic.ownCount = topic.totalCount;
 
       if (topic.subTopics.length > 0) {
@@ -147,7 +182,12 @@ export class TopicHierarchyService {
       wmsCount: d.wmsDatasets.length,
       wfsData: d.wfsDatasets,
       wfsCount: d.wfsDatasets.length,
-      totalCount: d.poiDatasets.length + d.loiDatasets.length + d.aoiDatasets.length + d.wmsDatasets.length + d.wfsDatasets.length
+      totalCount:
+        d.poiDatasets.length +
+        d.loiDatasets.length +
+        d.aoiDatasets.length +
+        d.wmsDatasets.length +
+        d.wfsDatasets.length,
     };
 
     return { topicsArray, unmappedEntries };
@@ -166,7 +206,12 @@ export class TopicHierarchyService {
       subTopic.wmsCount = topicsDataEntry.wmsDatasets.length;
       subTopic.wfsData = topicsDataEntry.wfsDatasets;
       subTopic.wfsCount = topicsDataEntry.wfsDatasets.length;
-      subTopic.totalCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
+      subTopic.totalCount =
+        subTopic.poiCount +
+        subTopic.loiCount +
+        subTopic.aoiCount +
+        subTopic.wmsCount +
+        subTopic.wfsCount;
       subTopic.ownCount = subTopic.totalCount;
 
       if (subTopic.subTopics.length > 0) {
@@ -192,9 +237,9 @@ export class TopicHierarchyService {
     displayableIndicators_keywordFiltered: any[],
     availableIndiWmsDatasets: WmsDataset[]
   ): IndicatorsTopicsHierarchy[] {
-
-    const indicatorTopics = JSON.parse(JSON.stringify(availableTopics))
-      .filter(topic => topic.topicResource === 'indicator');
+    const indicatorTopics = JSON.parse(JSON.stringify(availableTopics)).filter(
+      (topic) => topic.topicResource === 'indicator'
+    );
     const topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
 
     for (const indicatorMetadata of displayableIndicators_keywordFiltered) {
@@ -206,7 +251,10 @@ export class TopicHierarchyService {
     }
 
     const tempTopicsData = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
-    const result = this.addWmsDataToTopicHierarchyRecursive(tempTopicsData, availableIndiWmsDatasets);
+    const result = this.addWmsDataToTopicHierarchyRecursive(
+      tempTopicsData,
+      availableIndiWmsDatasets
+    );
     this.addWmsCountRecursive(result);
     return result;
   }
@@ -222,7 +270,10 @@ export class TopicHierarchyService {
     return topicsMap;
   }
 
-  private addSubTopicsToMap_indicators(subTopicsArray: any[], topicsMap: Map<any, any[]>): Map<any, any[]> {
+  private addSubTopicsToMap_indicators(
+    subTopicsArray: any[],
+    topicsMap: Map<any, any[]>
+  ): Map<any, any[]> {
     for (const subTopic of subTopicsArray) {
       topicsMap.set(subTopic.topicId, []);
       if (subTopic.subTopics.length > 0) {
@@ -236,9 +287,10 @@ export class TopicHierarchyService {
     tempTopicsData: IndicatorsTopicsHierarchy[],
     availableIndiWmsDatasets: WmsDataset[]
   ): IndicatorsTopicsHierarchy[] {
-
     tempTopicsData.forEach((topicData: IndicatorsTopicsHierarchy) => {
-      const wmsDatasets = availableIndiWmsDatasets.filter(e => e.topicReference == topicData.topicId);
+      const wmsDatasets = availableIndiWmsDatasets.filter(
+        (e) => e.topicReference == topicData.topicId
+      );
 
       if (wmsDatasets.length) {
         topicData.wmsData = wmsDatasets;
@@ -249,7 +301,10 @@ export class TopicHierarchyService {
       }
 
       if (topicData.subTopics.length) {
-        topicData.subTopics = this.addWmsDataToTopicHierarchyRecursive(topicData.subTopics, availableIndiWmsDatasets);
+        topicData.subTopics = this.addWmsDataToTopicHierarchyRecursive(
+          topicData.subTopics,
+          availableIndiWmsDatasets
+        );
       }
     });
 
@@ -274,7 +329,9 @@ export class TopicHierarchyService {
   private addIndicatorDataToTopicHierarchy(topicsArray: any[], topicsMap: Map<any, any[]>): any[] {
     for (let topic of topicsArray) {
       topic.indicatorData = topicsMap.get(topic.topicId);
-      topic.indicatorData.sort((a, b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+      topic.indicatorData.sort((a, b) =>
+        a.displayOrder > b.displayOrder ? 1 : b.displayOrder > a.displayOrder ? -1 : 0
+      );
       topic.indicatorCount = topic.indicatorData.length;
       if (topic.subTopics.length > 0) {
         topic = this.addIndicatorDataToSubTopics(topic, topicsMap);
@@ -286,7 +343,9 @@ export class TopicHierarchyService {
   private addIndicatorDataToSubTopics(topic: any, topicsMap: Map<any, any[]>): any {
     for (let subTopic of topic.subTopics) {
       subTopic.indicatorData = topicsMap.get(subTopic.topicId);
-      subTopic.indicatorData.sort((a, b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+      subTopic.indicatorData.sort((a, b) =>
+        a.displayOrder > b.displayOrder ? 1 : b.displayOrder > a.displayOrder ? -1 : 0
+      );
       subTopic.indicatorCount = subTopic.indicatorData.length;
       if (subTopic.subTopics.length > 0) {
         subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);
@@ -304,15 +363,15 @@ export class TopicHierarchyService {
     displayableIndicators_keywordFiltered: any[],
     availableProcessScripts: any[]
   ): any[] {
-
     const indicatorsMap = new Map<any, any>();
     for (const indicatorMetadata of displayableIndicators_keywordFiltered) {
       indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
     }
 
-    const headlineIndicatorsArray = displayableIndicators_keywordFiltered
-      .filter(indicatorMetadata => indicatorMetadata.isHeadlineIndicator == true);
-    const headlineIndicatorsIdArray = headlineIndicatorsArray.map(m => m.indicatorId);
+    const headlineIndicatorsArray = displayableIndicators_keywordFiltered.filter(
+      (indicatorMetadata) => indicatorMetadata.isHeadlineIndicator == true
+    );
+    const headlineIndicatorsIdArray = headlineIndicatorsArray.map((m) => m.indicatorId);
 
     const headlineIndicatorScriptsMap = new Map<any, any>();
     for (const scriptMetadata of availableProcessScripts) {
@@ -326,7 +385,9 @@ export class TopicHierarchyService {
       const item: any = { headlineIndicator: headlineIndicatorMetadata, baseIndicators: [] };
 
       if (headlineIndicatorScriptsMap.has(headlineIndicatorMetadata.indicatorId)) {
-        const targetScriptMetadata = headlineIndicatorScriptsMap.get(headlineIndicatorMetadata.indicatorId);
+        const targetScriptMetadata = headlineIndicatorScriptsMap.get(
+          headlineIndicatorMetadata.indicatorId
+        );
         for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
           if (indicatorsMap.has(requiredIndicatorId)) {
             item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
@@ -344,15 +405,15 @@ export class TopicHierarchyService {
     displayableIndicators_keywordFiltered: any[],
     availableProcessScripts: any[]
   ): any[] {
-
     const indicatorsMap = new Map<any, any>();
     for (const indicatorMetadata of displayableIndicators_keywordFiltered) {
       indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
     }
 
-    const computationIndicatorsArray = displayableIndicators_keywordFiltered
-      .filter(indicatorMetadata => indicatorMetadata.creationType == 'COMPUTATION');
-    const computationIndicatorsIdArray = computationIndicatorsArray.map(m => m.indicatorId);
+    const computationIndicatorsArray = displayableIndicators_keywordFiltered.filter(
+      (indicatorMetadata) => indicatorMetadata.creationType == 'COMPUTATION'
+    );
+    const computationIndicatorsIdArray = computationIndicatorsArray.map((m) => m.indicatorId);
 
     const computationIndicatorScriptsMap = new Map<any, any>();
     for (const scriptMetadata of availableProcessScripts) {
@@ -366,7 +427,9 @@ export class TopicHierarchyService {
       const item: any = { computationIndicator: computationIndicatorMetadata, baseIndicators: [] };
 
       if (computationIndicatorScriptsMap.has(computationIndicatorMetadata.indicatorId)) {
-        const targetScriptMetadata = computationIndicatorScriptsMap.get(computationIndicatorMetadata.indicatorId);
+        const targetScriptMetadata = computationIndicatorScriptsMap.get(
+          computationIndicatorMetadata.indicatorId
+        );
         for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
           if (indicatorsMap.has(requiredIndicatorId)) {
             item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
@@ -391,23 +454,37 @@ export class TopicHierarchyService {
       if (mainTopicCandidate.topicId === topicReferenceId) {
         topicHierarchyArray.push(mainTopicCandidate);
         break;
-      } else if (this.findIdInAnySubTopicHierarchy(topicReferenceId, mainTopicCandidate.subTopics)) {
+      } else if (
+        this.findIdInAnySubTopicHierarchy(topicReferenceId, mainTopicCandidate.subTopics)
+      ) {
         topicHierarchyArray.push(mainTopicCandidate);
-        return this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, mainTopicCandidate.subTopics);
+        return this.addSubTopicHierarchy(
+          topicHierarchyArray,
+          topicReferenceId,
+          mainTopicCandidate.subTopics
+        );
       }
     }
 
     return topicHierarchyArray;
   }
 
-  private addSubTopicHierarchy(topicHierarchyArray: any[], topicReferenceId: any, subTopicsArray: any[]): any[] {
+  private addSubTopicHierarchy(
+    topicHierarchyArray: any[],
+    topicReferenceId: any,
+    subTopicsArray: any[]
+  ): any[] {
     for (const subTopicCandidate of subTopicsArray) {
       if (subTopicCandidate.topicId === topicReferenceId) {
         topicHierarchyArray.push(subTopicCandidate);
         break;
       } else if (this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)) {
         topicHierarchyArray.push(subTopicCandidate);
-        topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, subTopicCandidate.subTopics);
+        topicHierarchyArray = this.addSubTopicHierarchy(
+          topicHierarchyArray,
+          topicReferenceId,
+          subTopicCandidate.subTopics
+        );
       }
     }
     return topicHierarchyArray;
@@ -416,7 +493,8 @@ export class TopicHierarchyService {
   private findIdInAnySubTopicHierarchy(topicReferenceId: any, subTopicsArray: any[]): boolean {
     for (const subTopicCandidate of subTopicsArray) {
       if (subTopicCandidate.topicId === topicReferenceId) return true;
-      if (this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)) return true;
+      if (this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics))
+        return true;
     }
     return false;
   }
@@ -425,7 +503,11 @@ export class TopicHierarchyService {
     return this.getTopicHierarchyForTopicId(availableTopics, topicId).length > 0;
   }
 
-  topicHierarchyContainsIndicator(availableTopics: any[], topic: any, indicatorMetadata: any): boolean {
+  topicHierarchyContainsIndicator(
+    availableTopics: any[],
+    topic: any,
+    indicatorMetadata: any
+  ): boolean {
     if (topic === null || topic === '') {
       if (
         indicatorMetadata.topicReference === null ||
@@ -441,14 +523,23 @@ export class TopicHierarchyService {
     return this.anySubTopicContainsIndicator(availableTopics, topic, indicatorMetadata);
   }
 
-  anySubTopicContainsIndicator(availableTopics: any[], topic: any, indicatorMetadata: any): boolean {
+  anySubTopicContainsIndicator(
+    availableTopics: any[],
+    topic: any,
+    indicatorMetadata: any
+  ): boolean {
     for (const subTopic of topic.subTopics) {
-      if (this.topicHierarchyContainsIndicator(availableTopics, subTopic, indicatorMetadata)) return true;
+      if (this.topicHierarchyContainsIndicator(availableTopics, subTopic, indicatorMetadata))
+        return true;
     }
     return false;
   }
 
-  topicHierarchyContainsGeoresource(availableTopics: any[], topic: any, georesourceMetadata: any): boolean {
+  topicHierarchyContainsGeoresource(
+    availableTopics: any[],
+    topic: any,
+    georesourceMetadata: any
+  ): boolean {
     return this.topicHierarchyContainsIndicator(availableTopics, topic, georesourceMetadata);
   }
 

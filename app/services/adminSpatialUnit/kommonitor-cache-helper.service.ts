@@ -1,13 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import {
-  Observable,
-  BehaviorSubject,
-  throwError,
-  of,
-  catchError,
-  tap,
-} from 'rxjs';
+import { Observable, BehaviorSubject, throwError, of, catchError, tap } from 'rxjs';
 
 // TypeScript interfaces for better type safety
 export interface DatabaseModificationInfo {

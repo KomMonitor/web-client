@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 /**
  * Spatial-unit metadata store extracted from DataExchangeService
@@ -9,20 +9,15 @@ import { Injectable } from "@angular/core";
  * a getter so its ~23 consumers stay unchanged.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class SpatialUnitMetadataStoreService {
-
   availableSpatialUnits: any[] = [];
   availableSpatialUnits_map = new Map();
 
   setSpatialUnits(spatialUnitsArray) {
-    this.availableSpatialUnits_map = new Map(
-      spatialUnitsArray.map((u) => [u.spatialUnitId, u]),
-    );
-    this.availableSpatialUnits = Array.from(
-      this.availableSpatialUnits_map.values(),
-    );
+    this.availableSpatialUnits_map = new Map(spatialUnitsArray.map((u) => [u.spatialUnitId, u]));
+    this.availableSpatialUnits = Array.from(this.availableSpatialUnits_map.values());
   }
 
   getSpatialUnitMetadataById(spatialUnitId) {

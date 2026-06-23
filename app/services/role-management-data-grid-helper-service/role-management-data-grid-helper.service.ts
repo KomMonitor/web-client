@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  GridOptions,
-  GridApi,
-  GridReadyEvent
-} from 'ag-grid-community';
+import { GridOptions, GridApi, GridReadyEvent } from 'ag-grid-community';
 
 /**
  * Helper service for the role-/permission-management ag-Grid used across the
@@ -19,10 +15,9 @@ import {
  * `getSelectedRoleIds_roleManagementGrid` can read the live grid state.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoleManagementDataGridHelperService {
-
   private gridApi: GridApi | null = null;
 
   /**
@@ -45,7 +40,7 @@ export class RoleManagementDataGridHelperService {
         'line-height': '20px !important',
         'word-break': 'break-word !important',
         'padding-top': '17px',
-        'padding-bottom': '17px'
+        'padding-bottom': '17px',
       },
       headerComponentParams: {
         template:
@@ -76,7 +71,7 @@ export class RoleManagementDataGridHelperService {
       paginationPageSize: 10,
       suppressColumnVirtualisation: true,
       headerHeight: 40,
-      rowHeight: 35
+      rowHeight: 35,
     };
   }
 
@@ -110,10 +105,19 @@ export class RoleManagementDataGridHelperService {
   /**
    * Build role management grid for spatial units
    */
-  buildRoleManagementGrid(tableDOMId: string, currentTableOptionsObject: any, accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
+  buildRoleManagementGrid(
+    tableDOMId: string,
+    currentTableOptionsObject: any,
+    accessControlMetadata: any[],
+    selectedPermissionIds: string[],
+    reducedRoleManagement: boolean = false
+  ): any {
     if (currentTableOptionsObject && this.gridApi) {
       // Grid already exists, just update the data
-      const newRowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+      const newRowData = this.buildRoleManagementGridRowData(
+        accessControlMetadata,
+        selectedPermissionIds
+      );
       // update underlying options so callers get the latest data
       currentTableOptionsObject.rowData = newRowData;
       this.gridApi.setRowData(newRowData);
@@ -128,8 +132,11 @@ export class RoleManagementDataGridHelperService {
       }, 0);
     } else {
       // Create new grid options
-      currentTableOptionsObject = this.buildRoleManagementGridOptions(accessControlMetadata, selectedPermissionIds, reducedRoleManagement);
-
+      currentTableOptionsObject = this.buildRoleManagementGridOptions(
+        accessControlMetadata,
+        selectedPermissionIds,
+        reducedRoleManagement
+      );
     }
     return currentTableOptionsObject;
   }
@@ -137,7 +144,10 @@ export class RoleManagementDataGridHelperService {
   /**
    * Build role management grid row data
    */
-  private buildRoleManagementGridRowData(accessControlMetadata: any[], permissionIds: string[]): any[] {
+  private buildRoleManagementGridRowData(
+    accessControlMetadata: any[],
+    permissionIds: string[]
+  ): any[] {
     // Flatten permissions into boolean fields for ag-Grid built-in checkbox renderer
     const data = JSON.parse(JSON.stringify(accessControlMetadata));
     for (const elem of data) {
@@ -189,7 +199,7 @@ export class RoleManagementDataGridHelperService {
         headerName: 'Organisationseinheit',
         field: 'name',
         minWidth: 200,
-        cellClass: 'user-roles-normal'
+        cellClass: 'user-roles-normal',
       },
       {
         headerName: 'Lesen',
@@ -198,7 +208,7 @@ export class RoleManagementDataGridHelperService {
         sortable: false,
         width: 100,
         cellRenderer: 'CheckboxRenderer_viewer',
-        editable: true
+        editable: true,
       },
       {
         headerName: 'Editieren',
@@ -207,8 +217,8 @@ export class RoleManagementDataGridHelperService {
         sortable: false,
         width: 100,
         cellRenderer: 'CheckboxRenderer_editor',
-        editable: true
-      }
+        editable: true,
+      },
     ];
     if (!reducedRoleManagement) {
       columnDefs.push({
@@ -218,20 +228,27 @@ export class RoleManagementDataGridHelperService {
         sortable: false,
         width: 100,
         cellRenderer: 'CheckboxRenderer_creator',
-        editable: true
+        editable: true,
       });
     }
     return columnDefs;
   }
 
-  private buildRoleManagementGridOptions(accessControlMetadata: any[], selectedPermissionIds: string[], reducedRoleManagement: boolean = false): any {
+  private buildRoleManagementGridOptions(
+    accessControlMetadata: any[],
+    selectedPermissionIds: string[],
+    reducedRoleManagement: boolean = false
+  ): any {
     const columnDefs = this.buildRoleManagementGridColumnConfig(reducedRoleManagement);
-    const rowData = this.buildRoleManagementGridRowData(accessControlMetadata, selectedPermissionIds);
+    const rowData = this.buildRoleManagementGridRowData(
+      accessControlMetadata,
+      selectedPermissionIds
+    );
     const gridOptions = {
       components: {
         CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
         CheckboxRenderer_editor: this.CheckboxRenderer_editor,
-        CheckboxRenderer_creator: this.CheckboxRenderer_creator
+        CheckboxRenderer_creator: this.CheckboxRenderer_creator,
       },
       defaultColDef: {
         editable: false,
@@ -249,7 +266,7 @@ export class RoleManagementDataGridHelperService {
           'line-height': '20px !important',
           'word-break': 'break-word !important',
           'padding-top': '17px',
-          'padding-bottom': '17px'
+          'padding-bottom': '17px',
         },
         headerComponentParams: {
           template:
@@ -283,7 +300,7 @@ export class RoleManagementDataGridHelperService {
       },
       onGridReady: (params: GridReadyEvent) => {
         this.gridApi = params.api;
-      }
+      },
     };
     return gridOptions;
   }
@@ -295,7 +312,7 @@ export class RoleManagementDataGridHelperService {
     return {
       CheckboxRenderer_viewer: this.CheckboxRenderer_viewer,
       CheckboxRenderer_editor: this.CheckboxRenderer_editor,
-      CheckboxRenderer_creator: this.CheckboxRenderer_creator
+      CheckboxRenderer_creator: this.CheckboxRenderer_creator,
     };
   }
 
@@ -350,7 +367,7 @@ export class RoleManagementDataGridHelperService {
       let className;
       if (params && params.data) {
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "viewer"){
+          if (permission.permissionLevel == 'viewer') {
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -359,7 +376,7 @@ export class RoleManagementDataGridHelperService {
         }
       }
 
-      if(exists){
+      if (exists) {
         const input = document.createElement('input') as HTMLInputElement;
         this.eGui = input;
         input.className = className;
@@ -367,7 +384,11 @@ export class RoleManagementDataGridHelperService {
         input.checked = isChecked;
 
         // Disable viewer if dataset owner or if editor/creator selection implies viewer
-        if (this.params.data.datasetOwner === true || this.params.data._viewerDisabledBecauseOfEditor === true || this.params.data._viewerDisabledBecauseOfCreator === true) {
+        if (
+          this.params.data.datasetOwner === true ||
+          this.params.data._viewerDisabledBecauseOfEditor === true ||
+          this.params.data._viewerDisabledBecauseOfCreator === true
+        ) {
           input.disabled = true;
         } else {
           input.disabled = false;
@@ -385,17 +406,19 @@ export class RoleManagementDataGridHelperService {
       const checked = e.target.checked;
 
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "viewer"){
+        if (permission.permissionLevel == 'viewer') {
           permission.isChecked = checked;
           break;
         }
       }
     }
 
-    getGui() { return this.eGui; }
+    getGui() {
+      return this.eGui;
+    }
 
     destroy() {
-      if(this.eGui && this.boundCheckedHandler){
+      if (this.eGui && this.boundCheckedHandler) {
         this.eGui.removeEventListener('click', this.boundCheckedHandler);
       }
     }
@@ -417,7 +440,7 @@ export class RoleManagementDataGridHelperService {
       let className;
       if (params && params.data) {
         for (const permission of params.data.permissions) {
-          if (permission.permissionLevel == "editor"){
+          if (permission.permissionLevel == 'editor') {
             exists = true;
             isChecked = permission.isChecked;
             className = permission.permissionId;
@@ -426,7 +449,7 @@ export class RoleManagementDataGridHelperService {
         }
       }
 
-      if(exists){
+      if (exists) {
         const input = document.createElement('input') as HTMLInputElement;
         this.eGui = input;
         input.className = className;
@@ -434,7 +457,10 @@ export class RoleManagementDataGridHelperService {
         input.checked = isChecked;
 
         // Disable editor if dataset owner or if creator selection implies editor
-        if (this.params.data.datasetOwner === true || this.params.data._editorDisabledBecauseOfCreator === true) {
+        if (
+          this.params.data.datasetOwner === true ||
+          this.params.data._editorDisabledBecauseOfCreator === true
+        ) {
           input.disabled = true;
         } else {
           input.disabled = false;
@@ -451,14 +477,13 @@ export class RoleManagementDataGridHelperService {
     checkedHandler(e: any) {
       const checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "viewer"){
-          if (checked){
+        if (permission.permissionLevel == 'viewer') {
+          if (checked) {
             permission.isChecked = true;
           } else {
             permission.isChecked = false;
           }
-        }
-        else if (permission.permissionLevel == "editor"){
+        } else if (permission.permissionLevel == 'editor') {
           permission.isChecked = checked;
         }
       }
@@ -466,7 +491,7 @@ export class RoleManagementDataGridHelperService {
       if (checked) {
         this.params.data._viewerDisabledBecauseOfEditor = true;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "viewer"){
+          if (permission.permissionLevel == 'viewer') {
             permission.isChecked = true;
           }
         }
@@ -479,10 +504,12 @@ export class RoleManagementDataGridHelperService {
       }
     }
 
-    getGui() { return this.eGui; }
+    getGui() {
+      return this.eGui;
+    }
 
     destroy() {
-      if(this.eGui && this.boundCheckedHandler){
+      if (this.eGui && this.boundCheckedHandler) {
         this.eGui.removeEventListener('click', this.boundCheckedHandler);
       }
     }
@@ -503,7 +530,7 @@ export class RoleManagementDataGridHelperService {
       let exists = false;
       let className;
       for (const permission of params.data.permissions) {
-        if (permission.permissionLevel == "creator"){
+        if (permission.permissionLevel == 'creator') {
           exists = true;
           isChecked = permission.isChecked;
           className = permission.permissionId;
@@ -511,7 +538,7 @@ export class RoleManagementDataGridHelperService {
         }
       }
 
-      if(exists){
+      if (exists) {
         const input = document.createElement('input') as HTMLInputElement;
         this.eGui = input;
         input.className = className;
@@ -536,7 +563,11 @@ export class RoleManagementDataGridHelperService {
     checkedHandler(e: any) {
       const checked = e.target.checked;
       for (const permission of this.params.data.permissions) {
-        if (permission.permissionLevel == "creator" || permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
+        if (
+          permission.permissionLevel == 'creator' ||
+          permission.permissionLevel == 'editor' ||
+          permission.permissionLevel == 'viewer'
+        ) {
           permission.isChecked = checked;
         }
       }
@@ -545,7 +576,7 @@ export class RoleManagementDataGridHelperService {
         this.params.data._editorDisabledBecauseOfCreator = true;
         this.params.data._viewerDisabledBecauseOfCreator = true;
         for (const permission of this.params.data.permissions) {
-          if (permission.permissionLevel == "editor" || permission.permissionLevel == "viewer"){
+          if (permission.permissionLevel == 'editor' || permission.permissionLevel == 'viewer') {
             permission.isChecked = true;
           }
         }
@@ -559,10 +590,12 @@ export class RoleManagementDataGridHelperService {
       }
     }
 
-    getGui() { return this.eGui; }
+    getGui() {
+      return this.eGui;
+    }
 
     destroy() {
-      if(this.eGui && this.boundCheckedHandler){
+      if (this.eGui && this.boundCheckedHandler) {
         this.eGui.removeEventListener('click', this.boundCheckedHandler);
       }
     }

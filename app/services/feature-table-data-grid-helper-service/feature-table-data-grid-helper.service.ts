@@ -1,10 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import {
-  GridApi,
-  GridOptions,
-  GridReadyEvent
-} from 'ag-grid-community';
+import { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
@@ -19,10 +15,9 @@ declare const __env: any;
  * editing (HTTP PUT) and the per-resource update timestamps.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FeatureTableDataGridHelperService {
-
   // Store the data grid options
   private dataGridOptions_featureTable: GridOptions | null = null;
   private gridApi_featureTable: GridApi | null = null;
@@ -72,11 +67,20 @@ export class FeatureTableDataGridHelperService {
 
     const gridContainer = document.querySelector('#' + tableId);
     if (!gridContainer) {
-
-      return this.buildFeatureTableGridOptions(headers, features, resourceId, resourceType, enableDelete);
+      return this.buildFeatureTableGridOptions(
+        headers,
+        features,
+        resourceId,
+        resourceType,
+        enableDelete
+      );
     }
 
-    if (this.dataGridOptions_featureTable && this.gridApi_featureTable && gridContainer.childElementCount > 0) {
+    if (
+      this.dataGridOptions_featureTable &&
+      this.gridApi_featureTable &&
+      gridContainer.childElementCount > 0
+    ) {
       // Grid already exists, just update the data
       this.saveGridStore_featureTable(this.dataGridOptions_featureTable);
       const newRowData = this.buildFeatureTableRowData(features);
@@ -93,7 +97,6 @@ export class FeatureTableDataGridHelperService {
       );
 
       // The actual grid creation should be done in the component template
-
     }
 
     return this.dataGridOptions_featureTable!;
@@ -130,15 +133,15 @@ export class FeatureTableDataGridHelperService {
           'line-height': '20px !important',
           'word-break': 'break-word !important',
           'padding-top': '17px',
-          'padding-bottom': '17px'
+          'padding-bottom': '17px',
         },
         onCellValueChanged: (newValueParams: any) => {
           // Handle cell value changes for date validation and API updates
           this.handleCellValueChanged(newValueParams, resourceId, resourceType);
-        }
+        },
       },
       components: {
-        deleteButtonRenderer: this.deleteButtonRenderer.bind(this)
+        deleteButtonRenderer: this.deleteButtonRenderer.bind(this),
       },
       columnDefs: columnDefs,
       rowData: rowData,
@@ -173,7 +176,7 @@ export class FeatureTableDataGridHelperService {
       },
       onViewportChanged: () => {
         this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
-      }
+      },
     };
 
     return gridOptions;
@@ -182,7 +185,11 @@ export class FeatureTableDataGridHelperService {
   /**
    * Build column configuration for feature table
    */
-  private buildFeatureTableColumnConfig(headers: string[], enableDelete: boolean, resourceType?: string): any[] {
+  private buildFeatureTableColumnConfig(
+    headers: string[],
+    enableDelete: boolean,
+    resourceType?: string
+  ): any[] {
     const columnDefs: any[] = [];
 
     // Add DB-Record-Id column with delete button (always first, combines both functionalities)
@@ -203,15 +210,17 @@ export class FeatureTableDataGridHelperService {
           const recordId = params.data.kommonitorRecordId || params.data.id || '';
 
           if (resourceType === this.resourceType_spatialUnit) {
-            html += `<button id="btn__spatialUnit__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
-                   `class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" ` +
-                   `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
-                   `<i class="fas fa-trash"></i></button>`;
+            html +=
+              `<button id="btn__spatialUnit__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
+              `class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" ` +
+              `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
+              `<i class="fas fa-trash"></i></button>`;
           } else {
-            html += `<button id="btn__georesource__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
-                   `class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" ` +
-                   `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
-                   `<i class="fas fa-trash"></i></button>`;
+            html +=
+              `<button id="btn__georesource__deleteFeatureEntry__${datasetId}__${featureId}__${recordId}" ` +
+              `class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" ` +
+              `title="Datenobjekt unwiderruflich entfernen" ${enableDelete ? '' : 'disabled'}>` +
+              `<i class="fas fa-trash"></i></button>`;
           }
           html += '<br/>';
         }
@@ -220,7 +229,7 @@ export class FeatureTableDataGridHelperService {
         html += params.data.kommonitorRecordId || params.data.id || '';
 
         return html;
-      }
+      },
     });
 
     // Add Feature-Id column
@@ -230,7 +239,7 @@ export class FeatureTableDataGridHelperService {
       pinned: 'left',
       editable: false,
       cellClass: 'grid-non-editable',
-      maxWidth: 125
+      maxWidth: 125,
     });
 
     // Add Name column
@@ -238,20 +247,20 @@ export class FeatureTableDataGridHelperService {
       headerName: 'Name',
       field: 'NAME',
       pinned: 'left',
-      minWidth: 150
+      minWidth: 150,
     });
 
     // Add validity date columns
     columnDefs.push({
       headerName: 'Lebenszeitbeginn',
       field: 'validStartDate',
-      minWidth: 150
+      minWidth: 150,
     });
 
     columnDefs.push({
       headerName: 'Lebenszeitende',
       field: 'validEndDate',
-      minWidth: 150
+      minWidth: 150,
     });
 
     // Add dynamic headers
@@ -259,7 +268,7 @@ export class FeatureTableDataGridHelperService {
       columnDefs.push({
         headerName: header,
         field: header,
-        minWidth: 125
+        minWidth: 125,
       });
     }
 
@@ -274,7 +283,7 @@ export class FeatureTableDataGridHelperService {
       return [];
     }
 
-    return features.map(feature => {
+    return features.map((feature) => {
       // If the feature has properties (GeoJSON format), add geometry and record ID to properties
       if (feature.properties) {
         // Add geometry and database record ID to properties to be available within data grid object
@@ -296,8 +305,10 @@ export class FeatureTableDataGridHelperService {
    * Delete button renderer for feature table
    */
   private deleteButtonRenderer(params: any): string {
-    const featureId = params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
-                     params.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
+    const featureId =
+      params.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
+      params.data[__env?.FEATURE_ID_PROPERTY_NAME] ||
+      '';
     const resourceType = params.resourceType || 'spatialUnit';
 
     return `<button id="btn_deleteFeature_${resourceType}_${featureId}"
@@ -312,18 +323,24 @@ export class FeatureTableDataGridHelperService {
   /**
    * Register click handlers for feature table delete buttons
    */
-  registerFeatureTableClickHandlers(resourceId?: string, resourceType?: string, enableDelete?: boolean): void {
+  registerFeatureTableClickHandlers(
+    resourceId?: string,
+    resourceType?: string,
+    enableDelete?: boolean
+  ): void {
     if (!enableDelete) return;
 
     setTimeout(() => {
       // Remove existing handlers to prevent duplicates
-      const deleteButtons = document.querySelectorAll('.spatialUnitDeleteFeatureRecordBtn, .georesourceDeleteFeatureRecordBtn');
-      deleteButtons.forEach(button => {
+      const deleteButtons = document.querySelectorAll(
+        '.spatialUnitDeleteFeatureRecordBtn, .georesourceDeleteFeatureRecordBtn'
+      );
+      deleteButtons.forEach((button) => {
         button.removeEventListener('click', this.handleFeatureDeleteClick);
       });
 
       // Add new handlers
-      deleteButtons.forEach(button => {
+      deleteButtons.forEach((button) => {
         button.addEventListener('click', this.handleFeatureDeleteClick);
       });
     }, 100);
@@ -344,7 +361,6 @@ export class FeatureTableDataGridHelperService {
     // Parse button ID: btn__spatialUnit__deleteFeatureEntry__{datasetId}__{featureId}__{recordId}
     const idParts = buttonId.split('__');
     if (idParts.length < 6) {
-
       return;
     }
 
@@ -363,15 +379,12 @@ export class FeatureTableDataGridHelperService {
     } else if (resourceType === 'georesource') {
       url += `/georesources/${datasetId}/singleFeature/${featureId}/singleFeatureRecord/${recordId}`;
     } else {
-
       return;
     }
 
     // Make DELETE request
     this.http.delete(url).subscribe({
       next: () => {
-
-
         // Update timestamps
         if (resourceType === 'georesource') {
           this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
@@ -383,12 +396,10 @@ export class FeatureTableDataGridHelperService {
         this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {
           datasetId,
           featureId,
-          recordId
+          recordId,
         });
       },
       error: () => {
-
-
         // Broadcast hide loading event
         this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
 
@@ -398,7 +409,7 @@ export class FeatureTableDataGridHelperService {
         } else {
           this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
         }
-      }
+      },
     });
   };
 
@@ -417,10 +428,12 @@ export class FeatureTableDataGridHelperService {
       const selectedNodes = this.gridApi_featureTable.getSelectedNodes();
       gridOptions._savedState = {
         selectedIds: selectedNodes.map((node: any) => {
-          const featureId = node.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
-                           node.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
+          const featureId =
+            node.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
+            node.data[__env?.FEATURE_ID_PROPERTY_NAME] ||
+            '';
           return featureId;
-        })
+        }),
       };
     }
   }
@@ -432,8 +445,10 @@ export class FeatureTableDataGridHelperService {
     if (gridOptions && this.gridApi_featureTable && gridOptions._savedState) {
       setTimeout(() => {
         this.gridApi_featureTable?.forEachNode((node: any) => {
-          const featureId = node.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
-                           node.data[__env?.FEATURE_ID_PROPERTY_NAME] || '';
+          const featureId =
+            node.data.properties?.[__env?.FEATURE_ID_PROPERTY_NAME] ||
+            node.data[__env?.FEATURE_ID_PROPERTY_NAME] ||
+            '';
           if (gridOptions._savedState.selectedIds.includes(featureId)) {
             node.setSelected(true);
           }
@@ -487,7 +502,11 @@ export class FeatureTableDataGridHelperService {
   /**
    * Handle cell value changes for feature table
    */
-  private handleCellValueChanged(newValueParams: any, resourceId?: string, resourceType?: string): void {
+  private handleCellValueChanged(
+    newValueParams: any,
+    resourceId?: string,
+    resourceType?: string
+  ): void {
     // Validate date properties
     if (!newValueParams.data.validStartDate) {
       newValueParams.data.validStartDate = newValueParams.oldValue;
@@ -495,14 +514,14 @@ export class FeatureTableDataGridHelperService {
 
     const isDate = (date: any) => {
       const dateObj = new Date(date);
-      return dateObj.toString() !== "Invalid Date" && !isNaN(dateObj.getTime());
+      return dateObj.toString() !== 'Invalid Date' && !isNaN(dateObj.getTime());
     };
 
     if (!isDate(newValueParams.data.validStartDate)) {
       newValueParams.data.validStartDate = newValueParams.oldValue;
     }
 
-    if (newValueParams.data.validEndDate === "") {
+    if (newValueParams.data.validEndDate === '') {
       newValueParams.data.validEndDate = undefined;
     }
 
@@ -514,10 +533,10 @@ export class FeatureTableDataGridHelperService {
 
     // Build GeoJSON for API request
     const geoJSON: any = {
-      "type": "Feature",
+      type: 'Feature',
       geometry: null,
       properties: null,
-      id: null
+      id: null,
     };
 
     // Clone properties and extract geometry/ID
@@ -532,63 +551,65 @@ export class FeatureTableDataGridHelperService {
     // Build URL
     let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
     if (resourceType === this.resourceType_georesource) {
-      url += "/georesources/";
+      url += '/georesources/';
     } else {
-      url += "/spatial-units/";
+      url += '/spatial-units/';
     }
 
     url += `${resourceId}/singleFeature/${newValueParams.data.ID}/singleFeatureRecord/${newValueParams.data.kommonitorRecordId}`;
 
     // Make HTTP PUT request
-    this.http.put(url, geoJSON, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).subscribe({
-      next: () => {
+    this.http
+      .put(url, geoJSON, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .subscribe({
+        next: () => {
+          // On success: mark grid cell with green background
+          newValueParams.colDef.cellStyle = (p: any) =>
+            p.rowIndex.toString() === newValueParams.node.id
+              ? { 'background-color': '#9DC89F' }
+              : '';
 
+          newValueParams.api.refreshCells({
+            force: true,
+            columns: [newValueParams.column.getId()],
+            rowNodes: [newValueParams.node],
+          });
 
-        // On success: mark grid cell with green background
-        newValueParams.colDef.cellStyle = (p: any) =>
-          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+          // Update success timestamp
+          if (resourceType === this.resourceType_georesource) {
+            this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+          } else {
+            this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+          }
+        },
+        error: () => {
+          // Reset cell value as an error occurred
+          newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
 
-        newValueParams.api.refreshCells({
-          force: true,
-          columns: [newValueParams.column.getId()],
-          rowNodes: [newValueParams.node]
-        });
+          // On failure: mark grid cell with red background
+          newValueParams.colDef.cellStyle = (p: any) =>
+            p.rowIndex.toString() === newValueParams.node.id
+              ? { 'background-color': '#E79595' }
+              : '';
 
-        // Update success timestamp
-        if (resourceType === this.resourceType_georesource) {
-          this.featureTable_georesource_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        } else {
-          this.featureTable_spatialUnit_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        }
-      },
-      error: () => {
+          newValueParams.api.refreshCells({
+            force: true,
+            columns: [newValueParams.column.getId()],
+            rowNodes: [newValueParams.node],
+          });
 
-
-        // Reset cell value as an error occurred
-        newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
-
-        // On failure: mark grid cell with red background
-        newValueParams.colDef.cellStyle = (p: any) =>
-          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
-
-        newValueParams.api.refreshCells({
-          force: true,
-          columns: [newValueParams.column.getId()],
-          rowNodes: [newValueParams.node]
-        });
-
-        // Update failure timestamp
-        if (resourceType === this.resourceType_georesource) {
-          this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-        } else {
-          this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-        }
-      }
-    });
+          // Update failure timestamp
+          if (resourceType === this.resourceType_georesource) {
+            this.featureTable_georesource_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+          } else {
+            this.featureTable_spatialUnit_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+          }
+        },
+      });
   }
 
   /**
@@ -610,16 +631,30 @@ export class FeatureTableDataGridHelperService {
     const gridContainer = document.querySelector('#' + tableId);
     if (!gridContainer) {
       return this.buildIndicatorFeatureTableGridOptions(
-        headers, features, resourceId, resourceType, enableDelete, spatialUnitId
+        headers,
+        features,
+        resourceId,
+        resourceType,
+        enableDelete,
+        spatialUnitId
       );
     }
 
-    if (this.dataGridOptions_featureTable && this.gridApi_featureTable && gridContainer.childElementCount > 0) {
+    if (
+      this.dataGridOptions_featureTable &&
+      this.gridApi_featureTable &&
+      gridContainer.childElementCount > 0
+    ) {
       const newRowData = this.buildIndicatorFeatureTableRowData(features);
       this.gridApi_featureTable.setRowData(newRowData);
     } else {
       this.dataGridOptions_featureTable = this.buildIndicatorFeatureTableGridOptions(
-        headers, features, resourceId, resourceType, enableDelete, spatialUnitId
+        headers,
+        features,
+        resourceId,
+        resourceType,
+        enableDelete,
+        spatialUnitId
       );
     }
 
@@ -634,7 +669,12 @@ export class FeatureTableDataGridHelperService {
     enableDelete: boolean = false,
     spatialUnitId?: string
   ): any {
-    const columnDefs = this.buildIndicatorFeatureTableColumnConfig(headers, enableDelete, resourceId, spatialUnitId);
+    const columnDefs = this.buildIndicatorFeatureTableColumnConfig(
+      headers,
+      enableDelete,
+      resourceId,
+      spatialUnitId
+    );
     const rowData = this.buildIndicatorFeatureTableRowData(features);
 
     return {
@@ -655,11 +695,11 @@ export class FeatureTableDataGridHelperService {
           'line-height': '20px !important',
           'word-break': 'break-word !important',
           'padding-top': '17px',
-          'padding-bottom': '17px'
+          'padding-bottom': '17px',
         },
         onCellValueChanged: (newValueParams: any) => {
           this.handleIndicatorCellValueChanged(newValueParams, resourceId, spatialUnitId);
-        }
+        },
       },
       columnDefs: columnDefs,
       rowData: rowData,
@@ -687,7 +727,7 @@ export class FeatureTableDataGridHelperService {
       },
       onViewportChanged: () => {
         this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
-      }
+      },
     };
   }
 
@@ -715,12 +755,38 @@ export class FeatureTableDataGridHelperService {
           html += '&nbsp;&nbsp;';
           html += params.data.fid ?? '';
           return html;
-        }
+        },
       },
-      { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: 'grid-non-editable', maxWidth: 125 },
-      { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 200, editable: false, cellClass: 'grid-non-editable' },
-      { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 125, editable: false, cellClass: 'grid-non-editable' },
-      { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, minWidth: 125, editable: false, cellClass: 'grid-non-editable' }
+      {
+        headerName: 'Feature-Id',
+        field: __env.FEATURE_ID_PROPERTY_NAME,
+        pinned: 'left',
+        editable: false,
+        cellClass: 'grid-non-editable',
+        maxWidth: 125,
+      },
+      {
+        headerName: 'Name',
+        field: __env.FEATURE_NAME_PROPERTY_NAME,
+        pinned: 'left',
+        minWidth: 200,
+        editable: false,
+        cellClass: 'grid-non-editable',
+      },
+      {
+        headerName: 'Lebenszeitbeginn',
+        field: __env.VALID_START_DATE_PROPERTY_NAME,
+        minWidth: 125,
+        editable: false,
+        cellClass: 'grid-non-editable',
+      },
+      {
+        headerName: 'Lebenszeitende',
+        field: __env.VALID_END_DATE_PROPERTY_NAME,
+        minWidth: 125,
+        editable: false,
+        cellClass: 'grid-non-editable',
+      },
     ];
 
     // Date-keyed value columns are the only editable ones
@@ -735,19 +801,22 @@ export class FeatureTableDataGridHelperService {
     if (!features || !Array.isArray(features)) {
       return [];
     }
-    return features.map(dataItem => {
+    return features.map((dataItem) => {
       // arisenFrom is currently never used
       delete dataItem.arisenFrom;
       return dataItem;
     });
   }
 
-  private registerIndicatorFeatureTableClickHandlers(resourceType?: string, enableDelete?: boolean): void {
+  private registerIndicatorFeatureTableClickHandlers(
+    resourceType?: string,
+    enableDelete?: boolean
+  ): void {
     if (!enableDelete) return;
 
     setTimeout(() => {
       const deleteButtons = document.querySelectorAll('.indicatorDeleteFeatureRecordBtn');
-      deleteButtons.forEach(button => {
+      deleteButtons.forEach((button) => {
         button.removeEventListener('click', this.handleIndicatorFeatureDeleteClick);
         button.addEventListener('click', this.handleIndicatorFeatureDeleteClick);
       });
@@ -787,17 +856,21 @@ export class FeatureTableDataGridHelperService {
           datasetId,
           spatialUnitId,
           featureId,
-          recordId
+          recordId,
         });
       },
       error: () => {
         this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
         this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-      }
+      },
     });
   };
 
-  private handleIndicatorCellValueChanged(newValueParams: any, datasetId?: string, spatialUnitId?: string): void {
+  private handleIndicatorCellValueChanged(
+    newValueParams: any,
+    datasetId?: string,
+    spatialUnitId?: string
+  ): void {
     // Only the indicator's feature id, the DB record id (fid) and the date-prefixed
     // value columns are sent on update.
     const json: any = JSON.parse(JSON.stringify(newValueParams.data));
@@ -828,30 +901,36 @@ export class FeatureTableDataGridHelperService {
       `/indicators/${datasetId}/${spatialUnitId}/singleFeature/` +
       `${newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME]}/singleFeatureRecord/${newValueParams.data.fid}`;
 
-    this.http.put(url, json, {
-      headers: { 'Content-Type': 'application/json' }
-    }).subscribe({
-      next: () => {
-        newValueParams.colDef.cellStyle = (p: any) =>
-          p.rowIndex.toString() === newValueParams.node.id ? { 'background-color': '#9DC89F' } : '';
-        newValueParams.api.refreshCells({
-          force: true,
-          columns: [newValueParams.column.getId()],
-          rowNodes: [newValueParams.node]
-        });
-        this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-      },
-      error: () => {
-        newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
-        newValueParams.colDef.cellStyle = (p: any) =>
-          p.rowIndex.toString() === newValueParams.node.id ? { 'background-color': '#E79595' } : '';
-        newValueParams.api.refreshCells({
-          force: true,
-          columns: [newValueParams.column.getId()],
-          rowNodes: [newValueParams.node]
-        });
-        this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
-      }
-    });
+    this.http
+      .put(url, json, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .subscribe({
+        next: () => {
+          newValueParams.colDef.cellStyle = (p: any) =>
+            p.rowIndex.toString() === newValueParams.node.id
+              ? { 'background-color': '#9DC89F' }
+              : '';
+          newValueParams.api.refreshCells({
+            force: true,
+            columns: [newValueParams.column.getId()],
+            rowNodes: [newValueParams.node],
+          });
+          this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
+        },
+        error: () => {
+          newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+          newValueParams.colDef.cellStyle = (p: any) =>
+            p.rowIndex.toString() === newValueParams.node.id
+              ? { 'background-color': '#E79595' }
+              : '';
+          newValueParams.api.refreshCells({
+            force: true,
+            columns: [newValueParams.column.getId()],
+            rowNodes: [newValueParams.node],
+          });
+          this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
+        },
+      });
   }
 }

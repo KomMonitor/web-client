@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 /**
  * Process-script metadata store extracted from DataExchangeService
@@ -8,19 +8,14 @@ import { Injectable } from "@angular/core";
  * facade re-exposes availableProcessScripts via a getter so its consumers stay unchanged.
  */
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ProcessScriptMetadataStoreService {
-
   availableProcessScripts: any[] = [];
   availableProcessScripts_map = new Map();
 
   setProcessScripts(scriptsArray) {
-    this.availableProcessScripts_map = new Map(
-      scriptsArray.map((s) => [s.scriptId, s]),
-    );
-    this.availableProcessScripts = Array.from(
-      this.availableProcessScripts_map.values(),
-    );
+    this.availableProcessScripts_map = new Map(scriptsArray.map((s) => [s.scriptId, s]));
+    this.availableProcessScripts = Array.from(this.availableProcessScripts_map.values());
   }
 }

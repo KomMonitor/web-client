@@ -1813,10 +1813,7 @@ export class DiagramHelperServiceService {
 
     let containsZeroValues = false;
     for (const feature of geoJSON.features) {
-      if (
-        feature.properties[propertyName] === 0 ||
-        feature.properties[propertyName] === '0'
-      ) {
+      if (feature.properties[propertyName] === 0 || feature.properties[propertyName] === '0') {
         containsZeroValues = true;
         break;
       }

@@ -51,9 +51,7 @@ describe('RoleManagementDataGridHelperService', () => {
         },
         {
           name: 'org-B',
-          permissions: [
-            { permissionId: 'p3', permissionLevel: 'creator', isChecked: true },
-          ],
+          permissions: [{ permissionId: 'p3', permissionLevel: 'creator', isChecked: true }],
         },
       ],
     };

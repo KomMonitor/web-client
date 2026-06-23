@@ -301,7 +301,10 @@ export class KommonitorFilterDataGridHelperService {
     return gridOptions;
   }
 
-  buildDataGridColumnConfig_regionalReferenceValues(_applicableDates, _regionalReferenceValuesList) {
+  buildDataGridColumnConfig_regionalReferenceValues(
+    _applicableDates,
+    _regionalReferenceValuesList
+  ) {
     const columnDefs = [
       {
         headerName: 'Zeitpunkt',
