@@ -9,133 +9,134 @@
   <app-loading-overlay [loading]="loadingData">
     <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
 
-  @if (datasetsToDelete.length === 0) {
-    <div>
-      <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
-    </div>
-  }
+    @if (datasetsToDelete.length === 0) {
+      <div>
+        <pre>
+kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
+        >
+      </div>
+    }
 
-  @if (getPoiDatasets().length > 0) {
-    <div>
-      <h4>Points of Interest</h4>
-      <ul>
-        @for (dataset of getPoiDatasets(); track dataset) {
-          <li>{{ dataset.datasetName }}</li>
+    @if (getPoiDatasets().length > 0) {
+      <div>
+        <h4>Points of Interest</h4>
+        <ul>
+          @for (dataset of getPoiDatasets(); track dataset) {
+            <li>{{ dataset.datasetName }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (getLoiDatasets().length > 0) {
+      <div>
+        <h4>Lines of Interest</h4>
+        <ul>
+          @for (dataset of getLoiDatasets(); track dataset) {
+            <li>{{ dataset.datasetName }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (getAoiDatasets().length > 0) {
+      <div>
+        <h4>Areas of Interest</h4>
+        <ul>
+          @for (dataset of getAoiDatasets(); track dataset) {
+            <li>{{ dataset.datasetName }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <br />
+
+    @if (datasetsToDelete.length > 0) {
+      <div>
+        <h3>ACHTUNG!</h3>
+        <p>
+          Dabei werden auch sämtliche <b>Indikatoren-Referenzen</b> auf die betroffenen
+          Georessourcen dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen die
+          betroffenen Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls
+          ungültig und daher aus dem System gelöscht
+        </p>
+        <h4>Betroffene Indikatorenreferenzen</h4>
+        @if (affectedIndicatorReferences.length === 0) {
+          <div>
+            <p>keine</p>
+          </div>
         }
-      </ul>
-    </div>
-  }
-
-  @if (getLoiDatasets().length > 0) {
-    <div>
-      <h4>Lines of Interest</h4>
-      <ul>
-        @for (dataset of getLoiDatasets(); track dataset) {
-          <li>{{ dataset.datasetName }}</li>
-        }
-      </ul>
-    </div>
-  }
-
-  @if (getAoiDatasets().length > 0) {
-    <div>
-      <h4>Areas of Interest</h4>
-      <ul>
-        @for (dataset of getAoiDatasets(); track dataset) {
-          <li>{{ dataset.datasetName }}</li>
-        }
-      </ul>
-    </div>
-  }
-
-  <br />
-
-  @if (datasetsToDelete.length > 0) {
-    <div>
-      <h3>ACHTUNG!</h3>
-      <p>
-        Dabei werden auch sämtliche <b>Indikatoren-Referenzen</b> auf die betroffenen Georessourcen
-        dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen die betroffenen
-        Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls ungültig und daher
-        aus dem System gelöscht
-      </p>
-      <h4>Betroffene Indikatorenreferenzen</h4>
-      @if (affectedIndicatorReferences.length === 0) {
-        <div>
-          <p>keine</p>
-        </div>
-      }
-      @if (affectedIndicatorReferences.length > 0) {
-        <div>
-          <table
-            class="table table-bordered table-condensed"
-            style="width: 100%; overflow: auto; font-size: 11px"
-          >
-            <thead>
-              <tr>
-                <th>Indikatoren-ID</th>
-                <th>Indikatoren-Name</th>
-                <th>Indikatoren-Merkmal</th>
-                <th>Indikatoren-Typ</th>
-                <th>Indikatoren-Beschreibung</th>
-                <th>referenzierte Georessource - ID</th>
-                <th>referenzierte Georessource - Name</th>
-                <th>referenzierte Georessource - Beschreibung</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (entry of affectedIndicatorReferences; track entry) {
+        @if (affectedIndicatorReferences.length > 0) {
+          <div>
+            <table
+              class="table table-bordered table-condensed"
+              style="width: 100%; overflow: auto; font-size: 11px"
+            >
+              <thead>
                 <tr>
-                  <td>{{ entry.indicatorMetadata.indicatorId }}</td>
-                  <td>{{ entry.indicatorMetadata.indicatorName }}</td>
-                  <td>{{ entry.indicatorMetadata.characteristicValue }}</td>
-                  <td>{{ entry.indicatorMetadata.indicatorType }}</td>
-                  <td>{{ entry.indicatorMetadata.description }}</td>
-                  <td>{{ entry.georesourceReference.referencedGeoresourceId }}</td>
-                  <td>{{ entry.georesourceReference.referencedGeoresourceName }}</td>
-                  <td>{{ entry.georesourceReference.referencedGeoresourceDescription }}</td>
+                  <th>Indikatoren-ID</th>
+                  <th>Indikatoren-Name</th>
+                  <th>Indikatoren-Merkmal</th>
+                  <th>Indikatoren-Typ</th>
+                  <th>Indikatoren-Beschreibung</th>
+                  <th>referenzierte Georessource - ID</th>
+                  <th>referenzierte Georessource - Name</th>
+                  <th>referenzierte Georessource - Beschreibung</th>
                 </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-      <h4>Betroffene Skripte</h4>
-      @if (affectedScripts.length === 0) {
-        <div>
-          <p>keine</p>
-        </div>
-      }
-      @if (affectedScripts.length > 0) {
-        <div>
-          <table
-            class="table table-bordered table-condensed"
-            style="width: 100%; overflow: auto; font-size: 11px"
-          >
-            <thead>
-              <tr>
-                <th>Skript-ID</th>
-                <th>Skript-Name</th>
-                <th>Skript-Beschreibung</th>
-                <th>ID des berechneten Indikators</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (script of affectedScripts; track trackByIndex($index, script)) {
+              </thead>
+              <tbody>
+                @for (entry of affectedIndicatorReferences; track entry) {
+                  <tr>
+                    <td>{{ entry.indicatorMetadata.indicatorId }}</td>
+                    <td>{{ entry.indicatorMetadata.indicatorName }}</td>
+                    <td>{{ entry.indicatorMetadata.characteristicValue }}</td>
+                    <td>{{ entry.indicatorMetadata.indicatorType }}</td>
+                    <td>{{ entry.indicatorMetadata.description }}</td>
+                    <td>{{ entry.georesourceReference.referencedGeoresourceId }}</td>
+                    <td>{{ entry.georesourceReference.referencedGeoresourceName }}</td>
+                    <td>{{ entry.georesourceReference.referencedGeoresourceDescription }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        <h4>Betroffene Skripte</h4>
+        @if (affectedScripts.length === 0) {
+          <div>
+            <p>keine</p>
+          </div>
+        }
+        @if (affectedScripts.length > 0) {
+          <div>
+            <table
+              class="table table-bordered table-condensed"
+              style="width: 100%; overflow: auto; font-size: 11px"
+            >
+              <thead>
                 <tr>
-                  <td>{{ script.scriptId }}</td>
-                  <td>{{ script.name }}</td>
-                  <td>{{ script.description }}</td>
-                  <td>{{ script.indicatorId }}</td>
+                  <th>Skript-ID</th>
+                  <th>Skript-Name</th>
+                  <th>Skript-Beschreibung</th>
+                  <th>ID des berechneten Indikators</th>
                 </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </div>
-  }
-
+              </thead>
+              <tbody>
+                @for (script of affectedScripts; track trackByIndex($index, script)) {
+                  <tr>
+                    <td>{{ script.scriptId }}</td>
+                    <td>{{ script.name }}</td>
+                    <td>{{ script.description }}</td>
+                    <td>{{ script.indicatorId }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
   </app-loading-overlay>
 
   <!-- Success Alert -->

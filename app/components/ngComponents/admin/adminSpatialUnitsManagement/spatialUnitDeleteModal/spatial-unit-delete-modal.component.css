@@ -290,14 +290,14 @@
 }
 
 .fa-check:before {
-  content: "\f00c";
+  content: '\f00c';
 }
 
 .fa-ban:before {
-  content: "\f05e";
+  content: '\f05e';
 }
 
 /* Hidden attribute support */
 [hidden] {
   display: none !important;
-} 
+}

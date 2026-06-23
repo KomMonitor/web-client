@@ -54,7 +54,7 @@
 
 #progressbar li.active:before,
 #progressbar li.active:after {
-  background: #27AE60;
+  background: #27ae60;
 }
 
 #progressbar li.clickable {
@@ -65,7 +65,7 @@
 .fs-title {
   font-size: 15px;
   text-transform: uppercase;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
 }
 
@@ -172,7 +172,7 @@
 }
 
 /* File input styling */
-input[type="file"] {
+input[type='file'] {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -180,7 +180,7 @@ input[type="file"] {
 }
 
 /* Color input styling */
-input[type="color"] {
+input[type='color'] {
   width: 100%;
   height: 34px;
   padding: 6px 12px;
@@ -242,15 +242,15 @@ textarea.form-control {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .col-xs-12 {
     margin-bottom: 15px;
   }
-  
+
   #progressbar li {
     font-size: 12px;
   }
-  
+
   #progressbar li:before {
     width: 40px;
     height: 40px;
@@ -268,12 +268,16 @@ textarea.form-control {
 /* Form validation states */
 .form-control.ng-invalid.ng-touched {
   border-color: #a94442;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.075),
+    0 0 6px #ce8483;
 }
 
 .form-control.ng-valid.ng-touched {
   border-color: #3c763d;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.075),
+    0 0 6px #67b168;
 }
 
 /* Navigation buttons */
@@ -352,4 +356,4 @@ textarea.form-control {
 
 .importer-section .form-group {
   margin-bottom: 10px;
-} 
+}

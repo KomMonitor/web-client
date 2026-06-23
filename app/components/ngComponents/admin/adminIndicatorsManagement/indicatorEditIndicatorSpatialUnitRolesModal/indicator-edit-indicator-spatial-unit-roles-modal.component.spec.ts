@@ -22,9 +22,7 @@ describe('IndicatorEditIndicatorSpatialUnitRolesModalComponent', () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     });
-    fixture = TestBed.createComponent(
-      IndicatorEditIndicatorSpatialUnitRolesModalComponent
-    );
+    fixture = TestBed.createComponent(IndicatorEditIndicatorSpatialUnitRolesModalComponent);
     component = fixture.componentInstance;
   });
 

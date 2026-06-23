@@ -1,26 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { 
-  Observable, 
-  BehaviorSubject, 
-  throwError, 
-  of, 
+import {
+  Observable,
+  BehaviorSubject,
+  throwError,
+  of,
   timer,
   catchError,
   retry,
   shareReplay,
   switchMap,
   tap,
-  map
+  map,
 } from 'rxjs';
 
 // TypeScript interfaces for better type safety
 export interface DatabaseModificationInfo {
   'access-control': string;
-  'topics': string;
+  topics: string;
   'spatial-units': string;
-  'georesources': string;
-  'indicators': string;
+  georesources: string;
+  indicators: string;
   'process-scripts': string;
 }
 
@@ -57,21 +57,21 @@ export interface SpatialUnitMetadata {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorCacheHelperService {
   private baseUrlToKomMonitorDataAPI: string = '';
   private lastDatabaseModificationInfo: DatabaseModificationInfo | null = null;
-  
+
   // Endpoints
   private spatialUnitsPublicEndpoint = '/public/spatial-units';
   private spatialUnitsProtectedEndpoint = '/spatial-units';
   private spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
-  
+
   // Local storage keys
   private localStorageKey_prefix: string = '';
   private localStorageKey_spatialUnits: string = '';
-  
+
   // Reactive subjects for state management
   private spatialUnitsSubject = new BehaviorSubject<SpatialUnitMetadata[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
@@ -96,13 +96,12 @@ export class KommonitorCacheHelperService {
     const env = (window as any).__env;
     this.baseUrlToKomMonitorDataAPI = env?.apiUrl + env?.basePath || '';
     this.localStorageKey_prefix = env?.localStoragePrefix || 'kommonitor';
-    this.localStorageKey_spatialUnits = this.localStorageKey_prefix + '_lastModification_spatialUnits';
-    
-    
-    
+    this.localStorageKey_spatialUnits =
+      this.localStorageKey_prefix + '_lastModification_spatialUnits';
+
     // Check authentication and set appropriate endpoints
     this.checkAuthentication();
-    
+
     // Fetch initial database modification info
     this.fetchLastDatabaseModificationObject();
   }
@@ -114,14 +113,12 @@ export class KommonitorCacheHelperService {
     // This would integrate with your authentication service
     // For now, we'll assume authenticated and use protected endpoints
     const isAuthenticated = this.isUserAuthenticated();
-    
+
     if (isAuthenticated) {
       this.spatialUnitsEndpoint = this.spatialUnitsProtectedEndpoint;
     } else {
       this.spatialUnitsEndpoint = this.spatialUnitsPublicEndpoint;
     }
-    
-    
   }
 
   /**
@@ -139,12 +136,11 @@ export class KommonitorCacheHelperService {
    */
   private fetchLastDatabaseModificationObject(): Observable<DatabaseModificationInfo> {
     const url = `${this.baseUrlToKomMonitorDataAPI}/public/database/last-modification`;
-    
+
     return this.http.get<DatabaseModificationInfo>(url).pipe(
-      tap(info => {
+      tap((info) => {
         this.lastDatabaseModificationInfo = info;
         this.lastModificationSubject.next(info);
-        
       }),
       catchError(this.handleError)
     );
@@ -154,18 +150,15 @@ export class KommonitorCacheHelperService {
    * Fetch spatial units metadata with caching
    */
   fetchSpatialUnitsMetadata(keycloakRolesArray: string[]): Observable<SpatialUnitMetadata[]> {
-    
-    
     // Check cache first
     const cachedData = this.getCachedSpatialUnits(keycloakRolesArray);
     if (cachedData) {
-      
       this.spatialUnitsSubject.next(cachedData);
       return of(cachedData);
     }
 
     // Fetch from server
-    
+
     this.setLoading(true);
     this.clearError();
 
@@ -178,9 +171,8 @@ export class KommonitorCacheHelperService {
       tap((data: SpatialUnitMetadata[]) => {
         this.spatialUnitsSubject.next(data);
         this.setLoading(false);
-        
       }),
-      catchError(error => {
+      catchError((error) => {
         this.setError(error);
         this.setLoading(false);
         return throwError(() => error);
@@ -191,9 +183,12 @@ export class KommonitorCacheHelperService {
   /**
    * Fetch single spatial unit metadata
    */
-  fetchSingleSpatialUnitMetadata(spatialUnitId: string, keycloakRolesArray: string[]): Observable<SpatialUnitMetadata> {
+  fetchSingleSpatialUnitMetadata(
+    spatialUnitId: string,
+    keycloakRolesArray: string[]
+  ): Observable<SpatialUnitMetadata> {
     const url = `${this.baseUrlToKomMonitorDataAPI}${this.spatialUnitsEndpoint}/${spatialUnitId}`;
-    
+
     return this.http.get<SpatialUnitMetadata>(url).pipe(
       tap(() => {
         // Refresh the full list in the background
@@ -214,17 +209,21 @@ export class KommonitorCacheHelperService {
     filter?: any
   ): Observable<T[]> {
     const url = `${this.baseUrlToKomMonitorDataAPI}${resourceEndpoint}`;
-    
+
     if (filter) {
       // POST request with filter
       return this.http.post<T[]>(`${url}/filter`, filter).pipe(
-        tap((data: T[]) => this.updateCache(localStorageKey, data, lastModificationResourceName, keycloakRolesArray)),
+        tap((data: T[]) =>
+          this.updateCache(localStorageKey, data, lastModificationResourceName, keycloakRolesArray)
+        ),
         catchError(this.handleError)
       );
     } else {
       // Standard GET request
       return this.http.get<T[]>(url).pipe(
-        tap((data: T[]) => this.updateCache(localStorageKey, data, lastModificationResourceName, keycloakRolesArray)),
+        tap((data: T[]) =>
+          this.updateCache(localStorageKey, data, lastModificationResourceName, keycloakRolesArray)
+        ),
         catchError(this.handleError)
       );
     }
@@ -239,7 +238,7 @@ export class KommonitorCacheHelperService {
     }
 
     const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
-    
+
     const cachedTimestamp = localStorage.getItem(timestampKey);
     if (!cachedTimestamp) {
       return null;
@@ -249,7 +248,6 @@ export class KommonitorCacheHelperService {
     const serverLastModified = this.lastDatabaseModificationInfo['spatial-units'];
 
     if (cachedLastModified !== serverLastModified) {
-      
       return null;
     }
 
@@ -260,10 +258,9 @@ export class KommonitorCacheHelperService {
 
     try {
       const parsedData = JSON.parse(cachedData);
-      
+
       return parsedData;
     } catch (error) {
-      
       return null;
     }
   }
@@ -282,24 +279,28 @@ export class KommonitorCacheHelperService {
     }
 
     const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
-    
+
     // Store timestamp
-    const timestamp = this.lastDatabaseModificationInfo[lastModificationResourceName as keyof DatabaseModificationInfo];
+    const timestamp =
+      this.lastDatabaseModificationInfo[
+        lastModificationResourceName as keyof DatabaseModificationInfo
+      ];
     localStorage.setItem(timestampKey, JSON.stringify(timestamp));
-    
+
     // Store data
     localStorage.setItem(metadataKey, JSON.stringify(data));
-    
-    
   }
 
   /**
    * Get cache keys based on roles
    */
-  private getCacheKeys(keycloakRolesArray: string[]): { timestampKey: string; metadataKey: string } {
+  private getCacheKeys(keycloakRolesArray: string[]): {
+    timestampKey: string;
+    metadataKey: string;
+  } {
     const env = (window as any).__env;
     let suffix = '_public';
-    
+
     if (keycloakRolesArray && keycloakRolesArray.length > 0) {
       if (keycloakRolesArray.includes(env?.keycloakKomMonitorAdminRoleName)) {
         suffix = '_' + env.keycloakKomMonitorAdminRoleName;
@@ -321,7 +322,6 @@ export class KommonitorCacheHelperService {
     const { timestampKey, metadataKey } = this.getCacheKeys(keycloakRolesArray);
     localStorage.removeItem(timestampKey);
     localStorage.removeItem(metadataKey);
-    
   }
 
   /**
@@ -329,9 +329,8 @@ export class KommonitorCacheHelperService {
    */
   clearAllCache(): void {
     const keys = Object.keys(localStorage);
-    const cacheKeys = keys.filter(key => key.startsWith(this.localStorageKey_prefix));
-    cacheKeys.forEach(key => localStorage.removeItem(key));
-    
+    const cacheKeys = keys.filter((key) => key.startsWith(this.localStorageKey_prefix));
+    cacheKeys.forEach((key) => localStorage.removeItem(key));
   }
 
   /**
@@ -396,7 +395,7 @@ export class KommonitorCacheHelperService {
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An error occurred';
-    
+
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
@@ -404,8 +403,7 @@ export class KommonitorCacheHelperService {
       // Server-side error
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    
-    
+
     return throwError(() => new Error(errorMessage));
   }
 
@@ -424,4 +422,4 @@ export class KommonitorCacheHelperService {
     this.clearSpatialUnitsCache(keycloakRolesArray);
     return this.fetchSpatialUnitsMetadata(keycloakRolesArray);
   }
-} 
+}

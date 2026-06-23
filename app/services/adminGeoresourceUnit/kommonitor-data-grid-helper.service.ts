@@ -2,23 +2,22 @@ import { Injectable } from '@angular/core';
 import { BroadcastService } from '../broadcast-service/broadcast.service';
 import { KommonitorGeoresourceDataExchangeService } from './kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { 
-  GridOptions, 
-  ColDef, 
-  GridApi, 
+import {
+  GridOptions,
+  ColDef,
+  GridApi,
   ColumnApi,
   ICellRendererParams,
   ICellRendererComp,
   GridReadyEvent,
   RowSelectedEvent,
-  CellClickedEvent
+  CellClickedEvent,
 } from 'ag-grid-community';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorGeoresourceDataGridHelperService {
-
   // Grid references
   private poiGrid: AgGridAngular | null = null;
   private loiGrid: AgGridAngular | null = null;
@@ -44,24 +43,42 @@ export class KommonitorGeoresourceDataGridHelperService {
 
     // Check user permissions (handle both array and potential undefined)
     const userPermissions = params.data.userPermissions || [];
-    const hasEditorPermission = Array.isArray(userPermissions) ? 
-      (userPermissions.includes("editor") || userPermissions.includes("creator")) : false;
-    const hasCreatorPermission = Array.isArray(userPermissions) ? 
-      userPermissions.includes("creator") : false;
+    const hasEditorPermission = Array.isArray(userPermissions)
+      ? userPermissions.includes('editor') || userPermissions.includes('creator')
+      : false;
+    const hasCreatorPermission = Array.isArray(userPermissions)
+      ? userPermissions.includes('creator')
+      : false;
 
     let html = '<div class="btn-group btn-group-sm">';
-    html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren" ' + 
-            (hasEditorPermission ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
-    html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" title="Features fortführen" ' + 
-            (hasEditorPermission ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
-    html += '<button id="' + editUserRolesButtonId + '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' + 
-            (hasCreatorPermission ? '' : 'disabled') + '><i class="fas fa-user-lock"></i></button>';
-    html += '<button id="' + deleteButtonId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen" ' + 
-            (hasCreatorPermission ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+    html +=
+      '<button id="' +
+      editMetadataButtonId +
+      '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" title="Metadaten editieren" ' +
+      (hasEditorPermission ? '' : 'disabled') +
+      '><i class="fas fa-pencil-alt"></i></button>';
+    html +=
+      '<button id="' +
+      editFeaturesButtonId +
+      '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" title="Features fortführen" ' +
+      (hasEditorPermission ? '' : 'disabled') +
+      '><i class="fas fa-draw-polygon"></i></button>';
+    html +=
+      '<button id="' +
+      editUserRolesButtonId +
+      '" class="btn btn-warning btn-sm georesourceEditUserRolesBtn" type="button" title="Zugriffsschutz und Eigentümerschaft editieren" ' +
+      (hasCreatorPermission ? '' : 'disabled') +
+      '><i class="fas fa-user-lock"></i></button>';
+    html +=
+      '<button id="' +
+      deleteButtonId +
+      '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" title="Georessource entfernen" ' +
+      (hasCreatorPermission ? '' : 'disabled') +
+      '><i class="fas fa-trash"></i></button>';
     html += '</div>';
 
     return html;
-  }
+  };
 
   /**
    * Initialize the grid references
@@ -77,7 +94,7 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   setComponentRef(componentRef: any): void {
     this.componentRef = componentRef;
-    
+
     // Update column definitions with the component reference for all grids
     this.updateColumnDefinitions();
   }
@@ -86,17 +103,16 @@ export class KommonitorGeoresourceDataGridHelperService {
    * Update column definitions with the current component reference
    */
   private updateColumnDefinitions(): void {
-
     if (this.poiGrid && this.poiGrid.api) {
       const poiColumnDefs = this.getPoiColumnDefinitions();
       this.poiGrid.api.setColumnDefs(poiColumnDefs);
     }
-    
+
     if (this.loiGrid && this.loiGrid.api) {
       const loiColumnDefs = this.getLoiColumnDefinitions();
       this.loiGrid.api.setColumnDefs(loiColumnDefs);
     }
-    
+
     if (this.aoiGrid && this.aoiGrid.api) {
       const aoiColumnDefs = this.getAoiColumnDefinitions();
       this.aoiGrid.api.setColumnDefs(aoiColumnDefs);
@@ -129,13 +145,13 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (!this.poiGrid) {
       return;
     }
-    const poiData = georesourcesArray.filter(item => item.isPOI);
+    const poiData = georesourcesArray.filter((item) => item.isPOI);
     const columnDefs = this.getPoiColumnDefinitions();
-    
+
     try {
       this.poiGrid.api?.setRowData(poiData);
       this.poiGrid.api?.setColumnDefs(columnDefs);
-      
+
       // Register click handlers after a short delay
       setTimeout(() => {
         this.registerClickHandler_georesources(georesourcesArray);
@@ -152,14 +168,14 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (!this.loiGrid) {
       return;
     }
-    
-    const loiData = georesourcesArray.filter(item => item.isLOI);
+
+    const loiData = georesourcesArray.filter((item) => item.isLOI);
     const columnDefs = this.getLoiColumnDefinitions();
-    
+
     try {
       this.loiGrid.api?.setRowData(loiData);
       this.loiGrid.api?.setColumnDefs(columnDefs);
-      
+
       // Register click handlers after a short delay
       setTimeout(() => {
         this.registerClickHandler_georesources(georesourcesArray);
@@ -176,14 +192,14 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (!this.aoiGrid) {
       return;
     }
-    
-    const aoiData = georesourcesArray.filter(item => item.isAOI);
+
+    const aoiData = georesourcesArray.filter((item) => item.isAOI);
     const columnDefs = this.getAoiColumnDefinitions();
-    
+
     try {
       this.aoiGrid.api?.setRowData(aoiData);
       this.aoiGrid.api?.setColumnDefs(columnDefs);
-      
+
       // Register click handlers after a short delay
       setTimeout(() => {
         this.registerClickHandler_georesources(georesourcesArray);
@@ -231,174 +247,186 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   private handleEditMetadataClick = (event: any): void => {
     event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
+
+    const georesourceId =
+      event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata =
+      this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+
     if (this.componentRef) {
       this.componentRef.onClickEditMetadata(georesourceMetadata);
     }
-  }
+  };
 
   /**
    * Handle edit features button click
    */
   private handleEditFeaturesClick = (event: any): void => {
     event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
+
+    const georesourceId =
+      event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata =
+      this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+
     if (this.componentRef) {
       this.componentRef.onClickEditFeatures(georesourceMetadata);
     }
-  }
+  };
 
   /**
    * Handle edit user roles button click
    */
   private handleEditUserRolesClick = (event: any): void => {
     event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
+
+    const georesourceId =
+      event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata =
+      this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+
     if (this.componentRef) {
       this.componentRef.onClickEditUserRoles(georesourceMetadata);
     }
-  }
+  };
 
   /**
    * Handle delete button click
    */
   private handleDeleteClick = (event: any): void => {
     event.stopPropagation();
-    
-    const georesourceId = event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
-    const georesourceMetadata = this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
-    
+
+    const georesourceId =
+      event.target.id.split('_')[3] || event.target.closest('button').id.split('_')[3];
+    const georesourceMetadata =
+      this.kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
+
     if (this.componentRef) {
       this.componentRef.onClickDeleteGeoresource(georesourceMetadata);
     }
-  }
+  };
 
   /**
    * Get POI column definitions
    */
   private getPoiColumnDefinitions(): ColDef[] {
     return [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 200, 
+      {
+        headerName: 'Editierfunktionen',
+        pinned: 'left',
+        maxWidth: 200,
         minWidth: 180,
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: 'displayEditButtons_georesources' 
+        checkboxSelection: false,
+        headerCheckboxSelection: false,
+        headerCheckboxSelectionFilteredOnly: true,
+        filter: false,
+        sortable: false,
+        cellRenderer: 'displayEditButtons_georesources',
       },
-      { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
-      { 
-        headerName: 'Symbolfarbe', 
-        field: "poiSymbolColor", 
+      { headerName: 'Id', field: 'georesourceId', pinned: 'left', maxWidth: 125 },
+      { headerName: 'Name', field: 'datasetName', pinned: 'left', minWidth: 300 },
+      {
+        headerName: 'Symbolfarbe',
+        field: 'poiSymbolColor',
         maxWidth: 125,
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
           const color = params.data.poiSymbolColor || '#000000';
           return `<div>${color}</div><br/><div style='width: 20px; height: 20px; background-color: ${color};'></div>`;
-        }
+        },
       },
-      { 
-        headerName: 'Symbolname', 
-        field: "poiSymbolBootstrap3Name", 
+      {
+        headerName: 'Symbolname',
+        field: 'poiSymbolBootstrap3Name',
         maxWidth: 125,
         cellRenderer: (params: any) => {
           const symbolName = params.data.poiSymbolBootstrap3Name || 'home';
           return `${symbolName}<br/><br/><span class='glyphicon glyphicon-${symbolName}'></span>`;
-        }
+        },
       },
-      { 
-        headerName: 'Markerfarbe', 
-        field: "poiMarkerColor", 
+      {
+        headerName: 'Markerfarbe',
+        field: 'poiMarkerColor',
         maxWidth: 125,
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
           const color = params.data.poiMarkerColor || '#000000';
           return `<div>${color}</div><br/><div style='width: 20px; height: 20px; background-color: ${color};'></div>`;
-        }
-      },
-      { 
-        headerName: 'Beschreibung', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => {
-          return params.data.metadata?.description || '';
-        }
+        },
       },
       {
-        headerName: 'Gültigkeitszeitraum', 
+        headerName: 'Beschreibung',
         minWidth: 400,
         cellRenderer: (params: any) => {
-          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          return params.data.metadata?.description || '';
+        },
+      },
+      {
+        headerName: 'Gültigkeitszeitraum',
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          let html =
+            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
           for (const periodOfValidity of params.data.availablePeriodsOfValidity || []) {
             html += '<li style="margin-right: 15px;">';
-            if(periodOfValidity.endDate){
-              html += "<p>" + periodOfValidity.startDate + " &dash; " + periodOfValidity.endDate + "</p>";
+            if (periodOfValidity.endDate) {
+              html +=
+                '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
             } else {
-              html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
-            }                
+              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
+            }
             html += '</li>';
           }
           html += '</ul>';
           return html;
-        }
+        },
       },
-      { 
-        headerName: 'Themenhierarchie', 
-        minWidth: 400, 
+      {
+        headerName: 'Themenhierarchie',
+        minWidth: 400,
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
-        }
+          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(
+            params.data.topicReference
+          );
+        },
       },
-      { 
-        headerName: 'Datenquelle', 
-        minWidth: 400, 
+      {
+        headerName: 'Datenquelle',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata?.datasource || '';
-        }
+        },
       },
-      { 
-        headerName: 'Datenhalter und Kontakt', 
-        minWidth: 400, 
+      {
+        headerName: 'Datenhalter und Kontakt',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata?.contact || '';
-        }
+        },
       },
-      { 
-        headerName: 'Rollen', 
-        minWidth: 400, 
+      {
+        headerName: 'Rollen',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
-        }
+        },
       },
-      { 
-        headerName: 'Öffentlich sichtbar', 
-        minWidth: 400, 
+      {
+        headerName: 'Öffentlich sichtbar',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.isPublic ? 'ja' : 'nein';
-        }
+        },
       },
-      { 
-        headerName: 'Eigentümer', 
-        minWidth: 400, 
+      {
+        headerName: 'Eigentümer',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -407,109 +435,115 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   private getLoiColumnDefinitions(): ColDef[] {
     return [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 200, 
+      {
+        headerName: 'Editierfunktionen',
+        pinned: 'left',
+        maxWidth: 200,
         minWidth: 180,
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: 'displayEditButtons_georesources' 
+        checkboxSelection: false,
+        headerCheckboxSelection: false,
+        headerCheckboxSelectionFilteredOnly: true,
+        filter: false,
+        sortable: false,
+        cellRenderer: 'displayEditButtons_georesources',
       },
-      { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
-      { 
-        headerName: 'Linienfarbe', 
-        field: "loiColor", 
+      { headerName: 'Id', field: 'georesourceId', pinned: 'left', maxWidth: 125 },
+      { headerName: 'Name', field: 'datasetName', pinned: 'left', minWidth: 300 },
+      {
+        headerName: 'Linienfarbe',
+        field: 'loiColor',
         maxWidth: 125,
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
           const color = params.data.loiColor || '#000000';
           return `<div>${color}</div><br/><div style='width: 20px; height: 20px; background-color: ${color};'></div>`;
-        }
+        },
       },
-      { headerName: 'Linienbreite', field: "loiWidth", maxWidth: 125 },
-      { 
-        headerName: 'Linienmuster', 
-        field: "loiDashArrayString", 
+      { headerName: 'Linienbreite', field: 'loiWidth', maxWidth: 125 },
+      {
+        headerName: 'Linienmuster',
+        field: 'loiDashArrayString',
         maxWidth: 125,
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getLoiDashSvgFromStringValue(params.data.loiDashArrayString);
-        }
-      },
-      { 
-        headerName: 'Beschreibung', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => {
-          return params.data.metadata?.description || '';
-        }
+          return this.kommonitorDataExchangeService.getLoiDashSvgFromStringValue(
+            params.data.loiDashArrayString
+          );
+        },
       },
       {
-        headerName: 'Gültigkeitszeitraum', 
+        headerName: 'Beschreibung',
         minWidth: 400,
         cellRenderer: (params: any) => {
-          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          return params.data.metadata?.description || '';
+        },
+      },
+      {
+        headerName: 'Gültigkeitszeitraum',
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          let html =
+            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
           for (const periodOfValidity of params.data.availablePeriodsOfValidity || []) {
             html += '<li style="margin-right: 15px;">';
-            if(periodOfValidity.endDate){
-              html += "<p>" + periodOfValidity.startDate + " &dash; " + periodOfValidity.endDate + "</p>";
+            if (periodOfValidity.endDate) {
+              html +=
+                '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
             } else {
-              html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
-            }                
+              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
+            }
             html += '</li>';
           }
           html += '</ul>';
           return html;
-        }
+        },
       },
-      { 
-        headerName: 'Themenhierarchie', 
-        minWidth: 400, 
+      {
+        headerName: 'Themenhierarchie',
+        minWidth: 400,
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
-        }
+          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(
+            params.data.topicReference
+          );
+        },
       },
-      { 
-        headerName: 'Datenquelle', 
-        minWidth: 400, 
+      {
+        headerName: 'Datenquelle',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata?.datasource || '';
-        }
+        },
       },
-      { 
-        headerName: 'Datenhalter und Kontakt', 
-        minWidth: 400, 
+      {
+        headerName: 'Datenhalter und Kontakt',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata?.contact || '';
-        }
+        },
       },
-      { 
-        headerName: 'Rollen', 
-        minWidth: 400, 
+      {
+        headerName: 'Rollen',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
-        }
+        },
       },
-      { 
-        headerName: 'Öffentlich sichtbar', 
-        minWidth: 400, 
+      {
+        headerName: 'Öffentlich sichtbar',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.isPublic ? 'ja' : 'nein';
-        }
+        },
       },
-      { 
-        headerName: 'Eigentümer', 
-        minWidth: 400, 
+      {
+        headerName: 'Eigentümer',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -518,98 +552,102 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   private getAoiColumnDefinitions(): ColDef[] {
     return [
-      { 
-        headerName: 'Editierfunktionen', 
-        pinned: 'left', 
-        maxWidth: 200, 
+      {
+        headerName: 'Editierfunktionen',
+        pinned: 'left',
+        maxWidth: 200,
         minWidth: 180,
-        checkboxSelection: false, 
-        headerCheckboxSelection: false, 
-        headerCheckboxSelectionFilteredOnly: true, 
-        filter: false, 
-        sortable: false, 
-        cellRenderer: 'displayEditButtons_georesources' 
+        checkboxSelection: false,
+        headerCheckboxSelection: false,
+        headerCheckboxSelectionFilteredOnly: true,
+        filter: false,
+        sortable: false,
+        cellRenderer: 'displayEditButtons_georesources',
       },
-      { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
-      { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
-      { 
-        headerName: 'Polygonfarbe', 
-        field: "aoiColor", 
+      { headerName: 'Id', field: 'georesourceId', pinned: 'left', maxWidth: 125 },
+      { headerName: 'Name', field: 'datasetName', pinned: 'left', minWidth: 300 },
+      {
+        headerName: 'Polygonfarbe',
+        field: 'aoiColor',
         maxWidth: 125,
         filter: false,
         sortable: false,
         cellRenderer: (params: any) => {
           const color = params.data.aoiColor || '#000000';
           return `<div>${color}</div><br/><div style='width: 20px; height: 20px; background-color: ${color};'></div>`;
-        }
-      },
-      { 
-        headerName: 'Beschreibung', 
-        minWidth: 400, 
-        cellRenderer: (params: any) => {
-          return params.data.metadata?.description || '';
-        }
+        },
       },
       {
-        headerName: 'Gültigkeitszeitraum', 
+        headerName: 'Beschreibung',
         minWidth: 400,
         cellRenderer: (params: any) => {
-          let html = '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
+          return params.data.metadata?.description || '';
+        },
+      },
+      {
+        headerName: 'Gültigkeitszeitraum',
+        minWidth: 400,
+        cellRenderer: (params: any) => {
+          let html =
+            '<ul style="columns: 5; -webkit-columns: 5; -moz-columns: 5; word-break: break-word !important;">';
           for (const periodOfValidity of params.data.availablePeriodsOfValidity || []) {
             html += '<li style="margin-right: 15px;">';
-            if(periodOfValidity.endDate){
-              html += "<p>" + periodOfValidity.startDate + " &dash; " + periodOfValidity.endDate + "</p>";
+            if (periodOfValidity.endDate) {
+              html +=
+                '<p>' + periodOfValidity.startDate + ' &dash; ' + periodOfValidity.endDate + '</p>';
             } else {
-              html += "<p>" + periodOfValidity.startDate + " &dash; heute</p>";
-            }                
+              html += '<p>' + periodOfValidity.startDate + ' &dash; heute</p>';
+            }
             html += '</li>';
           }
           html += '</ul>';
           return html;
-        }
+        },
       },
-      { 
-        headerName: 'Themenhierarchie', 
-        minWidth: 400, 
+      {
+        headerName: 'Themenhierarchie',
+        minWidth: 400,
         cellRenderer: (params: any) => {
-          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(params.data.topicReference);
-        }
+          return this.kommonitorDataExchangeService.getTopicHierarchyDisplayString(
+            params.data.topicReference
+          );
+        },
       },
-      { 
-        headerName: 'Datenquelle', 
-        minWidth: 400, 
+      {
+        headerName: 'Datenquelle',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata?.datasource || '';
-        }
+        },
       },
-      { 
-        headerName: 'Datenhalter und Kontakt', 
-        minWidth: 400, 
+      {
+        headerName: 'Datenhalter und Kontakt',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.metadata?.contact || '';
-        }
+        },
       },
-      { 
-        headerName: 'Rollen', 
-        minWidth: 400, 
+      {
+        headerName: 'Rollen',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return this.kommonitorDataExchangeService.getAllowedRolesString(params.data.permissions);
-        }
+        },
       },
-      { 
-        headerName: 'Öffentlich sichtbar', 
-        minWidth: 400, 
+      {
+        headerName: 'Öffentlich sichtbar',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return params.data.isPublic ? 'ja' : 'nein';
-        }
+        },
       },
-      { 
-        headerName: 'Eigentümer', 
-        minWidth: 400, 
+      {
+        headerName: 'Eigentümer',
+        minWidth: 400,
         cellRenderer: (params: any) => {
           return this.kommonitorDataExchangeService.getRoleTitle(params.data.ownerId);
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -618,7 +656,7 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   getSelectedGeoresourcesMetadata(): any[] {
     const selectedRows: any[] = [];
-    
+
     if (this.poiGrid?.api) {
       selectedRows.push(...this.poiGrid.api.getSelectedRows());
     }
@@ -628,7 +666,7 @@ export class KommonitorGeoresourceDataGridHelperService {
     if (this.aoiGrid?.api) {
       selectedRows.push(...this.aoiGrid.api.getSelectedRows());
     }
-    
+
     return selectedRows;
   }
 
@@ -662,7 +700,7 @@ export class KommonitorGeoresourceDataGridHelperService {
    */
   exportToCsv(gridType: 'poi' | 'loi' | 'aoi'): void {
     let gridApi: GridApi | undefined = undefined;
-    
+
     switch (gridType) {
       case 'poi':
         gridApi = this.poiGrid?.api;
@@ -674,10 +712,10 @@ export class KommonitorGeoresourceDataGridHelperService {
         gridApi = this.aoiGrid?.api;
         break;
     }
-    
+
     if (gridApi) {
       gridApi.exportDataAsCsv({
-        fileName: `georesources_${gridType}_${this.getCurrentTimestampString()}.csv`
+        fileName: `georesources_${gridType}_${this.getCurrentTimestampString()}.csv`,
       });
     }
   }
@@ -688,7 +726,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   getPoiGridOptions(): any {
     return {
       components: {
-        displayEditButtons_georesources: this.displayEditButtons_georesources
+        displayEditButtons_georesources: this.displayEditButtons_georesources,
       },
       defaultColDef: {
         editable: false,
@@ -697,7 +735,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         floatingFilter: true,
         resizable: true,
         wrapText: true,
-        autoHeight: true
+        autoHeight: true,
       },
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
@@ -715,7 +753,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         setTimeout(() => {
           this.registerClickHandler_georesources([]);
         }, 100);
-      }
+      },
     };
   }
 
@@ -725,7 +763,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   getLoiGridOptions(): any {
     return {
       components: {
-        displayEditButtons_georesources: this.displayEditButtons_georesources
+        displayEditButtons_georesources: this.displayEditButtons_georesources,
       },
       defaultColDef: {
         editable: false,
@@ -734,7 +772,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         floatingFilter: true,
         resizable: true,
         wrapText: true,
-        autoHeight: true
+        autoHeight: true,
       },
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
@@ -752,7 +790,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         setTimeout(() => {
           this.registerClickHandler_georesources([]);
         }, 100);
-      }
+      },
     };
   }
 
@@ -762,7 +800,7 @@ export class KommonitorGeoresourceDataGridHelperService {
   getAoiGridOptions(): any {
     return {
       components: {
-        displayEditButtons_georesources: this.displayEditButtons_georesources
+        displayEditButtons_georesources: this.displayEditButtons_georesources,
       },
       defaultColDef: {
         editable: false,
@@ -771,7 +809,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         floatingFilter: true,
         resizable: true,
         wrapText: true,
-        autoHeight: true
+        autoHeight: true,
       },
       suppressRowClickSelection: true,
       rowSelection: 'multiple',
@@ -789,7 +827,7 @@ export class KommonitorGeoresourceDataGridHelperService {
         setTimeout(() => {
           this.registerClickHandler_georesources([]);
         }, 100);
-      }
+      },
     };
   }
-} 
+}

@@ -21,8 +21,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Multi-step Form Styles */
@@ -49,7 +53,7 @@
 .multiStepForm .fs-title {
   font-size: 15px;
   text-transform: uppercase;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
   letter-spacing: 2px;
   font-weight: bold;
@@ -95,17 +99,17 @@
 
 #progressbar li.active:before,
 #progressbar li.active:after {
-  background: #27AE60;
+  background: #27ae60;
 }
 
 #progressbar li.active {
-  color: #27AE60;
+  color: #27ae60;
 }
 
 /* Action Buttons */
 .action-button {
   width: 100px;
-  background: #27AE60;
+  background: #27ae60;
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -129,12 +133,16 @@
 
 .action-button:hover,
 .action-button:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #27ae60;
 }
 
 .action-button-previous:hover,
 .action-button-previous:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #616161;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #616161;
 }
 
 /* Table Styles */
@@ -205,14 +213,18 @@
   background-image: none;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition:
+    border-color ease-in-out 0.15s,
+    box-shadow ease-in-out 0.15s;
 }
 
 .form-control:focus {
   border-color: #66afe9;
   outline: 0;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.075),
+    0 0 8px rgba(102, 175, 233, 0.6);
 }
 
 .help-block {
@@ -287,17 +299,17 @@
   .modal-xl {
     max-width: 95%;
   }
-  
+
   .col-md-3,
   .col-md-4,
   .col-md-6 {
     margin-bottom: 15px;
   }
-  
+
   #progressbar li {
     font-size: 12px;
   }
-  
+
   .action-button,
   .action-button-previous {
     width: 80px;
@@ -332,4 +344,4 @@ code {
   color: #c7254e;
   background-color: #f9f2f4;
   border-radius: 4px;
-} 
+}

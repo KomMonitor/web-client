@@ -69,8 +69,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Form adjustments */
@@ -92,4 +96,4 @@
 .input-group-addon {
   padding: 6px 8px;
   font-size: 11px;
-} 
+}

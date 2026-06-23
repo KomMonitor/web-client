@@ -2,7 +2,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Startseiten-Einstellungen 
+      Startseiten-Einstellungen
       <small>Anpassen der Startseite des KomMonitor Clients</small>
     </h1>
   </section>
@@ -17,21 +17,25 @@
         <!-- <textarea #codeEditor></textarea> -->
         <!-- /.box-header -->
         <div class="box-body">
-          <p>Nehmen Sie Anpassungen an der Startseite des Web-Clients vor und speichern Sie diese. Die Editierungen erfolgen direkt im HTML-Format. Dies speichert die Konfiguration im Config Storage Service von KomMonitor, von dem die Startseite beim Start der Anwendung geladen wird. 
+          <p>
+            Nehmen Sie Anpassungen an der Startseite des Web-Clients vor und speichern Sie diese.
+            Die Editierungen erfolgen direkt im HTML-Format. Dies speichert die Konfiguration im
+            Config Storage Service von KomMonitor, von dem die Startseite beim Start der Anwendung
+            geladen wird.
           </p>
 
-          <hr>
-          <br/>
+          <hr />
+          <br />
 
-          <div class="row vertical-align box-top">						
+          <div class="row vertical-align box-top">
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Editierfenster der Startseiten-Einstellungen</label>
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <textarea #appLandingpageEditor id="appLandingpageEditor"></textarea>
               </div>
-             <!--  <div class="help-block with-errors" *ngIf="configSettingInvalid">
+              <!--  <div class="help-block with-errors" *ngIf="configSettingInvalid">
                 Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JavaScript-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JavaScript geparsed werden kann.
               </div>
               <div class="help-block with-errors" *ngIf="missingRequiredParameters && missingRequiredParameters.length > 0">
@@ -41,58 +45,92 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
               <div class="form-group">
                 <label>Vorschaufenster</label>
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <div id="newLandingpagePreview">
                   <ul class="nav nav-tabs" id="infoModalTabs" role="tablist">
                     <li class="nav-item active">
-                      <a class="nav-link active" id="infoModalCustomTab" data-toggle="tab" href="#infoModalCustomTabContent"
-                        role="tab" aria-controls="infoModalCustomTabContent" aria-selected="true">{{customTabTitle}}</a>
-                    </li> 
+                      <a
+                        class="nav-link active"
+                        id="infoModalCustomTab"
+                        data-toggle="tab"
+                        href="#infoModalCustomTabContent"
+                        role="tab"
+                        aria-controls="infoModalCustomTabContent"
+                        aria-selected="true"
+                        >{{ customTabTitle }}</a
+                      >
+                    </li>
                     <li class="nav-item">
-                      <a class="nav-link" role="tab"  aria-selected="true">{{tab1Title}}</a>
+                      <a class="nav-link" role="tab" aria-selected="true">{{ tab1Title }}</a>
                     </li>
                   </ul>
                   <div class="tab-content" id="infoModalTabContent">
-                    <div class="tab-pane active" id="infoModalCustomTabContent" role="tabpanel"
-                      aria-labelledby="infoModalCustomTab">
+                    <div
+                      class="tab-pane active"
+                      id="infoModalCustomTabContent"
+                      role="tabpanel"
+                      aria-labelledby="infoModalCustomTab"
+                    >
                       <div [innerHTML]="appConfigNew | safeHtml"></div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>	
-          
+          </div>
+
           <div class="row vertical-align">
             <div class="col-md-12 text-center">
               <div class="form-group">
-                <button type="button" class="btn btn-success" (click)="editAppConfig()">App-Konfiguration speichern</button>
+                <button type="button" class="btn btn-success" (click)="editAppConfig()">
+                  App-Konfiguration speichern
+                </button>
               </div>
             </div>
           </div>
         </div>
         <!-- /.box-body -->
 
-        <div id="appLandingpageConfigEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-          class="alert alert-success alert-dismissable">
-          <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
-          <h4><i class="icon fa fa-check"></i>Startseiten-Konfiguration in Config Storage Server gespeichert</h4>
-          <p>Die neuen Inhalte werden beim n&auml;chsten Start der Anwendung vom Config Storage Server geladen und verwendet.
+        <div
+          id="appLandingpageConfigEditSuccessAlert"
+          style="position: absolute; bottom: 0px; width: 100%"
+          hidden
+          class="alert alert-success alert-dismissable"
+        >
+          <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
+            &times;
+          </button>
+          <h4>
+            <i class="icon fa fa-check"></i>Startseiten-Konfiguration in Config Storage Server
+            gespeichert
+          </h4>
+          <p>
+            Die neuen Inhalte werden beim n&auml;chsten Start der Anwendung vom Config Storage
+            Server geladen und verwendet.
           </p>
         </div>
 
-        <div id="appLandingpageConfigEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-          class="alert alert-danger alert-dismissable">
-          <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-          <h4><i class="icon fa fa-ban"></i>Speichern der Startseiten-Konfiguration in Config Storage Server gescheitert</h4>
+        <div
+          id="appLandingpageConfigEditErrorAlert"
+          style="position: absolute; bottom: 0px; width: 100%"
+          hidden
+          class="alert alert-danger alert-dismissable"
+        >
+          <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
+            &times;
+          </button>
+          <h4>
+            <i class="icon fa fa-ban"></i>Speichern der Startseiten-Konfiguration in Config Storage
+            Server gescheitert
+          </h4>
           Fehlermeldung:
           <br />
-          <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessagePart"></pre>
+          <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
         </div>
       </div>
       <!-- /.box -->
     </div>
   </section>
   <!-- /.content -->
-</div> 
+</div>

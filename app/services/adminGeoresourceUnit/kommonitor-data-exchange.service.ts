@@ -4,7 +4,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KommonitorGeoresourceDataExchangeService {
   // Private subjects for reactive updates if needed in the future
@@ -13,18 +13,18 @@ export class KommonitorGeoresourceDataExchangeService {
 
   constructor(
     private angularJsDataExchangeService: DataExchangeService,
-    private topicHierarchyService: TopicHierarchyService,
+    private topicHierarchyService: TopicHierarchyService
   ) {}
 
   /**
-   * Get available georesources - 
+   * Get available georesources -
    */
   get availableGeoresources(): any[] {
     return this.angularJsDataExchangeService.availableGeoresources || [];
   }
 
   /**
-   * Get current Keycloak login roles - 
+   * Get current Keycloak login roles -
    */
   get currentKeycloakLoginRoles(): string[] {
     return this.angularJsDataExchangeService.currentKeycloakLoginRoles || [];
@@ -104,7 +104,10 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get topic hierarchy display string - delegates to AngularJS service
    */
   getTopicHierarchyDisplayString(topicReference: any): string {
-    return this.topicHierarchyService.getTopicHierarchyDisplayString(this.angularJsDataExchangeService.availableTopics, topicReference);
+    return this.topicHierarchyService.getTopicHierarchyDisplayString(
+      this.angularJsDataExchangeService.availableTopics,
+      topicReference
+    );
   }
 
   /**
@@ -120,4 +123,4 @@ export class KommonitorGeoresourceDataExchangeService {
   getLoiDashSvgFromStringValue(dashArrayString: string): any {
     return this.angularJsDataExchangeService.getLoiDashSvgFromStringValue(dashArrayString);
   }
-} 
+}

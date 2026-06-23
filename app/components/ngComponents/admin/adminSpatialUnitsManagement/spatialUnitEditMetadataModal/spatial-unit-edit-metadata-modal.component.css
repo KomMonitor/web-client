@@ -45,14 +45,15 @@
   position: absolute;
   left: -50%;
   top: 9px;
-  z-index: -1; 
+  z-index: -1;
 }
 
 #progressbar li:first-child:after {
   content: none;
 }
 
-#progressbar li.active:before, #progressbar li.active:after {
+#progressbar li.active:before,
+#progressbar li.active:after {
   background: var(--kommonitor-primary);
   color: white;
 }
@@ -75,7 +76,7 @@
 .fs-title {
   font-size: 24px;
   text-transform: uppercase;
-  color: #2C3E50;
+  color: #2c3e50;
   margin-bottom: 10px;
   text-align: center;
 }
@@ -102,8 +103,11 @@
   display: inline-block;
 }
 
-.action-button:hover, .action-button:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px var(--kommonitor-primary);
+.action-button:hover,
+.action-button:focus {
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px var(--kommonitor-primary);
   background: var(--kommonitor-primary);
   color: white;
 }
@@ -121,8 +125,11 @@
   display: inline-block;
 }
 
-.action-button-previous:hover, .action-button-previous:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #C5C5F1;
+.action-button-previous:hover,
+.action-button-previous:focus {
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 3px #c5c5f1;
   background: rgb(236, 138, 138);
   color: white;
 }
@@ -142,7 +149,7 @@
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #ddd;
- 
+
   font-size: 14px;
 }
 
@@ -182,7 +189,7 @@
 }
 
 .glyphicon-refresh:before {
-  content: "\e031";
+  content: '\e031';
 }
 
 .icon-spin {
@@ -374,4 +381,4 @@
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px;
-} 
+}
