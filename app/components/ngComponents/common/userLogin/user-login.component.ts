@@ -60,7 +60,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   private popoverLeaveUnlisten?: () => void;
 
   authenticated = false;
-  enableKeycloakSecurity = false;
   currentKeycloakUser: KeycloakUser = {};
   userRoleInformation: UserRoleInformation = {};
   userGroupInformation: string[][] = [];
@@ -75,6 +74,14 @@ export class UserLoginComponent implements OnInit, OnDestroy {
       this.router.url.includes("/administration") ||
       this.router.url.includes("/admin")
     );
+  }
+
+  // Read directly from the (startup-populated, stable) config rather than caching
+  // it in a field that is set late from an async broadcast handler. The cached
+  // field changed value between change-detection passes and caused NG0100 on the
+  // [disablePopover] binding once app-wide ticks were triggered by signals.
+  get enableKeycloakSecurity(): boolean {
+    return this.envConfigService.enableKeycloakSecurity;
   }
 
   constructor(
@@ -122,8 +129,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
 
   checkAuthentication(): void {
     this.dataExchangeService.currentKeycloakLoginRoles = [];
-    this.enableKeycloakSecurity =
-      this.envConfigService.enableKeycloakSecurity;
 
     this.authenticated = this.authService.isAuthenticated();
     if (this.authenticated) {
