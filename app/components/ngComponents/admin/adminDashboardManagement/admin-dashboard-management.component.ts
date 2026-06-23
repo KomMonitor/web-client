@@ -1,16 +1,17 @@
-import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import * as echarts from 'echarts/core';
 import type { EChartsOption, TooltipComponentOption } from 'echarts';
+import * as echarts from 'echarts';
 
-import { SmallBoxComponent } from './small-box/small-box.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
+import { SmallBoxComponent } from './small-box/small-box.component';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
+import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 
 interface PieSeriesDataItem {
   name: string;
@@ -33,8 +34,6 @@ const PIE_TOOLTIP: TooltipComponentOption = {
 };
 
 const PIE_LABEL = { position: 'inner' as const };
-
-const FALLBACK_TIMEOUT_MS = 5_000;
 
 /** Recursively collects all sub-topics from a topic tree. */
 function collectSubTopics(topics: any[]): any[] {
@@ -102,127 +101,89 @@ export class AdminDashboardManagementComponent implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
 
-  loadingData = true;
+  loadingData = signal(true);
 
-  organisationCount = '0';
-  topicCounts = '0/0';
-  topicsLabel = '';
-  indicatorCount = '';
-  georesourceCount = '';
-  spatialUnitCount = '';
-  indicatorScriptCount = '';
+  organisationCount = signal('0');
+  topicCounts = signal('0/0');
+  topicsLabel = signal('');
+  indicatorCount = signal('');
+  georesourceCount = signal('');
+  spatialUnitCount = signal('');
+  indicatorScriptCount = signal('');
 
-  indicatorsPerTopicChartOptions: EChartsOption | null = null;
-  georesourcesPerTypeChartOptions: EChartsOption | null = null;
-  indicatorsPerSpatialUnitChartOptions: EChartsOption | null = null;
-
-  private initializationTimeout: ReturnType<typeof setTimeout> | null = null;
+  indicatorsPerTopicChartOptions = signal<EChartsOption | null>(null);
+  georesourcesPerTypeChartOptions = signal<EChartsOption | null>(null);
+  indicatorsPerSpatialUnitChartOptions = signal<EChartsOption | null>(null);
 
   ngOnInit(): void {
-    this.setupBroadcastListeners();
-    this.setupLanguageChangeListener();
+    this.dataExchange.metadataLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.refreshDashboard();
+        } else if (state === MetadataLoadingState.ERROR) {
+          this.loadingData.set(false);
+        }
+      });
 
-    this.tryInitialize();
-
-    // Fallback in case broadcast events never fire
-    this.initializationTimeout = setTimeout(() => {
-      this.tryInitialize();
-    }, FALLBACK_TIMEOUT_MS);
-
-    this.destroyRef.onDestroy(() => this.clearTimeout());
-  }
-
-  private tryInitialize(): void {
-    if (this.isDataAvailable()) {
-      this.refreshDashboard();
-      this.clearTimeout();
-    }
-  }
-
-  private isDataAvailable(): boolean {
-    const d = this.dataExchange;
-    return !!(
-      d?.availableTopics?.length &&
-      d.availableIndicators &&
-      d.availableGeoresources &&
-      d.availableSpatialUnits
-    );
-  }
-
-  private clearTimeout(): void {
-    if (this.initializationTimeout) {
-      clearTimeout(this.initializationTimeout);
-      this.initializationTimeout = null;
-    }
-  }
-
-  private setupBroadcastListeners(): void {
+    // Refresh the diagrams after admin CRUD operations broadcast a change.
     this.broadcastService.currentBroadcastMsg
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => {
-        switch (msg.msg) {
-          case 'refreshAdminDashboardDiagrams':
-            this.refreshDashboard();
-            break;
-          case 'initialMetadataLoadingFailed':
-            this.loadingData = false;
-            this.clearTimeout();
-            break;
-          case 'initialMetadataLoadingCompleted':
-            this.clearTimeout();
-            setTimeout(() => this.refreshDashboard(), 250);
-            break;
+        if (msg.msg === 'refreshAdminDashboardDiagrams') {
+          this.refreshDashboard();
         }
       });
+
+    this.setupLanguageChangeListener();
   }
 
   private setupLanguageChangeListener(): void {
-    this.translateService.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (this.isDataAvailable()) {
-        this.refreshDashboard();
-      }
-    });
+    this.translateService.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refreshDashboard());
   }
 
   refreshDashboard(): void {
-    if (!this.isDataAvailable()) {
-      this.loadingData = false;
-      return;
-    }
-
+    // Writing the signals below is enough to (re-)render: even though this runs
+    // downstream of awaited Keycloak/cache promises that may resolve outside the
+    // Angular zone, signal writes notify Angular's reactive scheduler, which
+    // schedules change detection itself — no NgZone / detectChanges() required.
     try {
       this.updateDisplayValues();
       this.updateChartOptions();
     } catch (error) {
       console.error('Error refreshing dashboard:', error);
     } finally {
-      this.loadingData = false;
+      this.loadingData.set(false);
     }
   }
 
   private updateDisplayValues(): void {
     const d = this.dataExchange;
 
-    this.organisationCount = String(d.accessControl?.length ?? 0);
-    this.indicatorCount = String(d.availableIndicators?.length ?? 0);
-    this.georesourceCount = String(d.availableGeoresources?.length ?? 0);
-    this.spatialUnitCount = String(d.availableSpatialUnits?.length ?? 0);
-    this.indicatorScriptCount = String(d.availableProcessScripts?.length ?? 0);
+    this.organisationCount.set(String(d.accessControl?.length ?? 0));
+    this.indicatorCount.set(String(d.availableIndicators?.length ?? 0));
+    this.georesourceCount.set(String(d.availableGeoresources?.length ?? 0));
+    this.spatialUnitCount.set(String(d.availableSpatialUnits?.length ?? 0));
+    this.indicatorScriptCount.set(String(d.availableProcessScripts?.length ?? 0));
 
-    const mainTopics = d.availableTopics.filter((t: any) => t.topicType === 'main');
+    const mainTopics = (d.availableTopics ?? []).filter((t: any) => t.topicType === 'main');
     const subTopics = collectSubTopics(mainTopics);
 
-    this.topicCounts = `${mainTopics.length}/${subTopics.length}`;
-    this.topicsLabel = [
-      this.translateService.instant('ADMIN_DASHBOARD.MAIN_TOPICS'),
-      this.translateService.instant('ADMIN_DASHBOARD.SUB_TOPICS'),
-    ].join('/');
+    this.topicCounts.set(`${mainTopics.length}/${subTopics.length}`);
+    this.topicsLabel.set(
+      [
+        this.translateService.instant('ADMIN_DASHBOARD.MAIN_TOPICS'),
+        this.translateService.instant('ADMIN_DASHBOARD.SUB_TOPICS'),
+      ].join('/')
+    );
   }
 
   private updateChartOptions(): void {
-    this.indicatorsPerTopicChartOptions = this.buildIndicatorsPerTopicChart();
-    this.georesourcesPerTypeChartOptions = this.buildGeoresourcesPerTypeChart();
-    this.indicatorsPerSpatialUnitChartOptions = this.buildIndicatorsPerSpatialUnitChart();
+    this.indicatorsPerTopicChartOptions.set(this.buildIndicatorsPerTopicChart());
+    this.georesourcesPerTypeChartOptions.set(this.buildGeoresourcesPerTypeChart());
+    this.indicatorsPerSpatialUnitChartOptions.set(this.buildIndicatorsPerSpatialUnitChart());
   }
 
   private buildIndicatorsPerTopicChart(): EChartsOption {

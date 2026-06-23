@@ -8,7 +8,7 @@
     <div class="col-md-3 col-sm-6 col-xs-12"></div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <app-small-box
-        [titleText]="organisationCount"
+        [titleText]="organisationCount()"
         [descriptionText]="'ADMIN_DASHBOARD.ORGANIZATIONS' | translate"
         boxColor="#00c0ef"
         iconClass="fas fa-users"
@@ -16,8 +16,8 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <app-small-box
-        [titleText]="topicCounts"
-        [descriptionText]="topicsLabel"
+        [titleText]="topicCounts()"
+        [descriptionText]="topicsLabel()"
         boxColor="#d2d6de"
         textColor="#000000"
         iconClass="fas fa-book"
@@ -28,7 +28,7 @@
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12">
       <app-small-box
-        [titleText]="spatialUnitCount"
+        [titleText]="spatialUnitCount()"
         [descriptionText]="'ADMIN_DASHBOARD.SPATIAL_UNITS' | translate"
         boxColor="#337ab7"
         iconClass="fas fa-layer-group"
@@ -36,7 +36,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <app-small-box
-        [titleText]="georesourceCount"
+        [titleText]="georesourceCount()"
         [descriptionText]="'ADMIN_DASHBOARD.GEORESOURCES' | translate"
         boxColor="#FF851B"
         iconClass="fas fa-map-marked-alt"
@@ -44,7 +44,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <app-small-box
-        [titleText]="indicatorCount"
+        [titleText]="indicatorCount()"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATORS' | translate"
         boxColor="#00a65a"
         iconClass="fas fa-sitemap"
@@ -52,7 +52,7 @@
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
       <app-small-box
-        [titleText]="indicatorScriptCount"
+        [titleText]="indicatorScriptCount()"
         [descriptionText]="'ADMIN_DASHBOARD.INDICATOR_SCRIPTS' | translate"
         boxColor="#605ca8"
         iconClass="fas fa-file-code"
@@ -61,28 +61,28 @@
   </div>
   <div class="row vertical-align">
     <div class="col-md-3 col-sm-6 col-xs-12">
-      @if (indicatorsPerSpatialUnitChartOptions) {
+      @if (indicatorsPerSpatialUnitChartOptions()) {
         <div
           echarts
-          [options]="indicatorsPerSpatialUnitChartOptions"
+          [options]="indicatorsPerSpatialUnitChartOptions()!"
           style="width: 100%; min-height: 500px"
         ></div>
       }
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      @if (georesourcesPerTypeChartOptions) {
+      @if (georesourcesPerTypeChartOptions()) {
         <div
           echarts
-          [options]="georesourcesPerTypeChartOptions"
+          [options]="georesourcesPerTypeChartOptions()!"
           style="width: 100%; min-height: 500px"
         ></div>
       }
     </div>
     <div class="col-md-3 col-sm-6 col-xs-12">
-      @if (indicatorsPerTopicChartOptions) {
+      @if (indicatorsPerTopicChartOptions()) {
         <div
           echarts
-          [options]="indicatorsPerTopicChartOptions"
+          [options]="indicatorsPerTopicChartOptions()!"
           style="width: 100%; min-height: 500px"
         ></div>
       }
