@@ -35,11 +35,26 @@
 
 
   },
-  // Solution-style config: route each file to the right child project so the
-  // editor evaluates *.spec.ts against tsconfig.spec.json (which has the Jest
-  // types). Without this, tsserver uses this root config's restricted
-  // `types: ["jquery"]` and reports `describe`/`it`/`expect` as missing.
-  "files": [],
+  // Editor-only config (tsserver). Neither `ng build` (uses tsconfig.app.json)
+  // nor `ng test` (uses tsconfig.spec.json) reads this file, so changes here
+  // never affect the build or test output — only how the IDE resolves things.
+  //
+  // Own all non-spec app sources here so the editor attributes each file to this
+  // project, which carries `baseUrl: "./app"`. Previously this used `files: []`,
+  // which left ordinary component files unowned: tsserver fell back to an
+  // inferred project that has no baseUrl, so baseUrl-relative imports
+  // (`services/...`) showed as errors while relative imports kept resolving.
+  //
+  // *.spec.ts is excluded so tsserver routes specs to tsconfig.spec.json (which
+  // carries the Jest types for describe/it/expect). The non-module script
+  // resources are excluded because they declare globals (e.g. `KmHelper`) at
+  // top level and collide in a shared program — that pollutes the global scope
+  // for every other file.
+  "include": ["app/**/*.ts"],
+  "exclude": [
+    "app/**/*.spec.ts",
+    "app/kommonitor-script-resources/**"
+  ],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.spec.json" }
