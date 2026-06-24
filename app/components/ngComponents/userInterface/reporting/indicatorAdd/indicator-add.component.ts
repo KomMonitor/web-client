@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import * as turf from '@turf/turf';
@@ -182,6 +183,7 @@ export class IndicatorAddComponent implements OnInit {
   constructor(
     protected dataExchangeService: DataExchangeService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
+    protected indicatorStore: IndicatorMetadataStoreService,
     protected metadataExportService: MetadataExportService,
     protected labelService: LabelService,
     private broadcastSerice: BroadcastService,
@@ -271,8 +273,8 @@ export class IndicatorAddComponent implements OnInit {
     this.availablePoiLayers = this.dataExchangeService.availableGeoresources.filter(georesource => georesource.isPOI);
     this.filteredAvailablePoiLayers = this.availablePoiLayers.sort(this.sortByDatasetName);
 
-    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
-    this.displayableIndicatorsByName = this.dataExchangeService.displayableIndicators.sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.sort(this.sortByindicatorName);
 
 	  this.selectedBaseMap = this.dataExchangeService.baseLayerDefinitionsArray[1];
 
@@ -498,8 +500,8 @@ export class IndicatorAddComponent implements OnInit {
   onIndicatorNameFilterChange(event:any) {
 
     let value = event.target.value;
-    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
-    this.displayableIndicatorsByName = this.dataExchangeService.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
 
   onBackToOverviewClicked() {

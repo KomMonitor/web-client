@@ -5,6 +5,7 @@ import { BroadcastService } from '../../../../../../services/broadcast-service/b
 import { ConfigStorageService } from '../../../../../../services/config-storage-service/config-storage.service';
 import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
 import { TopicMetadataStoreService } from '../../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { MultiStepHelperServiceService } from '../../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
 import { NotificationService } from '../../../../common/notification/notification.service';
 
@@ -19,6 +20,7 @@ export class AdminFilterEditModalComponent implements OnInit {
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private kommonitorDataExchangeService = inject(DataExchangeService);
   private topicStore = inject(TopicMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
@@ -356,7 +358,7 @@ export class AdminFilterEditModalComponent implements OnInit {
   }
 
   refreshIndicatorsTable() {
-    this.kommonitorDataExchangeService.availableIndicators.forEach((element, index) => {
+    this.indicatorStore.availableIndicators.forEach((element, index) => {
       this.preppedIndicatorData[index] = {
         id: element.indicatorId,
         name: element.indicatorName,

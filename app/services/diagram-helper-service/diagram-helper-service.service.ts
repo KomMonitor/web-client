@@ -1,6 +1,7 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { LabelService } from 'services/label-service/label.service';
 import { HttpClient } from '@angular/common/http';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
@@ -15,6 +16,7 @@ import * as ecStat from 'echarts-stat';
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
   private dataExchangeService = inject(DataExchangeService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private filterHelperService = inject(FilterHelperService);
   private http = inject(HttpClient);
   private labelService = inject(LabelService);
@@ -114,7 +116,7 @@ export class DiagramHelperServiceService {
 
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
-    this.dataExchangeService.displayableIndicators.forEach((indicatorMetadata) => {
+    this.indicatorStore.displayableIndicators.forEach((indicatorMetadata) => {
       const targetYear = this.dataExchangeService.selectedDate.split('-')[0];
       const indicatorCandidateYears: any = [];
       indicatorMetadata.applicableDates.forEach((date, _i) => {

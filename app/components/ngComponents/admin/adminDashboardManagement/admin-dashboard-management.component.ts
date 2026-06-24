@@ -15,6 +15,7 @@ import { DataExchangeService } from '../../../../services/data-exchange-service/
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 
 interface PieSeriesDataItem {
   name: string;
@@ -104,6 +105,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -169,7 +171,7 @@ export class AdminDashboardManagementComponent implements OnInit {
     const d = this.dataExchange;
 
     this.organisationCount.set(String(d.accessControl?.length ?? 0));
-    this.indicatorCount.set(String(d.availableIndicators?.length ?? 0));
+    this.indicatorCount.set(String(this.indicatorStore.availableIndicators?.length ?? 0));
     this.georesourceCount.set(String(d.availableGeoresources?.length ?? 0));
     this.spatialUnitCount.set(String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0));
     this.indicatorScriptCount.set(String(this.processScriptStore.availableProcessScripts?.length ?? 0));
@@ -229,7 +231,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private buildIndicatorsPerSpatialUnitChart(): EChartsOption {
     const countMap = new Map<string, number>();
 
-    for (const indicator of this.dataExchange.availableIndicators ?? []) {
+    for (const indicator of this.indicatorStore.availableIndicators ?? []) {
       for (const su of indicator.applicableSpatialUnits ?? []) {
         const name: string = su.spatialUnitName;
         countMap.set(name, (countMap.get(name) ?? 0) + 1);

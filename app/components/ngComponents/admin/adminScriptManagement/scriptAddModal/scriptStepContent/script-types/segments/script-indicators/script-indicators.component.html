@@ -6,7 +6,7 @@
         propertyKey="indicatorName"
         filterPlaceholder="Stichwortfilter"
         selectPlaceholder="-- Indikator als Berechnungsgrundlage wählen --"
-        [options]="dataExchangeService.availableIndicators"
+        [options]="indicatorStore.availableIndicators"
         (selectedItemChange)="onChangeIndicator($event)"
       ></app-filterable-select>
     </div>

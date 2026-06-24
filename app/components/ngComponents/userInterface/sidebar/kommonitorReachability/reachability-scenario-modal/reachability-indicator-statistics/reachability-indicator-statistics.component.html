@@ -20,7 +20,7 @@
 					(change)="onChangeSelectedIndicatorForStatistics()"
 					size="5" class="form-control" required>
 					<option disabled selected value> -- Indikator w&auml;hlen -- </option>
-					<option [value]="indicatorMetadata.indicatorId" *ngFor="let indicatorMetadata of dataExchangeService.displayableIndicators">
+					<option [value]="indicatorMetadata.indicatorId" *ngFor="let indicatorMetadata of indicatorStore.displayableIndicators">
             <!--  | filter:indicatorNameFilter | filter:{indicatorType:'STATUS_ABSOLUTE'}) track by indicatorMetadata.indicatorId -->
 						{{indicatorMetadata.indicatorName}} [{{indicatorMetadata.unit}}]
 					</option>

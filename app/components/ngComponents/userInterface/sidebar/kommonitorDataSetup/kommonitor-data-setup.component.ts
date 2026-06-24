@@ -5,6 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
+import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
 import { MapService } from "services/map-service/map.service";
 import { IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
@@ -41,6 +42,7 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
 export class KommonitorDataSetupComponent implements OnInit {
   protected readonly dataExchangeService = inject(DataExchangeService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private readonly indicatorStore = inject(IndicatorMetadataStoreService);
   private readonly broadcastService = inject(BroadcastService);
   private readonly elementVisibilityHelperService = inject(
     ElementVisibilityHelperService,
@@ -130,9 +132,9 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.prepareHeadlineIndicatorTopics();
 
     if (
-      this.dataExchangeService.displayableIndicators == null ||
-      this.dataExchangeService.displayableIndicators == undefined ||
-      this.dataExchangeService.displayableIndicators.length === 0
+      this.indicatorStore.displayableIndicators == null ||
+      this.indicatorStore.displayableIndicators == undefined ||
+      this.indicatorStore.displayableIndicators.length === 0
     ) {
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
 
@@ -151,15 +153,15 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       for (
         let index = 0;
-        index < this.dataExchangeService.displayableIndicators.length;
+        index < this.indicatorStore.displayableIndicators.length;
         index++
       ) {
         if (
-          this.dataExchangeService.displayableIndicators[index].indicatorId ===
+          this.indicatorStore.displayableIndicators[index].indicatorId ===
           this.envConfigService.initialIndicatorId
         ) {
           if (
-            this.dataExchangeService.displayableIndicators[index]
+            this.indicatorStore.displayableIndicators[index]
               .applicableDates.length > 0
           ) {
             indicatorIndex = index;
@@ -172,10 +174,10 @@ export class KommonitorDataSetupComponent implements OnInit {
         for (let t = 0; t < 75; t++) {
           const randIndex = this.dataSetupService.getRandomInt(
             0,
-            this.dataExchangeService.displayableIndicators.length - 1,
+            this.indicatorStore.displayableIndicators.length - 1,
           );
           if (
-            this.dataExchangeService.displayableIndicators[randIndex]
+            this.indicatorStore.displayableIndicators[randIndex]
               .applicableDates.length > 0
           ) {
             indicatorIndex = randIndex;
@@ -189,7 +191,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       }
 
       this.dataExchangeService.selectedIndicator =
-        this.dataExchangeService.displayableIndicators[indicatorIndex];
+        this.indicatorStore.displayableIndicators[indicatorIndex];
       // create Backup which is used when currently selected indicator is filtered out in select
       this.dataExchangeService.selectedIndicatorBackup =
         this.dataExchangeService.selectedIndicator;

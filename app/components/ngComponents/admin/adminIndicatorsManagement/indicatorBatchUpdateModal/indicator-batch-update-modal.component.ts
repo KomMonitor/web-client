@@ -5,6 +5,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
 declare const __env: any;
@@ -38,6 +39,7 @@ interface BatchListItem {
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private broadcastService = inject(BroadcastService);
   protected dataExchangeService = inject(DataExchangeService);
+  protected indicatorStore = inject(IndicatorMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 
   @ViewChild('batchListFileInput') batchListFileInput!: ElementRef;
@@ -103,10 +105,10 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
     // Set initial selected value if available
     if (
-      this.dataExchangeService.availableIndicators &&
-      this.dataExchangeService.availableIndicators.length > 0
+      this.indicatorStore.availableIndicators &&
+      this.indicatorStore.availableIndicators.length > 0
     ) {
-      this.selected.value = this.dataExchangeService.availableIndicators[0];
+      this.selected.value = this.indicatorStore.availableIndicators[0];
     }
   }
 
@@ -199,7 +201,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
       // Set indicator by ID
       const indicatorId = item.name;
-      const indicatorObj = this.dataExchangeService.getIndicatorMetadataById(indicatorId);
+      const indicatorObj = this.indicatorStore.getIndicatorMetadataById(indicatorId);
       row.name = indicatorObj;
 
       row.mappingTableName = item.mappingTableName;

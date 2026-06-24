@@ -7,6 +7,7 @@ import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -19,6 +20,7 @@ export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private genericMapHelperService = inject(GenericMapHelperService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
@@ -679,7 +681,7 @@ export class ReachabilityMapHelperService {
     const { spatialUnitId } = indicatorStatisticsCandidate.spatialUnit;
     const { timestamp } = indicatorStatisticsCandidate;
     const indicatorMetadataAndGeoJSON =
-      this.dataExchangeService.getIndicatorMetadataById(indicatorId);
+      this.indicatorStore.getIndicatorMetadataById(indicatorId);
     indicatorMetadataAndGeoJSON.geoJSON = await this.fetchIndicatorForSpatialUnit(
       indicatorId,
       spatialUnitId,

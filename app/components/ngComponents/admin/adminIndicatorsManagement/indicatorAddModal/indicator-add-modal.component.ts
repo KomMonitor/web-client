@@ -4,6 +4,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 
@@ -26,6 +27,7 @@ export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -247,9 +249,9 @@ export class IndicatorAddModalComponent implements OnInit {
     // Load available indicators
     if (
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableIndicators
+      this.indicatorStore.availableIndicators
     ) {
-      this.availableIndicators = this.kommonitorDataExchangeService.availableIndicators;
+      this.availableIndicators = this.indicatorStore.availableIndicators;
     }
 
     // Load available georesources
@@ -351,9 +353,9 @@ export class IndicatorAddModalComponent implements OnInit {
       this.datasetName &&
       this.indicatorType &&
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableIndicators
+      this.indicatorStore.availableIndicators
     ) {
-      this.kommonitorDataExchangeService.availableIndicators.forEach((indicator: any) => {
+      this.indicatorStore.availableIndicators.forEach((indicator: any) => {
         if (
           indicator.datasetName === this.datasetName &&
           indicator.indicatorType === this.indicatorType.apiName
@@ -773,13 +775,13 @@ export class IndicatorAddModalComponent implements OnInit {
     if (
       this.metadataImportSettings.refrencesToOtherIndicators &&
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableIndicators
+      this.indicatorStore.availableIndicators
     ) {
       this.indicatorReferences_apiRequest = this.metadataImportSettings.refrencesToOtherIndicators;
       // Populate admin view
       this.indicatorReferences_adminView = [];
       this.indicatorReferences_apiRequest.forEach((ref: any) => {
-        const indicator = this.kommonitorDataExchangeService.availableIndicators.find(
+        const indicator = this.indicatorStore.availableIndicators.find(
           (ind: any) => ind.indicatorId === ref.indicatorId
         );
         if (indicator) {

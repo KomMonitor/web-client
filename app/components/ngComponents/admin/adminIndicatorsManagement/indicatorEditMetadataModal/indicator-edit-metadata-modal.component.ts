@@ -12,6 +12,7 @@ import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-s
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 
 declare const __env: any;
 declare const colorbrewer: any;
@@ -33,6 +34,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   protected dataExchangeService = inject(DataExchangeService);
   protected topicStore = inject(TopicMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  protected indicatorStore = inject(IndicatorMetadataStoreService);
 
   @ViewChild('modal') modal!: ElementRef;
 
@@ -456,7 +458,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       for (const indicatorReference of this.currentIndicatorDataset.referencedIndicators.filter(
         (item: any) => item != null && item != undefined
       )) {
-        const indicatorMetadata = this.dataExchangeService.getIndicatorMetadataById(
+        const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(
           indicatorReference.referencedIndicatorId
         );
         const referenceEntry = {
@@ -576,7 +578,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   onClickEditIndicatorReference(indicatorReference_adminView: any): void {
     this.tmpIndicatorReference_selectedIndicatorMetadata =
-      this.dataExchangeService.getIndicatorMetadataById(
+      this.indicatorStore.getIndicatorMetadataById(
         indicatorReference_adminView.referencedIndicatorId
       );
     this.tmpIndicatorReference_referenceDescription =
@@ -670,7 +672,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   checkDatasetName(): void {
     this.datasetNameInvalid = false;
-    this.dataExchangeService.availableIndicators.forEach((indicator: any) => {
+    this.indicatorStore.availableIndicators.forEach((indicator: any) => {
       // show error only if indicator is renamed to another already existing indicator
       if (
         indicator.indicatorName === this.datasetName &&

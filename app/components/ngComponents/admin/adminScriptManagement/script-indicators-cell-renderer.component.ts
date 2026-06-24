@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 
 @Component({
   selector: 'app-script-indicators-cell-renderer',
@@ -31,7 +31,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
   `,
 })
 export class ScriptIndicatorsCellRendererComponent implements ICellRendererAngularComp {
-  private dataExchangeService = inject(DataExchangeService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
 
   indicatorIds: string[] = [];
 
@@ -49,6 +49,6 @@ export class ScriptIndicatorsCellRendererComponent implements ICellRendererAngul
   }
 
   getIndicatorName(id: string): string {
-    return (this.dataExchangeService.getIndicatorMetadataById(id) as any)?.indicatorName ?? '';
+    return (this.indicatorStore.getIndicatorMetadataById(id) as any)?.indicatorName ?? '';
   }
 }

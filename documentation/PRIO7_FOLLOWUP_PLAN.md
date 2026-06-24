@@ -55,9 +55,15 @@ In aufsteigender Konsumentenzahl:
       Helper. Facade-interne Reads (Hierarchie-Builder + Glue-PDF/ZIP-Wrapper + fetchTopicsMetadata) repointet;
       `availableTopics`-Getter + `setTopics`-Wrapper entfernt. Build/Test/Lint grün.
 - [ ] **B6e `GeoresourceMetadataStoreService`** (13) — inkl. WMS/WFS.
-- [ ] **B6d `IndicatorMetadataStoreService`** (15) — Glue beachten:
-      `modifyIndicatorApplicableSpatialUnitsForLoginRoles` setzt zusätzlich B4-State
-      `displayableIndicators_keywordFiltered` → Wrapper mitmigrieren oder bewusst behalten.
+- [x] **B6d `IndicatorMetadataStoreService`** ✅ (2026-06-23). **23 Konsumenten** auf `indicatorStore`
+      umgehängt (Clean-Member: `availableIndicators`, `displayableIndicators`, `setIndicators`,
+      `add/replace/deleteSingleIndicatorMetadata`, `getIndicatorMetadataById`, `modifySingleIndicator`,
+      `modifyIndicators`, `isDisplayableIndicator`); diese 2 Getter + 8 Wrapper aus der Facade entfernt.
+      **Glue bewusst behalten:** `modifyIndicatorApplicableSpatialUnitsForLoginRoles` (setzt zusätzlich
+      B4-State `displayableIndicators_keywordFiltered`). Übersprungen (tot): georesource-delete-modal +
+      indicator-delete-modal (Bridge-Token), Legacy-Computation (AngularJS); Eigenfelder unangetastet.
+      In script-step-metadata + script-indicators-cell-renderer war `dataExchangeService` exklusiv fürs
+      migrierte Member → komplette Injection auf `indicatorStore` umgestellt. Build/Test/Lint grün.
 - [x] **B6a `SpatialUnitMetadataStoreService`** ✅ (2026-06-23). **14 Dateien** auf `spatialUnitStore`
       umgehängt: admin-dashboard, georesource-add-modal (+HTML), georesource-edit-features-modal,
       indicator-add-modal (nur Service-Präfix), indicator-batch-update-modal (+HTML),

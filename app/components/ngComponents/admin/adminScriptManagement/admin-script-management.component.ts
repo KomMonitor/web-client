@@ -11,6 +11,7 @@ import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.compo
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { ScriptIndicatorsCellRendererComponent } from './script-indicators-cell-renderer.component';
 import { ScriptGeoresourcesCellRendererComponent } from './script-georesources-cell-renderer.component';
@@ -29,6 +30,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private broadcastService = inject(BroadcastService);
   dataExchangeService = inject(DataExchangeService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
@@ -84,7 +86,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
         headerName: 'Ziel-Indikatoren-Name',
         minWidth: 200,
         valueGetter: (params: any) =>
-          (this.dataExchangeService.getIndicatorMetadataById(params.data?.indicatorId) as any)
+          (this.indicatorStore.getIndicatorMetadataById(params.data?.indicatorId) as any)
             ?.indicatorName ?? '',
         filter: 'agTextColumnFilter',
       },

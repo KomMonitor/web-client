@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import { HttpClient } from '@angular/common/http';
@@ -53,6 +54,7 @@ export class ReportingOverviewComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private indicatorStore: IndicatorMetadataStoreService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
     private http: HttpClient,
     protected diagramHelperService: DiagramHelperServiceService,
@@ -1132,7 +1134,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 		getIndicatorByName(indicatorName) {
 			let result;
-			for(let indicator of this.dataExchangeService.availableIndicators) {
+			for(let indicator of this.indicatorStore.availableIndicators) {
 				if(indicator.indicatorName === indicatorName) {
 					result = indicator;
 					break;

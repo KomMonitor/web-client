@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorsDataset } from '../../../../models/indicators.models';
 
 export interface ScriptMetadata {
@@ -18,12 +18,12 @@ export interface ScriptMetadata {
   imports: [FormsModule],
 })
 export class ScriptStepMetadataComponent {
-  private dataExchangeService = inject(DataExchangeService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
 
   @Input({ required: true }) metadata!: ScriptMetadata;
   @Output() metadataChange = new EventEmitter<ScriptMetadata>();
 
-  availableIndicators: IndicatorsDataset[] = this.dataExchangeService.availableIndicators;
+  availableIndicators: IndicatorsDataset[] = this.indicatorStore.availableIndicators;
 
   targetIndicator: IndicatorsDataset | undefined;
 

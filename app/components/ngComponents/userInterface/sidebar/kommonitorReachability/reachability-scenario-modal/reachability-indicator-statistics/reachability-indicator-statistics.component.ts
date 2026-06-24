@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { SpatialDataProcessorHelperService } from 'services/spatial-data-processor-helper/spatial-data-processor-helper.service';
@@ -48,6 +49,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected indicatorStore: IndicatorMetadataStoreService,
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     protected reachabilityHelperService: ReachabilityHelperService,
     protected reachabilityCoverageReportsHelperService: ReachabilityCoverageReportsHelperService,
@@ -68,7 +70,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
       .subscribe(value => {
 
         if(value==MetadataLoadingState.COMPLETE)  
-          this.availableIndicators = this.dataExchangeService.displayableIndicators;
+          this.availableIndicators = this.indicatorStore.displayableIndicators;
       });
 
 

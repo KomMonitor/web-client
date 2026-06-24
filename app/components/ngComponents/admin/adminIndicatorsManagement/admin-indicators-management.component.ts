@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { IndicatorAddModalComponent } from './indicatorAddModal/indicator-add-modal.component';
@@ -50,6 +51,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
 
@@ -137,8 +139,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private async ensureDataLoaded(): Promise<void> {
     // If no indicators are available, try to fetch them
     if (
-      !this.dataExchangeService.availableIndicators ||
-      this.dataExchangeService.availableIndicators.length === 0
+      !this.indicatorStore.availableIndicators ||
+      this.indicatorStore.availableIndicators.length === 0
     ) {
       try {
         await this.dataExchangeService.fetchIndicatorsMetadata(
@@ -383,8 +385,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     } else {
       // If no data is available, try to load it
       if (
-        !this.dataExchangeService.availableIndicators ||
-        this.dataExchangeService.availableIndicators.length === 0
+        !this.indicatorStore.availableIndicators ||
+        this.indicatorStore.availableIndicators.length === 0
       ) {
         this.ensureDataLoaded();
       } else {
@@ -420,7 +422,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private getFilteredIndicators(): any[] {
-    const allIndicators = this.dataExchangeService.availableIndicators;
+    const allIndicators = this.indicatorStore.availableIndicators;
 
     if (this.tableViewSwitcher) {
       // Filter out indicators where user only has viewer permission
@@ -684,7 +686,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.dataExchangeService.currentKeycloakLoginRoles
           )
           .then((data: any) => {
-            this.dataExchangeService.addSingleIndicatorMetadata(data);
+            this.indicatorStore.addSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
             this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
             this.loadingData = false;
@@ -700,7 +702,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.dataExchangeService.currentKeycloakLoginRoles
           )
           .then((data: any) => {
-            this.dataExchangeService.replaceSingleIndicatorMetadata(data);
+            this.indicatorStore.replaceSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
             this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
             this.loadingData = false;
@@ -710,7 +712,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
           });
       } else if (crudType === 'delete') {
-        this.dataExchangeService.deleteSingleIndicatorMetadata(targetIndicatorId);
+        this.indicatorStore.deleteSingleIndicatorMetadata(targetIndicatorId);
         this.initializeOrRefreshOverviewTable();
         this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
         this.loadingData = false;

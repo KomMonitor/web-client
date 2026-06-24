@@ -113,7 +113,7 @@
                     >
                       <option [ngValue]="null">-- Indikator wählen --</option>
                       @for (
-                        avIndicator of dataExchangeService.availableIndicators;
+                        avIndicator of indicatorStore.availableIndicators;
                         track avIndicator
                       ) {
                         <option [ngValue]="avIndicator">

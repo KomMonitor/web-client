@@ -147,10 +147,6 @@ export class DataExchangeService {
     return this.selectionState.allFeaturesRegionalSpatiallyUnassignable;
   }
   selectedIndicatorBackup!: IndicatorsDataset;
-  // Prio7 B6d: indicator metadata lives in IndicatorMetadataStoreService; facade getters keep consumers unchanged
-  get displayableIndicators(): any {
-    return this.indicatorStore.displayableIndicators;
-  }
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
   // Prio7 B4: indicator keyword filter lives in MetadataFilterService; facade get/set keeps consumers + the B6d wrapper unchanged
@@ -174,9 +170,6 @@ export class DataExchangeService {
   FEATURE_NAME_PROPERTY_NAME: any;
   get availableGeoresources(): GeoresourcesDataset[] {
     return this.georesourceStore.availableGeoresources;
-  }
-  get availableIndicators(): any {
-    return this.indicatorStore.availableIndicators;
   }
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any = false;
@@ -757,7 +750,7 @@ export class DataExchangeService {
   }
 
   async fetchIndicatorsMetadata(keycloakRolesArray, filter: any = undefined) {
-    this.setIndicators(
+    this.indicatorStore.setIndicators(
       await this.cacheHelperService.fetchIndicatorsMetadata(keycloakRolesArray, filter)
     );
   }
@@ -802,10 +795,6 @@ export class DataExchangeService {
     this.georesourceStore.deleteSingleGeoresourceMetadata(georesourceId);
   }
 
-  setIndicators(indicatorsArray) {
-    this.indicatorStore.setIndicators(indicatorsArray);
-  }
-
   getAvailableGeoWmsDatasets(): WmsDataset[] {
     return this.georesourceStore.getAvailableGeoWmsDatasets();
   }
@@ -816,14 +805,6 @@ export class DataExchangeService {
 
   setGeoresources(georesourcesArray) {
     this.georesourceStore.setGeoresources(georesourcesArray);
-  }
-
-  addSingleIndicatorMetadata(indicatorMetadata) {
-    this.indicatorStore.addSingleIndicatorMetadata(indicatorMetadata);
-  }
-
-  replaceSingleIndicatorMetadata(indicatorMetadata) {
-    this.indicatorStore.replaceSingleIndicatorMetadata(indicatorMetadata);
   }
 
   checkDeletePermission() {
@@ -838,24 +819,8 @@ export class DataExchangeService {
     return this.accessControlService.getRoleTitle(organizationalUnitId);
   }
 
-  getIndicatorMetadataById(indicatorId) {
-    return this.indicatorStore.getIndicatorMetadataById(indicatorId);
-  }
-
   getGeoresourceMetadataById(georesourceId) {
     return this.georesourceStore.getGeoresourceMetadataById(georesourceId);
-  }
-
-  deleteSingleIndicatorMetadata(indicatorId) {
-    this.indicatorStore.deleteSingleIndicatorMetadata(indicatorId);
-  }
-
-  modifySingleIndicator(indicator) {
-    return this.indicatorStore.modifySingleIndicator(indicator);
-  }
-
-  modifyIndicators(indicators) {
-    return this.indicatorStore.modifyIndicators(indicators);
   }
 
   onMetadataLoadingCompleted() {
@@ -901,13 +866,10 @@ export class DataExchangeService {
     );
     // displayableIndicators_keywordFiltered is B4 state and stays in the facade
     this.displayableIndicators_keywordFiltered = JSON.parse(
-      JSON.stringify(this.displayableIndicators)
+      JSON.stringify(this.indicatorStore.displayableIndicators)
     );
   }
 
-  isDisplayableIndicator(item) {
-    return this.indicatorStore.isDisplayableIndicator(item);
-  }
 
   private buildHeadlineIndicatorHierarchy() {
     this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
@@ -1229,7 +1191,7 @@ export class DataExchangeService {
   }
 
   getIndicatorAbbreviationFromIndicatorId(indicatorId) {
-    for (const indicatorMetadata of this.availableIndicators) {
+    for (const indicatorMetadata of this.indicatorStore.availableIndicators) {
       if (indicatorMetadata.indicatorId === indicatorId) {
         return indicatorMetadata.abbreviation;
       }

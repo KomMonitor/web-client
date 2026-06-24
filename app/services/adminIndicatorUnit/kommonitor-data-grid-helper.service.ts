@@ -3,6 +3,7 @@ import { ColDef } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import * as agGrid from 'ag-grid-community';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../env-config-service/env-config.service';
@@ -16,6 +17,7 @@ export class KommonitorIndicatorDataGridHelperService {
   private angularJsDataExchangeService = inject(DataExchangeService);
   private metadataExportService = inject(MetadataExportService);
   private topicStore = inject(TopicMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
   private envConfigService = inject(EnvConfigService);
 
@@ -324,7 +326,7 @@ export class KommonitorIndicatorDataGridHelperService {
 
       const indicatorId = event.target.id.split('_')[3];
       const indicatorMetadata =
-        this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+        this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
@@ -343,7 +345,7 @@ export class KommonitorIndicatorDataGridHelperService {
 
       const indicatorId = event.target.id.split('_')[3];
       const indicatorMetadata =
-        this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+        this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
@@ -361,7 +363,7 @@ export class KommonitorIndicatorDataGridHelperService {
 
       const indicatorId = event.target.id.split('_')[3];
       const indicatorMetadata =
-        this.angularJsDataExchangeService.getIndicatorMetadataById(indicatorId);
+        this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);

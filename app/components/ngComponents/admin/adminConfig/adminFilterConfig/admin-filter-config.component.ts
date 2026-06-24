@@ -17,6 +17,7 @@ import { BroadcastService } from '../../../../../services/broadcast-service/broa
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
@@ -34,6 +35,7 @@ import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.
 export class AdminFilterConfigComponent implements OnInit {
   private kommonitorDataExchangeService = inject(DataExchangeService);
   private topicStore = inject(TopicMetadataStoreService);
+  private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorDataGridHelperService = inject(KommonitorFilterDataGridHelperService);
@@ -320,7 +322,7 @@ export class AdminFilterConfigComponent implements OnInit {
 
         filter.indicators.forEach((indicatorElement, indicatorIndex) => {
           this.mergedFilterConfig[filterIndex].indicators[indicatorIndex] =
-            this.kommonitorDataExchangeService.availableIndicators
+            this.indicatorStore.availableIndicators
               .filter((e) => e.indicatorId == indicatorElement)
               .map((e) => e.indicatorName)[0];
         });

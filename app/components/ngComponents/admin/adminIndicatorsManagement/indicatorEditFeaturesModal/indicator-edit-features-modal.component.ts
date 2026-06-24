@@ -10,6 +10,7 @@ import { KommonitorImporterHelperService } from '../../../../../services/adminSp
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { MultiStepHelperServiceService } from '../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
@@ -31,6 +32,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private http = inject(HttpClient);
   dataExchangeService = inject(DataExchangeService);
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  indicatorStore = inject(IndicatorMetadataStoreService);
   importerHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -103,7 +105,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.timeseriesMappingReference = data.mapping;
       } else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
         if (this.currentIndicatorDataset) {
-          this.currentIndicatorDataset = this.dataExchangeService.getIndicatorMetadataById(
+          this.currentIndicatorDataset = this.indicatorStore.getIndicatorMetadataById(
             this.currentIndicatorDataset.indicatorId
           );
         }
