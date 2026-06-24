@@ -3,6 +3,7 @@ import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
@@ -57,6 +58,7 @@ export interface GeoJSONFeature {
 export class ReachabilityCombinerService {
   private reachabilityHelperService = inject(ReachabilityHelperService);
   private dataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private http = inject(HttpClient);
   private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
   private envConfigService = inject(EnvConfigService);
@@ -105,7 +107,7 @@ export class ReachabilityCombinerService {
       .subscribe((value) => {
         if (value == MetadataLoadingState.COMPLETE) {
           this.filteredDisplayableGeoresources =
-            this.dataExchangeService.displayableGeoresources.filter((e) => e.isPOI);
+            this.georesourceStore.displayableGeoresources.filter((e) => e.isPOI);
           this.initEmptyDataset();
         }
       });

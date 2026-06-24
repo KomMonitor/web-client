@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
 
@@ -9,6 +10,7 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
 })
 export class KommonitorGeoresourceDataExchangeService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
 
@@ -20,7 +22,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get available georesources -
    */
   get availableGeoresources(): any[] {
-    return this.angularJsDataExchangeService.availableGeoresources || [];
+    return this.georesourceStore.availableGeoresources || [];
   }
 
   /**
@@ -62,28 +64,28 @@ export class KommonitorGeoresourceDataExchangeService {
    * Add single georesource metadata - delegates to AngularJS service
    */
   addSingleGeoresourceMetadata(georesourceMetadata: any): void {
-    this.angularJsDataExchangeService.addSingleGeoresourceMetadata(georesourceMetadata);
+    this.georesourceStore.addSingleGeoresourceMetadata(georesourceMetadata);
   }
 
   /**
    * Replace single georesource metadata - delegates to AngularJS service
    */
   replaceSingleGeoresourceMetadata(georesourceMetadata: any): void {
-    this.angularJsDataExchangeService.replaceSingleGeoresourceMetadata(georesourceMetadata);
+    this.georesourceStore.replaceSingleGeoresourceMetadata(georesourceMetadata);
   }
 
   /**
    * Delete single georesource metadata - delegates to AngularJS service
    */
   deleteSingleGeoresourceMetadata(georesourceId: string): void {
-    this.angularJsDataExchangeService.deleteSingleGeoresourceMetadata(georesourceId);
+    this.georesourceStore.deleteSingleGeoresourceMetadata(georesourceId);
   }
 
   /**
    * Get georesource metadata by ID - delegates to AngularJS service
    */
   getGeoresourceMetadataById(georesourceId: string): any {
-    return this.angularJsDataExchangeService.getGeoresourceMetadataById(georesourceId);
+    return this.georesourceStore.getGeoresourceMetadataById(georesourceId);
   }
 
   /**

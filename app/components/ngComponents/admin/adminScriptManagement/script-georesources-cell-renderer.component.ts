@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 
 @Component({
   selector: 'app-script-georesources-cell-renderer',
@@ -31,7 +31,7 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
   `,
 })
 export class ScriptGeoresourcesCellRendererComponent implements ICellRendererAngularComp {
-  private dataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
 
   georesourceIds: string[] = [];
 
@@ -49,6 +49,6 @@ export class ScriptGeoresourcesCellRendererComponent implements ICellRendererAng
   }
 
   getGeoresourceName(id: string): string {
-    return (this.dataExchangeService.getGeoresourceMetadataById(id) as any)?.datasetName ?? '';
+    return (this.georesourceStore.getGeoresourceMetadataById(id) as any)?.datasetName ?? '';
   }
 }

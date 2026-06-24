@@ -10,6 +10,7 @@ import {
   POI_MARKER_COLORS,
 } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -27,6 +28,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  georesourceStore = inject(GeoresourceMetadataStoreService);
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
@@ -296,7 +298,7 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Form validation methods
   checkDatasetName(): void {
     this.datasetNameInvalid = false;
-    this.kommonitorDataExchangeService.availableGeoresources.forEach((georesource: any) => {
+    this.georesourceStore.availableGeoresources.forEach((georesource: any) => {
       if (georesource.datasetName === this.datasetName) {
         this.datasetNameInvalid = true;
         return;

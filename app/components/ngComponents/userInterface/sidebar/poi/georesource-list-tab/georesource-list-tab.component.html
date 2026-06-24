@@ -22,7 +22,7 @@
         <tbody>
           <tr
             *ngFor="
-              let poi of dataExchangeService
+              let poi of georesourceStore
                 .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
                 .poiData
             "
@@ -177,7 +177,7 @@
         <tbody>
           <tr
             *ngFor="
-              let loi of dataExchangeService
+              let loi of georesourceStore
                 .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
                 .loiData
             "
@@ -293,7 +293,7 @@
         <tbody>
           <tr
             *ngFor="
-              let aoi of dataExchangeService
+              let aoi of georesourceStore
                 .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
                 .aoiData
             "
@@ -407,7 +407,7 @@
         <tbody>
           <tr
             *ngFor="
-              let dataset of dataExchangeService
+              let dataset of georesourceStore
                 .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
                 .wmsData
             "
@@ -503,7 +503,7 @@
         <tbody>
           <tr
             *ngFor="
-              let dataset of dataExchangeService
+              let dataset of georesourceStore
                 .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
                 .wfsData
             "

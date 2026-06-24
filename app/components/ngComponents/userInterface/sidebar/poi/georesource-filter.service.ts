@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
@@ -12,6 +13,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 @Injectable({ providedIn: 'root' })
 export class GeoresourceFilterService {
   private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly envConfigService = inject(EnvConfigService);
 
   enabledGeoresourcesInfrastructure = this.envConfigService.enabledGeoresourcesInfrastructure;
@@ -43,7 +45,7 @@ export class GeoresourceFilterService {
   }
 
   onChangeGeoresourceKeywordFilter() {
-    this.dataExchangeService.onChangeGeoresourceKeywordFilter(
+    this.georesourceStore.onChangeGeoresourceKeywordFilter(
       this.georesourceNameFilter.value,
       this.showPOI,
       this.showLOI,

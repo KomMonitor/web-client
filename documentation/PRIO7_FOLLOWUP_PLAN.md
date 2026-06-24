@@ -54,7 +54,23 @@ In aufsteigender Konsumentenzahl:
       georesource-add/edit-metadata-modal, indicator-add-modal, ogc-/adminIndicatorUnit-/adminGeoresourceUnit-
       Helper. Facade-interne Reads (Hierarchie-Builder + Glue-PDF/ZIP-Wrapper + fetchTopicsMetadata) repointet;
       `availableTopics`-Getter + `setTopics`-Wrapper entfernt. Build/Test/Lint grün.
-- [ ] **B6e `GeoresourceMetadataStoreService`** (13) — inkl. WMS/WFS.
+- [x] **B6e `GeoresourceMetadataStoreService`** ✅ (2026-06-24). **Korrektur zur Plan-Schätzung (13):**
+      real **22 Dateien** auf `georesourceStore` umgehängt (Katalog-Inventar war unvollständig — fehlende
+      Field-/Var-Namen: `dataExchange`, lokale `const d`, sowie der Delegations-Layer
+      `adminGeoresourceUnit/KommonitorGeoresourceDataExchangeService`, der die Facade-Georessourcen-Methoden
+      durchreichte). Umgehängte clean Member: `availableGeoresources`, `displayableGeoresources(_keywordFiltered/
+      _forAlphabeticalDisplay)`, `availableWmsDatasets`, `wmsDatasets(_keywordFiltered)`, `wfsDatasets(_keywordFiltered)`,
+      `georesourceMapKey_forUnmappedTopicReferences`, `add/replace/deleteSingleGeoresourceMetadata`,
+      `getGeoresourceMetadataById`, `getAvailableGeo/IndiWmsDatasets`, `setGeoresources`/`setServices`,
+      `onChangeGeoresourceKeywordFilter`, `getGeoresourceDatasets`, `getAvailable(Wfs/TopicWms/)Datasets`/`getAvailableGeoresources`,
+      `filterByGeoresourceNamesToHide`, `filterGeoresourcesByTypes`, `removeAoiGeoresource`, `isDisplayableGeoresource`,
+      `setWmsLayer(Active/Inactive)`. Facade-interne Reads repointet (`fetchGeoresourcesMetadata`, `fetchServices`,
+      `buildTopicGeoresourceHierarchy`, `buildTopicIndicatorHierarchy`); alle Getter + Wrapper aus der Facade entfernt
+      (inkl. ungenutzte Imports `WmsDataset`/`GeoresourcesDataset`). **Bewusst behalten:** MetadataExport-Glue
+      (`downloadMetadataPDF_georesource`, `createMetadataPDF_georesource`, `generateAndDownloadGeoresourceZIP`),
+      Facade-Member `showGeoresourceExportButtons`, B5-Builder. **Übersprungen (tot):** indicator-computation
+      (AngularJS), georesource-delete-/batch-update-modal (Bridge-Token), reachability-scenario-modal (auskommentiert).
+      Build (EXIT 0) / Test (88 Suites, 129 Tests) / Lint (0 errors) grün.
 - [x] **B6d `IndicatorMetadataStoreService`** ✅ (2026-06-23). **23 Konsumenten** auf `indicatorStore`
       umgehängt (Clean-Member: `availableIndicators`, `displayableIndicators`, `setIndicators`,
       `add/replace/deleteSingleIndicatorMetadata`, `getIndicatorMetadataById`, `modifySingleIndicator`,

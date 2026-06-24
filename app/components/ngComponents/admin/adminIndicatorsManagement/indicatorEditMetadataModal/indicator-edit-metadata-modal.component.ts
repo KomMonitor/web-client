@@ -10,6 +10,7 @@ import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -32,6 +33,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   protected dataExchangeService = inject(DataExchangeService);
+  protected georesourceStore = inject(GeoresourceMetadataStoreService);
   protected topicStore = inject(TopicMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   protected indicatorStore = inject(IndicatorMetadataStoreService);
@@ -482,7 +484,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       this.currentIndicatorDataset.referencedGeoresources.length > 0
     ) {
       for (const georesourceReference of this.currentIndicatorDataset.referencedGeoresources) {
-        const georesourceMetadata = this.dataExchangeService.getGeoresourceMetadataById(
+        const georesourceMetadata = this.georesourceStore.getGeoresourceMetadataById(
           georesourceReference.referencedGeoresourceId
         );
         const geo_referenceEntry = {
@@ -634,7 +636,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
   onClickEditGeoresourceReference(georesourceReference_adminView: any): void {
     this.tmpGeoresourceReference_selectedGeoresourceMetadata =
-      this.dataExchangeService.getGeoresourceMetadataById(
+      this.georesourceStore.getGeoresourceMetadataById(
         georesourceReference_adminView.referencedGeoresourceId
       );
     this.tmpGeoresourceReference_referenceDescription =

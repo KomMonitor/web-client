@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-data-grid-helper-factory.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
 import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component';
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
@@ -35,6 +36,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   constructor(
     private ogcDataGridHelperServiceFactory: OgcDataGridHelperServiceFactory,
     private dataExchangeService: DataExchangeService,
+    private georesourceStore: GeoresourceMetadataStoreService,
     private broadcastService: BroadcastService,
     private modalService: NgbModal,
     private wmsSharedComponentsService: WmsSharedComponentsService
@@ -77,11 +79,11 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     let filteredReturn:WmsDataset[] = [];
 
     if (this.tableViewSwitcher) {
-      filteredReturn = this.dataExchangeService.availableWmsDatasets.filter(
+      filteredReturn = this.georesourceStore.availableWmsDatasets.filter(
         (e: any) => !(e.userPermissions.length === 1 && e.userPermissions.includes('viewer'))
       );
     } else {
-      filteredReturn = this.dataExchangeService.availableWmsDatasets;
+      filteredReturn = this.georesourceStore.availableWmsDatasets;
     }
 
     return filteredReturn.filter(e => e.serviceResource==this.resourceType);

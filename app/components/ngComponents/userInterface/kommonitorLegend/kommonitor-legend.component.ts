@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { LabelService } from 'services/label-service/label.service';
@@ -73,6 +74,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected georesourceStore: GeoresourceMetadataStoreService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
     protected metadataExportService: MetadataExportService,
     protected labelService: LabelService,
@@ -497,11 +499,11 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   };
 
   keywordFilteredWmsDataset() {
-    return this.dataExchangeService.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
+    return this.georesourceStore.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
   }
 
   hasActiveWMSLayers(){
-    return this.dataExchangeService.wmsDatasets.filter(item => item.isSelected).length > 0;
+    return this.georesourceStore.wmsDatasets.filter(item => item.isSelected).length > 0;
   }
 
   adjustOpacityForWmsLayer(dataset, transparency) {

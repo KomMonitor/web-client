@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
 import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
@@ -42,6 +43,7 @@ export class PoiComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected georesourceStore: GeoresourceMetadataStoreService,
     protected layerService: GeoresourceLayerService,
     protected favoritesService: GeoresourceFavoritesService,
     protected filterService: GeoresourceFilterService,
@@ -144,7 +146,7 @@ export class PoiComponent implements OnInit {
       aoi.isSelected = topic.isSelected;
     }
 
-    var relevantDatasets = this.dataExchangeService.getGeoresourceDatasets(
+    var relevantDatasets = this.georesourceStore.getGeoresourceDatasets(
       topic,
       this.filterService.georesourceNameFilter.value,
       this.filterService.showPOI,

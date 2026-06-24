@@ -4,6 +4,7 @@ import { FormsModule } from "@angular/forms";
 import { IconTranslate } from "pipes/icon-translate.pipe";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { EnvConfigService } from "services/env-config-service/env-config.service";
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
@@ -40,6 +41,7 @@ export class GeoresourceListTabComponent {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected georesourceStore: GeoresourceMetadataStoreService,
     protected layerService: GeoresourceLayerService,
     protected favoritesService: GeoresourceFavoritesService,
     protected ogcService: OgcService,

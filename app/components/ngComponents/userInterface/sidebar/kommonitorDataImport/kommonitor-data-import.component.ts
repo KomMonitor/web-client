@@ -3,6 +3,7 @@ import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@an
 import { NgbDropdown,NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { GeocoderHelperService } from 'services/geocoder-helper-service/geocoder-helper.service';
 import { MapService } from 'services/map-service/map.service';
@@ -59,6 +60,7 @@ export class KommonitorDataImportComponent implements OnInit {
 
   constructor(
     protected kommonitorDataExchangeService: DataExchangeService,
+    private georesourceStore: GeoresourceMetadataStoreService,
     private kommonitorMapService: MapService,
     private kommonitorGeocoderHelperService: GeocoderHelperService,
     private kommonitorFileHelperService: FileHelperService
@@ -505,7 +507,7 @@ export class KommonitorDataImportComponent implements OnInit {
     this.removeDataLayerFromOverviewTables(dataset);
     
     this.kommonitorDataExchangeService.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
-    this.kommonitorDataExchangeService.displayableGeoresources.push(dataset);
+    this.georesourceStore.displayableGeoresources.push(dataset);
 
     setTimeout( () => {
 
@@ -532,9 +534,9 @@ export class KommonitorDataImportComponent implements OnInit {
         this.kommonitorDataExchangeService.fileDatasets.splice(i, 1);
       }
     }
-    for (let i = 0; i < this.kommonitorDataExchangeService.displayableGeoresources.length; i++) {
-      if (this.kommonitorDataExchangeService.displayableGeoresources[i].datasetName == dataset.datasetName) {
-        this.kommonitorDataExchangeService.displayableGeoresources.splice(i, 1);
+    for (let i = 0; i < this.georesourceStore.displayableGeoresources.length; i++) {
+      if (this.georesourceStore.displayableGeoresources[i].datasetName == dataset.datasetName) {
+        this.georesourceStore.displayableGeoresources.splice(i, 1);
       }
     }
   }

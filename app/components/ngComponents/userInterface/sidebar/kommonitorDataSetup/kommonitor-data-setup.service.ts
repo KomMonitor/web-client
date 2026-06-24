@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
@@ -21,6 +22,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly metadataExportService = inject(MetadataExportService);
   private readonly broadcastService = inject(BroadcastService);
@@ -115,7 +117,7 @@ export class KommonitorDataSetupService {
       this.dataExchangeService.displayableIndicators_keywordFiltered.map(
         (item: any) => ({ ...item, listType: "indicator" }),
       );
-    const wms = this.dataExchangeService
+    const wms = this.georesourceStore
       .getAvailableIndiWmsDatasets()
       .map((item) => ({ ...item, listType: "wms" }));
 
@@ -232,10 +234,10 @@ export class KommonitorDataSetupService {
     if (dataset.isSelected) {
       const opacity = 1 - dataset.transparency;
       this.mapService.addWmsLayerToMap(dataset, opacity);
-      this.dataExchangeService.setWmsLayerActive(dataset);
+      this.georesourceStore.setWmsLayerActive(dataset);
     } else {
       this.mapService.removeWmsLayerFromMap(dataset);
-      this.dataExchangeService.setWmsLayerInactive(dataset);
+      this.georesourceStore.setWmsLayerInactive(dataset);
     }
   }
 

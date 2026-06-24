@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { FilterableSelectComponent } from 'components/ngComponents/common/filterableSelect/filterable-select.component';
 import { GeoresourcesDataset } from '../../../../../../../models/georesources.models';
@@ -16,7 +16,7 @@ import { GeoresourcesDataset } from '../../../../../../../models/georesources.mo
 })
 export class ScriptGeoresourcesComponent {
   protected scriptHelperService = inject(ScriptHelperService);
-  protected dataExchangeService = inject(DataExchangeService);
+  protected georesourceStore = inject(GeoresourceMetadataStoreService);
 
   selectedGeoresource: GeoresourcesDataset | undefined = undefined;
 

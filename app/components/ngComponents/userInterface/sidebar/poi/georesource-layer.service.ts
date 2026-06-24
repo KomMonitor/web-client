@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MapService } from "services/map-service/map.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
 
@@ -34,6 +35,7 @@ export class GeoresourceLayerService {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private georesourceStore: GeoresourceMetadataStoreService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
@@ -124,7 +126,7 @@ export class GeoresourceLayerService {
   }
 
   refreshSelectedGeoresources() {
-    for (const georesource of this.dataExchangeService
+    for (const georesource of this.georesourceStore
       .displayableGeoresources_keywordFiltered) {
       if (
         georesource.isSelected &&
@@ -213,14 +215,14 @@ export class GeoresourceLayerService {
   }
 
   refreshPoiLayers() {
-    for (const poi of this.dataExchangeService
+    for (const poi of this.georesourceStore
       .displayableGeoresources_keywordFiltered) {
       if (poi.isSelected) {
         this.removeGeoresourceLayerFromMap(poi);
         this.addGeoresourceLayerToMap(poi);
       }
     }
-    for (const wfs of this.dataExchangeService.wfsDatasets) {
+    for (const wfs of this.georesourceStore.wfsDatasets) {
       if (wfs.geometryType === "POI" && wfs.isSelected) {
         this.mapService.removeWfsLayerFromMap(wfs);
         this.mapService.addWfsLayerToMap(

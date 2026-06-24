@@ -16,6 +16,7 @@ import { ProcessScriptMetadataStoreService } from '../../../../services/process-
 import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { GeoresourceMetadataStoreService } from '../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 
 interface PieSeriesDataItem {
   name: string;
@@ -106,6 +107,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private topicStore = inject(TopicMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -172,7 +174,7 @@ export class AdminDashboardManagementComponent implements OnInit {
 
     this.organisationCount.set(String(d.accessControl?.length ?? 0));
     this.indicatorCount.set(String(this.indicatorStore.availableIndicators?.length ?? 0));
-    this.georesourceCount.set(String(d.availableGeoresources?.length ?? 0));
+    this.georesourceCount.set(String(this.georesourceStore.availableGeoresources?.length ?? 0));
     this.spatialUnitCount.set(String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0));
     this.indicatorScriptCount.set(String(this.processScriptStore.availableProcessScripts?.length ?? 0));
 
@@ -209,7 +211,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private buildGeoresourcesPerTypeChart(): EChartsOption {
     const countMap = new Map<string, number>();
 
-    for (const geo of this.dataExchange.availableGeoresources ?? []) {
+    for (const geo of this.georesourceStore.availableGeoresources ?? []) {
       const type = georesourceTypeOf(geo);
       countMap.set(type, (countMap.get(type) ?? 0) + 1);
     }

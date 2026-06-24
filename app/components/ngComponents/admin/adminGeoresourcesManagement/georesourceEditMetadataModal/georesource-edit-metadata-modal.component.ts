@@ -4,6 +4,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -28,6 +29,7 @@ import {
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorMultiStepFormHelperService = inject(MultiStepHelperServiceService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
@@ -372,7 +374,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   // Validation methods
   checkDatasetName(): void {
     this.datasetNameInvalid = false;
-    this.kommonitorDataExchangeService.availableGeoresources.forEach((georesource: any) => {
+    this.georesourceStore.availableGeoresources.forEach((georesource: any) => {
       if (
         georesource.datasetName === this.datasetName &&
         georesource.georesourceId !== this.currentGeoresourceDataset?.georesourceId

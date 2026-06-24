@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import * as echarts from 'echarts';
@@ -40,6 +41,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
+    private georesourceStore: GeoresourceMetadataStoreService,
     private diagramHelperService: DiagramHelperServiceService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
@@ -96,13 +98,13 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   onNameFilterChange(name: any) {
     let value = name.target.value.toLowerCase();
 
-    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName.toLowerCase().includes(value));
+    this.filteredDisplayableGeoresources = this.georesourceStore.displayableGeoresources.filter(e => e.datasetName.toLowerCase().includes(value));
   }
 
   prepDisplayableGeoresources() {
 
-    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.isPOI == true);
-    this.filteredDisplayableGeoresources = this.dataExchangeService.displayableGeoresources.filter(e => e.datasetName != "!-- leerer neuer Datensatz --");
+    this.filteredDisplayableGeoresources = this.georesourceStore.displayableGeoresources.filter(e => e.isPOI == true);
+    this.filteredDisplayableGeoresources = this.georesourceStore.displayableGeoresources.filter(e => e.datasetName != "!-- leerer neuer Datensatz --");
 
     // sort available dates and preselect last item (as on the UI)
     this.filteredDisplayableGeoresources.forEach(e => {
@@ -134,7 +136,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   resetPoisInIsochrone() {
     this.echartsInstances_reachabilityAnalysis = new Map();
     document.getElementById("reachability_diagrams_section")!.innerHTML = "";
-    for (var poi of this.dataExchangeService.displayableGeoresources) {
+    for (var poi of this.georesourceStore.displayableGeoresources) {
       if (poi.isSelected_reachabilityAnalysis) {
         poi.isSelected_reachabilityAnalysis = false;
         //remove POI layer from map
@@ -168,7 +170,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   // async
   async handlePoiForAnalysis(poi) {
 
-    this.dataExchangeService.displayableGeoresources = this.filteredDisplayableGeoresources;
+    this.georesourceStore.displayableGeoresources = this.filteredDisplayableGeoresources;
 
     this.reachabilityHelperService.settings.loadingData = true;
 
@@ -179,7 +181,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       }
 
       poi = await this.handlePoiOnDiagram(poi);
-      if (this.dataExchangeService.isDisplayableGeoresource(poi)) {
+      if (this.georesourceStore.isDisplayableGeoresource(poi)) {
         this.handlePoiOnMap(poi);
       }
 
@@ -438,7 +440,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   //async
   async refreshPoiLayers() {
-    for (var poi of this.dataExchangeService.displayableGeoresources) {
+    for (var poi of this.georesourceStore.displayableGeoresources) {
       if (poi.isSelected_reachabilityAnalysis) {
         //remove POI layer from map
         this.removePoiLayerFromMap(poi);
@@ -564,7 +566,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   //async
   async refreshSelectedGeoresources() {
-    for (const georesource of this.dataExchangeService.displayableGeoresources) {
+    for (const georesource of this.georesourceStore.displayableGeoresources) {
       if (georesource.isSelected_reachabilityAnalysis) {
 
         if (georesource.isPOI) {

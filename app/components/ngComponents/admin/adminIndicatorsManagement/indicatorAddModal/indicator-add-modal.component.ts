@@ -3,6 +3,7 @@ import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -26,6 +27,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
@@ -257,9 +259,9 @@ export class IndicatorAddModalComponent implements OnInit {
     // Load available georesources
     if (
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableGeoresources
+      this.georesourceStore.availableGeoresources
     ) {
-      this.availableGeoresources = this.kommonitorDataExchangeService.availableGeoresources;
+      this.availableGeoresources = this.georesourceStore.availableGeoresources;
     }
 
     // Load available topics
@@ -797,13 +799,13 @@ export class IndicatorAddModalComponent implements OnInit {
     if (
       this.metadataImportSettings.refrencesToGeoresources &&
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.availableGeoresources
+      this.georesourceStore.availableGeoresources
     ) {
       this.georesourceReferences_apiRequest = this.metadataImportSettings.refrencesToGeoresources;
       // Populate admin view
       this.georesourceReferences_adminView = [];
       this.georesourceReferences_apiRequest.forEach((ref: any) => {
-        const georesource = this.kommonitorDataExchangeService.availableGeoresources.find(
+        const georesource = this.georesourceStore.availableGeoresources.find(
           (geo: any) => geo.georesourceId === ref.georesourceId
         );
         if (georesource) {

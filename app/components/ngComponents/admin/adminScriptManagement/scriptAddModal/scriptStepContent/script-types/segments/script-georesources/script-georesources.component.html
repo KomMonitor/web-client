@@ -6,7 +6,7 @@
         propertyKey="datasetName"
         filterPlaceholder="Stichwortfilter"
         selectPlaceholder="-- Georessource als Berechnungsgrundlage wählen --"
-        [options]="dataExchangeService.availableGeoresources"
+        [options]="georesourceStore.availableGeoresources"
         (selectedItemChange)="onChangeGeoressource($event)"
       ></app-filterable-select>
     </div>

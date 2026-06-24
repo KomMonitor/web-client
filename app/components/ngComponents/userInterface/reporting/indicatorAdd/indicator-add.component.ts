@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { LabelService } from 'services/label-service/label.service';
@@ -182,6 +183,7 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected georesourceStore: GeoresourceMetadataStoreService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
     protected indicatorStore: IndicatorMetadataStoreService,
     protected metadataExportService: MetadataExportService,
@@ -270,7 +272,7 @@ export class IndicatorAddComponent implements OnInit {
 
     this.initializeDualLists();
 
-    this.availablePoiLayers = this.dataExchangeService.availableGeoresources.filter(georesource => georesource.isPOI);
+    this.availablePoiLayers = this.georesourceStore.availableGeoresources.filter(georesource => georesource.isPOI);
     this.filteredAvailablePoiLayers = this.availablePoiLayers.sort(this.sortByDatasetName);
 
     this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);

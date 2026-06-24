@@ -4,6 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from '../../../../../../services/config-storage-service/config-storage.service';
 import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from '../../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { MultiStepHelperServiceService } from '../../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
@@ -19,6 +20,7 @@ import { NotificationService } from '../../../../common/notification/notificatio
 export class AdminFilterEditModalComponent implements OnInit {
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private kommonitorDataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
@@ -340,7 +342,7 @@ export class AdminFilterEditModalComponent implements OnInit {
   }
 
   refreshGeoresourcesTable() {
-    this.kommonitorDataExchangeService.availableGeoresources.forEach((element, index) => {
+    this.georesourceStore.availableGeoresources.forEach((element, index) => {
       this.preppedGeoresourceData[index] = {
         id: element.georesourceId,
         name: element.datasetName,

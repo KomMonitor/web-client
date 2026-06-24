@@ -16,6 +16,7 @@ import { KommonitorFilterDataGridHelperService } from '../../../../../services/a
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
@@ -34,6 +35,7 @@ import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.
 })
 export class AdminFilterConfigComponent implements OnInit {
   private kommonitorDataExchangeService = inject(DataExchangeService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
@@ -328,7 +330,7 @@ export class AdminFilterConfigComponent implements OnInit {
         });
         filter.georesources.forEach((georesourceElement, georesourceIndex) => {
           this.mergedFilterConfig[filterIndex].georesources[georesourceIndex] =
-            this.kommonitorDataExchangeService.availableGeoresources
+            this.georesourceStore.availableGeoresources
               .filter((e) => e.georesourceId == georesourceElement)
               .map((e) => e.datasetName)[0];
         });

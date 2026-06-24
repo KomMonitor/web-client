@@ -25,8 +25,6 @@ import { BehaviorSubject, forkJoin } from 'rxjs';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { WmsDataset } from 'components/ngComponents/models/services.models';
-import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 import { KeycloakProfile } from 'keycloak-js';
 import { GeoresourcesImportDataset } from 'components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component';
@@ -83,10 +81,6 @@ export class DataExchangeService {
   }
   set selectedIndicator(v: IndicatorsDataset) {
     this.selectionState.selectedIndicator = v;
-  }
-  // Prio7 B6e: georesource/WMS/WFS state lives in GeoresourceMetadataStoreService; facade getters keep consumers unchanged
-  get availableWmsDatasets(): WmsDataset[] {
-    return this.georesourceStore.availableWmsDatasets;
   }
   get selectedDate(): any {
     return this.selectionState.selectedDate;
@@ -156,29 +150,14 @@ export class DataExchangeService {
   set displayableIndicators_keywordFiltered(v: any) {
     this.metadataFilterService.displayableIndicators_keywordFiltered = v;
   }
-  get displayableGeoresources_keywordFiltered(): any {
-    return this.georesourceStore.displayableGeoresources_keywordFiltered;
-  }
   wmsLegendImage: any;
-  get displayableGeoresources_keywordFiltered_forAlphabeticalDisplay(): any {
-    return this.georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay;
-  }
   rangeFilterData: any;
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName: any;
   simplifyGeometries: any;
   FEATURE_NAME_PROPERTY_NAME: any;
-  get availableGeoresources(): GeoresourcesDataset[] {
-    return this.georesourceStore.availableGeoresources;
-  }
   reachabilityScenarioOnMainMap: any;
   isochroneLegend: any = false;
-  get displayableGeoresources(): any {
-    return this.georesourceStore.displayableGeoresources;
-  }
-  set displayableGeoresources(v: any) {
-    this.georesourceStore.displayableGeoresources = v;
-  }
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
@@ -239,19 +218,6 @@ export class DataExchangeService {
   anySideBarIsShown = false;
 
   tmpIndicatorGeoJSON = undefined;
-
-  get wmsDatasets(): WmsDataset[] {
-    return this.georesourceStore.wmsDatasets;
-  }
-  get wfsDatasets(): any {
-    return this.georesourceStore.wfsDatasets;
-  }
-  get wmsDatasets_keywordFiltered(): WmsDataset[] {
-    return this.georesourceStore.wmsDatasets_keywordFiltered;
-  }
-  get wfsDatasets_keywordFiltered(): any {
-    return this.georesourceStore.wfsDatasets_keywordFiltered;
-  }
 
   get allFeaturesPropertyUnit(): any {
     return this.selectionState.allFeaturesPropertyUnit;
@@ -520,10 +486,6 @@ export class DataExchangeService {
   get topicGeoresourceHierarchy_unmappedEntries(): any {
     return this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries;
   }
-  get georesourceMapKey_forUnmappedTopicReferences(): string {
-    return this.georesourceStore.georesourceMapKey_forUnmappedTopicReferences;
-  }
-
   currentKeycloakUser!: KeycloakProfile;
 
   /**
@@ -744,7 +706,7 @@ export class DataExchangeService {
   }
 
   async fetchGeoresourcesMetadata(keycloakRolesArray, filter) {
-    this.setGeoresources(
+    this.georesourceStore.setGeoresources(
       await this.cacheHelperService.fetchGeoresourceMetadata(keycloakRolesArray, filter)
     );
   }
@@ -762,23 +724,13 @@ export class DataExchangeService {
   }
 
   async fetchServices(keycloakRolesArray, filter = undefined) {
-    this.setServices(await this.cacheHelperService.fetchServices(keycloakRolesArray, filter));
+    this.georesourceStore.setServices(
+      await this.cacheHelperService.fetchServices(keycloakRolesArray, filter)
+    );
   }
 
   async reinitServices(): Promise<void> {
     await this.fetchServices(this.currentKeycloakLoginRoles);
-  }
-
-  private setServices(servicesArray: WmsDataset[]) {
-    this.georesourceStore.setServices(servicesArray);
-  }
-
-  addSingleGeoresourceMetadata(georesourceMetadata) {
-    this.georesourceStore.addSingleGeoresourceMetadata(georesourceMetadata);
-  }
-
-  replaceSingleGeoresourceMetadata(georesourceMetadata) {
-    this.georesourceStore.replaceSingleGeoresourceMetadata(georesourceMetadata);
   }
 
   getLoiDashSvgFromStringValue(loiDashArrayString) {
@@ -791,22 +743,6 @@ export class DataExchangeService {
     return '';
   }
 
-  deleteSingleGeoresourceMetadata(georesourceId) {
-    this.georesourceStore.deleteSingleGeoresourceMetadata(georesourceId);
-  }
-
-  getAvailableGeoWmsDatasets(): WmsDataset[] {
-    return this.georesourceStore.getAvailableGeoWmsDatasets();
-  }
-
-  getAvailableIndiWmsDatasets(): WmsDataset[] {
-    return this.georesourceStore.getAvailableIndiWmsDatasets();
-  }
-
-  setGeoresources(georesourcesArray) {
-    this.georesourceStore.setGeoresources(georesourcesArray);
-  }
-
   checkDeletePermission() {
     return this.accessControlService.checkDeletePermission();
   }
@@ -817,10 +753,6 @@ export class DataExchangeService {
 
   getRoleTitle(organizationalUnitId) {
     return this.accessControlService.getRoleTitle(organizationalUnitId);
-  }
-
-  getGeoresourceMetadataById(georesourceId) {
-    return this.georesourceStore.getGeoresourceMetadataById(georesourceId);
   }
 
   onMetadataLoadingCompleted() {
@@ -837,10 +769,10 @@ export class DataExchangeService {
   private buildTopicGeoresourceHierarchy(filter: any = undefined) {
     this.topicHierarchyStore.buildTopicGeoresourceHierarchy(
       this.topicStore.availableTopics,
-      this.displayableGeoresources_keywordFiltered,
-      this.wmsDatasets_keywordFiltered,
-      this.wfsDatasets_keywordFiltered,
-      this.georesourceMapKey_forUnmappedTopicReferences,
+      this.georesourceStore.displayableGeoresources_keywordFiltered,
+      this.georesourceStore.wmsDatasets_keywordFiltered,
+      this.georesourceStore.wfsDatasets_keywordFiltered,
+      this.georesourceStore.georesourceMapKey_forUnmappedTopicReferences,
       filter
     );
   }
@@ -856,7 +788,7 @@ export class DataExchangeService {
     this.topicHierarchyStore.buildTopicIndicatorHierarchy(
       this.topicStore.availableTopics,
       this.displayableIndicators_keywordFiltered,
-      this.getAvailableIndiWmsDatasets()
+      this.georesourceStore.getAvailableIndiWmsDatasets()
     );
   }
 
@@ -1020,83 +952,6 @@ export class DataExchangeService {
     this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
   }
 
-  onChangeGeoresourceKeywordFilter(
-    georesourceNameFilter,
-    showPOI,
-    showLOI,
-    showAOI,
-    showWMS,
-    showWFS
-  ) {
-    this.georesourceStore.onChangeGeoresourceKeywordFilter(
-      georesourceNameFilter,
-      showPOI,
-      showLOI,
-      showAOI,
-      showWMS,
-      showWFS
-    );
-  }
-
-  getGeoresourceDatasets(
-    topic,
-    georesourceNameFilter,
-    showPOI,
-    showLOI,
-    showAOI,
-    showWMS,
-    showWFS
-  ) {
-    return this.georesourceStore.getGeoresourceDatasets(
-      topic,
-      georesourceNameFilter,
-      showPOI,
-      showLOI,
-      showAOI,
-      showWMS,
-      showWFS
-    );
-  }
-
-  getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS) {
-    return this.georesourceStore.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
-  }
-
-  getAvailableTopicWmsDatasets(topic, georesourceNameFilter, showWMS) {
-    return this.georesourceStore.getAvailableTopicWmsDatasets(
-      topic,
-      georesourceNameFilter,
-      showWMS
-    );
-  }
-
-  filterByGeoresourceNamesToHide(filteredGeoresources) {
-    return this.georesourceStore.filterByGeoresourceNamesToHide(filteredGeoresources);
-  }
-
-  getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI) {
-    return this.georesourceStore.getAvailableGeoresources(
-      topic,
-      georesourceNameFilter,
-      showPOI,
-      showLOI,
-      showAOI
-    );
-  }
-
-  filterGeoresourcesByTypes(georesourceMetadataArray, showPOI, showLOI, showAOI) {
-    return this.georesourceStore.filterGeoresourcesByTypes(
-      georesourceMetadataArray,
-      showPOI,
-      showLOI,
-      showAOI
-    );
-  }
-
-  removeAoiGeoresource(aoiGeoresource) {
-    return this.georesourceStore.removeAoiGeoresource(aoiGeoresource);
-  }
-
   getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
       indicatorValue,
@@ -1220,13 +1075,5 @@ export class DataExchangeService {
 
   checkResourcesEditPermission() {
     return this.accessControlService.checkResourcesEditPermission();
-  }
-
-  setWmsLayerActive(dataset: WmsDataset) {
-    this.georesourceStore.setWmsLayerActive(dataset);
-  }
-
-  setWmsLayerInactive(dataset: WmsDataset) {
-    this.georesourceStore.setWmsLayerInactive(dataset);
   }
 }
