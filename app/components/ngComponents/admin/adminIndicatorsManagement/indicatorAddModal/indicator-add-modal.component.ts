@@ -3,6 +3,7 @@ import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -28,6 +29,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);

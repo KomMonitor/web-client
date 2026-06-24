@@ -185,7 +185,7 @@
           <hr>
           <br/>
 
-          <div class="row vertical-align" *ngIf="dataExchangeService.checkAdminPermission()">
+          <div class="row vertical-align" *ngIf="accessControlService.checkAdminPermission()">
             <div class="col-md-10 col-sm-12 col-xs-12">
               <div style="text-align: left;">
                 <div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
@@ -226,7 +226,7 @@
                 <span class="input-group-addon"><i class="fas fa-filter"></i></span>
                 <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" [(ngModel)]="ownerOrgFilter" name="ownerOrgFilter">
               </div>
-              <select *ngIf="dataExchangeService.checkAdminPermission()" 
+              <select *ngIf="accessControlService.checkAdminPermission()" 
                 id="addWmsUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
                 class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
                 <option *ngFor="let org of dataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>

@@ -4,6 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
@@ -64,6 +65,7 @@ export class WmsEditModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
+    protected accessControlService: AccessControlService,
     private topicStore: TopicMetadataStoreService,
     private ogcService: OgcService,
     protected dataGridHelperService: OgcDataGridHelperService,

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarchy.service';
@@ -10,6 +11,7 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
 })
 export class KommonitorGeoresourceDataExchangeService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyService = inject(TopicHierarchyService);
@@ -36,21 +38,21 @@ export class KommonitorGeoresourceDataExchangeService {
    * Check create permission - delegates to AngularJS service
    */
   checkCreatePermission(): boolean {
-    return this.angularJsDataExchangeService.checkCreatePermission();
+    return this.accessControlService.checkCreatePermission();
   }
 
   /**
    * Check editor permission - delegates to AngularJS service
    */
   checkEditorPermission(): boolean {
-    return this.angularJsDataExchangeService.checkEditorPermission();
+    return this.accessControlService.checkEditorPermission();
   }
 
   /**
    * Check delete permission - delegates to AngularJS service
    */
   checkDeletePermission(): boolean {
-    return this.angularJsDataExchangeService.checkDeletePermission();
+    return this.accessControlService.checkDeletePermission();
   }
 
   /**
@@ -99,7 +101,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get role title - delegates to AngularJS service
    */
   getRoleTitle(roleId: string): string {
-    return this.angularJsDataExchangeService.getRoleTitle(roleId);
+    return this.accessControlService.getRoleTitle(roleId);
   }
 
   /**
@@ -116,7 +118,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get all allowed roles string - delegates to AngularJS service
    */
   getAllowedRolesString(permissions: any): string {
-    return this.angularJsDataExchangeService.getAllowedRolesString(permissions);
+    return this.accessControlService.getAllowedRolesString(permissions);
   }
 
   /**

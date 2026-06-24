@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
@@ -51,6 +52,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   public dataExchangeService = inject(DataExchangeService);
+  protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
@@ -241,7 +243,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   refreshRoles(orgUnitId: string): void {
     const permissionIds_ownerUnit = orgUnitId
-      ? (this.dataExchangeService.getAccessControlById(orgUnitId)?.permissions ?? [])
+      ? (this.accessControlService.getAccessControlById(orgUnitId)?.permissions ?? [])
           .filter(
             (permission: any) =>
               permission.permissionLevel == 'viewer' || permission.permissionLevel == 'editor'

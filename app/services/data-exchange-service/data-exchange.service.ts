@@ -734,18 +734,6 @@ export class DataExchangeService {
     return '';
   }
 
-  checkDeletePermission() {
-    return this.accessControlService.checkDeletePermission();
-  }
-
-  getAllowedRolesString(allowedPermissionIds) {
-    return this.accessControlService.getAllowedRolesString(allowedPermissionIds);
-  }
-
-  getRoleTitle(organizationalUnitId) {
-    return this.accessControlService.getRoleTitle(organizationalUnitId);
-  }
-
   onMetadataLoadingCompleted() {
     this.broadcastService.broadcast('initialMetadataLoadingCompleted');
 
@@ -809,13 +797,6 @@ export class DataExchangeService {
     this.setCurrentKomMonitorLoginOrganizationalUnits();
   }
 
-  /**
-   * Get access control metadata by organizational unit ID
-   */
-  getAccessControlById(id: string): AccessControlMetadata | null {
-    return this.accessControlService.getAccessControlById(id);
-  }
-
   setCurrentKomMonitorLoginOrganizationalUnits() {
     return this.accessControlService.setCurrentKomMonitorLoginOrganizationalUnits();
   }
@@ -826,18 +807,6 @@ export class DataExchangeService {
 
   private setAccessControl(input) {
     return this.accessControlService.setAccessControl(input);
-  }
-
-  filterClientUserAdminRoles() {
-    return this.accessControlService.filterClientUserAdminRoles();
-  }
-
-  checkAdminPermission() {
-    return this.accessControlService.checkAdminPermission();
-  }
-
-  updateAvailableRoles() {
-    return this.accessControlService.updateAvailableRoles();
   }
 
   async downloadMetadataPDF_georesource(georesourceMetadata) {
@@ -999,27 +968,4 @@ export class DataExchangeService {
     }
   }
 
-  checkCreatePermission() {
-    return this.accessControlService.checkCreatePermission();
-  }
-
-  checkEditorPermission() {
-    return this.accessControlService.checkEditorPermission();
-  }
-
-  getRoleTitles() {
-    return this.accessControlService.getRoleTitles();
-  }
-
-  checkGroupsEditPermission() {
-    return this.accessControlService.checkGroupsEditPermission();
-  }
-
-  checkThemesEditPermission() {
-    return this.accessControlService.checkThemesEditPermission();
-  }
-
-  checkResourcesEditPermission() {
-    return this.accessControlService.checkResourcesEditPermission();
-  }
 }

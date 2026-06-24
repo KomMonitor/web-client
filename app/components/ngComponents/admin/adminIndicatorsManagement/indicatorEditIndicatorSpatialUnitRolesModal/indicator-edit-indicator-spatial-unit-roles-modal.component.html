@@ -228,7 +228,7 @@
                     [ngModelOptions]="{ standalone: true }"
                   />
                 </div>
-                @if (dataExchangeService.checkAdminPermission()) {
+                @if (accessControlService.checkAdminPermission()) {
                   <select
                     id="targetUserRoleSelect"
                     [(ngModel)]="ownerOrganization"
@@ -246,7 +246,7 @@
                     }
                   </select>
                 }
-                @if (!dataExchangeService.checkAdminPermission()) {
+                @if (!accessControlService.checkAdminPermission()) {
                   <select
                     id="targetUserRoleSelect"
                     [(ngModel)]="ownerOrganization"
@@ -266,7 +266,7 @@
                 <label>aktuelle Eigentümer-Organisationseinheit</label>
                 <p>
                   {{
-                    dataExchangeService.getAccessControlById(currentIndicatorDataset?.ownerId)?.name
+                    accessControlService.getAccessControlById(currentIndicatorDataset?.ownerId)?.name
                   }}
                 </p>
                 @if (ownerOrganization != currentIndicatorDataset?.ownerId) {

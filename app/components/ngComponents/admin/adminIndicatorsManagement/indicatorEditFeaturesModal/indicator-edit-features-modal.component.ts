@@ -9,6 +9,7 @@ import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -32,6 +33,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   dataExchangeService = inject(DataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   indicatorStore = inject(IndicatorMetadataStoreService);
@@ -334,7 +336,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       : [];
 
     if (this.currentIndicatorDataset) {
-      const ownerAccessControl = this.dataExchangeService.getAccessControlById(
+      const ownerAccessControl = this.accessControlService.getAccessControlById(
         this.currentIndicatorDataset.ownerId
       );
       const permissionIds_ownerUnit = (ownerAccessControl?.permissions || [])

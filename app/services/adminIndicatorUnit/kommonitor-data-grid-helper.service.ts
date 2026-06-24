@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -15,6 +16,7 @@ declare const $: any;
 })
 export class KommonitorIndicatorDataGridHelperService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private metadataExportService = inject(MetadataExportService);
   private topicStore = inject(TopicMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -201,12 +203,12 @@ export class KommonitorIndicatorDataGridHelperService {
         headerName: 'Rollen',
         minWidth: 400,
         cellRenderer: (params: any) => {
-          return this.angularJsDataExchangeService.getAllowedRolesString(params.data.permissions);
+          return this.accessControlService.getAllowedRolesString(params.data.permissions);
         },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) => {
           return (
-            '' + this.angularJsDataExchangeService.getAllowedRolesString(params.data.permissions)
+            '' + this.accessControlService.getAllowedRolesString(params.data.permissions)
           );
         },
       },
@@ -225,11 +227,11 @@ export class KommonitorIndicatorDataGridHelperService {
         headerName: 'Eigentümer',
         minWidth: 400,
         cellRenderer: (params: any) => {
-          return this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId);
+          return this.accessControlService.getRoleTitle(params.data.ownerId);
         },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) => {
-          return '' + this.angularJsDataExchangeService.getRoleTitle(params.data.ownerId);
+          return '' + this.accessControlService.getRoleTitle(params.data.ownerId);
         },
       },
       {

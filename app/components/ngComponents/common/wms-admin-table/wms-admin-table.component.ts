@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-data-grid-helper-factory.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
 import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component';
@@ -36,6 +37,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   constructor(
     private ogcDataGridHelperServiceFactory: OgcDataGridHelperServiceFactory,
     private dataExchangeService: DataExchangeService,
+    private accessControlService: AccessControlService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private broadcastService: BroadcastService,
     private modalService: NgbModal,
@@ -99,15 +101,15 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   checkCreatePermission(): boolean {
-    return this.dataExchangeService.checkCreatePermission();
+    return this.accessControlService.checkCreatePermission();
   }
 
   checkEditorPermission(): boolean {
-    return this.dataExchangeService.checkEditorPermission();
+    return this.accessControlService.checkEditorPermission();
   }
 
   checkDeletePermission(): boolean {
-    return this.dataExchangeService.checkDeletePermission();
+    return this.accessControlService.checkDeletePermission();
   }
 
   public openAddModal(resourceType: WmsResourceType) {

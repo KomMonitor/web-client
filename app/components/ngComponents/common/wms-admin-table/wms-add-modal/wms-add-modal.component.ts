@@ -6,6 +6,7 @@ import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
@@ -81,6 +82,7 @@ export class WmsAddModalComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
+    protected accessControlService: AccessControlService,
     private topicStore: TopicMetadataStoreService,
     private ogcService: OgcService,
     protected roleManagementHelper: RoleManagementDataGridHelperService,
@@ -177,7 +179,7 @@ export class WmsAddModalComponent implements OnInit {
     let permissionIds_ownerUnit: string[] = [];
     
     if (orgUnitId) {
-      const accessControl = this.dataExchangeService.getAccessControlById(orgUnitId);
+      const accessControl = this.accessControlService.getAccessControlById(orgUnitId);
       permissionIds_ownerUnit = accessControl?.permissions
         ?.filter(permission => permission.permissionLevel === "viewer" || permission.permissionLevel === "editor")
         .map(permission => permission.permissionId) || [];

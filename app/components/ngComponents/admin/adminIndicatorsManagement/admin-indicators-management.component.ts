@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
@@ -51,6 +52,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
@@ -722,15 +724,15 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
   // Utility methods
   checkCreatePermission(): boolean {
-    return this.dataExchangeService.checkCreatePermission();
+    return this.accessControlService.checkCreatePermission();
   }
 
   checkEditorPermission(): boolean {
-    return this.dataExchangeService.checkEditorPermission();
+    return this.accessControlService.checkEditorPermission();
   }
 
   checkDeletePermission(): boolean {
-    return this.dataExchangeService.checkDeletePermission();
+    return this.accessControlService.checkDeletePermission();
   }
 
   private startDataPolling(): void {

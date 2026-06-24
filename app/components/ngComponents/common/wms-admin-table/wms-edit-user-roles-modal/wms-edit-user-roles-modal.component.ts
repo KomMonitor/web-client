@@ -7,6 +7,7 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { forkJoin } from 'rxjs';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AgGridAngular } from "ag-grid-angular";
 import { CommonModule } from '@angular/common';
@@ -50,6 +51,7 @@ export class WmsEditUserRolesModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     protected dataExchangeService: DataExchangeService,
+    protected accessControlService: AccessControlService,
     private ogcService: OgcService,
     protected roleManagementHelper: RoleManagementDataGridHelperService,
     protected envConfigService: EnvConfigService
@@ -157,7 +159,7 @@ export class WmsEditUserRolesModalComponent {
     let permissionIds_ownerUnit: string[] = [];
     
     if (orgUnitId) {
-      const accessControl = this.dataExchangeService.getAccessControlById(orgUnitId);
+      const accessControl = this.accessControlService.getAccessControlById(orgUnitId);
       permissionIds_ownerUnit = accessControl?.permissions
         ?.filter(permission => permission.permissionLevel === "viewer" || permission.permissionLevel === "editor")
         .map(permission => permission.permissionId) || [];
