@@ -9,6 +9,7 @@ import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
@@ -31,6 +32,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   dataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   indicatorStore = inject(IndicatorMetadataStoreService);
   importerHelperService = inject(KommonitorImporterHelperService);
@@ -255,9 +257,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       },
       error: (error: any) => {
         if (error.error) {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.error);
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.error);
         } else {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
         }
         this.showErrorAlert();
         this.loadingData = false;
@@ -303,9 +305,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       },
       error: (error: any) => {
         if (error.error) {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.error);
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.error);
         } else {
-          this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
         }
         this.showErrorAlert();
         this.loadingData = false;
@@ -475,9 +477,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       );
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
       }
       this.showErrorAlert();
       this.loadingData = false;
@@ -561,9 +563,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
       }
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
       }
 
       this.showErrorAlert();

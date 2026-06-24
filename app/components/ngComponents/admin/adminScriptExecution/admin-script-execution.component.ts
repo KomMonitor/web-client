@@ -14,6 +14,7 @@ import { JobSummaryCellRendererComponent } from './job-summary-cell-renderer.com
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions } from 'ag-grid-community';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from '../../../../services/indicator-value-service/indicator-value.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-overlay.component';
@@ -34,6 +35,7 @@ import { LoadingOverlayComponent } from '../../common/loading-overlay/loading-ov
 export class AdminScriptExecutionComponent implements OnInit {
   private scriptExecutionService = inject(AdminScriptExecutionService);
   private kommonitorDataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
 
@@ -96,7 +98,7 @@ export class AdminScriptExecutionComponent implements OnInit {
       field: 'jobData',
       minWidth: 500,
       cellRenderer: (params) =>
-        this.kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData),
+        this.indicatorValueService.syntaxHighlightJSON(params.data.jobData),
       filter: 'agTextColumnFilter',
     },
     {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -183,6 +185,8 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     protected georesourceStore: GeoresourceMetadataStoreService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
     protected indicatorStore: IndicatorMetadataStoreService,
@@ -199,6 +203,14 @@ export class IndicatorAddComponent implements OnInit {
     private fb: FormBuilder,
     private envConfigService: EnvConfigService
   ) {
+  }
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
   }
 
   ngOnInit(): void {
@@ -1356,7 +1368,7 @@ export class IndicatorAddComponent implements OnInit {
     let dualListInput = data.map( (el,i) => {
       return {"name": el.properties.NAME, 'id':i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
-    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",'id');
+    dualListInput = this.indicatorValueService.createDualListInputArray(dualListInput, "name",'id');
     this.dualListTimestampsOptions.items = dualListInput;
 
     // if there are items to select
@@ -1365,7 +1377,7 @@ export class IndicatorAddComponent implements OnInit {
         let dualListSelected = selectedItems.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} 
         });
-        this.dualListTimestampsOptions.selectedItems = this.dataExchangeService.createDualListInputArray(dualListSelected, "name",'id');
+        this.dualListTimestampsOptions.selectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');
       } else {
 
         let items:any[] = [];
@@ -1378,7 +1390,7 @@ export class IndicatorAddComponent implements OnInit {
             }
           }
         }
-        this.dualListTimestampsOptions.selectedItems = this.dataExchangeService.createDualListInputArray(items, "name",'id');
+        this.dualListTimestampsOptions.selectedItems = this.indicatorValueService.createDualListInputArray(items, "name",'id');
       }
     }
 
@@ -1391,7 +1403,7 @@ export class IndicatorAddComponent implements OnInit {
     let dualListInput = data.map( (el, i) => {
       return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
-    dualListInput = this.dataExchangeService.createDualListInputArray(dualListInput, "name",'id');
+    dualListInput = this.indicatorValueService.createDualListInputArray(dualListInput, "name",'id');
     this.dualListAreasOptions.items = dualListInput;
 
     // if there are items to select
@@ -1400,7 +1412,7 @@ export class IndicatorAddComponent implements OnInit {
         let dualListSelected = selectedItems.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} 
         });
-        this.dualListAreasOptions.selectedItems = this.dataExchangeService.createDualListInputArray(dualListSelected, "name",'id');;
+        this.dualListAreasOptions.selectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');;
       } else {
 
         let items:any[] = [];
@@ -1413,7 +1425,7 @@ export class IndicatorAddComponent implements OnInit {
             }
           }
         }
-        this.dualListAreasOptions.selectedItems = this.dataExchangeService.createDualListInputArray(items, "name",'id');
+        this.dualListAreasOptions.selectedItems = this.indicatorValueService.createDualListInputArray(items, "name",'id');
       }
     }
 
@@ -1672,7 +1684,7 @@ export class IndicatorAddComponent implements OnInit {
         let areasListInput = allAreas.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
-        areasListInput = this.dataExchangeService.createDualListInputArray(areasListInput, "name",'id');
+        areasListInput = this.indicatorValueService.createDualListInputArray(areasListInput, "name",'id');
 
         this.selectedAreas = areasListInput;
   
@@ -2015,17 +2027,17 @@ export class IndicatorAddComponent implements OnInit {
         let areasListInput = allAreas.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
-        areasListInput = this.dataExchangeService.createDualListInputArray(areasListInput, "name",'id');
+        areasListInput = this.indicatorValueService.createDualListInputArray(areasListInput, "name",'id');
 
         let timestampsListInput = availableTimestamps.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
-        timestampsListInput = this.dataExchangeService.createDualListInputArray(timestampsListInput, "name",'id');
+        timestampsListInput = this.indicatorValueService.createDualListInputArray(timestampsListInput, "name",'id');
 
         let timestampsListSelected = mostRecentTimestamp.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
         });
-        timestampsListSelected = this.dataExchangeService.createDualListInputArray(timestampsListSelected, "name",'id');
+        timestampsListSelected = this.indicatorValueService.createDualListInputArray(timestampsListSelected, "name",'id');
 
         this.selectedAreas = areasListInput;
         this.selectedTimestamps = timestampsListSelected;
@@ -3524,7 +3536,7 @@ export class IndicatorAddComponent implements OnInit {
       let counter = 0;
 
       for (const feature of originalFeatures) {
-        if (!this.dataExchangeService.indicatorValueIsNoData(feature.properties[timestampPrefix])){
+        if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[timestampPrefix])){
           sumToDate += feature.properties[timestampPrefix];
           counter++;
         }
@@ -3532,7 +3544,7 @@ export class IndicatorAddComponent implements OnInit {
 
       let toDateIndex = selectedIndicator.applicableDates.indexOf(targetTimestamp);	
             
-      this.echartsOptions.line.series[0].data[toDateIndex] = this.dataExchangeService.getIndicatorValue_asNumber(sumToDate / counter);
+      this.echartsOptions.line.series[0].data[toDateIndex] = this.getIndicatorValue_asNumber(sumToDate / counter);
     }
 
     this.diagramsPrepared = true;

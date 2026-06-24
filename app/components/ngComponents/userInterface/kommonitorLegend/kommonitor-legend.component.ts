@@ -2,6 +2,8 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
@@ -74,6 +76,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     protected georesourceStore: GeoresourceMetadataStoreService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
     protected metadataExportService: MetadataExportService,
@@ -88,6 +92,14 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     private mapService: MapService,
     protected envConfigService: EnvConfigService
   ) { }
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  protected getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   ngOnChanges(changes: any): void {
 
@@ -386,7 +398,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         // to 2018-01-01
         // indicator values should be replaced.
         // replace dot as decimal separator 
-        properties[key] = this.dataExchangeService.getIndicatorValue_asFormattedText(properties[key]);
+        properties[key] = this.getIndicatorValue_asFormattedText(properties[key]);
         newKey = key.split("_")[1];
       }
       else if (key.toLowerCase().includes("startdate")) {
@@ -486,16 +498,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   makeOutliersLowLegendString(outliersArray) {
     if (outliersArray.length > 1) 
-      return "(" + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + this.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
     else
-      return "(" + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
+      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
   };
 
   makeOutliersHighLegendString(outliersArray) {
     if (outliersArray.length > 1)
-      return "(" + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + this.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
     else
-      return "(" + this.dataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
+      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
   };
 
   keywordFilteredWmsDataset() {

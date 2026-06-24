@@ -8,6 +8,7 @@ import {
 import { take } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 
 @Component({
   selector: 'app-admin-add-topic',
@@ -20,6 +21,7 @@ export class AddTopicComponent {
   private srvc = inject(AdminTopicsManagementService);
   private errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
   private dataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
 
   @Input({ required: true }) topicResourceType!: TopicResourceType;
   @Input() topicType: 'main' | 'sub' = 'main';
@@ -44,7 +46,7 @@ export class AddTopicComponent {
           this.newTopicTitle = '';
         },
         error: (error) => {
-          this.errorHandlingService.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(
+          this.errorHandlingService.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
             error?.data || error
           );
         },

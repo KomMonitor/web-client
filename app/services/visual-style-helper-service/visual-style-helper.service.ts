@@ -1,6 +1,8 @@
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
 import L from 'leaflet';
 import 'leaflet.pattern';
@@ -12,6 +14,16 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 export class VisualStyleHelperServiceNew {
   private dataExchangeService = inject(DataExchangeService);
   private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   colorbrewer = colorbrewer;
 
@@ -339,12 +351,12 @@ export class VisualStyleHelperServiceNew {
 
   setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values) {
     for (const feature of geoJSON.features) {
-      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName]))
+      if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName]))
         continue;
 
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         continue;
       }
@@ -360,11 +372,11 @@ export class VisualStyleHelperServiceNew {
 
       if (
         !values.includes(
-          this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+          this.getIndicatorValue_asNumber(feature.properties[propertyName])
         )
       ) {
         values.push(
-          this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+          this.getIndicatorValue_asNumber(feature.properties[propertyName])
         );
       }
     }
@@ -519,12 +531,12 @@ export class VisualStyleHelperServiceNew {
 
   setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue) {
     for (const feature of geoJSON.features) {
-      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName]))
+      if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName]))
         continue;
 
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         continue;
       }
@@ -537,26 +549,26 @@ export class VisualStyleHelperServiceNew {
       ) {
         continue;
       } else if (
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
-        this.dataExchangeService.getIndicatorValue_asNumber(measureOfValue)
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
+        this.getIndicatorValue_asNumber(measureOfValue)
       ) {
         if (
           !this.greaterThanValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.greaterThanValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       } else {
         if (
           !this.lesserThanValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.lesserThanValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       }
@@ -638,7 +650,7 @@ export class VisualStyleHelperServiceNew {
     // round values
     if (colorBrewerInstance && colorBrewerInstance.breaks) {
       for (let index = 0; index < colorBrewerInstance.breaks.length; index++) {
-        colorBrewerInstance.breaks[index] = this.dataExchangeService.getIndicatorValue_asNumber(
+        colorBrewerInstance.breaks[index] = this.getIndicatorValue_asNumber(
           colorBrewerInstance.breaks[index]
         );
       }
@@ -765,12 +777,12 @@ export class VisualStyleHelperServiceNew {
 
   setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName) {
     for (const feature of geoJSON.features) {
-      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName]))
+      if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName]))
         continue;
 
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         continue;
       }
@@ -783,27 +795,27 @@ export class VisualStyleHelperServiceNew {
       ) {
         continue;
       } else if (
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
       ) {
         if (
           !this.positiveValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.positiveValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       } else if (
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) < 0
       ) {
         if (
           !this.negativeValues.includes(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           )
         ) {
           this.negativeValues.push(
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName])
+            this.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
       }
@@ -885,7 +897,7 @@ export class VisualStyleHelperServiceNew {
     incrementFeatures
   ) {
     // check if feature is NoData
-    if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
+    if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
       return this.styleNoData(feature, incrementFeatures);
     }
 
@@ -905,7 +917,7 @@ export class VisualStyleHelperServiceNew {
     let fillColor;
     if (
       this.envConfigService.classifyZeroSeparately &&
-      this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+      this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
     ) {
       fillColor = this.getFillColorForZero(incrementFeatures);
       if (useTransparencyOnIndicator) {
@@ -914,11 +926,11 @@ export class VisualStyleHelperServiceNew {
     } else {
       if (datasetContainsNegativeValues) {
         if (
-          this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
+          this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
         ) {
           if (
             this.envConfigService.classifyZeroSeparately &&
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
+            this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
               0
           ) {
             fillColor = this.getFillColorForZero(incrementFeatures);
@@ -948,7 +960,7 @@ export class VisualStyleHelperServiceNew {
         } else {
           if (
             this.envConfigService.classifyZeroSeparately &&
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
+            this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
               0
           ) {
             fillColor = this.getFillColorForZero(incrementFeatures);
@@ -1000,8 +1012,8 @@ export class VisualStyleHelperServiceNew {
 
     for (let index = 0; index < colorBrewInstance.breaks.length; index++) {
       if (
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
-        this.dataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
+        this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])
       ) {
         if (index < colorBrewInstance.breaks.length - 1) {
           // min value
@@ -1018,8 +1030,8 @@ export class VisualStyleHelperServiceNew {
         }
       } else {
         if (
-          this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) <
-          this.dataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
+          this.getIndicatorValue_asNumber(feature.properties[propertyName]) <
+          this.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])
         ) {
           if (colorBrewInstance.colors && colorBrewInstance.colors[index]) {
             color = colorBrewInstance.colors[index];
@@ -1040,7 +1052,7 @@ export class VisualStyleHelperServiceNew {
   //   var color;
 
   //   for (var k = 0; k < colorBrewInstance.breaks.length; k++) {
-  //     if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == this.dataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k])) {
+  //     if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) == this.getIndicatorValue_asNumber(colorBrewInstance.breaks[k])) {
   //       if (k < colorBrewInstance.breaks.length - 1) {
   //         // min value
   //         color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
@@ -1058,7 +1070,7 @@ export class VisualStyleHelperServiceNew {
   //       }
   //     }
   //     else {
-  //       if (this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < this.dataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k + 1])) {
+  //       if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) < this.getIndicatorValue_asNumber(colorBrewInstance.breaks[k + 1])) {
   //         color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
   //         break;
   //       }
@@ -1079,7 +1091,7 @@ export class VisualStyleHelperServiceNew {
     incrementFeatures
   ) {
     // check if feature is NoData
-    if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
+    if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
       return this.styleNoData(feature, incrementFeatures);
     }
 
@@ -1098,12 +1110,12 @@ export class VisualStyleHelperServiceNew {
 
     let fillColor;
     if (
-      this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
+      this.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
       this.dataExchangeService.measureOfValue
     ) {
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
@@ -1132,7 +1144,7 @@ export class VisualStyleHelperServiceNew {
     } else {
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
@@ -1171,7 +1183,7 @@ export class VisualStyleHelperServiceNew {
     incrementFeatures
   ) {
     // check if feature is NoData
-    if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
+    if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[propertyName])) {
       return this.styleNoData(feature, incrementFeatures);
     }
 
@@ -1190,11 +1202,11 @@ export class VisualStyleHelperServiceNew {
 
     let fillColor;
     if (
-      this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
+      this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
     ) {
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {
@@ -1223,7 +1235,7 @@ export class VisualStyleHelperServiceNew {
     } else {
       if (
         this.envConfigService.classifyZeroSeparately &&
-        this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
+        this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
       ) {
         fillColor = this.getFillColorForZero(incrementFeatures);
         if (useTransparencyOnIndicator) {

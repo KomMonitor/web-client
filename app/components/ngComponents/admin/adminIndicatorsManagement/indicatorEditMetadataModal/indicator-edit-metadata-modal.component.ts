@@ -10,6 +10,7 @@ import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -33,6 +34,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   protected dataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   protected georesourceStore = inject(GeoresourceMetadataStoreService);
   protected topicStore = inject(TopicMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -196,7 +198,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupEventListeners();
     this.instantiateColorBrewerPalettes();
-    this.indicatorMetadataStructure_pretty = this.dataExchangeService.syntaxHighlightJSON(
+    this.indicatorMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
       this.indicatorMetadataStructure
     );
   }
@@ -808,13 +810,13 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
         error: (error: any) => {
           console.error('Error while updating indicator metadata.');
           if (error.data?.message) {
-            this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
               error.data.message
             );
           } else if (error.data) {
-            this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error.data);
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
           } else {
-            this.errorMessagePart = this.dataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
           }
           this.loadingData = false;
         },

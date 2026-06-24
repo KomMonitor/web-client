@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
@@ -16,6 +18,16 @@ export class SingleFeatureMapHelperService {
   private dataExchangeService = inject(DataExchangeService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   mapParts: any;
   georesourceData_geoJSON: any;
@@ -136,11 +148,11 @@ export class SingleFeatureMapHelperService {
     const date = this.dataExchangeService.selectedDate;
     const indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + date];
 
-    if (this.dataExchangeService.indicatorValueIsNoData(indicatorValue)) {
+    if (this.indicatorValueService.indicatorValueIsNoData(indicatorValue)) {
       feature.tempData.indicatorValueText = 'NoData';
     } else {
       feature.tempData.indicatorValueText =
-        this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+        this.getIndicatorValue_asFormattedText(indicatorValue);
     }
     feature.tempData.unitText = this.dataExchangeService.selectedIndicator.unit;
 

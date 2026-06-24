@@ -7,6 +7,8 @@ import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
@@ -25,6 +27,16 @@ export class ReachabilityMapHelperService {
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
   private envConfService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   private domId_indicatorStatistics!: string;
 
@@ -637,9 +649,9 @@ export class ReachabilityMapHelperService {
     _indicatorStatisticsCandidate: any
   ) {
     const indicatorValue = feature.properties[indicatorProperty];
-    const indicatorValueText = this.dataExchangeService.indicatorValueIsNoData(indicatorValue)
+    const indicatorValueText = this.indicatorValueService.indicatorValueIsNoData(indicatorValue)
       ? 'NoData'
-      : this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+      : this.getIndicatorValue_asFormattedText(indicatorValue);
     const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${indicatorValueText} [${this.dataExchangeService.selectedIndicator.unit}]`;
     layer.bindTooltip(tooltipHtml, { sticky: false });
   }
@@ -766,7 +778,7 @@ export class ReachabilityMapHelperService {
     const legend = new L.Control({ position: 'bottomright' });
     legend.onAdd = () => {
       const grades = defaultBrew.breaks.map((b: number) =>
-        this.dataExchangeService.getIndicatorValue_asFormattedText(b)
+        this.getIndicatorValue_asFormattedText(b)
       );
       const div = L.DomUtil.create('div', 'reachabilityIndicatorInfo reachabilityIndicatorLegend');
       for (let i = 0; i < defaultBrew.colors.length; i++) {
@@ -804,8 +816,8 @@ export class ReachabilityMapHelperService {
           ? 'Meter'
           : 'Minuten';
       html += `<h4>${range} [${unit}]</h4><h4><i>Gesamtgebiet</i></h4>`;
-      html += `<i>${this.dataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage)} von ${this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value)} [${indicatorStatisticsCandidate.indicator.unit}]</i><br/>`;
-      html += `entspricht <i>${this.dataExchangeService.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].relativeCoverage * 100)} [%]</i><br/><br/>`;
+      html += `<i>${this.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].absoluteCoverage)} von ${this.getIndicatorValue_asFormattedText(indicatorStatisticsCandidate.coverageResult.timeseries[0].value)} [${indicatorStatisticsCandidate.indicator.unit}]</i><br/>`;
+      html += `entspricht <i>${this.getIndicatorValue_asFormattedText(isochronePruneResult.overallCoverage[0].relativeCoverage * 100)} [%]</i><br/><br/>`;
 
       for (const spatialUnitCoverageEntry of isochronePruneResult.spatialUnitCoverage) {
         const indicatorFeature = this.getIndicatorFeature_forSpatialUnitFeatureId(
@@ -813,8 +825,8 @@ export class ReachabilityMapHelperService {
           spatialUnitCoverageEntry.spatialUnitFeatureId
         );
         html += `<h4><i>${indicatorFeature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</i></h4>`;
-        html += `<i>${this.dataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage)} von ${this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorFeature.properties[this.envConfigService.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp])} [${indicatorStatisticsCandidate.indicator.unit}]</i><br/>`;
-        html += `entspricht <i>${this.dataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100)} [%]</i><br/><br/>`;
+        html += `<i>${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage)} von ${this.getIndicatorValue_asFormattedText(indicatorFeature.properties[this.envConfigService.indicatorDatePrefix + indicatorStatisticsCandidate.timestamp])} [${indicatorStatisticsCandidate.indicator.unit}]</i><br/>`;
+        html += `entspricht <i>${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100)} [%]</i><br/><br/>`;
       }
       html += '<br/><hr><br/>';
     }

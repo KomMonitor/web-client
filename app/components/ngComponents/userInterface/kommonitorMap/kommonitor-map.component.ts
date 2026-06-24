@@ -4,6 +4,8 @@ import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -162,6 +164,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     private spatialUnitStore: SpatialUnitMetadataStoreService,
     private http: HttpClient,
     private broadcastService: BroadcastService,
@@ -175,6 +179,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     , private reachabilityMapHelperService: ReachabilityMapHelperService,
     private reachabilityHelperService: ReachabilityHelperService
   ) { }
+
+  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   ngOnInit(): void {
 
@@ -2569,7 +2588,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let valueArray = new Array();
 
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
-      if (!this.dataExchangeService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])) {
+      if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])) {
         if (!valueArray.includes(feature.properties[indicatorPropertyName])) {
           valueArray.push(feature.properties[indicatorPropertyName]);
         }
@@ -2595,7 +2614,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
       // compare feature value to whiskers and set property
-      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])) {
+      if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])) {
         feature.properties[this.outlierPropertyName] = this.outlierPropertyValue_no;
       }
       else if (feature.properties[indicatorPropertyName] < whisker_low_extreme) {
@@ -2638,7 +2657,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   setNoDataValuesAsNull(indicatorMetadataAndGeoJSON) {
 
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
-      if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[this.indicatorPropertyName])) {
+      if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[this.indicatorPropertyName])) {
         feature.properties[this.indicatorPropertyName] = null;
       }
     });
@@ -2842,12 +2861,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     for (let i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
       let containsZero = false;
       let containsNoData = false;
-      if (this.dataExchangeService.getIndicatorValue_asNumber(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]) == 0) {
+      if (this.getIndicatorValue_asNumber(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]) == 0) {
         this.currentIndicatorContainsZeroValues = true;
         containsZero = true;
       };
 
-      if (this.dataExchangeService.indicatorValueIsNoData(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName])) {
+      if (this.indicatorValueService.indicatorValueIsNoData(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName])) {
         this.currentIndicatorContainsNoDataValues = true;
         containsNoData = true;
       };
@@ -2864,7 +2883,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     if (this.dataExchangeService.selectedSpatialUnitIsRaster()) {
       indicatorMetadataAndGeoJSON.geoJSON.features = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => {
-        if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[this.indicatorPropertyName])) {
+        if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[this.indicatorPropertyName])) {
           return false;
         }
         return true;
@@ -3086,10 +3105,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   prepFeatureModelForMapUse(feature) {
     feature.tempData = {};
     let indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + this.date];
-    if (this.dataExchangeService.indicatorValueIsNoData(indicatorValue)) {
+    if (this.indicatorValueService.indicatorValueIsNoData(indicatorValue)) {
       feature.tempData.indicatorValueText = "NoData";
     } else {
-      feature.tempData.indicatorValueText = this.dataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
+      feature.tempData.indicatorValueText = this.getIndicatorValue_asFormattedText(indicatorValue);
     }
 
     feature.tempData.unitText = this.dataExchangeService.selectedIndicator.unit;
@@ -3148,12 +3167,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       for (let i = 0; i < this.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
         let containsZero = false;
         let containsNoData = false;
-        if (this.dataExchangeService.getIndicatorValue_asNumber(this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]) == 0) {
+        if (this.getIndicatorValue_asNumber(this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]) == 0) {
           this.currentIndicatorContainsZeroValues = true;
           containsZero = true;
         };
 
-        if (this.dataExchangeService.indicatorValueIsNoData(this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName])) {
+        if (this.indicatorValueService.indicatorValueIsNoData(this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName])) {
           this.currentIndicatorContainsNoDataValues = true;
           containsNoData = true;
         };

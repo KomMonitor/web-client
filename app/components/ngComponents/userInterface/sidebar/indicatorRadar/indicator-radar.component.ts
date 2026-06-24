@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -48,10 +50,35 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService,
     private envConfigService: EnvConfigService
   ) { }
+
+  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValueFromArray_asNumber(propertiesArray, targetDateString, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValueFromArray_asNumber(
+      propertiesArray,
+      targetDateString,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   ngOnInit(): void {
 
@@ -227,8 +254,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               let valueSum = 0;
               for (let indicatorPropertyInstance of indicatorProperties) {
                   // for average only apply real numeric values
-                  if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate])) {
-                    let value = this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate, indicatorsForRadar[i].indicatorMetadata.precision);
+                  if (!this.indicatorValueService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate])) {
+                    let value = this.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate, indicatorsForRadar[i].indicatorMetadata.precision);
                       valueSum += value;
                       if (value > maxValue)
                           maxValue = value;
@@ -257,7 +284,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   max: maxValue,
                   min: minValue
               });
-              defaultSeriesValueArray.push(this.dataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length), indicatorsForRadar[i].indicatorMetadata.precision));
+              defaultSeriesValueArray.push(this.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length), indicatorsForRadar[i].indicatorMetadata.precision));
               // }
           }
       }
@@ -303,7 +330,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   formatter: (params) => {
                       var string = "" + params.name + "<br/>";
                       for (var index = 0; index < params.value.length; index++) {
-                          string += this.radarOption.radar.indicator[index].name + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[index], this.radarOption.radar.indicator[index].precision) + " [" + this.radarOption.radar.indicator[index].unit + "]<br/>";
+                          string += this.radarOption.radar.indicator[index].name + ": " + this.getIndicatorValue_asFormattedText(params.value[index], this.radarOption.radar.indicator[index].precision) + " [" + this.radarOption.radar.indicator[index].unit + "]<br/>";
                       }
                       ;
                       return string;
@@ -349,7 +376,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                                   htmlString += "<tr>";
                                   htmlString += "<td>" + radarSeries[j].name + "</td>";
                                   for (let k = 0; k < indicators.length; k++) {
-                                      htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asFormattedText(radarSeries[j].value[k], this.radarOption.radar.indicator[k].precision) + "</td>";
+                                      htmlString += "<td>" + this.getIndicatorValue_asFormattedText(radarSeries[j].value[k], this.radarOption.radar.indicator[k].precision) + "</td>";
                                   }
                                   htmlString += "</tr>";
                               }
@@ -377,7 +404,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   // },
                 name: {
                     formatter: (value, indicator) => {
-                        return this.dataExchangeService.formatIndicatorNameForLabel(value, 15);
+                        return this.indicatorValueService.formatIndicatorNameForLabel(value, 15);
                     },
                     textStyle: {
                         color: '#525252'
@@ -580,8 +607,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               var date = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
               for (var indicatorPropertyInstance of indicatorProperties) {
                   if (indicatorPropertyInstance[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
-                      if (!this.dataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
-                          featureSeries.value.push(this.dataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
+                      if (!this.indicatorValueService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
+                          featureSeries.value.push(this.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
                       }
                       else {
                           featureSeries.value.push(null);

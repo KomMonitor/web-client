@@ -3,6 +3,7 @@ import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -27,6 +28,7 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -600,14 +602,14 @@ export class IndicatorAddModalComponent implements OnInit {
     } catch (error: any) {
       if (
         this.kommonitorDataExchangeService &&
-        this.kommonitorDataExchangeService.syntaxHighlightJSON
+        this.indicatorValueService.syntaxHighlightJSON
       ) {
         if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
             error.data
           );
         } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
         }
       } else {
         this.errorMessagePart = error.message || 'An error occurred';

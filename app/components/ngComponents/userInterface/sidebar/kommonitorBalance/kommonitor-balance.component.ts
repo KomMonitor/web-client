@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
@@ -23,12 +25,29 @@ export class KommonitorBalanceComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     private mapService: MapService,
     private diagramHelperService: DiagramHelperServiceService,
     protected envConfigService: EnvConfigService
   ) { }
+
+  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   ngOnInit(): void {
 
@@ -283,8 +302,8 @@ export class KommonitorBalanceComponent implements OnInit {
 
 							
 
-							var balanceValue = this.dataExchangeService.getIndicatorValue_asFormattedText(trendData[trendData.length - 1] - trendData[0]);
-							var balanceValue_numeric = this.dataExchangeService.getIndicatorValue_asNumber(trendData[trendData.length - 1] - trendData[0]);
+							var balanceValue = this.getIndicatorValue_asFormattedText(trendData[trendData.length - 1] - trendData[0]);
+							var balanceValue_numeric = this.getIndicatorValue_asNumber(trendData[trendData.length - 1] - trendData[0]);
 							var trendValue = "";
 							if(Number(balanceValue_numeric) == 0){
 								trendValue = "gleichbleibend";
@@ -297,12 +316,12 @@ export class KommonitorBalanceComponent implements OnInit {
 							}
 
 							this.trendAnalysis_allFeatures = {
-								min: this.dataExchangeService.getIndicatorValue_asFormattedText(jStat.min(trendData)),
-								max: this.dataExchangeService.getIndicatorValue_asFormattedText(jStat.max(trendData)),
-								deviation: this.dataExchangeService.getIndicatorValue_asFormattedText(jStat.stdev(trendData)),
-								variance: this.dataExchangeService.getIndicatorValue_asFormattedText(jStat.variance(trendData)),
-								mean: this.dataExchangeService.getIndicatorValue_asFormattedText(jStat.mean(trendData)),
-								median: this.dataExchangeService.getIndicatorValue_asFormattedText(jStat.median(trendData)),
+								min: this.getIndicatorValue_asFormattedText(jStat.min(trendData)),
+								max: this.getIndicatorValue_asFormattedText(jStat.max(trendData)),
+								deviation: this.getIndicatorValue_asFormattedText(jStat.stdev(trendData)),
+								variance: this.getIndicatorValue_asFormattedText(jStat.variance(trendData)),
+								mean: this.getIndicatorValue_asFormattedText(jStat.mean(trendData)),
+								median: this.getIndicatorValue_asFormattedText(jStat.median(trendData)),
 								balance: balanceValue,
 								trend: trendValue
 							};
@@ -506,10 +525,10 @@ export class KommonitorBalanceComponent implements OnInit {
           // set value of selected target property with the computed balance between toDate - FromDate
           for (var index=0; index < this.dataExchangeService.selectedIndicator.geoJSON.features.length; index++){
 
-            var toDateValue = this.dataExchangeService.getIndicatorValue_asNumber(this.dataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
-            var fromDateValue = this.dataExchangeService.getIndicatorValue_asNumber(this.dataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
+            var toDateValue = this.getIndicatorValue_asNumber(this.dataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
+            var fromDateValue = this.getIndicatorValue_asNumber(this.dataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
 
-            this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[this.targetIndicatorProperty] = this.dataExchangeService.getIndicatorValue_asNumber(toDateValue - fromDateValue);
+            this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[this.targetIndicatorProperty] = this.getIndicatorValue_asNumber(toDateValue - fromDateValue);
           }
           this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = this.dateToDateString(new Date(fromDateAsDateString));
           this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'] = this.dateToDateString(new Date(toDateAsDateString));

@@ -10,6 +10,7 @@ import {
   POI_MARKER_COLORS,
 } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -28,6 +29,7 @@ import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admi
 export class GeoresourceAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   georesourceStore = inject(GeoresourceMetadataStoreService);
   spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
@@ -260,9 +262,9 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     // Initialize metadata structure pretty print
     this.georesourceMetadataStructure_pretty =
-      this.kommonitorDataExchangeService.syntaxHighlightJSON(this.georesourceMetadataStructure);
+      this.indicatorValueService.syntaxHighlightJSON(this.georesourceMetadataStructure);
     this.georesourceMappingConfigStructure_pretty =
-      this.kommonitorDataExchangeService.syntaxHighlightJSON(
+      this.indicatorValueService.syntaxHighlightJSON(
         this.kommonitorImporterHelperService.mappingConfigStructure
       );
   }
@@ -1136,9 +1138,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       }
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
       }
 
       this.errorMessage = 'Fehler beim Registrieren der Georessource';
@@ -1184,9 +1186,9 @@ export class GeoresourceAddModalComponent implements OnInit {
       );
     } catch (error: any) {
       if (error.data) {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
       } else {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+        this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
       }
 
       this.loadingData = false;

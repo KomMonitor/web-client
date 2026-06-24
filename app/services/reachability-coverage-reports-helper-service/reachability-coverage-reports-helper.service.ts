@@ -2,6 +2,8 @@ import { Injectable, NgZone, inject } from '@angular/core';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 
@@ -16,6 +18,16 @@ export class ReachabilityCoverageReportsHelperService {
   private kommonitorReachabilityHelperService = inject(ReachabilityHelperService);
   private kommonitorReachabilityMapHelperService = inject(ReachabilityMapHelperService);
   private zone = inject(NgZone);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   public reportInProgress_totalCoverage = false;
   public reportInProgress_poiCoverage = false;
@@ -180,18 +192,18 @@ export class ReachabilityCoverageReportsHelperService {
       }
 
       const coverage_absolute =
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           overallCoverageEntry.coverage[0].absoluteCoverage
         ) +
         ' von ' +
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           indicatorStatistic.coverageResult.timeseries[0].value
         ) +
         ' [' +
         indicatorStatistic.indicator.unit +
         ']';
       const coverage_relative =
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           overallCoverageEntry.coverage[0].relativeCoverage * 100
         ) + ' [%]';
 
@@ -503,11 +515,11 @@ export class ReachabilityCoverageReportsHelperService {
       }
 
       const coverage_total_absolute =
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           coverages_perRange[coverage_perRange].absoluteCoverage
         ) +
         ' von ' +
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           spatialUnitLayer.feature.properties[
             window.__env.indicatorDatePrefix + indicatorStatistic.timestamp
           ]
@@ -516,7 +528,7 @@ export class ReachabilityCoverageReportsHelperService {
         indicatorStatistic.indicator.unit +
         ']';
       const coverage_total_relative =
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           coverages_perRange[coverage_perRange].relativeCoverage * 100
         ) + ' [%]';
 
@@ -658,18 +670,18 @@ export class ReachabilityCoverageReportsHelperService {
       }
 
       const coverage_total_absolute =
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           poiIsochroneStatistic.overallCoverage[0].absoluteCoverage
         ) +
         ' von ' +
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           indicatorStatistic.coverageResult.timeseries[0].value
         ) +
         ' [' +
         indicatorStatistic.indicator.unit +
         ']';
       const coverage_total_relative =
-        this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(
+        this.getIndicatorValue_asFormattedText(
           poiIsochroneStatistic.overallCoverage[0].relativeCoverage * 100
         ) + ' [%]';
 
@@ -687,7 +699,7 @@ export class ReachabilityCoverageReportsHelperService {
         const spatialUnitFeatureName =
           indicatorFeature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME];
 
-        coverage_spatialUnit_range += `${spatialUnitFeatureName}\n${this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage)} von ${indicatorFeature.properties[window.__env.indicatorDatePrefix + indicatorStatistic.timestamp]} [${indicatorStatistic.indicator.unit}]  =>  entspricht ${this.kommonitorDataExchangeService.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100)} [%]\n\n`;
+        coverage_spatialUnit_range += `${spatialUnitFeatureName}\n${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].absoluteCoverage)} von ${indicatorFeature.properties[window.__env.indicatorDatePrefix + indicatorStatistic.timestamp]} [${indicatorStatistic.indicator.unit}]  =>  entspricht ${this.getIndicatorValue_asFormattedText(spatialUnitCoverageEntry.coverage[0].relativeCoverage * 100)} [%]\n\n`;
       }
 
       coverage_spatialUnit_range = coverage_spatialUnit_range.slice(0, -2);

@@ -3,6 +3,8 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { MapService } from 'services/map-service/map.service';
@@ -139,6 +141,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     private spatialUnitStore: SpatialUnitMetadataStoreService,
     protected filterHelperService: FilterHelperService,
     private mapService: MapService,
@@ -149,6 +153,14 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     private envConfigService: EnvConfigService
   ) { }
 
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   ngOnInit(): void {
 
@@ -375,7 +387,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       // else if (feature.properties[date] < movMinValue)
       // 	movMinValue = feature.properties[date];
 
-      if(! this.dataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+      if(! this.indicatorValueService.indicatorValueIsNoData(feature.properties[date])){
           values.push(feature.properties[date]);
       }
     });
@@ -392,8 +404,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.valueRangeMinValue = values[0];
     this.valueRangeMaxValue = values[values.length - 1];
 
-    this.valueRangeMinValue = this.dataExchangeService.getIndicatorValue_asNumber(this.valueRangeMinValue);
-    this.valueRangeMaxValue = this.dataExchangeService.getIndicatorValue_asNumber(this.valueRangeMaxValue);
+    this.valueRangeMinValue = this.getIndicatorValue_asNumber(this.valueRangeMinValue);
+    this.valueRangeMaxValue = this.getIndicatorValue_asNumber(this.valueRangeMaxValue);
 
     this.currentLowerFilterValue = this.valueRangeMinValue;
     this.currentHigherFilterValue = this.valueRangeMaxValue;
@@ -571,7 +583,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       // else if (feature.properties[date] < movMinValue)
       // 	movMinValue = feature.properties[date];
 
-      if(! this.dataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+      if(! this.indicatorValueService.indicatorValueIsNoData(feature.properties[date])){
           values.push(feature.properties[date]);
       }
     });
@@ -720,7 +732,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         });
 
         if (selectionType === "manual") {
-          let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
+          let dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
           let data = {items: dataArray, selectedItems: []};
           this.manualSelectionSpatialFilterDuallistOptions = data;
 
@@ -731,7 +743,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         if (selectionType === "byFeature") {
           this.higherSpatialUnitFilterFeatureGeoJSON = response;
           this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-          let dataArray = this.dataExchangeService.createDualListInputArray(areaNames, "name", "id");
+          let dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
           this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
         }
 

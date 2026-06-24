@@ -488,15 +488,6 @@ export class DataExchangeService {
   }
   currentKeycloakUser!: KeycloakProfile;
 
-  /**
-   * Resolve the effective decimal precision from the explicit argument or the
-   * currently selected indicator. Kept in the facade because selection state
-   * (selectedIndicator) lives here until B7; the IndicatorValueService stays pure.
-   */
-  private resolveSelectedPrecision(precision = undefined) {
-    return this.selectionState.resolveSelectedPrecision(precision);
-  }
-
   setSelectedDate(dateString: string | undefined) {
     this.selectionState.setSelectedDate(dateString);
   }
@@ -810,10 +801,6 @@ export class DataExchangeService {
     );
   }
 
-  indicatorValueIsNoData(indicatorValue) {
-    return this.indicatorValueService.indicatorValueIsNoData(indicatorValue);
-  }
-
   async fetchAccessControlMetadata(keycloakRolesArray) {
     this.setAccessControl(
       await this.cacheHelperService.fetchAccessControlMetadata(keycloakRolesArray)
@@ -912,22 +899,15 @@ export class DataExchangeService {
     );
   }
 
-  getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
-    return this.indicatorValueService.getIndicatorValue_asFormattedText(
-      indicatorValue,
-      this.resolveSelectedPrecision(precision)
-    );
-  }
-
   displayMapApplicationError(error) {
     setTimeout(() => {
       if (error.data) {
-        this.errorMessage = this.syntaxHighlightJSON(error.data);
+        this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error.data);
       }
       if (error.message) {
-        this.errorMessage = this.syntaxHighlightJSON(error.message);
+        this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error.message);
       } else {
-        this.errorMessage = this.syntaxHighlightJSON(error);
+        this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error);
       }
 
       // $rootScope.$apply();
@@ -935,10 +915,6 @@ export class DataExchangeService {
 
       $('.mapApplicationErrorAlert').show();
     }, 1000);
-  }
-
-  syntaxHighlightJSON(json) {
-    return this.indicatorValueService.syntaxHighlightJSON(json);
   }
 
   getBaseUrlToKomMonitorDataAPI_spatialResource() {
@@ -950,21 +926,6 @@ export class DataExchangeService {
 
   onChangeIndicatorKeywordFilter(indicatorNameFilter) {
     this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
-  }
-
-  getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
-    return this.indicatorValueService.getIndicatorValue_asNumber(
-      indicatorValue,
-      this.resolveSelectedPrecision(precision)
-    );
-  }
-
-  getIndicatorValueFromArray_asNumber(propertiesArray, targetDateString, precision = undefined) {
-    return this.indicatorValueService.getIndicatorValueFromArray_asNumber(
-      propertiesArray,
-      targetDateString,
-      this.resolveSelectedPrecision(precision)
-    );
   }
 
   setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName) {
@@ -1014,10 +975,6 @@ export class DataExchangeService {
     );
   }
 
-  createDualListInputArray(array, nameProperty, idProperty): any[] {
-    return this.indicatorValueService.createDualListInputArray(array, nameProperty, idProperty);
-  }
-
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
     this.selectionState.onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]);
   }
@@ -1026,23 +983,12 @@ export class DataExchangeService {
     return this.selectionState.buildIndicatorPropertyName();
   }
 
-  formatIndicatorNameForLabel(indicatorName, maxCharsPerLine) {
-    return this.indicatorValueService.formatIndicatorNameForLabel(indicatorName, maxCharsPerLine);
-  }
-
   filterIndicators() {
     return this.metadataFilterService.filterIndicators();
   }
 
   isDisplayableGeoresource(item) {
     return this.georesourceStore.isDisplayableGeoresource(item);
-  }
-
-  getIndicatorValue_asFixedPrecisionNumber(indicatorValue, precision) {
-    return this.indicatorValueService.getIndicatorValue_asFixedPrecisionNumber(
-      indicatorValue,
-      this.resolveSelectedPrecision(precision)
-    );
   }
 
   getIndicatorAbbreviationFromIndicatorId(indicatorId) {

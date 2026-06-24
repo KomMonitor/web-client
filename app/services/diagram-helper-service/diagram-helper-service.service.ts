@@ -1,6 +1,8 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { LabelService } from 'services/label-service/label.service';
 import { HttpClient } from '@angular/common/http';
@@ -21,6 +23,38 @@ export class DiagramHelperServiceService {
   private http = inject(HttpClient);
   private labelService = inject(LabelService);
   private envConfigService = inject(EnvConfigService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+
+  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValue_asFixedPrecisionNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFixedPrecisionNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValueFromArray_asNumber(propertiesArray, targetDateString, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValueFromArray_asNumber(
+      propertiesArray,
+      targetDateString,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
 
   pipedData: any;
   indicatorPropertiesForCurrentSpatialUnitAndTime;
@@ -236,7 +270,7 @@ export class DiagramHelperServiceService {
       targetDate = this.INDICATOR_DATE_PREFIX + targetDate;
     }
 
-    if (this.dataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])) {
+    if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[targetDate])) {
       color = this.defaultColorForNoDataValues;
     } else if (
       this.filterHelperService.featureIsCurrentlyFiltered(
@@ -246,7 +280,7 @@ export class DiagramHelperServiceService {
       color = this.defaultColorForFilteredValues;
     } else if (
       this.envConfigService.classifyZeroSeparately &&
-      this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+      this.getIndicatorValueFromArray_asNumber(
         feature.properties,
         targetDate
       ) == 0
@@ -266,7 +300,7 @@ export class DiagramHelperServiceService {
       color = this.defaultColorForOutliers_high;
     } else if (isMeasureOfValueChecked) {
       if (
-        this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+        this.getIndicatorValueFromArray_asNumber(
           feature.properties,
           targetDate
         ) >= +Number(measureOfValue).toFixed(this.numberOfDecimals)
@@ -285,11 +319,11 @@ export class DiagramHelperServiceService {
       } else {
         if (this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)) {
           if (
-            this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0
+            this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0
           ) {
             if (
               this.envConfigService.classifyZeroSeparately &&
-              this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
+              this.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
                 0
             ) {
               color = this.defaultColorForZeroValues;
@@ -302,7 +336,7 @@ export class DiagramHelperServiceService {
           } else {
             if (
               this.envConfigService.classifyZeroSeparately &&
-              this.dataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
+              this.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
                 0
             ) {
               color = this.defaultColorForZeroValues;
@@ -344,10 +378,10 @@ export class DiagramHelperServiceService {
     let color;
     for (let index = 0; index < brewInstance.breaks.length; index++) {
       if (
-        this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+        this.getIndicatorValueFromArray_asNumber(
           feature.properties,
           targetDate
-        ) == this.dataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index])
+        ) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])
       ) {
         if (index < brewInstance.breaks.length - 1) {
           // min value
@@ -364,10 +398,10 @@ export class DiagramHelperServiceService {
         }
       } else {
         if (
-          this.dataExchangeService.getIndicatorValueFromArray_asNumber(
+          this.getIndicatorValueFromArray_asNumber(
             feature.properties,
             targetDate
-          ) < this.dataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])
+          ) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])
         ) {
           color = brewInstance.colors[index];
           break;
@@ -485,23 +519,23 @@ export class DiagramHelperServiceService {
 
       let indicatorValue;
       if (
-        this.dataExchangeService.indicatorValueIsNoData(
+        this.indicatorValueService.indicatorValueIsNoData(
           cartographicFeature.properties[this.indicatorPropertyName]
         )
       ) {
         indicatorValue = null;
       } else {
         if (!fixedPrecision)
-          indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(
+          indicatorValue = this.getIndicatorValue_asNumber(
             cartographicFeature.properties[this.indicatorPropertyName]
           );
         else
-          indicatorValue = this.dataExchangeService.getIndicatorValue_asFixedPrecisionNumber(
+          indicatorValue = this.getIndicatorValue_asFixedPrecisionNumber(
             cartographicFeature.properties[this.indicatorPropertyName],
             indicatorMetadataAndGeoJSON.precision
           );
 
-        indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(
+        indicatorValue = this.getIndicatorValue_asNumber(
           cartographicFeature.properties[this.indicatorPropertyName]
         );
       }
@@ -587,7 +621,7 @@ export class DiagramHelperServiceService {
       for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
         const datePropertyName = this.INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
         if (
-          !this.dataExchangeService.indicatorValueIsNoData(
+          !this.indicatorValueService.indicatorValueIsNoData(
             indicatorFeature.properties[datePropertyName]
           )
         ) {
@@ -651,7 +685,7 @@ export class DiagramHelperServiceService {
 
     // finish timeSeries arrays by computing averages of all time series values
     for (let i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-      indicatorTimeSeriesAverageArray[i] = this.dataExchangeService.getIndicatorValue_asNumber(
+      indicatorTimeSeriesAverageArray[i] = this.getIndicatorValue_asNumber(
         indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]
       );
     }
@@ -841,7 +875,7 @@ export class DiagramHelperServiceService {
         showDelay: 0,
         transitionDuration: 0.2,
         formatter: (params) => {
-          const value = this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
+          const value = this.getIndicatorValue_asFormattedText(params.value);
           return '' + params.name + ': ' + value + ' [' + indicatorMetadataAndGeoJSON.unit + ']';
         },
       },
@@ -879,7 +913,7 @@ export class DiagramHelperServiceService {
               htmlString += '<tbody>';
 
               for (const seriesItem of seriesData) {
-                const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                const value = this.getIndicatorValue_asFormattedText(
                   seriesItem.value
                 );
                 htmlString += '<tr>';
@@ -982,7 +1016,7 @@ export class DiagramHelperServiceService {
         return (
           params.name +
           '  ' +
-          this.dataExchangeService.getIndicatorValue_asFormattedText(params.value)
+          this.getIndicatorValue_asFormattedText(params.value)
         );
       },
       // formatter: '{b} {c}'
@@ -1039,7 +1073,7 @@ export class DiagramHelperServiceService {
         trigger: 'item',
         confine: 'true',
         formatter: (params, _ticket, _callback) => {
-          const value = this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
+          const value = this.getIndicatorValue_asFormattedText(params.value);
           return '' + params.name + ': ' + value + ' [' + indicatorMetadataAndGeoJSON.unit + ']';
         },
         axisPointer: {
@@ -1085,7 +1119,7 @@ export class DiagramHelperServiceService {
               htmlString += '<tbody>';
 
               for (let i = 0; i < barData.length; i++) {
-                const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                const value = this.getIndicatorValue_asFormattedText(
                   barData[i].value
                 );
                 htmlString += '<tr>';
@@ -1131,7 +1165,7 @@ export class DiagramHelperServiceService {
         name: indicatorMetadataAndGeoJSON.unit,
         axisLabel: {
           formatter: (value, _index) => {
-            return this.dataExchangeService.getIndicatorValue_asFormattedText(value);
+            return this.getIndicatorValue_asFormattedText(value);
           },
         },
         // splitArea: {
@@ -1226,7 +1260,7 @@ export class DiagramHelperServiceService {
 
           params.forEach((paramObj) => {
             if (!paramObj.seriesName.includes('Stack')) {
-              const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+              const value = this.getIndicatorValue_asFormattedText(
                 paramObj.value
               );
               string +=
@@ -1307,7 +1341,7 @@ export class DiagramHelperServiceService {
                 htmlString += '<tr>';
                 htmlString += '<td>' + timestamps[j] + '</td>';
                 for (const lineSeriesItem of lineSeries) {
-                  const value = this.dataExchangeService.getIndicatorValue_asFormattedText(
+                  const value = this.getIndicatorValue_asFormattedText(
                     lineSeriesItem.data[j]
                   );
                   htmlString += '<td>' + value + '</td>';
@@ -1357,7 +1391,7 @@ export class DiagramHelperServiceService {
         name: indicatorMetadataAndGeoJSON.unit,
         axisLabel: {
           formatter: (value, _index) => {
-            return this.dataExchangeService.getIndicatorValue_asFormattedText(value);
+            return this.getIndicatorValue_asFormattedText(value);
           },
         },
 

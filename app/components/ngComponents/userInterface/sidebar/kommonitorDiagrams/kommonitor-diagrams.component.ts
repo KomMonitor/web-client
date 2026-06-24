@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
@@ -37,6 +39,8 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     protected labelService: LabelService,
     private diagramHelperService: DiagramHelperServiceService,
     private broadcastService: BroadcastService,
@@ -45,6 +49,14 @@ export class KommonitorDiagramsComponent implements OnInit {
   ) { 
     this.showBarChartLabel = envConfigService.showBarChartLabel;
     this.showBarChartAverageLine = envConfigService.showBarChartAverageLine;
+  }
+
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
   }
 
   ngOnInit(): void {
@@ -354,11 +366,11 @@ export class KommonitorDiagramsComponent implements OnInit {
     // for each date create series data entry for feature
     for (let date of this.lineOption.xAxis.data) {
       let value;
-      if (this.dataExchangeService.indicatorValueIsNoData(featureProperties[this.INDICATOR_DATE_PREFIX + date])) {
+      if (this.indicatorValueService.indicatorValueIsNoData(featureProperties[this.INDICATOR_DATE_PREFIX + date])) {
         value = null;
       }
       else {
-        value = this.dataExchangeService.getIndicatorValue_asNumber(featureProperties[this.INDICATOR_DATE_PREFIX + date]);
+        value = this.getIndicatorValue_asNumber(featureProperties[this.INDICATOR_DATE_PREFIX + date]);
       }
       featureSeries.data.push(value);
     }

@@ -151,8 +151,8 @@
                 <!-- lesser than values -->
                 <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.measureOfValueBrew[1].colors; let i = index">
                   <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                  <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i + 1])}}</div>
-                  <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}}</div>
+                  <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i + 1])}}</div>
+                  <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}}</div>
                   <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                 </div>
 
@@ -161,8 +161,8 @@
                 <!-- higher than values -->
                 <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.measureOfValueBrew[0].colors; let i = index">
                   <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                  <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i + 1])}}</div>
-                  <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}}</div>
+                  <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i + 1])}}</div>
+                  <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}}</div>
                   <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                 </div>
 
@@ -173,8 +173,8 @@
                   <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]">
                   <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[1].colors; let i = index">
                     <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}}</div>
+                    <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}}</div>
                     <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                   </div>
                 </div>
@@ -194,8 +194,8 @@
                   <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[0]">
                   <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[0].colors; let i = index">
                     <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}}</div>
+                    <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i + 1])}}</div>
+                    <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}}</div>
                     <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                   </div>
                   </div>
@@ -222,11 +222,11 @@
                         </i> 
                       </div>
                       <div class="col-md-6 " *ngIf="visualStyleService.manualBrew.breaks[i + 1]" >
-                        {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}} &dash; &lt; 
-                        {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i + 1])}}
+                        {{getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}} &dash; &lt; 
+                        {{getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i + 1])}}
                       </div>
                       <div class="col-md-6 " *ngIf="! visualStyleService.manualBrew.breaks[i + 1]" >
-                        {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}}
+                        {{getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}}
                       </div>
                       <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
                     </div>
@@ -235,8 +235,8 @@
                     <!-- default values -->
                     <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.defaultBrew?.colors; let i = index">
                       <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                      <div class="col-md-6 " *ngIf="visualStyleService.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}} &dash; &lt; {{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i + 1])}}</div>
-                      <div class="col-md-6 " *ngIf="! visualStyleService.defaultBrew.breaks[i + 1]" >{{dataExchangeService.getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}}</div>
+                      <div class="col-md-6 " *ngIf="visualStyleService.defaultBrew.breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i + 1])}}</div>
+                      <div class="col-md-6 " *ngIf="! visualStyleService.defaultBrew.breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}}</div>
                       <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div> <!-- hier -->
                     </div>
                   </div>
@@ -246,11 +246,11 @@
                 <br/>
                 <div *ngIf="dataExchangeService.allFeaturesRegionalMean && envConfigService.enableMeanDataDisplayInLegend">
                   <b>{{labelService.labelMean_regional}}</b>
-                  {{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}
+                  {{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}
                 </div>
                 <div *ngIf="dataExchangeService.allFeaturesMean && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
                   <b>{{labelService.labelMean}}</b>
-                  {{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}
+                  {{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}
                 </div>
               </div>
               <div id="kommonitorIndicatorClassification">
@@ -490,33 +490,33 @@
           </tr>
           <tr *ngIf="! dataExchangeService.allFeaturesRegionalSum">
             <td>{{labelService.labelSum}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesSum)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesSum)}}</td>
             <td>{{dataExchangeService.selectedFeaturesSum}}</td>
           </tr>
           <tr *ngIf="dataExchangeService.allFeaturesRegionalSum">
             <td>{{labelService.labelSum_regional}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalSum)}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesSum)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalSum)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesSum)}}</td>
           </tr>
           <tr *ngIf="dataExchangeService.allFeaturesRegionalMean">
             <td>{{labelService.labelMean_regional}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMean)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMean)}}</td>
           </tr>
           <tr *ngIf="dataExchangeService.allFeaturesMean && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
             <td>{{labelService.labelMean}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}</td>
             <td>{{dataExchangeService.selectedFeaturesMean}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelMin}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMin)}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMin)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMin)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMin)}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelMax}}</td>
-                <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMax)}}</td>
-            <td>{{dataExchangeService.getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMax)}}</td>
+                <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMax)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMax)}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelSpatiallyUnassignable_regional}}</td>

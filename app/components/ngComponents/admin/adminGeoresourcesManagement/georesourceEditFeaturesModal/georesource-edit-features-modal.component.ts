@@ -18,6 +18,7 @@ import { SingleFeatureEditComponent } from 'components/ngComponents/common/singl
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { DATE_PICKER_OPTIONS } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
@@ -35,6 +36,7 @@ declare const __env: any;
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
@@ -170,7 +172,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private initializeMappingConfigStructure(): void {
     this.georesourceMappingConfigStructure_pretty =
-      this.kommonitorDataExchangeService.syntaxHighlightJSON(
+      this.indicatorValueService.syntaxHighlightJSON(
         this.kommonitorImporterHelperService.mappingConfigStructure
       );
   }
@@ -619,11 +621,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         },
         error: (error: any) => {
           if (error.error) {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
               error.error
             );
           } else {
-            this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
           }
           this.importerErrors = error.error?.importerErrors || [];
           this.showErrorAlert();
@@ -896,10 +898,10 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     console.error('Error occurred:', error);
     if (error.data) {
       this.errorMessagePart =
-        this.kommonitorDataExchangeService?.syntaxHighlightJSON(error.data) || 'An error occurred';
+        this.indicatorValueService.syntaxHighlightJSON(error.data) || 'An error occurred';
     } else {
       this.errorMessagePart =
-        this.kommonitorDataExchangeService?.syntaxHighlightJSON(error) || 'An error occurred';
+        this.indicatorValueService.syntaxHighlightJSON(error) || 'An error occurred';
     }
     this.showErrorAlert();
   }

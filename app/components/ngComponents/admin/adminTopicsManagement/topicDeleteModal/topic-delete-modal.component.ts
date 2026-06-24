@@ -7,6 +7,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
 @Component({
@@ -19,6 +20,7 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 export class TopicDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private dataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   private srvc = inject(AdminTopicsManagementService);
   private sanitizer = inject(DomSanitizer);
 
@@ -30,7 +32,7 @@ export class TopicDeleteModalComponent implements OnInit {
 
   ngOnInit() {
     if (this.currentTopic) {
-      const html = this.dataExchangeService.syntaxHighlightJSON(this.currentTopic);
+      const html = this.indicatorValueService.syntaxHighlightJSON(this.currentTopic);
       this.topicToDeletePrettyPrint = this.sanitizer.bypassSecurityTrustHtml(html);
       this.resetTopicDeleteForm();
     }
@@ -66,8 +68,8 @@ export class TopicDeleteModalComponent implements OnInit {
         },
         error: (error: any) => {
           const html = error.data
-            ? this.dataExchangeService.syntaxHighlightJSON(error.data)
-            : this.dataExchangeService.syntaxHighlightJSON(error);
+            ? this.indicatorValueService.syntaxHighlightJSON(error.data)
+            : this.indicatorValueService.syntaxHighlightJSON(error);
           this.errorMessagePart = this.sanitizer.bypassSecurityTrustHtml(html);
         },
       });

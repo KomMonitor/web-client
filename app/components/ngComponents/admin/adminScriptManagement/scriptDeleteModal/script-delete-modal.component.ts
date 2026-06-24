@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
@@ -16,6 +17,7 @@ export class ScriptDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
 
@@ -82,8 +84,8 @@ export class ScriptDeleteModalComponent implements OnInit {
             resolve();
           },
           error: (error: any) => {
-            const errorMsg = this.dataExchangeService.syntaxHighlightJSON
-              ? this.dataExchangeService.syntaxHighlightJSON(error.error || error)
+            const errorMsg = this.indicatorValueService.syntaxHighlightJSON
+              ? this.indicatorValueService.syntaxHighlightJSON(error.error || error)
               : JSON.stringify(error.error || error);
             this.failedDatasetsAndErrors.push([dataset, errorMsg]);
             resolve();

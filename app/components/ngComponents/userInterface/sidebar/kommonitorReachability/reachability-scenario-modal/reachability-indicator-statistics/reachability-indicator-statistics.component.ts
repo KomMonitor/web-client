@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
@@ -47,8 +49,18 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   domId = "reachabilityScenarioIsochroneStatisticsGeoMap";
   mapParts;
 
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  protected getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     protected indicatorStore: IndicatorMetadataStoreService,
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     protected reachabilityHelperService: ReachabilityHelperService,

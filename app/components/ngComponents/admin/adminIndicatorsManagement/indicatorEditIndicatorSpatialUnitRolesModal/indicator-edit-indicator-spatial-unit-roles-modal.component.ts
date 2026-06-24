@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -50,6 +51,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   public dataExchangeService = inject(DataExchangeService);
+  private indicatorValueService = inject(IndicatorValueService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private multiStepHelperService = inject(MultiStepHelperServiceService);
   private envConfigService = inject(EnvConfigService);
@@ -327,9 +329,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Zugriffsrechte. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
+            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
           } else {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
           this.loadingData = false;
@@ -369,9 +371,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           this.errorMessagePart =
             'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
+            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
           } else {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
           this.loadingData = false;
@@ -418,9 +420,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
               this.errorMessagePart =
                 'Fehler beim Aktualisieren der Metadaten-Eigentümerschaft. Fehler lautet: \n\n';
               if (error.data) {
-                this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
+                this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
               } else {
-                this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
+                this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
               }
               this.showErrorAlert();
               this.loadingData = false;
@@ -465,9 +467,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
             this.targetApplicableSpatialUnit.spatialUnitName +
             '. Fehler lautet: \n\n';
           if (error.data) {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error.data);
+            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error.data);
           } else {
-            this.errorMessagePart += this.dataExchangeService.syntaxHighlightJSON(error);
+            this.errorMessagePart += this.indicatorValueService.syntaxHighlightJSON(error);
           }
           this.showErrorAlert();
           this.loadingData = false;

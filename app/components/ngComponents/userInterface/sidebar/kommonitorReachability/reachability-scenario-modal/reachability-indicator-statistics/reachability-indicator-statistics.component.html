@@ -188,9 +188,9 @@
                         </div>											
                         <!-- <br/> -->
                         <div style="margin-left: 10px;">
-                          <b><i>{{dataExchangeService.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} von {{dataExchangeService.getIndicatorValue_asFormattedText(indicatorStatisticsEntry.coverageResult.timeseries[0].value)}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
+                          <b><i>{{getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage)}} von {{getIndicatorValue_asFormattedText(indicatorStatisticsEntry.coverageResult.timeseries[0].value)}}</i></b> [{{indicatorStatisticsEntry.indicator.unit}}]
                           <br/>
-                          <b><i>entspricht {{dataExchangeService.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}}</i></b> [%] 												
+                          <b><i>entspricht {{getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].relativeCoverage * 100)}}</i></b> [%] 												
                         </div>
                         <br/>
                       </div>								

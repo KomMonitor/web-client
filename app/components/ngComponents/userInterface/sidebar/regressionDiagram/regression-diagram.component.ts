@@ -3,6 +3,8 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { CommonModule } from '@angular/common';
@@ -83,6 +85,8 @@ export class RegressionDiagramComponent implements OnInit {
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
+    private indicatorValueService: IndicatorValueService,
+    private selectionState: SelectionStateService,
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     private envConfigService: EnvConfigService,
@@ -90,6 +94,21 @@ export class RegressionDiagramComponent implements OnInit {
     this.exchangeData = this.dataExchangeService;
   }
   
+  // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
+  private getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asFormattedText(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
   ngOnInit(): void {
 
     $(document).ready(function() {
@@ -396,11 +415,11 @@ export class RegressionDiagramComponent implements OnInit {
       let featureName = indicatorPropertiesEntry[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       let indicatorValue;
 
-      if (this.dataExchangeService.indicatorValueIsNoData(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp])){
+      if (this.indicatorValueService.indicatorValueIsNoData(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp])){
         indicatorValue = null;
       }
       else{
-        indicatorValue = this.dataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp], axisPrecision);
+        indicatorValue = this.getIndicatorValue_asNumber(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp], axisPrecision);
       }
 
       if(map.has(featureName)){
@@ -643,14 +662,14 @@ export class RegressionDiagramComponent implements OnInit {
                       formatter: (params, index) => {
                         //y-axis
                         if (params.axisDimension === 'y') {
-                          return this.dataExchangeService.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
+                          return this.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
                         }
                         //x-axis
                         else if (params.axisDimension === 'x') {
-                          return this.dataExchangeService.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+                          return this.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
                         }
                         else {
-                          return this.dataExchangeService.getIndicatorValue_asFormattedText(params.value);
+                          return this.getIndicatorValue_asFormattedText(params.value);
                         }
                       }
                     }
@@ -661,13 +680,13 @@ export class RegressionDiagramComponent implements OnInit {
                           }
                             var string = "" + params.name + "<br/>";
 
-                            string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
-                            string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.dataExchangeService.getIndicatorValue_asFormattedText(params.value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
+                            string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.getIndicatorValue_asFormattedText(params.value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
+                            string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.getIndicatorValue_asFormattedText(params.value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
                             return string;
                           }
             },
             xAxis: {
-                name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForXAxis.selectedDate + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
+                name: this.indicatorValueService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForXAxis.selectedDate + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
                 nameLocation: 'center',
                 nameGap: 22,
                 scale: true,
@@ -679,12 +698,12 @@ export class RegressionDiagramComponent implements OnInit {
                 },
                 axisLabel: {
                   formatter: (value, index) => {
-                    return this.dataExchangeService.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+                    return this.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
                   }
                 }
             },
             yAxis: {
-                name: this.dataExchangeService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForYAxis.selectedDate + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
+                name: this.indicatorValueService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForYAxis.selectedDate + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
                 nameLocation: 'center',
                 nameGap: 80,
                     type: 'value',
@@ -695,7 +714,7 @@ export class RegressionDiagramComponent implements OnInit {
                     },
                     axisLabel: {
                       formatter: (value, index) => {
-                        return this.dataExchangeService.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
+                        return this.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
                       }
                     }
                 },
@@ -755,8 +774,8 @@ export class RegressionDiagramComponent implements OnInit {
                         htmlString += "<tr>";
                         htmlString += "<td>" + scatterSeries[j].name + "</td>";
 
-                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
-                        htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
+                        htmlString += "<td>" + this.getIndicatorValue_asNumber(scatterSeries[j].value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
+                        htmlString += "<td>" + this.getIndicatorValue_asNumber(scatterSeries[j].value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
                         htmlString += "</tr>";
                       }
 
@@ -785,8 +804,8 @@ export class RegressionDiagramComponent implements OnInit {
                       
                         for (var j=0; j<lineSeries.length; j++){
                           htmlString += "<tr>";
-                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
-                          htmlString += "<td>" + this.dataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
+                          htmlString += "<td>" + this.getIndicatorValue_asNumber(lineSeries[j][0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
+                          htmlString += "<td>" + this.getIndicatorValue_asNumber(lineSeries[j][1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
                           htmlString += "</tr>";
                         }
                         

@@ -92,13 +92,25 @@ In aufsteigender Konsumentenzahl:
       `adminSpatialUnit/KommonitorDataExchangeService` (eigener `availableSpatialUnits`-Getter), nicht die Facade.
       Übersprungen (tot): indicator-delete-modal (Bridge-Token). Build/Test/Lint grün.
 
-### Phase 2 — B1 `IndicatorValueService` (Glue beachten)
+### Phase 2 — B1 `IndicatorValueService` ✅ (2026-06-24) — vollständig, ein Commit
 
-- [ ] Parameterlose Utilities direkt umhängen: `indicatorValueIsNoData`, `syntaxHighlightJSON` (25!),
-      `formatIndicatorNameForLabel`, `createDualListInputArray`.
-- [ ] Precision-Formatter (`getIndicatorValue_asNumber/_asFormattedText/_asFixedPrecisionNumber`,
-      `getIndicatorValueFromArray_asNumber`) brauchen `SelectionStateService.resolveSelectedPrecision`.
-      → Konsument Precision selbst auflösen lassen **oder** als dünne Facade behalten.
+- [x] **Parameterlose Utilities** (`indicatorValueIsNoData`, `syntaxHighlightJSON`,
+      `formatIndicatorNameForLabel`, `createDualListInputArray`) direkt auf `indicatorValueService`
+      umgehängt. **Korrektur zur Schätzung „25!":** real **12 `syntaxHighlightJSON`-Konsumenten** (Facade);
+      Katalog daneben (fälschlich `indicator-delete-modal` gelistet — nutzt nur den toten Bridge-Token
+      `angularJsDataExchangeService`; `topic-delete-modal` gefehlt).
+- [x] **Precision-Formatter** (`getIndicatorValue_asNumber/_asFormattedText/_asFixedPrecisionNumber`,
+      `getIndicatorValueFromArray_asNumber`): **Entscheidung — Konsument löst Precision selbst auf.**
+      Jeder Konsument injiziert `IndicatorValueService` + `SelectionStateService` und bekommt einen lokalen
+      Wrapper, der die alte Facade-Glue spiegelt (`indicatorValueService.X(v, selectionState.resolveSelectedPrecision(p))`);
+      Call-Sites zeigen auf den lokalen Wrapper (Arg-Listen unverändert → verhaltensgleich). Bei den 2 Templates
+      (`kommonitor-legend`, `reachability-indicator-statistics`) ist der Wrapper `protected`.
+- **Umfang:** ~27 Live-Konsumenten (12 Admin nur `syntaxHighlightJSON` + 15 UI/Services mit Precision/Utilities).
+      Alle 8 Facade-Wrapper **und** die private `resolveSelectedPrecision` aus der Facade entfernt;
+      `displayMapApplicationError` auf `indicatorValueService.syntaxHighlightJSON` repointet.
+- **Bewusst NICHT angefasst:** Class-E-Konsumenten der **eigenen** `adminSpatialUnit/KommonitorDataExchangeService`-
+      `syntaxHighlightJSON`-Kopie (adminRoleManagement/*, adminSpatialUnitsManagement/*, feature-table-grid-helper —
+      Dedup ist separat); tote Bridge-Token-/AngularJS-Dateien. Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün.
 
 ### Phase 3 — Breit gestreute State-Felder (Smoke-Test nötig)
 
