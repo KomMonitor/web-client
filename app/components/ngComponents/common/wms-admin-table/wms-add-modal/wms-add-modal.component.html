@@ -229,7 +229,7 @@
               <select *ngIf="accessControlService.checkAdminPermission()" 
                 id="addWmsUserRoleSelect" [(ngModel)]="ownerOrganization" name="ownerOrganization" 
                 class="form-control" (ngModelChange)="onChangeOwner(ownerOrganization)" required>
-                <option *ngFor="let org of dataExchangeService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
+                <option *ngFor="let org of accessControlService.accessControl" [value]="org.organizationalUnitId">{{org.name}}</option>
               </select>
               <p></p>
             </div>

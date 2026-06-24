@@ -275,7 +275,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
       this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       []
     );
   }
@@ -658,7 +658,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
       this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       this.metadataImportSettings.allowedRoles
     );
 
@@ -898,7 +898,7 @@ export class GeoresourceAddModalComponent implements OnInit {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceAddRoleManagementTable',
       null,
-      this.kommonitorDataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       []
     );
 

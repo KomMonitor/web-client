@@ -12,6 +12,7 @@ import {
 import { Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { AccessControlService } from "services/access-control-service/access-control.service";
 import {
   NgbCollapseModule,
   NgbPopover,
@@ -87,6 +88,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private dataExchangeService: DataExchangeService,
+    private accessControlService: AccessControlService,
     private broadcastService: BroadcastService,
     private router: Router,
     private renderer: Renderer2,
@@ -128,7 +130,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   checkAuthentication(): void {
-    this.dataExchangeService.currentKeycloakLoginRoles = [];
+    this.accessControlService.currentKeycloakLoginRoles = [];
 
     this.authenticated = this.authService.isAuthenticated();
     if (this.authenticated) {
@@ -139,8 +141,8 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   prepUserInformation(): void {
     this.userRoleInformation = {};
     this.userGroupInformation = [];
-    if (this.dataExchangeService.currentKomMonitorLoginRoleNames?.length > 0) {
-      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(
+    if (this.accessControlService.currentKomMonitorLoginRoleNames?.length > 0) {
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach(
         (roles: string) => {
           const key = roles.split(".")[0];
           const role = roles.split(".")[1];
@@ -156,8 +158,8 @@ export class UserLoginComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (this.dataExchangeService.currentKeycloakLoginGroups?.length > 0) {
-      this.dataExchangeService.currentKeycloakLoginGroups.forEach(
+    if (this.accessControlService.currentKeycloakLoginGroups?.length > 0) {
+      this.accessControlService.currentKeycloakLoginGroups.forEach(
         (group: string, index: number) => {
           const parts = group.split("/");
           this.userGroupInformation[index] = [];

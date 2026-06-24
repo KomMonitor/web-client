@@ -183,7 +183,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'indicatorEditFeaturesRoleManagementTable',
       this.roleManagementTableOptions,
-      this.dataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       [],
       true
     );
@@ -350,7 +350,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     }
 
     // Set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.dataExchangeService.accessControl.forEach((item: any) => {
+    this.accessControlService.accessControl.forEach((item: any) => {
       if (this.currentIndicatorDataset) {
         if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
           item.datasetOwner = true;
@@ -363,7 +363,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'indicatorEditFeaturesRoleManagementTable',
       this.roleManagementTableOptions,
-      this.dataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       permissions,
       true
     );

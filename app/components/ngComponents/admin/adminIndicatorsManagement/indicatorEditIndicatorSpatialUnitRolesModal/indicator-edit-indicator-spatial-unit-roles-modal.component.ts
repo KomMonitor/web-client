@@ -92,11 +92,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   }
 
   prepareCreatorList(): void {
-    if (this.dataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
+    if (this.accessControlService.currentKomMonitorLoginRoleNames.length > 0) {
       const creatorRights: string[] = [];
       const creatorRightsChildren: string[] = [];
 
-      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
         const key = roles.split('.')[0];
         const role = roles.split('.')[1];
 
@@ -114,7 +114,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       // gather all children
       this.gatherCreatorRightsChildren(creatorRights, creatorRightsChildren);
 
-      this.resourcesCreatorRights = this.dataExchangeService.accessControl.filter((elem: any) =>
+      this.resourcesCreatorRights = this.accessControlService.accessControl.filter((elem: any) =>
         creatorRights.includes(elem.name)
       );
     }
@@ -122,11 +122,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   gatherCreatorRightsChildren(creatorRights: string[], creatorRightsChildren: string[]): void {
     if (creatorRightsChildren.length > 0) {
-      this.dataExchangeService.accessControl
+      this.accessControlService.accessControl
         .filter((elem: any) => creatorRightsChildren.includes(elem.name))
         .flatMap((res: any) => res.children)
         .forEach((child: any) => {
-          this.dataExchangeService.accessControl
+          this.accessControlService.accessControl
             .filter((elem: any) => elem.organizationalUnitId == child)
             .forEach((childData: any) => {
               creatorRights.push(childData.name);
@@ -152,7 +152,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.permissions = this.currentIndicatorDataset ? this.currentIndicatorDataset.permissions : [];
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.dataExchangeService.accessControl.forEach((item: any) => {
+    this.accessControlService.accessControl.forEach((item: any) => {
       if (this.currentIndicatorDataset) {
         if (item.organizationalUnitId == this.currentIndicatorDataset.ownerId) {
           item.datasetOwner = true;
@@ -166,9 +166,9 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.activeRolesOnly = false;
     }
 
-    let access = this.dataExchangeService.accessControl;
+    let access = this.accessControlService.accessControl;
     if (this.permissions.length > 0 && this.activeRolesOnly) {
-      access = this.dataExchangeService.accessControl.filter((unit: any) => {
+      access = this.accessControlService.accessControl.filter((unit: any) => {
         return unit.permissions.filter((unitPermission: any) =>
           this.permissions.includes(unitPermission.permissionId)
         ).length > 0
@@ -193,12 +193,12 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         this.activeConnectedRolesOnly = false;
       }
 
-      let connectedAccess = this.dataExchangeService.accessControl;
+      let connectedAccess = this.accessControlService.accessControl;
       if (
         this.targetApplicableSpatialUnit.permissions.length > 0 &&
         this.activeConnectedRolesOnly
       ) {
-        connectedAccess = this.dataExchangeService.accessControl.filter((unit: any) => {
+        connectedAccess = this.accessControlService.accessControl.filter((unit: any) => {
           return unit.permissions.filter((unitPermission: any) =>
             this.targetApplicableSpatialUnit.permissions.includes(unitPermission.permissionId)
           ).length > 0
@@ -221,7 +221,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
         this.roleManagementHelper.buildRoleManagementGrid(
           'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
           this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-          this.dataExchangeService.accessControl,
+          this.accessControlService.accessControl,
           [],
           true
         );
@@ -252,7 +252,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       : [];
 
     // set datasetOwner to disable checkboxes for owned datasets in permissions-table
-    this.dataExchangeService.accessControl.forEach((item: any) => {
+    this.accessControlService.accessControl.forEach((item: any) => {
       if (item.organizationalUnitId == orgUnitId) {
         item.datasetOwner = true;
       } else {
@@ -264,7 +264,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorEditRoleManagementTable',
         this.roleManagementTableOptions_indicatorMetadata,
-        this.dataExchangeService.accessControl,
+        this.accessControlService.accessControl,
         permissionIds_ownerUnit,
         true
       );
@@ -273,7 +273,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorEditIndicatorSpatialUnitsRoleManagementTable',
         this.roleManagementTableOptions_indicatorSpatialUnitTimeseries,
-        this.dataExchangeService.accessControl,
+        this.accessControlService.accessControl,
         permissionIds_ownerUnit,
         true
       );

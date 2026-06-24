@@ -146,7 +146,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     ) {
       try {
         await this.dataExchangeService.fetchIndicatorsMetadata(
-          this.dataExchangeService.currentKeycloakLoginRoles
+          this.accessControlService.currentKeycloakLoginRoles
         );
         // Force refresh the table after data is loaded
         setTimeout(() => {
@@ -670,7 +670,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     if (!crudType || !targetIndicatorId) {
       // refetch all metadata from indicators to update table
       this.dataExchangeService
-        .fetchIndicatorsMetadata(this.dataExchangeService.currentKeycloakLoginRoles)
+        .fetchIndicatorsMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
           this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
@@ -685,7 +685,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.kommonitorCacheHelperService
           .fetchSingleIndicatorMetadata(
             targetIndicatorId,
-            this.dataExchangeService.currentKeycloakLoginRoles
+            this.accessControlService.currentKeycloakLoginRoles
           )
           .then((data: any) => {
             this.indicatorStore.addSingleIndicatorMetadata(data);
@@ -701,7 +701,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         this.kommonitorCacheHelperService
           .fetchSingleIndicatorMetadata(
             targetIndicatorId,
-            this.dataExchangeService.currentKeycloakLoginRoles
+            this.accessControlService.currentKeycloakLoginRoles
           )
           .then((data: any) => {
             this.indicatorStore.replaceSingleIndicatorMetadata(data);

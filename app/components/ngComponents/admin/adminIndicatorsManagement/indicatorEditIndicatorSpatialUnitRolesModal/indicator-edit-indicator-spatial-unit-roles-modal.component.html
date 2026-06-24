@@ -239,7 +239,7 @@
                   >
                     <option selected value><b>Eigentümerschaft nicht übertragen</b></option>
                     @for (
-                      org of dataExchangeService.accessControl | filter: ownerOrgFilter;
+                      org of accessControlService.accessControl | filter: ownerOrgFilter;
                       track org
                     ) {
                       <option [value]="org.organizationalUnitId">{{ org.name }}</option>

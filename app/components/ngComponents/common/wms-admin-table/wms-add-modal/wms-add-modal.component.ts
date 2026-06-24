@@ -186,7 +186,7 @@ export class WmsAddModalComponent implements OnInit {
     }
 
     // Set datasetOwner flags
-    this.dataExchangeService.accessControl?.forEach(item => {
+    this.accessControlService.accessControl?.forEach(item => {
       item.datasetOwner = item.organizationalUnitId === orgUnitId;
     });
 
@@ -194,7 +194,7 @@ export class WmsAddModalComponent implements OnInit {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       '',
       this.roleManagementTableOptions,
-      this.dataExchangeService.accessControl || [],
+      this.accessControlService.accessControl || [],
       permissionIds_ownerUnit,
       true
     );

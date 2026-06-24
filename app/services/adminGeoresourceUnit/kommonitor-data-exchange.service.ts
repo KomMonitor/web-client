@@ -31,7 +31,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Get current Keycloak login roles -
    */
   get currentKeycloakLoginRoles(): string[] {
-    return this.angularJsDataExchangeService.currentKeycloakLoginRoles || [];
+    return this.accessControlService.currentKeycloakLoginRoles || [];
   }
 
   /**

@@ -725,7 +725,7 @@
                     (ngModelChange)="onChangeOwner($event)"
                     required
                   >
-                    @for (org of kommonitorDataExchangeService.accessControl; track org) {
+                    @for (org of accessControlService.accessControl; track org) {
                       <option [value]="org.organizationalUnitId">{{ org.name }}</option>
                     }
                   </select>

@@ -5,6 +5,7 @@ import { map, tap, timeout } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 
 export interface TopicOrderResponseEntry {
   topicResource: TopicResourceType;
@@ -18,6 +19,7 @@ export class AdminTopicsManagementService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private accessControlService = inject(AccessControlService);
 
   addTopic(
     topicType: 'main' | 'sub',
@@ -153,7 +155,7 @@ export class AdminTopicsManagementService {
 
   private reloadTopics() {
     this.dataExchangeService
-      .fetchTopicsMetadata(this.dataExchangeService.currentKeycloakLoginRoles)
+      .fetchTopicsMetadata(this.accessControlService.currentKeycloakLoginRoles)
       .then(() => {
         this.broadcastService.broadcast('refreshTopicsOverview');
         this.broadcastService.broadcast('refreshAdminDashboardDiagrams');

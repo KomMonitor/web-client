@@ -195,7 +195,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable',
       this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       allowedRoles
     );
   }
@@ -231,7 +231,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable',
       this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       this.currentGeoresourceDataset.allowedRoles
     );
 
@@ -495,7 +495,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       'georesourceEditRoleManagementTable',
       this.roleManagementTableOptions,
-      this.kommonitorDataExchangeService.accessControl,
+      this.accessControlService.accessControl,
       this.metadataImportSettings.allowedRoles
     );
 

@@ -12,6 +12,7 @@ import { AdminTopicsManagementComponent } from './adminTopicsManagement/admin-to
 
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from '../../../services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from '../../../services/access-control-service/access-control.service';
 import { NotificationComponent } from '../common/notification/notification.component';
 import { SessionValidityComponent } from '../common/userLogin/session-validity/session-validity.component';
 import { UserLoginComponent } from '../common/userLogin/user-login.component';
@@ -61,6 +62,7 @@ export enum AdminNavItem {
 export class AdminComponent implements OnInit {
   private router = inject(Router);
   protected dataExchangeService = inject(DataExchangeService);
+  protected accessControlService = inject(AccessControlService);
 
   readonly AdminNavItem = AdminNavItem;
   active: AdminNavItem = AdminNavItem.Overview;
@@ -83,8 +85,8 @@ export class AdminComponent implements OnInit {
   }
 
   prepUserInformation() {
-    if (this.dataExchangeService.currentKomMonitorLoginRoleNames.length > 0) {
-      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach((roles) => {
+    if (this.accessControlService.currentKomMonitorLoginRoleNames.length > 0) {
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles) => {
         const key = roles.split('.')[0];
         const role = roles.split('.')[1];
 
@@ -96,8 +98,8 @@ export class AdminComponent implements OnInit {
       });
     }
 
-    if (this.dataExchangeService.currentKeycloakLoginGroups.length > 0) {
-      this.dataExchangeService.currentKeycloakLoginGroups.forEach((group, index) => {
+    if (this.accessControlService.currentKeycloakLoginGroups.length > 0) {
+      this.accessControlService.currentKeycloakLoginGroups.forEach((group, index) => {
         const parts = group.split('/');
         this.userGroupInformation[index] = [];
 

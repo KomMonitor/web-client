@@ -274,8 +274,8 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Load access control
-    if (this.kommonitorDataExchangeService && this.kommonitorDataExchangeService.accessControl) {
-      this.accessControl = this.kommonitorDataExchangeService.accessControl;
+    if (this.kommonitorDataExchangeService && this.accessControlService.accessControl) {
+      this.accessControl = this.accessControlService.accessControl;
     }
 
     // Load color brewer schemes
@@ -304,13 +304,13 @@ export class IndicatorAddModalComponent implements OnInit {
     // Initialize role management if available
     if (
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.accessControl &&
+      this.accessControlService.accessControl &&
       this.roleManagementHelper
     ) {
       this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable',
         this.roleManagementTableOptions,
-        this.kommonitorDataExchangeService.accessControl,
+        this.accessControlService.accessControl,
         []
       );
     }
@@ -852,14 +852,14 @@ export class IndicatorAddModalComponent implements OnInit {
     // Parse role permissions
     if (
       this.kommonitorDataExchangeService &&
-      this.kommonitorDataExchangeService.accessControl &&
+      this.accessControlService.accessControl &&
       this.metadataImportSettings.allowedRoles &&
       this.roleManagementHelper
     ) {
       this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable',
         this.roleManagementTableOptions,
-        this.kommonitorDataExchangeService.accessControl,
+        this.accessControlService.accessControl,
         this.metadataImportSettings.allowedRoles
       );
     }

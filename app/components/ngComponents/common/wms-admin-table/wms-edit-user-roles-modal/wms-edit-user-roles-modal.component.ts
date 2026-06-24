@@ -89,7 +89,7 @@ export class WmsEditUserRolesModalComponent {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       '',
       this.roleManagementTableOptions,
-      this.dataExchangeService.accessControl || [],
+      this.accessControlService.accessControl || [],
       this.currentGeoresourceDataset.permissions,
       true
     );
@@ -166,7 +166,7 @@ export class WmsEditUserRolesModalComponent {
     }
 
     // Set datasetOwner flags
-    this.dataExchangeService.accessControl?.forEach(item => {
+    this.accessControlService.accessControl?.forEach(item => {
       item.datasetOwner = item.organizationalUnitId === orgUnitId;
     });
 
@@ -174,7 +174,7 @@ export class WmsEditUserRolesModalComponent {
     this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
       '',
       this.roleManagementTableOptions,
-      this.dataExchangeService.accessControl || [],
+      this.accessControlService.accessControl || [],
       permissionIds_ownerUnit,
       true
     );

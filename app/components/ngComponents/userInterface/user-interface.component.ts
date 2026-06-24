@@ -2,6 +2,7 @@ import { DisplayType } from 'components/ngComponents/common/custom-slider/custom
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
@@ -66,7 +67,8 @@ export class UserInterfaceComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
-    private modalService: NgbModal, 
+    private accessControlService: AccessControlService,
+    private modalService: NgbModal,
     private broadcastService: BroadcastService,
     private configStorageService: ConfigStorageService,
     protected visibilityHelperService: ElementVisibilityHelperService,
@@ -151,8 +153,8 @@ export class UserInterfaceComponent implements OnInit {
 
   prepUserInformation() {
 
-    if(this.dataExchangeService.currentKomMonitorLoginRoleNames.length>0) {
-      this.dataExchangeService.currentKomMonitorLoginRoleNames.forEach(roles => {
+    if(this.accessControlService.currentKomMonitorLoginRoleNames.length>0) {
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach(roles => {
       
       let key = roles.split('.')[0];
       let role = roles.split('.')[1];
@@ -166,8 +168,8 @@ export class UserInterfaceComponent implements OnInit {
       });
     }
 
-    if(this.dataExchangeService.currentKeycloakLoginGroups.length>0) {
-      this.dataExchangeService.currentKeycloakLoginGroups.forEach((group, index) => {
+    if(this.accessControlService.currentKeycloakLoginGroups.length>0) {
+      this.accessControlService.currentKeycloakLoginGroups.forEach((group, index) => {
 
       let parts = group.split('/');
       this.userGroupInformation[index] = [];

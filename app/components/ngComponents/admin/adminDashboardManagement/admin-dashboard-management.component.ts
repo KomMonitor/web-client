@@ -17,6 +17,7 @@ import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-un
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { GeoresourceMetadataStoreService } from '../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 
 interface PieSeriesDataItem {
   name: string;
@@ -108,6 +109,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private accessControlService = inject(AccessControlService);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -172,7 +174,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private updateDisplayValues(): void {
     const d = this.dataExchange;
 
-    this.organisationCount.set(String(d.accessControl?.length ?? 0));
+    this.organisationCount.set(String(this.accessControlService.accessControl?.length ?? 0));
     this.indicatorCount.set(String(this.indicatorStore.availableIndicators?.length ?? 0));
     this.georesourceCount.set(String(this.georesourceStore.availableGeoresources?.length ?? 0));
     this.spatialUnitCount.set(String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0));

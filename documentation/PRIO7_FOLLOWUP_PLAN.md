@@ -114,8 +114,21 @@ In aufsteigender Konsumentenzahl:
 
 ### Phase 3 — Breit gestreute State-Felder (Smoke-Test nötig)
 
-- [ ] **B3 `AccessControlService`** — `accessControl` (18 Leser) u. a. ⚠️ Auth-kritisch,
-      ohne Keycloak nicht laufzeit-QA-bar.
+- [x] **B3 `AccessControlService`** ✅ (2026-06-24) — in **zwei Commits** (State getrennt, da auth-kritisch):
+      - **Commit 1 — Permission/Role-Query-Methoden** (`check*Permission` ×7, `getAllowedRolesString`,
+        `getRoleTitle(s)`, `getAccessControlById`, `filterClientUserAdminRoles`, `updateAvailableRoles`):
+        Class-A-Konsumenten + adminGeoresourceUnit-/adminIndicatorUnit-Delegation/Grid-Helper auf
+        `accessControlService` umgehängt; 13 Facade-Wrapper entfernt.
+      - **Commit 2 — Login-/accessControl-State + Auth-Bootstrap** (7 get/set-Paare + 3 `set*`-Wrapper):
+        ~13 Class-A-Konsumenten + Delegation `currentKeycloakLoginRoles` + Facade-interner Auth-Bootstrap
+        (Token-Parsing, `fetchAccessControlMetadata`, forkJoin-`fetch*`) auf `accessControlService` repointet;
+        7 get/set-Paare + 3 Setter-Wrapper entfernt.
+      **Bewusst NICHT angefasst:** `adminSpatialUnit/KommonitorDataExchangeService` mit **eigener** AC-Impl
+      (Class E: adminRoleManagement/*, adminSpatialUnitsManagement/*); tote Bridge-Token-Dateien.
+      **Korrekturen zum Katalog** (per Build-Gate gefunden): zusätzlich `adminIndicatorUnit/grid-helper`,
+      `admin-dashboard` (`d.accessControl`), `indicator-delete-modal` (live `dataExchangeService`-State).
+      Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün je Commit.
+      ⚠️ **Offen: Backend-/Keycloak-Smoke-Test** von Login + Admin-Permission-Gating vor Release (nicht lokal QA-bar).
 - [ ] **B7 `SelectionStateService`** — `selectedIndicator` (21), `selectedDate` (18),
       `selectedSpatialUnit` (14). ⚠️ Karte/Diagramme betroffen → Smoke-Test vor Release.
 - [ ] **B5 `TopicHierarchyStoreService`** — Builder-Wrapper (`buildTopic*Hierarchy`) lesen

@@ -168,51 +168,6 @@ export class DataExchangeService {
 
   errorMessage = undefined;
 
-  // --- Prio7 B3: access-control state lives in AccessControlService; these
-  // facade get/set keep consumers + the auth/fetch orchestration unchanged ---
-  get isRealmAdmin(): boolean {
-    return this.accessControlService.isRealmAdmin;
-  }
-  set isRealmAdmin(v: boolean) {
-    this.accessControlService.isRealmAdmin = v;
-  }
-  get currentKeycloakLoginGroupNames(): any {
-    return this.accessControlService.currentKeycloakLoginGroupNames;
-  }
-  set currentKeycloakLoginGroupNames(v: any) {
-    this.accessControlService.currentKeycloakLoginGroupNames = v;
-  }
-  get currentKeycloakLoginRoles(): any[] {
-    return this.accessControlService.currentKeycloakLoginRoles;
-  }
-  set currentKeycloakLoginRoles(v: any[]) {
-    this.accessControlService.currentKeycloakLoginRoles = v;
-  }
-  get currentKeycloakLoginGroups(): any[] {
-    return this.accessControlService.currentKeycloakLoginGroups;
-  }
-  set currentKeycloakLoginGroups(v: any[]) {
-    this.accessControlService.currentKeycloakLoginGroups = v;
-  }
-  get currentKomMonitorLoginRoleNames(): any[] {
-    return this.accessControlService.currentKomMonitorLoginRoleNames;
-  }
-  set currentKomMonitorLoginRoleNames(v: any[]) {
-    this.accessControlService.currentKomMonitorLoginRoleNames = v;
-  }
-  get currentKomMonitorLoginOrganizationalUnits(): any[] {
-    return this.accessControlService.currentKomMonitorLoginOrganizationalUnits;
-  }
-  set currentKomMonitorLoginOrganizationalUnits(v: any[]) {
-    this.accessControlService.currentKomMonitorLoginOrganizationalUnits = v;
-  }
-  get accessControl(): any[] {
-    return this.accessControlService.accessControl;
-  }
-  set accessControl(v: any[]) {
-    this.accessControlService.accessControl = v;
-  }
-
   // todo topics hirarchy interface ?!
 
   anySideBarIsShown = false;
@@ -542,40 +497,40 @@ export class DataExchangeService {
 
           const tokenParsed = this.authService.getTokenParsed();
           if (tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles) {
-            this.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
+            this.accessControlService.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
             if (
-              this.currentKeycloakLoginRoles.includes(
+              this.accessControlService.currentKeycloakLoginRoles.includes(
                 this.envConfigService.keycloakKomMonitorAdminRoleName
               )
             ) {
-              this.isRealmAdmin = true;
-              // this.currentKeycloakLoginRoles = this.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
+              this.accessControlService.isRealmAdmin = true;
+              // this.accessControlService.currentKeycloakLoginRoles = this.accessControlService.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
             }
             if (tokenParsed['groups']) {
-              this.currentKeycloakLoginGroups = tokenParsed['groups'];
+              this.accessControlService.currentKeycloakLoginGroups = tokenParsed['groups'];
             }
-            this.currentKeycloakLoginGroupNames = this.currentKeycloakLoginGroups.map(
+            this.accessControlService.currentKeycloakLoginGroupNames = this.accessControlService.currentKeycloakLoginGroups.map(
               (groupPath) => groupPath.split('/')[groupPath.split('/').length - 1]
             );
           } else {
-            this.currentKeycloakLoginRoles = [];
-            this.currentKeycloakLoginGroups = [];
+            this.accessControlService.currentKeycloakLoginRoles = [];
+            this.accessControlService.currentKeycloakLoginGroups = [];
           }
         })
         .catch(function () {
           console.log('Failed to load user profile');
         });
-      await this.fetchAccessControlMetadata(this.currentKeycloakLoginRoles);
+      await this.fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles);
     }
 
     // revise metadata fecthing for protected endpoints
     forkJoin({
       // scriptsPromise: this.fetchIndicatorScriptsMetadata(),
-      topicsPromise: this.fetchTopicsMetadata(this.currentKeycloakLoginRoles),
-      spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.currentKeycloakLoginRoles),
-      georesourcesPromise: this.fetchGeoresourcesMetadata(this.currentKeycloakLoginRoles, filter),
-      indicatorsPromise: this.fetchIndicatorsMetadata(this.currentKeycloakLoginRoles, filter),
-      servicePromises: this.fetchServices(this.currentKeycloakLoginRoles, filter),
+      topicsPromise: this.fetchTopicsMetadata(this.accessControlService.currentKeycloakLoginRoles),
+      spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.accessControlService.currentKeycloakLoginRoles),
+      georesourcesPromise: this.fetchGeoresourcesMetadata(this.accessControlService.currentKeycloakLoginRoles, filter),
+      indicatorsPromise: this.fetchIndicatorsMetadata(this.accessControlService.currentKeycloakLoginRoles, filter),
+      servicePromises: this.fetchServices(this.accessControlService.currentKeycloakLoginRoles, filter),
     }).subscribe({
       next: (_response: any) => {
         this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
@@ -710,7 +665,7 @@ export class DataExchangeService {
 
   async fetchIndicatorScriptsMetadata() {
     this.processScriptStore.setProcessScripts(
-      await this.cacheHelperService.fetchProcessScriptsMetadata(this.currentKeycloakLoginRoles)
+      await this.cacheHelperService.fetchProcessScriptsMetadata(this.accessControlService.currentKeycloakLoginRoles)
     );
   }
 
@@ -721,7 +676,7 @@ export class DataExchangeService {
   }
 
   async reinitServices(): Promise<void> {
-    await this.fetchServices(this.currentKeycloakLoginRoles);
+    await this.fetchServices(this.accessControlService.currentKeycloakLoginRoles);
   }
 
   getLoiDashSvgFromStringValue(loiDashArrayString) {
@@ -790,23 +745,11 @@ export class DataExchangeService {
   }
 
   async fetchAccessControlMetadata(keycloakRolesArray) {
-    this.setAccessControl(
+    this.accessControlService.setAccessControl(
       await this.cacheHelperService.fetchAccessControlMetadata(keycloakRolesArray)
     );
-    this.setCurrentKomMonitorLoginRoleNames();
-    this.setCurrentKomMonitorLoginOrganizationalUnits();
-  }
-
-  setCurrentKomMonitorLoginOrganizationalUnits() {
-    return this.accessControlService.setCurrentKomMonitorLoginOrganizationalUnits();
-  }
-
-  setCurrentKomMonitorLoginRoleNames() {
-    return this.accessControlService.setCurrentKomMonitorLoginRoleNames();
-  }
-
-  private setAccessControl(input) {
-    return this.accessControlService.setAccessControl(input);
+    this.accessControlService.setCurrentKomMonitorLoginRoleNames();
+    this.accessControlService.setCurrentKomMonitorLoginOrganizationalUnits();
   }
 
   async downloadMetadataPDF_georesource(georesourceMetadata) {

@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
 import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
+import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
 import { FormsModule } from '@angular/forms';
 
@@ -52,6 +53,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private accessControlService = inject(AccessControlService);
   private broadcastService = inject(BroadcastService);
   angularJsDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
 
