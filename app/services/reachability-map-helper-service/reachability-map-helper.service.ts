@@ -6,7 +6,7 @@ import 'leaflet.markercluster';
 import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { GeometrySimplificationService } from 'services/geometry-simplification-service/geometry-simplification.service';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -24,7 +24,7 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
-  private dataExchangeService = inject(DataExchangeService);
+  private geometrySimplification = inject(GeometrySimplificationService);
   private mapOverlayState = inject(MapOverlayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
@@ -644,7 +644,7 @@ export class ReachabilityMapHelperService {
     timestamp: string
   ): Promise<any> {
     const [year, month, day] = timestamp.split('-');
-    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${this.dataExchangeService.simplifyGeometriesParameterName}=${this.dataExchangeService.simplifyGeometries}`;
+    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${this.geometrySimplification.simplifyGeometriesParameterName}=${this.geometrySimplification.simplifyGeometries}`;
     return await lastValueFrom(this.http.get(url));
   }
 

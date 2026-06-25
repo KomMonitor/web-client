@@ -27,8 +27,6 @@ export class DataExchangeService {
   indicatorDatePrefix!: string;
   selectedIndicatorBackup!: IndicatorsDataset;
   classifyZeroSeparately_backup: any;
-  simplifyGeometriesParameterName: any;
-  simplifyGeometries: any;
   FEATURE_NAME_PROPERTY_NAME: any;
   adminUserName;
   adminPassword;

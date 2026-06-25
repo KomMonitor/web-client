@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { GeometrySimplificationService } from "services/geometry-simplification-service/geometry-simplification.service";
 import { MapOverlayStateService } from "services/map-overlay-state-service/map-overlay-state.service";
 import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
@@ -26,7 +26,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 })
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
-  private dataExchangeService = inject(DataExchangeService);
+  private geometrySimplification = inject(GeometrySimplificationService);
   private mapOverlayState = inject(MapOverlayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
@@ -264,7 +264,7 @@ export class KommonitorDataSetupService {
     const [year, month, day] = date.split("-");
     const { spatialUnitId } = this.selectionState.selectedSpatialUnit;
     const base = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource();
-    const simplify = `${this.dataExchangeService.simplifyGeometriesParameterName}=${this.dataExchangeService.simplifyGeometries}`;
+    const simplify = `${this.geometrySimplification.simplifyGeometriesParameterName}=${this.geometrySimplification.simplifyGeometries}`;
     const url = `${base}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${simplify}`;
 
     return this.http.get(url);
