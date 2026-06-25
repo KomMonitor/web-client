@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgbDropdown,NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
@@ -59,8 +58,9 @@ export class KommonitorDataImportComponent implements OnInit {
   isDragging = false;
   file: File | null = null;
 
+  fileDatasets: GeoresourcesImportDataset[] = [];
+
   constructor(
-    protected kommonitorDataExchangeService: DataExchangeService,
     protected poiPresentationService: PoiPresentationService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private kommonitorMapService: MapService,
@@ -165,8 +165,8 @@ export class KommonitorDataImportComponent implements OnInit {
   };
 
   fileWithSameNameAlreadyImported(clone){
-    for (let i = 0; i < this.kommonitorDataExchangeService.fileDatasets.length; i++) {
-      if (this.kommonitorDataExchangeService.fileDatasets[i].datasetName == clone.datasetName) {
+    for (let i = 0; i < this.fileDatasets.length; i++) {
+      if (this.fileDatasets[i].datasetName == clone.datasetName) {
         return true;
       }
     }
@@ -493,9 +493,9 @@ export class KommonitorDataImportComponent implements OnInit {
     //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", this.fileLayerError);
 
     // remove element from fileDatasets
-    for (var i = 0; i < this.kommonitorDataExchangeService.fileDatasets.length; i++) {
-      if (this.kommonitorDataExchangeService.fileDatasets[i] === dataset) {
-        this.kommonitorDataExchangeService.fileDatasets.splice(i, 1);
+    for (var i = 0; i < this.fileDatasets.length; i++) {
+      if (this.fileDatasets[i] === dataset) {
+        this.fileDatasets.splice(i, 1);
         break;
       }
     }
@@ -508,7 +508,7 @@ export class KommonitorDataImportComponent implements OnInit {
     //remove any old entry with the same name to prevent dupes
     this.removeDataLayerFromOverviewTables(dataset);
     
-    this.kommonitorDataExchangeService.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
+    this.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
     this.georesourceStore.displayableGeoresources.push(dataset);
 
     setTimeout( () => {
@@ -531,9 +531,9 @@ export class KommonitorDataImportComponent implements OnInit {
 
   removeDataLayerFromOverviewTables(dataset) {
 
-    for (let i = 0; i < this.kommonitorDataExchangeService.fileDatasets.length; i++) {
-      if (this.kommonitorDataExchangeService.fileDatasets[i].datasetName == dataset.datasetName) {
-        this.kommonitorDataExchangeService.fileDatasets.splice(i, 1);
+    for (let i = 0; i < this.fileDatasets.length; i++) {
+      if (this.fileDatasets[i].datasetName == dataset.datasetName) {
+        this.fileDatasets.splice(i, 1);
       }
     }
     for (let i = 0; i < this.georesourceStore.displayableGeoresources.length; i++) {

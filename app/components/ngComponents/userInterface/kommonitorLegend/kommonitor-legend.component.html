@@ -26,7 +26,7 @@
                     #d="ngbDatepicker"
                     (click)="d.toggle()"
                     (ngModelChange)="onChangeIndicatorDatepickerDate()"
-                    [disabled]="(dataExchangeService.disableIndicatorDatePicker===true ? true : false)"
+                    [disabled]="(selectionState.disableIndicatorDatePicker===true ? true : false)"
                   />
               </div>
           </div>
@@ -248,7 +248,7 @@
                   <b>{{labelService.labelMean_regional}}</b>
                   {{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())}}
                 </div>
-                <div *ngIf="selectionState.allFeaturesMean() && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean() && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                <div *ngIf="selectionState.allFeaturesMean() && envConfigService.enableMeanDataDisplayInLegend && (envConfigService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean() && envConfigService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
                   <b>{{labelService.labelMean}}</b>
                   {{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean())}}
                 </div>
@@ -503,7 +503,7 @@
             <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())}}</td>
             <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMean())}}</td>
           </tr>
-          <tr *ngIf="selectionState.allFeaturesMean() && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean() && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+          <tr *ngIf="selectionState.allFeaturesMean() && (envConfigService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean() && envConfigService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
             <td>{{labelService.labelMean}}</td>
             <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean())}}</td>
             <td>{{selectionState.selectedFeaturesMean()}}</td>

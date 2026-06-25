@@ -54,7 +54,7 @@ export class EnvConfigService {
     return window.__env.enableMeanDataDisplayInLegend;
   }
   get configMeanDataDisplay(): any {
-    return window.__env.configMeanDataDisplay;
+    return window.__env.configMeanDataDisplay || 'both';
   }
   get enableScatterPlotRegression(): any {
     return window.__env.enableScatterPlotRegression;

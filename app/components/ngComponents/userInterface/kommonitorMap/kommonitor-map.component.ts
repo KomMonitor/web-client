@@ -3,7 +3,6 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -166,8 +165,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   highlightTimeout;
 
+  classifyZeroSeparately_backup: any;
+
   constructor(
-    private dataExchangeService: DataExchangeService,
     private mapOverlayState: MapOverlayStateService,
     private chartDisplayState: ChartDisplayStateService,
     private mapErrorNotificationService: MapErrorNotificationService,
@@ -2788,14 +2788,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   setClassifyZeroForClassifyMethod() {
     if (this.visualStyleHelperService.classifyMethod == "regional_default") {
-      if (this.dataExchangeService.classifyZeroSeparately_backup == undefined) {
-        this.dataExchangeService.classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately;
+      if (this.classifyZeroSeparately_backup == undefined) {
+        this.classifyZeroSeparately_backup = this.envConfigService.classifyZeroSeparately;
       }
       this.envConfigService.classifyZeroSeparately = false;
     }
     else {
-      this.envConfigService.classifyZeroSeparately = this.dataExchangeService.classifyZeroSeparately_backup != undefined ? this.dataExchangeService.classifyZeroSeparately_backup : this.envConfigService.classifyZeroSeparately;
-      this.dataExchangeService.classifyZeroSeparately_backup = undefined;
+      this.envConfigService.classifyZeroSeparately = this.classifyZeroSeparately_backup != undefined ? this.classifyZeroSeparately_backup : this.envConfigService.classifyZeroSeparately;
+      this.classifyZeroSeparately_backup = undefined;
     }
   }
 

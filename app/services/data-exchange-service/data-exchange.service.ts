@@ -1,31 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { GeoresourcesImportDataset } from 'components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component';
+import { Injectable } from '@angular/core';
 
-export interface SpatialUnit {
-  spatialUnitLevel: string;
-  spatialUnitId: any;
-  isOutlineLayer: any;
-  outlineColor: any;
-  outlineWidth: any;
-  outlineDashArrayString: any;
-  permissions: any;
-}
-
+/**
+ * Formerly the central "god service" (~2000 lines). All responsibilities have
+ * been peeled off into dedicated services (Prio 7 god-service split). This empty
+ * shell only remains because a number of consumers still carry a now-unused
+ * import/injection; those are removed in a follow-up before the class is deleted.
+ */
 @Injectable({
   providedIn: 'root',
 })
-export class DataExchangeService {
-  private envConfigService = inject(EnvConfigService);
-
-  configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
-
-  disableIndicatorDatePicker!: boolean;
-  indicatorDatePrefix!: string;
-  selectedIndicatorBackup!: IndicatorsDataset;
-  classifyZeroSeparately_backup: any;
-  FEATURE_NAME_PROPERTY_NAME: any;
-
-  fileDatasets: GeoresourcesImportDataset[] = [];
-}
+export class DataExchangeService {}

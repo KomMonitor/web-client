@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -77,7 +76,6 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   @Input() onupdatelegenddisplaydata!:any;
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
     protected chartDisplayState: ChartDisplayStateService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
@@ -479,7 +477,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     for (var feature of geoJSON.features) {
       var properties = feature.properties;
 
-      var targetValue = properties[this.dataExchangeService.indicatorDatePrefix + targetDate];
+      var targetValue = properties[this.envConfigService.indicatorDatePrefix + targetDate];
       properties["balance"] = targetValue;
 
       // rename all properties due to char limit in shaoefiles

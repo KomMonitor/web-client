@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { MetadataBootstrapService } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
 import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
@@ -45,7 +44,7 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
   ],
 })
 export class KommonitorDataSetupComponent implements OnInit {
-  protected dataExchangeService = inject(DataExchangeService);
+  selectedIndicatorBackup!: IndicatorsDataset;
   private metadataBootstrap = inject(MetadataBootstrapService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   protected readonly selectionState = inject(SelectionStateService);
@@ -203,7 +202,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.selectionState.selectedIndicator =
         this.indicatorStore.displayableIndicators[indicatorIndex];
       // create Backup which is used when currently selected indicator is filtered out in select
-      this.dataExchangeService.selectedIndicatorBackup =
+      this.selectedIndicatorBackup =
         this.selectionState.selectedIndicator;
 
       // set spatialUnit
@@ -459,7 +458,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.changeIndicatorWasClicked = true;
 
-      this.dataExchangeService.selectedIndicatorBackup =
+      this.selectedIndicatorBackup =
         this.selectionState.selectedIndicator;
 
       this.selectionState.setSelectedDate(
@@ -508,9 +507,9 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.changeIndicatorWasClicked = false;
     } else {
-      if (this.dataExchangeService.selectedIndicatorBackup) {
+      if (this.selectedIndicatorBackup) {
         this.selectionState.selectedIndicator =
-          this.dataExchangeService.selectedIndicatorBackup;
+          this.selectedIndicatorBackup;
       }
     }
     this.broadcastService.broadcast("selectedIndicatorDateHasChanged");

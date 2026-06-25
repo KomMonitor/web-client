@@ -170,7 +170,7 @@
 
     </div>
 
-    <div *ngIf="kommonitorDataExchangeService.fileDatasets.length > 0">
+    <div *ngIf="fileDatasets.length > 0">
       <h4>Geladene Datenlayer</h4>
       <div class="input-group">
         <span class="input-group-addon"><i class="fas fa-filter"></i></span>
@@ -195,7 +195,7 @@
           <tbody>
 
             <!-- | filter:fileNameFilter | orderBy:"datasetName" -->
-            <tr *ngFor="let dataset of kommonitorDataExchangeService.fileDatasets">
+            <tr *ngFor="let dataset of fileDatasets">
               <td>
                 <label class='checkbox-inline'><input type="checkbox"
                     value="dataset.datasetName"[(ngModel)]="dataset.isSelected"

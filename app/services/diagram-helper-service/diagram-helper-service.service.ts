@@ -1,6 +1,5 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -21,7 +20,6 @@ import * as ecStat from 'echarts-stat';
 })
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
-  private dataExchangeService = inject(DataExchangeService);
   private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private chartDisplayState = inject(ChartDisplayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
@@ -380,8 +378,8 @@ export class DiagramHelperServiceService {
   containsNegativeValues(geoJSON, date) {
     let propertyName = date;
 
-    if (!propertyName.includes(this.dataExchangeService.indicatorDatePrefix)) {
-      propertyName = this.dataExchangeService.indicatorDatePrefix + propertyName;
+    if (!propertyName.includes(this.envConfigService.indicatorDatePrefix)) {
+      propertyName = this.envConfigService.indicatorDatePrefix + propertyName;
     }
 
     let containsNegativeValues = false;
@@ -739,7 +737,7 @@ export class DiagramHelperServiceService {
 
     if (
       !regionalMeanValueUsed &&
-      this.dataExchangeService.configMeanDataDisplay == 'regionalMeanOrNone'
+      this.envConfigService.configMeanDataDisplay == 'regionalMeanOrNone'
     ) {
       enableHorizontalMeanLine = false;
     }
@@ -807,7 +805,7 @@ export class DiagramHelperServiceService {
   ) {
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
       feature.properties.name =
-        feature.properties[this.dataExchangeService.FEATURE_NAME_PROPERTY_NAME];
+        feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
     });
 
     const uniqueMapRef = 'geoMapChart';
@@ -1475,9 +1473,9 @@ export class DiagramHelperServiceService {
     }
 
     if (
-      this.dataExchangeService.configMeanDataDisplay == 'both' ||
+      this.envConfigService.configMeanDataDisplay == 'both' ||
       (regionalMeanUsed == false &&
-        this.dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')
+        this.envConfigService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable')
     ) {
       lineOption.series.push(meanLine);
       lineOption.legend.data.push(this.labelService.rankingChartAverageLabel);
@@ -1864,8 +1862,8 @@ export class DiagramHelperServiceService {
   containsZeroValues(geoJSON, date) {
     let propertyName = date;
 
-    if (!propertyName.includes(this.dataExchangeService.indicatorDatePrefix)) {
-      propertyName = this.dataExchangeService.indicatorDatePrefix + propertyName;
+    if (!propertyName.includes(this.envConfigService.indicatorDatePrefix)) {
+      propertyName = this.envConfigService.indicatorDatePrefix + propertyName;
     }
 
     let containsZeroValues = false;

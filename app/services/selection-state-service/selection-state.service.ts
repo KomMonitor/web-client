@@ -27,6 +27,9 @@ export class SelectionStateService {
   selectedSpatialUnit: any;
   selectedDate: any;
 
+  /** Whether the indicator date picker is disabled (set when a balance is shown). */
+  disableIndicatorDatePicker!: boolean;
+
   allFeaturesPropertyUnit = signal<any>(undefined);
   allFeaturesNumberOfFeatures = signal<any>(undefined);
   allFeaturesSum = signal<any>(undefined);
