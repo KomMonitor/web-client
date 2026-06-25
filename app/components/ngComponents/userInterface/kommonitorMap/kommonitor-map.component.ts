@@ -4,6 +4,7 @@ import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -164,6 +165,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
     private spatialUnitStore: SpatialUnitMetadataStoreService,
@@ -809,7 +811,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     for (let spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
       if (spatialUnit.isOutlineLayer) {
 
-        let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+        let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
           "/spatial-units/" + spatialUnit.spatialUnitId + "/allFeatures";
 
         this.http.get(url).subscribe((response: any) => {

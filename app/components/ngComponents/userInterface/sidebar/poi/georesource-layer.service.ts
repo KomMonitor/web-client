@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
+import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MapService } from "services/map-service/map.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
@@ -36,6 +36,7 @@ export class GeoresourceLayerService {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private mapService: MapService,
@@ -184,7 +185,7 @@ export class GeoresourceLayerService {
     this.broadcastService.broadcast("showLoadingIconOnMap");
     const date = this.getQueryDate(resource);
     const [year, month, day] = date.split("-");
-    const url = `${this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
+    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
     this.http.get(url).subscribe({
       next: (response) => {
         resource.geoJSON = response;
@@ -239,7 +240,7 @@ export class GeoresourceLayerService {
   getExportLinkForGeoresource(resource: GeoresourcesDataset) {
     const date = this.getQueryDate(resource);
     const [year, month, day] = date.split("-");
-    const url = `${this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
+    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
     const fileName = `${resource.datasetName}-${year}-${month}-${day}`;
     this.http.get(url).subscribe({
       next: (response) => {

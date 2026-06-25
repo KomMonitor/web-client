@@ -70,6 +70,18 @@ export class CacheHelperServiceService {
     }
   }
 
+  /**
+   * Base URL for spatial-resource GET requests against the Data Management API,
+   * combining the configured API base URL with the auth-dependent path
+   * (`/public` vs ``). Owns this because the auth path lives here.
+   */
+  getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
+    return (
+      this.envConfigService.baseUrlToKomMonitorDataAPI +
+      this.spatialResourceGETUrlPath_forAuthentication
+    );
+  }
+
   async fetchLastDatabaseModificationObject(): Promise<any> {
     try {
       this.lastDatabaseModificationInfo = await firstValueFrom(

@@ -3,6 +3,7 @@ import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
@@ -58,6 +59,7 @@ export interface GeoJSONFeature {
 export class ReachabilityCombinerService {
   private reachabilityHelperService = inject(ReachabilityHelperService);
   private dataExchangeService = inject(DataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private http = inject(HttpClient);
   private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
@@ -353,7 +355,7 @@ export class ReachabilityCombinerService {
 
     // fetch from management API
     const url =
-      this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       '/georesources/' +
       this.selectedStartPointLayer.georesourceId +
       '/' +

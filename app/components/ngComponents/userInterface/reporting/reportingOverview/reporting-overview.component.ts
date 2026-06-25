@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import * as d3 from 'd3';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
@@ -54,6 +55,7 @@ export class ReportingOverviewComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private indicatorStore: IndicatorMetadataStoreService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
     private http: HttpClient,
@@ -850,7 +852,7 @@ export class ReportingOverviewComponent implements OnInit {
     //async
 		getSpatialUnitByName(spatialUnitName): Promise<any> {
 			let url;
-			url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units"
+			url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units"
 			// send request
 
       return new Promise(resolve => {
@@ -877,7 +879,7 @@ export class ReportingOverviewComponent implements OnInit {
     // async
 		getSpatialUnitByIndicator(indicatorId, spatialUnitName): Promise<any> {
 			let url;
-			url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId;
+			url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId;
 
       return new Promise(resolve => {
         this.http.get(url).subscribe({
@@ -1157,10 +1159,10 @@ export class ReportingOverviewComponent implements OnInit {
 				let year = date[0]
 				let month = date[1]
 				let day = date[2]
-				url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+				url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 					"/spatial-units/" + spatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day; 
 			} else {
-				url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+				url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 					"/indicators/" + indicatorId + "/" + spatialUnit.spatialUnitId;
 			}
 

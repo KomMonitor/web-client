@@ -448,13 +448,6 @@ export class DataExchangeService {
     }, 1000);
   }
 
-  getBaseUrlToKomMonitorDataAPI_spatialResource() {
-    return (
-      this.envConfigService.baseUrlToKomMonitorDataAPI +
-      this.cacheHelperService.spatialResourceGETUrlPath_forAuthentication
-    );
-  }
-
   onChangeIndicatorKeywordFilter(indicatorNameFilter) {
     this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
   }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -11,6 +12,7 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
 })
 export class KommonitorGeoresourceDataExchangeService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
@@ -91,10 +93,10 @@ export class KommonitorGeoresourceDataExchangeService {
   }
 
   /**
-   * Get base URL to KomMonitor Data API for spatial resources - delegates to AngularJS service
+   * Get base URL to KomMonitor Data API for spatial resources - delegates to CacheHelperService
    */
   getBaseUrlToKomMonitorDataAPI_spatialResource(): string {
-    return this.angularJsDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() || '';
+    return this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() || '';
   }
 
   /**

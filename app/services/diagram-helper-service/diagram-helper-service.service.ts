@@ -1,6 +1,7 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -18,6 +19,7 @@ import * as ecStat from 'echarts-stat';
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
   private dataExchangeService = inject(DataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private filterHelperService = inject(FilterHelperService);
   private http = inject(HttpClient);
@@ -231,7 +233,7 @@ export class DiagramHelperServiceService {
 
   setIndicatorProperties(index) {
     const url =
-      this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       '/indicators/' +
       this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId +
       '/' +
@@ -249,7 +251,7 @@ export class DiagramHelperServiceService {
 
   fetchIndicatorProperties(indicatorMetadata, spatialUnitId) {
     const url =
-      this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       '/indicators/' +
       indicatorMetadata.indicatorId +
       '/' +

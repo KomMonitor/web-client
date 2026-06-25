@@ -7,6 +7,7 @@ import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -22,6 +23,7 @@ export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private genericMapHelperService = inject(GenericMapHelperService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
@@ -638,7 +640,7 @@ export class ReachabilityMapHelperService {
     timestamp: string
   ): Promise<any> {
     const [year, month, day] = timestamp.split('-');
-    const url = `${this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${this.dataExchangeService.simplifyGeometriesParameterName}=${this.dataExchangeService.simplifyGeometries}`;
+    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${this.dataExchangeService.simplifyGeometriesParameterName}=${this.dataExchangeService.simplifyGeometries}`;
     return await lastValueFrom(this.http.get(url));
   }
 

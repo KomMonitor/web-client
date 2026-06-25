@@ -3,6 +3,7 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -141,6 +142,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
     private spatialUnitStore: SpatialUnitMetadataStoreService,
@@ -715,11 +717,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       // fallback option, if no valid date could be used
       datePath = "allFeatures";
     }
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+    let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       "/spatial-units/" + selectedSpatialUnitId + "/" + datePath;
     
     if (selectionType === "byFeature" && upperSpatialUnitId)
-      url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
       "/spatial-units/" + upperSpatialUnitId + "/" + datePath;
 
     

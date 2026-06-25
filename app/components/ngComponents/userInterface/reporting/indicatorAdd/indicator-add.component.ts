@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -185,6 +186,7 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
     protected georesourceStore: GeoresourceMetadataStoreService,
@@ -1123,7 +1125,7 @@ export class IndicatorAddComponent implements OnInit {
     let month = timestampSplit[1];
     let day = timestampSplit[2];
 
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()
+    let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()
     url += "/georesources/" + georesource.georesourceId + "/" + year + "/" + month + "/" + day
 
     return this.httpClient.get(url);
@@ -1343,10 +1345,10 @@ export class IndicatorAddComponent implements OnInit {
       let year = date[0]
       let month = date[1]
       let day = date[2]
-      url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
         "/spatial-units/" + spatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day; 
     } else {
-      url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
         "/indicators/" + indicatorId + "/" + spatialUnit.spatialUnitId;
     }
     // send request

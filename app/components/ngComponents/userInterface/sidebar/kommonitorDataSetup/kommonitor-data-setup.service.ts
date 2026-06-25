@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
+import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
@@ -23,6 +23,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private readonly selectionState = inject(SelectionStateService);
   private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -255,7 +256,7 @@ export class KommonitorDataSetupService {
 
     const [year, month, day] = date.split("-");
     const { spatialUnitId } = this.selectionState.selectedSpatialUnit;
-    const base = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource();
+    const base = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource();
     const simplify = `${this.dataExchangeService.simplifyGeometriesParameterName}=${this.dataExchangeService.simplifyGeometries}`;
     const url = `${base}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${simplify}`;
 

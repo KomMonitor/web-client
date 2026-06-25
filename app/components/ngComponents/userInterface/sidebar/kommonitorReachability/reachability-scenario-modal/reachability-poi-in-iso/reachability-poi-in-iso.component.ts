@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
@@ -42,6 +43,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private diagramHelperService: DiagramHelperServiceService,
@@ -215,7 +217,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     var month = dateComps[1];
     var day = dateComps[2];
 
-    let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
+    let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
 
     return new Promise((resolve, reject) => {
       this.http.get(url).subscribe({

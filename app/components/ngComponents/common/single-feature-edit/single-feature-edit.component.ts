@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
 import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
@@ -46,6 +47,7 @@ export class SingleFeatureEditComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     protected singleFeatureMapHelperService: SingleFeatureMapHelperService,
     private broadcastService: BroadcastService,
@@ -176,7 +178,7 @@ export class SingleFeatureEditComponent implements OnInit {
     // only fetch more details if possible - that is - if data is actually stored in database
     if (!this.isReachabilityDatasetOnly) {
 
-      let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/schema";
+      let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/schema";
 
       this.http.get(url).subscribe({
         next: response => {
@@ -247,7 +249,7 @@ export class SingleFeatureEditComponent implements OnInit {
     // only fetch data from db if it is not reachability dataset and if it has not been fetched before!				
     if (!this.isReachabilityDatasetOnly && !this.georesourceFeaturesGeoJSON) {
       // add data layer to singleFeatureMap
-      let url = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/allFeatures";
+      let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/allFeatures";
       
       this.http.get(url).subscribe({
         next: response => {

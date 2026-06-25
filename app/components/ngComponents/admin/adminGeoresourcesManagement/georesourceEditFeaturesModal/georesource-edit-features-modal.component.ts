@@ -18,6 +18,7 @@ import { SingleFeatureEditComponent } from 'components/ngComponents/common/singl
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { DATE_PICKER_OPTIONS } from 'services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -36,6 +37,7 @@ declare const __env: any;
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(DataExchangeService);
+  private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
@@ -295,7 +297,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     console.log('Starting refresh of georesource features table...');
     this.loadingData = true;
 
-    const url = `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`;
+    const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${this.currentGeoresourceDataset.georesourceId}/allFeatures`;
     console.log('Fetching from URL:', url);
 
     this.http.get(url).subscribe({
