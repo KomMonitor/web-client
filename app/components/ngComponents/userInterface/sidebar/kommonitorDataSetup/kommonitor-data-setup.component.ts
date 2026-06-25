@@ -5,6 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
+import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
@@ -43,6 +44,7 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
 export class KommonitorDataSetupComponent implements OnInit {
   protected dataExchangeService = inject(DataExchangeService);
   protected readonly selectionState = inject(SelectionStateService);
+  protected readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly indicatorStore = inject(IndicatorMetadataStoreService);
   private readonly broadcastService = inject(BroadcastService);
@@ -125,7 +127,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.preppedIndicatorTopics =
       this.dataSetupService.prepareIndicatorTopicsRecursive(
-        this.dataExchangeService.topicIndicatorHierarchy,
+        this.topicHierarchyStore.topicIndicatorHierarchy,
         this.topicSorting,
       );
     this.preppedKeywordList =
@@ -242,14 +244,14 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.favStateService.indicatorFavTopicsTree =
       this.dataSetupService.prepTopicsTree(
-        this.dataExchangeService.topicIndicatorHierarchy,
+        this.topicHierarchyStore.topicIndicatorHierarchy,
         0,
         undefined,
       );
   }
 
   prepareHeadlineIndicatorTopics() {
-    this.dataExchangeService.headlineIndicatorHierarchy.forEach((elem: any) => {
+    this.topicHierarchyStore.headlineIndicatorHierarchy.forEach((elem: any) => {
       if (
         !this.headlineTopicsCollapsed.includes(
           elem.headlineIndicator.indicatorId,
@@ -299,7 +301,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
     this.preppedIndicatorTopics =
       this.dataSetupService.prepareIndicatorTopicsRecursive(
-        this.dataExchangeService.topicIndicatorHierarchy,
+        this.topicHierarchyStore.topicIndicatorHierarchy,
         this.topicSorting,
       );
   }

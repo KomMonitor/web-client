@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
@@ -43,6 +44,7 @@ export class PoiComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private topicHierarchyStore: TopicHierarchyStoreService,
     protected georesourceStore: GeoresourceMetadataStoreService,
     protected layerService: GeoresourceLayerService,
     protected favoritesService: GeoresourceFavoritesService,
@@ -185,7 +187,7 @@ export class PoiComponent implements OnInit {
     if (resource.isSelected) {
       this.layerService.addGeoresourceLayerToMap(resource);
     } else {
-      for (const topic of this.dataExchangeService.topicGeoresourceHierarchy) {
+      for (const topic of this.topicHierarchyStore.topicGeoresourceHierarchy) {
         if (topic.topicId === resource.topicReference) topic.isSelected = false;
       }
       this.layerService.removeGeoresourceLayerFromMap(resource);

@@ -140,8 +140,21 @@ In aufsteigender Konsumentenzahl:
       Alle Facade-Getter/Setter/Wrapper entfernt (3 State-get/set + `selectedDate$` + 14 Aggregate-Getter + 5 Methoden).
       **Class C/E = 0** (keine Delegation/Local-Impl — einfacher als B3). Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün.
       ⚠️ **Offen: Smoke-Test** Karte + Diagramme + Legende + Reachability (selection-getriebenes Rendering) vor Release.
-- [ ] **B5 `TopicHierarchyStoreService`** — Builder-Wrapper (`buildTopic*Hierarchy`) lesen
-      Facade-State und reichen ihn durch → mitmigrieren oder bewusst behalten.
+- [x] **B5 `TopicHierarchyStoreService`** ✅ (2026-06-25). **13 Konsumenten-Dateien** (11 `.ts` + 2 `.html`)
+      auf `topicHierarchyStore` umgehängt — die 5 Member `headlineIndicatorHierarchy`,
+      `computationIndicatorHierarchy`, `topicIndicatorHierarchy`, `topicGeoresourceHierarchy`,
+      `topicGeoresourceHierarchy_unmappedEntries`. Reiner Receiver-Swap. Alias-Korrektur: admin-dashboard
+      injiziert die Facade als `dataExchange` (nicht `dataExchangeService`). Bei 6 Dateien, deren
+      Facade-Injection ausschließlich für ein migriertes Member da war (beide Pipes, favorites-state-,
+      georesource-filter-/-favorites-service, catalogue-tab), wurde die Injection komplett auf den Store
+      umgestellt (B1-Muster); die übrigen behielten ihre Facade-Injection. Facade-interner Read repointet
+      (`topicIndicatorHierarchy_forOrderView`-Deep-Copy auf `topicHierarchyStore.topicIndicatorHierarchy`),
+      alle 5 Getter + ungenutzter `IndicatorsTopicsHierarchy`-Import entfernt. **Bewusst behalten:** private
+      `build*Hierarchy`-Wrapper + `getTopicHierarchyForTopicId` (Facade-interne Metadaten-Fetch-Orchestrierung),
+      `topicIndicatorHierarchy_forOrderView` (Facade-eigenes Feld) + dessen Konsument admin-indicators-management.
+      Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün.
+      ⚠️ **Offen: Smoke-Test** Daten-Setup (Themenbaum + Favoriten), POI-Katalog-Tab, Admin-Dashboard-
+      Tortendiagramm, Indikator-Radar (hierarchie-getriebenes Rendering) vor Release.
 
 **Glue-Wrapper, die nicht 1:1 umhängbar sind** (mitmigrieren oder bewusst behalten):
 Precision-Formatter, `modifyIndicatorApplicableSpatialUnitsForLoginRoles`, B5-Builder-Wrapper.

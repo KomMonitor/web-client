@@ -55,7 +55,7 @@
 
       <li
         class="nav-item"
-        *ngIf="dataExchangeService.headlineIndicatorHierarchy.length"
+        *ngIf="topicHierarchyStore.headlineIndicatorHierarchy.length"
       >
         <a
           class="nav-link"
@@ -109,7 +109,7 @@
           >
             <div
               id="indicator-symbol-explanation"
-              *ngIf="dataExchangeService.headlineIndicatorHierarchy.length"
+              *ngIf="topicHierarchyStore.headlineIndicatorHierarchy.length"
             >
               <label>Erläuterungen zur Symbolik</label>
               <div
@@ -172,7 +172,7 @@
         id="dataCatalogueTab2Content"
         role="tabpanel"
         aria-labelledby="dataCatalogueTab2"
-        *ngIf="dataExchangeService.headlineIndicatorHierarchy.length"
+        *ngIf="topicHierarchyStore.headlineIndicatorHierarchy.length"
       >
         <div class="just-padding">
           <div
@@ -208,7 +208,7 @@
 
             <div
               *ngFor="
-                let item of dataExchangeService.headlineIndicatorHierarchy
+                let item of topicHierarchyStore.headlineIndicatorHierarchy
               "
             >
               <div

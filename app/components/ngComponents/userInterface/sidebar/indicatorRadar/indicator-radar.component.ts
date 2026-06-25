@@ -4,6 +4,7 @@ import * as echarts from 'echarts';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -52,6 +53,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     protected dataExchangeService: DataExchangeService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
+    private topicHierarchyStore: TopicHierarchyStoreService,
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService,
     private envConfigService: EnvConfigService
@@ -94,7 +96,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.selectionState.selectedIndicator.indicatorId);
       this.propertiesForBaseIndicatorsOfCurrentHeadlineIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => {
 
-        var headlineIndicatorEntry = this.dataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
+        var headlineIndicatorEntry = this.topicHierarchyStore.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
 
         if(headlineIndicatorEntry){
           var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);

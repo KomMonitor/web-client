@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
 import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
 import { GeoresourceFilterService } from "components/ngComponents/userInterface/sidebar/poi/georesource-filter.service";
@@ -42,7 +42,7 @@ export class GeoresourceCatalogueTabComponent {
   showAllForTopic_null = false;
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected topicHierarchyStore: TopicHierarchyStoreService,
     protected layerService: GeoresourceLayerService,
     protected favoritesService: GeoresourceFavoritesService,
     protected filterService: GeoresourceFilterService,

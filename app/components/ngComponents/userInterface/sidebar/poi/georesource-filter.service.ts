@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
@@ -12,7 +12,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
  */
 @Injectable({ providedIn: 'root' })
 export class GeoresourceFilterService {
-  private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
   private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly envConfigService = inject(EnvConfigService);
 
@@ -40,7 +40,7 @@ export class GeoresourceFilterService {
   /** (Re)builds the keyword/type-filtered topic hierarchy for the catalogue. */
   refreshPreppedHierarchy(): void {
     this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(
-      this.dataExchangeService.topicGeoresourceHierarchy,
+      this.topicHierarchyStore.topicGeoresourceHierarchy,
     );
   }
 

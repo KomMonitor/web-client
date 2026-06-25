@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { FavService } from "services/fav-service/fav.service";
 import { WmsDataset } from "components/ngComponents/models/services.models";
 
@@ -16,7 +16,7 @@ import { WmsDataset } from "components/ngComponents/models/services.models";
 @Injectable({ providedIn: "root" })
 export class GeoresourceFavoritesService {
   private readonly favService = inject(FavService);
-  private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
   private readonly broadcastService = inject(BroadcastService);
 
   georesourceFavTopicsTree: any[] = [];
@@ -41,7 +41,7 @@ export class GeoresourceFavoritesService {
   /** Builds the flattened favourites topic tree from the topic hierarchy. */
   buildFavTopicsTree(): void {
     this.georesourceFavTopicsTree = this.prepTopicsTree(
-      this.dataExchangeService.topicGeoresourceHierarchy,
+      this.topicHierarchyStore.topicGeoresourceHierarchy,
       0,
       undefined,
     );
@@ -114,13 +114,13 @@ export class GeoresourceFavoritesService {
   onGeoresourceTopicFavClick(topicId, favTab = false) {
     if (!this.georesourceTopicFavItems.includes(topicId))
       this.searchGeoresourceTopicFavItemsRecursive(
-        this.dataExchangeService.topicGeoresourceHierarchy,
+        this.topicHierarchyStore.topicGeoresourceHierarchy,
         topicId,
         true,
       );
     else
       this.searchGeoresourceTopicFavItemsRecursive(
-        this.dataExchangeService.topicGeoresourceHierarchy,
+        this.topicHierarchyStore.topicGeoresourceHierarchy,
         topicId,
         false,
       );

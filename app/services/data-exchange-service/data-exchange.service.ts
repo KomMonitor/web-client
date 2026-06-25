@@ -6,10 +6,7 @@ import {
   PoiSize,
 } from './data-exchange.constants';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
-import {
-  IndicatorsDataset,
-  IndicatorsTopicsHierarchy,
-} from 'components/ngComponents/models/indicators.models';
+import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -357,22 +354,9 @@ export class DataExchangeService {
   },
 ]; */
 
-  // Prio7 B5: hierarchy results live in TopicHierarchyStoreService; facade getters keep consumers unchanged
-  get headlineIndicatorHierarchy(): any[] {
-    return this.topicHierarchyStore.headlineIndicatorHierarchy;
-  }
-  get computationIndicatorHierarchy(): any[] {
-    return this.topicHierarchyStore.computationIndicatorHierarchy;
-  }
-  get topicIndicatorHierarchy(): IndicatorsTopicsHierarchy[] {
-    return this.topicHierarchyStore.topicIndicatorHierarchy;
-  }
-  get topicGeoresourceHierarchy(): any[] {
-    return this.topicHierarchyStore.topicGeoresourceHierarchy;
-  }
-  get topicGeoresourceHierarchy_unmappedEntries(): any {
-    return this.topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries;
-  }
+  // Prio7 B5: hierarchy results live in TopicHierarchyStoreService; consumers read them
+  // directly from the store now (facade getters removed). The build* wrappers below stay
+  // because they drive the facade-internal metadata-fetch orchestration.
   currentKeycloakUser!: KeycloakProfile;
 
   setMetadataState(state: MetadataLoadingState) {
@@ -466,7 +450,7 @@ export class DataExchangeService {
         this.buildHeadlineIndicatorHierarchy();
         this.buildTopicIndicatorHierarchy();
         this.topicIndicatorHierarchy_forOrderView = JSON.parse(
-          JSON.stringify(this.topicIndicatorHierarchy)
+          JSON.stringify(this.topicHierarchyStore.topicIndicatorHierarchy)
         );
         this.buildComputationIndicatorHierarchy();
 

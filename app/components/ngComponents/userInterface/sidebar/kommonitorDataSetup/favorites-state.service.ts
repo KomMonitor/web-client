@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { FavService } from "services/fav-service/fav.service";
 
 @Injectable({
@@ -8,7 +8,7 @@ import { FavService } from "services/fav-service/fav.service";
 })
 export class FavoritesStateService {
   private readonly favService = inject(FavService);
-  private readonly dataExchangeService = inject(DataExchangeService);
+  private readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
   private readonly broadcastService = inject(BroadcastService);
 
   indicatorFavTopicsTree: any[] = [];
@@ -41,7 +41,7 @@ export class FavoritesStateService {
   onIndicatorTopicFavClick(topicId: string): void {
     const selected = !this.indicatorTopicFavItems.includes(topicId);
     this.searchIndicatorTopicFavItemsRecursive(
-      this.dataExchangeService.topicIndicatorHierarchy,
+      this.topicHierarchyStore.topicIndicatorHierarchy,
       topicId,
       selected,
     );
@@ -128,7 +128,7 @@ export class FavoritesStateService {
   }
 
   private checkBaseIndicatorFavItems(id: string, selected: boolean): void {
-    this.dataExchangeService.headlineIndicatorHierarchy.forEach((entry: any) => {
+    this.topicHierarchyStore.headlineIndicatorHierarchy.forEach((entry: any) => {
       if (entry.headlineIndicator.indicatorId === id) {
         entry.baseIndicators.forEach((base: any) => {
           if (selected) {

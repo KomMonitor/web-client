@@ -159,7 +159,7 @@
     <div
       class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0"
       *ngIf="
-        dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+        topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries
           .totalCount > 0
       "
     >
@@ -177,7 +177,7 @@
         (click)="toggleNoTopicHierarchy()"
       >
         ohne Themenbezug ({{
-          dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+          topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries
             .totalCount
         }})
       </p>
@@ -196,13 +196,13 @@
       <div
         class="georesourceInputForm"
         *ngIf="
-          dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+          topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries
             .totalCount > 0
         "
       >
         <app-georesource-dataset-table
           [datasets]="
-            dataExchangeService.topicGeoresourceHierarchy_unmappedEntries
+            topicHierarchyStore.topicGeoresourceHierarchy_unmappedEntries
           "
           [showFavSelection]="showFavSelection"
           [showPerDatasetDateColumn]="layerService.isPerDatasetDate"
