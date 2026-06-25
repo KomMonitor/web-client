@@ -2,7 +2,7 @@ import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -186,7 +186,7 @@ export class IndicatorAddComponent implements OnInit {
   pagePreparationSize;
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected mapOverlayState: MapOverlayStateService,
     private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
@@ -222,7 +222,7 @@ export class IndicatorAddComponent implements OnInit {
     // originally called by "reportingConfigureNewIndicatorShown" when +Indicator clicked
     this.initialize();
 
-    //this.baseMapSelect = new FormControl(this.dataExchangeService.baseLayerDefinitionsArray[0]);
+    //this.baseMapSelect = new FormControl(this.mapOverlayState.baseLayerDefinitionsArray[0]);
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
       let title = broadcastMsg.msg;
@@ -294,7 +294,7 @@ export class IndicatorAddComponent implements OnInit {
     this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
     this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.sort(this.sortByindicatorName);
 
-	  this.selectedBaseMap = this.dataExchangeService.baseLayerDefinitionsArray[1];
+	  this.selectedBaseMap = this.mapOverlayState.baseLayerDefinitionsArray[1];
 
     this.loadingData = false;
   }

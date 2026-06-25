@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MapOverlayStateService } from "services/map-overlay-state-service/map-overlay-state.service";
 import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
@@ -26,6 +27,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private mapOverlayState = inject(MapOverlayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private readonly metadataFilterService = inject(MetadataFilterService);
@@ -205,16 +207,16 @@ export class KommonitorDataSetupService {
   }
 
   modifyExports(_changeIndicator: boolean): void {
-    this.dataExchangeService.wmsUrlForSelectedIndicator = undefined;
-    this.dataExchangeService.wfsUrlForSelectedIndicator = undefined;
+    this.mapOverlayState.wmsUrlForSelectedIndicator = undefined;
+    this.mapOverlayState.wfsUrlForSelectedIndicator = undefined;
 
     const selectedSpatialUnitName =
       this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
     for (const ogcServiceEntry of this.selectionState.selectedIndicator.ogcServices) {
       if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName) {
-        this.dataExchangeService.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
-        this.dataExchangeService.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
+        this.mapOverlayState.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
+        this.mapOverlayState.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
         break;
       }
     }
@@ -232,12 +234,12 @@ export class KommonitorDataSetupService {
   }
 
   updateIndicatorOgcServices([indicatorWmsUrl, indicatorWfsUrl]: [string, string]): void {
-    this.dataExchangeService.wmsUrlForSelectedIndicator = indicatorWmsUrl;
-    this.dataExchangeService.wfsUrlForSelectedIndicator = indicatorWfsUrl;
+    this.mapOverlayState.wmsUrlForSelectedIndicator = indicatorWmsUrl;
+    this.mapOverlayState.wfsUrlForSelectedIndicator = indicatorWfsUrl;
   }
 
   handleWmsOnMap(dataset: WmsDataset): void {
-    this.dataExchangeService.wmsLegendImage = undefined;
+    this.mapOverlayState.wmsLegendImage = undefined;
 
     if (dataset.isSelected) {
       const opacity = 1 - dataset.transparency;

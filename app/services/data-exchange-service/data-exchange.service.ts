@@ -26,21 +26,15 @@ export class DataExchangeService {
   disableIndicatorDatePicker!: boolean;
   indicatorDatePrefix!: string;
   selectedIndicatorBackup!: IndicatorsDataset;
-  wmsUrlForSelectedIndicator: any;
-  wfsUrlForSelectedIndicator: any;
-  wmsLegendImage: any;
   rangeFilterData: any;
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName: any;
   simplifyGeometries: any;
   FEATURE_NAME_PROPERTY_NAME: any;
-  reachabilityScenarioOnMainMap: any;
-  isochroneLegend: any = false;
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
   rangeFilterIsApplied: any;
-  baseLayerDefinitionsArray!: any[];
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 }

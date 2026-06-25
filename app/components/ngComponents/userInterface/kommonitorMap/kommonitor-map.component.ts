@@ -4,6 +4,7 @@ import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -167,6 +168,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private mapOverlayState: MapOverlayStateService,
     private chartDisplayState: ChartDisplayStateService,
     private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
@@ -523,7 +525,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.loadingData = true;
 
     let baseLayerDefinitionsMap = new Map();
-    this.dataExchangeService.baseLayerDefinitionsArray = [{
+    this.mapOverlayState.baseLayerDefinitionsArray = [{
       "layerConfig": {
         name: "leere Karte",
         url: "",
@@ -540,21 +542,21 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE") {
         let grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
         baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
-        this.dataExchangeService.baseLayerDefinitionsArray.push({
+        this.mapOverlayState.baseLayerDefinitionsArray.push({
           "layerConfig": baseMapEntry
         });
       }
       else if (baseMapEntry.layerType === "TILE_LAYER") {
         let tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
         baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
-        this.dataExchangeService.baseLayerDefinitionsArray.push({
+        this.mapOverlayState.baseLayerDefinitionsArray.push({
           "layerConfig": baseMapEntry
         });
       }
       else if (baseMapEntry.layerType === "WMS") {
         let wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
         baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
-        this.dataExchangeService.baseLayerDefinitionsArray.push({
+        this.mapOverlayState.baseLayerDefinitionsArray.push({
           "layerConfig": baseMapEntry
         });
       }
@@ -3711,7 +3713,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.map.removeLayer(this.isochroneLayer);
     }
 
-    this.dataExchangeService.reachabilityScenarioOnMainMap = false;
+    this.mapOverlayState.reachabilityScenarioOnMainMap = false;
   };
 
   replaceReachabilityScenarioOnMainMap([reachabilityScenario]) {
@@ -3734,7 +3736,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.markerLayer = this.reachabilityMapHelperService.makeIsochroneMarkerLayer(locationsArray);
 
-    this.dataExchangeService.reachabilityScenarioOnMainMap = true;
+    this.mapOverlayState.reachabilityScenarioOnMainMap = true;
 
     this.isochroneLayer = this.reachabilityMapHelperService
       .makeIsochroneLayer(

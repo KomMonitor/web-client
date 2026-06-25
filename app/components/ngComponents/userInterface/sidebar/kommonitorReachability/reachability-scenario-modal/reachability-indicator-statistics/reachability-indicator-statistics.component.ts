@@ -2,7 +2,7 @@ import { ReachabilityMapHelperService } from 'services/reachability-map-helper-s
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -59,7 +59,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   }
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected mapOverlayState: MapOverlayStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,

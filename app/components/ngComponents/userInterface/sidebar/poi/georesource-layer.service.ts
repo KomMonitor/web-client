@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MapOverlayStateService } from "services/map-overlay-state-service/map-overlay-state.service";
 import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
@@ -38,7 +38,7 @@ export class GeoresourceLayerService {
   private timeout_manualdate: any;
 
   constructor(
-    private dataExchangeService: DataExchangeService,
+    private mapOverlayState: MapOverlayStateService,
     private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
@@ -279,7 +279,7 @@ export class GeoresourceLayerService {
   }
 
   handleWmsOnMap(dataset) {
-    this.dataExchangeService.wmsLegendImage = undefined;
+    this.mapOverlayState.wmsLegendImage = undefined;
     console.log("Toggle WMS: " + dataset.title);
 
     if (dataset.isSelected) {

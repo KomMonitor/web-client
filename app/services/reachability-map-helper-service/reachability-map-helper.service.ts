@@ -7,6 +7,7 @@ import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -24,6 +25,7 @@ export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private mapOverlayState = inject(MapOverlayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -218,10 +220,10 @@ export class ReachabilityMapHelperService {
       click: () => {
         let isochroneValue = layer.feature.properties.value;
 
-        if (this.dataExchangeService.isochroneLegend.reachMode_apiValue === 'time') {
+        if (this.mapOverlayState.isochroneLegend.reachMode_apiValue === 'time') {
           isochroneValue /= 60; // transform seconds to minutes
         }
-        const popupContent = `${isochroneValue} ${this.dataExchangeService.isochroneLegend.cutOffUnit}`;
+        const popupContent = `${isochroneValue} ${this.mapOverlayState.isochroneLegend.cutOffUnit}`;
 
         if (popupContent) {
           layer.bindPopup(`Isochrone: ${JSON.stringify(popupContent)}`);
@@ -317,7 +319,7 @@ export class ReachabilityMapHelperService {
         transitModeValue = 'Passant';
     }
 
-    this.dataExchangeService.isochroneLegend = {
+    this.mapOverlayState.isochroneLegend = {
       datasetName,
       transitMode: transitModeValue,
       reachMode: reachModeValue,
@@ -329,7 +331,7 @@ export class ReachabilityMapHelperService {
 
     const colors = ['green', 'yellow', 'orange', 'red', 'brown'];
     const sortedCutoffs = [...cutOffValues].sort((a, b) => a - b);
-    this.dataExchangeService.isochroneLegend.colorValueEntries = sortedCutoffs
+    this.mapOverlayState.isochroneLegend.colorValueEntries = sortedCutoffs
       .map((value, index) => ({
         color: colors[index % colors.length],
         value: value,
@@ -346,11 +348,11 @@ export class ReachabilityMapHelperService {
       const feature = geoJSON.features[i];
       const styleIndex = this.getStyleIndexForFeature(
         feature,
-        this.dataExchangeService.isochroneLegend.colorValueEntries,
+        this.mapOverlayState.isochroneLegend.colorValueEntries,
         reachMode
       );
       const style = {
-        color: this.dataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
+        color: this.mapOverlayState.isochroneLegend.colorValueEntries[styleIndex].color,
         weight: 1,
         opacity: 0.4,
         fillOpacity: 0.3,
@@ -894,11 +896,11 @@ export class ReachabilityMapHelperService {
     for (let i = isochrones.length - 1; i >= 0; i--) {
       const styleIndex = this.getStyleIndexForFeature(
         isochrones[i],
-        this.dataExchangeService.isochroneLegend.colorValueEntries,
-        this.dataExchangeService.isochroneLegend.reachMode_apiValue
+        this.mapOverlayState.isochroneLegend.colorValueEntries,
+        this.mapOverlayState.isochroneLegend.reachMode_apiValue
       );
       const style = {
-        color: this.dataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
+        color: this.mapOverlayState.isochroneLegend.colorValueEntries[styleIndex].color,
         weight: 1,
         opacity: 0.4,
         fillOpacity: 0.3,

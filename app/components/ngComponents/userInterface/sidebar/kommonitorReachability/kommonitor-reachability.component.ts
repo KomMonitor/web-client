@@ -1,6 +1,6 @@
 import { MapService } from 'services/map-service/map.service';
 import { Component, OnInit } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReachabilityScenarioModalComponent } from './reachability-scenario-modal/reachability-scenario-modal.component';
@@ -61,7 +61,7 @@ export class KommonitorReachabilityComponent implements OnInit {
   loading$ = this.reachabilityCombinerService.loadingState$;
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected mapOverlayState: MapOverlayStateService,
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     private mapService: MapService,
     private modalService: NgbModal,

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
@@ -39,7 +39,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   constructor(
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
-    protected dataExchangeService: DataExchangeService,
+    protected mapOverlayState: MapOverlayStateService,
     private broadcastService: BroadcastService,
     private reachabilityCombinerService: ReachabilityCombinerService
   ) {
@@ -161,7 +161,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
     this.reachabilityMapHelperService.removeReachabilityLayers(this.domId);
     this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
-    this.dataExchangeService.isochroneLegend = undefined;
+    this.mapOverlayState.isochroneLegend = undefined;
     // remove any diagram
     this.broadcastService.broadcast("resetPoisInIsochrone");
     this.reachabilityHelperService.settings.loadingData = false;

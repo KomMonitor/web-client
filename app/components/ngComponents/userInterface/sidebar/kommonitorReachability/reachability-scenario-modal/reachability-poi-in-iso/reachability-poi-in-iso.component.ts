@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -44,7 +44,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   constructor(
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
-    protected dataExchangeService: DataExchangeService,
+    protected mapOverlayState: MapOverlayStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
@@ -372,13 +372,13 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       else {
         var reachabilityDiagramsSectionNode: any = document.getElementById("reachability_diagrams_section");
         var newChartNode = document.createElement("div");
-        newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + this.dataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
+        newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + this.mapOverlayState.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
         reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
         // init new echarts instance
         var echartsInstance: any = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
         // use configuration item and data specified to show chart
-        var echartsOptions: any = this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + this.dataExchangeService.isochroneLegend.cutOffUnit, date);
+        var echartsOptions: any = this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + this.mapOverlayState.isochroneLegend.cutOffUnit, date);
         echartsInstance.setOption(echartsOptions);
 
         echartsInstance.hideLoading();

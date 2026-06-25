@@ -110,7 +110,7 @@
 					<hr>
 					<br />
 
-					<div *ngIf="dataExchangeService.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
+					<div *ngIf="mapOverlayState.isochroneLegend.datasetName != reachabilityHelperService.settings.selectedStartPointLayer?.datasetName">
 						<label style="color: red;">Punktdatenquelle des Szenarios ge&auml;ndert - Neuberechnung erforderlich f&uuml;r <i>{{reachabilityHelperService.settings.selectedStartPointLayer?.datasetName}}</i></label>
 					</div>
 
@@ -161,25 +161,25 @@
 								<!-- Legend -->
 								<div class="just-padding">									
 
-									<div [hidden]="!dataExchangeService.isochroneLegend">
+									<div [hidden]="!mapOverlayState.isochroneLegend">
 										<div style="text-align:center">
 											<div class="legend" style="text-align:left">
 												<label>Punktdatenquelle:
 												</label>&nbsp;
-												{{dataExchangeService.isochroneLegend.datasetName}}
+												{{mapOverlayState.isochroneLegend.datasetName}}
 												<br />
 												<label>Fortbewegungsart:
 												</label>&nbsp;
-												{{dataExchangeService.isochroneLegend.transitMode}}
+												{{mapOverlayState.isochroneLegend.transitMode}}
 												<br />
 												<label>Abbruchkriterium: </label>&nbsp;
-												{{dataExchangeService.isochroneLegend.reachMode}}
+												{{mapOverlayState.isochroneLegend.reachMode}}
 												<br />
 												<label>Einheit: </label>&nbsp;
-												{{dataExchangeService.isochroneLegend.cutOffUnit}}
+												{{mapOverlayState.isochroneLegend.cutOffUnit}}
 												<br />
 												<div
-													*ngFor="let entry of dataExchangeService.isochroneLegend.colorValueEntries">
+													*ngFor="let entry of mapOverlayState.isochroneLegend.colorValueEntries">
 													<i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
 													{{entry.value}}
 												</div>

@@ -171,7 +171,7 @@
 
       </div>
 
-      <div class="row" [hidden]="!dataExchangeService.reachabilityScenarioOnMainMap">
+      <div class="row" [hidden]="!mapOverlayState.reachabilityScenarioOnMainMap">
 
         <div class="col-md-2"></div>
 
@@ -179,24 +179,24 @@
           <!-- Legend -->
           <div class="just-padding">
 
-            <div [hidden]="!dataExchangeService.isochroneLegend">
+            <div [hidden]="!mapOverlayState.isochroneLegend">
               <div style="text-align: center">
                 <div class="legend" style="text-align: left">
                   <label>Punktdatenquelle:
                   </label>&nbsp;
-                  {{dataExchangeService.isochroneLegend.datasetName}}
+                  {{mapOverlayState.isochroneLegend.datasetName}}
                   <br />
                   <label>Fortbewegungsart:
                   </label>&nbsp;
-                  {{dataExchangeService.isochroneLegend.transitMode}}
+                  {{mapOverlayState.isochroneLegend.transitMode}}
                   <br />
                   <label>Abbruchkriterium: </label>&nbsp;
-                  {{dataExchangeService.isochroneLegend.reachMode}}
+                  {{mapOverlayState.isochroneLegend.reachMode}}
                   <br />
                   <label>Einheit: </label>&nbsp;
-                  {{dataExchangeService.isochroneLegend.cutOffUnit}}
+                  {{mapOverlayState.isochroneLegend.cutOffUnit}}
                   <br />
-                  <div *ngFor="let entry of dataExchangeService.isochroneLegend.colorValueEntries">
+                  <div *ngFor="let entry of mapOverlayState.isochroneLegend.colorValueEntries">
                     <i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
                     {{entry.value}}
                   </div>
