@@ -142,28 +142,64 @@ Reihenfolge nach Kopplung: erst die State-armen, reinen Seams; der zentrale Cach
 
 ---
 
-## Stand: Teil A + Teil B abgeschlossen (2026-06-25)
+## Teil C — Facade-Restauflösung („B-Rest", Phasen 0–10, 2026-06-25)
+
+Nach Teil B blieb `DataExchangeService` ein **schlanker UI-State-Halter** (~117 Z., nur noch plain mutable Felder, kein Methoden-Wrapper mehr). Teil C löst diesen Rest auf, bis die **Facade ganz verschwindet**. Anders als in Teil B sind es plain Felder, die direkt gelesen **und geschrieben** werden → **Direkt-Repoint** je Cluster (Reads + Writes zusammen, kein Delegations-Zwischenschritt). Pro Cluster ein PR, Felder in einen kohärenten Service oder lokal verschoben. Methodik-Hinweis: der Fan-in wurde nach **injiziertem Typ** ermittelt (die Facade wurde unter 4 Variablennamen injiziert: `dataExchangeService`, `kommonitorDataExchangeService`, `angularJsDataExchangeService`, `service`), nicht nach Variablenname.
+
+| Phase | Schnitt | Ergebnis |
+|---|---|---|
+| **0** | Dead-Code: `selectedDateInit`, `tmpIndicatorGeoJSON`, `anySideBarIsShown` (0 Refs) entfernt | 117 → 111 |
+| **1** | `PoiPresentationService` (`selectedPoiSize`, `availablePoiMarkerColors`, `getLoiDashSvgFromStringValue`); dedupte das doppelte Marker-Color-Array gegen `POI_MARKER_COLORS` | — |
+| **2** | `ChartDisplayStateService` (Balance/Measure-of-Value: `isBalanceChecked`, `indicatorAndMetadataAsBalance`, `isMeasureOfValueChecked`, `measureOfValue`) — 16 Dateien | — |
+| **3** | `MapOverlayStateService` (`isochroneLegend`, `reachabilityScenarioOnMainMap`, `wms/wfsUrlForSelectedIndicator`, `wmsLegendImage`, `baseLayerDefinitionsArray`) — 15 Dateien | — |
+| **4** | `RangeFilterStateService` (`rangeFilterData`, `rangeFilterIsApplied`) | — |
+| **5** | `GeometrySimplificationService` (`simplifyGeometries`, `simplifyGeometriesParameterName`) | — |
+| **6** | `AdminLoginStateService` (`adminUserName/Password/IsLoggedIn`) — inkl. `auth.guard` (funktionaler Guard) | — |
+| **7** | `ExportButtonVisibilityService` (`showDiagram/GeoresourceExportButtons`) | — |
+| **8** | Restfelder aufgelöst → **Facade leer**: `selectedIndicatorBackup`/`classifyZeroSeparately_backup`/`fileDatasets` als **lokales Komponentenfeld** (Single-Consumer); totes `SpatialUnit`-Interface entfernt; `configMeanDataDisplay` (Default in den EnvConfig-Getter gezogen), `disableIndicatorDatePicker` (→ `SelectionStateService`), `indicatorDatePrefix` + `FEATURE_NAME_PROPERTY_NAME` (→ `EnvConfigService`) | 0 Member |
+| **9** | **Leere Facade + Spec gelöscht** + ~45 stale Imports/Injections entfernt | Klasse weg |
+| **10** | `data-exchange.constants.ts` aufgelöst: `MetadataLoadingState` → `metadata-bootstrap.service.ts`, `UPDATE_INTERVAL_LABELS` → `pdf-export.service.ts` (file-private), `DATE_PICKER_OPTIONS` → `util/date-picker.constants.ts` | Ordner weg |
+
+> **Schnitt-Erkenntnisse / Fallstricke (vom Build gefangen, wo nötig):**
+> - **Block-Kommentar-Fallen:** mehrere vermeintliche Live-Konsumenten (`kommonitor-map` WMS/WFS-URL-Zeilen ~1361, diagram-helper `showDiagramExportButtons` ~2527, diverse `datePickerOptions`) lagen in `/* */`-Blöcken → tot. Per `/*`-/`*/`-Balance verifiziert.
+> - **Lokale Shadows:** `regression-diagram` hat **eigene** lokale `measureOfValue`/`isMeasureOfValueChecked`-Felder (kein Facade-State) — nicht angefasst.
+> - **Diagram-helper (Phase 7):** zunächst fälschlich übersprungen (nur der tote Kommentar gesehen) — hatte aber **4 live** `showDiagramExportButtons`-Stellen; der Build fing es, als ADD-Datei nachgezogen.
+> - **`enableScatterPlotRegression` (Phase 9):** wurde per `[(ngModel)]`-Checkbox **ad-hoc auf das Facade-Singleton** geschrieben (deshalb lief es) → in ein echtes lokales Komponentenfeld (TS + Template) überführt.
+> - **`indicator-add-modal` (Phase 9):** 13 vestigiale Truthy-Guards `this.kommonitorDataExchangeService && X` verhaltensneutral aufgelöst (`true && X` ≡ `X`).
+>
+> ⚠️ **Bewusste Verhaltensänderung (Phase 8, vom User freigegeben):** Die Facade-Felder `indicatorDatePrefix`/`FEATURE_NAME_PROPERTY_NAME` wurden **nie geschrieben** → Live-Leser bekamen `undefined` (z. B. `feature.properties[undefined]`, `"undefined"+date`-Property-Namen). Sie lesen jetzt den echten Env-Wert via `EnvConfigService` (Bugfix, konsistent mit den 28+/50+ bestehenden `envConfigService.X`-Nutzungen). Betrifft Legende + Chart-Property-Lookups → **Smoke-Test vor Release** (lokal Keycloak-limitiert).
+
+Aus `DataExchangeService` extrahierte/abgeleitete Services in Teil C: `PoiPresentationService`, `ChartDisplayStateService`, `MapOverlayStateService`, `RangeFilterStateService`, `GeometrySimplificationService`, `AdminLoginStateService`, `ExportButtonVisibilityService` (+ Felder nach `SelectionStateService`/`EnvConfigService`/lokal). Test-Baseline durchgängig grün; je neuer Service ein Spec.
+
+---
+
+## Stand: Prio 7 abgeschlossen — `DataExchangeService` gelöscht (2026-06-25)
 
 Alle geplanten Schnitte ✅. Aus `DataExchangeService` extrahiert: `IndicatorValueService` (B1),
 `MetadataExportService` (B2), `AccessControlService` (B3), `MetadataFilterService` (B4-Indicator),
-`TopicHierarchyStoreService` (B5), die Metadaten-Stores `SpatialUnit`/`ProcessScript`/`Topic`/`Indicator`/`Georesource(+WMS/WFS+Filter)` (B6a–e), `SelectionStateService` (B7) und zuletzt
-`MetadataBootstrapService` (B8, App-Startup-Orchestrierung). Konsumenten blieben beim Extrahieren durchgängig unverändert.
+`TopicHierarchyStoreService` (B5), die Metadaten-Stores `SpatialUnit`/`ProcessScript`/`Topic`/`Indicator`/`Georesource(+WMS/WFS+Filter)` (B6a–e), `SelectionStateService` (B7),
+`MetadataBootstrapService` (B8, App-Startup-Orchestrierung) und in Teil C die UI-State-Cluster
+(`PoiPresentation`/`ChartDisplayState`/`MapOverlayState`/`RangeFilterState`/`GeometrySimplification`/`AdminLoginState`/`ExportButtonVisibility`).
 
-**Stand der Facade (2026-06-25):** Nach der Bootstrap-Konsumenten-Migration (siehe unten) ist
-`data-exchange.service.ts` auf **117 Zeilen** geschrumpft, injiziert nur noch **`EnvConfigService`** und
-enthält **keine Delegations-Wrapper mehr** — nur die ~25 plain UI-State-Felder (Cluster K + POI/Misc).
-Fan-in von ~108 → **23 Konsumenten**, die ausschließlich diese plain Fields lesen.
+**Stand der Facade (2026-06-25): gelöscht.** Nach Teil C (Phasen 0–10) hat `DataExchangeService`
+keine Member mehr; die leere Klasse, ihr Spec und die ~45 stale Imports/Injections wurden entfernt, danach
+`data-exchange.constants.ts` aufgelöst. Der gesamte Ordner `app/services/data-exchange-service/` existiert
+**nicht mehr**. Der einstige ~2000-Zeilen-God-Service ist vollständig dissolviert (Fan-in 108 → 0).
 
 **Offene Folgeprojekte (separat, nicht Teil des Splits):**
-- ~~Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6).~~ Für **B8 (Bootstrap) erledigt** (2026-06-25, siehe unten); für die übrigen Sub-Services weiterhin offen → **eigener Abschnitt unten**.
+- ~~Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6).~~ ✅ **abgeschlossen** — alle Sub-Services repointet, Facade gelöscht (Teil C).
 - ~~AngularJS-Bridge-Migration der 4 Admin-Modals (A1d-1).~~ ✅ **erledigt (2026-06-22)** — siehe Folgeprojekt-Abschnitt oben. ⚠️ Backend-Smoke-Test der Indikator-Feature-Tabelle (Modal 3) vor Release noch offen.
-- Optional: die verbleibenden ~25 UI-State-Felder in einen eigenen UI-State-Service ausgliedern (z. B. der eng gekoppelte Balance/Measure-of-Value-Cluster `isBalanceChecked`/`isMeasureOfValueChecked`/`indicatorAndMetadataAsBalance`/`measureOfValue`) — oder die Facade bewusst als schlanken UI-State-Halter belassen.
-- Optional: State-Felder auf Signals/`computed()` heben (v. a. B7-Aggregate).
+- ⚠️ **Smoke-Test vor Release** für die Teil-C-Sweeps (Karte/Diagramme/Legende/Admin) + die bewusste Verhaltensänderung in Phase 8 (`indicatorDatePrefix`/`FEATURE_NAME_PROPERTY_NAME`). Lokal Keycloak-limitiert.
+- Optional: die nun in eigene Services gehobenen UI-State-Felder auf Signals/`computed()` heben (v. a. B7-Aggregate).
 - Latenter Feature-Table-Header-Height-Bug (A1d-3).
 
 ---
 
 ## Folgeprojekt: Konsumenten-Migration (Facade-Wrapper abbauen)
+
+> **✅ abgeschlossen (2026-06-25).** Alle Konsumenten wurden auf die Sub-Services repointet und die
+> `DataExchangeService`-Facade gelöscht (siehe Teil C). Der folgende Abschnitt dokumentiert das ursprüngliche
+> Vorgehen/Rezept (historisch).
 
 **Ziel.** Heute leiten `DataExchangeService` (und der schlanke `KommonitorDataGridHelperService`) jeden
 extrahierten Member nur noch per Delegations-Wrapper/Getter weiter; Konsumenten rufen weiter
