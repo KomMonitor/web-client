@@ -9,9 +9,13 @@ import {
   inject,
 } from '@angular/core';
 
-import { Subscription } from 'rxjs';
+import { Subscription, skip } from 'rxjs';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { KommonitorGeoresourceDataExchangeService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-exchange.service';
 import { KommonitorGeoresourceCacheHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-cache-helper.service';
 import { KommonitorGeoresourceDataGridHelperService } from '../../../../services/adminGeoresourceUnit/kommonitor-data-grid-helper.service';
@@ -49,6 +53,7 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   private document = inject<Document>(DOCUMENT);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   kommonitorDataExchangeService = inject(KommonitorGeoresourceDataExchangeService);
   private kommonitorCacheHelperService = inject(KommonitorGeoresourceCacheHelperService);
   private kommonitorDataGridHelperService = inject(KommonitorGeoresourceDataGridHelperService);
@@ -171,15 +176,25 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
   }
 
   private setupEventListeners(): void {
+    // React to metadata loading state transitions. skip(1) drops the
+    // BehaviorSubject's replayed current value so this keeps the original
+    // one-shot semantics of the former broadcast events.
+    const loadingSub = this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          setTimeout(() => {
+            this.initializeOrRefreshOverviewTable();
+          }, 250);
+        } else if (state === MetadataLoadingState.ERROR) {
+          this.loadingData = false;
+        }
+      });
+    this.subscriptions.push(loadingSub);
+
     // Listen for broadcast messages
     const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
-        setTimeout(() => {
-          this.initializeOrRefreshOverviewTable();
-        }, 250);
-      } else if (data.msg === 'initialMetadataLoadingFailed') {
-        this.loadingData = false;
-      } else if (data.msg === 'refreshGeoresourceOverviewTable') {
+      if (data.msg === 'refreshGeoresourceOverviewTable') {
         this.loadingData = true;
         this.refreshGeoresourceOverviewTable(data.values.crudType, data.values.targetGeoresourceId);
       }

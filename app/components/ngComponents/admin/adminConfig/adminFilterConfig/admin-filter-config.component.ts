@@ -1,4 +1,6 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { skip } from 'rxjs';
 import CodeMirror from 'codemirror';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
@@ -18,6 +20,10 @@ import { ConfigStorageService } from '../../../../../services/config-storage-ser
 import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { ScriptHelperService } from '../../../../../services/script-helper-service/script-helper.service';
 import { ExpandableBoxComponent } from '../../../common/expandable-box/expandable-box.component';
@@ -41,6 +47,8 @@ export class AdminFilterConfigComponent implements OnInit {
   private kommonitorDataGridHelperService = inject(KommonitorFilterDataGridHelperService);
   private httpClient = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private destroyRef = inject(DestroyRef);
   private envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
 
@@ -103,17 +111,23 @@ export class AdminFilterConfigComponent implements OnInit {
       },
     });
 
+    // React to metadata loading completion. skip(1) drops the BehaviorSubject's
+    // replayed current value so this keeps the original one-shot semantics of
+    // the former broadcast event.
+    this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.initialMetadataLoadingCompleted();
+        }
+      });
+
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case 'initialMetadataLoadingCompleted':
-          {
-            this.initialMetadataLoadingCompleted();
-          }
-          break;
         case 'onGlobalFilterDelete':
           {
             this.onGlobalFilterDelete(values);

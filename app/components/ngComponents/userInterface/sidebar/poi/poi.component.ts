@@ -1,6 +1,10 @@
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from "services/metadata-bootstrap-service/metadata-bootstrap.service";
 import { PoiPresentationService } from "services/poi-presentation-service/poi-presentation.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
@@ -51,13 +55,22 @@ export class PoiComponent implements OnInit {
     protected filterService: GeoresourceFilterService,
     protected exportMode: GeoresourceExportModeService,
     private broadcastService: BroadcastService,
+    private metadataBootstrap: MetadataBootstrapService,
     private elementVisibilityHelperService: ElementVisibilityHelperService,
   ) {}
 
   ngOnInit(): void {
-    window.setTimeout(() => {
-      this.init();
-    }, 2000);
+    // (Re-)initialize whenever metadata loading completes — on the initial load
+    // and on every global filter reload. Replaces the former fixed 2s timeout
+    // and the LIKEinitialMetadataLoadingCompleted broadcast. No skip() here so a
+    // late mount still initializes from the already-completed state.
+    this.metadataBootstrap.metadataLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.init();
+        }
+      });
 
     this.broadcastService.currentBroadcastMsg
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -73,11 +86,6 @@ export class PoiComponent implements OnInit {
           case "geoFavItemsStored":
             {
               this.favoritesService.favItemsStored();
-            }
-            break;
-          case "LIKEinitialMetadataLoadingCompleted":
-            {
-              this.init();
             }
             break;
         }

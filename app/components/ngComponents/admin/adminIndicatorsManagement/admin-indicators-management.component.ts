@@ -10,10 +10,13 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-grid-community';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin-table/wms-admin-table.component';
-import { Subscription } from 'rxjs';
+import { Subscription, skip } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -190,21 +193,31 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   }
 
   private setupEventListeners(): void {
+    // React to metadata loading state transitions. skip(1) drops the
+    // BehaviorSubject's replayed current value so this keeps the original
+    // one-shot semantics of the former broadcast events.
+    const loadingSub = this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.zone.run(() => {
+            setTimeout(() => {
+              this.initializeOrRefreshOverviewTable();
+              // Also ensure topics are collapsed when metadata is loaded
+              this.initializeCollapsedTopics();
+            }, 250);
+          });
+        } else if (state === MetadataLoadingState.ERROR) {
+          this.zone.run(() => {
+            this.loadingData = false;
+          });
+        }
+      });
+    this.subscriptions.push(loadingSub);
+
     // Listen for the global metadata loading completion event
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
-        this.zone.run(() => {
-          setTimeout(() => {
-            this.initializeOrRefreshOverviewTable();
-            // Also ensure topics are collapsed when metadata is loaded
-            this.initializeCollapsedTopics();
-          }, 250);
-        });
-      } else if (data.msg === 'initialMetadataLoadingFailed') {
-        this.zone.run(() => {
-          this.loadingData = false;
-        });
-      } else if (data.msg === 'refreshIndicatorOverviewTable') {
+      if (data.msg === 'refreshIndicatorOverviewTable') {
         this.zone.run(() => {
           this.loadingData = true;
           // Extract crudType and targetIndicatorId from the broadcast data

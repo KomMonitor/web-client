@@ -2,10 +2,13 @@ import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/cor
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
-import { Subscription } from 'rxjs';
+import { Subscription, skip } from 'rxjs';
 import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-data-grid-helper-factory.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
@@ -49,13 +52,23 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.wmsGridOptions = this.ogcDataGridHelperService.getWmsGridOptions();
 
+    // React to metadata loading state transitions. skip(1) drops the
+    // BehaviorSubject's replayed current value so this keeps the original
+    // one-shot semantics of the former broadcast event.
+    const loadingSub = this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          setTimeout(() => {
+            this.initializeOrRefreshOverviewTable();
+          }, 250);
+        }
+      });
+    this.subscriptions.push(loadingSub);
+
     // Listen for broadcast messages
     const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
-        setTimeout(() => {
-          this.initializeOrRefreshOverviewTable();
-        }, 250);
-      } else if (data.msg === 'refreshGeoresourceOverviewTable') {
+      if (data.msg === 'refreshGeoresourceOverviewTable') {
         //this.refreshGeoresourceOverviewTable(data.values.crudType, data.values.targetGeoresourceId);
       }
     });

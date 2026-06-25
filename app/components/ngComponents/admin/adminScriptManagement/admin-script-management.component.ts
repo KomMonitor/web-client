@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 
-import { Subscription } from 'rxjs';
+import { Subscription, skip } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridOptions } from 'ag-grid-community';
@@ -9,7 +9,10 @@ import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
@@ -121,16 +124,26 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   }
 
   private setupEventListeners(): void {
+    // React to metadata loading state transitions. skip(1) drops the
+    // BehaviorSubject's replayed current value so this keeps the original
+    // one-shot semantics of the former broadcast events.
+    const loadingSub = this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.zone.run(() => {
+            setTimeout(() => this.initializeOrRefreshOverviewTable(), 250);
+          });
+        } else if (state === MetadataLoadingState.ERROR) {
+          this.zone.run(() => {
+            this.loadingData = false;
+          });
+        }
+      });
+    this.subscriptions.push(loadingSub);
+
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
-        this.zone.run(() => {
-          setTimeout(() => this.initializeOrRefreshOverviewTable(), 250);
-        });
-      } else if (data.msg === 'initialMetadataLoadingFailed') {
-        this.zone.run(() => {
-          this.loadingData = false;
-        });
-      } else if (data.msg === 'refreshScriptOverviewTable') {
+      if (data.msg === 'refreshScriptOverviewTable') {
         this.zone.run(() => {
           this.loadingData = true;
           const payload = data as any;

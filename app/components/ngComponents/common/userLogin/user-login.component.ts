@@ -1,5 +1,4 @@
 import { CommonModule } from "@angular/common";
-import { BroadcastService } from "./../../../../services/broadcast-service/broadcast.service";
 import {
   Component,
   Inject,
@@ -12,7 +11,7 @@ import {
 import { Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";
 import { AdminLoginStateService } from "services/admin-login-state-service/admin-login-state.service";
-import { MetadataBootstrapService } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
+import { MetadataBootstrapService, MetadataLoadingState } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
 import { AccessControlService } from "services/access-control-service/access-control.service";
 import {
   NgbCollapseModule,
@@ -24,6 +23,7 @@ import { BehaviorSubject, Subject, combineLatest, of, timer } from "rxjs";
 import {
   distinctUntilChanged,
   map,
+  skip,
   switchMap,
   takeUntil,
 } from "rxjs/operators";
@@ -91,7 +91,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     private adminLoginState: AdminLoginStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private accessControlService: AccessControlService,
-    private broadcastService: BroadcastService,
     private router: Router,
     private renderer: Renderer2,
     protected envConfigService: EnvConfigService,
@@ -99,10 +98,13 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.broadcastService.currentBroadcastMsg
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((res) => {
-        if (res.msg === "initialMetadataLoadingCompleted") {
+    // React to metadata loading completion. skip(1) drops the BehaviorSubject's
+    // replayed current value so this keeps the original one-shot semantics of
+    // the former broadcast event.
+    this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1), takeUntil(this.destroy$))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
           this.checkAuthentication();
           this.prepUserInformation();
         }

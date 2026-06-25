@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { skip } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 
 import { FormsModule } from '@angular/forms';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -38,6 +44,8 @@ export class GeoresourceAddModalComponent implements OnInit {
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
@@ -241,11 +249,20 @@ export class GeoresourceAddModalComponent implements OnInit {
   }
 
   private setupEventListeners(): void {
+    // React to metadata loading completion. skip(1) drops the BehaviorSubject's
+    // replayed current value so this keeps the original one-shot semantics of
+    // the former broadcast event.
+    this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.refreshRoles();
+        }
+      });
+
     // Listen for broadcast messages
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
       if (data.msg === 'availableRolesUpdate') {
-        this.refreshRoles();
-      } else if (data.msg === 'initialMetadataLoadingCompleted') {
         this.refreshRoles();
       }
     });

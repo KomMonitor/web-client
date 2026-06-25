@@ -116,9 +116,6 @@ export class KommonitorDataSetupComponent implements OnInit {
           case "updateIndicatorOgcServices":
             this.dataSetupService.updateIndicatorOgcServices(values);
             break;
-          case "LIKEinitialMetadataLoadingCompleted":
-            this.onInitialMetadataLoadingComplete();
-            break;
         }
       });
   }

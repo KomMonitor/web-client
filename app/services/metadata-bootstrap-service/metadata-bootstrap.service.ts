@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { KeycloakProfile } from 'keycloak-js';
-import { BehaviorSubject, forkJoin } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { AuthService } from 'services/auth-service/auth.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
+import { OptionTitleTooltipService } from 'services/option-title-tooltip-service/option-title-tooltip.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
@@ -39,7 +39,6 @@ export class MetadataBootstrapService {
   private authService = inject(AuthService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
-  private broadcastService = inject(BroadcastService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -48,6 +47,7 @@ export class MetadataBootstrapService {
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private metadataFilterService = inject(MetadataFilterService);
+  private optionTitleTooltipService = inject(OptionTitleTooltipService);
 
   private metadataLoadingSubject = new BehaviorSubject<MetadataLoadingState>(
     MetadataLoadingState.NONE
@@ -58,70 +58,94 @@ export class MetadataBootstrapService {
 
   topicIndicatorHierarchy_forOrderView: any[] = [];
 
+  /**
+   * Serializes overlapping loads. Multiple entry points (initial load, filter
+   * re-apply, admin) can trigger fetchAllMetadata; running them concurrently
+   * would interleave writes into the shared metadata stores. Chaining keeps
+   * runs sequential so the last-requested filter ends up as the final state.
+   */
+  private inFlight: Promise<void> | null = null;
+
   setMetadataState(state: MetadataLoadingState) {
     this.metadataLoadingSubject.next(state);
   }
 
-  async fetchAllMetadata(filter = undefined) {
+  fetchAllMetadata(filter = undefined): Promise<void> {
+    const run = () => this.runFetchAllMetadata(filter);
+    const next = this.inFlight ? this.inFlight.then(run, run) : run();
+    this.inFlight = next;
+    next.finally(() => {
+      // Only clear when no newer load has been chained on top of this one.
+      if (this.inFlight === next) {
+        this.inFlight = null;
+      }
+    });
+    return next;
+  }
+
+  private async runFetchAllMetadata(filter = undefined): Promise<void> {
     this.setMetadataState(MetadataLoadingState.INPROGRESS);
 
-    await this.cacheHelperService.init();
-    console.log('fetching all metadata from management component');
+    try {
+      await this.cacheHelperService.init();
+      console.log('fetching all metadata from management component');
 
-    if (this.authService.isAuthenticated()) {
-      const loadUser$ = this.authService.loadUserProfile();
-      if (!loadUser$) {
-        console.log('User profile is not available');
-        return;
+      if (this.authService.isAuthenticated()) {
+        const loadUser$ = this.authService.loadUserProfile();
+        if (loadUser$) {
+          await loadUser$
+            .then((profile) => {
+              // set user profile
+              this.currentKeycloakUser = profile;
+              console.log('User logged in with email: ' + profile.email);
+
+              this.accessControlService.applyLoginStateFromToken(this.authService.getTokenParsed());
+            })
+            .catch(function () {
+              console.log('Failed to load user profile');
+            });
+          await this.fetchAccessControlMetadata(
+            this.accessControlService.currentKeycloakLoginRoles
+          );
+        } else {
+          // Continue with whatever roles are set instead of leaving the app
+          // stuck in INPROGRESS with no data.
+          console.log('User profile is not available');
+        }
       }
-      await loadUser$
-        .then((profile) => {
-          // set user profile
-          this.currentKeycloakUser = profile;
-          console.log('User logged in with email: ' + profile.email);
 
-          this.accessControlService.applyLoginStateFromToken(this.authService.getTokenParsed());
-        })
-        .catch(function () {
-          console.log('Failed to load user profile');
-        });
-      await this.fetchAccessControlMetadata(this.accessControlService.currentKeycloakLoginRoles);
+      // revise metadata fetching for protected endpoints
+      const roles = this.accessControlService.currentKeycloakLoginRoles;
+      await Promise.all([
+        // this.fetchIndicatorScriptsMetadata(),
+        this.fetchTopicsMetadata(roles),
+        this.fetchSpatialUnitsMetadata(roles),
+        this.fetchGeoresourcesMetadata(roles, filter),
+        this.fetchIndicatorsMetadata(roles, filter),
+        this.fetchServices(roles, filter),
+      ]);
+
+      this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
+
+      this.buildHeadlineIndicatorHierarchy();
+      this.buildTopicIndicatorHierarchy();
+      this.topicIndicatorHierarchy_forOrderView = JSON.parse(
+        JSON.stringify(this.topicHierarchyStore.topicIndicatorHierarchy)
+      );
+      this.buildComputationIndicatorHierarchy();
+
+      this.buildTopicGeoresourceHierarchy(filter);
+
+      console.log('Metadata fetched. Call initialize event.');
+
+      this.setMetadataState(MetadataLoadingState.COMPLETE);
+      this.onMetadataLoadingCompleted();
+    } catch {
+      this.setMetadataState(MetadataLoadingState.ERROR);
+      this.mapErrorNotificationService.displayMapApplicationError(
+        'Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.'
+      );
     }
-
-    // revise metadata fecthing for protected endpoints
-    forkJoin({
-      // scriptsPromise: this.fetchIndicatorScriptsMetadata(),
-      topicsPromise: this.fetchTopicsMetadata(this.accessControlService.currentKeycloakLoginRoles),
-      spatialUnitsPromise: this.fetchSpatialUnitsMetadata(this.accessControlService.currentKeycloakLoginRoles),
-      georesourcesPromise: this.fetchGeoresourcesMetadata(this.accessControlService.currentKeycloakLoginRoles, filter),
-      indicatorsPromise: this.fetchIndicatorsMetadata(this.accessControlService.currentKeycloakLoginRoles, filter),
-      servicePromises: this.fetchServices(this.accessControlService.currentKeycloakLoginRoles, filter),
-    }).subscribe({
-      next: (_response: any) => {
-        this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
-
-        this.buildHeadlineIndicatorHierarchy();
-        this.buildTopicIndicatorHierarchy();
-        this.topicIndicatorHierarchy_forOrderView = JSON.parse(
-          JSON.stringify(this.topicHierarchyStore.topicIndicatorHierarchy)
-        );
-        this.buildComputationIndicatorHierarchy();
-
-        this.buildTopicGeoresourceHierarchy(filter);
-
-        console.log('Metadata fetched. Call initialize event.');
-
-        this.setMetadataState(MetadataLoadingState.COMPLETE);
-        this.onMetadataLoadingCompleted();
-      },
-      error: (error) => {
-        // todo error handling
-        this.mapErrorNotificationService.displayMapApplicationError(
-          'Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.'
-        );
-        this.broadcastService.broadcast('initialMetadataLoadingFailed', [error]);
-      },
-    });
   }
 
   async fetchTopicsMetadata(keycloakRolesArray) {
@@ -171,14 +195,7 @@ export class MetadataBootstrapService {
   }
 
   onMetadataLoadingCompleted() {
-    this.broadcastService.broadcast('initialMetadataLoadingCompleted');
-
-    setTimeout(() => {
-      $('option').each(function (index, element) {
-        const text = $(element).text();
-        $(element).attr('title', text);
-      });
-    }, 1000);
+    this.optionTitleTooltipService.applyToAllOptions();
   }
 
   modifyIndicatorApplicableSpatialUnitsForLoginRoles() {

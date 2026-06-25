@@ -1,7 +1,11 @@
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 
-import { Subscription } from 'rxjs';
+import { Subscription, skip } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
@@ -36,6 +40,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private kommonitorCacheHelperService = inject(KommonitorCacheHelperService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
@@ -293,13 +298,23 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   }
 
   private setupEventListeners(): void {
+    // React to metadata loading state transitions. skip(1) drops the
+    // BehaviorSubject's replayed current value so this keeps the original
+    // one-shot semantics of the former broadcast event.
+    const loadingSub = this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.zone.run(() => {
+            this.fetchSpatialUnitsData();
+          });
+        }
+      });
+    this.subscriptions.push(loadingSub);
+
     // Listen for the global metadata loading completion event
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'initialMetadataLoadingCompleted') {
-        this.zone.run(() => {
-          this.fetchSpatialUnitsData();
-        });
-      } else if (data.msg === 'refreshSpatialUnitOverviewTable') {
+      if (data.msg === 'refreshSpatialUnitOverviewTable') {
         this.zone.run(() => {
           this.loadingData = true;
           // Extract crudType and targetSpatialUnitId from the broadcast data values
