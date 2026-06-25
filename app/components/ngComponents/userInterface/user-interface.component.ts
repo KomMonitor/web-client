@@ -2,6 +2,7 @@ import { DisplayType } from 'components/ngComponents/common/custom-slider/custom
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -70,6 +71,7 @@ export class UserInterfaceComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected rangeFilterState: RangeFilterStateService,
     protected chartDisplayState: ChartDisplayStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private selectionState: SelectionStateService,
@@ -320,6 +322,6 @@ export class UserInterfaceComponent implements OnInit {
 
   filterModusActive():boolean {
 
-    return this.globalFilterHelperService.globalFilterApplied() || this.chartDisplayState.isMeasureOfValueChecked || this.dataExchangeService.rangeFilterIsApplied;
+    return this.globalFilterHelperService.globalFilterApplied() || this.chartDisplayState.isMeasureOfValueChecked || this.rangeFilterState.rangeFilterIsApplied;
   }
 }

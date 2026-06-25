@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -26,6 +27,7 @@ export class KommonitorBalanceComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected rangeFilterState: RangeFilterStateService,
     protected chartDisplayState: ChartDisplayStateService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
@@ -451,7 +453,7 @@ export class KommonitorBalanceComponent implements OnInit {
         }
 
         removeOldInstance(){
-          this.dataExchangeService.rangeFilterData = undefined;
+          this.rangeFilterState.rangeFilterData = undefined;
           this.rangeSliderForBalance.destroy();
           this.chartDisplayState.indicatorAndMetadataAsBalance = undefined;
 

@@ -1,0 +1,15 @@
+import { Injectable } from '@angular/core';
+
+/**
+ * Holds the indicator range-filter state shared between the filter panel, the
+ * balance panel and the top-level user-interface component: the current filter
+ * data and whether a range filter is currently applied. Extracted from
+ * DataExchangeService (Prio 7 god-service split, B-Rest cluster "range filter").
+ */
+@Injectable({
+  providedIn: 'root',
+})
+export class RangeFilterStateService {
+  rangeFilterData: any;
+  rangeFilterIsApplied: any;
+}

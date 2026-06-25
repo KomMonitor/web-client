@@ -26,7 +26,6 @@ export class DataExchangeService {
   disableIndicatorDatePicker!: boolean;
   indicatorDatePrefix!: string;
   selectedIndicatorBackup!: IndicatorsDataset;
-  rangeFilterData: any;
   classifyZeroSeparately_backup: any;
   simplifyGeometriesParameterName: any;
   simplifyGeometries: any;
@@ -34,7 +33,6 @@ export class DataExchangeService {
   adminUserName;
   adminPassword;
   adminIsLoggedIn;
-  rangeFilterIsApplied: any;
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 }

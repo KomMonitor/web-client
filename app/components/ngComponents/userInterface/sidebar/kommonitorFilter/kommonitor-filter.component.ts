@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -143,7 +143,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected rangeFilterState: RangeFilterStateService,
     protected chartDisplayState: ChartDisplayStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private cacheHelperService: CacheHelperServiceService,
@@ -361,7 +361,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.defaultRangeSliderSetup = { date: date, geoJson: indicatorMetadataAndGeoJSON};
 
-    this.dataExchangeService.rangeFilterIsApplied = false;
+    this.rangeFilterState.rangeFilterIsApplied = false;
     this.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
   }
 
@@ -370,7 +370,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     date = this.INDICATOR_DATE_PREFIX + date;
 
     if(this.rangeSliderForFilter){
-      this.dataExchangeService.rangeFilterData = undefined;
+      this.rangeFilterState.rangeFilterData = undefined;
       this.rangeSliderForFilter.destroy();
 
       var domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
@@ -500,7 +500,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   onChangeRangeFilter (data) {
     // Called every time handle position is changed
-    this.dataExchangeService.rangeFilterData = data;
+    this.rangeFilterState.rangeFilterData = data;
 
     this.lowerFilterInputNotValid = false;
     this.higherFilterInputNotValid = false;
@@ -520,9 +520,9 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   applyRangeFilter(){
 
-    this.dataExchangeService.rangeFilterIsApplied = false;
+    this.rangeFilterState.rangeFilterIsApplied = false;
     if(this.inputHigherFilterValue < this.valueRangeMaxValue || this.inputLowerFilterValue > this.valueRangeMinValue) {
-      this.dataExchangeService.rangeFilterIsApplied = true;
+      this.rangeFilterState.rangeFilterIsApplied = true;
     }
 
     var dateProperty = this.INDICATOR_DATE_PREFIX + this.selectionState.selectedDate;

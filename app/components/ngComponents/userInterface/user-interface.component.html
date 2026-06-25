@@ -159,7 +159,7 @@
 
     <div id="statusButtonContainer">
       <div id="filterStatusButtonContainer"
-        *ngIf="globalFilterHelperService.globalFilterApplied() || chartDisplayState.isMeasureOfValueChecked || dataExchangeService.rangeFilterIsApplied">
+        *ngIf="globalFilterHelperService.globalFilterApplied() || chartDisplayState.isMeasureOfValueChecked || rangeFilterState.rangeFilterIsApplied">
         <div *ngIf="globalFilterHelperService.globalFilterApplied()" 
               id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
           <i class="fas fa-filter"></i>
@@ -172,7 +172,7 @@
           <span (click)="openFilterSidebar()" style="margin: 3px;">Schwellenwert aktiviert </span>
           <i class="fas fa-close" (click)="onMOVCloseButtonClick()" title="Filter entfernen"></i>
         </div>
-        <div *ngIf="dataExchangeService.rangeFilterIsApplied" 
+        <div *ngIf="rangeFilterState.rangeFilterIsApplied" 
               id="filterNoticeButton" class="btn btn-warning btn-xs" title="Wertebereichfilter aktiviert">
           <i class="fas fa-filter"></i>
           <span (click)="openFilterSidebar()" style="margin: 3px;">Wertebereichfilter aktiviert </span>
