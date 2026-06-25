@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -59,6 +60,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private metadataBootstrap: MetadataBootstrapService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
     protected indicatorStore: IndicatorMetadataStoreService,
@@ -77,7 +79,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
 
     this.init();
 
-    this.dataExchangeService.metadataLoading$
+    this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
 

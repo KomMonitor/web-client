@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -53,6 +54,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private accessControlService = inject(AccessControlService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -766,8 +768,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   // Getter to check if we have topic hierarchy data
   get hasTopicData(): boolean {
     return (
-      this.dataExchangeService.topicIndicatorHierarchy_forOrderView &&
-      this.dataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0
+      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView &&
+      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.length > 0
     );
   }
 
@@ -778,10 +780,10 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     // Initialize all topics as collapsed by default
     if (
-      this.dataExchangeService.topicIndicatorHierarchy_forOrderView &&
-      this.dataExchangeService.topicIndicatorHierarchy_forOrderView.length > 0
+      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView &&
+      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.length > 0
     ) {
-      this.dataExchangeService.topicIndicatorHierarchy_forOrderView.forEach((mainTopic: any) => {
+      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.forEach((mainTopic: any) => {
         this.collapsedTopics.add(mainTopic.topicId);
 
         if (mainTopic.subTopics && mainTopic.subTopics.length > 0) {
@@ -818,8 +820,8 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   isTopicCollapsed(topicId: string): boolean {
     // If topic hierarchy is not loaded yet, assume collapsed
     if (
-      !this.dataExchangeService.topicIndicatorHierarchy_forOrderView ||
-      this.dataExchangeService.topicIndicatorHierarchy_forOrderView.length === 0
+      !this.metadataBootstrap.topicIndicatorHierarchy_forOrderView ||
+      this.metadataBootstrap.topicIndicatorHierarchy_forOrderView.length === 0
     ) {
       return true;
     }

@@ -12,6 +12,7 @@ import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
@@ -105,6 +106,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private translateService = inject(TranslateService);
   protected dataExchange = inject(DataExchangeService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
@@ -130,7 +132,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   indicatorsPerSpatialUnitChartOptions = signal<EChartsOption | null>(null);
 
   ngOnInit(): void {
-    this.dataExchange.metadataLoading$
+    this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((state) => {
         if (state === MetadataLoadingState.COMPLETE) {

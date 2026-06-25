@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ScriptAddModalComponent } from './scriptAddModal/script-add-modal.component';
 import { ScriptDeleteModalComponent } from './scriptDeleteModal/script-delete-modal.component';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { KommonitorDataGridHelperService } from '../../../../services/adminSpatialUnit/kommonitor-data-grid-helper.service';
@@ -28,7 +28,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
-  dataExchangeService = inject(DataExchangeService);
+  metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
@@ -155,7 +155,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
 
   public refreshScriptOverviewTable(crudType?: string, scriptId?: string | string[]): void {
     if (!crudType || !scriptId) {
-      this.dataExchangeService
+      this.metadataBootstrap
         .fetchIndicatorScriptsMetadata()
         .then(() => {
           this.initializeOrRefreshOverviewTable();
@@ -178,7 +178,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
       this.loadingData = false;
     } else {
       // For add/edit: re-fetch all scripts
-      this.dataExchangeService
+      this.metadataBootstrap
         .fetchIndicatorScriptsMetadata()
         .then(() => {
           this.initializeOrRefreshOverviewTable();
@@ -197,7 +197,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
   }
 
   public onClickAddScript(): void {
-    // if (!this.dataExchangeService.checkCreatePermission()) return;
+    // if (!this.metadataBootstrap.checkCreatePermission()) return;
     this.modalService.open(ScriptAddModalComponent, {
       // modalDialogClass: "modal-medium",
       size: 'xl',

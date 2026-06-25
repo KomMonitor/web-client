@@ -3,6 +3,7 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -142,6 +143,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private metadataBootstrap: MetadataBootstrapService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
@@ -228,9 +230,9 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.globalFilterHelperService.applyFilterSelection(this.globalFilters.filter(e => e.checked===true));
 
     if(this.globalFilterHelperService.applicationFilter)
-      this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
+      this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
     else
-      this.dataExchangeService.fetchAllMetadata();
+      this.metadataBootstrap.fetchAllMetadata();
 
     this.broadcastService.broadcast("onGlobalFilterChange");
     setTimeout(() => {

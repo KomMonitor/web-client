@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MetadataBootstrapService } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
 import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
@@ -45,6 +46,7 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
 })
 export class KommonitorDataSetupComponent implements OnInit {
   protected dataExchangeService = inject(DataExchangeService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   protected readonly selectionState = inject(SelectionStateService);
   protected readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
@@ -85,7 +87,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res) => (this.topicSorting = res));
 
-    this.dataExchangeService.metadataLoading$
+    this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         if (value == MetadataLoadingState.COMPLETE)

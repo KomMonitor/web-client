@@ -2,6 +2,7 @@ import { DisplayType } from 'components/ngComponents/common/custom-slider/custom
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { InfoModal } from './infoModal/info-modal.component';
@@ -68,6 +69,7 @@ export class UserInterfaceComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private metadataBootstrap: MetadataBootstrapService,
     private selectionState: SelectionStateService,
     private accessControlService: AccessControlService,
     private modalService: NgbModal,
@@ -120,9 +122,9 @@ export class UserInterfaceComponent implements OnInit {
     } 
 
     if(this.globalFilterHelperService.applicationFilter) {
-      this.dataExchangeService.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
+      this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
     } else {
-      this.dataExchangeService.fetchAllMetadata();
+      this.metadataBootstrap.fetchAllMetadata();
     }
 
     this.showAdminLogin = this.authService.hasAdminRights();
@@ -189,7 +191,7 @@ export class UserInterfaceComponent implements OnInit {
 
     // currently only simple ADMIN user login is possible
     console.log("Check user login");
-    if (this.dataExchangeService.adminUserName === this.dataExchangeService.currentKeycloakUser && this.dataExchangeService.adminPassword === this.password){
+    if (this.dataExchangeService.adminUserName === this.metadataBootstrap.currentKeycloakUser && this.dataExchangeService.adminPassword === this.password){
       // success login --> currently switch to ADMIN page directly
       console.log("User Login success - redirect to Admin Page");
       this.dataExchangeService.adminIsLoggedIn = true;

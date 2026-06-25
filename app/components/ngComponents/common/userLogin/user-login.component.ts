@@ -12,6 +12,7 @@ import {
 import { Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MetadataBootstrapService } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
 import { AccessControlService } from "services/access-control-service/access-control.service";
 import {
   NgbCollapseModule,
@@ -88,6 +89,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private dataExchangeService: DataExchangeService,
+    private metadataBootstrap: MetadataBootstrapService,
     private accessControlService: AccessControlService,
     private broadcastService: BroadcastService,
     private router: Router,
@@ -134,7 +136,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
 
     this.authenticated = this.authService.isAuthenticated();
     if (this.authenticated) {
-      this.currentKeycloakUser = this.dataExchangeService.currentKeycloakUser;
+      this.currentKeycloakUser = this.metadataBootstrap.currentKeycloakUser;
     }
   }
 
@@ -188,7 +190,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     console.log("Check user login");
     if (
       this.dataExchangeService.adminUserName ===
-        this.dataExchangeService.currentKeycloakUser &&
+        this.metadataBootstrap.currentKeycloakUser &&
       this.dataExchangeService.adminPassword === this.password
     ) {
       // success login --> currently switch to ADMIN page directly

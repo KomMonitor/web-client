@@ -12,6 +12,7 @@ import { AdminTopicsManagementComponent } from './adminTopicsManagement/admin-to
 
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from '../../../services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../services/access-control-service/access-control.service';
 import { NotificationComponent } from '../common/notification/notification.component';
 import { SessionValidityComponent } from '../common/userLogin/session-validity/session-validity.component';
@@ -62,6 +63,7 @@ export enum AdminNavItem {
 export class AdminComponent implements OnInit {
   private router = inject(Router);
   protected dataExchangeService = inject(DataExchangeService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   protected accessControlService = inject(AccessControlService);
 
   readonly AdminNavItem = AdminNavItem;
@@ -77,7 +79,7 @@ export class AdminComponent implements OnInit {
     // if(! this.dataExchangeService.enableKeycloakSecurity){
     // 	  this.checkAuthorizationOnStartup_withoutKeycloak();
     // }
-    this.dataExchangeService.fetchAllMetadata();
+    this.metadataBootstrap.fetchAllMetadata();
 
     setTimeout(() => {
       this.prepUserInformation();

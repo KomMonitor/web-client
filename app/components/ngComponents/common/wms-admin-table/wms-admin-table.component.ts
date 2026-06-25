@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-data-grid-helper-factory.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { WmsAddModalComponent } from './wms-add-modal/wms-add-modal.component';
@@ -37,6 +38,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   constructor(
     private ogcDataGridHelperServiceFactory: OgcDataGridHelperServiceFactory,
     private dataExchangeService: DataExchangeService,
+    private metadataBootstrap: MetadataBootstrapService,
     private accessControlService: AccessControlService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private broadcastService: BroadcastService,
@@ -70,7 +72,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
 
   initializeOrRefreshOverviewTable() {
 
-    this.dataExchangeService.reinitServices().then(() => {
+    this.metadataBootstrap.reinitServices().then(() => {
       const wmsDatasets = this.initOgcDatasets();
       this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
     });

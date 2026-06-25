@@ -7,7 +7,6 @@ import {
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { KeycloakProfile } from 'keycloak-js';
 import { GeoresourcesImportDataset } from 'components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component';
 
 export interface SpatialUnit {
@@ -108,17 +107,8 @@ export class DataExchangeService {
   ];
 
   // Prio7 B1: metadata bootstrap orchestration lives in MetadataBootstrapService.
-  // The facade keeps thin delegating wrappers below so its consumers stay unchanged.
-  get metadataLoading$() {
-    return this.metadataBootstrap.metadataLoading$;
-  }
-  get currentKeycloakUser(): KeycloakProfile {
-    return this.metadataBootstrap.currentKeycloakUser;
-  }
-  get topicIndicatorHierarchy_forOrderView(): any[] {
-    return this.metadataBootstrap.topicIndicatorHierarchy_forOrderView;
-  }
-
+  // The remaining fetch* wrappers below still delegate there until their (admin-layer)
+  // consumers are migrated off the facade.
   getLoiDashSvgFromStringValue(loiDashArrayString) {
     for (const loiDashArrayObject of LOI_DASH_ARRAY_OBJECTS) {
       if (loiDashArrayObject.dashArrayValue == loiDashArrayString) {
@@ -127,10 +117,6 @@ export class DataExchangeService {
     }
 
     return '';
-  }
-
-  fetchAllMetadata(filter = undefined) {
-    return this.metadataBootstrap.fetchAllMetadata(filter);
   }
 
   fetchTopicsMetadata(keycloakRolesArray) {
@@ -147,14 +133,6 @@ export class DataExchangeService {
 
   fetchIndicatorsMetadata(keycloakRolesArray, filter: any = undefined) {
     return this.metadataBootstrap.fetchIndicatorsMetadata(keycloakRolesArray, filter);
-  }
-
-  fetchIndicatorScriptsMetadata() {
-    return this.metadataBootstrap.fetchIndicatorScriptsMetadata();
-  }
-
-  reinitServices(): Promise<void> {
-    return this.metadataBootstrap.reinitServices();
   }
 
   fetchAccessControlMetadata(keycloakRolesArray) {
