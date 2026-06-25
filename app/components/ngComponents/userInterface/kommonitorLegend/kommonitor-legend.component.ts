@@ -197,7 +197,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   filteredSpatialUnits() {
-    return this.spatialUnitStore.availableSpatialUnits.filter(e => this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
+    return this.spatialUnitStore.availableSpatialUnits.filter(e => this.selectionState.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
   }
 
   onChangeIndicatorDatepickerDate() {

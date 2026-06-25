@@ -1227,7 +1227,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     for (let option of this.spatialUnitStore.availableSpatialUnits) {
 
-      if (this.dataExchangeService.isAllowedSpatialUnitForCurrentIndicator(option)) {
+      if (this.selectionState.isAllowedSpatialUnitForCurrentIndicator(option)) {
         innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
         innerHTMLString += '</p></li>';
       }
@@ -2883,7 +2883,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // omitting display border in style
 
 
-    if (this.dataExchangeService.selectedSpatialUnitIsRaster()) {
+    if (this.selectionState.selectedSpatialUnitIsRaster()) {
       indicatorMetadataAndGeoJSON.geoJSON.features = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => {
         if (this.indicatorValueService.indicatorValueIsNoData(feature.properties[this.indicatorPropertyName])) {
           return false;

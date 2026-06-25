@@ -166,4 +166,41 @@ export class SelectionStateService {
     const propertyName = INDICATOR_DATE_PREFIX + this.selectedDate;
     return propertyName;
   }
+
+  selectedSpatialUnitIsRaster() {
+    const spatialUnitName = this.selectedSpatialUnit
+      ? this.selectedSpatialUnit.spatialUnitLevel
+      : '';
+
+    return (
+      spatialUnitName.includes('raster') ||
+      spatialUnitName.includes('Raster') ||
+      spatialUnitName.includes('RASTER') ||
+      spatialUnitName.includes('grid') ||
+      spatialUnitName.includes('GRID') ||
+      spatialUnitName.includes('Grid')
+    );
+  }
+
+  isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata: any) {
+    if (!this.selectedIndicator) {
+      return false;
+    }
+
+    if (!spatialUnitMetadata || !spatialUnitMetadata.spatialUnitLevel) {
+      return false;
+    }
+
+    const filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (
+      applicableSpatialUnit: any
+    ) {
+      if (applicableSpatialUnit.spatialUnitId === spatialUnitMetadata.spatialUnitId) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    return filteredApplicableUnits.length > 0;
+  }
 }

@@ -165,28 +165,6 @@ export class DataExchangeService {
     $('.mapApplicationErrorAlert').hide();
   }
 
-  isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata: any) {
-    if (!this.selectionState.selectedIndicator) {
-      return false;
-    }
-
-    if (!spatialUnitMetadata || !spatialUnitMetadata.spatialUnitLevel) {
-      return false;
-    }
-
-    const filteredApplicableUnits = this.selectionState.selectedIndicator.applicableSpatialUnits.filter(function (
-      applicableSpatialUnit: any
-    ) {
-      if (applicableSpatialUnit.spatialUnitId === spatialUnitMetadata.spatialUnitId) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-
-    return filteredApplicableUnits.length > 0;
-  }
-
   async fetchAllMetadata(filter = undefined) {
     this.setMetadataState(MetadataLoadingState.INPROGRESS);
 
@@ -450,21 +428,6 @@ export class DataExchangeService {
 
   onChangeIndicatorKeywordFilter(indicatorNameFilter) {
     this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
-  }
-
-  selectedSpatialUnitIsRaster() {
-    const spatialUnitName = this.selectionState.selectedSpatialUnit
-      ? this.selectionState.selectedSpatialUnit.spatialUnitLevel
-      : '';
-
-    return (
-      spatialUnitName.includes('raster') ||
-      spatialUnitName.includes('Raster') ||
-      spatialUnitName.includes('RASTER') ||
-      spatialUnitName.includes('grid') ||
-      spatialUnitName.includes('GRID') ||
-      spatialUnitName.includes('Grid')
-    );
   }
 
   async generateAndDownloadGeoresourceZIP(

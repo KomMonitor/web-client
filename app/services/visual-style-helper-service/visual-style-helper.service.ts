@@ -141,7 +141,7 @@ export class VisualStyleHelperServiceNew {
     y: 5,
     radius: 1,
     fill: true,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
+    color: this.selectionState.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
   }); */
   noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
   //noDataFillPattern = [];
@@ -153,7 +153,7 @@ export class VisualStyleHelperServiceNew {
   outlierStyle_high = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+    color: this.selectionState.selectedSpatialUnitIsRaster()
       ? undefined
       : this.envConfigService.defaultBorderColorForOutliers_high,
     dashArray: '',
@@ -165,7 +165,7 @@ export class VisualStyleHelperServiceNew {
   outlierStyle_low = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+    color: this.selectionState.selectedSpatialUnitIsRaster()
       ? undefined
       : this.envConfigService.defaultBorderColorForOutliers_low,
     dashArray: '',
@@ -177,7 +177,7 @@ export class VisualStyleHelperServiceNew {
   noDataStyle = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+    color: this.selectionState.selectedSpatialUnitIsRaster()
       ? undefined
       : this.envConfigService.defaultBorderColorForNoDataValues,
     dashArray: '',
@@ -189,7 +189,7 @@ export class VisualStyleHelperServiceNew {
   filteredStyle = {
     weight: 1,
     opacity: 1,
-    color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+    color: this.selectionState.selectedSpatialUnitIsRaster()
       ? undefined
       : this.envConfigService.defaultBorderColorForFilteredValues,
     dashArray: '',
@@ -949,7 +949,7 @@ export class VisualStyleHelperServiceNew {
           return {
             weight: 1,
             opacity: fillOpacity,
-            color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+            color: this.selectionState.selectedSpatialUnitIsRaster()
               ? undefined
               : this.defaultBorderColor,
             dashArray: '',
@@ -980,7 +980,7 @@ export class VisualStyleHelperServiceNew {
           return {
             weight: 1,
             opacity: fillOpacity,
-            color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+            color: this.selectionState.selectedSpatialUnitIsRaster()
               ? undefined
               : this.defaultBorderColor,
             dashArray: '',
@@ -997,7 +997,7 @@ export class VisualStyleHelperServiceNew {
     return {
       weight: 1,
       opacity: fillOpacity,
-      color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+      color: this.selectionState.selectedSpatialUnitIsRaster()
         ? undefined
         : this.defaultBorderColor,
       dashArray: '',
@@ -1133,7 +1133,7 @@ export class VisualStyleHelperServiceNew {
       return {
         weight: 1,
         opacity: 1,
-        color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+        color: this.selectionState.selectedSpatialUnitIsRaster()
           ? undefined
           : this.defaultBorderColor,
         dashArray: '',
@@ -1163,7 +1163,7 @@ export class VisualStyleHelperServiceNew {
       return {
         weight: 1,
         opacity: 1,
-        color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+        color: this.selectionState.selectedSpatialUnitIsRaster()
           ? undefined
           : this.defaultBorderColor,
         dashArray: '',
@@ -1224,7 +1224,7 @@ export class VisualStyleHelperServiceNew {
       return {
         weight: 1,
         opacity: 1,
-        color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+        color: this.selectionState.selectedSpatialUnitIsRaster()
           ? undefined
           : this.defaultBorderColor,
         dashArray: '',
@@ -1254,7 +1254,7 @@ export class VisualStyleHelperServiceNew {
       return {
         weight: 1,
         opacity: 1,
-        color: this.dataExchangeService.selectedSpatialUnitIsRaster()
+        color: this.selectionState.selectedSpatialUnitIsRaster()
           ? undefined
           : this.defaultBorderColor,
         dashArray: '',
