@@ -6,6 +6,7 @@ import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
+import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
@@ -45,6 +46,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   protected dataExchangeService = inject(DataExchangeService);
   protected readonly selectionState = inject(SelectionStateService);
   protected readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
+  private readonly metadataFilterService = inject(MetadataFilterService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly indicatorStore = inject(IndicatorMetadataStoreService);
   private readonly broadcastService = inject(BroadcastService);
@@ -295,7 +297,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeIndicatorFilter() {
-    this.dataExchangeService.onChangeIndicatorKeywordFilter(
+    this.metadataFilterService.onChangeIndicatorKeywordFilter(
       this.indicatorNameFilter,
     );
 

@@ -76,13 +76,6 @@ export class DataExchangeService {
   selectedIndicatorBackup!: IndicatorsDataset;
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
-  // Prio7 B4: indicator keyword filter lives in MetadataFilterService; facade get/set keeps consumers + the B6d wrapper unchanged
-  get displayableIndicators_keywordFiltered(): any {
-    return this.metadataFilterService.displayableIndicators_keywordFiltered;
-  }
-  set displayableIndicators_keywordFiltered(v: any) {
-    this.metadataFilterService.displayableIndicators_keywordFiltered = v;
-  }
   wmsLegendImage: any;
   rangeFilterData: any;
   classifyZeroSeparately_backup: any;
@@ -319,7 +312,7 @@ export class DataExchangeService {
 
   private buildComputationIndicatorHierarchy() {
     this.topicHierarchyStore.buildComputationIndicatorHierarchy(
-      this.displayableIndicators_keywordFiltered,
+      this.metadataFilterService.displayableIndicators_keywordFiltered,
       this.processScriptStore.availableProcessScripts
     );
   }
@@ -327,7 +320,7 @@ export class DataExchangeService {
   private buildTopicIndicatorHierarchy() {
     this.topicHierarchyStore.buildTopicIndicatorHierarchy(
       this.topicStore.availableTopics,
-      this.displayableIndicators_keywordFiltered,
+      this.metadataFilterService.displayableIndicators_keywordFiltered,
       this.georesourceStore.getAvailableIndiWmsDatasets()
     );
   }
@@ -336,15 +329,14 @@ export class DataExchangeService {
     this.indicatorStore.modifyIndicatorApplicableSpatialUnitsForLoginRoles(
       this.spatialUnitStore.availableSpatialUnits
     );
-    // displayableIndicators_keywordFiltered is B4 state and stays in the facade
-    this.displayableIndicators_keywordFiltered = JSON.parse(
+    this.metadataFilterService.displayableIndicators_keywordFiltered = JSON.parse(
       JSON.stringify(this.indicatorStore.displayableIndicators)
     );
   }
 
   private buildHeadlineIndicatorHierarchy() {
     this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
-      this.displayableIndicators_keywordFiltered,
+      this.metadataFilterService.displayableIndicators_keywordFiltered,
       this.processScriptStore.availableProcessScripts
     );
   }
@@ -424,10 +416,6 @@ export class DataExchangeService {
 
       $('.mapApplicationErrorAlert').show();
     }, 1000);
-  }
-
-  onChangeIndicatorKeywordFilter(indicatorNameFilter) {
-    this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
   }
 
   async generateAndDownloadGeoresourceZIP(

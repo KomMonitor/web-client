@@ -3,7 +3,9 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
-import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";import { SelectionStateService } from "services/selection-state-service/selection-state.service";
+import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
+import { SelectionStateService } from "services/selection-state-service/selection-state.service";
+import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
@@ -24,6 +26,7 @@ export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
   private cacheHelperService = inject(CacheHelperServiceService);
+  private readonly metadataFilterService = inject(MetadataFilterService);
   private readonly selectionState = inject(SelectionStateService);
   private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -117,7 +120,7 @@ export class KommonitorDataSetupService {
 
   prepareKeywordFilteredList(): any[] {
     const indicators =
-      this.dataExchangeService.displayableIndicators_keywordFiltered.map(
+      this.metadataFilterService.displayableIndicators_keywordFiltered.map(
         (item: any) => ({ ...item, listType: "indicator" }),
       );
     const wms = this.georesourceStore
