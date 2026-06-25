@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -12,7 +12,7 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
   providedIn: 'root',
 })
 export class KommonitorGeoresourceDataExchangeService {
-  private angularJsDataExchangeService = inject(DataExchangeService);
+  private poiPresentationService = inject(PoiPresentationService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
@@ -126,9 +126,9 @@ export class KommonitorGeoresourceDataExchangeService {
   }
 
   /**
-   * Get LOI dash SVG from string value - delegates to AngularJS service
+   * Get LOI dash SVG from string value - delegates to PoiPresentationService
    */
   getLoiDashSvgFromStringValue(dashArrayString: string): any {
-    return this.angularJsDataExchangeService.getLoiDashSvgFromStringValue(dashArrayString);
+    return this.poiPresentationService.getLoiDashSvgFromStringValue(dashArrayString);
   }
 }

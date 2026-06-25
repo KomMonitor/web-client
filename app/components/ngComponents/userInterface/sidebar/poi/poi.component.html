@@ -36,7 +36,7 @@
 
         <select
           (change)="layerService.refreshPoiLayers()"
-          [(ngModel)]="dataExchangeService.selectedPoiSize"
+          [(ngModel)]="poiPresentationService.selectedPoiSize"
           class="form-control"
         >
           <option *ngFor="let item of poiSizes" [ngValue]="item">

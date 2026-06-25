@@ -1,19 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import * as L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import 'leaflet.awesome-markers';
 
 import 'leaflet-draw';
 import { IconTranslateService } from 'services/icon-translate/icon-translate.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { DEFAULT_POI_SIZE } from '../data-exchange-service/data-exchange.constants';
+import { DEFAULT_POI_SIZE } from 'services/poi-presentation-service/poi-presentation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GenericMapHelperService {
-  private dataExchangeService = inject(DataExchangeService);
+  private poiPresentationService = inject(PoiPresentationService);
   private broadcastService = inject(BroadcastService);
   private iconTranslate = inject(IconTranslateService);
   private envConfigService = inject(EnvConfigService);
@@ -88,7 +88,7 @@ export class GenericMapHelperService {
       prefix: 'fa',
       markerColor: poiMarkerColor,
       iconColor: poiSymbolColor,
-      extraClasses: `${this.dataExchangeService.selectedPoiSize.iconClassName} vector-marker-icon-color-${poiMarkerColor}`,
+      extraClasses: `${this.poiPresentationService.selectedPoiSize.iconClassName} vector-marker-icon-color-${poiMarkerColor}`,
     });
 
     let newMarker;

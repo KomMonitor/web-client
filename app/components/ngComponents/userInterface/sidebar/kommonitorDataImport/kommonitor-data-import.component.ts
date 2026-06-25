@@ -3,6 +3,7 @@ import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@an
 import { NgbDropdown,NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
 import { GeocoderHelperService } from 'services/geocoder-helper-service/geocoder-helper.service';
@@ -60,12 +61,13 @@ export class KommonitorDataImportComponent implements OnInit {
 
   constructor(
     protected kommonitorDataExchangeService: DataExchangeService,
+    protected poiPresentationService: PoiPresentationService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private kommonitorMapService: MapService,
     private kommonitorGeocoderHelperService: GeocoderHelperService,
     private kommonitorFileHelperService: FileHelperService
   ) {
-    this.filteredPoiMarkerColors = this.kommonitorDataExchangeService.availablePoiMarkerColors.filter(e => e.colorName!='white');
+    this.filteredPoiMarkerColors = this.poiPresentationService.availablePoiMarkerColors.filter(e => e.colorName!='white');
   }
 
   loadingData = false;
@@ -76,7 +78,7 @@ export class KommonitorDataImportComponent implements OnInit {
   wmsNameFilter = undefined;
 
   customFileInputColor = `#00AABB`;
-  customFileInputMarkerColor = this.kommonitorDataExchangeService.availablePoiMarkerColors[0];
+  customFileInputMarkerColor = this.poiPresentationService.availablePoiMarkerColors[0];
 
   tmpKommonitorGeoresource_table;
   tableProcessType = 'latLon';
@@ -482,7 +484,7 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   translateColorName(colorName):string | undefined {
-    return this.kommonitorDataExchangeService.availablePoiMarkerColors.find(e => e.colorName==colorName)?.colorValue;
+    return this.poiPresentationService.availablePoiMarkerColors.find(e => e.colorName==colorName)?.colorValue;
   }
 
   FileLayerError([errorMsg, dataset]) {

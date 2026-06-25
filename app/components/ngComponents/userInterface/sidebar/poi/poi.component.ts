@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { PoiPresentationService } from "services/poi-presentation-service/poi-presentation.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
@@ -16,7 +16,7 @@ import {
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { POI_SIZES } from "../../../../../services/data-exchange-service/data-exchange.constants";
+import { POI_SIZES } from "services/poi-presentation-service/poi-presentation.service";
 import { GeoresourceFavTabComponent } from "./georesource-fav-tab/georesource-fav-tab.component";
 import { GeoresourceListTabComponent } from "./georesource-list-tab/georesource-list-tab.component";
 import { GeoresourceCatalogueTabComponent } from "./georesource-catalogue-tab/georesource-catalogue-tab.component";
@@ -43,7 +43,7 @@ export class PoiComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected poiPresentationService: PoiPresentationService,
     private topicHierarchyStore: TopicHierarchyStoreService,
     protected georesourceStore: GeoresourceMetadataStoreService,
     protected layerService: GeoresourceLayerService,

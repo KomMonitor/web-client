@@ -8,7 +8,7 @@ import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommo
 import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,
-} from 'services/data-exchange-service/data-exchange.constants';
+} from 'services/poi-presentation-service/poi-presentation.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
