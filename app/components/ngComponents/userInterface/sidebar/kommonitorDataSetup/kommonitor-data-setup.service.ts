@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
@@ -25,6 +26,7 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private readonly metadataFilterService = inject(MetadataFilterService);
   private readonly selectionState = inject(SelectionStateService);
@@ -251,7 +253,7 @@ export class KommonitorDataSetupService {
     const indicatorId = this.selectionState.selectedIndicator.indicatorId;
 
     if (!(date && this.selectionState.selectedSpatialUnit && indicatorId)) {
-      this.dataExchangeService.displayMapApplicationError(
+      this.mapErrorNotificationService.displayMapApplicationError(
         "Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.",
       );
       throw Error("Not all parameters have been set up yet.");

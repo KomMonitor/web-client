@@ -7,7 +7,7 @@ import {
 } from './data-exchange.constants';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -43,7 +43,7 @@ export class DataExchangeService {
   private cacheHelperService = inject(CacheHelperServiceService);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
-  private indicatorValueService = inject(IndicatorValueService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private accessControlService = inject(AccessControlService);
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
@@ -89,8 +89,6 @@ export class DataExchangeService {
   baseLayerDefinitionsArray!: any[];
 
   selectedPoiSize: PoiSize = DEFAULT_POI_SIZE;
-
-  errorMessage = undefined;
 
   anySideBarIsShown = false;
 
@@ -150,10 +148,6 @@ export class DataExchangeService {
 
   setMetadataState(state: MetadataLoadingState) {
     this.metadataLoadingSubject.next(state);
-  }
-
-  hideErrorAlert() {
-    $('.mapApplicationErrorAlert').hide();
   }
 
   async fetchAllMetadata(filter = undefined) {
@@ -229,7 +223,7 @@ export class DataExchangeService {
       },
       error: (error) => {
         // todo error handling
-        this.displayMapApplicationError(
+        this.mapErrorNotificationService.displayMapApplicationError(
           'Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.'
         );
         this.broadcastService.broadcast('initialMetadataLoadingFailed', [error]);
@@ -345,23 +339,6 @@ export class DataExchangeService {
     );
     this.accessControlService.setCurrentKomMonitorLoginRoleNames();
     this.accessControlService.setCurrentKomMonitorLoginOrganizationalUnits();
-  }
-
-  displayMapApplicationError(error) {
-    setTimeout(() => {
-      if (error.data) {
-        this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error.data);
-      }
-      if (error.message) {
-        this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error.message);
-      } else {
-        this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error);
-      }
-
-      this.broadcastService.broadcast('hideLoadingIconOnMap');
-
-      $('.mapApplicationErrorAlert').show();
-    }, 1000);
   }
 
 }

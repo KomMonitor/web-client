@@ -4,6 +4,7 @@ import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -165,6 +166,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
@@ -866,7 +868,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         console.log("Error while exporting map view.");
         console.error(error);
 
-        this.dataExchangeService.displayMapApplicationError;
+        this.mapErrorNotificationService.displayMapApplicationError;
       });
 
   }
@@ -1029,7 +1031,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.searchControl = undefined;
         }
         catch (error) {
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
         }
       }
 
@@ -2193,7 +2195,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
     catch (error) {
       this.loadingData = false;
-      this.dataExchangeService.displayMapApplicationError(error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
     }
 
 

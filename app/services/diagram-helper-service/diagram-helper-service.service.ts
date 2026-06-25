@@ -1,6 +1,7 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -19,6 +20,7 @@ import * as ecStat from 'echarts-stat';
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
   private dataExchangeService = inject(DataExchangeService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private filterHelperService = inject(FilterHelperService);
@@ -244,7 +246,7 @@ export class DiagramHelperServiceService {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = response;
       },
       error: (error) => {
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
   }
@@ -262,7 +264,7 @@ export class DiagramHelperServiceService {
         return response;
       },
       error: (error) => {
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
   }

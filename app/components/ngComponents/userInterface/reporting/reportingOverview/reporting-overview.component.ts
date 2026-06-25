@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import * as d3 from 'd3';
@@ -55,6 +56,7 @@ export class ReportingOverviewComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorStore: IndicatorMetadataStoreService,
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
@@ -449,7 +451,7 @@ export class ReportingOverviewComponent implements OnInit {
         }
 			} catch (error:any) {
 				console.error(error);
-				//this.dataExchangeService.displayMapApplicationError(error.message);
+				//this.mapErrorNotificationService.displayMapApplicationError(error.message);
 			}
     } 
 
@@ -869,7 +871,7 @@ export class ReportingOverviewComponent implements OnInit {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             this.loadingData = false;
-            this.dataExchangeService.displayMapApplicationError(error);
+            this.mapErrorNotificationService.displayMapApplicationError(error);
             console.error(error);
           }
         });
@@ -894,7 +896,7 @@ export class ReportingOverviewComponent implements OnInit {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             this.loadingData = false;
-            this.dataExchangeService.displayMapApplicationError(error);
+            this.mapErrorNotificationService.displayMapApplicationError(error);
             console.error(error);
           }
         });
@@ -1115,7 +1117,7 @@ export class ReportingOverviewComponent implements OnInit {
 				downloadAnchorNode.click();
 				downloadAnchorNode.remove();
 			} catch (error:any) {
-				this.dataExchangeService.displayMapApplicationError(error.message);
+				this.mapErrorNotificationService.displayMapApplicationError(error.message);
 				console.error(error)
 			}
 			
@@ -1179,7 +1181,7 @@ export class ReportingOverviewComponent implements OnInit {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             this.loadingData = false;
-            this.dataExchangeService.displayMapApplicationError(error);
+            this.mapErrorNotificationService.displayMapApplicationError(error);
             console.error(error);
           }
         });

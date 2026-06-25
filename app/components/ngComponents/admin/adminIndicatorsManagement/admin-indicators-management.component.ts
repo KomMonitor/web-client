@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
@@ -52,6 +53,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private accessControlService = inject(AccessControlService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
 
@@ -97,7 +99,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
             // Success - no action needed
           },
           error: (error: any) => {
-            this.dataExchangeService.displayMapApplicationError(error);
+            this.mapErrorNotificationService.displayMapApplicationError(error);
           },
         });
     },
@@ -863,7 +865,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           // Display order updated successfully
         },
         error: (error: any) => {
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
         },
       });
   }

@@ -2,6 +2,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -15,6 +16,7 @@ export class ReachabilityHelperService {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private selectionState = inject(SelectionStateService);
   private envConfigService = inject(EnvConfigService);
@@ -267,7 +269,7 @@ export class ReachabilityHelperService {
         this.settings.pointSourceConfigured = false;
         this.settings.loadingData = false;
         console.error(error.statusText);
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
         this.error = error.statusText;
       },
     });
@@ -621,7 +623,7 @@ export class ReachabilityHelperService {
           console.error(error.data.error.message);
           this.error = error.data.error.message;
           this.settings.loadingData = false;
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
           reject();
         },
       });

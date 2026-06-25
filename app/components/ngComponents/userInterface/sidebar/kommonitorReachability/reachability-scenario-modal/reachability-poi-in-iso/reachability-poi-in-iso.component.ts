@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -43,6 +44,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
+    private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
@@ -233,7 +235,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
           this.reachabilityHelperService.settings.loadingData = false;
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
           reject(error);
         }
       });

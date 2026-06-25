@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
@@ -44,6 +45,7 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
 })
 export class KommonitorDataSetupComponent implements OnInit {
   protected dataExchangeService = inject(DataExchangeService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   protected readonly selectionState = inject(SelectionStateService);
   protected readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
   private readonly metadataFilterService = inject(MetadataFilterService);
@@ -144,7 +146,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     ) {
       console.error("Kein darstellbarer Indikator konnte gefunden werden.");
 
-      this.dataExchangeService.displayMapApplicationError(
+      this.mapErrorNotificationService.displayMapApplicationError(
         "Kein darstellbarer Indikator konnte gefunden werden.",
       );
       this.loadingData = false;
@@ -222,7 +224,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     } catch (error) {
       console.error("Initiales Darstellen eines Indikators ist gescheitert.");
 
-      this.dataExchangeService.displayMapApplicationError(
+      this.mapErrorNotificationService.displayMapApplicationError(
         "Initiales Darstellen eines Indikators ist gescheitert.",
       );
       this.loadingData = false;
@@ -357,7 +359,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       console.error(error);
       this.loadingData = false;
       this.broadcastService.broadcast("hideLoadingIconOnMap");
-      this.dataExchangeService.displayMapApplicationError(error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
       return false;
     }
 
@@ -383,7 +385,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       },
       error: (error) => {
         this.loadingData = false;
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
         this.broadcastService.broadcast("hideLoadingIconOnMap");
       },
     });
@@ -441,7 +443,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       },
       error: (error) => {
         this.loadingData = false;
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
   }
@@ -484,7 +486,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         this.loadingData = false;
         this.broadcastService.broadcast("hideLoadingIconOnMap");
 
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
         return;
       }
 

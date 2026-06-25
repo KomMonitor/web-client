@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
@@ -38,6 +39,7 @@ export class GeoresourceLayerService {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
@@ -206,7 +208,7 @@ export class GeoresourceLayerService {
       },
       error: (error) => {
         this.loadingData = false;
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
   }
@@ -271,7 +273,7 @@ export class GeoresourceLayerService {
       },
       error: (error) => {
         this.loadingData = false;
-        this.dataExchangeService.displayMapApplicationError(error);
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
   }

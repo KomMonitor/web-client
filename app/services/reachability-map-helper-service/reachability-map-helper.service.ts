@@ -7,6 +7,7 @@ import * as turf from '@turf/turf';
 import domtoimage from 'dom-to-image-more';
 
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -23,6 +24,7 @@ export class ReachabilityMapHelperService {
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
   private dataExchangeService = inject(DataExchangeService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
   private genericMapHelperService = inject(GenericMapHelperService);
@@ -114,7 +116,7 @@ export class ReachabilityMapHelperService {
     } catch (error) {
       console.log('Error while exporting map view.');
       console.error(error);
-      this.dataExchangeService.displayMapApplicationError(error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
       return undefined;
     }
   }

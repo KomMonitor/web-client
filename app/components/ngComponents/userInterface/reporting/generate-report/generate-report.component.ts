@@ -1,5 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import * as echarts from 'echarts';
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
@@ -37,6 +38,7 @@ export class GenerateReportComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private mapErrorNotificationService: MapErrorNotificationService,
     private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
     private broadcastService: BroadcastService,
     protected reportingService: ReportingService
@@ -85,7 +87,7 @@ export class GenerateReportComponent implements OnInit {
 
     } catch (error:any) {
       console.error(error);
-      this.dataExchangeService.displayMapApplicationError(error.message);
+      this.mapErrorNotificationService.displayMapApplicationError(error.message);
       this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
       this.loadingData = false;
       this.activeModal.close();

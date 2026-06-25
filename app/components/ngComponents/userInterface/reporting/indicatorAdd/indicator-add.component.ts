@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -186,6 +187,7 @@ export class IndicatorAddComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
     private selectionState: SelectionStateService,
@@ -1443,7 +1445,7 @@ export class IndicatorAddComponent implements OnInit {
     let features = this.availableFeaturesBySpatialUnit[ spatialUnit.spatialUnitName ];
     if(!features) {
       let error = new Error("Tried to get valid timestamps but no features were cached.")
-      this.dataExchangeService.displayMapApplicationError(error.message)
+      this.mapErrorNotificationService.displayMapApplicationError(error.message)
     }
     for(let feature of features) {
       let props = Object.keys(feature.properties)
@@ -1593,7 +1595,7 @@ export class IndicatorAddComponent implements OnInit {
         },
         error: error => {
           this.loadingData = false;
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
           console.error(error);
         }
       });
@@ -1699,7 +1701,7 @@ export class IndicatorAddComponent implements OnInit {
       },1000);
     } catch (error) {
       console.error(error);
-      this.dataExchangeService.displayMapApplicationError(error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
       this.loadingData = false;
     }
     
@@ -2060,7 +2062,7 @@ export class IndicatorAddComponent implements OnInit {
       },1000); 
     } catch (error) {
       console.error(error);
-      this.dataExchangeService.displayMapApplicationError(error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
       this.loadingData = false;
     }
   }
@@ -4177,7 +4179,7 @@ console.log('init all diagrams')
     // we need at least two timestamps
     if(dataArr.length <= 1) {
       let error = new Error("Can not calculate percentage change from a single timestamp.")
-      this.dataExchangeService.displayMapApplicationError(error.message);
+      this.mapErrorNotificationService.displayMapApplicationError(error.message);
     }
     let result:any[] = [];
     for(let i=1; i<dataArr.length;i++) {
