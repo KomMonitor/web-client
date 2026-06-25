@@ -11,7 +11,6 @@ import { SmallBoxComponent } from './small-box/small-box.component';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
-import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -105,7 +104,6 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
 export class AdminDashboardManagementComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private translateService = inject(TranslateService);
-  protected dataExchange = inject(DataExchangeService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
@@ -176,7 +174,6 @@ export class AdminDashboardManagementComponent implements OnInit {
   }
 
   private updateDisplayValues(): void {
-    const d = this.dataExchange;
 
     this.organisationCount.set(String(this.accessControlService.accessControl?.length ?? 0));
     this.indicatorCount.set(String(this.indicatorStore.availableIndicators?.length ?? 0));

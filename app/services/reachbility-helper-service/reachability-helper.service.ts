@@ -1,7 +1,6 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -15,7 +14,6 @@ import { ReachabilityCombinerService } from 'services/reachability-combiner-serv
 export class ReachabilityHelperService {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
-  private dataExchangeService = inject(DataExchangeService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private selectionState = inject(SelectionStateService);

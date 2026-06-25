@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -55,7 +54,6 @@ export class ReportingOverviewComponent implements OnInit {
   workflowState = WorkflowState;
 
   constructor(
-    private dataExchangeService: DataExchangeService,
     private mapErrorNotificationService: MapErrorNotificationService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorStore: IndicatorMetadataStoreService,

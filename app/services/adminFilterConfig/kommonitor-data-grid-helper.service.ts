@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import * as agGrid from 'ag-grid-community';
 import { GlobalFilterEntry } from 'components/ngComponents/models/globalFilters.models';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +9,6 @@ import { AdminFilterEditModalComponent } from 'components/ngComponents/admin/adm
   providedIn: 'root',
 })
 export class KommonitorFilterDataGridHelperService {
-  private angularJsDataExchangeService = inject(DataExchangeService);
   private modalService = inject(NgbModal);
 
   /**

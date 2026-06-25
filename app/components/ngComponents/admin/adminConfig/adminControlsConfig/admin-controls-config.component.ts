@@ -3,7 +3,6 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import CodeMirror from 'codemirror';
 import { firstValueFrom } from 'rxjs';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 // CodeMirror module is not loaded properly (why?!), reload necessary files
 import 'codemirror/mode/css/css.js';
@@ -41,7 +40,6 @@ interface LintingIssue {
 })
 export class AdminControlsConfigComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
-  private kommonitorDataExchangeService = inject(DataExchangeService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private notificationService = inject(NotificationService);

@@ -4,7 +4,6 @@ import { ChangeDetectorRef, Component, inject, OnChanges, OnInit } from '@angula
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
@@ -43,7 +42,6 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
   constructor(
     protected reachabilityHelperService: ReachabilityHelperService,
-    protected dataExchangeService: DataExchangeService,
     private multiStepHelperService: MultiStepHelperServiceService,
     private broadcastService: BroadcastService,
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,

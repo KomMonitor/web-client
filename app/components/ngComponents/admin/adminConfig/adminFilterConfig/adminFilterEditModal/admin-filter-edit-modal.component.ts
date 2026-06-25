@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from '../../../../../../services/config-storage-service/config-storage.service';
-import { DataExchangeService } from '../../../../../../services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from '../../../../../../services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from '../../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
@@ -20,7 +19,6 @@ import { NotificationService } from '../../../../common/notification/notificatio
 })
 export class AdminFilterEditModalComponent implements OnInit {
   private multiStepHelperService = inject(MultiStepHelperServiceService);
-  private kommonitorDataExchangeService = inject(DataExchangeService);
   private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);

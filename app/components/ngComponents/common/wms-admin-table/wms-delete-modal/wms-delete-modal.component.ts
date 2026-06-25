@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 
 @Component({
@@ -24,7 +23,6 @@ export class WmsDeleteModalComponent {
 
   constructor(
     public activeModal: NgbActiveModal,
-    protected dataExchangeService: DataExchangeService,
     private ogcService: OgcService
   ) {}
 

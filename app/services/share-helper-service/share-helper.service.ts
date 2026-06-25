@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'services/auth-service/auth.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { Location } from '@angular/common';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -13,7 +12,6 @@ export class ShareHelperService {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
-  private dataExchangeService = inject(DataExchangeService);
   private selectionState = inject(SelectionStateService);
   private location = inject(Location);
   private envConfigService = inject(EnvConfigService);

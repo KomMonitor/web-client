@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
@@ -46,7 +45,6 @@ export class SingleFeatureEditComponent implements OnInit {
     
 
   constructor(
-    private dataExchangeService: DataExchangeService,
     private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     protected singleFeatureMapHelperService: SingleFeatureMapHelperService,

@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { ColDef } from 'ag-grid-community';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
@@ -15,7 +14,6 @@ declare const $: any;
   providedIn: 'root',
 })
 export class KommonitorIndicatorDataGridHelperService {
-  private angularJsDataExchangeService = inject(DataExchangeService);
   private accessControlService = inject(AccessControlService);
   private metadataExportService = inject(MetadataExportService);
   private topicStore = inject(TopicMetadataStoreService);

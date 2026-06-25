@@ -3,7 +3,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
@@ -16,7 +15,6 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 export class ScriptDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private http = inject(HttpClient);
-  private dataExchangeService = inject(DataExchangeService);
   private indicatorValueService = inject(IndicatorValueService);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);

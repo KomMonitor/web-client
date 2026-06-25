@@ -7,7 +7,6 @@ import {
 } from '../admin-topics-management.component';
 import { take } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 
 @Component({
@@ -20,7 +19,6 @@ import { IndicatorValueService } from '../../../../../services/indicator-value-s
 export class AddTopicComponent {
   private srvc = inject(AdminTopicsManagementService);
   private errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
-  private dataExchangeService = inject(DataExchangeService);
   private indicatorValueService = inject(IndicatorValueService);
 
   @Input({ required: true }) topicResourceType!: TopicResourceType;

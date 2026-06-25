@@ -6,7 +6,7 @@
 		</div>
 	</div>
 
-  <expandable-box [title]="exchangeData.enableScatterPlotRegression ? 'Lineare Regression zwischen zwei Indikatoren' : 'Streudiagramm für zwei Indikatoren' " [collapsed]="false">
+  <expandable-box [title]="enableScatterPlotRegression ? 'Lineare Regression zwischen zwei Indikatoren' : 'Streudiagramm für zwei Indikatoren' " [collapsed]="false">
     <label class="switch">
       <input type="checkbox" [(ngModel)]="diagramHelperService.filterSameUnitAndSameTime" (change)="onChangeFilterSameUnitAndSameTime()">
       <span class="switchslider round"></span>
@@ -369,7 +369,7 @@
           <b title="Checkbox zur Wahl, ob lineare Regressionsanalyse sichtbar ist">lineare Regressionsanalyse darstellen?</b>
           &nbsp;
           <label class="switch">
-            <input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression" [(ngModel)]="exchangeData.enableScatterPlotRegression" (change)="onChangeEnableScatterPlotRegression()"
+            <input type="checkbox" value="$ctrl.kommonitorDataExchangeServiceInstance.enableScatterPlotRegression" [(ngModel)]="enableScatterPlotRegression" (change)="onChangeEnableScatterPlotRegression()"
               checked>
             <span class="switchslider round"></span>
           </label>		
@@ -379,7 +379,7 @@
       <div id="regressionDiagram" style="width:100%; min-height:60vh;"></div>
     </div>
 
-    <div *ngIf="exchangeData.enableScatterPlotRegression">
+    <div *ngIf="enableScatterPlotRegression">
       <b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
     </div>
   </expandable-box>

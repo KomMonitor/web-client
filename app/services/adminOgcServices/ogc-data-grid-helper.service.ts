@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import { GridOptions, ColDef } from 'ag-grid-community';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { Topic } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
@@ -11,7 +10,6 @@ import { OgcService } from 'services/ogcServices/ogc.service';
   providedIn: 'root',
 })
 export class OgcDataGridHelperService {
-  private dataExchangeService = inject(DataExchangeService);
   private topicStore = inject(TopicMetadataStoreService);
   private ogcService = inject(OgcService);
 

@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -15,7 +14,6 @@ import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-servic
 export class SingleFeatureMapHelperService {
   private genericMapHelperService = inject(GenericMapHelperService);
   private broadcastService = inject(BroadcastService);
-  private dataExchangeService = inject(DataExchangeService);
   private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
   private envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);

@@ -2,7 +2,6 @@ import { DestroyRef, inject, Injectable } from '@angular/core';
 import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -59,7 +58,6 @@ export interface GeoJSONFeature {
 })
 export class ReachabilityCombinerService {
   private reachabilityHelperService = inject(ReachabilityHelperService);
-  private dataExchangeService = inject(DataExchangeService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);

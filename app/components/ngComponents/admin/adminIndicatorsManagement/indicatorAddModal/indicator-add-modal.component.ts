@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core'
 import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { HttpClient } from '@angular/common/http';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -28,7 +27,6 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
 })
 export class IndicatorAddModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(DataExchangeService);
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -232,7 +230,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
     // Load available spatial units
     if (
-      this.kommonitorDataExchangeService &&
       this.spatialUnitStore.availableSpatialUnits
     ) {
       this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
@@ -254,7 +251,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
     // Load available indicators
     if (
-      this.kommonitorDataExchangeService &&
       this.indicatorStore.availableIndicators
     ) {
       this.availableIndicators = this.indicatorStore.availableIndicators;
@@ -262,19 +258,18 @@ export class IndicatorAddModalComponent implements OnInit {
 
     // Load available georesources
     if (
-      this.kommonitorDataExchangeService &&
       this.georesourceStore.availableGeoresources
     ) {
       this.availableGeoresources = this.georesourceStore.availableGeoresources;
     }
 
     // Load available topics
-    if (this.kommonitorDataExchangeService && this.topicStore.availableTopics) {
+    if (this.topicStore.availableTopics) {
       this.availableTopics = this.topicStore.availableTopics;
     }
 
     // Load access control
-    if (this.kommonitorDataExchangeService && this.accessControlService.accessControl) {
+    if (this.accessControlService.accessControl) {
       this.accessControl = this.accessControlService.accessControl;
     }
 
@@ -295,7 +290,7 @@ export class IndicatorAddModalComponent implements OnInit {
 
   private initializeMultiStepForm() {
     // Initialize multi-step form based on security settings
-    if (this.kommonitorDataExchangeService && this.envConfigService.enableKeycloakSecurity) {
+    if (this.envConfigService.enableKeycloakSecurity) {
       this.totalSteps = 7; // Include role management step
     } else {
       this.totalSteps = 6;
@@ -303,7 +298,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
     // Initialize role management if available
     if (
-      this.kommonitorDataExchangeService &&
       this.accessControlService.accessControl &&
       this.roleManagementHelper
     ) {
@@ -358,7 +352,6 @@ export class IndicatorAddModalComponent implements OnInit {
     if (
       this.datasetName &&
       this.indicatorType &&
-      this.kommonitorDataExchangeService &&
       this.indicatorStore.availableIndicators
     ) {
       this.indicatorStore.availableIndicators.forEach((indicator: any) => {
@@ -571,7 +564,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
       // Check if service is available
       if (
-        !this.kommonitorDataExchangeService ||
         !this.envConfigService.baseUrlToKomMonitorDataAPI
       ) {
         throw new Error('Data exchange service not available');
@@ -603,7 +595,6 @@ export class IndicatorAddModalComponent implements OnInit {
       }, 2000);
     } catch (error: any) {
       if (
-        this.kommonitorDataExchangeService &&
         this.indicatorValueService.syntaxHighlightJSON
       ) {
         if (error.data) {
@@ -780,7 +771,6 @@ export class IndicatorAddModalComponent implements OnInit {
     // Parse references
     if (
       this.metadataImportSettings.refrencesToOtherIndicators &&
-      this.kommonitorDataExchangeService &&
       this.indicatorStore.availableIndicators
     ) {
       this.indicatorReferences_apiRequest = this.metadataImportSettings.refrencesToOtherIndicators;
@@ -802,7 +792,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
     if (
       this.metadataImportSettings.refrencesToGeoresources &&
-      this.kommonitorDataExchangeService &&
       this.georesourceStore.availableGeoresources
     ) {
       this.georesourceReferences_apiRequest = this.metadataImportSettings.refrencesToGeoresources;
@@ -851,7 +840,6 @@ export class IndicatorAddModalComponent implements OnInit {
 
     // Parse role permissions
     if (
-      this.kommonitorDataExchangeService &&
       this.accessControlService.accessControl &&
       this.metadataImportSettings.allowedRoles &&
       this.roleManagementHelper

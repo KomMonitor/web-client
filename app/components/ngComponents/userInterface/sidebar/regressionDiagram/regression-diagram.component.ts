@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -80,13 +79,12 @@ export class RegressionDiagramComponent implements OnInit {
   spatialUnitName;
   date;
 
-  exchangeData;
+  enableScatterPlotRegression: any;
 
   chartTitle!: string;
 
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
-    private dataExchangeService: DataExchangeService,
     private exportButtonVisibility: ExportButtonVisibilityService,
     private metadataFilterService: MetadataFilterService,
     private indicatorValueService: IndicatorValueService,
@@ -95,7 +93,6 @@ export class RegressionDiagramComponent implements OnInit {
     private filterHelperService: FilterHelperService,
     private envConfigService: EnvConfigService,
   ) {
-    this.exchangeData = this.dataExchangeService;
   }
   
   // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
@@ -148,7 +145,7 @@ export class RegressionDiagramComponent implements OnInit {
       }
     });
 
-    this.chartTitle = this.exchangeData.enableScatterPlotRegression ? `Lineare Regression - ${this.spatialUnitName}` : `Streudiagramm - ${this.spatialUnitName}`;
+    this.chartTitle = this.enableScatterPlotRegression ? `Lineare Regression - ${this.spatialUnitName}` : `Streudiagramm - ${this.spatialUnitName}`;
   }
 
  /*  
@@ -634,8 +631,8 @@ export class RegressionDiagramComponent implements OnInit {
 
         this.linearRegression = ecStat.regression('linear', data,1);
 
-        let titlePrefix = this.exchangeData.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
-        let dataViewTitle =  this.exchangeData.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+        let titlePrefix = this.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
+        let dataViewTitle =  this.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
         
         //get custom fontFamily
         var elem:any = document.querySelector('#fontFamily-reference');
@@ -749,14 +746,14 @@ export class RegressionDiagramComponent implements OnInit {
                     var scatterSeries = opt.series[0].data;
                     var lineSeries;
                     
-                    if (this.exchangeData.enableScatterPlotRegression) {
+                    if (this.enableScatterPlotRegression) {
                       lineSeries = opt.series[1].data;
                     }
 
                     var dataTableId = "regressionDataTable";
                     var tableExportName = opt.title[0].text + " - Scatter Table";
 
-                    var htmlString = this.exchangeData.enableScatterPlotRegression
+                    var htmlString = this.enableScatterPlotRegression
                             ? 
                             "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
                             :
@@ -789,7 +786,7 @@ export class RegressionDiagramComponent implements OnInit {
                       let lineTableId;
                       let lineTableExportName;
 
-                      if (this.exchangeData.enableScatterPlotRegression) {
+                      if (this.enableScatterPlotRegression) {
 
                         lineTableId = "lineDataTable";
                         lineTableExportName = opt.title[0].text + " - Line Table";
@@ -819,7 +816,7 @@ export class RegressionDiagramComponent implements OnInit {
 
                       this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
 
-                      if (this.exchangeData.enableScatterPlotRegression) {
+                      if (this.enableScatterPlotRegression) {
                         this.broadcastService.broadcast("AppendExportButtonsForTable", [lineTableId, lineTableExportName]);
                       }
                       
@@ -857,7 +854,7 @@ export class RegressionDiagramComponent implements OnInit {
         ]
         };
 
-        if (this.exchangeData.enableScatterPlotRegression) {
+        if (this.enableScatterPlotRegression) {
           this.regressionOption.series.push(
             {
                   name: 'line',

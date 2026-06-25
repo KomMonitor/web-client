@@ -3,7 +3,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ScriptStepIntroductionComponent } from './scriptStepIntroduction/script-step-introduction.component';
 import {
@@ -28,7 +27,6 @@ import { StepperComponent, StepperStep } from '../../../common/stepper/stepper.c
 })
 export class ScriptAddModalComponent {
   activeModal = inject(NgbActiveModal);
-  dataExchangeService = inject(DataExchangeService);
   scriptHelperService = inject(ScriptHelperService);
   private broadcastService = inject(BroadcastService);
 

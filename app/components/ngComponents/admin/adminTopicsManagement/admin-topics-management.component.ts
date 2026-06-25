@@ -19,7 +19,6 @@ import { Injectable } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementService } from './admin-topics-management.service';
 
-import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { ExpandableBoxComponent } from '../../common/expandable-box/expandable-box.component';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
@@ -51,7 +50,6 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
   protected errorHandlingService = inject(AdminTopicsManagementErrorHandlingService);
   private topicSrvc = inject(AdminTopicsManagementService);
   private broadcastService = inject(BroadcastService);
-  private dataExchangeService = inject(DataExchangeService);
   private topicStore = inject(TopicMetadataStoreService);
 
   showTopicIds = false;

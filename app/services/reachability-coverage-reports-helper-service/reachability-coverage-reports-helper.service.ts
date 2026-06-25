@@ -1,7 +1,6 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
@@ -14,7 +13,6 @@ declare let _domtoimage: any;
   providedIn: 'root',
 })
 export class ReachabilityCoverageReportsHelperService {
-  private kommonitorDataExchangeService = inject(DataExchangeService);
   private kommonitorReachabilityHelperService = inject(ReachabilityHelperService);
   private kommonitorReachabilityMapHelperService = inject(ReachabilityMapHelperService);
   private zone = inject(NgZone);

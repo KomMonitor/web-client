@@ -11,7 +11,6 @@ import { AdminSpatialUnitsManagementComponent } from './adminSpatialUnitsManagem
 import { AdminTopicsManagementComponent } from './adminTopicsManagement/admin-topics-management.component';
 
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataExchangeService } from '../../../services/data-exchange-service/data-exchange.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../services/access-control-service/access-control.service';
 import { NotificationComponent } from '../common/notification/notification.component';
@@ -62,7 +61,6 @@ export enum AdminNavItem {
 })
 export class AdminComponent implements OnInit {
   private router = inject(Router);
-  protected dataExchangeService = inject(DataExchangeService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   protected accessControlService = inject(AccessControlService);
 

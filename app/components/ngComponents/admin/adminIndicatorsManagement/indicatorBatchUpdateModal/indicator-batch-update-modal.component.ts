@@ -4,7 +4,6 @@ import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 
@@ -38,7 +37,6 @@ interface BatchListItem {
 })
 export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private broadcastService = inject(BroadcastService);
-  protected dataExchangeService = inject(DataExchangeService);
   protected indicatorStore = inject(IndicatorMetadataStoreService);
   protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
 

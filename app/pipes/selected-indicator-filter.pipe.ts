@@ -1,5 +1,4 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 @Pipe({
@@ -10,7 +9,6 @@ import { SelectionStateService } from 'services/selection-state-service/selectio
 export class SelectedIndicatorFilter implements PipeTransform {
 
   constructor(
-    private dataExchangeService: DataExchangeService,
     private selectionState: SelectionStateService
   ) {}
 

@@ -17,7 +17,6 @@ import { FormsModule } from '@angular/forms';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { DATE_PICKER_OPTIONS } from 'services/data-exchange-service/data-exchange.constants';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
@@ -36,7 +35,6 @@ declare const __env: any;
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
-  kommonitorDataExchangeService = inject(DataExchangeService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorValueService = inject(IndicatorValueService);
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);

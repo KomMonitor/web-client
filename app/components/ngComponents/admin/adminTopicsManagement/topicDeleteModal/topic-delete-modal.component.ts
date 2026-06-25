@@ -6,7 +6,6 @@ import { Topic } from '../admin-topics-management.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 
@@ -19,7 +18,6 @@ import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-
 })
 export class TopicDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  private dataExchangeService = inject(DataExchangeService);
   private indicatorValueService = inject(IndicatorValueService);
   private srvc = inject(AdminTopicsManagementService);
   private sanitizer = inject(DomSanitizer);

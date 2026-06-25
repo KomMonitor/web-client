@@ -6,7 +6,6 @@ import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { forkJoin } from 'rxjs';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import { AgGridAngular } from "ag-grid-angular";
@@ -50,7 +49,6 @@ export class WmsEditUserRolesModalComponent {
 
   constructor(
     public activeModal: NgbActiveModal,
-    protected dataExchangeService: DataExchangeService,
     protected accessControlService: AccessControlService,
     private ogcService: OgcService,
     protected roleManagementHelper: RoleManagementDataGridHelperService,

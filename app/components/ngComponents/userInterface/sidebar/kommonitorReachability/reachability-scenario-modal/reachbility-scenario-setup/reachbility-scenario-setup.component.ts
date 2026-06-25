@@ -7,7 +7,6 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
 import { ColorPickerDirective } from "ngx-color-picker";
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 
 @Component({
   standalone: true,
@@ -26,7 +25,6 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
     private reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     protected reachabilityCombinerService: ReachabilityCombinerService,
     private broadcastService: BroadcastService,
-    private dataExchangeService: DataExchangeService
   ) { }
 
   ngOnInit(): void {

@@ -1,5 +1,4 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import * as echarts from 'echarts';
 import jsPDF from "jspdf";
@@ -37,7 +36,6 @@ export class GenerateReportComponent implements OnInit {
   workflowState = WorkflowState;
 
   constructor(
-    private dataExchangeService: DataExchangeService,
     private mapErrorNotificationService: MapErrorNotificationService,
     private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
     private broadcastService: BroadcastService,

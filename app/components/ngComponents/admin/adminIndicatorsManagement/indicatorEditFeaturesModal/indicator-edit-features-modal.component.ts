@@ -8,7 +8,6 @@ import { GridOptions } from 'ag-grid-community';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
@@ -33,7 +32,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
-  dataExchangeService = inject(DataExchangeService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);

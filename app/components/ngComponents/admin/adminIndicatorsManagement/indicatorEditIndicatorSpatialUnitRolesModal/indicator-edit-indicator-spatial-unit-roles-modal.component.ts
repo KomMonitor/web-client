@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -51,7 +50,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
-  public dataExchangeService = inject(DataExchangeService);
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);

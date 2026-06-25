@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
@@ -33,7 +32,6 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
   private broadcastService = inject(BroadcastService);
   private topicHierarchyService = inject(TopicHierarchyService);
   protected envConfigService = inject(EnvConfigService);
-  protected dataExchangeService = inject(DataExchangeService);
   private indicatorValueService = inject(IndicatorValueService);
   protected georesourceStore = inject(GeoresourceMetadataStoreService);
   protected topicStore = inject(TopicMetadataStoreService);

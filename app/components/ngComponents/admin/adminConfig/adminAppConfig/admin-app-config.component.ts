@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
-import { DataExchangeService } from '../../../../../services/data-exchange-service/data-exchange.service';
 
 import CodeMirror from 'codemirror';
 
@@ -41,7 +40,6 @@ interface LintingIssue {
 })
 export class AdminAppConfigComponent implements OnInit {
   private http = inject(HttpClient);
-  private kommonitorDataExchangeService = inject(DataExchangeService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
   private kommonitorScriptHelperService = inject(ScriptHelperService);
   private notificationService = inject(NotificationService);
