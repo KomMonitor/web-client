@@ -24,8 +24,6 @@ export interface SpatialUnit {
 export class DataExchangeService {
   private envConfigService = inject(EnvConfigService);
 
-  selectedDateInit = false;
-
   showDiagramExportButtons = true;
   showGeoresourceExportButtons = true;
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
@@ -54,10 +52,6 @@ export class DataExchangeService {
   baseLayerDefinitionsArray!: any[];
 
   selectedPoiSize: PoiSize = DEFAULT_POI_SIZE;
-
-  anySideBarIsShown = false;
-
-  tmpIndicatorGeoJSON = undefined;
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
