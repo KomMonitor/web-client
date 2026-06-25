@@ -1,19 +1,26 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, forkJoin } from 'rxjs';
 import { KeycloakProfile } from 'keycloak-js';
-import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
-import { AuthService } from 'services/auth-service/auth.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { BehaviorSubject, forkJoin } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
-import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
-import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
+import { ProcessScriptMetadataStoreService } from 'services/process-script-metadata-store-service/process-script-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+
+/** Loading state of the app-startup metadata orchestration (MetadataBootstrapService). */
+export enum MetadataLoadingState {
+  NONE,
+  INPROGRESS,
+  COMPLETE,
+  ERROR,
+}
 
 /**
  * Initial metadata bootstrap orchestration, extracted from DataExchangeService

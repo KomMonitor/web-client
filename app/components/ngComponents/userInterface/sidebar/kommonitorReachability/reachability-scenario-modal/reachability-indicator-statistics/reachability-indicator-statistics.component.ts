@@ -1,19 +1,18 @@
-import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MetadataBootstrapService, MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { ReachabilityCoverageReportsHelperService } from 'services/reachability-coverage-reports-helper-service/reachability-coverage-reports-helper.service';
+import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SpatialDataProcessorHelperService } from 'services/spatial-data-processor-helper/spatial-data-processor-helper.service';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { ReachabilityCoverageReportsHelperService } from 'services/reachability-coverage-reports-helper-service/reachability-coverage-reports-helper.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
 
 @Component({
   selector: 'app-reachability-indicator-statistics',

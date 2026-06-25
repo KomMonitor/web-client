@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
-import { DATE_PICKER_OPTIONS } from '../../../../../services/data-exchange-service/data-exchange.constants';
+import { DATE_PICKER_OPTIONS } from 'util/date-picker.constants';
 import {
   LOI_DASH_ARRAY_OBJECTS,
   POI_MARKER_COLORS,

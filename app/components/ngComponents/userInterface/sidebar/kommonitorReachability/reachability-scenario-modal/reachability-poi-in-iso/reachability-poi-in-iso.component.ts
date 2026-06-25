@@ -1,22 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
-import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
-import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
-import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
-import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
-import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
-import * as echarts from 'echarts';
-import * as turf from '@turf/turf';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MetadataLoadingState } from 'services/data-exchange-service/data-exchange.constants';
+import { FormsModule } from '@angular/forms';
+import * as turf from '@turf/turf';
+import * as echarts from 'echarts';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MetadataBootstrapService, MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
+import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
+import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 @Component({
   selector: 'app-reachability-poi-in-iso',

@@ -1,12 +1,20 @@
 import { Injectable, inject } from '@angular/core';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
-import { UPDATE_INTERVAL_LABELS } from 'services/data-exchange-service/data-exchange.constants';
+import domtoimage from 'dom-to-image-more';
+import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import domtoimage from 'dom-to-image-more';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
+
+/** Maps Data Management API update-interval codes to their German display labels. */
+const UPDATE_INTERVAL_LABELS = new Map<string, string>([
+  ['ARBITRARY', 'beliebig'],
+  ['YEARLY', 'jährlich'],
+  ['HALF_YEARLY', 'halbjährig'],
+  ['MONTHLY', 'monatlich'],
+  ['QUARTERLY', 'vierteljährlich'],
+]);
 
 @Injectable({
   providedIn: 'root',

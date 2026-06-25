@@ -9,16 +9,15 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { SmallBoxComponent } from './small-box/small-box.component';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import { MetadataBootstrapService, MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
-import { MetadataLoadingState } from '../../../../services/data-exchange-service/data-exchange.constants';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { GeoresourceMetadataStoreService } from '../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from '../../../../services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
-import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 import { TopicHierarchyStoreService } from '../../../../services/topic-hierarchy-store-service/topic-hierarchy-store.service';
-import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
-import { GeoresourceMetadataStoreService } from '../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
+import { TopicMetadataStoreService } from '../../../../services/topic-metadata-store-service/topic-metadata-store.service';
 
 interface PieSeriesDataItem {
   name: string;
