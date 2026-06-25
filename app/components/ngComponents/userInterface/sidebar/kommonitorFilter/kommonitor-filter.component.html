@@ -216,12 +216,12 @@
       &nbsp;
       <label class="switch">
         <input id="measureOfValueCheckbox" type="checkbox" (change)="onChangeUseMeasureOfValue()"
-          [(ngModel)]="dataExchangeService.isMeasureOfValueChecked"
-          (checked)="dataExchangeService.isMeasureOfValueChecked">
+          [(ngModel)]="chartDisplayState.isMeasureOfValueChecked"
+          (checked)="chartDisplayState.isMeasureOfValueChecked">
         <span class="switchslider round"></span>
       </label>
 
-      <div [hidden]="!dataExchangeService.isMeasureOfValueChecked">
+      <div [hidden]="!chartDisplayState.isMeasureOfValueChecked">
 
         <!-- <p>Verschieben des Schwellenwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Features an.</p> -->
         <br />
@@ -236,7 +236,7 @@
         <div style="text-align: center">
           <br />
           <label>Schwellenwert: </label><input
-            [(ngModel)]="dataExchangeService.measureOfValue"
+            [(ngModel)]="chartDisplayState.measureOfValue"
             (change)="onMeasureOfValueChangeByText()"
             min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number"
             style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">

@@ -1,6 +1,7 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -20,6 +21,7 @@ import * as ecStat from 'echarts-stat';
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
   private dataExchangeService = inject(DataExchangeService);
+  private chartDisplayState = inject(ChartDisplayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private indicatorStore = inject(IndicatorMetadataStoreService);
@@ -628,7 +630,7 @@ export class DiagramHelperServiceService {
 
     let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
-    if (!forceUseSubmittedIndicatorForTimeseries && this.dataExchangeService.isBalanceChecked) {
+    if (!forceUseSubmittedIndicatorForTimeseries && this.chartDisplayState.isBalanceChecked) {
       indicatorMetadataForTimeseries = this.selectionState.selectedIndicator;
     }
     // we must use the original selectedIndicator in case balance mode is active

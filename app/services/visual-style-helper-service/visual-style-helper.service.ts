@@ -1,6 +1,6 @@
 import { colorbrewer } from './../../components/ngComponents/userInterface/kommonitorClassification/colors';
 import { Injectable, inject } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import classyBrew from '../../../customizedExternalLibs/classyBrew.js';
@@ -12,7 +12,7 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   providedIn: 'root',
 })
 export class VisualStyleHelperServiceNew {
-  private dataExchangeService = inject(DataExchangeService);
+  private chartDisplayState = inject(ChartDisplayStateService);
   private envConfigService = inject(EnvConfigService);
   private indicatorValueService = inject(IndicatorValueService);
   private selectionState = inject(SelectionStateService);
@@ -1111,7 +1111,7 @@ export class VisualStyleHelperServiceNew {
     let fillColor;
     if (
       this.getIndicatorValue_asNumber(feature.properties[propertyName]) >=
-      this.dataExchangeService.measureOfValue
+      this.chartDisplayState.measureOfValue
     ) {
       if (
         this.envConfigService.classifyZeroSeparately &&

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { MapService } from 'services/map-service/map.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -10,7 +10,7 @@ import * as turf from '@turf/turf';
   providedIn: 'root',
 })
 export class FilterHelperService {
-  private dataExchangeService = inject(DataExchangeService);
+  private chartDisplayState = inject(ChartDisplayStateService);
   private selectionState = inject(SelectionStateService);
   private mapService = inject(MapService);
   private broadcastService = inject(BroadcastService);
@@ -64,16 +64,16 @@ export class FilterHelperService {
 
     // function already merged to new service due to issues on map
     let indicatorMetadataAndGeoJSON;
-    if (this.dataExchangeService.isBalanceChecked) {
+    if (this.chartDisplayState.isBalanceChecked) {
       const filteredIndicatorFeatures =
-        this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(
+        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON.features.filter(
           (feature) =>
             !this.filteredIndicatorFeatureIds.has(
               '' + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
             )
         );
       indicatorMetadataAndGeoJSON = JSON.parse(
-        JSON.stringify(this.dataExchangeService.indicatorAndMetadataAsBalance)
+        JSON.stringify(this.chartDisplayState.indicatorAndMetadataAsBalance)
       );
       indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
       this.mapService.replaceIndicatorGeoJSON(
@@ -148,9 +148,9 @@ export class FilterHelperService {
   performSpatialFilter() {
     if (!this.completelyRemoveFilteredFeaturesFromDisplay) {
       // kommonitorMapService.restyleCurrentLayer();
-      if (this.dataExchangeService.isBalanceChecked) {
+      if (this.chartDisplayState.isBalanceChecked) {
         this.mapService.replaceIndicatorGeoJSON(
-          this.dataExchangeService.indicatorAndMetadataAsBalance,
+          this.chartDisplayState.indicatorAndMetadataAsBalance,
           this.selectionState.selectedSpatialUnit.spatialUnitLevel,
           this.selectionState.selectedDate,
           false

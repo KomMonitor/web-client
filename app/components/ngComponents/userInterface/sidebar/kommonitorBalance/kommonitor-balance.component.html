@@ -14,7 +14,7 @@
       <strong>Bilanzierung aktivieren/deaktivieren</strong>
       &nbsp;
       <label class="switch">
-        <input id="balanceCheckbox" type="checkbox" (change)="onChangeUseBalance()" [(ngModel)]="dataExchangeService.isBalanceChecked" [checked]="dataExchangeService.isBalanceChecked">
+        <input id="balanceCheckbox" type="checkbox" (change)="onChangeUseBalance()" [(ngModel)]="chartDisplayState.isBalanceChecked" [checked]="chartDisplayState.isBalanceChecked">
         <span class="switchslider round"></span>
       </label>
 
@@ -30,7 +30,7 @@
     </div>	
   </expandable-box>
   
-  <expandable-box [hidden]="!dataExchangeService.isBalanceChecked" [collapsed]="false" [title]="envConfigService.enableBilanceTrend ? 'Trenddarstellung &uuml;ber alle Raumeinheiten' : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'">
+  <expandable-box [hidden]="!chartDisplayState.isBalanceChecked" [collapsed]="false" [title]="envConfigService.enableBilanceTrend ? 'Trenddarstellung &uuml;ber alle Raumeinheiten' : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'">
 
     <!-- CONFIG FOR TREND CALCULATION -->
     <div style="text-align: center">

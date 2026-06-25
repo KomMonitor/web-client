@@ -24,11 +24,7 @@ export class DataExchangeService {
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
 
   disableIndicatorDatePicker!: boolean;
-  isBalanceChecked!: boolean;
-  indicatorAndMetadataAsBalance: any;
   indicatorDatePrefix!: string;
-  measureOfValue: any;
-  isMeasureOfValueChecked: boolean = false;
   selectedIndicatorBackup!: IndicatorsDataset;
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;

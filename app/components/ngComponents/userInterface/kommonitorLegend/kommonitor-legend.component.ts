@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -77,6 +78,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected chartDisplayState: ChartDisplayStateService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
     protected georesourceStore: GeoresourceMetadataStoreService,
@@ -282,11 +284,11 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     var geoJSON_string;
     var geoJSON;
 
-    if(this.dataExchangeService.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.dataExchangeService.indicatorAndMetadataAsBalance);							  
+    if(this.chartDisplayState.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {}, this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.chartDisplayState.indicatorAndMetadataAsBalance);							  
       geoJSON_string = JSON.stringify(geoJSON);
-      fileName += "_Bilanz" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
+      fileName += "_Bilanz" + this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
       geoJSON_string = JSON.stringify(this.selectionState.selectedIndicator.geoJSON);
@@ -312,10 +314,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     var geoJSON;
 
-    if( this.dataExchangeService.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {},  this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON,  this.dataExchangeService.indicatorAndMetadataAsBalance);
-      fileName += "_Bilanz_" +  this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " +  this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
+    if( this.chartDisplayState.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {},  this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON,  this.chartDisplayState.indicatorAndMetadataAsBalance);
+      fileName += "_Bilanz_" +  this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] + " - " +  this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
       geoJSON = jQuery.extend(true, {},  this.selectionState.selectedIndicator.geoJSON);
@@ -369,10 +371,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     var geoJSON;
 
-    if(this.dataExchangeService.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.dataExchangeService.indicatorAndMetadataAsBalance);
-      fileName += "_Bilanz_" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
+    if(this.chartDisplayState.isBalanceChecked){
+      geoJSON = jQuery.extend(true, {}, this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
+      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.chartDisplayState.indicatorAndMetadataAsBalance);
+      fileName += "_Bilanz_" + this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
       geoJSON = jQuery.extend(true, {}, this.selectionState.selectedIndicator.geoJSON);

@@ -3,6 +3,7 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -143,6 +144,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected chartDisplayState: ChartDisplayStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private cacheHelperService: CacheHelperServiceService,
     private indicatorValueService: IndicatorValueService,
@@ -550,11 +552,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.measureSlider.noUiSlider.on('set', () => {
       let data = this.measureSlider.noUiSlider.get(true);
 
-      this.dataExchangeService.measureOfValue = data;
+      this.chartDisplayState.measureOfValue = data;
       this.onMeasureOfValueChangeByText();
     });
 
-    if(this.dataExchangeService.isBalanceChecked){
+    if(this.chartDisplayState.isBalanceChecked){
 
       // todo
     /* 	$rootScope.$broadcast("DisableBalance");
@@ -607,7 +609,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     // measureOfValueInput.setAttribute("movStep", this.movStep);
     // measureOfValueInput.setAttribute("value", this.movMiddleValue);
 
-    this.dataExchangeService.measureOfValue = this.movMiddleValue;
+    this.chartDisplayState.measureOfValue = this.movMiddleValue;
 
     var measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
     measureOfValueTextInput.setAttribute("min", this.movMinValue);
@@ -650,11 +652,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   onMeasureOfValueChange(data){
 
-    this.dataExchangeService.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
+    this.chartDisplayState.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
 
     // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
 
-    if(this.dataExchangeService.measureOfValue >= this.movMinValue && this.dataExchangeService.measureOfValue <= this.movMaxValue){
+    if(this.chartDisplayState.measureOfValue >= this.movMinValue && this.chartDisplayState.measureOfValue <= this.movMaxValue){
       this.inputNotValid = false;
       // todo 
       // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
@@ -668,11 +670,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   onMeasureOfValueChangeByText(){
 
-    this.dataExchangeService.measureOfValue = +Number(this.dataExchangeService.measureOfValue).toFixed(this.numberOfDecimals);
+    this.chartDisplayState.measureOfValue = +Number(this.chartDisplayState.measureOfValue).toFixed(this.numberOfDecimals);
 
     // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
 
-    if(this.dataExchangeService.measureOfValue >= this.movMinValue && this.dataExchangeService.measureOfValue <= this.movMaxValue){
+    if(this.chartDisplayState.measureOfValue >= this.movMinValue && this.chartDisplayState.measureOfValue <= this.movMaxValue){
       this.inputNotValid = false;
       
       // todo 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { colorbrewer } from './colors';
@@ -48,7 +48,7 @@ export class KommonitorClassificationComponent implements OnInit {
   private customColorSchemes = this.envConfigService.customColorSchemes;
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected chartDisplayState: ChartDisplayStateService,
     protected selectionState: SelectionStateService,
     protected visualStyleHelperService: VisualStyleHelperServiceNew,
     private broadcastService: BroadcastService,
@@ -192,15 +192,15 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  addNewBreaks(site) {
-    if((!this.dataExchangeService.isBalanceChecked 
+    if((!this.chartDisplayState.isBalanceChecked 
       && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues) 
-      || this.dataExchangeService.isMeasureOfValueChecked) {
+      || this.chartDisplayState.isMeasureOfValueChecked) {
      this.addNewBreak();
     }
     else {
      this.addNewBreakDynamic(site);
-      if(this.dataExchangeService.isMeasureOfValueChecked) {
+      if(this.chartDisplayState.isMeasureOfValueChecked) {
         this.addNewBreak();
       }
     }
@@ -221,10 +221,10 @@ export class KommonitorClassificationComponent implements OnInit {
           this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
         }
 
-        if((this.dataExchangeService.isBalanceChecked 
+        if((this.chartDisplayState.isBalanceChecked 
           || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
           ||this.containsNegativeValues)
-          && this.dataExchangeService.isMeasureOfValueChecked) {
+          && this.chartDisplayState.isMeasureOfValueChecked) {
          this.updateDynamicBreaksFromManualBreaks();
         }
       }
@@ -296,10 +296,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  deleteBreak(i, site) {
-    if((this.dataExchangeService.isBalanceChecked 
+    if((this.chartDisplayState.isBalanceChecked 
       || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
       || this.containsNegativeValues)) {
-      if(this.dataExchangeService.isMeasureOfValueChecked) {
+      if(this.chartDisplayState.isMeasureOfValueChecked) {
         this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
         
         this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
@@ -343,10 +343,10 @@ export class KommonitorClassificationComponent implements OnInit {
       
       this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
       
-      if((this.dataExchangeService.isBalanceChecked 
+      if((this.chartDisplayState.isBalanceChecked 
         || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
         || this.containsNegativeValues)
-        && this.dataExchangeService.isMeasureOfValueChecked) {
+        && this.chartDisplayState.isMeasureOfValueChecked) {
        this.updateDynamicBreaksFromManualBreaks();
       }
     }
@@ -378,10 +378,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  onBreakDblClick(e, i, site) {
-    if((!this.dataExchangeService.isBalanceChecked 
+    if((!this.chartDisplayState.isBalanceChecked 
       && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.dataExchangeService.isMeasureOfValueChecked) {
+      || this.chartDisplayState.isMeasureOfValueChecked) {
       if (i == 0 || i == this.visualStyleHelperService.manualBrew.breaks.length-1 || this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[i])) {
         return;
       }
@@ -464,10 +464,10 @@ export class KommonitorClassificationComponent implements OnInit {
   
  getMaxValue(site)  {
     let breaks = [];
-    if((!this.dataExchangeService.isBalanceChecked 
+    if((!this.chartDisplayState.isBalanceChecked 
       && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.dataExchangeService.isMeasureOfValueChecked) {
+      || this.chartDisplayState.isMeasureOfValueChecked) {
       breaks = this.visualStyleHelperService.manualBrew.breaks;
     }
     else {
@@ -489,10 +489,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }  
  
  getMinValue(site) {
-    if((!this.dataExchangeService.isBalanceChecked 
+    if((!this.chartDisplayState.isBalanceChecked 
       && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.dataExchangeService.isMeasureOfValueChecked) {
+      || this.chartDisplayState.isMeasureOfValueChecked) {
       return this.visualStyleHelperService.manualBrew.breaks[0];
     }
     if (!this.visualStyleHelperService.dynamicBrew) {
@@ -522,10 +522,10 @@ export class KommonitorClassificationComponent implements OnInit {
   }
     
  onBreaksMouseMove(e, site) {
-    if((!this.dataExchangeService.isBalanceChecked 
+    if((!this.chartDisplayState.isBalanceChecked 
       && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
       && !this.containsNegativeValues)
-      || this.dataExchangeService.isMeasureOfValueChecked) {
+      || this.chartDisplayState.isMeasureOfValueChecked) {
      this.onBreakMouseMove(e);
     }
     else {
@@ -556,10 +556,10 @@ export class KommonitorClassificationComponent implements OnInit {
             });
             
             this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
-            if((this.dataExchangeService.isBalanceChecked 
+            if((this.chartDisplayState.isBalanceChecked 
               || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
               ||this.containsNegativeValues) 
-              && this.dataExchangeService.isMeasureOfValueChecked) {
+              && this.chartDisplayState.isMeasureOfValueChecked) {
              this.updateDynamicBreaksFromManualBreaks();
             }
           }

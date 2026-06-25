@@ -64,7 +64,7 @@
 
       <div>
         <button type="button" style="display: block; position: relative; margin-top: 5px;" 
-          (mouseover)="onDiagramSubMenuOver()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened(), 'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="statistische Diagramme">
+          (mouseover)="onDiagramSubMenuOver()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':isDiagramSidebarOpened(), 'balanceActive': chartDisplayState.isBalanceChecked}" data-toggle="tooltip" title="statistische Diagramme">
             <i class="fas fa-chart-simple"></i>
         </button>
         
@@ -72,7 +72,7 @@
 
           <div class="subMenuButtonWrapper" *ngIf="visibilityHelperService.elementVisibility.balance">
             <button type="button" style="display: block; position: relative;" id="sidebarBalanceCollapse"
-              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'balanceActive': dataExchangeService.isBalanceChecked}" data-toggle="tooltip" title="zeitliche Bilanzierung">
+              (click)="onDiagramSubMenuButtonClick($event)" class="btn btn-custom btn-circle" [ngClass]="{'balanceActive': chartDisplayState.isBalanceChecked}" data-toggle="tooltip" title="zeitliche Bilanzierung">
                 <i class="fas fa-chart-line"></i>
             </button>
             <div>
@@ -159,14 +159,14 @@
 
     <div id="statusButtonContainer">
       <div id="filterStatusButtonContainer"
-        *ngIf="globalFilterHelperService.globalFilterApplied() || dataExchangeService.isMeasureOfValueChecked || dataExchangeService.rangeFilterIsApplied">
+        *ngIf="globalFilterHelperService.globalFilterApplied() || chartDisplayState.isMeasureOfValueChecked || dataExchangeService.rangeFilterIsApplied">
         <div *ngIf="globalFilterHelperService.globalFilterApplied()" 
               id="filterNoticeButton" class="btn btn-warning btn-xs" title="Filter aktiviert">
           <i class="fas fa-filter"></i>
           <span (click)="openFilterSidebar()" style="margin: 3px;">Räuml. Filter aktiviert </span>
           <i class="fas fa-close" (click)="onSpatialFilterCloseButtonClick()" title="Filter entfernen"></i>
         </div>
-        <div *ngIf="dataExchangeService.isMeasureOfValueChecked" 
+        <div *ngIf="chartDisplayState.isMeasureOfValueChecked" 
               id="filterNoticeButton" class="btn btn-warning btn-xs" title="Schwellenwertklassifizierung aktiviert">
           <i class="fas fa-filter"></i>
           <span (click)="openFilterSidebar()" style="margin: 3px;">Schwellenwert aktiviert </span>
@@ -180,7 +180,7 @@
         </div>
       </div>
       <div id="balanceStatusButton">
-        <span *ngIf="dataExchangeService.isBalanceChecked" 
+        <span *ngIf="chartDisplayState.isBalanceChecked" 
               id="balanceNoticeButton" class="btn btn-warning btn-xs" title="Bilanzierung aktiviert">
           <i class ="fas fa-chart-line"></i>
           <span (click)="openBalanceSidebar()" style="margin: 3px;">Bilanzierung aktiviert </span>

@@ -76,22 +76,22 @@
               <h5 *ngIf="visualStyleService.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
               <p [innerHTML]="selectionState.selectedIndicator.metadata.description"></p>							
               
-              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
+              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('STATUS') && !chartDisplayState.isMeasureOfValueChecked && !chartDisplayState.isBalanceChecked">
                 <em>Darstellung der Indikatorenwerte {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
                 <div *ngIf="selectionState.selectedIndicator.referenceDateNote">
                   <em><b>Hinweis Referenzdatum:</b> {{selectionState.selectedIndicator.referenceDateNote}}</em>
                 </div>
               </div>
-              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') && ! dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
+              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') && ! chartDisplayState.isMeasureOfValueChecked && !chartDisplayState.isBalanceChecked">
                 <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
               </div>
-              <div *ngIf="dataExchangeService.isMeasureOfValueChecked">
+              <div *ngIf="chartDisplayState.isMeasureOfValueChecked">
                 <em>Schwellwert-Klassifizierung</em>
                 <em>Gew&auml;hlter Zeitpunkt: </em> {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}
-                <em>aktueller Schwellwert: </em> {{dataExchangeService.measureOfValue}}
+                <em>aktueller Schwellwert: </em> {{chartDisplayState.measureOfValue}}
               </div>
-              <div *ngIf="dataExchangeService.isBalanceChecked">
-                <em>Bilanzierung - {{dataExchangeService.indicatorAndMetadataAsBalance['fromDate']}} - {{dataExchangeService.indicatorAndMetadataAsBalance['toDate']}}</em>
+              <div *ngIf="chartDisplayState.isBalanceChecked">
+                <em>Bilanzierung - {{chartDisplayState.indicatorAndMetadataAsBalance['fromDate']}} - {{chartDisplayState.indicatorAndMetadataAsBalance['toDate']}}</em>
               </div>
               
               <br />
@@ -138,7 +138,7 @@
               </div>
               <br/>
               <!-- Measure of Value legend items -->
-              <div *ngIf="dataExchangeService.isMeasureOfValueChecked">
+              <div *ngIf="chartDisplayState.isMeasureOfValueChecked">
                 <!-- zero -->
                 <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
                   <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
@@ -168,7 +168,7 @@
 
               </div>
               <!-- Dynamic legend items -->
-              <div *ngIf="(dataExchangeService.isBalanceChecked || selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked">					
+              <div *ngIf="(chartDisplayState.isBalanceChecked || selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! chartDisplayState.isMeasureOfValueChecked">					
                 <!-- < 0 values -->
                   <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]">
                   <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[1].colors; let i = index">
@@ -202,7 +202,7 @@
               </div>
 
               <!-- Static/Status legend items -->
-              <div *ngIf="(selectionState.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked">
+              <div *ngIf="(selectionState.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! chartDisplayState.isMeasureOfValueChecked && ! chartDisplayState.isBalanceChecked">
         
                 <!-- zero -->
                 <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">

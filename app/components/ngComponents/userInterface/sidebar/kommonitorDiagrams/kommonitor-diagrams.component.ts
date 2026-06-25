@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { LabelService } from 'services/label-service/label.service';
@@ -38,7 +38,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   showBarChartAverageLine: boolean = false;
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected chartDisplayState: ChartDisplayStateService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
     protected labelService: LabelService,
@@ -350,7 +350,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   appendSeriesToLineChart(featureProperties) {
 
     // in case of activated balance mode, we must use the properties of this.selectionState.selectedIndicator, to aquire the correct time series item!
-    if (this.dataExchangeService.isBalanceChecked) {
+    if (this.chartDisplayState.isBalanceChecked) {
       featureProperties = this.findPropertiesForTimeSeries(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     }
 
