@@ -1,7 +1,7 @@
 # Prio 7 — God-Services strukturell & kleinteilig aufteilen
 
 Detaillierter, inkrementeller Fahrplan zur Umsetzung von **Prio 7** aus `PROPOSED_CHANGES.md`.
-Stand: 2026-06-17, Branch `feature/migration-bootstrap-cleanup`.
+Stand: 2026-06-25, Branch `feature/migration-bootstrap-cleanup`.
 
 ## Context
 
@@ -135,21 +135,29 @@ Reihenfolge nach Kopplung: erst die State-armen, reinen Seams; der zentrale Cach
 **B7 · `SelectionStateService` — Selektion + Aggregation (Cluster F).** ✅ **erledigt (2026-06-19).** Neuer `app/services/selection-state-service/selection-state.service.ts` (+ Spec), Deps `IndicatorValueService` + `EnvConfigService`. Verschoben: `selectedIndicator`, `selectedSpatialUnit`, `selectedDate`, `selectedDate$` (+ privates `selectedDateSubject`), die 14 `allFeatures*`/`selectedFeatures*`-Aggregate (inkl. `allFeaturesPropertyUnit`, `*Regional*`), die Methoden `setSelectedDate`/`setAllFeaturesProperty`/`setSelectedFeatureProperty`/`onRemovedFeatureFromSelection`/`buildIndicatorPropertyName` (B1-zurückgestellt) + `resolveSelectedPrecision`.
 > **Schnitt:** Facade-**Get/Set** für `selectedIndicator`/`selectedSpatialUnit`/`selectedDate` (externe Writes nur in `kommonitor-data-setup`; Leser: 21/14/18 Dateien), **Getter** für die Aggregate + `selectedDate$` (keine externen Writes). Die Value-Aufrufe in `setAllFeaturesProperty`/`setSelectedFeatureProperty` gehen direkt an `IndicatorValueService` mit selbst aufgelöster Precision. `metadataLoading$`/`setMetadataState` **bleiben** in der Facade (kein Selektions-State). Facade-`resolveSelectedPrecision` delegiert an den Store. Plain Fields (Signals/`computed()` optional später). Build/Test/Lint grün (83 Suites/124 Tests, 0 errors). ⚠️ Karte/Diagramme betroffen → manueller Smoke-Test vor Release empfohlen.
 
-**Rest:** Metadaten-Orchestrierung (`fetchAllMetadata` + `fetch*Metadata`, `reinitServices`) und UI-Config-Flags (Cluster K) + `metadataLoading$` bleiben in der schlank gewordenen Facade; `fetchAllMetadata` koordiniert die neuen Stores.
+**Rest (B8, 2026-06-25 nachgezogen):** Die Metadaten-Orchestrierung (`fetchAllMetadata` + `fetch*Metadata`, `reinitServices`) + `metadataLoading$` sind seit B8 (siehe unten) **nicht mehr** in der Facade, sondern im `MetadataBootstrapService`. In der Facade verbleiben **nur** die UI-Config-Flags (Cluster K) + POI-/Misc-State als plain Fields.
+
+**B8 · `MetadataBootstrapService` — App-Startup-Orchestrierung (Cluster „Rest") + Auth-Token-Parsing.** ✅ **erledigt (2026-06-25).** Neuer `app/services/metadata-bootstrap-service/metadata-bootstrap.service.ts` (+ Spec, 218 Z.). Verschoben aus der Facade: `fetchAllMetadata`, die per-Resource-Fetcher (`fetchTopics/SpatialUnits/Georesources/Indicators/IndicatorScripts/AccessControlMetadata`, `fetchServices`), `reinitServices`, `modifyIndicatorApplicableSpatialUnitsForLoginRoles`, `onMetadataLoadingCompleted`, die `build*Hierarchy`-Orchestrierung sowie der Loading-State (`metadataLoading$` + `setMetadataState`) und die beiden Bootstrap-Felder `currentKeycloakUser` + `topicIndicatorHierarchy_forOrderView`. **B2-Teil:** das Keycloak-Token-Parsing (Login-Rollen/-Gruppen/`isRealmAdmin`) wanderte als `AccessControlService.applyLoginStateFromToken` in den B3-Service; der Bootstrap ruft es nur noch auf.
+> **Schnitt:** zunächst **Facade-Delegation** (8 Methoden-Wrapper + 3 Getter) → Konsumenten unverändert; die Facade injizierte danach nur noch **2** statt 14 Services. ⚠️ Startup- + Auth-Pfad → Backend/Keycloak-Smoke-Test vor Release nötig (lokal nicht verifizierbar). Build/Test/Lint grün.
 
 ---
 
-## Stand: Teil A + Teil B abgeschlossen (2026-06-19)
+## Stand: Teil A + Teil B abgeschlossen (2026-06-25)
 
 Alle geplanten Schnitte ✅. Aus `DataExchangeService` extrahiert: `IndicatorValueService` (B1),
 `MetadataExportService` (B2), `AccessControlService` (B3), `MetadataFilterService` (B4-Indicator),
-`TopicHierarchyStoreService` (B5), die Metadaten-Stores `SpatialUnit`/`ProcessScript`/`Topic`/`Indicator`/`Georesource(+WMS/WFS+Filter)` (B6a–e) und `SelectionStateService` (B7). Die Facade `DataExchangeService`
-behält ausschließlich Delegations-Wrapper/Getter + die Metadaten-Fetch-Orchestrierung + UI-Config-Flags.
-Konsumenten blieben durchgängig unverändert. Test-Baseline: 83 Suites / 124 Tests, Build/Lint grün.
+`TopicHierarchyStoreService` (B5), die Metadaten-Stores `SpatialUnit`/`ProcessScript`/`Topic`/`Indicator`/`Georesource(+WMS/WFS+Filter)` (B6a–e), `SelectionStateService` (B7) und zuletzt
+`MetadataBootstrapService` (B8, App-Startup-Orchestrierung). Konsumenten blieben beim Extrahieren durchgängig unverändert.
+
+**Stand der Facade (2026-06-25):** Nach der Bootstrap-Konsumenten-Migration (siehe unten) ist
+`data-exchange.service.ts` auf **117 Zeilen** geschrumpft, injiziert nur noch **`EnvConfigService`** und
+enthält **keine Delegations-Wrapper mehr** — nur die ~25 plain UI-State-Felder (Cluster K + POI/Misc).
+Fan-in von ~108 → **23 Konsumenten**, die ausschließlich diese plain Fields lesen.
 
 **Offene Folgeprojekte (separat, nicht Teil des Splits):**
-- Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6) → **eigener Abschnitt unten**.
+- ~~Konsumenten schrittweise direkt auf die neuen Sub-Services umstellen + Facade-Wrapper entfernen (Rezept-Schritt 6).~~ Für **B8 (Bootstrap) erledigt** (2026-06-25, siehe unten); für die übrigen Sub-Services weiterhin offen → **eigener Abschnitt unten**.
 - ~~AngularJS-Bridge-Migration der 4 Admin-Modals (A1d-1).~~ ✅ **erledigt (2026-06-22)** — siehe Folgeprojekt-Abschnitt oben. ⚠️ Backend-Smoke-Test der Indikator-Feature-Tabelle (Modal 3) vor Release noch offen.
+- Optional: die verbleibenden ~25 UI-State-Felder in einen eigenen UI-State-Service ausgliedern (z. B. der eng gekoppelte Balance/Measure-of-Value-Cluster `isBalanceChecked`/`isMeasureOfValueChecked`/`indicatorAndMetadataAsBalance`/`measureOfValue`) — oder die Facade bewusst als schlanken UI-State-Halter belassen.
 - Optional: State-Felder auf Signals/`computed()` heben (v. a. B7-Aggregate).
 - Latenter Feature-Table-Header-Height-Bug (A1d-3).
 
@@ -169,6 +177,9 @@ werden echte Abhängigkeiten sichtbar und die Facade kann letztlich verschwinden
    Aufrufe `this.dataExchangeService.X` → `this.<store>.X` (Sichtbarkeit/HTML-Bindings mitziehen — wie bei A1b/A2).
 3. `git grep` bestätigt 0 verbleibende Wrapper-Nutzer → Wrapper/Getter aus der Facade löschen.
 4. `npm run build` + `npm test` + `npm run lint` grün.
+
+**Fortschritt:**
+- **B8 `MetadataBootstrapService` ✅ erledigt (2026-06-25, in 2 Batches).** Batch 1: 12 Konsumenten der 6 Members `metadataLoading$`, `currentKeycloakUser`, `topicIndicatorHierarchy_forOrderView`, `fetchAllMetadata`, `reinitServices`, `fetchIndicatorScriptsMetadata` direkt auf den Bootstrap umgehängt (`admin-script-management` tauschte die Injection komplett). Batch 2: die restlichen `fetch*Metadata`-Konsumenten (`admin-topics-management.service`, adminGeoresourceUnit-Delegation, `admin-indicators-management`) repointet; `fetchSpatialUnitsMetadata`/`fetchAccessControlMetadata`-Wrapper waren **tot** (Konsumenten nutzen die eigenständigen adminSpatialUnit-Implementierungen) → ersatzlos entfernt. Danach injiziert die Facade nur noch `EnvConfigService`. Der tote Bridge-Token-Konsument in `indicator-delete-modal` blieb unangetastet.
 
 **Reihenfolge (risikoarm → -reich), nach Konsumentenzahl/Glue:**
 - **Reine Pass-throughs zuerst:** B6-Stores `ProcessScript` (4), `Topic` (11), `SpatialUnit` (23),
