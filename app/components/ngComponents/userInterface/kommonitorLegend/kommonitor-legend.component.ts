@@ -6,6 +6,7 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { LabelService } from 'services/label-service/label.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
@@ -80,6 +81,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     protected selectionState: SelectionStateService,
     protected georesourceStore: GeoresourceMetadataStoreService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
+    protected indicatorStore: IndicatorMetadataStoreService,
     protected metadataExportService: MetadataExportService,
     protected labelService: LabelService,
     private elementVisibilityService: ElementVisibilityHelperService,

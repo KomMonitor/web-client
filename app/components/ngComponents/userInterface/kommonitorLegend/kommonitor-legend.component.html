@@ -393,7 +393,7 @@
                     <tbody>
                       <tr *ngFor="let indicator of selectionState.selectedIndicator.referencedIndicators">
                         <td>{{indicator.referencedIndicatorName}}</td>
-                        <td>{{dataExchangeService.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)}}</td>
+                        <td>{{indicatorStore.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)}}</td>
                         <td>{{indicator.referencedIndicatorDescription}}</td>
                       </tr>
                     </tbody>

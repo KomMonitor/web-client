@@ -22,6 +22,14 @@ export class IndicatorMetadataStoreService {
   availableIndicators_map = new Map();
   displayableIndicators: any;
 
+  getIndicatorAbbreviationFromIndicatorId(indicatorId) {
+    for (const indicatorMetadata of this.availableIndicators) {
+      if (indicatorMetadata.indicatorId === indicatorId) {
+        return indicatorMetadata.abbreviation;
+      }
+    }
+  }
+
   setIndicators(indicatorsArray) {
     this.availableIndicators = this.modifyIndicators(indicatorsArray);
     this.availableIndicators_map = new Map(this.availableIndicators.map((i) => [i.indicatorId, i]));

@@ -3,6 +3,7 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -85,6 +86,7 @@ export class RegressionDiagramComponent implements OnInit {
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
+    private metadataFilterService: MetadataFilterService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
     private broadcastService: BroadcastService,
@@ -180,7 +182,7 @@ export class RegressionDiagramComponent implements OnInit {
 
   filterIndicators() {
 
-    return this.dataExchangeService.filterIndicators();
+    return this.metadataFilterService.filterIndicators();
   };
 
   filterIndicatorsBySpatialUnitAndDate() {

@@ -442,20 +442,4 @@ export class DataExchangeService {
     );
   }
 
-  filterIndicators() {
-    return this.metadataFilterService.filterIndicators();
-  }
-
-  isDisplayableGeoresource(item) {
-    return this.georesourceStore.isDisplayableGeoresource(item);
-  }
-
-  getIndicatorAbbreviationFromIndicatorId(indicatorId) {
-    for (const indicatorMetadata of this.indicatorStore.availableIndicators) {
-      if (indicatorMetadata.indicatorId === indicatorId) {
-        return indicatorMetadata.abbreviation;
-      }
-    }
-  }
-
 }
