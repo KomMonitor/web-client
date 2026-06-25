@@ -102,7 +102,7 @@
                   <th *ngIf="layerService.isPerDatasetDate">
                     Lebenszeit-Beginn
                   </th>
-                  <th *ngIf="dataExchangeService.showGeoresourceExportButtons">
+                  <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
                     Export
                   </th>
                   <th></th>
@@ -210,7 +210,7 @@
                     </select>
                   </td>
                   <td
-                    *ngIf="dataExchangeService.showGeoresourceExportButtons"
+                    *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
                     class="text-center"
                   >
                     <p
@@ -325,7 +325,7 @@
                     </select>
                   </td>
                   <td
-                    *ngIf="dataExchangeService.showGeoresourceExportButtons"
+                    *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
                     class="text-center"
                   >
                     <p
@@ -440,7 +440,7 @@
                     </select>
                   </td>
                   <td
-                    *ngIf="dataExchangeService.showGeoresourceExportButtons"
+                    *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
                     class="text-center"
                   >
                     <p
@@ -521,7 +521,7 @@
                   </td>
                   <td>-</td>
                   <td
-                    *ngIf="dataExchangeService.showGeoresourceExportButtons"
+                    *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
                     class="text-center"
                   >
                     <div style="text-align: center">

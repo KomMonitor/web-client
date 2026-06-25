@@ -12,7 +12,7 @@
             <th>Beschreibung</th>
             <th>Legende</th>
             <th *ngIf="layerService.isPerDatasetDate">Lebenszeit-Beginn</th>
-            <th *ngIf="dataExchangeService.showGeoresourceExportButtons">
+            <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
               Export
             </th>
             <th></th>
@@ -111,7 +111,7 @@
                           ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
             </td>
             <td
-              *ngIf="dataExchangeService.showGeoresourceExportButtons"
+              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
               class="text-center export-column"
             >
               <p
@@ -168,7 +168,7 @@
             <th>Beschreibung</th>
             <th>Legende</th>
             <th *ngIf="layerService.isPerDatasetDate">Lebenszeit-Beginn</th>
-            <th *ngIf="dataExchangeService.showGeoresourceExportButtons">
+            <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
               Export
             </th>
           </tr>
@@ -243,7 +243,7 @@
                           ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
             </td>
             <td
-              *ngIf="dataExchangeService.showGeoresourceExportButtons"
+              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
               class="text-center export-column"
             >
               <p
@@ -284,7 +284,7 @@
             <th>Beschreibung</th>
             <th>Legende</th>
             <th *ngIf="layerService.isPerDatasetDate">Lebenszeit-Beginn</th>
-            <th *ngIf="dataExchangeService.showGeoresourceExportButtons">
+            <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
               Export
             </th>
           </tr>
@@ -360,7 +360,7 @@
                           ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
             </td>
             <td
-              *ngIf="dataExchangeService.showGeoresourceExportButtons"
+              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
               class="text-center export-column"
             >
               <p
@@ -429,7 +429,7 @@
               <p>{{ dataset.description }}</p>
             </td>
             <td
-              *ngIf="dataExchangeService.showGeoresourceExportButtons"
+              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
               class="text-center"
             >
               <div style="text-align: center">
@@ -535,7 +535,7 @@
               </label>
             </td>
             <td
-              *ngIf="dataExchangeService.showGeoresourceExportButtons"
+              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
               class="text-center"
             >
               <div style="text-align: center">

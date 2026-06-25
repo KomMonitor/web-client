@@ -3,6 +3,7 @@ import { DiagramHelperServiceService } from 'services/diagram-helper-service/dia
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -86,6 +87,7 @@ export class RegressionDiagramComponent implements OnInit {
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
+    private exportButtonVisibility: ExportButtonVisibilityService,
     private metadataFilterService: MetadataFilterService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
@@ -725,7 +727,7 @@ export class RegressionDiagramComponent implements OnInit {
                 right: '15',
                 feature : {
                     // mark : {show: true},
-                    dataView : {show: this.exchangeData.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+                    dataView : {show: this.exportButtonVisibility.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
 
                     // 	<table class="table table-condensed table-hover">
                     // 	<thead>

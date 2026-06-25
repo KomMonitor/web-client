@@ -2,14 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ElementVisibilityHelperService {
-  private dataExchangeService = inject(DataExchangeService);
+  private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private broadcastService = inject(BroadcastService);
   private configStorageService = inject(ConfigStorageService);
   private authService = inject(AuthService);
@@ -27,8 +27,8 @@ export class ElementVisibilityHelperService {
   controlsConfig: any;
 
   initElementVisibility() {
-    this.dataExchangeService.showDiagramExportButtons = true;
-    this.dataExchangeService.showGeoresourceExportButtons = true;
+    this.exportButtonVisibility.showDiagramExportButtons = true;
+    this.exportButtonVisibility.showGeoresourceExportButtons = true;
     this.elementVisibility = {};
     this.configStorageService.controlsConfig.forEach((element) => {
       this.elementVisibility[element.id] = this.checkElementVisibility(element.id);
@@ -118,11 +118,11 @@ export class ElementVisibilityHelperService {
 
         // special case for diagram export buttons
         if (!hasAllowedGroup && element.id === 'diagramExportButtons') {
-          this.dataExchangeService.showDiagramExportButtons = false;
+          this.exportButtonVisibility.showDiagramExportButtons = false;
         }
         // special case for georesource export buttons
         if (!hasAllowedGroup && element.id === 'georesourceExportButtons') {
-          this.dataExchangeService.showGeoresourceExportButtons = false;
+          this.exportButtonVisibility.showGeoresourceExportButtons = false;
         }
 
         if (!hasAllowedGroup) {
@@ -137,11 +137,11 @@ export class ElementVisibilityHelperService {
       } else {
         // special case for diagram export buttons
         if (element.id === 'diagramExportButtons') {
-          this.dataExchangeService.showDiagramExportButtons = false;
+          this.exportButtonVisibility.showDiagramExportButtons = false;
         }
         // special case for georesource export buttons
         if (element.id === 'georesourceExportButtons') {
-          this.dataExchangeService.showGeoresourceExportButtons = false;
+          this.exportButtonVisibility.showGeoresourceExportButtons = false;
         }
 
         const domElement = document.getElementById(id);

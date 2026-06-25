@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { ExportButtonVisibilityService } from "services/export-button-visibility-service/export-button-visibility.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { WmsDataset } from "components/ngComponents/models/services.models";
 
@@ -12,7 +12,7 @@ import { WmsDataset } from "components/ngComponents/models/services.models";
   imports: [CommonModule, FormsModule],
 })
 export class WmsTableComponent {
-  protected readonly dataExchangeService = inject(DataExchangeService);
+  protected readonly exportButtonVisibility = inject(ExportButtonVisibilityService);
   protected readonly ogcService = inject(OgcService);
 
   @Input() wmsDataList: WmsDataset[] = [];

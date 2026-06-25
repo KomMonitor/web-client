@@ -1,6 +1,7 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, inject } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -21,6 +22,7 @@ import * as ecStat from 'echarts-stat';
 export class DiagramHelperServiceService {
   private broadcastService = inject(BroadcastService);
   private dataExchangeService = inject(DataExchangeService);
+  private exportButtonVisibility = inject(ExportButtonVisibilityService);
   private chartDisplayState = inject(ChartDisplayStateService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private cacheHelperService = inject(CacheHelperServiceService);
@@ -904,7 +906,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons,
+            show: this.exportButtonVisibility.showDiagramExportButtons,
             readOnly: true,
             title: 'Datenansicht',
             lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'],
@@ -1108,7 +1110,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons,
+            show: this.exportButtonVisibility.showDiagramExportButtons,
             readOnly: true,
             title: 'Datenansicht',
             lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'],
@@ -1308,7 +1310,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons,
+            show: this.exportButtonVisibility.showDiagramExportButtons,
             readOnly: true,
             title: 'Datenansicht',
             lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'],
@@ -1947,7 +1949,7 @@ export class DiagramHelperServiceService {
         feature: {
           // mark : {show: true},
           dataView: {
-            show: this.dataExchangeService.showDiagramExportButtons,
+            show: this.exportButtonVisibility.showDiagramExportButtons,
             readOnly: true,
             title: 'Datenansicht',
             lang: [

@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IconTranslate } from "pipes/icon-translate.pipe";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { ExportButtonVisibilityService } from "services/export-button-visibility-service/export-button-visibility.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
@@ -59,7 +59,7 @@ export class GeoresourceDatasetTableComponent {
   @Output() wfsColorChange = new EventEmitter<any>();
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected exportButtonVisibility: ExportButtonVisibilityService,
     protected metadataExportService: MetadataExportService,
     protected ogcService: OgcService,
     protected exportMode: GeoresourceExportModeService,

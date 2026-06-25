@@ -4,7 +4,7 @@ import { FormsModule } from "@angular/forms";
 import { GeoFavFilter } from "pipes/georesources-fav-filter.pipe";
 import { GeoFavItemFilter } from "pipes/georesources-fav-item-filter.pipe";
 import { IconTranslate } from "pipes/icon-translate.pipe";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { ExportButtonVisibilityService } from "services/export-button-visibility-service/export-button-visibility.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
@@ -49,7 +49,7 @@ export class GeoresourceFavTabComponent {
   constructor(
     protected favoritesService: GeoresourceFavoritesService,
     protected layerService: GeoresourceLayerService,
-    protected dataExchangeService: DataExchangeService,
+    protected exportButtonVisibility: ExportButtonVisibilityService,
     protected metadataExportService: MetadataExportService,
     protected ogcService: OgcService,
     protected exportMode: GeoresourceExportModeService,

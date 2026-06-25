@@ -6,7 +6,7 @@
       <th>Beschreibung</th>
       <th>Legende</th>
       <th *ngIf="showPerDatasetDateColumn">Lebenszeit-Beginn</th>
-      <th *ngIf="dataExchangeService.showGeoresourceExportButtons">Export</th>
+      <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">Export</th>
       <th></th>
     </tr>
   </thead>
@@ -92,7 +92,7 @@
         </select>
       </td>
       <td
-        *ngIf="dataExchangeService.showGeoresourceExportButtons"
+        *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
         class="text-center export-column"
       >
         <p
@@ -180,7 +180,7 @@
         </select>
       </td>
       <td
-        *ngIf="dataExchangeService.showGeoresourceExportButtons"
+        *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
         class="text-center export-column"
       >
         <p
@@ -268,7 +268,7 @@
         </select>
       </td>
       <td
-        *ngIf="dataExchangeService.showGeoresourceExportButtons"
+        *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
         class="text-center export-column"
       >
         <p
@@ -336,7 +336,7 @@
       </td>
       <td>-</td>
       <td
-        *ngIf="dataExchangeService.showGeoresourceExportButtons"
+        *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
         class="text-center"
       >
         <div style="text-align: center">
@@ -451,7 +451,7 @@
       </td>
       <td>-</td>
       <td
-        *ngIf="dataExchangeService.showGeoresourceExportButtons"
+        *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
         class="text-center"
       >
         <div style="text-align: center">

@@ -19,8 +19,6 @@ export interface SpatialUnit {
 export class DataExchangeService {
   private envConfigService = inject(EnvConfigService);
 
-  showDiagramExportButtons = true;
-  showGeoresourceExportButtons = true;
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
 
   disableIndicatorDatePicker!: boolean;

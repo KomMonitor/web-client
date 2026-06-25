@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
@@ -50,7 +50,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   constructor(
     protected diagramHelperService: DiagramHelperServiceService,
-    protected dataExchangeService: DataExchangeService,
+    protected exportButtonVisibility: ExportButtonVisibilityService,
     private indicatorValueService: IndicatorValueService,
     protected selectionState: SelectionStateService,
     private topicHierarchyStore: TopicHierarchyStoreService,
@@ -351,7 +351,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                   feature: {
                       // mark : {show: true},
                       dataView: {
-                          show: this.dataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+                          show: this.exportButtonVisibility.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
                               // 	<table class="table table-condensed table-hover">
                               // 	<thead>
                               // 		<tr>
