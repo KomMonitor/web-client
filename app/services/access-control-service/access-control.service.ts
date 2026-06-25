@@ -36,6 +36,33 @@ export class AccessControlService {
 
   availableRoles: any[] = [];
 
+  /**
+   * Populate the current login roles/groups/admin flag from a parsed Keycloak token
+   * (Prio 7 / B2 — moved out of the DataExchangeService bootstrap, which should not
+   * own auth state derivation).
+   */
+  applyLoginStateFromToken(tokenParsed: any) {
+    if (tokenParsed && tokenParsed.realm_access && tokenParsed.realm_access.roles) {
+      this.currentKeycloakLoginRoles = tokenParsed.realm_access.roles;
+      if (
+        this.currentKeycloakLoginRoles.includes(
+          this.envConfigService.keycloakKomMonitorAdminRoleName
+        )
+      ) {
+        this.isRealmAdmin = true;
+      }
+      if (tokenParsed['groups']) {
+        this.currentKeycloakLoginGroups = tokenParsed['groups'];
+      }
+      this.currentKeycloakLoginGroupNames = this.currentKeycloakLoginGroups.map(
+        (groupPath) => groupPath.split('/')[groupPath.split('/').length - 1]
+      );
+    } else {
+      this.currentKeycloakLoginRoles = [];
+      this.currentKeycloakLoginGroups = [];
+    }
+  }
+
   checkDeletePermission() {
     if (this.checkAdminPermission()) {
       return true;
