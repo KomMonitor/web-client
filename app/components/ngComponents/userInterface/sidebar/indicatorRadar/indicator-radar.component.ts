@@ -83,6 +83,12 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   ngOnInit(): void {
 
     setTimeout(() => {
+      // Skip the initial seed if metadata / selection state is not ready yet; the radar
+      // is re-driven via the 'updateDiagrams' broadcast once an indicator is selected.
+      if (!this.dataExchangeService.selectedIndicator || !this.dataExchangeService.selectedSpatialUnit) {
+        return;
+      }
+
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(true);
 
       this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.dataExchangeService.selectedIndicator.indicatorId);

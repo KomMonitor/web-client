@@ -57,7 +57,7 @@ export class DiagramHelperServiceService {
   }
 
   pipedData: any;
-  indicatorPropertiesForCurrentSpatialUnitAndTime;
+  indicatorPropertiesForCurrentSpatialUnitAndTime: any[] = [];
   filterSameUnitAndSameTime = false;
 
   private INDICATOR_DATE_PREFIX = this.envConfigService.indicatorDatePrefix;
@@ -144,6 +144,19 @@ export class DiagramHelperServiceService {
   }
 
   setupIndicatorPropertiesForCurrentSpatialUnitAndTime(filterBySameUnitAndSameTime = false) {
+    // Bail out if metadata / selection state is not ready yet. The radar seeds this
+    // via a fixed timeout in ngOnInit, which can fire before metadata loading has
+    // populated displayableIndicators (or before a spatial unit / date is selected).
+    // Consumers re-run this via the 'updateDiagrams' broadcast once data is available.
+    if (
+      !this.indicatorStore.displayableIndicators ||
+      !this.dataExchangeService.selectedDate ||
+      !this.dataExchangeService.selectedSpatialUnit
+    ) {
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
+      return;
+    }
+
     this.broadcastService.broadcast(
       'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin'
     );
