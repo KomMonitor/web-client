@@ -103,6 +103,34 @@ export class FeatureTableDataGridHelperService {
   }
 
   /**
+   * Measure the tallest rendered header text so multi-line column titles are not
+   * clipped. Mirrors the role-management grid helper.
+   */
+  private headerHeightGetter(): number {
+    const columnHeaderTexts = document.querySelectorAll('.ag-header-cell-text');
+    let maxHeight = 0;
+
+    columnHeaderTexts.forEach((element: any) => {
+      const height = element.offsetHeight;
+      if (height > maxHeight) {
+        maxHeight = height;
+      }
+    });
+
+    return Math.max(maxHeight + 20, 50); // Add padding, minimum 50px
+  }
+
+  /**
+   * Apply the measured header height to the feature-table grid. Guards on the grid
+   * API since this runs from grid callbacks (onFirstDataRendered / onColumnResized).
+   */
+  private headerHeightSetter(): void {
+    if (this.gridApi_featureTable) {
+      this.gridApi_featureTable.setHeaderHeight(this.headerHeightGetter());
+    }
+  }
+
+  /**
    * Build grid options for feature table
    */
   private buildFeatureTableGridOptions(
@@ -164,6 +192,10 @@ export class FeatureTableDataGridHelperService {
       suppressColumnVirtualisation: true,
       onFirstDataRendered: () => {
         this.registerFeatureTableClickHandlers(resourceId, resourceType, enableDelete);
+        this.headerHeightSetter();
+      },
+      onColumnResized: () => {
+        this.headerHeightSetter();
       },
       onGridReady: (params: GridReadyEvent) => {
         this.gridApi_featureTable = params.api;
@@ -715,6 +747,10 @@ export class FeatureTableDataGridHelperService {
       suppressColumnVirtualisation: true,
       onFirstDataRendered: () => {
         this.registerIndicatorFeatureTableClickHandlers(resourceType, enableDelete);
+        this.headerHeightSetter();
+      },
+      onColumnResized: () => {
+        this.headerHeightSetter();
       },
       onGridReady: (params: GridReadyEvent) => {
         this.gridApi_featureTable = params.api;
