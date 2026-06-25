@@ -101,8 +101,6 @@ export class DataExchangeService {
 
   errorMessage = undefined;
 
-  // todo topics hirarchy interface ?!
-
   anySideBarIsShown = false;
 
   tmpIndicatorGeoJSON = undefined;
@@ -153,206 +151,6 @@ export class DataExchangeService {
       colorValue: 'rgb(47,47,47)',
     },
   ];
-
-  /* reportingDefaultTemplatePageElements = [
-  {
-    "type": "indicatorTitle-landscape",
-    "dimensions": {
-      "top": "15px",
-      "left": "15px",
-      "width": "720px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Titel des Indikators [Einheit]",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px; font-weight: bold;"
-  },
-  {
-    "type": "indicatorTitle-portrait",
-    "dimensions": {
-      "top": "15px",
-      "left": "15px",
-      "width": "470px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Titel des Indikators [Einheit]",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px; font-weight: bold;"
-  },
-  {
-    "type": "dataTimestamp-landscape",
-    "dimensions": {
-      "top": "50px",
-      "left": "15px",
-      "width": "720px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Datenstand",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "dataTimestamp-portrait",
-    "dimensions": {
-      "top": "50px",
-      "left": "15px",
-      "width": "470px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Datenstand",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "dataTimeseries-landscape",
-    "dimensions": {
-      "top": "50px",
-      "left": "15px",
-      "width": "720px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Zeitreihe von - bis",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "dataTimeseries-portrait",
-    "dimensions": {
-      "top": "50px",
-      "left": "15px",
-      "width": "470px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Zeitreihe von - bis",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "reachability-subtitle-landscape",
-    "dimensions": {
-      "top": "50px",
-      "left": "15px",
-      "width": "720px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel, [Indikator]",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "reachability-subtitle-portrait",
-    "dimensions": {
-      "top": "50px",
-      "left": "15px",
-      "width": "470px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel, [Indikator]",
-    "text": "",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "communeLogo-landscape",
-    "dimensions": {
-      "top": "15px",
-      "left": "740px",
-      "width": "75px",
-      "height": "65px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Logo",
-    "src": ""
-  },
-  {
-    "type": "communeLogo-portrait",
-    "dimensions": {
-      "top": "15px",
-      "left": "490px",
-      "width": "75px",
-      "height": "65px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Logo",
-    "src": ""
-  },
-  {
-    "type": "footerHorizontalSpacer-landscape",
-    "dimensions": {
-      "top": "535px",
-      "left": "15px",
-      "width": "800px",
-      "height": "0px"
-    },
-    "css": "border-top: solid rgb(148, 148, 148) 1px;"
-  },
-  {
-    "type": "footerHorizontalSpacer-portrait",
-    "dimensions": {
-      "top": "750px",
-      "left": "15px",
-      "width": "550px",
-      "height": "0px"
-    },
-    "css": "border-top: solid rgb(148, 148, 148) 1px;"
-  },
-
-  {
-    "type": "footerCreationInfo-landscape",
-    "dimensions": {
-      "top": "545px",
-      "left": "15px",
-      "width": "720px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "footerCreationInfo-portrait",
-    "dimensions": {
-      "top": "760px",
-      "left": "15px",
-      "width": "470px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
-    "css": "text-align: left; padding-left: 5px;"
-  },
-  {
-    "type": "pageNumber-landscape",
-    "dimensions": {
-      "top": "545px",
-      "left": "740px",
-      "width": "75px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "[Seitenzahl]",
-    "css": "text-align: right; padding-right: 5px;"
-  },
-  {
-    "type": "pageNumber-portrait",
-    "dimensions": {
-      "top": "760px",
-      "left": "490px",
-      "width": "75px",
-      "height": "30px"
-    },
-    "isPlaceholder": true,
-    "placeholderText": "[Seitenzahl]",
-    "css": "text-align: right; padding-right: 5px;"
-  },
-]; */
 
   // Prio7 B5: hierarchy results live in TopicHierarchyStoreService; consumers read them
   // directly from the store now (facade getters removed). The build* wrappers below stay
@@ -416,7 +214,6 @@ export class DataExchangeService {
               )
             ) {
               this.accessControlService.isRealmAdmin = true;
-              // this.accessControlService.currentKeycloakLoginRoles = this.accessControlService.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles);
             }
             if (tokenParsed['groups']) {
               this.accessControlService.currentKeycloakLoginGroups = tokenParsed['groups'];
@@ -470,88 +267,7 @@ export class DataExchangeService {
       },
     });
 
-    /* 
-    $q.all(metadataPromises).then(function successCallback(successArray) {
-
-          this.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
-
-          this.buildHeadlineIndicatorHierarchy();
-          this.buildTopicIndicatorHierarchy();
-          this.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(this.topicIndicatorHierarchy));
-          this.buildComputationIndicatorHierarchy();
-
-          this.buildTopicGeoresourceHierarchy(filter);
-
-          console.log("Metadata fetched. Call initialize event.");
-          onMetadataLoadingCompleted();
-
-          $timeout(function(){
-            $('.list-group-item > .collapseTrigger').on('click', function() {
-              $('.glyphicon', this)
-                .toggleClass('glyphicon-chevron-right')
-                .toggleClass('glyphicon-chevron-down');
-
-            });
-          });
-      }, function errorCallback(errorArray) {
-        // todo error handling
-        this.displayMapApplicationError("Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.");
-        $rootScope.$broadcast("initialMetadataLoadingFailed", errorArray);
-    }); */
   }
-
-  /*  mergeServices() {
-    console.log(this.availableWmsDatasets)
-
-    let geoServices:WmsDataset[] = this.availableWmsDatasets.filter(e => e.resourceType == WmsResourceType.GEORESOURCE);
-    if(geoServices.length) {
-
-      geoServices.forEach((elem:WmsDataset) => {
-
-        this.availableGeoresources.push({
-          aoiColor: undefined,
-          georesourceName: undefined,
-          availablePeriodsOfValidity: undefined,
-          datasetName: elem.title,
-          geoJSON: undefined,
-          georesourceId: elem.id,
-          isAOI: false,
-          isLOI: false,
-          isPOI: false,
-          isWMS: true,
-          isPublic: false,
-          isSelected: false,
-          loiColor: undefined,
-          loiDashArrayString: undefined,
-          loiWidth: undefined,
-          metadata: {
-            contact: '',
-            databasis: '',
-            datasource: '',
-            description: '',
-            lastUpdate: '',
-            literature: '',
-            note: '',
-            sridEPSG: '',
-            updateInterval: ''
-          },
-          ownerId: undefined,
-          permissions: elem.userPermissions,
-          poiMarkerColor: undefined,
-          poiMarkerStyle: undefined,
-          poiMarkerText: undefined,
-          poiSymbolBootstrap3Name: undefined,
-          poiSymbolColor: undefined,
-          selectedDate: undefined,
-          topicReference: elem.topicReference,
-          userPermissions: undefined,
-          wfsUrl: undefined,
-          wmsUrl: elem.url,
-        })
-      });
-    }
-    console.log(this.availableGeoresources);
-  } */
 
   async fetchTopicsMetadata(keycloakRolesArray) {
     this.topicStore.setTopics(await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
@@ -648,7 +364,6 @@ export class DataExchangeService {
     );
   }
 
-
   private buildHeadlineIndicatorHierarchy() {
     this.topicHierarchyStore.buildHeadlineIndicatorHierarchy(
       this.displayableIndicators_keywordFiltered,
@@ -684,13 +399,6 @@ export class DataExchangeService {
       indicator,
       this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
-    );
-  }
-
-  private getTopicHierarchyForTopicId(topicReferenceId) {
-    return this.topicHierarchyStore.getTopicHierarchyForTopicId(
-      this.topicStore.availableTopics,
-      topicReferenceId
     );
   }
 
@@ -734,7 +442,6 @@ export class DataExchangeService {
         this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error);
       }
 
-      // $rootScope.$apply();
       this.broadcastService.broadcast('hideLoadingIconOnMap');
 
       $('.mapApplicationErrorAlert').show();
