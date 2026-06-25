@@ -11,7 +11,7 @@ import {
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { AdminLoginStateService } from "services/admin-login-state-service/admin-login-state.service";
 import { MetadataBootstrapService } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
 import { AccessControlService } from "services/access-control-service/access-control.service";
 import {
@@ -88,7 +88,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private dataExchangeService: DataExchangeService,
+    private adminLoginState: AdminLoginStateService,
     private metadataBootstrap: MetadataBootstrapService,
     private accessControlService: AccessControlService,
     private broadcastService: BroadcastService,
@@ -189,13 +189,13 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     // currently only simple ADMIN user login is possible
     console.log("Check user login");
     if (
-      this.dataExchangeService.adminUserName ===
+      this.adminLoginState.adminUserName ===
         this.metadataBootstrap.currentKeycloakUser &&
-      this.dataExchangeService.adminPassword === this.password
+      this.adminLoginState.adminPassword === this.password
     ) {
       // success login --> currently switch to ADMIN page directly
       console.log("User Login success - redirect to Admin Page");
-      this.dataExchangeService.adminIsLoggedIn = true;
+      this.adminLoginState.adminIsLoggedIn = true;
       this.router.navigate(["/administration"]);
     }
   }

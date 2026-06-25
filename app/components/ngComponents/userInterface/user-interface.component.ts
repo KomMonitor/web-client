@@ -1,7 +1,7 @@
 import { DisplayType } from 'components/ngComponents/common/custom-slider/custom-slider.component';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { AdminLoginStateService } from 'services/admin-login-state-service/admin-login-state.service';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
@@ -70,7 +70,7 @@ export class UserInterfaceComponent implements OnInit {
   sidebarElement = "";
 
   constructor(
-    protected dataExchangeService: DataExchangeService,
+    protected adminLoginState: AdminLoginStateService,
     protected rangeFilterState: RangeFilterStateService,
     protected chartDisplayState: ChartDisplayStateService,
     private metadataBootstrap: MetadataBootstrapService,
@@ -195,10 +195,10 @@ export class UserInterfaceComponent implements OnInit {
 
     // currently only simple ADMIN user login is possible
     console.log("Check user login");
-    if (this.dataExchangeService.adminUserName === this.metadataBootstrap.currentKeycloakUser && this.dataExchangeService.adminPassword === this.password){
+    if (this.adminLoginState.adminUserName === this.metadataBootstrap.currentKeycloakUser && this.adminLoginState.adminPassword === this.password){
       // success login --> currently switch to ADMIN page directly
       console.log("User Login success - redirect to Admin Page");
-      this.dataExchangeService.adminIsLoggedIn = true;
+      this.adminLoginState.adminIsLoggedIn = true;
       location.href = '/administration';
     }
   }

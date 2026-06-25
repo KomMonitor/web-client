@@ -1,14 +1,14 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { AuthService } from "services/auth-service/auth.service";
-import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { AdminLoginStateService } from "services/admin-login-state-service/admin-login-state.service";
 import { EnvConfigService } from "../services/env-config-service/env-config.service";
 
 const ADMIN_ROLE_SUFFIXES = ["-creator", "-publisher", "-editor"] as const;
 
 export const authAdminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
-  const dataExchangeService = inject(DataExchangeService);
+  const adminLoginState = inject(AdminLoginStateService);
   const envConfigService = inject(EnvConfigService);
   const router = inject(Router);
 
@@ -31,7 +31,7 @@ export const authAdminGuard: CanActivateFn = () => {
     return false;
   }
 
-  if (dataExchangeService.adminIsLoggedIn) {
+  if (adminLoginState.adminIsLoggedIn) {
     return true;
   }
 

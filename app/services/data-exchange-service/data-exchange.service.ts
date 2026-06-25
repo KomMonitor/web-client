@@ -28,9 +28,6 @@ export class DataExchangeService {
   selectedIndicatorBackup!: IndicatorsDataset;
   classifyZeroSeparately_backup: any;
   FEATURE_NAME_PROPERTY_NAME: any;
-  adminUserName;
-  adminPassword;
-  adminIsLoggedIn;
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 }
