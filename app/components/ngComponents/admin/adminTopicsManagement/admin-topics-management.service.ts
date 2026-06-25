@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, tap, timeout } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
-import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 
 export interface TopicOrderResponseEntry {
@@ -18,7 +18,7 @@ export class AdminTopicsManagementService {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
-  private dataExchangeService = inject(DataExchangeService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private accessControlService = inject(AccessControlService);
 
   addTopic(
@@ -154,7 +154,7 @@ export class AdminTopicsManagementService {
   }
 
   private reloadTopics() {
-    this.dataExchangeService
+    this.metadataBootstrap
       .fetchTopicsMetadata(this.accessControlService.currentKeycloakLoginRoles)
       .then(() => {
         this.broadcastService.broadcast('refreshTopicsOverview');

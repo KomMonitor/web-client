@@ -13,7 +13,6 @@ import { WmsAdminTableComponent } from 'components/ngComponents/common/wms-admin
 import { Subscription } from 'rxjs';
 import { KommonitorIndicatorCacheHelperService } from 'services/adminIndicatorUnit/kommonitor-cache-helper.service';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
-import { DataExchangeService } from '../../../../services/data-exchange-service/data-exchange.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
@@ -53,7 +52,6 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   private kommonitorDataGridHelperService = inject(KommonitorIndicatorDataGridHelperService);
   protected wmsSharedComponentsService = inject(WmsSharedComponentsService);
   private envConfigService = inject(EnvConfigService);
-  private dataExchangeService = inject(DataExchangeService);
   private metadataBootstrap = inject(MetadataBootstrapService);
   private mapErrorNotificationService = inject(MapErrorNotificationService);
   private accessControlService = inject(AccessControlService);
@@ -149,7 +147,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
       this.indicatorStore.availableIndicators.length === 0
     ) {
       try {
-        await this.dataExchangeService.fetchIndicatorsMetadata(
+        await this.metadataBootstrap.fetchIndicatorsMetadata(
           this.accessControlService.currentKeycloakLoginRoles
         );
         // Force refresh the table after data is loaded
@@ -673,7 +671,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
   refreshIndicatorOverviewTable(crudType?: string, targetIndicatorId?: string): void {
     if (!crudType || !targetIndicatorId) {
       // refetch all metadata from indicators to update table
-      this.dataExchangeService
+      this.metadataBootstrap
         .fetchIndicatorsMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();

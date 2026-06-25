@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -12,6 +13,7 @@ import { TopicHierarchyService } from '../topic-hierarchy-service/topic-hierarch
 })
 export class KommonitorGeoresourceDataExchangeService {
   private angularJsDataExchangeService = inject(DataExchangeService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
   private cacheHelperService = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
@@ -61,7 +63,7 @@ export class KommonitorGeoresourceDataExchangeService {
    * Fetch georesources metadata - delegates to AngularJS service
    */
   async fetchGeoresourcesMetadata(keycloakRolesArray: string[], filter?: any): Promise<void> {
-    return this.angularJsDataExchangeService.fetchGeoresourcesMetadata(keycloakRolesArray, filter);
+    return this.metadataBootstrap.fetchGeoresourcesMetadata(keycloakRolesArray, filter);
   }
 
   /**

@@ -6,7 +6,6 @@ import {
 } from './data-exchange.constants';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
-import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { GeoresourcesImportDataset } from 'components/ngComponents/userInterface/sidebar/kommonitorDataImport/kommonitor-data-import.component';
 
 export interface SpatialUnit {
@@ -24,7 +23,6 @@ export interface SpatialUnit {
 })
 export class DataExchangeService {
   private envConfigService = inject(EnvConfigService);
-  private metadataBootstrap = inject(MetadataBootstrapService);
 
   selectedDateInit = false;
 
@@ -106,9 +104,6 @@ export class DataExchangeService {
     },
   ];
 
-  // Prio7 B1: metadata bootstrap orchestration lives in MetadataBootstrapService.
-  // The remaining fetch* wrappers below still delegate there until their (admin-layer)
-  // consumers are migrated off the facade.
   getLoiDashSvgFromStringValue(loiDashArrayString) {
     for (const loiDashArrayObject of LOI_DASH_ARRAY_OBJECTS) {
       if (loiDashArrayObject.dashArrayValue == loiDashArrayString) {
@@ -117,25 +112,5 @@ export class DataExchangeService {
     }
 
     return '';
-  }
-
-  fetchTopicsMetadata(keycloakRolesArray) {
-    return this.metadataBootstrap.fetchTopicsMetadata(keycloakRolesArray);
-  }
-
-  fetchSpatialUnitsMetadata(keycloakRolesArray) {
-    return this.metadataBootstrap.fetchSpatialUnitsMetadata(keycloakRolesArray);
-  }
-
-  fetchGeoresourcesMetadata(keycloakRolesArray, filter) {
-    return this.metadataBootstrap.fetchGeoresourcesMetadata(keycloakRolesArray, filter);
-  }
-
-  fetchIndicatorsMetadata(keycloakRolesArray, filter: any = undefined) {
-    return this.metadataBootstrap.fetchIndicatorsMetadata(keycloakRolesArray, filter);
-  }
-
-  fetchAccessControlMetadata(keycloakRolesArray) {
-    return this.metadataBootstrap.fetchAccessControlMetadata(keycloakRolesArray);
   }
 }
