@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { KommonitorDataSetupService } from "../kommonitor-data-setup.service";
 import { ExportModeService } from "../export-mode.service";
 import {
@@ -34,7 +35,8 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
   ],
 })
 export class TopicTreeComponent implements OnChanges {
-  protected readonly dataExchangeService = inject(DataExchangeService);
+  protected dataExchangeService = inject(DataExchangeService);
+  protected readonly selectionState = inject(SelectionStateService);
   private readonly dataSetupService = inject(KommonitorDataSetupService);
   protected readonly exportModeService = inject(ExportModeService);
 

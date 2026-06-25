@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
@@ -21,7 +22,8 @@ import { Indicator } from "components/ngComponents/userInterface/exporting/model
 })
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
-  private readonly dataExchangeService = inject(DataExchangeService);
+  private dataExchangeService = inject(DataExchangeService);
+  private readonly selectionState = inject(SelectionStateService);
   private readonly georesourceStore = inject(GeoresourceMetadataStoreService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly metadataExportService = inject(MetadataExportService);
@@ -155,7 +157,7 @@ export class KommonitorDataSetupService {
 
   isTopicContainingSelectedIndicator(topic: IndicatorsTopicsHierarchy): boolean {
     const indicatorMatch = topic.indicatorData.some(
-      (e) => e.indicatorId === this.dataExchangeService.selectedIndicator.indicatorId,
+      (e) => e.indicatorId === this.selectionState.selectedIndicator.indicatorId,
     );
     const wmsMatch = topic.wmsData.some((e) => e.isSelected === true);
 
@@ -166,7 +168,7 @@ export class KommonitorDataSetupService {
 
   getFirstSpatialUnitForSelectedIndicator(): any {
     const applicableSpatialUnits =
-      this.dataExchangeService.selectedIndicator.applicableSpatialUnits;
+      this.selectionState.selectedIndicator.applicableSpatialUnits;
 
     for (const spatialUnitEntry of this.spatialUnitStore.availableSpatialUnits) {
       if (
@@ -201,9 +203,9 @@ export class KommonitorDataSetupService {
     this.dataExchangeService.wfsUrlForSelectedIndicator = undefined;
 
     const selectedSpatialUnitName =
-      this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
-    for (const ogcServiceEntry of this.dataExchangeService.selectedIndicator.ogcServices) {
+    for (const ogcServiceEntry of this.selectionState.selectedIndicator.ogcServices) {
       if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName) {
         this.dataExchangeService.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
         this.dataExchangeService.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
@@ -212,13 +214,13 @@ export class KommonitorDataSetupService {
     }
 
     this.broadcastService.broadcast("updateBalanceSlider", [
-      this.dataExchangeService.selectedDate,
+      this.selectionState.selectedDate,
     ]);
     // time here seems to be crucial, "500" does not work
     setTimeout(() => {
       this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [
-        this.dataExchangeService.selectedDate,
-        this.dataExchangeService.selectedIndicator,
+        this.selectionState.selectedDate,
+        this.selectionState.selectedIndicator,
       ]);
     }, 1000);
   }
@@ -242,9 +244,9 @@ export class KommonitorDataSetupService {
   }
 
   fetchIndicatorGeoJson(date: string): Observable<any> {
-    const indicatorId = this.dataExchangeService.selectedIndicator.indicatorId;
+    const indicatorId = this.selectionState.selectedIndicator.indicatorId;
 
-    if (!(date && this.dataExchangeService.selectedSpatialUnit && indicatorId)) {
+    if (!(date && this.selectionState.selectedSpatialUnit && indicatorId)) {
       this.dataExchangeService.displayMapApplicationError(
         "Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.",
       );
@@ -252,7 +254,7 @@ export class KommonitorDataSetupService {
     }
 
     const [year, month, day] = date.split("-");
-    const { spatialUnitId } = this.dataExchangeService.selectedSpatialUnit;
+    const { spatialUnitId } = this.selectionState.selectedSpatialUnit;
     const base = this.dataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource();
     const simplify = `${this.dataExchangeService.simplifyGeometriesParameterName}=${this.dataExchangeService.simplifyGeometries}`;
     const url = `${base}/indicators/${indicatorId}/${spatialUnitId}/${year}/${month}/${day}?${simplify}`;

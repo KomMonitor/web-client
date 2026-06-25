@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
@@ -40,7 +41,8 @@ import { IndicatorsDataset } from "components/ngComponents/models/indicators.mod
   ],
 })
 export class KommonitorDataSetupComponent implements OnInit {
-  protected readonly dataExchangeService = inject(DataExchangeService);
+  protected dataExchangeService = inject(DataExchangeService);
+  protected readonly selectionState = inject(SelectionStateService);
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly indicatorStore = inject(IndicatorMetadataStoreService);
   private readonly broadcastService = inject(BroadcastService);
@@ -90,7 +92,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         if (value.selected) this.onChangeDateSliderItem(value.selected);
       });
 
-    this.dataExchangeService.selectedDate$
+    this.selectionState.selectedDate$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.changeIndicatorDate();
@@ -190,11 +192,11 @@ export class KommonitorDataSetupComponent implements OnInit {
         throw Error();
       }
 
-      this.dataExchangeService.selectedIndicator =
+      this.selectionState.selectedIndicator =
         this.indicatorStore.displayableIndicators[indicatorIndex];
       // create Backup which is used when currently selected indicator is filtered out in select
       this.dataExchangeService.selectedIndicatorBackup =
-        this.dataExchangeService.selectedIndicator;
+        this.selectionState.selectedIndicator;
 
       // set spatialUnit
       for (const spatialUnitEntry of this.spatialUnitStore
@@ -203,12 +205,12 @@ export class KommonitorDataSetupComponent implements OnInit {
           spatialUnitEntry.spatialUnitLevel ===
           this.envConfigService.initialSpatialUnitName
         ) {
-          this.dataExchangeService.selectedSpatialUnit = spatialUnitEntry;
+          this.selectionState.selectedSpatialUnit = spatialUnitEntry;
           break;
         }
       }
-      if (!this.dataExchangeService.selectedSpatialUnit) {
-        this.dataExchangeService.selectedSpatialUnit =
+      if (!this.selectionState.selectedSpatialUnit) {
+        this.selectionState.selectedSpatialUnit =
           this.dataSetupService.getFirstSpatialUnitForSelectedIndicator();
       }
 
@@ -266,7 +268,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onClickHierarchyIndicator(indicatorMetadata) {
-    this.dataExchangeService.selectedIndicator = indicatorMetadata;
+    this.selectionState.selectedIndicator = indicatorMetadata;
     this.onChangeSelectedIndicator(false);
   }
 
@@ -276,11 +278,11 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   setupDateSliderForIndicator() {
     const availableDates =
-      this.dataExchangeService.selectedIndicator.applicableDates;
-    this.dataExchangeService.selectedDate =
+      this.selectionState.selectedIndicator.applicableDates;
+    this.selectionState.selectedDate =
       availableDates[availableDates.length - 1];
     const dates =
-      this.dataExchangeService.selectedIndicator.applicableDates.map(
+      this.selectionState.selectedIndicator.applicableDates.map(
         (e) => new Date(e),
       );
 
@@ -304,10 +306,10 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   setupDatePickerForIndicator() {
     const availableDates =
-      this.dataExchangeService.selectedIndicator.applicableDates;
+      this.selectionState.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
     this.selectedDate = availableDates[availableDates.length - 1];
-    this.dataExchangeService.selectedDate =
+    this.selectionState.selectedDate =
       availableDates[availableDates.length - 1];
 
     const ngbDates = this.dataSetupService.prepNgbDates(availableDates);
@@ -322,14 +324,14 @@ export class KommonitorDataSetupComponent implements OnInit {
   onChangeDateSliderItem(data: Date) {
     if (
       !this.changeIndicatorWasClicked &&
-      this.dataExchangeService.selectedIndicator
+      this.selectionState.selectedIndicator
     ) {
       this.selectedDate = data.toISOString().split("T")[0];
       this.date = this.selectedDate;
-      this.dataExchangeService.selectedDate = this.selectedDate;
+      this.selectionState.selectedDate = this.selectedDate;
 
       const preppedDate = this.dataSetupService.prepNgbDates([
-        this.dataExchangeService.selectedDate,
+        this.selectionState.selectedDate,
       ])[0];
       this.broadcastService.broadcast("updateDatePickerSelectedDate", [
         preppedDate,
@@ -369,10 +371,10 @@ export class KommonitorDataSetupComponent implements OnInit {
   tryUpdateMeasureOfValueBarForIndicator() {
     this.dataSetupService.fetchIndicatorGeoJson(this.date).subscribe({
       next: (response: any) => {
-        this.dataExchangeService.selectedIndicator.geoJSON = response;
+        this.selectionState.selectedIndicator.geoJSON = response;
         this.broadcastService.broadcast("updateMeasureOfValueBar", [
           this.date,
-          this.dataExchangeService.selectedIndicator,
+          this.selectionState.selectedIndicator,
         ]);
       },
       error: (error) => {
@@ -385,11 +387,11 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   changeIndicatorDate() {
     if (
-      this.dataExchangeService.selectedIndicator &&
-      this.dataExchangeService.selectedDate
+      this.selectionState.selectedIndicator &&
+      this.selectionState.selectedDate
     ) {
-      this.date = this.dataExchangeService.selectedDate;
-      this.selectedDate = this.dataExchangeService.selectedDate;
+      this.date = this.selectionState.selectedDate;
+      this.selectedDate = this.selectionState.selectedDate;
 
       if (this.applyMeasureOfValueUpdate()) {
         this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
@@ -400,7 +402,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   onChangeSelectedSpatialUnit() {
     if (
       !this.changeIndicatorWasClicked &&
-      this.dataExchangeService.selectedIndicator
+      this.selectionState.selectedIndicator
     ) {
       this.applyMeasureOfValueUpdate();
     }
@@ -412,7 +414,7 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   onChangeSelectedIndicator_fromAlphabeticalList(dataset) {
     if (dataset.listType == "indicator") {
-      this.dataExchangeService.selectedIndicator = dataset;
+      this.selectionState.selectedIndicator = dataset;
       this.onChangeSelectedIndicator(false);
     } else {
       dataset.isSelected = !dataset.isSelected;
@@ -423,12 +425,12 @@ export class KommonitorDataSetupComponent implements OnInit {
   getIndicatorFeatures() {
     this.dataSetupService.fetchIndicatorGeoJson(this.date).subscribe({
       next: (response: any) => {
-        this.dataExchangeService.selectedIndicator.geoJSON = response;
+        this.selectionState.selectedIndicator.geoJSON = response;
         this.mapService.setMapRefreshValues({
-          indicator: this.dataExchangeService.selectedIndicator,
+          indicator: this.selectionState.selectedIndicator,
           spatialUnit:
-            this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel,
-          date: this.dataExchangeService.selectedDate,
+            this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+          date: this.selectionState.selectedDate,
           justRestyling: false,
           customComputation: false,
         });
@@ -443,31 +445,31 @@ export class KommonitorDataSetupComponent implements OnInit {
   onChangeSelectedIndicator(recenterMap) {
     this.broadcastService.broadcast("onChangeSelectedIndicator");
 
-    if (this.dataExchangeService.selectedIndicator) {
+    if (this.selectionState.selectedIndicator) {
       this.loadingData = true;
       this.broadcastService.broadcast("showLoadingIconOnMap");
 
       this.changeIndicatorWasClicked = true;
 
       this.dataExchangeService.selectedIndicatorBackup =
-        this.dataExchangeService.selectedIndicator;
+        this.selectionState.selectedIndicator;
 
-      this.dataExchangeService.setSelectedDate(
-        this.dataExchangeService.selectedIndicator.applicableDates.at(-1),
+      this.selectionState.setSelectedDate(
+        this.selectionState.selectedIndicator.applicableDates.at(-1),
       );
 
       this.setupDateSliderForIndicator();
       this.setupDatePickerForIndicator();
 
       if (
-        !this.dataExchangeService.selectedSpatialUnit ||
-        !this.dataExchangeService.selectedIndicator.applicableSpatialUnits.some(
+        !this.selectionState.selectedSpatialUnit ||
+        !this.selectionState.selectedIndicator.applicableSpatialUnits.some(
           (o) =>
             o.spatialUnitName ===
-            this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel,
+            this.selectionState.selectedSpatialUnit.spatialUnitLevel,
         )
       ) {
-        this.dataExchangeService.selectedSpatialUnit =
+        this.selectionState.selectedSpatialUnit =
           this.dataSetupService.getFirstSpatialUnitForSelectedIndicator();
       }
 
@@ -499,7 +501,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.changeIndicatorWasClicked = false;
     } else {
       if (this.dataExchangeService.selectedIndicatorBackup) {
-        this.dataExchangeService.selectedIndicator =
+        this.selectionState.selectedIndicator =
           this.dataExchangeService.selectedIndicatorBackup;
       }
     }

@@ -40,7 +40,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   constructor(
     protected dataExchangeService: DataExchangeService,
     private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
+    protected selectionState: SelectionStateService,
     protected labelService: LabelService,
     private diagramHelperService: DiagramHelperServiceService,
     private broadcastService: BroadcastService,
@@ -349,7 +349,7 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   appendSeriesToLineChart(featureProperties) {
 
-    // in case of activated balance mode, we must use the properties of this.exchangeData.selectedIndicator, to aquire the correct time series item!
+    // in case of activated balance mode, we must use the properties of this.selectionState.selectedIndicator, to aquire the correct time series item!
     if (this.dataExchangeService.isBalanceChecked) {
       featureProperties = this.findPropertiesForTimeSeries(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     }
@@ -384,7 +384,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   };
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (let feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+    for (let feature of this.selectionState.selectedIndicator.geoJSON.features) {
       if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
         return feature.properties;
       }

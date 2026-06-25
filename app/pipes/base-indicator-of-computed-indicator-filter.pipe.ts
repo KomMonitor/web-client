@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 @Pipe({
     name: 'baseIndicatorOfComputedIndicatorFilter',
@@ -9,7 +10,8 @@ import { DataExchangeService } from 'services/data-exchange-service/data-exchang
 export class BaseIndicatorOfComputedIndicatorFilter implements PipeTransform {
 
   constructor(
-    private dataExchangeService: DataExchangeService
+    private dataExchangeService: DataExchangeService,
+    private selectionState: SelectionStateService
   ) {}
 
   transform(items: any[]): any {
@@ -18,7 +20,7 @@ export class BaseIndicatorOfComputedIndicatorFilter implements PipeTransform {
       return items;
     } 
     
-    var computationIndicatorEntry = this.dataExchangeService.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == this.dataExchangeService.selectedIndicator.indicatorId)[0];
+    var computationIndicatorEntry = this.dataExchangeService.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
 
     return items.filter(item => {
         

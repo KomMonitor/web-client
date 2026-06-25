@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
 import uuidv4 from '../../../../../customizedExternalLibs/uuidv4.js';
 import { FormsModule } from '@angular/forms';
@@ -45,6 +46,7 @@ export class SingleFeatureEditComponent implements OnInit {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private selectionState: SelectionStateService,
     protected singleFeatureMapHelperService: SingleFeatureMapHelperService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
@@ -267,8 +269,8 @@ export class SingleFeatureEditComponent implements OnInit {
     }
 
     // add context layer of currently selected indicator features
-    if(this.dataExchangeService.selectedIndicator && this.dataExchangeService.selectedIndicator.geoJSON){
-      this.singleFeatureMapHelperService.addContextLayerToSingleFeatureGeoMap_indicator(this.dataExchangeService.selectedIndicator.geoJSON);
+    if(this.selectionState.selectedIndicator && this.selectionState.selectedIndicator.geoJSON){
+      this.singleFeatureMapHelperService.addContextLayerToSingleFeatureGeoMap_indicator(this.selectionState.selectedIndicator.geoJSON);
     }
 
     this.singleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap_georesource(this.georesourceFeaturesGeoJSON);

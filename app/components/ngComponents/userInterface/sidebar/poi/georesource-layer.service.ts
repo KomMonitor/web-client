@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
 import { MapService } from "services/map-service/map.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
@@ -35,6 +36,7 @@ export class GeoresourceLayerService {
 
   constructor(
     private dataExchangeService: DataExchangeService,
+    private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
@@ -160,7 +162,7 @@ export class GeoresourceLayerService {
       this.dateSelectionType.selectedDateType ===
       this.dateSelectionType_valueIndicator
     ) {
-      return this.dataExchangeService.selectedDate;
+      return this.selectionState.selectedDate;
     } else if (
       this.dateSelectionType.selectedDateType ===
       this.dateSelectionType_valueManual
@@ -173,7 +175,7 @@ export class GeoresourceLayerService {
     ) {
       return resource.selectedDate.startDate;
     } else {
-      return this.dataExchangeService.selectedDate;
+      return this.selectionState.selectedDate;
     }
   }
 

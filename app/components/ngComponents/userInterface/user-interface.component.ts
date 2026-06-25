@@ -2,6 +2,7 @@ import { DisplayType } from 'components/ngComponents/common/custom-slider/custom
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
@@ -67,6 +68,7 @@ export class UserInterfaceComponent implements OnInit {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    private selectionState: SelectionStateService,
     private accessControlService: AccessControlService,
     private modalService: NgbModal,
     private broadcastService: BroadcastService,
@@ -97,7 +99,7 @@ export class UserInterfaceComponent implements OnInit {
           this.sliderDisabled = value.disabled;
       });
 
-    this.dataExchangeService.selectedDate$
+    this.selectionState.selectedDate$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         if(value)
@@ -228,7 +230,7 @@ export class UserInterfaceComponent implements OnInit {
 
 		$scope.checkBalanceButtonAndMenueState = function(){
 			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
-			if(this.exchangeData.selectedIndicator && (this.exchangeData.selectedIndicator.indicatorType.includes("DYNAMIC") || this.exchangeData.selectedIndicator.applicableDates.length < 2)){
+			if(this.selectionState.selectedIndicator && (this.selectionState.selectedIndicator.indicatorType.includes("DYNAMIC") || this.selectionState.selectedIndicator.applicableDates.length < 2)){
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
 				$scope.sidebarBalanceClass = "disappear";
 			}

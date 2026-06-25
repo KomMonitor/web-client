@@ -1220,7 +1220,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     let innerHTMLString = '<div class="row" style="margin-right: 0px;">';
     innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
     innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropdown'>";
-    innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
+    innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.selectionState.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
     innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
     for (let option of this.spatialUnitStore.availableSpatialUnits) {
@@ -2707,7 +2707,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
-      if (item.spatialUnitId == this.dataExchangeService.selectedSpatialUnit.spatialUnitId) {
+      if (item.spatialUnitId == this.selectionState.selectedSpatialUnit.spatialUnitId) {
         let regionalDefaultBreaks = [...item.breaks];
         if (firstBreak < regionalDefaultBreaks[0]) {
           regionalDefaultBreaks.unshift(firstBreak);
@@ -2756,7 +2756,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON) {
     let breaksAvailableForSelectedSpatialUnit = false;
     for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
-      if (item.spatialUnitId == this.dataExchangeService.selectedSpatialUnit.spatialUnitId) {
+      if (item.spatialUnitId == this.selectionState.selectedSpatialUnit.spatialUnitId) {
         breaksAvailableForSelectedSpatialUnit = true;
       }
     }
@@ -2853,8 +2853,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     // in styling methods, outliers should be removed from classification!
     this.currentIndicatorMetadataAndGeoJSON = this.markOutliers(this.currentIndicatorMetadataAndGeoJSON, this.indicatorPropertyName);
 
-    this.dataExchangeService.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, this.indicatorPropertyName);
-    this.dataExchangeService.setSelectedFeatureProperty(this.filterHelperService.selectedIndicatorFeatureIds, this.indicatorPropertyName);
+    this.selectionState.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, this.indicatorPropertyName);
+    this.selectionState.setSelectedFeatureProperty(this.filterHelperService.selectedIndicatorFeatureIds, this.indicatorPropertyName);
 
     this.currentGeoJSONOfCurrentLayer = this.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
@@ -3064,7 +3064,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.currentIndicatorLayer = layer;
 
-    this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
+    this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
 
     // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
     //   layer.style.color = undefined;
@@ -3095,7 +3095,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.showOutlierInfoAlert = true;
     }
 
-    this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedSpatialUnit.spatialUnitId, date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
+    this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
     this.broadcastService.broadcast("indicatortMapDisplayFinished");
 
     this.map.invalidateSize(true);
@@ -3111,7 +3111,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       feature.tempData.indicatorValueText = this.getIndicatorValue_asFormattedText(indicatorValue);
     }
 
-    feature.tempData.unitText = this.dataExchangeService.selectedIndicator.unit;
+    feature.tempData.unitText = this.selectionState.selectedIndicator.unit;
 
     return feature;
   }
@@ -3301,7 +3301,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           });
 
           this.updateManualMOVBreaksFromDefaultManualBreaks();
-          // this.makeDefaultLegend(this.exchangeData.selectedIndicator.defaultClassificationMapping, this.datasetContainsNegativeValues);
+          // this.makeDefaultLegend(this.selectionState.selectedIndicator.defaultClassificationMapping, this.datasetContainsNegativeValues);
         }
       }
 
@@ -3347,16 +3347,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         });
       }
 
-      this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
+      this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
 
       if (!skipDiagramRefresh) {
         let justRestyling = true;
 
         if (this.visualStyleHelperService.classifyMethod == 'manual') {
-          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
+          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
         }
         else {
-          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel, this.dataExchangeService.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
+          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.dataExchangeService.isMeasureOfValueChecked, this.dataExchangeService.measureOfValue, justRestyling]);
         }
 
       }

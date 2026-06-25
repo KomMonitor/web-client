@@ -89,8 +89,8 @@ export class SingleFeatureMapHelperService {
   }
 
   addContextLayerToSingleFeatureGeoMap_indicator(geoJSON) {
-    const indicatorMetadata = this.dataExchangeService.selectedIndicator;
-    const date = this.dataExchangeService.selectedDate;
+    const indicatorMetadata = this.selectionState.selectedIndicator;
+    const date = this.selectionState.selectedDate;
     const propertyName = this.envConfigService.indicatorDatePrefix + date;
 
     // Simplified styling setup based on kommonitor-map.component
@@ -145,7 +145,7 @@ export class SingleFeatureMapHelperService {
   onEachFeatureIndicator(feature, layer) {
     // Prepare feature data for map use, similar to kommonitor-map.component
     feature.tempData = {};
-    const date = this.dataExchangeService.selectedDate;
+    const date = this.selectionState.selectedDate;
     const indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + date];
 
     if (this.indicatorValueService.indicatorValueIsNoData(indicatorValue)) {
@@ -154,7 +154,7 @@ export class SingleFeatureMapHelperService {
       feature.tempData.indicatorValueText =
         this.getIndicatorValue_asFormattedText(indicatorValue);
     }
-    feature.tempData.unitText = this.dataExchangeService.selectedIndicator.unit;
+    feature.tempData.unitText = this.selectionState.selectedIndicator.unit;
 
     const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${feature.tempData.indicatorValueText} [${feature.tempData.unitText}]`;
     layer.bindTooltip(tooltipHtml, {

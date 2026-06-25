@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
@@ -41,6 +42,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     protected reachabilityHelperService: ReachabilityHelperService,
     private reachabilityMapHelperService: ReachabilityMapHelperService,
     protected dataExchangeService: DataExchangeService,
+    private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
     private diagramHelperService: DiagramHelperServiceService,
     private http: HttpClient,
@@ -154,7 +156,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     }
 
     if (this.reachabilityHelperService.settings.dateSelectionType.selectedDateType === this.reachabilityHelperService.settings.dateSelectionType_valueIndicator) {
-      return this.dataExchangeService.selectedDate;
+      return this.selectionState.selectedDate;
     }
     else if (this.reachabilityHelperService.settings.dateSelectionType.selectedDateType === this.reachabilityHelperService.settings.dateSelectionType_valueManual) {
       return this.reachabilityHelperService.settings.selectedDate_manual;
@@ -163,7 +165,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       return resource.selectedDate.startDate;
     }
     else {
-      return this.dataExchangeService.selectedDate;
+      return this.selectionState.selectedDate;
     }
   };
 

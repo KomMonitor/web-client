@@ -129,8 +129,17 @@ In aufsteigender Konsumentenzahl:
       `admin-dashboard` (`d.accessControl`), `indicator-delete-modal` (live `dataExchangeService`-State).
       Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün je Commit.
       ⚠️ **Offen: Backend-/Keycloak-Smoke-Test** von Login + Admin-Permission-Gating vor Release (nicht lokal QA-bar).
-- [ ] **B7 `SelectionStateService`** — `selectedIndicator` (21), `selectedDate` (18),
-      `selectedSpatialUnit` (14). ⚠️ Karte/Diagramme betroffen → Smoke-Test vor Release.
+- [x] **B7 `SelectionStateService`** ✅ (2026-06-24) — **ein Commit** (Selection-Member eng verzahnt).
+      **34 Konsumenten-Dateien** (.ts + .html) auf `selectionState` umgehängt — alle 23 Member
+      (`selectedIndicator`/`selectedDate`/`selectedSpatialUnit`/`selectedDate$`, 14 Feature-Aggregate,
+      5 Methoden). Reiner Receiver-Swap (kein Glue); Feld-Aliase `dataExchangeService` **und** `exchangeData`
+      (lokaler Facade-Alias) berücksichtigt. ~15 Dateien brauchten neue `SelectionStateService`-Injection,
+      der Rest hatte sie aus B1; bei Template-Bindern `protected`. Facade-interne Reads repointet
+      (`isAllowedSpatialUnitForCurrentIndicator`, `selectedSpatialUnitIsRaster`, MetadataExport-ZIP/PDF-Glue);
+      `selectedSpatialUnitIsRaster()` + `selectedIndicatorBackup` **bleiben** (Facade-eigen, keine Member).
+      Alle Facade-Getter/Setter/Wrapper entfernt (3 State-get/set + `selectedDate$` + 14 Aggregate-Getter + 5 Methoden).
+      **Class C/E = 0** (keine Delegation/Local-Impl — einfacher als B3). Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün.
+      ⚠️ **Offen: Smoke-Test** Karte + Diagramme + Legende + Reachability (selection-getriebenes Rendering) vor Release.
 - [ ] **B5 `TopicHierarchyStoreService`** — Builder-Wrapper (`buildTopic*Hierarchy`) lesen
       Facade-State und reichen ihn durch → mitmigrieren oder bewusst behalten.
 

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { MapService } from 'services/map-service/map.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as turf from '@turf/turf';
@@ -10,6 +11,7 @@ import * as turf from '@turf/turf';
 })
 export class FilterHelperService {
   private dataExchangeService = inject(DataExchangeService);
+  private selectionState = inject(SelectionStateService);
   private mapService = inject(MapService);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
@@ -76,35 +78,35 @@ export class FilterHelperService {
       indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
       this.mapService.replaceIndicatorGeoJSON(
         indicatorMetadataAndGeoJSON,
-        this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel,
-        this.dataExchangeService.selectedDate,
+        this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+        this.selectionState.selectedDate,
         false
       );
     } else {
       const filteredIndicatorFeatures =
-        this.dataExchangeService.selectedIndicator.geoJSON.features.filter(
+        this.selectionState.selectedIndicator.geoJSON.features.filter(
           (feature) =>
             !this.filteredIndicatorFeatureIds.has(
               '' + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
             )
         );
       indicatorMetadataAndGeoJSON = JSON.parse(
-        JSON.stringify(this.dataExchangeService.selectedIndicator)
+        JSON.stringify(this.selectionState.selectedIndicator)
       );
       indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
       this.mapService.replaceIndicatorGeoJSON(
         indicatorMetadataAndGeoJSON,
-        this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel,
-        this.dataExchangeService.selectedDate,
+        this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+        this.selectionState.selectedDate,
         false
       );
     }
     this.broadcastService.broadcast('updateIndicatorValueRangeFilter', [
-      this.dataExchangeService.selectedDate,
+      this.selectionState.selectedDate,
       indicatorMetadataAndGeoJSON,
     ]);
     this.broadcastService.broadcast('updateMeasureOfValueBar', [
-      this.dataExchangeService.selectedDate,
+      this.selectionState.selectedDate,
       indicatorMetadataAndGeoJSON,
     ]);
   }
@@ -125,7 +127,7 @@ export class FilterHelperService {
           feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]
         )
       );
-    for (const feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+    for (const feature of this.selectionState.selectedIndicator.geoJSON.features) {
       this.filteredIndicatorFeatureIds.set(
         '' + feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME],
         feature
@@ -149,15 +151,15 @@ export class FilterHelperService {
       if (this.dataExchangeService.isBalanceChecked) {
         this.mapService.replaceIndicatorGeoJSON(
           this.dataExchangeService.indicatorAndMetadataAsBalance,
-          this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel,
-          this.dataExchangeService.selectedDate,
+          this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+          this.selectionState.selectedDate,
           false
         );
       } else {
         this.mapService.replaceIndicatorGeoJSON(
-          this.dataExchangeService.selectedIndicator,
-          this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel,
-          this.dataExchangeService.selectedDate,
+          this.selectionState.selectedIndicator,
+          this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+          this.selectionState.selectedDate,
           false
         );
       }
@@ -191,7 +193,7 @@ export class FilterHelperService {
     // }
     this.filteredIndicatorFeatureIds = new Map();
     // manage map of filtered features
-    for (const feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+    for (const feature of this.selectionState.selectedIndicator.geoJSON.features) {
       if (
         !targetFeatureNames.includes(
           feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]

@@ -652,7 +652,7 @@ export class ReachabilityMapHelperService {
     const indicatorValueText = this.indicatorValueService.indicatorValueIsNoData(indicatorValue)
       ? 'NoData'
       : this.getIndicatorValue_asFormattedText(indicatorValue);
-    const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${indicatorValueText} [${this.dataExchangeService.selectedIndicator.unit}]`;
+    const tooltipHtml = `<b>${feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]}</b><br/>${indicatorValueText} [${this.selectionState.selectedIndicator.unit}]`;
     layer.bindTooltip(tooltipHtml, { sticky: false });
   }
 

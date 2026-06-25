@@ -389,7 +389,7 @@ export class VisualStyleHelperServiceNew {
     if (forceProvidedIndicator) {
       indicatorTimeSeriesDatesArray = indicator.applicableDates;
     } else {
-      indicatorTimeSeriesDatesArray = this.dataExchangeService.selectedIndicator.applicableDates;
+      indicatorTimeSeriesDatesArray = this.selectionState.selectedIndicator.applicableDates;
     }
 
     for (const date of indicatorTimeSeriesDatesArray) {
@@ -577,7 +577,7 @@ export class VisualStyleHelperServiceNew {
 
   setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue) {
     const indicatorTimeSeriesDatesArray =
-      this.dataExchangeService.selectedIndicator.applicableDates;
+      this.selectionState.selectedIndicator.applicableDates;
 
     for (const date of indicatorTimeSeriesDatesArray) {
       const propertyName = this.envConfigService.indicatorDatePrefix + date;
@@ -767,7 +767,7 @@ export class VisualStyleHelperServiceNew {
 
   setupDynamicBrewValues_wholeTimeseries(geoJSON) {
     const indicatorTimeSeriesDatesArray =
-      this.dataExchangeService.selectedIndicator.applicableDates;
+      this.selectionState.selectedIndicator.applicableDates;
 
     for (const date of indicatorTimeSeriesDatesArray) {
       const propertyName = this.envConfigService.indicatorDatePrefix + date;

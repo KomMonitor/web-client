@@ -2,6 +2,7 @@ import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import * as turf from '@turf/turf';
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
@@ -13,6 +14,7 @@ export class ReachabilityHelperService {
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private dataExchangeService = inject(DataExchangeService);
+  private selectionState = inject(SelectionStateService);
   private envConfigService = inject(EnvConfigService);
   private injector = inject(Injector);
 
@@ -217,7 +219,7 @@ export class ReachabilityHelperService {
     ) {
       date = this.settings.isochroneConfig.selectedDate_manual;
     } else {
-      date = this.dataExchangeService.selectedDate;
+      date = this.selectionState.selectedDate;
     }
 
     if (!date) {

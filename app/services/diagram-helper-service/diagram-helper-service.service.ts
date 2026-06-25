@@ -150,8 +150,8 @@ export class DiagramHelperServiceService {
     // Consumers re-run this via the 'updateDiagrams' broadcast once data is available.
     if (
       !this.indicatorStore.displayableIndicators ||
-      !this.dataExchangeService.selectedDate ||
-      !this.dataExchangeService.selectedSpatialUnit
+      !this.selectionState.selectedDate ||
+      !this.selectionState.selectedSpatialUnit
     ) {
       this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
       return;
@@ -164,7 +164,7 @@ export class DiagramHelperServiceService {
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
     this.indicatorStore.displayableIndicators.forEach((indicatorMetadata) => {
-      const targetYear = this.dataExchangeService.selectedDate.split('-')[0];
+      const targetYear = this.selectionState.selectedDate.split('-')[0];
       const indicatorCandidateYears: any = [];
       indicatorMetadata.applicableDates.forEach((date, _i) => {
         indicatorCandidateYears.push(date.split('-')[0]);
@@ -183,7 +183,7 @@ export class DiagramHelperServiceService {
 
       if (
         indicatorMetadata.applicableSpatialUnits.some(
-          (o) => o.spatialUnitName === this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel
+          (o) => o.spatialUnitName === this.selectionState.selectedSpatialUnit.spatialUnitLevel
         )
       ) {
         let canBeAdded = true;
@@ -235,7 +235,7 @@ export class DiagramHelperServiceService {
       '/indicators/' +
       this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata.indicatorId +
       '/' +
-      this.dataExchangeService.selectedSpatialUnit.spatialUnitId +
+      this.selectionState.selectedSpatialUnit.spatialUnitId +
       '/without-geometry';
     return this.http.get(url).subscribe({
       next: (response: any) => {
@@ -625,7 +625,7 @@ export class DiagramHelperServiceService {
     let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
     if (!forceUseSubmittedIndicatorForTimeseries && this.dataExchangeService.isBalanceChecked) {
-      indicatorMetadataForTimeseries = this.dataExchangeService.selectedIndicator;
+      indicatorMetadataForTimeseries = this.selectionState.selectedIndicator;
     }
     // we must use the original selectedIndicator in case balance mode is active
     // otherwise balance timestamp will have balance values
@@ -1883,7 +1883,7 @@ export class DiagramHelperServiceService {
   }
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (const feature of this.dataExchangeService.selectedIndicator.geoJSON.features) {
+    for (const feature of this.selectionState.selectedIndicator.geoJSON.features) {
       if (
         feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
         spatialUnitFeatureName

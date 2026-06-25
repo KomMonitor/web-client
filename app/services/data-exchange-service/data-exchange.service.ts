@@ -64,82 +64,18 @@ export class DataExchangeService {
   );
   metadataLoading$ = this.metadataLoadingSubject.asObservable();
 
-  // Prio7 B7: selectedDate stream lives in SelectionStateService
-  get selectedDate$() {
-    return this.selectionState.selectedDate$;
-  }
-
   selectedDateInit = false;
 
   showDiagramExportButtons = true;
   showGeoresourceExportButtons = true;
   configMeanDataDisplay = this.envConfigService.configMeanDataDisplay || 'both';
 
-  // Prio7 B7: selection state lives in SelectionStateService; facade get/set keeps consumers unchanged
-  get selectedIndicator(): IndicatorsDataset {
-    return this.selectionState.selectedIndicator;
-  }
-  set selectedIndicator(v: IndicatorsDataset) {
-    this.selectionState.selectedIndicator = v;
-  }
-  get selectedDate(): any {
-    return this.selectionState.selectedDate;
-  }
-  set selectedDate(v: any) {
-    this.selectionState.selectedDate = v;
-  }
-  get selectedSpatialUnit(): SpatialUnit {
-    return this.selectionState.selectedSpatialUnit;
-  }
-  set selectedSpatialUnit(v: SpatialUnit) {
-    this.selectionState.selectedSpatialUnit = v;
-  }
   disableIndicatorDatePicker!: boolean;
   isBalanceChecked!: boolean;
   indicatorAndMetadataAsBalance: any;
   indicatorDatePrefix!: string;
   measureOfValue: any;
   isMeasureOfValueChecked: boolean = false;
-  // Prio7 B7: feature aggregates live in SelectionStateService; facade getters keep consumers unchanged
-  get allFeaturesRegionalMean(): any {
-    return this.selectionState.allFeaturesRegionalMean;
-  }
-  get allFeaturesMean(): any {
-    return this.selectionState.allFeaturesMean;
-  }
-  get allFeaturesNumberOfFeatures(): any {
-    return this.selectionState.allFeaturesNumberOfFeatures;
-  }
-  get selectedFeaturesNumberOfFeatures(): any {
-    return this.selectionState.selectedFeaturesNumberOfFeatures;
-  }
-  get allFeaturesSum(): any {
-    return this.selectionState.allFeaturesSum;
-  }
-  get allFeaturesRegionalSum(): any {
-    return this.selectionState.allFeaturesRegionalSum;
-  }
-  get selectedFeaturesSum(): any {
-    return this.selectionState.selectedFeaturesSum;
-  }
-  get selectedFeaturesMean(): any {
-    return this.selectionState.selectedFeaturesMean;
-  }
-  get allFeaturesMin(): any {
-    return this.selectionState.allFeaturesMin;
-  }
-  get selectedFeaturesMin(): any {
-    return this.selectionState.selectedFeaturesMin;
-  }
-  get allFeaturesMax(): any {
-    return this.selectionState.allFeaturesMax;
-  }
-  get selectedFeaturesMax(): any {
-    return this.selectionState.selectedFeaturesMax;
-  }
-  get allFeaturesRegionalSpatiallyUnassignable(): any {
-    return this.selectionState.allFeaturesRegionalSpatiallyUnassignable;
-  }
   selectedIndicatorBackup!: IndicatorsDataset;
   wmsUrlForSelectedIndicator: any;
   wfsUrlForSelectedIndicator: any;
@@ -173,10 +109,6 @@ export class DataExchangeService {
   anySideBarIsShown = false;
 
   tmpIndicatorGeoJSON = undefined;
-
-  get allFeaturesPropertyUnit(): any {
-    return this.selectionState.allFeaturesPropertyUnit;
-  }
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
@@ -443,10 +375,6 @@ export class DataExchangeService {
   }
   currentKeycloakUser!: KeycloakProfile;
 
-  setSelectedDate(dateString: string | undefined) {
-    this.selectionState.setSelectedDate(dateString);
-  }
-
   setMetadataState(state: MetadataLoadingState) {
     this.metadataLoadingSubject.next(state);
   }
@@ -456,7 +384,7 @@ export class DataExchangeService {
   }
 
   isAllowedSpatialUnitForCurrentIndicator(spatialUnitMetadata: any) {
-    if (!this.selectedIndicator) {
+    if (!this.selectionState.selectedIndicator) {
       return false;
     }
 
@@ -464,7 +392,7 @@ export class DataExchangeService {
       return false;
     }
 
-    const filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (
+    const filteredApplicableUnits = this.selectionState.selectedIndicator.applicableSpatialUnits.filter(function (
       applicableSpatialUnit: any
     ) {
       if (applicableSpatialUnit.spatialUnitId === spatialUnitMetadata.spatialUnitId) {
@@ -788,7 +716,7 @@ export class DataExchangeService {
       fileName,
       fileEnding,
       jsZipOptions,
-      this.selectedIndicator,
+      this.selectionState.selectedIndicator,
       this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
@@ -796,7 +724,7 @@ export class DataExchangeService {
 
   async generateIndicatorMetadataPdf_asBlob() {
     return this.metadataExportService.generateIndicatorMetadataPdf_asBlob(
-      this.selectedIndicator,
+      this.selectionState.selectedIndicator,
       this.spatialUnitStore.availableSpatialUnits,
       this.topicStore.availableTopics
     );
@@ -840,17 +768,9 @@ export class DataExchangeService {
     this.metadataFilterService.onChangeIndicatorKeywordFilter(indicatorNameFilter);
   }
 
-  setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName) {
-    this.selectionState.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, propertyName);
-  }
-
-  setSelectedFeatureProperty(selectedFeaturesMap, propertyName) {
-    this.selectionState.setSelectedFeatureProperty(selectedFeaturesMap, propertyName);
-  }
-
   selectedSpatialUnitIsRaster() {
-    const spatialUnitName = this.selectedSpatialUnit
-      ? this.selectedSpatialUnit.spatialUnitLevel
+    const spatialUnitName = this.selectionState.selectedSpatialUnit
+      ? this.selectionState.selectedSpatialUnit.spatialUnitLevel
       : '';
 
     return (
@@ -885,14 +805,6 @@ export class DataExchangeService {
       georesourceMetadata,
       this.topicStore.availableTopics
     );
-  }
-
-  onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {
-    this.selectionState.onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]);
-  }
-
-  buildIndicatorPropertyName() {
-    return this.selectionState.buildIndicatorPropertyName();
   }
 
   filterIndicators() {

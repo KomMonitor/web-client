@@ -86,7 +86,7 @@ export class RegressionDiagramComponent implements OnInit {
     protected diagramHelperService: DiagramHelperServiceService,
     private dataExchangeService: DataExchangeService,
     private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
+    protected selectionState: SelectionStateService,
     private broadcastService: BroadcastService,
     private filterHelperService: FilterHelperService,
     private envConfigService: EnvConfigService,
@@ -188,8 +188,8 @@ export class RegressionDiagramComponent implements OnInit {
       //
       // await wait(2000);
 
-      if(item.applicableSpatialUnits.some(o => o.spatialUnitName == this.exchangeData.selectedSpatialUnit.spatialUnitLevel)){
-        return item.applicableDates.includes(this.exchangeData.selectedDate);
+      if(item.applicableSpatialUnits.some(o => o.spatialUnitName == this.selectionState.selectedSpatialUnit.spatialUnitLevel)){
+        return item.applicableDates.includes(this.selectionState.selectedDate);
       }
       else{
         return false;
@@ -247,7 +247,7 @@ export class RegressionDiagramComponent implements OnInit {
     this.data = undefined;
     this.dataWithLabels = undefined;
     this.eventsRegistered = false;
-    this.indicatorPropertyName = this.DATE_PREFIX + this.exchangeData.selectedDate;
+    this.indicatorPropertyName = this.DATE_PREFIX + this.selectionState.selectedDate;
     this.spatialUnitName = spatialUnitName;
     this.date = date;
     this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
@@ -283,10 +283,10 @@ export class RegressionDiagramComponent implements OnInit {
     }
 
     this.activeTab = 0;
-    if(this.exchangeData.selectedIndicator.creationType == "COMPUTATION"){
+    if(this.selectionState.selectedIndicator.creationType == "COMPUTATION"){
       this.activeTab = 1;
     }
-    if(this.exchangeData.selectedIndicator.isHeadlineIndicator){
+    if(this.selectionState.selectedIndicator.isHeadlineIndicator){
       this.activeTab = 2;
     }
 

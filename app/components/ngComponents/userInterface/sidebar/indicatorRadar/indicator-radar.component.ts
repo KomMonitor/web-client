@@ -51,7 +51,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     protected diagramHelperService: DiagramHelperServiceService,
     protected dataExchangeService: DataExchangeService,
     private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
+    protected selectionState: SelectionStateService,
     private filterHelperService: FilterHelperService,
     private broadcastService: BroadcastService,
     private envConfigService: EnvConfigService
@@ -85,16 +85,16 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     setTimeout(() => {
       // Skip the initial seed if metadata / selection state is not ready yet; the radar
       // is re-driven via the 'updateDiagrams' broadcast once an indicator is selected.
-      if (!this.dataExchangeService.selectedIndicator || !this.dataExchangeService.selectedSpatialUnit) {
+      if (!this.selectionState.selectedIndicator || !this.selectionState.selectedSpatialUnit) {
         return;
       }
 
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(true);
 
-      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.dataExchangeService.selectedIndicator.indicatorId);
+      this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.selectionState.selectedIndicator.indicatorId);
       this.propertiesForBaseIndicatorsOfCurrentHeadlineIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => {
 
-        var headlineIndicatorEntry = this.dataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.dataExchangeService.selectedIndicator.indicatorId)[0];
+        var headlineIndicatorEntry = this.dataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
 
         if(headlineIndicatorEntry){
           var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);
@@ -197,10 +197,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       this.radarChart.showLoading();
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
       this.activeTab = 0;
-      if (this.dataExchangeService.selectedIndicator.creationType == "COMPUTATION") {
+      if (this.selectionState.selectedIndicator.creationType == "COMPUTATION") {
           this.activeTab = 1;
       }
-      if (this.dataExchangeService.selectedIndicator.isHeadlineIndicator) {
+      if (this.selectionState.selectedIndicator.isHeadlineIndicator) {
           this.activeTab = 2;
       }
       this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);

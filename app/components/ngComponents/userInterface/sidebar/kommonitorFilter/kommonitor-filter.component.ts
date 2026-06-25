@@ -327,10 +327,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
     if(! this.previouslySelectedIndicator){
-      this.previouslySelectedIndicator = this.dataExchangeService.selectedIndicator;
+      this.previouslySelectedIndicator = this.selectionState.selectedIndicator;
     }
     if(! this.previouslySelectedSpatialUnit){
-      this.previouslySelectedSpatialUnit = this.dataExchangeService.selectedSpatialUnit;
+      this.previouslySelectedSpatialUnit = this.selectionState.selectedSpatialUnit;
     }
 
     // if(this.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
@@ -346,8 +346,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         this.filterHelperService.clearSelectedFeatures();
     }
 
-    this.previouslySelectedIndicator = this.dataExchangeService.selectedIndicator;
-    this.previouslySelectedSpatialUnit = this.dataExchangeService.selectedSpatialUnit;
+    this.previouslySelectedIndicator = this.selectionState.selectedIndicator;
+    this.previouslySelectedSpatialUnit = this.selectionState.selectedSpatialUnit;
     
   }
 
@@ -519,7 +519,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.dataExchangeService.rangeFilterIsApplied = true;
     }
 
-    var dateProperty = this.INDICATOR_DATE_PREFIX + this.dataExchangeService.selectedDate;
+    var dateProperty = this.INDICATOR_DATE_PREFIX + this.selectionState.selectedDate;
 
     this.filterHelperService.applyRangeFilter(this.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, this.currentLowerFilterValue, this.currentHigherFilterValue);
   }
@@ -554,10 +554,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
       // todo
     /* 	$rootScope.$broadcast("DisableBalance");
-      $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.exchangeData.selectedDate, this.exchangeData.selectedIndicator); */
+      $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.selectionState.selectedDate, this.selectionState.selectedIndicator); */
       //replace displayed indicator on map
       this.filterHelperService.filterAndReplaceDataset();
-      // kommonitorMapService.replaceIndicatorGeoJSON(this.exchangeData.selectedIndicator, this.exchangeData.selectedSpatialUnit.spatialUnitLevel, this.exchangeData.selectedDate, true);
+      // kommonitorMapService.replaceIndicatorGeoJSON(this.selectionState.selectedIndicator, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedDate, true);
     }
     else{
       this.mapService.restyleCurrentLayer();
@@ -688,7 +688,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.loadingData = true;
     //send request to datamanagement API
-    let selectedSpatialUnit = this.dataExchangeService.selectedSpatialUnit;
+    let selectedSpatialUnit = this.selectionState.selectedSpatialUnit;
     let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
     let upperSpatialUnitId = undefined;
 
@@ -701,10 +701,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
       upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
     }
-    let selectedIndicatorId = this.dataExchangeService.selectedIndicator.indicatorId;
+    let selectedIndicatorId = this.selectionState.selectedIndicator.indicatorId;
 
     // example: 2020-12-31
-    let selectedDateComponents = this.dataExchangeService.selectedDate.split("-");
+    let selectedDateComponents = this.selectionState.selectedDate.split("-");
 
     //build request
     let datePath = "";

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'services/auth-service/auth.service';
 import { DataExchangeService } from 'services/data-exchange-service/data-exchange.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { Location } from '@angular/common';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
@@ -13,6 +14,7 @@ export class ShareHelperService {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private dataExchangeService = inject(DataExchangeService);
+  private selectionState = inject(SelectionStateService);
   private location = inject(Location);
   private envConfigService = inject(EnvConfigService);
 
@@ -139,16 +141,16 @@ export class ShareHelperService {
   setShareLinkParam_currentIndicatorId() {
     this.setShareLinkParam(
       this.paramName_indicatorId,
-      this.dataExchangeService.selectedIndicator.indicatorId
+      this.selectionState.selectedIndicator.indicatorId
     );
 
-    if (this.dataExchangeService.selectedIndicator.permissions.length > 0) {
+    if (this.selectionState.selectedIndicator.permissions.length > 0) {
       this.setShareLinkParam(this.paramName_loginRequired, 'true');
     } else {
-      for (const spatialUnit of this.dataExchangeService.selectedIndicator.applicableSpatialUnits) {
+      for (const spatialUnit of this.selectionState.selectedIndicator.applicableSpatialUnits) {
         if (
           spatialUnit.spatialUnitName ==
-          this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel
+          this.selectionState.selectedSpatialUnit.spatialUnitLevel
         ) {
           if (spatialUnit.permissions.length > 0) {
             this.setShareLinkParam(this.paramName_loginRequired, 'true');
@@ -161,9 +163,9 @@ export class ShareHelperService {
   setShareLinkParam_currentSpatialUnitName() {
     this.setShareLinkParam(
       this.paramName_spatialUnitName,
-      this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel
+      this.selectionState.selectedSpatialUnit.spatialUnitLevel
     );
-    if (this.dataExchangeService.selectedSpatialUnit.permissions.length > 0) {
+    if (this.selectionState.selectedSpatialUnit.permissions.length > 0) {
       this.setShareLinkParam(this.paramName_loginRequired, 'true');
     }
   }

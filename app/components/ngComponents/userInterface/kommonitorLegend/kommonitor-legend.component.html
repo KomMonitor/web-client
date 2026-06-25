@@ -1,14 +1,14 @@
 <button type="button" id="sidebarLegendCollapse" (click)="legendVisible = !legendVisible" class="buttonLegendClass" title="Legenden- und Informationsfenster">
 		<i class="fas fa-info"></i>
 </button>
-<div id="legendWrapper" *ngIf="dataExchangeService.selectedIndicator" [hidden]="!legendVisible">
+<div id="legendWrapper" *ngIf="selectionState.selectedIndicator" [hidden]="!legendVisible">
 
     <expandable-box [title]="'Raumebene und Export'" [collapsed]="true">
       <div class="boxedLegend">						
         <div class="row" style="margin-right: 0px;">
           <div class="col-sm-7"> <!-- *ngIf="env.enableSpatialUnitNotificationButton" -->
             <div class="text-left"><label>Raumebene</label><a *ngIf="spatialUnitNotificationModalEnabled()" (click)="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumebenen&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
-              <select (change)="onChangeSelectedSpatialUnit()" [(ngModel)]="dataExchangeService.selectedSpatialUnit" class="form-control">
+              <select (change)="onChangeSelectedSpatialUnit()" [(ngModel)]="selectionState.selectedSpatialUnit" class="form-control">
                 <option disabled selected value> -- Raumebene w&auml;hlen --</option>
                 <option *ngFor="let item of filteredSpatialUnits()" [ngValue]="item">{{item.spatialUnitLevel }}</option>
               </select>
@@ -49,7 +49,7 @@
       </div>
     </expandable-box>
   
-    <expandable-box [title]="'Legenden'" *ngIf="dataExchangeService.selectedIndicator" [collapsed]="false">
+    <expandable-box [title]="'Legenden'" *ngIf="selectionState.selectedIndicator" [collapsed]="false">
       <div class="boxedLegend">
 
         <ul class="nav nav-tabs" id="legendTabs" role="tablist">
@@ -72,22 +72,22 @@
               
             <div class="just-padding">
               
-              <h4>{{dataExchangeService.selectedIndicator.indicatorName}}</h4>
+              <h4>{{selectionState.selectedIndicator.indicatorName}}</h4>
               <h5 *ngIf="visualStyleService.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
-              <p [innerHTML]="dataExchangeService.selectedIndicator.metadata.description"></p>							
+              <p [innerHTML]="selectionState.selectedIndicator.metadata.description"></p>							
               
-              <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
-                <em>Darstellung der Indikatorenwerte {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
-                <div *ngIf="dataExchangeService.selectedIndicator.referenceDateNote">
-                  <em><b>Hinweis Referenzdatum:</b> {{dataExchangeService.selectedIndicator.referenceDateNote}}</em>
+              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
+                <em>Darstellung der Indikatorenwerte {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
+                <div *ngIf="selectionState.selectedIndicator.referenceDateNote">
+                  <em><b>Hinweis Referenzdatum:</b> {{selectionState.selectedIndicator.referenceDateNote}}</em>
                 </div>
               </div>
-              <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') && ! dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
-                <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
+              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') && ! dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked">
+                <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
               </div>
               <div *ngIf="dataExchangeService.isMeasureOfValueChecked">
                 <em>Schwellwert-Klassifizierung</em>
-                <em>Gew&auml;hlter Zeitpunkt: </em> {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}
+                <em>Gew&auml;hlter Zeitpunkt: </em> {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}
                 <em>aktueller Schwellwert: </em> {{dataExchangeService.measureOfValue}}
               </div>
               <div *ngIf="dataExchangeService.isBalanceChecked">
@@ -96,16 +96,16 @@
               
               <br />
       
-              <div *ngIf="dataExchangeService.selectedIndicator.interpretation && dataExchangeService.selectedIndicator.interpretation != ''">
+              <div *ngIf="selectionState.selectedIndicator.interpretation && selectionState.selectedIndicator.interpretation != ''">
                 <label>Interpretationshilfe:</label>
-                <p [innerHTML]="dataExchangeService.selectedIndicator.interpretation"></p>	
+                <p [innerHTML]="selectionState.selectedIndicator.interpretation"></p>	
               </div>						
               <br />				
               
 
               <div class="row" style="margin-right: 0px;">
                 <div class="col-md-3"><b>Symbolik</b></div>
-                <div class="col-md-6"><b>Wertebereich</b> [{{dataExchangeService.selectedIndicator.unit}}]</div>
+                <div class="col-md-6"><b>Wertebereich</b> [{{selectionState.selectedIndicator.unit}}]</div>
                 <div class="col-md-3"><b>Anzahl Raumeinheiten</b></div><br>
               </div>
               <div *ngIf="containsNoData">
@@ -168,7 +168,7 @@
 
               </div>
               <!-- Dynamic legend items -->
-              <div *ngIf="(dataExchangeService.isBalanceChecked || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked">					
+              <div *ngIf="(dataExchangeService.isBalanceChecked || selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked">					
                 <!-- < 0 values -->
                   <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]">
                   <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[1].colors; let i = index">
@@ -202,7 +202,7 @@
               </div>
 
               <!-- Static/Status legend items -->
-              <div *ngIf="(dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked">
+              <div *ngIf="(selectionState.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked">
         
                 <!-- zero -->
                 <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
@@ -244,13 +244,13 @@
               </div>
               <div>
                 <br/>
-                <div *ngIf="dataExchangeService.allFeaturesRegionalMean && envConfigService.enableMeanDataDisplayInLegend">
+                <div *ngIf="selectionState.allFeaturesRegionalMean && envConfigService.enableMeanDataDisplayInLegend">
                   <b>{{labelService.labelMean_regional}}</b>
-                  {{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}
+                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean)}}
                 </div>
-                <div *ngIf="dataExchangeService.allFeaturesMean && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                <div *ngIf="selectionState.allFeaturesMean && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
                   <b>{{labelService.labelMean}}</b>
-                  {{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}
+                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean)}}
                 </div>
               </div>
               <div id="kommonitorIndicatorClassification">
@@ -295,75 +295,75 @@
                   <tbody>
                     <tr>
                       <td><b>Name</b></td>
-                      <td>{{dataExchangeService.selectedIndicator.indicatorName}}</td>
+                      <td>{{selectionState.selectedIndicator.indicatorName}}</td>
                     </tr>
                     <tr>
                       <td><b>Kategorie</b></td>
                       <td
-                        *ngIf="dataExchangeService.selectedIndicator.isHeadlineIndicator">
+                        *ngIf="selectionState.selectedIndicator.isHeadlineIndicator">
                         Leitindikator</td>
                       <td
-                        *ngIf="!dataExchangeService.selectedIndicator.isHeadlineIndicator">
+                        *ngIf="!selectionState.selectedIndicator.isHeadlineIndicator">
                         Basisindikator</td>
                     </tr>
                     <tr>
                       <td><b>Typ</b></td>
-                      <td>{{dataExchangeService.selectedIndicator.indicatorType}}</td>
+                      <td>{{selectionState.selectedIndicator.indicatorType}}</td>
                     </tr>
                     <!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
                             -> deprecated -->
       
-                    <!-- <tr ng-if="dataExchangeService.selectedIndicator.characteristicValue">
+                    <!-- <tr ng-if="selectionState.selectedIndicator.characteristicValue">
                               <td><b>Merkmalsauspr&auml;gung</b></td>
-                              <td>{{dataExchangeService.selectedIndicator.characteristicValue}}</td>
+                              <td>{{selectionState.selectedIndicator.characteristicValue}}</td>
                             </tr> -->
                     <tr>
                       <td><b>Kennzeichen/K&uuml;rzel</b></td>
-                      <td>{{dataExchangeService.selectedIndicator.abbreviation}}</td>
+                      <td>{{selectionState.selectedIndicator.abbreviation}}</td>
                     </tr>
                     <tr>
                       <td><b>Beschreibung</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.metadata.description">
+                      <td [innerHTML]="selectionState.selectedIndicator.metadata.description">
                       </td>
                     </tr>
                     <tr>
                       <td><b>Maßeinheit</b></td>
-                      <td>{{dataExchangeService.selectedIndicator.unit}}</td>
+                      <td>{{selectionState.selectedIndicator.unit}}</td>
                     </tr>
                     <tr>
                       <td><b>Methodik</b></td>
-                      <!-- <td [mathjax]="dataExchangeService.selectedIndicator.processDescription"> -->
+                      <!-- <td [mathjax]="selectionState.selectedIndicator.processDescription"> -->
                       <td>
                       </td>
                     </tr>
                     <tr>
                       <td><b>Interpretation</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.interpretation">
+                      <td [innerHTML]="selectionState.selectedIndicator.interpretation">
                       </td>
                     </tr>
                     <tr>
                       <td><b>Datengrundlage</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.metadata.databasis">
+                      <td [innerHTML]="selectionState.selectedIndicator.metadata.databasis">
                       </td>
                     </tr>
                     <tr>
                       <td><b>Datenquelle</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.metadata.datasource">
+                      <td [innerHTML]="selectionState.selectedIndicator.metadata.datasource">
                       </td>
                     </tr>
                     <tr>
                       <td><b>Datenhalter und Kontakt</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.metadata.contact">
+                      <td [innerHTML]="selectionState.selectedIndicator.metadata.contact">
                       </td>
                     </tr>
                     <tr>
                       <td><b>Bemerkung</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.metadata.note">
+                      <td [innerHTML]="selectionState.selectedIndicator.metadata.note">
                       </td>
                     </tr>
                     <tr>
                       <td><b>Fortführungsintervall</b></td>
-                      <td [innerHTML]="dataExchangeService.selectedIndicator.metadata.updateInterval">
+                      <td [innerHTML]="selectionState.selectedIndicator.metadata.updateInterval">
                       </td>
                     </tr>
                   </tbody>
@@ -376,10 +376,10 @@
 
               <div>
                 <h4>Verkn&uuml;pfte Indikatoren</h4>
-                <div *ngIf="!dataExchangeService.selectedIndicator.referencedIndicators || dataExchangeService.selectedIndicator.referencedIndicators.length==0">
+                <div *ngIf="!selectionState.selectedIndicator.referencedIndicators || selectionState.selectedIndicator.referencedIndicators.length==0">
                   -- keine --
                 </div>
-                <div *ngIf="dataExchangeService.selectedIndicator.referencedIndicators?.length > 0">
+                <div *ngIf="selectionState.selectedIndicator.referencedIndicators?.length > 0">
                   <div id="referencedIndicatorOverview" text-align="center" style="text-align:center" class="">
         
                   <table class="table table-condensed">
@@ -391,7 +391,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let indicator of dataExchangeService.selectedIndicator.referencedIndicators">
+                      <tr *ngFor="let indicator of selectionState.selectedIndicator.referencedIndicators">
                         <td>{{indicator.referencedIndicatorName}}</td>
                         <td>{{dataExchangeService.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)}}</td>
                         <td>{{indicator.referencedIndicatorDescription}}</td>
@@ -408,10 +408,10 @@
 
               <div>
                 <h4>Verkn&uuml;pfte Georessourcen</h4>
-                <div *ngIf="!dataExchangeService.selectedIndicator.referencedGeoresources || dataExchangeService.selectedIndicator.referencedGeoresources.length==0">
+                <div *ngIf="!selectionState.selectedIndicator.referencedGeoresources || selectionState.selectedIndicator.referencedGeoresources.length==0">
                   -- keine --
                 </div>
-                <div *ngIf="dataExchangeService.selectedIndicator.referencedGeoresources?.length > 0">
+                <div *ngIf="selectionState.selectedIndicator.referencedGeoresources?.length > 0">
                   <div id="referencedGeoresourcesOverview" text-align="center" style="text-align:center" class="">
                   <h4>Verkn&uuml;pfte Georessourcen</h4>
         
@@ -423,7 +423,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let georesource of dataExchangeService.selectedIndicator.referencedGeoresources">
+                      <tr *ngFor="let georesource of selectionState.selectedIndicator.referencedGeoresources">
                         <td>{{georesource.referencedGeoresourceName}}</td>
                         <td>{{georesource.referencedGeoresourceDescription}}</td>
                       </tr>
@@ -472,7 +472,7 @@
     </expandable-box>
   
     <expandable-box [title]="'Indikatoren-Statistik'" [collapsed]="true">
-      <em>Referenzzeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, dataExchangeService.selectedIndicator.metadata.updateInterval)}}</em>
+      <em>Referenzzeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
       <table id="statisticalValuesDisplayTable" class="table">
         <thead>
           <tr>
@@ -485,42 +485,42 @@
         <tbody>
           <tr>
             <td>{{labelService.labelNumberOfFeatures}}</td>
-            <td>{{dataExchangeService.allFeaturesNumberOfFeatures}}</td>
-            <td>{{dataExchangeService.selectedFeaturesNumberOfFeatures}}</td>
+            <td>{{selectionState.allFeaturesNumberOfFeatures}}</td>
+            <td>{{selectionState.selectedFeaturesNumberOfFeatures}}</td>
           </tr>
-          <tr *ngIf="! dataExchangeService.allFeaturesRegionalSum">
+          <tr *ngIf="! selectionState.allFeaturesRegionalSum">
             <td>{{labelService.labelSum}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesSum)}}</td>
-            <td>{{dataExchangeService.selectedFeaturesSum}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesSum)}}</td>
+            <td>{{selectionState.selectedFeaturesSum}}</td>
           </tr>
-          <tr *ngIf="dataExchangeService.allFeaturesRegionalSum">
+          <tr *ngIf="selectionState.allFeaturesRegionalSum">
             <td>{{labelService.labelSum_regional}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalSum)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesSum)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalSum)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesSum)}}</td>
           </tr>
-          <tr *ngIf="dataExchangeService.allFeaturesRegionalMean">
+          <tr *ngIf="selectionState.allFeaturesRegionalMean">
             <td>{{labelService.labelMean_regional}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesRegionalMean)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMean)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMean)}}</td>
           </tr>
-          <tr *ngIf="dataExchangeService.allFeaturesMean && (dataExchangeService.configMeanDataDisplay == 'both' || (! dataExchangeService.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+          <tr *ngIf="selectionState.allFeaturesMean && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
             <td>{{labelService.labelMean}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMean)}}</td>
-            <td>{{dataExchangeService.selectedFeaturesMean}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean)}}</td>
+            <td>{{selectionState.selectedFeaturesMean}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelMin}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMin)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMin)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMin)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMin)}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelMax}}</td>
-                <td>{{getIndicatorValue_asFormattedText(dataExchangeService.allFeaturesMax)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(dataExchangeService.selectedFeaturesMax)}}</td>
+                <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMax)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMax)}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelSpatiallyUnassignable_regional}}</td>
-                <td>{{dataExchangeService.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
+                <td>{{selectionState.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
             <td>-</td>
           </tr>
         </tbody>

@@ -77,7 +77,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   constructor(
     protected dataExchangeService: DataExchangeService,
     private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
+    protected selectionState: SelectionStateService,
     protected georesourceStore: GeoresourceMetadataStoreService,
     protected spatialUnitStore: SpatialUnitMetadataStoreService,
     protected metadataExportService: MetadataExportService,
@@ -139,7 +139,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       
       // todo del timeout
       setTimeout(()=> {
-        var dateComponents = this.dataExchangeService.selectedDate.split("-");
+        var dateComponents = this.selectionState.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
       },2500);
@@ -193,7 +193,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     var dateComponents = selectedDate.split("-");
     this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
     
-    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.dataExchangeService.selectedDate]);
+    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
   }
 
   filteredSpatialUnits() {
@@ -202,7 +202,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   onChangeIndicatorDatepickerDate() {
     let dateString = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
-    this.dataExchangeService.setSelectedDate(dateString);
+    this.selectionState.setSelectedDate(dateString);
   }
 
   onChangeSelectedSpatialUnit() {
@@ -215,18 +215,18 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     if(!this.actualSelectedSpatialUnitId && this.globalFilterActivated) {
       // initial click, no change yet. Define currently selected spatial unit
-      this.actualSelectedSpatialUnitId = this.dataExchangeService.selectedSpatialUnit.spatialUnitId;
+      this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
       this.globalFilterActivated = false;
     } else {
 
-      if(this.dataExchangeService.selectedSpatialUnit && this.dataExchangeService.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
+      if(this.selectionState.selectedSpatialUnit && this.selectionState.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
 
-        this.actualSelectedSpatialUnitId = this.dataExchangeService.selectedSpatialUnit.spatialUnitId;
+        this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
         this.broadcastService.broadcast("changeSpatialUnit");
 
         if(this.envConfigService.enableSpatialUnitNotificationSelection) {
           if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
-            let selectedSpatialUnitName = this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+            let selectedSpatialUnitName = this.selectionState.selectedSpatialUnit.spatialUnitLevel;
             if(this.envConfigService.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
               this.openSpatialunitModal()
             }
@@ -240,7 +240,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     if(this.env.enableSpatialUnitNotificationSelection) {
       if(localStorage.getItem("hideKomMonitorSpatialUnitNotification") && localStorage.getItem("hideKomMonitorSpatialUnitNotification")=== "true") {
-        let selectedSpatialUnitName = this.exchangeData.selectedSpatialUnit.spatialUnitLevel;
+        let selectedSpatialUnitName = this.selectionState.selectedSpatialUnit.spatialUnitLevel;
         if(this.env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
 
           this.openSpatialunitModal()
@@ -268,14 +268,14 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   async onClickDownloadMetadata() {
     // create PDF from currently selected/displayed indicator!
-    var indicatorMetadata = this.dataExchangeService.selectedIndicator;
+    var indicatorMetadata = this.selectionState.selectedIndicator;
     var pdfName = indicatorMetadata.indicatorName + ".pdf";
     let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
     jspdf.save();
   }
   
   downloadIndicatorAsGeoJSON() {
-    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 				  
     var geoJSON_string;
     var geoJSON;
@@ -287,8 +287,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_Bilanz" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
-      geoJSON_string = JSON.stringify(this.dataExchangeService.selectedIndicator.geoJSON);
-      fileName += "_" + this.dataExchangeService.selectedDate;
+      geoJSON_string = JSON.stringify(this.selectionState.selectedIndicator.geoJSON);
+      fileName += "_" + this.selectionState.selectedDate;
     }			
 
     this.dataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
@@ -296,8 +296,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   
   downloadIndicatorAsShape() {
     
-    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
-    var polygonName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    var polygonName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
     var options:any = {
       folder: "shape",
@@ -316,8 +316,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_Bilanz_" +  this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " +  this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
-      geoJSON = jQuery.extend(true, {},  this.dataExchangeService.selectedIndicator.geoJSON);
-      fileName += "_" +  this.dataExchangeService.selectedDate;
+      geoJSON = jQuery.extend(true, {},  this.selectionState.selectedIndicator.geoJSON);
+      fileName += "_" +  this.selectionState.selectedDate;
     }
 
     for (var feature of geoJSON.features) {
@@ -363,7 +363,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   
   downloadIndicatorAsCSV() {
     //todo
-    var fileName = this.dataExchangeService.selectedIndicator.indicatorName + "_" + this.dataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+    var fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
     var geoJSON;
 
@@ -373,8 +373,8 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_Bilanz_" + this.dataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.dataExchangeService.indicatorAndMetadataAsBalance['toDate'];
     }
     else{
-      geoJSON = jQuery.extend(true, {}, this.dataExchangeService.selectedIndicator.geoJSON);
-      fileName += "_" + this.dataExchangeService.selectedDate;
+      geoJSON = jQuery.extend(true, {}, this.selectionState.selectedIndicator.geoJSON);
+      fileName += "_" + this.selectionState.selectedDate;
     }
 
     var items:any[] = [];
@@ -470,7 +470,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
     var fromDate = indicatorMetadataAsBalance["fromDate"];
     var toDate = indicatorMetadataAsBalance["toDate"];
-    var targetDate = this.dataExchangeService.selectedDate;
+    var targetDate = this.selectionState.selectedDate;
 
     for (var feature of geoJSON.features) {
       var properties = feature.properties;

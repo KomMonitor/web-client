@@ -3,7 +3,7 @@
   <div class="classification-container">
 
 
-    <div *ngIf="dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked" class="row vertical-align">      
+    <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('STATUS') && !dataExchangeService.isMeasureOfValueChecked && !dataExchangeService.isBalanceChecked" class="row vertical-align">      
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle btn-sm" type="button" (click)="clrSelectVisible=!clrSelectVisible">Farbpalettenwahl<span class="caret"></span></button>
@@ -62,7 +62,7 @@
 
     <!-- manual breaks -->
     <div *ngIf="visualStyleHelperService.classifyMethod=='manual'">
-      <div *ngIf="(dataExchangeService.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked" 
+      <div *ngIf="(selectionState.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! dataExchangeService.isMeasureOfValueChecked && ! dataExchangeService.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             (mouseover)="toggleAddBtn($event, 0)">
         <div class="breaksArea"
@@ -182,7 +182,7 @@
 
     <!-- balance checked -- lower than values -->
     <div *ngIf="((dataExchangeService.isBalanceChecked 
-        || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') 
+        || selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
         && ! dataExchangeService.isMeasureOfValueChecked)
         && visualStyleHelperService.dynamicBrew[1].breaks.length > 0"
@@ -232,7 +232,7 @@
 
     <!-- balance checked -- higher than values -->
     <div *ngIf="((dataExchangeService.isBalanceChecked 
-        || dataExchangeService.selectedIndicator.indicatorType.includes('DYNAMIC') 
+        || selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') 
         || containsNegativeValues) 
         && ! dataExchangeService.isMeasureOfValueChecked)
         && visualStyleHelperService.dynamicBrew[0].breaks.length > 0" 
