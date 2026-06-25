@@ -224,6 +224,14 @@ export class IndicatorAddComponent implements OnInit {
     );
   }
 
+  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
+  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
+    return this.indicatorValueService.getIndicatorValue_asNumber(
+      indicatorValue,
+      this.selectionState.resolveSelectedPrecision(precision)
+    );
+  }
+
   ngOnInit(): void {
 
     // originally called by "reportingConfigureNewIndicatorShown" when +Indicator clicked
