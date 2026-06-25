@@ -1,40 +1,45 @@
 import { Injectable, inject } from '@angular/core';
 import { PdfExportService } from 'services/pdf-export-service/pdf-export.service';
+import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 /**
- * Metadata PDF/ZIP export delegations extracted from DataExchangeService
- * (Prio 7 / B2 — see documentation/PRIO7_GOD_SERVICE_SPLIT.md).
+ * Metadata PDF/ZIP export delegations to PdfExportService (Prio 7 / B2 + B3).
  *
- * Thin pass-throughs to PdfExportService. Deliberately stateless: the metadata
- * collections / selection (availableTopics, availableSpatialUnits, selectedIndicator)
- * are passed in by the DataExchangeService facade, so this service holds no shared state.
+ * Reads the canonical metadata collections / selection it needs
+ * (availableTopics, availableSpatialUnits, selectedIndicator) directly from the
+ * owning stores, so callers no longer have to thread that state through.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class MetadataExportService {
   private pdfExportService = inject(PdfExportService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private selectionState = inject(SelectionStateService);
 
-  async downloadMetadataPDF_georesource(georesourceMetadata, availableTopics) {
+  async downloadMetadataPDF_georesource(georesourceMetadata) {
     return this.pdfExportService.downloadMetadataPDF_georesource(
       georesourceMetadata,
-      availableTopics
+      this.topicStore.availableTopics
     );
   }
 
-  async createMetadataPDF_georesource(georesource, pdfName, availableTopics) {
+  async createMetadataPDF_georesource(georesource, pdfName) {
     return this.pdfExportService.createMetadataPDF_georesource(
       georesource,
       pdfName,
-      availableTopics
+      this.topicStore.availableTopics
     );
   }
 
-  async createMetadataPDF_indicator(indicator, availableSpatialUnits, availableTopics) {
+  async createMetadataPDF_indicator(indicator) {
     return this.pdfExportService.createMetadataPDF_indicator(
       indicator,
-      availableSpatialUnits,
-      availableTopics
+      this.spatialUnitStore.availableSpatialUnits,
+      this.topicStore.availableTopics
     );
   }
 
@@ -54,49 +59,32 @@ export class MetadataExportService {
     return this.pdfExportService.dateToTS(date);
   }
 
-  async generateAndDownloadIndicatorZIP(
-    indicatorData,
-    fileName,
-    fileEnding,
-    jsZipOptions,
-    selectedIndicator,
-    availableSpatialUnits,
-    availableTopics
-  ) {
+  async generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions) {
     return this.pdfExportService.generateAndDownloadIndicatorZIP(
       indicatorData,
       fileName,
       fileEnding,
       jsZipOptions,
-      selectedIndicator,
-      availableSpatialUnits,
-      availableTopics
+      this.selectionState.selectedIndicator,
+      this.spatialUnitStore.availableSpatialUnits,
+      this.topicStore.availableTopics
     );
   }
 
-  async generateIndicatorMetadataPdf_asBlob(
-    selectedIndicator,
-    availableSpatialUnits,
-    availableTopics
-  ) {
+  async generateIndicatorMetadataPdf_asBlob() {
     return this.pdfExportService.generateIndicatorMetadataPdf_asBlob(
-      selectedIndicator,
-      availableSpatialUnits,
-      availableTopics
+      this.selectionState.selectedIndicator,
+      this.spatialUnitStore.availableSpatialUnits,
+      this.topicStore.availableTopics
     );
   }
 
-  async generateIndicatorMetadataPdf(
-    indicatorMetadata,
-    pdfName,
-    availableSpatialUnits,
-    availableTopics
-  ) {
+  async generateIndicatorMetadataPdf(indicatorMetadata, pdfName) {
     return this.pdfExportService.generateIndicatorMetadataPdf(
       indicatorMetadata,
       pdfName,
-      availableSpatialUnits,
-      availableTopics
+      this.spatialUnitStore.availableSpatialUnits,
+      this.topicStore.availableTopics
     );
   }
 
@@ -105,8 +93,7 @@ export class MetadataExportService {
     georesourceData,
     fileName,
     fileEnding,
-    jsZipOptions,
-    availableTopics
+    jsZipOptions
   ) {
     return this.pdfExportService.generateAndDownloadGeoresourceZIP(
       georesourceMetadata,
@@ -114,14 +101,14 @@ export class MetadataExportService {
       fileName,
       fileEnding,
       jsZipOptions,
-      availableTopics
+      this.topicStore.availableTopics
     );
   }
 
-  async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata, availableTopics) {
+  async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata) {
     return this.pdfExportService.generateGeoresourceMetadataPdf_asBlob(
       georesourceMetadata,
-      availableTopics
+      this.topicStore.availableTopics
     );
   }
 }

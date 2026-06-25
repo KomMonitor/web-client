@@ -272,7 +272,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     // create PDF from currently selected/displayed indicator!
     var indicatorMetadata = this.selectionState.selectedIndicator;
     var pdfName = indicatorMetadata.indicatorName + ".pdf";
-    let jspdf = await this.dataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
+    let jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
     jspdf.save();
   }
   
@@ -293,7 +293,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_" + this.selectionState.selectedDate;
     }			
 
-    this.dataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
+    this.metadataExportService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
   }
   
   downloadIndicatorAsShape() {
@@ -360,7 +360,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     // shpwrite.download(geoJSON, options);
     var arrayBuffer = shpwrite.zip(geoJSON, options);							
-    this.dataExchangeService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
+    this.metadataExportService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
   }
   
   downloadIndicatorAsCSV() {
@@ -441,7 +441,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       columns: null //or array of strings
     });
 
-    this.dataExchangeService.generateAndDownloadIndicatorZIP(csv, fileName, ".csv", {});
+    this.metadataExportService.generateAndDownloadIndicatorZIP(csv, fileName, ".csv", {});
 
     // exportCSVFile(headers, items, fileName);
   }

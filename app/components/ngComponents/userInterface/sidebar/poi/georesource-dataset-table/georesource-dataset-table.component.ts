@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IconTranslate } from "pipes/icon-translate.pipe";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
 import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
@@ -59,6 +60,7 @@ export class GeoresourceDatasetTableComponent {
 
   constructor(
     protected dataExchangeService: DataExchangeService,
+    protected metadataExportService: MetadataExportService,
     protected ogcService: OgcService,
     protected exportMode: GeoresourceExportModeService,
   ) {}

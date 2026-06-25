@@ -5,6 +5,7 @@ import { DataExchangeService } from "services/data-exchange-service/data-exchang
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
 import { SelectionStateService } from "services/selection-state-service/selection-state.service";
 import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
+import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { MapService } from "services/map-service/map.service";
 import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
 
@@ -40,6 +41,7 @@ export class GeoresourceLayerService {
     private cacheHelperService: CacheHelperServiceService,
     private selectionState: SelectionStateService,
     private georesourceStore: GeoresourceMetadataStoreService,
+    private metadataExportService: MetadataExportService,
     private mapService: MapService,
     private broadcastService: BroadcastService,
     private http: HttpClient,
@@ -246,7 +248,7 @@ export class GeoresourceLayerService {
     this.http.get(url).subscribe({
       next: (response) => {
         if (resource.isPOI) {
-          this.dataExchangeService.generateAndDownloadGeoresourceZIP(
+          this.metadataExportService.generateAndDownloadGeoresourceZIP(
             resource,
             JSON.stringify(response),
             fileName,

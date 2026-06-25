@@ -5,6 +5,7 @@ import { GeoFavFilter } from "pipes/georesources-fav-filter.pipe";
 import { GeoFavItemFilter } from "pipes/georesources-fav-item-filter.pipe";
 import { IconTranslate } from "pipes/icon-translate.pipe";
 import { DataExchangeService } from "services/data-exchange-service/data-exchange.service";
+import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { OgcService } from "services/ogcServices/ogc.service";
 import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
 import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
@@ -49,6 +50,7 @@ export class GeoresourceFavTabComponent {
     protected favoritesService: GeoresourceFavoritesService,
     protected layerService: GeoresourceLayerService,
     protected dataExchangeService: DataExchangeService,
+    protected metadataExportService: MetadataExportService,
     protected ogcService: OgcService,
     protected exportMode: GeoresourceExportModeService,
   ) {}

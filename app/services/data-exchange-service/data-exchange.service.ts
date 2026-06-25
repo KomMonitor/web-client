@@ -5,7 +5,6 @@ import {
   MetadataLoadingState,
   PoiSize,
 } from './data-exchange.constants';
-import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
 import { IndicatorsDataset } from 'components/ngComponents/models/indicators.models';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -44,7 +43,6 @@ export class DataExchangeService {
   private cacheHelperService = inject(CacheHelperServiceService);
   private broadcastService = inject(BroadcastService);
   private envConfigService = inject(EnvConfigService);
-  private metadataExportService = inject(MetadataExportService);
   private indicatorValueService = inject(IndicatorValueService);
   private accessControlService = inject(AccessControlService);
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
@@ -349,58 +347,6 @@ export class DataExchangeService {
     this.accessControlService.setCurrentKomMonitorLoginOrganizationalUnits();
   }
 
-  async downloadMetadataPDF_georesource(georesourceMetadata) {
-    return this.metadataExportService.downloadMetadataPDF_georesource(
-      georesourceMetadata,
-      this.topicStore.availableTopics
-    );
-  }
-
-  async createMetadataPDF_georesource(georesource, pdfName) {
-    return this.metadataExportService.createMetadataPDF_georesource(
-      georesource,
-      pdfName,
-      this.topicStore.availableTopics
-    );
-  }
-
-  async createMetadataPDF_indicator(indicator) {
-    return this.metadataExportService.createMetadataPDF_indicator(
-      indicator,
-      this.spatialUnitStore.availableSpatialUnits,
-      this.topicStore.availableTopics
-    );
-  }
-
-  async generateAndDownloadIndicatorZIP(indicatorData, fileName, fileEnding, jsZipOptions) {
-    return this.metadataExportService.generateAndDownloadIndicatorZIP(
-      indicatorData,
-      fileName,
-      fileEnding,
-      jsZipOptions,
-      this.selectionState.selectedIndicator,
-      this.spatialUnitStore.availableSpatialUnits,
-      this.topicStore.availableTopics
-    );
-  }
-
-  async generateIndicatorMetadataPdf_asBlob() {
-    return this.metadataExportService.generateIndicatorMetadataPdf_asBlob(
-      this.selectionState.selectedIndicator,
-      this.spatialUnitStore.availableSpatialUnits,
-      this.topicStore.availableTopics
-    );
-  }
-
-  async generateIndicatorMetadataPdf(indicatorMetadata, pdfName) {
-    return this.metadataExportService.generateIndicatorMetadataPdf(
-      indicatorMetadata,
-      pdfName,
-      this.spatialUnitStore.availableSpatialUnits,
-      this.topicStore.availableTopics
-    );
-  }
-
   displayMapApplicationError(error) {
     setTimeout(() => {
       if (error.data) {
@@ -416,30 +362,6 @@ export class DataExchangeService {
 
       $('.mapApplicationErrorAlert').show();
     }, 1000);
-  }
-
-  async generateAndDownloadGeoresourceZIP(
-    georesourceMetadata,
-    georesourceData,
-    fileName,
-    fileEnding,
-    jsZipOptions
-  ) {
-    return this.metadataExportService.generateAndDownloadGeoresourceZIP(
-      georesourceMetadata,
-      georesourceData,
-      fileName,
-      fileEnding,
-      jsZipOptions,
-      this.topicStore.availableTopics
-    );
-  }
-
-  async generateGeoresourceMetadataPdf_asBlob(georesourceMetadata) {
-    return this.metadataExportService.generateGeoresourceMetadataPdf_asBlob(
-      georesourceMetadata,
-      this.topicStore.availableTopics
-    );
   }
 
 }
