@@ -171,11 +171,19 @@ Precision-Formatter, `modifyIndicatorApplicableSpatialUnitsForLoginRoles`, B5-Bu
 
 ## Optionale / spätere Arbeiten
 
-- [ ] **State-Felder auf Signals/`computed()` heben** — v. a. die B7-Aggregate
-      (`allFeatures*`/`selectedFeatures*`). Bisher plain Fields (verhaltensgleich, niedrigstes Risiko).
-- [ ] **Latenter Feature-Table-Header-Height-Bug** (A1d-3) — `headerHeightSetter` sollte vermutlich
-      `gridApi_featureTable` statt des entfernten `gridApi_spatialUnits` setzen; Header-Höhe der
-      Feature-Tabelle wurde nie angewendet. Echte Verhaltensänderung → separater Bugfix.
+- [x] **State-Felder auf Signals/`computed()` heben** ✅ (2026-06-25). Die 14 B7-Feature-Aggregate
+      (`allFeatures*`/`selectedFeatures*`) in `SelectionStateService` auf **writable `signal()`** umgestellt
+      — sie werden imperativ in `setAllFeaturesProperty`/`setSelectedFeatureProperty` per `.set()` (re)berechnet
+      (Push-Semantik), Konsumenten lesen reaktiv via `aggregate()`. Nur **2 Live-Konsumenten** (Templates
+      `kommonitor-legend`, `kommonitor-diagrams`, 27 Reads → `()`); der einzige TS-Treffer in `diagram-helper`
+      war auskommentiert. Spec mitgezogen. **Bewusst NICHT** auf `computed()` umgestellt: korrekte Ableitung
+      bräuchte `selectedDate`/`selectedIndicator` als Signals (regionale Referenzwerte hängen am Datum) → hoher
+      Fan-in, nicht „verhaltensgleich". Build (EXIT 0) / Test (88 Suites, 129) / Lint (0 errors) grün.
+- [x] **Latenter Feature-Table-Header-Height-Bug** (A1d-3) ✅ (2026-06-25, Commit `7e67dbde`).
+      `headerHeightGetter`/`headerHeightSetter` (Live-Muster aus `role-management-data-grid-helper`) in
+      `feature-table-data-grid-helper.service` portiert, auf `gridApi_featureTable` verdrahtet
+      (`onFirstDataRendered` + `onColumnResized`) in beiden Grid-Buildern. ⚠️ Visuelle QA (mehrzeilige Header)
+      backend-/Keycloak-gebunden → Release-QA.
 
 ---
 

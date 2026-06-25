@@ -21,11 +21,11 @@
     <div class="chart">
       <div class="row">
         <div class="col-md-6" style="text-align: left;">
-          <div *ngIf="selectionState.allFeaturesRegionalSum">
-            <b>{{labelService.labelSum_regional}}</b> {{selectionState.allFeaturesRegionalSum}}								
+          <div *ngIf="selectionState.allFeaturesRegionalSum()">
+            <b>{{labelService.labelSum_regional}}</b> {{selectionState.allFeaturesRegionalSum()}}								
           </div>
-          <div *ngIf="selectionState.allFeaturesRegionalSpatiallyUnassignable">
-            <b>{{labelService.labelSpatiallyUnassignable_regional}}</b> {{selectionState.allFeaturesRegionalSpatiallyUnassignable || 0}}								
+          <div *ngIf="selectionState.allFeaturesRegionalSpatiallyUnassignable()">
+            <b>{{labelService.labelSpatiallyUnassignable_regional}}</b> {{selectionState.allFeaturesRegionalSpatiallyUnassignable() || 0}}								
           </div>
         </div>
         <div class="col-md-6" style="text-align: right;">

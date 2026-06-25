@@ -244,13 +244,13 @@
               </div>
               <div>
                 <br/>
-                <div *ngIf="selectionState.allFeaturesRegionalMean && envConfigService.enableMeanDataDisplayInLegend">
+                <div *ngIf="selectionState.allFeaturesRegionalMean() && envConfigService.enableMeanDataDisplayInLegend">
                   <b>{{labelService.labelMean_regional}}</b>
-                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean)}}
+                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())}}
                 </div>
-                <div *ngIf="selectionState.allFeaturesMean && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+                <div *ngIf="selectionState.allFeaturesMean() && envConfigService.enableMeanDataDisplayInLegend && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean() && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
                   <b>{{labelService.labelMean}}</b>
-                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean)}}
+                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean())}}
                 </div>
               </div>
               <div id="kommonitorIndicatorClassification">
@@ -485,42 +485,42 @@
         <tbody>
           <tr>
             <td>{{labelService.labelNumberOfFeatures}}</td>
-            <td>{{selectionState.allFeaturesNumberOfFeatures}}</td>
-            <td>{{selectionState.selectedFeaturesNumberOfFeatures}}</td>
+            <td>{{selectionState.allFeaturesNumberOfFeatures()}}</td>
+            <td>{{selectionState.selectedFeaturesNumberOfFeatures()}}</td>
           </tr>
-          <tr *ngIf="! selectionState.allFeaturesRegionalSum">
+          <tr *ngIf="! selectionState.allFeaturesRegionalSum()">
             <td>{{labelService.labelSum}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesSum)}}</td>
-            <td>{{selectionState.selectedFeaturesSum}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesSum())}}</td>
+            <td>{{selectionState.selectedFeaturesSum()}}</td>
           </tr>
-          <tr *ngIf="selectionState.allFeaturesRegionalSum">
+          <tr *ngIf="selectionState.allFeaturesRegionalSum()">
             <td>{{labelService.labelSum_regional}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalSum)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesSum)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalSum())}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesSum())}}</td>
           </tr>
-          <tr *ngIf="selectionState.allFeaturesRegionalMean">
+          <tr *ngIf="selectionState.allFeaturesRegionalMean()">
             <td>{{labelService.labelMean_regional}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMean)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMean())}}</td>
           </tr>
-          <tr *ngIf="selectionState.allFeaturesMean && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
+          <tr *ngIf="selectionState.allFeaturesMean() && (dataExchangeService.configMeanDataDisplay == 'both' || (! selectionState.allFeaturesRegionalMean() && dataExchangeService.configMeanDataDisplay == 'preferRegionalMeanIfAvailable'))">
             <td>{{labelService.labelMean}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean)}}</td>
-            <td>{{selectionState.selectedFeaturesMean}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean())}}</td>
+            <td>{{selectionState.selectedFeaturesMean()}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelMin}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMin)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMin)}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMin())}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMin())}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelMax}}</td>
-                <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMax)}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMax)}}</td>
+                <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMax())}}</td>
+            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMax())}}</td>
           </tr>
           <tr>
             <td>{{labelService.labelSpatiallyUnassignable_regional}}</td>
-                <td>{{selectionState.allFeaturesRegionalSpatiallyUnassignable || "-"}}</td>
+                <td>{{selectionState.allFeaturesRegionalSpatiallyUnassignable() || "-"}}</td>
             <td>-</td>
           </tr>
         </tbody>

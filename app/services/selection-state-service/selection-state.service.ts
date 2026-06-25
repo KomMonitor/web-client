@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -9,8 +9,12 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
  *
  * Holds the current selection (indicator / spatial unit / date) and the all-/selected-features
  * aggregates. Depends only on IndicatorValueService (value parsing) and EnvConfigService
- * (date-prefix). The DataExchangeService facade re-exposes the fields via get/set so its many
- * consumers stay unchanged. (Plain fields for now; signals/computed remain an optional later step.)
+ * (date-prefix).
+ *
+ * The feature aggregates are exposed as writable signals: they are imperatively (re)computed in
+ * setAllFeaturesProperty / setSelectedFeatureProperty whenever new data or a new selection arrives,
+ * and consumers read them reactively via `aggregate()`. (selectedIndicator/selectedSpatialUnit/
+ * selectedDate stay plain fields — they are read by many consumers and not derived here.)
  */
 @Injectable({
   providedIn: 'root',
@@ -23,21 +27,21 @@ export class SelectionStateService {
   selectedSpatialUnit: any;
   selectedDate: any;
 
-  allFeaturesPropertyUnit: any;
-  allFeaturesNumberOfFeatures: any;
-  allFeaturesSum: any;
-  allFeaturesMean: any;
-  allFeaturesMin: any;
-  allFeaturesMax: any;
-  allFeaturesRegionalSum: any;
-  allFeaturesRegionalMean: any;
-  allFeaturesRegionalSpatiallyUnassignable: any;
+  allFeaturesPropertyUnit = signal<any>(undefined);
+  allFeaturesNumberOfFeatures = signal<any>(undefined);
+  allFeaturesSum = signal<any>(undefined);
+  allFeaturesMean = signal<any>(undefined);
+  allFeaturesMin = signal<any>(undefined);
+  allFeaturesMax = signal<any>(undefined);
+  allFeaturesRegionalSum = signal<any>(undefined);
+  allFeaturesRegionalMean = signal<any>(undefined);
+  allFeaturesRegionalSpatiallyUnassignable = signal<any>(undefined);
 
-  selectedFeaturesNumberOfFeatures: any;
-  selectedFeaturesSum: any;
-  selectedFeaturesMean: any;
-  selectedFeaturesMin: any;
-  selectedFeaturesMax: any;
+  selectedFeaturesNumberOfFeatures = signal<any>(undefined);
+  selectedFeaturesSum = signal<any>(undefined);
+  selectedFeaturesMean = signal<any>(undefined);
+  selectedFeaturesMin = signal<any>(undefined);
+  selectedFeaturesMax = signal<any>(undefined);
 
   // object to share changes on selectedDate, still needs the "real" 'selectedDate' as numerous components use it
   private selectedDateSubject = new BehaviorSubject<Date | undefined>(undefined);
@@ -85,18 +89,18 @@ export class SelectionStateService {
       }
     }
 
-    this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
-    this.allFeaturesNumberOfFeatures = count;
-    this.allFeaturesSum = sum;
+    this.allFeaturesPropertyUnit.set(indicatorMetadataAndGeoJSON.unit);
+    this.allFeaturesNumberOfFeatures.set(count);
+    this.allFeaturesSum.set(sum);
     // no division by zero
-    if (count > 0) this.allFeaturesMean = sum / count;
-    else this.allFeaturesMean = 0;
-    this.allFeaturesMin = min;
-    this.allFeaturesMax = max;
+    if (count > 0) this.allFeaturesMean.set(sum / count);
+    else this.allFeaturesMean.set(0);
+    this.allFeaturesMin.set(min);
+    this.allFeaturesMax.set(max);
 
-    this.allFeaturesRegionalSum = undefined;
-    this.allFeaturesRegionalMean = undefined;
-    this.allFeaturesRegionalSpatiallyUnassignable = undefined;
+    this.allFeaturesRegionalSum.set(undefined);
+    this.allFeaturesRegionalMean.set(undefined);
+    this.allFeaturesRegionalSpatiallyUnassignable.set(undefined);
 
     if (indicatorMetadataAndGeoJSON.regionalReferenceValues) {
       for (const regionalReferenceValuesEntry of indicatorMetadataAndGeoJSON.regionalReferenceValues) {
@@ -104,10 +108,11 @@ export class SelectionStateService {
           regionalReferenceValuesEntry.referenceDate &&
           regionalReferenceValuesEntry.referenceDate == this.selectedDate
         ) {
-          this.allFeaturesRegionalSum = regionalReferenceValuesEntry.regionalSum;
-          this.allFeaturesRegionalMean = regionalReferenceValuesEntry.regionalAverage;
-          this.allFeaturesRegionalSpatiallyUnassignable =
-            regionalReferenceValuesEntry.spatiallyUnassignable;
+          this.allFeaturesRegionalSum.set(regionalReferenceValuesEntry.regionalSum);
+          this.allFeaturesRegionalMean.set(regionalReferenceValuesEntry.regionalAverage);
+          this.allFeaturesRegionalSpatiallyUnassignable.set(
+            regionalReferenceValuesEntry.spatiallyUnassignable
+          );
         }
       }
     }
@@ -139,13 +144,13 @@ export class SelectionStateService {
       max = 0;
     }
 
-    this.selectedFeaturesNumberOfFeatures = count;
-    this.selectedFeaturesSum = sum;
+    this.selectedFeaturesNumberOfFeatures.set(count);
+    this.selectedFeaturesSum.set(sum);
     // no division by zero
-    if (count > 0) this.selectedFeaturesMean = sum / count;
-    else this.selectedFeaturesMean = 0;
-    this.selectedFeaturesMin = min;
-    this.selectedFeaturesMax = max;
+    if (count > 0) this.selectedFeaturesMean.set(sum / count);
+    else this.selectedFeaturesMean.set(0);
+    this.selectedFeaturesMin.set(min);
+    this.selectedFeaturesMax.set(max);
   }
 
   onRemovedFeatureFromSelection([selectedIndicatorFeatureIds]) {

@@ -52,11 +52,11 @@ describe('SelectionStateService', () => {
       },
       'p'
     );
-    expect(service.allFeaturesNumberOfFeatures).toBe(2);
-    expect(service.allFeaturesSum).toBe(6);
-    expect(service.allFeaturesMean).toBe(3);
-    expect(service.allFeaturesMin).toBe(2);
-    expect(service.allFeaturesMax).toBe(4);
+    expect(service.allFeaturesNumberOfFeatures()).toBe(2);
+    expect(service.allFeaturesSum()).toBe(6);
+    expect(service.allFeaturesMean()).toBe(3);
+    expect(service.allFeaturesMin()).toBe(2);
+    expect(service.allFeaturesMax()).toBe(4);
   });
 
   it('buildIndicatorPropertyName concatenates the date prefix and selectedDate', () => {
