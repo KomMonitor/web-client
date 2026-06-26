@@ -1,0 +1,139 @@
+/**
+ * Centralized, typed names for the messages sent through `BroadcastService`.
+ *
+ * Using a `const` object + derived union type (instead of a numeric enum) keeps
+ * the values as real strings, so it stays compatible with every existing
+ * `=== '...'` comparison and can be migrated incrementally call-site by
+ * call-site. The IDE benefit (autocomplete, find-usages, rename) is identical
+ * to an `enum`.
+ *
+ * Migration plan and inventory: see
+ * `documentation/BROADCAST_SERVICE_ENUM.md`.
+ *
+ * NOTE: values are the literal strings currently on the bus and are kept
+ * verbatim — including the historical typo in `IndicatortMapDisplayFinished`
+ * ('indicatortMapDisplayFinished'). Renaming a value requires updating its
+ * sender(s) and receiver(s) together.
+ */
+export const BroadcastMessage = {
+  AddAoiGeoresourceAsGeoJSON: 'addAoiGeoresourceAsGeoJSON',
+  AddFileLayerToMap: 'addFileLayerToMap',
+  AddLoiGeoresourceAsGeoJSON: 'addLoiGeoresourceAsGeoJSON',
+  AddPoiGeoresourceAsGeoJSON: 'addPoiGeoresourceAsGeoJSON',
+  AddWfsLayerToMap: 'addWfsLayerToMap',
+  AddWmsLayerToMap: 'addWmsLayerToMap',
+  AdjustColorForFileLayer: 'adjustColorForFileLayer',
+  AdjustColorForWfsLayer: 'adjustColorForWfsLayer',
+  AdjustOpacityForAoiLayer: 'adjustOpacityForAoiLayer',
+  AdjustOpacityForFileLayer: 'adjustOpacityForFileLayer',
+  AdjustOpacityForLoiLayer: 'adjustOpacityForLoiLayer',
+  AdjustOpacityForPoiLayer: 'adjustOpacityForPoiLayer',
+  AdjustOpacityForWfsLayer: 'adjustOpacityForWfsLayer',
+  AdjustOpacityForWmsLayer: 'adjustOpacityForWmsLayer',
+  AppendExportButtonsForTable: 'AppendExportButtonsForTable',
+  ApplyNoDataDisplay: 'applyNoDataDisplay',
+  AvailableRolesUpdate: 'availableRolesUpdate',
+  BatchUpdateCompleted: 'batchUpdateCompleted',
+  ChangeBreaks: 'changeBreaks',
+  ChangeClassifyMethod: 'changeClassifyMethod',
+  ChangeColorScheme: 'changeColorScheme',
+  ChangeDynamicBreaks: 'changeDynamicBreaks',
+  ChangeIndicatorDate: 'changeIndicatorDate',
+  ChangeNumClasses: 'changeNumClasses',
+  ChangeSpatialUnit: 'changeSpatialUnit',
+  ChangeStartPointsSourceFromLayer: 'changeStartPointsSource_fromLayer',
+  // BUG: kommonitor-data-setup currently sends the mis-cased 'DisableBalance';
+  // the only receiver listens for 'disableBalance'. Fix sender when migrating.
+  DisableBalance: 'disableBalance',
+  DisablePointDrawTool: 'disablePointDrawTool',
+  ExportMap: 'exportMap',
+  FavItemsStored: 'favItemsStored',
+  FileLayerError: 'FileLayerError',
+  GeoFavItemsStored: 'geoFavItemsStored',
+  GeoresourceGeoJSONUpdated: 'georesourceGeoJSONUpdated',
+  GeoresourceGeoJSONUpdatedAddSingleFeature: 'georesourceGeoJSONUpdated_addSingleFeature',
+  GeoresourceGeoJSONUpdatedDeleteSingleFeature: 'georesourceGeoJSONUpdated_deleteSingleFeature',
+  GeoresourceGeoJSONUpdatedEditSingleFeature: 'georesourceGeoJSONUpdated_editSingleFeature',
+  HideLoadingIconOnMap: 'hideLoadingIconOnMap',
+  HighlightFeatureOnMap: 'highlightFeatureOnMap',
+  IndicatortMapDisplayFinished: 'indicatortMapDisplayFinished',
+  IsochronesCalculationFinished: 'isochronesCalculationFinished',
+  OnAddedFeatureToSelection: 'onAddedFeatureToSelection',
+  OnChangeSelectedIndicator: 'onChangeSelectedIndicator',
+  OnDeleteGeoresources: 'onDeleteGeoresources',
+  OnEditGeoresourceFeatures: 'onEditGeoresourceFeatures',
+  OnEditGeoresourceMetadata: 'onEditGeoresourceMetadata',
+  OnGlobalFilterChange: 'onGlobalFilterChange',
+  OnOpenAddFilterModal: 'onOpenAddFilterModal',
+  OnRemovedFeatureFromSelection: 'onRemovedFeatureFromSelection',
+  OnUpdateSingleFeatureGeometry: 'onUpdateSingleFeatureGeometry',
+  OpenLayerControl: 'openLayerControl',
+  PreserveHighlightedFeatures: 'preserveHighlightedFeatures',
+  RefreshAdminDashboardDiagrams: 'refreshAdminDashboardDiagrams',
+  RefreshAdminFilterOverview: 'refreshAdminFilterOverview',
+  RefreshGeoresourceOverviewTable: 'refreshGeoresourceOverviewTable',
+  RefreshGeoresourceOverviewTableCompleted: 'refreshGeoresourceOverviewTableCompleted',
+  RefreshIndicatorOverviewTable: 'refreshIndicatorOverviewTable',
+  RefreshIndicatorOverviewTableCompleted: 'refreshIndicatorOverviewTableCompleted',
+  RefreshScriptOverviewTable: 'refreshScriptOverviewTable',
+  RefreshSpatialUnitOverviewTable: 'refreshSpatialUnitOverviewTable',
+  RefreshTopicsOverview: 'refreshTopicsOverview',
+  ReinitIndicatorStatisticsConfiguration: 'reinitIndicatorStatisticsConfiguration',
+  ReinitPoisInReachabilityMap: 'reinitPoisInReachabilityMap',
+  ReinitReachabilityConfiguration: 'reinitReachabilityConfiguration',
+  ReinitSingleFeatureEdit: 'reinitSingleFeatureEdit',
+  RemoveAllDrawnPoints: 'removeAllDrawnPoints',
+  RemoveAoiGeoresource: 'removeAoiGeoresource',
+  RemoveFileLayerFromMap: 'removeFileLayerFromMap',
+  RemoveLoiGeoresource: 'removeLoiGeoresource',
+  RemovePoiGeoresource: 'removePoiGeoresource',
+  RemovePotentialDrawnStartingPoints: 'removePotentialDrawnStartingPoints',
+  RemoveRangeFilter: 'removeRangeFilter',
+  RemoveReachabilityScenarioFromMainMap: 'removeReachabilityScenarioFromMainMap',
+  RemoveWfsLayerFromMap: 'removeWfsLayerFromMap',
+  RemoveWmsLayerFromMap: 'removeWmsLayerFromMap',
+  ReopenBatchUpdateResultModal: 'reopenBatchUpdateResultModal',
+  ReplaceIndicatorAsGeoJSON: 'replaceIndicatorAsGeoJSON',
+  ReplaceReachabilityScenarioOnMainMap: 'replaceReachabilityScenarioOnMainMap',
+  ReportingIsochronesCalculationFinished: 'reportingIsochronesCalculationFinished',
+  ReportingIsochronesCalculationStarted: 'reportingIsochronesCalculationStarted',
+  ReportingPoiLayerSelected: 'reportingPoiLayerSelected',
+  ResetPoisInIsochrone: 'resetPoisInIsochrone',
+  ResetTimeseriesMapping: 'resetTimeseriesMapping',
+  RestyleCurrentLayer: 'restyleCurrentLayer',
+  ScreenshotsForCurrentSpatialUnitUpdate: 'screenshotsForCurrentSpatialUnitUpdate',
+  SelectedIndicatorDateHasChanged: 'selectedIndicatorDateHasChanged',
+  ShowLoadingIconOnMap: 'showLoadingIconOnMap',
+  SingleFeatureSelected: 'singleFeatureSelected',
+  SwitchHighlightFeatureOnMap: 'switchHighlightFeatureOnMap',
+  ToggleExpertControl: 'toggleExpertControl',
+  ToggleInfoControl: 'toggleInfoControl',
+  UnhighlightFeatureOnMap: 'unhighlightFeatureOnMap',
+  UnselectAllFeatures: 'unselectAllFeatures',
+  UpdateBalanceSlider: 'updateBalanceSlider',
+  UpdateClassificationComponent: 'updateClassificationComponent',
+  UpdateDatePickerAvailableDates: 'updateDatePickerAvailableDates',
+  UpdateDatePickerSelectedDate: 'updateDatePickerSelectedDate',
+  UpdateDiagrams: 'updateDiagrams',
+  UpdateDiagramsForHoveredFeature: 'updateDiagramsForHoveredFeature',
+  UpdateDiagramsForUnhoveredFeature: 'updateDiagramsForUnhoveredFeature',
+  UpdateIndicatorValueRangeFilter: 'updateIndicatorValueRangeFilter',
+  UpdateLegendDisplay: 'updateLegendDisplay',
+  UpdateMeasureOfValueBar: 'updateMeasureOfValueBar',
+} as const;
+
+export type BroadcastMessage =
+  (typeof BroadcastMessage)[keyof typeof BroadcastMessage];
+
+/**
+ * Helpers for the dynamically built message names from
+ * `feature-table-data-grid-helper.service.ts`
+ * (e.g. `showLoadingIcon_indicator`). A plain `const` object cannot express the
+ * `${resourceType}` suffix, so these typed factories cover them.
+ */
+export const showLoadingIconFor = (resourceType: string) =>
+  `showLoadingIcon_${resourceType}` as const;
+export const hideLoadingIconFor = (resourceType: string) =>
+  `hideLoadingIcon_${resourceType}` as const;
+export const onDeleteFeatureEntryFor = (resourceType: string) =>
+  `onDeleteFeatureEntry_${resourceType}` as const;
