@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbActiveModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -576,14 +577,14 @@ export class IndicatorAddModalComponent implements OnInit {
         )
         .toPromise();
 
-      this.broadcastService.broadcast('refreshIndicatorOverviewTable', [
+      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, [
         'add',
         (response as any).indicatorId,
       ]);
 
       // Refresh all admin dashboard diagrams due to modified metadata
       setTimeout(() => {
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       }, 500);
 
       this.successMessagePart = this.postBody_indicators.datasetName;

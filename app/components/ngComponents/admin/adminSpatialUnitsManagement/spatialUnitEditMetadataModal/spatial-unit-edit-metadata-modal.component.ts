@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -379,12 +380,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       this.successMessage = `Metadaten für Raumebene "${this.successMessagePart}" erfolgreich aktualisiert.`;
 
       // Broadcast refresh events with proper parameters
-      this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', {
+      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
         crudType: 'edit',
         targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
       });
       if (spatialUnitName_old !== spatialUnitName_new) {
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable);
       }
 
       this.loadingData = false;

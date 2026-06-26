@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -64,7 +65,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
 
   private setupEventListeners(): void {
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'availableRolesUpdate') {
+      if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
         this.refreshRoleManagementTable_indicatorMetadata();
         this.refreshRoleManagementTable_indicatorSpatialUnitTimeseries();
       }
@@ -318,7 +319,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
@@ -360,7 +361,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });
@@ -409,7 +410,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
           .subscribe({
             next: (_response: any) => {
               this.successMessagePart = this.currentIndicatorDataset.indicatorName;
-              this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+              this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
                 crudType: 'edit',
                 targetIndicatorId: this.currentIndicatorDataset.indicatorId,
               });
@@ -454,7 +455,7 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
       )
       .subscribe({
         next: (_response: any) => {
-          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });

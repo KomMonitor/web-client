@@ -11,6 +11,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { GridOptions, GridReadyEvent, ColDef } from 'ag-grid-community';
@@ -405,7 +406,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         .toPromise();
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-      this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', [
+      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
         'edit',
         this.currentSpatialUnitDataset.spatialUnitId,
       ]);
@@ -448,7 +449,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         .toPromise();
 
       this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-      this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', [
+      this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
         'edit',
         this.currentSpatialUnitDataset.spatialUnitId,
       ]);

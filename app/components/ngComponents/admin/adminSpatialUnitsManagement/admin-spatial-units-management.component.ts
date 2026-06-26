@@ -1,5 +1,6 @@
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -314,7 +315,7 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
     // Listen for the global metadata loading completion event
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'refreshSpatialUnitOverviewTable') {
+      if (data.msg === BroadcastMessage.RefreshSpatialUnitOverviewTable) {
         this.zone.run(() => {
           this.loadingData = true;
           // Extract crudType and targetSpatialUnitId from the broadcast data values

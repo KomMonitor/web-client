@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, inject } fr
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
@@ -79,9 +80,9 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private setupEventListeners(): void {
     // Listen for batch update completion
     const sub1 = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'batchUpdateCompleted' && (data as any).resourceType === 'indicator') {
+      if (data.msg === BroadcastMessage.BatchUpdateCompleted && (data as any).resourceType === 'indicator') {
         this.lastUpdateResponseObj = data;
-      } else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
+      } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         this.refreshNameColumn();
       } else if (data.msg === 'timeseriesMappingChanged') {
         this.timeseriesMappingReference = (data as any).mapping;
@@ -312,7 +313,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
     // Simulate batch update process
     setTimeout(() => {
       this.loadingData = false;
-      this.broadcastService.broadcast('batchUpdateCompleted', {
+      this.broadcastService.broadcast(BroadcastMessage.BatchUpdateCompleted, {
         resourceType: 'indicator',
         status: 'success',
         message: 'Batch update completed successfully',
@@ -322,7 +323,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   public reopenResultModal(): void {
     if (this.lastUpdateResponseObj) {
-      this.broadcastService.broadcast('reopenBatchUpdateResultModal', this.lastUpdateResponseObj);
+      this.broadcastService.broadcast(BroadcastMessage.ReopenBatchUpdateResultModal, this.lastUpdateResponseObj);
     }
   }
 

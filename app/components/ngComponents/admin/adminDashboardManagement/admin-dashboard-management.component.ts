@@ -12,6 +12,7 @@ import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import { MetadataBootstrapService, MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 import { GeoresourceMetadataStoreService } from '../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
@@ -143,7 +144,7 @@ export class AdminDashboardManagementComponent implements OnInit {
     this.broadcastService.currentBroadcastMsg
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => {
-        if (msg.msg === 'refreshAdminDashboardDiagrams') {
+        if (msg.msg === BroadcastMessage.RefreshAdminDashboardDiagrams) {
           this.refreshDashboard();
         }
       });

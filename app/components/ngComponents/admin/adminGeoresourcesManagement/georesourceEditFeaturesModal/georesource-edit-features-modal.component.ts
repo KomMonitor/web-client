@@ -12,6 +12,7 @@ import {
 } from 'ag-grid-community';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage, showLoadingIconFor, hideLoadingIconFor, onDeleteFeatureEntryFor } from 'services/broadcast-service/broadcast-message';
 
 import { FormsModule } from '@angular/forms';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
@@ -205,23 +206,20 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
     const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
       (broadcastMsg) => {
         if (broadcastMsg) {
-          if (broadcastMsg.msg === 'onEditGeoresourceFeatures') {
+          if (broadcastMsg.msg === BroadcastMessage.OnEditGeoresourceFeatures) {
             this.onEditGeoresourceFeatures(broadcastMsg.values);
           } else if (
-            broadcastMsg.msg ===
-            'showLoadingIcon_' + this.featureTableHelper.resourceType_georesource
+            broadcastMsg.msg === showLoadingIconFor(this.featureTableHelper.resourceType_georesource)
           ) {
             this.loadingData = true;
           } else if (
-            broadcastMsg.msg ===
-            'hideLoadingIcon_' + this.featureTableHelper.resourceType_georesource
+            broadcastMsg.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_georesource)
           ) {
             this.loadingData = false;
           } else if (
-            broadcastMsg.msg ===
-            'onDeleteFeatureEntry_' + this.featureTableHelper.resourceType_georesource
+            broadcastMsg.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_georesource)
           ) {
-            this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+            this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
               crudType: 'edit',
               targetGeoresourceId: this.currentGeoresourceDataset?.georesourceId,
             });
@@ -612,7 +610,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         next: (response: any) => {
           this.successMessagePart = this.currentGeoresourceDataset.datasetName;
           this.importedFeatures = response.importedFeatures || [];
-          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });

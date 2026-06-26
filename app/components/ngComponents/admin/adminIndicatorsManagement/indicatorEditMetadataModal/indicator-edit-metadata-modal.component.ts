@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorIndicatorDataGridHelperService } from 'services/adminIndicatorUnit/kommonitor-data-grid-helper.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FormsModule } from '@angular/forms';
 
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
@@ -799,7 +800,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.datasetName;
-          this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
             crudType: 'edit',
             targetIndicatorId: this.currentIndicatorDataset.indicatorId,
           });

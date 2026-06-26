@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -88,7 +89,7 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   private setupEventListeners(): void {
     // Listen for georesource overview table refresh
     const refreshSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'refreshGeoresourceOverviewTableCompleted') {
+      if (data.msg === BroadcastMessage.RefreshGeoresourceOverviewTableCompleted) {
         this.kommonitorBatchUpdateHelperService.refreshNameColumn('georesource', this.batchList);
       }
     });
@@ -96,7 +97,7 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
     // Listen for batch update completion
     const batchUpdateSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'batchUpdateCompleted' && data.resourceType === 'georesource') {
+      if (data.msg === BroadcastMessage.BatchUpdateCompleted && data.resourceType === 'georesource') {
         this.lastUpdateResponseObj = data;
       }
     });
@@ -302,7 +303,7 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   reopenResultModal(): void {
     if (this.lastUpdateResponseObj !== undefined) {
-      this.broadcastService.broadcast('reopenBatchUpdateResultModal', this.lastUpdateResponseObj);
+      this.broadcastService.broadcast(BroadcastMessage.ReopenBatchUpdateResultModal, this.lastUpdateResponseObj);
     }
   }
 

@@ -8,6 +8,7 @@ import { GridOptions } from 'ag-grid-community';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage, showLoadingIconFor, hideLoadingIconFor, onDeleteFeatureEntryFor } from '../../../../../services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
@@ -107,18 +108,18 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.openModal(data.values);
       } else if (data.msg === 'timeseriesMappingChanged') {
         this.timeseriesMappingReference = data.mapping;
-      } else if (data.msg === 'refreshIndicatorOverviewTableCompleted') {
+      } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         if (this.currentIndicatorDataset) {
           this.currentIndicatorDataset = this.indicatorStore.getIndicatorMetadataById(
             this.currentIndicatorDataset.indicatorId
           );
         }
-      } else if (data.msg === 'showLoadingIcon_indicator') {
+      } else if (data.msg === showLoadingIconFor(this.featureTableHelper.resourceType_indicator)) {
         this.loadingData = true;
-      } else if (data.msg === 'hideLoadingIcon_indicator') {
+      } else if (data.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_indicator)) {
         this.loadingData = false;
-      } else if (data.msg === 'onDeleteFeatureEntry_indicator') {
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+      } else if (data.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_indicator)) {
+        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
           action: 'edit',
           indicatorId: this.currentIndicatorDataset.indicatorId,
         });
@@ -208,7 +209,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
     this.errorMessagePart = '';
     this.importerErrors = [];
 
-    this.broadcastService.broadcast('resetTimeseriesMapping');
+    this.broadcastService.broadcast(BroadcastMessage.ResetTimeseriesMapping);
   }
 
   refreshIndicatorEditFeaturesOverviewTable(): void {
@@ -288,7 +289,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.indicatorFeaturesJSON = undefined;
         this.remainingFeatureHeaders = [];
 
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
           action: 'edit',
           indicatorId: this.currentIndicatorDataset.indicatorId,
         });
@@ -538,7 +539,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
           false
         );
 
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
           action: 'edit',
           indicatorId: this.currentIndicatorDataset.indicatorId,
         });

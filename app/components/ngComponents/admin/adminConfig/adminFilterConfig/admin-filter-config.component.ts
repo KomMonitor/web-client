@@ -16,6 +16,7 @@ import { ColDef, GridOptions, GridReadyEvent, SelectionChangedEvent } from 'ag-g
 
 import { KommonitorFilterDataGridHelperService } from '../../../../../services/adminFilterConfig/kommonitor-data-grid-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { ConfigStorageService } from '../../../../../services/config-storage-service/config-storage.service';
 import { GeoresourceMetadataStoreService } from '../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from '../../../../../services/topic-metadata-store-service/topic-metadata-store.service';
@@ -133,7 +134,7 @@ export class AdminFilterConfigComponent implements OnInit {
             this.onGlobalFilterDelete(values);
           }
           break;
-        case 'refreshAdminFilterOverview':
+        case BroadcastMessage.RefreshAdminFilterOverview:
           {
             this.refreshAdminFilterOverview();
           }
@@ -239,7 +240,7 @@ export class AdminFilterConfigComponent implements OnInit {
   }
 
   onAddFilter() {
-    this.broadcastService.broadcast('onOpenAddFilterModal');
+    this.broadcastService.broadcast(BroadcastMessage.OnOpenAddFilterModal);
   }
 
   // Grid event handlers

@@ -3,6 +3,7 @@ import { Topic, TopicOrderMode, TopicResourceType } from './admin-topics-managem
 import { HttpClient } from '@angular/common/http';
 import { map, tap, timeout } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
@@ -157,8 +158,8 @@ export class AdminTopicsManagementService {
     this.metadataBootstrap
       .fetchTopicsMetadata(this.accessControlService.currentKeycloakLoginRoles)
       .then(() => {
-        this.broadcastService.broadcast('refreshTopicsOverview');
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshTopicsOverview);
+        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       });
   }
 }

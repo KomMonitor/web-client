@@ -55,9 +55,10 @@ onOpenAddFilterModal
 
 ### Tote Empfänger (kein Sender auffindbar)
 
-`case`-Zweige, die empfangen, für die es aber **keinen Sender** gibt (auch nicht
-dynamisch). Beim Cluster-Durchlauf als Roh-String belassen (nicht ins Enum) und für
-späteres Löschen vormerken:
+Empfänger-Zweige (`case` oder `if (data.msg === …)`), für die es **keinen Sender**
+gibt (auch nicht dynamisch). Beim Cluster-Durchlauf als Roh-String belassen (nicht ins
+Enum) und für späteres Löschen vormerken. Viele davon sind vermutlich Legacy-Reste aus
+der AngularJS-Zeit (`$scope.$broadcast` ohne Angular-Bus-Gegenstück):
 
 ```
 changeSpatialUnitViaInfoControl                              # kommonitor-map.component switch
@@ -69,6 +70,17 @@ resizeDiagrams                                              # kommonitor-diagram
 allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed  # indicator-radar / regression-diagram switch; kein Sender
 switchReportingMode                                        # kommonitor-reachability / reachability-scenario-configuration switch; nur Legacy-$scope.$broadcast in indicator-add, kein Angular-Bus-Sender
 onManageReachabilityScenario                               # reachability-scenario-configuration switch; kein Sender
+onGlobalFilterDelete                                        # admin-filter-config switch; kein Sender
+timeseriesMappingChanged                                   # indicator-edit-features-modal; kein Sender
+onEditIndicatorFeatures                                    # admin-indicators-management; kein Sender
+onEditIndicatorMetadata                                    # indicator-edit-metadata-modal; kein Sender
+onDeleteIndicators                                         # indicator-delete-modal; kein Sender
+onEditSpatialUnitFeatures                                  # spatial-unit-edit-features-modal; kein Sender
+onEditSpatialUnitMetadata                                  # spatial-unit-edit-metadata-modal; kein Sender
+onEditSpatialUnitUserRoles                                 # spatial-unit-edit-user-roles-modal; kein Sender
+onDeleteSpatialUnits                                       # admin-spatial-units-management; kein Sender
+onEditGeoresourcesUserRoles                                # georesource-edit-user-roles-modal; kein Sender
+georesourceBatchListParsed                                 # georesource-batch-update-modal; kein Sender
 ```
 
 ## Frage: Ist ein Enum technisch möglich?
@@ -192,8 +204,32 @@ String-Empfänger vorbei.
    `reachbility-scenario-setup` (1 Sender) + `reachability-indicator-statistics` (2 `case`s) +
    `reachability-poi-in-iso` (4 `case`s). Zwei Space-Variant-`case`s manuell migriert. Tote
    Empfänger `switchReportingMode` und `onManageReachabilityScenario` (s. o.) blieben Roh-String.
-6. **Admin**: Georesources / Indicators / SpatialUnits Management + Modals +
-   `feature-table-data-grid-helper` (die 3 dynamischen Helper hier zuerst definieren).
+6. **Admin** ✅ *(erledigt 2026-06-26)* — 30 Dateien: alle Georesources- / Indicators- /
+   SpatialUnits- / Topics- / Scripts- / Dashboard- / Config-Komponenten + Modals,
+   `admin-topics.service`, `feature-table-data-grid-helper`, `adminGeoresourceUnit/kommonitor-data-grid-helper`
+   und `common/wms-admin-table`. Besonderheiten:
+   - Admin nutzt überwiegend **`if (data.msg === 'X')`-Ketten** statt `switch/case` — dafür
+     ein zweites sed-Regelset (`\.msg === '…'`). Cluster 1–5 waren reine `switch/case` und
+     damit bereits vollständig.
+   - **Dynamische Namen** via Helper aufgelöst: 6 Sender in `feature-table-data-grid-helper`
+     → `showLoadingIconFor()/hideLoadingIconFor()/onDeleteFeatureEntryFor()`; die Empfänger
+     in den 3 Edit-Features-Modals entsprechend (Multi-Line-Konkatenation, `?.` entfernt).
+   - 11 tote Empfänger gefunden (s. o.); `poi/loi/aoi`-`case`s unangetastet (Switch auf
+     `georesourceType`, kein Broadcast).
+7. **Rest / verstreut** ⬜ *(offen)* — Sender/Empfänger außerhalb der Cluster 1–6, jeweils
+   nur ein paar Stellen pro Datei:
+   - Services: `access-control-service` (1), `diagram-helper-service` (4×
+     `AppendExportButtonsForTable`), `element-visibility-helper-service` (1),
+     `filter-helper-service` (5), `leaflet-screenshot-cache-helper-service` (2),
+     `map-error-notification-service` (1), `script-helper-service` (1).
+   - Komponenten: `user-interface.component` (7 Sender), `common/single-feature-edit`
+     (4 Sender + 4 `case`s), `reporting/indicator-add` (Sender + 2 `case`s).
+   - Hinweise: `indicator-add` verwendet `this.broadcastSerice` (Tippfehler im
+     Property-Namen) und Legacy-`$scope.$broadcast`-Aufrufe — beim Umstellen prüfen.
+
+> Solange Cluster 7 offen ist, bleibt `| string` in der `broadcast()`-Signatur stehen.
+> Erst wenn `git grep "broadcast('"` / `"broadcast(\""` und `"\.msg === '"` / `"case '"`
+> keine Enum-Namen mehr finden, kann der Übergangstyp entfernt werden.
 
 ## Migrationsweg (kein Big-Bang)
 

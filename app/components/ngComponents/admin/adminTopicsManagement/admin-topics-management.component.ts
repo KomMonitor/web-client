@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 
 export interface Topic {
   topicDescription: string;
@@ -93,7 +94,7 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscription = this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
-      if (broadcastMsg.msg === 'refreshTopicsOverview') {
+      if (broadcastMsg.msg === BroadcastMessage.RefreshTopicsOverview) {
         // this.refreshTopicsOverview();
       }
     });

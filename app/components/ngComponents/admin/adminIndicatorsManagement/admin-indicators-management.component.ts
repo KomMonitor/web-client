@@ -1,6 +1,7 @@
 import { Component, DOCUMENT, inject, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { WmsSharedComponentsService } from 'components/ngComponents/common/wms-admin-table/wms-admin-tables-shared.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { WmsResourceType } from './../../models/services.models';
 
 import { HttpClient } from '@angular/common/http';
@@ -217,7 +218,7 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
 
     // Listen for the global metadata loading completion event
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'refreshIndicatorOverviewTable') {
+      if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTable) {
         this.zone.run(() => {
           this.loadingData = true;
           // Extract crudType and targetIndicatorId from the broadcast data
@@ -688,12 +689,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
         .fetchIndicatorsMetadata(this.accessControlService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
           this.loadingData = false;
         })
         .catch((_response: any) => {
           this.loadingData = false;
-          this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
         });
     } else if (crudType && targetIndicatorId) {
       if (crudType === 'add') {
@@ -705,12 +706,12 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           .then((data: any) => {
             this.indicatorStore.addSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
           });
       } else if (crudType === 'edit') {
         this.kommonitorCacheHelperService
@@ -721,17 +722,17 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           .then((data: any) => {
             this.indicatorStore.replaceSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
           });
       } else if (crudType === 'delete') {
         this.indicatorStore.deleteSingleIndicatorMetadata(targetIndicatorId);
         this.initializeOrRefreshOverviewTable();
-        this.broadcastService.broadcast('refreshIndicatorOverviewTableCompleted');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
         this.loadingData = false;
       }
     }

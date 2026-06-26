@@ -5,6 +5,7 @@ import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/serv
 import { Subscription, skip } from 'rxjs';
 import { OgcDataGridHelperServiceFactory } from 'services/adminOgcServices/ogc-data-grid-helper-factory.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -68,7 +69,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
 
     // Listen for broadcast messages
     const broadcastSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'refreshGeoresourceOverviewTable') {
+      if (data.msg === BroadcastMessage.RefreshGeoresourceOverviewTable) {
         //this.refreshGeoresourceOverviewTable(data.values.crudType, data.values.targetGeoresourceId);
       }
     });

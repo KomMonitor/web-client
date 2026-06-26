@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage, showLoadingIconFor, hideLoadingIconFor, onDeleteFeatureEntryFor } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
@@ -220,21 +221,18 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           if (broadcastMsg.msg === 'onEditSpatialUnitFeatures') {
             this.onEditSpatialUnitFeatures(broadcastMsg.values);
           } else if (
-            broadcastMsg.msg ===
-            'showLoadingIcon_' + this.featureTableHelper?.resourceType_spatialUnit
+            broadcastMsg.msg === showLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             this.loadingData = true;
           } else if (
-            broadcastMsg.msg ===
-            'hideLoadingIcon_' + this.featureTableHelper?.resourceType_spatialUnit
+            broadcastMsg.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             this.loadingData = false;
           } else if (
-            broadcastMsg.msg ===
-            'onDeleteFeatureEntry_' + this.featureTableHelper?.resourceType_spatialUnit
+            broadcastMsg.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             // Handle individual feature deletion
-            this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', {
+            this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
               crudType: 'edit',
               targetSpatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
             });
@@ -520,7 +518,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
       next: (_response: any) => {
         this.spatialUnitFeaturesGeoJSON = null;
         this.remainingFeatureHeaders = [];
-        this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', [
+        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
           'edit',
           this.currentSpatialUnitDataset.spatialUnitId,
         ]);
@@ -944,7 +942,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
         );
 
         this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-        this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', [
+        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
           'edit',
           this.currentSpatialUnitDataset.spatialUnitId,
         ]);

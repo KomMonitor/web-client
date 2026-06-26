@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -109,11 +110,11 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
 
         // Refresh spatial unit overview table
         const deletedIds = this.successfullyDeletedDatasets.map((dataset) => dataset.spatialUnitId);
-        this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', ['delete', deletedIds]);
+        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, ['delete', deletedIds]);
 
         // Refresh all admin dashboard diagrams due to modified metadata
         setTimeout(() => {
-          this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
         }, 500);
       }
 

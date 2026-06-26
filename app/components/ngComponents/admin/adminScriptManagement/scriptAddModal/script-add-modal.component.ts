@@ -3,6 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ScriptHelperService } from 'services/script-helper-service/script-helper.service';
 import { ScriptStepIntroductionComponent } from './scriptStepIntroduction/script-step-introduction.component';
 import {
@@ -123,10 +124,10 @@ export class ScriptAddModalComponent {
         }
       }
 
-      this.broadcastService.broadcast('refreshScriptOverviewTable', {
+      this.broadcastService.broadcast(BroadcastMessage.RefreshScriptOverviewTable, {
         crudType: 'add',
       });
-      this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+      this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       this.showSuccessAlert = true;
       this.loadingData = false;
     } catch (error: any) {

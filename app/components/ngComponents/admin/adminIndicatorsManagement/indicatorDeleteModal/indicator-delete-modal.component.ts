@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from '../../../../../services/broadcast-service/broadcast-message';
 import { FormsModule } from '@angular/forms';
 
 declare let __env: any;
@@ -287,13 +288,13 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
         this.successfullyDeletedDatasets.push(this.selectedIndicatorDataset);
 
         // Fetch indicator metadata again as an indicator was deleted
-        this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+        this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
           action: 'delete',
           indicatorId: this.currentIndicatorId,
         });
 
         setTimeout(() => {
-          this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
         }, 500);
 
         this.showSuccessAlert = true;
@@ -344,14 +345,14 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       this.showSuccessAlert = true;
 
       // Refresh overview table
-      this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
         action: 'edit',
         indicatorId: this.currentIndicatorId,
       });
 
       // Refresh all admin dashboard diagrams due to modified metadata
       setTimeout(() => {
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       }, 500);
 
       this.loadingData = false;
@@ -381,14 +382,14 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
       );
 
       // Refresh overview table
-      this.broadcastService.broadcast('refreshIndicatorOverviewTable', {
+      this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
         action: 'edit',
         indicatorId: this.currentIndicatorId,
       });
 
       // Refresh all admin dashboard diagrams due to modified metadata
       setTimeout(() => {
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       }, 500);
 
       this.loadingData = false;

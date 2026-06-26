@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { skip } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -262,7 +263,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
     // Listen for broadcast messages
     this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'availableRolesUpdate') {
+      if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
         this.refreshRoles();
       }
     });
@@ -1123,7 +1124,7 @@ export class GeoresourceAddModalComponent implements OnInit {
           );
 
         // Broadcast refresh events
-        this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+        this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
           action: 'add',
           id: this.kommonitorImporterHelperService.getIdFromImporterResponse(
             newGeoresourceResponse
@@ -1132,7 +1133,7 @@ export class GeoresourceAddModalComponent implements OnInit {
 
         // refresh all admin dashboard diagrams due to modified metadata
         setTimeout(() => {
-          this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+          this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
         }, 500);
 
         this.successMessagePart = this.postBody_georesources.datasetName;

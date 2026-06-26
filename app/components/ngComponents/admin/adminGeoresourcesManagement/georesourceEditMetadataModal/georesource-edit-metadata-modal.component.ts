@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
@@ -169,7 +170,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   private setupEventListeners(): void {
     // Listen for edit georesource metadata event
     const editSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'onEditGeoresourceMetadata') {
+      if (data.msg === BroadcastMessage.OnEditGeoresourceMetadata) {
         this.currentGeoresourceDataset = data.georesourceDataset;
         this.resetGeoresourceEditMetadataForm();
         this.kommonitorMultiStepFormHelperService.registerClickHandler(undefined);
@@ -179,7 +180,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
 
     // Listen for available roles update
     const rolesSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === 'availableRolesUpdate') {
+      if (data.msg === BroadcastMessage.AvailableRolesUpdate) {
         this.refreshRoles();
       }
     });
@@ -740,7 +741,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.datasetName;
-          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });

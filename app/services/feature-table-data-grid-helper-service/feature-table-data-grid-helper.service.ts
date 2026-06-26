@@ -3,6 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import {
+  showLoadingIconFor,
+  hideLoadingIconFor,
+  onDeleteFeatureEntryFor,
+} from 'services/broadcast-service/broadcast-message';
 
 // Declare environment variables
 declare const __env: any;
@@ -402,7 +407,7 @@ export class FeatureTableDataGridHelperService {
     const recordId = idParts[5];
 
     // Broadcast loading event
-    this.broadcastService.broadcast(`showLoadingIcon_${resourceType}`, {});
+    this.broadcastService.broadcast(showLoadingIconFor(resourceType), {});
 
     // Determine URL based on resource type
     let url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}`;
@@ -425,7 +430,7 @@ export class FeatureTableDataGridHelperService {
         }
 
         // Broadcast delete event
-        this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {
+        this.broadcastService.broadcast(onDeleteFeatureEntryFor(resourceType), {
           datasetId,
           featureId,
           recordId,
@@ -433,7 +438,7 @@ export class FeatureTableDataGridHelperService {
       },
       error: () => {
         // Broadcast hide loading event
-        this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
+        this.broadcastService.broadcast(hideLoadingIconFor(resourceType), {});
 
         // Update failure timestamps
         if (resourceType === 'georesource') {
@@ -879,7 +884,7 @@ export class FeatureTableDataGridHelperService {
     const featureId = idParts[5];
     const recordId = idParts[6];
 
-    this.broadcastService.broadcast(`showLoadingIcon_${resourceType}`, {});
+    this.broadcastService.broadcast(showLoadingIconFor(resourceType), {});
 
     const url =
       `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}` +
@@ -888,7 +893,7 @@ export class FeatureTableDataGridHelperService {
     this.http.delete(url).subscribe({
       next: () => {
         this.featureTable_indicator_lastUpdate_timestamp_success = this.getCurrentTimestamp();
-        this.broadcastService.broadcast(`onDeleteFeatureEntry_${resourceType}`, {
+        this.broadcastService.broadcast(onDeleteFeatureEntryFor(resourceType), {
           datasetId,
           spatialUnitId,
           featureId,
@@ -896,7 +901,7 @@ export class FeatureTableDataGridHelperService {
         });
       },
       error: () => {
-        this.broadcastService.broadcast(`hideLoadingIcon_${resourceType}`, {});
+        this.broadcastService.broadcast(hideLoadingIconFor(resourceType), {});
         this.featureTable_indicator_lastUpdate_timestamp_failure = this.getCurrentTimestamp();
       },
     });

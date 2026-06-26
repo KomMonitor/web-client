@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
@@ -863,14 +864,14 @@ export class SpatialUnitAddModalComponent implements OnInit {
               false // isDryRun
             );
 
-          this.broadcastService.broadcast('refreshSpatialUnitOverviewTable', [
+          this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
             'add',
             this.kommonitorImporterHelperService.getIdFromImporterResponse(newSpatialUnitResponse),
           ]);
 
           // refresh all admin dashboard diagrams due to modified metadata
           setTimeout(() => {
-            this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+            this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
           }, 500);
 
           this.successMessagePart = this.postBody_spatialUnits.spatialUnitLevel;

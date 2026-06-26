@@ -3,6 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
@@ -60,11 +61,11 @@ export class ScriptDeleteModalComponent implements OnInit {
         this.showSuccessAlert = true;
 
         const deletedIds = this.successfullyDeletedDatasets.map((d) => d.scriptId);
-        this.broadcastService.broadcast('refreshScriptOverviewTable', {
+        this.broadcastService.broadcast(BroadcastMessage.RefreshScriptOverviewTable, {
           crudType: 'delete',
           scriptId: deletedIds,
         });
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams');
+        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
       }
       this.loadingData = false;
     });

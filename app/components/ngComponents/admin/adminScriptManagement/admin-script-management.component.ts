@@ -1,5 +1,6 @@
 import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 import { Subscription, skip } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -143,7 +144,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     this.subscriptions.push(loadingSub);
 
     const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === 'refreshScriptOverviewTable') {
+      if (data.msg === BroadcastMessage.RefreshScriptOverviewTable) {
         this.zone.run(() => {
           this.loadingData = true;
           const payload = data as any;

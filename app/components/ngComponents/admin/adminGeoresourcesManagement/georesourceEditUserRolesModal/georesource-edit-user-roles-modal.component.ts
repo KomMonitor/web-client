@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -104,7 +105,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
         if (broadcastMsg) {
           if (broadcastMsg.msg === 'onEditGeoresourcesUserRoles') {
             this.onEditGeoresourcesUserRoles(broadcastMsg.values);
-          } else if (broadcastMsg.msg === 'availableRolesUpdate') {
+          } else if (broadcastMsg.msg === BroadcastMessage.AvailableRolesUpdate) {
             this.refreshRoleManagementTable();
           }
         }
@@ -337,7 +338,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });
@@ -387,7 +388,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
       .subscribe({
         next: (_response: any) => {
           this.successMessagePart = this.currentGeoresourceDataset.datasetName;
-          this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
             crudType: 'edit',
             targetGeoresourceId: this.currentGeoresourceDataset.georesourceId,
           });

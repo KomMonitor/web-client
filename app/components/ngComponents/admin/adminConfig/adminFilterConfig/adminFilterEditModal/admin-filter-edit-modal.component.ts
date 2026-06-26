@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from '../../../../../../services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from '../../../../../../services/broadcast-service/broadcast-message';
 import { ConfigStorageService } from '../../../../../../services/config-storage-service/config-storage.service';
 import { IndicatorValueService } from '../../../../../../services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from '../../../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -432,7 +433,7 @@ export class AdminFilterEditModalComponent implements OnInit {
     this.refreshGeoresourcesTable();
 
     setTimeout(() => {
-      this.broadcastService.broadcast('refreshAdminFilterOverview');
+      this.broadcastService.broadcast(BroadcastMessage.RefreshAdminFilterOverview);
     }, 500);
   }
 

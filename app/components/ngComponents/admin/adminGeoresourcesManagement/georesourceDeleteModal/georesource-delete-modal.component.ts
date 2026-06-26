@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, forkJoin } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -76,7 +77,7 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
     // Listen for broadcast events
     const deleteSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
       (broadcastMsg) => {
-        if (broadcastMsg.msg === 'onDeleteGeoresources') {
+        if (broadcastMsg.msg === BroadcastMessage.OnDeleteGeoresources) {
           this.onDeleteGeoresources(
             Array.isArray(broadcastMsg.values) ? broadcastMsg.values : [broadcastMsg.values]
           );
@@ -226,14 +227,14 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
         'Folgende Georessourcen sowie assoziierte Indikatorenreferenzen und Skripte wurden erfolgreich gelöscht';
 
       // Refresh overview table
-      this.broadcastService.broadcast('refreshGeoresourceOverviewTable', {
+      this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
         crudType: 'delete',
         targetIds: this.successfullyDeletedDatasets.map((dataset) => dataset.georesourceId),
       });
 
       // Refresh admin dashboard diagrams
       setTimeout(() => {
-        this.broadcastService.broadcast('refreshAdminDashboardDiagrams', null);
+        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams, null);
       }, 500);
     }
 
