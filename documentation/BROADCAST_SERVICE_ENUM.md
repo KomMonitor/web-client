@@ -2,7 +2,9 @@
 
 Vorschlag, die freien String-Message-Namen des `BroadcastService` durch typisierte
 Konstanten zu ersetzen, um spätere Refactorings abzusichern.
-Stand: 2026-06-23, Branch `feature/migration-bootstrap-cleanup`.
+Stand: 2026-06-26, Branch `feature/migration-bootstrap`.
+Zahlen verifiziert per Code-Bestandsaufnahme am 2026-06-26 (siehe Abschnitt
+„Bestandsaufnahme").
 
 Betroffene Datei: `app/services/broadcast-service/broadcast.service.ts`.
 
@@ -16,7 +18,9 @@ broadcast(newMsg: string, values: any = {}) {
 }
 ```
 
-- **228 Call-Sites** (`*.broadcast('...')`) über Services und Komponenten verteilt.
+- **226 Call-Sites** (`*.broadcast('...')`) über Services und Komponenten verteilt.
+- **103 eindeutige statische** Message-Namen + **3 dynamisch gebaute** Muster (= 106 gesamt).
+- **18 Empfänger-Blöcke** (`subscribe`) in 18 Dateien — die Empfängerseite ist überschaubar.
 - Empfänger vergleichen durchgängig per String-Literal:
   `if (data.msg === 'initialMetadataLoadingCompleted')`, `switch`/`if`-Ketten auf
   `broadcastMsg.msg`.
@@ -26,14 +30,27 @@ broadcast(newMsg: string, values: any = {}) {
 
 ### Konkrete Bugs/Risiken, die das heute erzeugt
 
-- **Casing-Mismatch (echter latenter Bug):**
-  `kommonitor-data-setup.component.ts:485` sendet `"DisableBalance"` (großes D),
-  der einzige Empfänger in `kommonitor-balance.component.ts:46` lauscht aber nur auf
-  `'disableBalance'`. Der Broadcast läuft ins Leere.
-- **Inkonsistente Präfix-Konvention:** `"LIKEinitialMetadataLoadingCompleted"`
-  (gesendet in `kommonitor-filter.component.ts:223`, konsumiert in `poi.component.ts:74`
-  und `kommonitor-data-setup.component.ts:112`) — ein Name, der nur durch Kopieren
-  überlebt und ohne Typsicherheit jederzeit auseinanderdriften kann.
+- **Casing-Mismatch (echter latenter Bug, weiterhin aktiv):**
+  `kommonitor-data-setup.component.ts:493` sendet `"DisableBalance"` (großes D),
+  der einzige Empfänger in `kommonitor-balance.component.ts:67` lauscht aber nur auf
+  `'disableBalance'`. Der Broadcast läuft ins Leere. (Der korrekt geschriebene
+  `'disableBalance'` wird zusätzlich aus `user-interface.component.ts:320` gesendet
+  und funktioniert — der data-setup-Sender ist der defekte.) **Bei Migration mitfixen.**
+- **`LIKEinitialMetadataLoadingCompleted` — faktisch erledigt:** Es existiert kein
+  realer Sender/Empfänger mehr; der Name überlebt nur noch in einem Kommentar in
+  `poi.component.ts:65`. Beim Cluster-Durchlauf den Restkommentar bereinigen.
+
+### Tote Sender (kein Empfänger auffindbar)
+
+Diese Namen werden gesendet, aber nirgends empfangen (auch nicht dynamisch) — vor der
+Typisierung prüfen und ggf. löschen statt ins Enum aufnehmen:
+
+```
+onAddedFeatureToSelection
+reopenBatchUpdateResultModal
+resetTimeseriesMapping
+onOpenAddFilterModal
+```
 
 ## Frage: Ist ein Enum technisch möglich?
 
@@ -88,9 +105,56 @@ broadcast(newMsg: BroadcastMessage | string, values: any = {}) {
 }
 ```
 
-Sobald alle 228 Call-Sites umgestellt sind, kann `| string` entfernt werden — ab
+Sobald alle 226 Call-Sites umgestellt sind, kann `| string` entfernt werden — ab
 dann erzwingt der Compiler typisierte Namen auf Sende- *und* (per Vergleich gegen
 `BroadcastMessage.*`) auf Empfängerseite.
+
+## Bestandsaufnahme (verifiziert 2026-06-26)
+
+| Metrik | Wert |
+|---|---|
+| Sender-Call-Sites `.broadcast(...)` | 226 |
+| Eindeutige statische Namen | 103 |
+| Dynamisch gebaute Muster | 3 (alle in `feature-table-data-grid-helper.service.ts`) |
+| Empfänger-Blöcke (`subscribe`) | 18 Dateien |
+
+**Sender-Konzentration** (Top-4 ≈ 35 % aller Sends):
+
+| Datei | Sends |
+|---|---|
+| `map-service/map.service.ts` | 24 |
+| `kommonitorDataSetup/kommonitor-data-setup.component.ts` | 20 |
+| `kommonitorMap/kommonitor-map.component.ts` | 20 |
+| `kommonitorClassification/kommonitor-classification.component.ts` | 15 |
+| `admin/adminGeoresourcesManagement/admin-georesources-management.component.ts` | 10 |
+| `userInterface/user-interface.component.ts` | 7 |
+| `admin/adminIndicatorsManagement/admin-indicators-management.component.ts` | 7 |
+
+**Empfänger-Konzentration** (Anzahl `msg`-Vergleiche im `subscribe`):
+
+- `kommonitor-map.component.ts` ist die **zentrale Drehscheibe** mit **38** `msg`-Vergleichen
+  in einem Handler — mit Abstand der größte. Hier liegt das meiste Migrationsrisiko und
+  der größte Nutzen.
+- Danach mit großem Abstand: `indicator-radar` (7), `regression-diagram` (6),
+  `indicator-edit-features-modal` (6), diverse mit 4–5.
+- Nur **18** Dateien haben überhaupt einen `subscribe`-Block → gut clusterbar.
+
+## Migrations-Cluster (Sender + Empfänger gemeinsam)
+
+Empfohlene Reihenfolge nach Kopplung/Risiko. Pro Schritt **Sender und zugehörige
+Empfänger zusammen** umstellen, sonst läuft ein typisierter Sender an einem
+String-Empfänger vorbei.
+
+1. **Map-Kern** (größter, am stärksten gekoppelt): `map.service` + `kommonitor-map.component`
+   (38-Vergleichs-Handler!) + `generic-map-helper` + `single-feature-map-helper`
+   + `reachability-map-helper`.
+2. **Classification / Legend**: `kommonitor-classification` + `kommonitor-legend`.
+3. **DataSetup / Balance / Filter / POI**: `kommonitor-data-setup` (+ `DisableBalance`-Fix),
+   `kommonitor-balance`, `kommonitor-filter`, `poi.component` (+ LIKE-Kommentar bereinigen).
+4. **Diagramme**: `kommonitor-diagrams`, `indicator-radar`, `regression-diagram`.
+5. **Reachability**: alle `reachability-*`-Komponenten + `reachbility-helper`.
+6. **Admin**: Georesources / Indicators / SpatialUnits Management + Modals +
+   `feature-table-data-grid-helper` (die 3 dynamischen Helper hier zuerst definieren).
 
 ## Migrationsweg (kein Big-Bang)
 
@@ -99,9 +163,9 @@ Passend zum inkrementellen Vorgehen aus `PROPOSED_CHANGES.md` /
 
 1. `broadcast-message.ts` mit allen gesammelten Namen + Helpern anlegen.
 2. `broadcast()`-Signatur auf `BroadcastMessage | string` setzen (bricht nichts).
-3. Modulweise Sender **und** zugehörige Empfänger umstellen
-   (z. B. erst `data-exchange` + `map-service`, dann `kommonitorClassification`/`Legend` …).
-   Bei der Gelegenheit die o. g. Bugs fixen (`DisableBalance` → `disableBalance`).
+3. Cluster-weise Sender **und** zugehörige Empfänger umstellen — Reihenfolge siehe
+   Abschnitt „Migrations-Cluster". Bei der Gelegenheit die o. g. Bugs fixen
+   (`DisableBalance` → `disableBalance`, LIKE-Kommentar, tote Sender löschen).
 4. Wenn `git grep "broadcast('"` / `"\.msg === '"` keine Roh-Strings mehr findet:
    `| string` aus der Signatur entfernen.
 5. Nach jedem Schritt Baseline halten: `npm run build` (EXIT 0) + `npm test` +
@@ -109,7 +173,13 @@ Passend zum inkrementellen Vorgehen aus `PROPOSED_CHANGES.md` /
 
 ## Vollständige Liste der aktuell verwendeten Message-Namen
 
-Statische Namen (Stand 2026-06-23, dedupliziert):
+Statische Namen (Stand 2026-06-26, dedupliziert — 103 Stück inkl. der fälschlichen
+Variante `DisableBalance`; im Enum landen die 102 kanonischen Namen):
+
+> Hinweis: `initialMetadataLoadingCompleted`, `initialMetadataLoadingFailed` und
+> `LIKEinitialMetadataLoadingCompleted` sind seit dem `metadata-bootstrap`-Refactor
+> **nicht mehr im Broadcast-Bus** (Completion-Signalling wurde vereinheitlicht) und
+> daher aus dieser Liste entfernt.
 
 ```
 addAoiGeoresourceAsGeoJSON
@@ -138,7 +208,7 @@ changeIndicatorDate
 changeNumClasses
 changeSpatialUnit
 changeStartPointsSource_fromLayer
-disableBalance            # ACHTUNG: an einer Stelle fälschlich "DisableBalance" gesendet → Bug
+disableBalance            # ACHTUNG: in kommonitor-data-setup fälschlich "DisableBalance" gesendet → Bug
 disablePointDrawTool
 exportMap
 favItemsStored
@@ -151,10 +221,7 @@ georesourceGeoJSONUpdated_editSingleFeature
 hideLoadingIconOnMap
 highlightFeatureOnMap
 indicatortMapDisplayFinished
-initialMetadataLoadingCompleted
-initialMetadataLoadingFailed
 isochronesCalculationFinished
-LIKEinitialMetadataLoadingCompleted   # ungewöhnliches Präfix, Migration prüfen
 onAddedFeatureToSelection
 onChangeSelectedIndicator
 onDeleteGeoresources
