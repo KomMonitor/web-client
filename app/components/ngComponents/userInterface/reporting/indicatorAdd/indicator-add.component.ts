@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { ApplicationRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -212,16 +212,7 @@ export class IndicatorAddComponent implements OnInit {
     protected reportingService: ReportingService,
     private fb: FormBuilder,
     private envConfigService: EnvConfigService,
-    private appRef: ApplicationRef
   ) {
-  }
-
-  // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
-  private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
-    return this.indicatorValueService.getIndicatorValue_asNumber(
-      indicatorValue,
-      this.selectionState.resolveSelectedPrecision(precision)
-    );
   }
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
@@ -308,7 +299,7 @@ export class IndicatorAddComponent implements OnInit {
 
     this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
     this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.sort(this.sortByindicatorName);
-    this.displayableIndicatorsByNameReachability = this.dataExchangeService.displayableIndicators.filter((e:any) => {
+    this.displayableIndicatorsByNameReachability = this.indicatorStore.displayableIndicators.filter((e:any) => {
       if (!this.selectedSpatialUnit) return false;
       return e.applicableSpatialUnits && e.applicableSpatialUnits.some((su:any) => su.spatialUnitId === this.selectedSpatialUnit.spatialUnitId);
     }).sort(this.sortByindicatorName);
@@ -539,8 +530,8 @@ export class IndicatorAddComponent implements OnInit {
   onIndicatorNameFilterChange(event:any) {
 
     let value = event.target.value;
-    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
-    this.displayableIndicatorsByName = this.dataExchangeService.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
 
   onBackToOverviewClicked() {
@@ -564,20 +555,25 @@ export class IndicatorAddComponent implements OnInit {
       }
 
       setTimeout(async () => {
-
-        // indicator selection is optional in reachability template only
-        if(this.selectedIndicator) {
-          for(let timestamp of this.selectedTimestamps) {
-            let classifyUsingWholeTimeseries = false;
-            let isTimeseries = false;
-            this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+        try {
+          // indicator selection is optional in reachability template only
+          if(this.selectedIndicator) {
+            for(let timestamp of this.selectedTimestamps) {
+              let classifyUsingWholeTimeseries = false;
+              let isTimeseries = false;
+              this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+            }
+          } else {
+            this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
           }
-        } else {
-          this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
+          await this.initializeAllDiagrams();
+          this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
+        } catch (error) {
+          console.error('Auto-initialization after indicator selection failed:', error);
+          this.dataExchangeService.displayMapApplicationError(error);
+        } finally {
+          this.loadingData = false;
         }
-        await this.initializeAllDiagrams();
-        this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
-        this.loadingData = false;
       });
     }, 0, 100);
 
@@ -633,9 +629,14 @@ export class IndicatorAddComponent implements OnInit {
         justChanged = true;
       } 
       if(this.reportingService.clonedTemplate.name.includes("reachability") || (this.isFirstUpdateOnIndicatorOrPoiLayerSelection == false && justChanged == false)) {
-        
-        await this.initializeAllDiagrams();
-        this.loadingData = false;
+        try {
+          await this.initializeAllDiagrams();
+        } catch (error) {
+          console.error('Diagram re-initialization after area change failed:', error);
+          this.dataExchangeService.displayMapApplicationError(error);
+        } finally {
+          this.loadingData = false;
+        }
       }
     }, 0, 100)
   }
@@ -1078,19 +1079,25 @@ export class IndicatorAddComponent implements OnInit {
           // (relevant for indicator selection only)
           this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
         } else {
-          // indicator selection is optional in reachability template only
-          if(this.selectedIndicator) {
-            for(let timestamp of this.selectedTimestamps) {
-              let classifyUsingWholeTimeseries = false;
-              let isTimeseries = false;
-              this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+          try {
+            // indicator selection is optional in reachability template only
+            if(this.selectedIndicator) {
+              for(let timestamp of this.selectedTimestamps) {
+                let classifyUsingWholeTimeseries = false;
+                let isTimeseries = false;
+                this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
+              }
+            } else {
+              this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
             }
-          } else {
-            this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
-          }
 
-          await this.initializeAllDiagrams();
-          this.loadingData = false;
+            await this.initializeAllDiagrams();
+          } catch (error) {
+            console.error('Diagram re-initialization after timestamp change failed:', error);
+            this.dataExchangeService.displayMapApplicationError(error);
+          } finally {
+            this.loadingData = false;
+          }
         }
       });
     }, 0, 100);
@@ -1171,7 +1178,7 @@ export class IndicatorAddComponent implements OnInit {
 
     this.selectedSpatialUnit = this.spatialUnitSelect.value;
     this.loadingData = true;
-    this.displayableIndicatorsByNameReachability = this.dataExchangeService.displayableIndicators.filter((e:any) =>
+    this.displayableIndicatorsByNameReachability = this.indicatorStore.displayableIndicators.filter((e:any) =>
       e.applicableSpatialUnits && e.applicableSpatialUnits.some((su:any) => su.spatialUnitId === this.selectedSpatialUnit.spatialUnitId)
     ).sort(this.sortByindicatorName);
 
@@ -1325,18 +1332,13 @@ export class IndicatorAddComponent implements OnInit {
       this.selectedSpatialUnit :
       this.selectedIndicator!.applicableSpatialUnits[0];
 
-      // query spatial unit features using the most recent date
-      this.queryFeatures(undefined, spatialUnit).subscribe({
-        next: (response:any) => {
-
-          this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = response.features
-          let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel]
-          this.updateAreasDualList(allAreas, selectAll ? allAreas : undefined ) // don't select any areas
-        }
-      });
+      const response: any = await firstValueFrom(this.queryFeatures(undefined, spatialUnit));
+      this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = response.features;
+      let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel];
+      this.updateAreasDualList(allAreas, selectAll ? allAreas : undefined);
     } else {
       let indicator = this.selectedIndicator;
-    
+
       let spatialUnit = this.selectedSpatialUnit ?
         this.selectedSpatialUnit :
         this.selectedIndicator.applicableSpatialUnits[0]
@@ -1347,18 +1349,14 @@ export class IndicatorAddComponent implements OnInit {
         // clear all cached features
         this.availableFeaturesBySpatialUnit = {};
         this.availableFeaturesBySpatialUnit.indicatorId = indicatorId;
-
       }
 
-      this.queryFeatures(indicatorId, spatialUnit).subscribe({
-        next: (response:any) => {
-          // save response to scope to avoid further requests
-          this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = response.features
-
-          let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
-          this.updateAreasDualList(allAreas, undefined) // don't select any areas
-        }
-      });
+      const response: any = await firstValueFrom(this.queryFeatures(indicatorId, spatialUnit));
+      // save response to scope to avoid further requests
+      this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = response.features;
+      let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
+      // items loaded; full selection (select-all) is applied by the caller after this returns
+      this.updateAreasDualList(allAreas, undefined);
     }
   }
 
@@ -1391,21 +1389,19 @@ export class IndicatorAddComponent implements OnInit {
 
   updateTimestampsDualList(data, selectedItems) {
 
-    this.dualListTimestampsOptions.selectedItems = [];
-
     let dualListInput = data.map( (el,i) => {
       return {"name": el.properties.NAME, 'id':i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
     });
     dualListInput = this.indicatorValueService.createDualListInputArray(dualListInput, "name",'id');
-    this.dualListTimestampsOptions.items = dualListInput;
 
+    let newSelectedItems: any[] = [];
     // if there are items to select
     if(selectedItems && selectedItems.length > 0) {
       if(data.length === selectedItems.length) {
         let dualListSelected = selectedItems.map( (el, i) => {
-          return {"name": el.properties.NAME, 'id': i} 
+          return {"name": el.properties.NAME, 'id': i}
         });
-        this.dualListTimestampsOptions.selectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');
+        newSelectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');
       } else {
 
         let items:any[] = [];
@@ -1418,31 +1414,29 @@ export class IndicatorAddComponent implements OnInit {
             }
           }
         }
-        this.dualListTimestampsOptions.selectedItems = this.indicatorValueService.createDualListInputArray(items, "name",'id');
+        newSelectedItems = this.indicatorValueService.createDualListInputArray(items, "name",'id');
       }
     }
 
+    // Replace the object reference so Angular detects the [data] input change
+    this.dualListTimestampsOptions = { ...this.dualListTimestampsOptions, items: dualListInput, selectedItems: newSelectedItems };
     this.reloadTimestampsDualList = !this.reloadTimestampsDualList;
   }
 
-  updateAreasDualList(data,selectedItems) {
-    this.dualListAreasOptions.selectedItems = [];
-
+  updateAreasDualList(data, selectedItems) {
     let dualListInput = data.map( (el, i) => {
-      return {"name": el.properties.NAME, 'id': i} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+      return {"name": el.properties.NAME, 'id': i}
     });
     dualListInput = this.indicatorValueService.createDualListInputArray(dualListInput, "name",'id');
-    this.dualListAreasOptions.items = dualListInput;
 
-    // if there are items to select
+    let newSelectedItems: any[] = [];
     if(selectedItems && selectedItems.length > 0) {
       if(data.length === selectedItems.length) {
         let dualListSelected = selectedItems.map( (el, i) => {
-          return {"name": el.properties.NAME, 'id': i} 
+          return {"name": el.properties.NAME, 'id': i}
         });
-        this.dualListAreasOptions.selectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');;
+        newSelectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');
       } else {
-
         let items:any[] = [];
         let index:number = 0;
         for(let item of selectedItems) {
@@ -1453,10 +1447,14 @@ export class IndicatorAddComponent implements OnInit {
             }
           }
         }
-        this.dualListAreasOptions.selectedItems = this.indicatorValueService.createDualListInputArray(items, "name",'id');
+        newSelectedItems = this.indicatorValueService.createDualListInputArray(items, "name",'id');
       }
     }
 
+    // Replace the object reference so Angular detects the [data] input change
+    // (mutation alone only triggers ngOnChanges via the reload toggle, which can
+    // miss updates if Zone.js doesn't run a CD cycle between the assignments)
+    this.dualListAreasOptions = { items: dualListInput, selectedItems: newSelectedItems };
     this.reloadAreasDualList = !this.reloadAreasDualList;
   }
 
@@ -1990,8 +1988,8 @@ export class IndicatorAddComponent implements OnInit {
         throw new Error("No applicable spatial unit found.")
       }
 
-      this.updateAreasInDualList(); // this populates this.availableFeaturesBySpatialUnit
- 
+      await this.updateAreasInDualList(); // this populates this.availableFeaturesBySpatialUnit
+
       setTimeout( async () => {
         // select most recent timestamp that is valid for the largest spatial unit
         let dates = this.selectedIndicator.applicableDates;
@@ -2252,14 +2250,18 @@ export class IndicatorAddComponent implements OnInit {
     return this.reportingReachabilityMapAttribution;			
   }
 
-  enableTab (tab) {
-    tab.classList.remove("tab-disabled")
-    tab.firstElementChild.removeAttribute("tabindex")
+  enableTab(tab: Element | null) {
+    if (!tab?.firstElementChild) return;
+    tab.classList.remove("tab-disabled");
+    tab.firstElementChild.classList.remove("disabled");
+    tab.firstElementChild.removeAttribute("tabindex");
   }
 
-  disableTab(tab) {
-    tab.classList.add("tab-disabled")
-    tab.firstElementChild.setAttribute("tabindex", "1")
+  disableTab(tab: Element | null) {
+    if (!tab?.firstElementChild) return;
+    tab.classList.add("tab-disabled");
+    tab.firstElementChild.classList.add("disabled");
+    tab.firstElementChild.setAttribute("tabindex", "-1");
   }
 
   // creates and returns a series data array for each range threshold
@@ -3714,8 +3716,15 @@ export class IndicatorAddComponent implements OnInit {
     this.loadingData = true;
     this.abortPreparation = false;
     this.preparationNeeded = false;
-    await this.initializeAllDiagrams();
-    this.loadingData = false;
+    try {
+      await this.initializeAllDiagrams();
+    } catch (error) {
+      console.error('Report preparation failed:', error);
+      this.dataExchangeService.displayMapApplicationError(error);
+      this.preparationNeeded = true;
+    } finally {
+      this.loadingData = false;
+    }
   }
 
   onAbortPreparationClicked() {
@@ -3830,9 +3839,10 @@ console.log('init all diagrams')
 			};
 		}
 
-		// Route all rendering through the off-screen background processor for stable captures
+		// Route all rendering through the off-screen background processor for stable captures.
+		// We build the child elements directly in the DOM instead of relying on appRef.tick()
+		// to flush Angular's *ngFor — tick() swallows view errors silently and may skip views.
 		this.reportingService.reportingBackgroundState.pageToProcess_add = page;
-		this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
 
 		const pageDom = document.getElementById('reporting-addIndicator-background-page');
 		if (!pageDom) {
@@ -3840,9 +3850,22 @@ console.log('init all diagrams')
 			return;
 		}
 
+		// Clear stale children from the previous page and rebuild them to match what *ngFor would create.
+		pageDom.innerHTML = '';
+		for (const [i, pe] of page.pageElements.entries()) {
+			const div = document.createElement('div');
+			div.id = 'reporting-addIndicator-background-page-' + pe.type + '-' + i;
+			div.className = 'type-' + pe.type;
+			const dims = pe.dimensions;
+			const border = pe.type.includes('footerHorizontalSpacer-') ? (pe.css || '') : 'border: dashed gray 1px;';
+			const zIndex = pe.type === 'map' ? 20 : 1;
+			div.style.cssText = 'position: absolute; top: ' + dims.top + '; left: ' + dims.left + '; width: ' + dims.width + '; height: ' + dims.height + '; ' + border + ' z-index: ' + zIndex + ';';
+			pageDom.appendChild(div);
+		}
+
 		for (const [elementIdx, pageElement] of page.pageElements.entries()) {
-			const pElementDom = pageDom.querySelector(
-				'#reporting-addIndicator-background-page-' + pageElement.type + '-' + elementIdx
+			const pElementDom = document.getElementById(
+				'reporting-addIndicator-background-page-' + pageElement.type + '-' + elementIdx
 			) as HTMLElement;
 			if (!pElementDom) continue;
 
