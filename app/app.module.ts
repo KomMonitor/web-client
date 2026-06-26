@@ -1,4 +1,4 @@
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { NgModule, APP_INITIALIZER, provideZoneChangeDetection } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MainComponent } from 'mainComponent/main/main.component';
 import { CommonModule } from '@angular/common'; 
@@ -86,6 +86,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ExpandableBoxComponent,
         AdminComponent,
         UserLoginComponent], providers: [
+        provideZoneChangeDetection(),
         StartupService,
         {
             provide: APP_INITIALIZER,

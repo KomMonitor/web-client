@@ -439,6 +439,10 @@ export class KommonitorDataSetupComponent implements OnInit {
       },
       error: (error) => {
         this.loadingData = false;
+        // Hide the map's loading overlay too; onChangeSelectedIndicator showed it
+        // via "showLoadingIconOnMap" and the success path only clears it after the
+        // map renders, so without this the overlay stays stuck on a load failure.
+        this.broadcastService.broadcast("hideLoadingIconOnMap");
         this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
