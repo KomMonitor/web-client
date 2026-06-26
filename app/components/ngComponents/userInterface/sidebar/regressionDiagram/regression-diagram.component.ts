@@ -7,6 +7,7 @@ import { MetadataFilterService } from 'services/metadata-filter-service/metadata
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -124,13 +125,13 @@ export class RegressionDiagramComponent implements OnInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
-        case 'updateDiagrams' : {
+        case BroadcastMessage.UpdateDiagrams: {
           this.updateDiagrams(values);
         } break;
-        case 'updateDiagramsForHoveredFeature': {
+        case BroadcastMessage.UpdateDiagramsForHoveredFeature: {
           this.updateDiagramsForHoveredFeature(values);
         } break;
-        case 'updateDiagramsForUnhoveredFeature': {
+        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature: {
           this.updateDiagramsForUnhoveredFeature(values);
         } break;
         case 'resizeDiagrams': {
@@ -814,10 +815,10 @@ export class RegressionDiagramComponent implements OnInit {
                         htmlString += "</table>";
                       }	
 
-                      this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+                      this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [dataTableId, tableExportName]);
 
                       if (this.enableScatterPlotRegression) {
-                        this.broadcastService.broadcast("AppendExportButtonsForTable", [lineTableId, lineTableExportName]);
+                        this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [lineTableId, lineTableExportName]);
                       }
                       
                       return htmlString;
@@ -896,7 +897,7 @@ export class RegressionDiagramComponent implements OnInit {
 
         this.registerEventsIfNecessary();
 
-        this.broadcastService.broadcast("preserveHighlightedFeatures");
+        this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
         
       },1500);
     }
@@ -910,7 +911,7 @@ export class RegressionDiagramComponent implements OnInit {
         var spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
-          this.broadcastService.broadcast("highlightFeatureOnMap", [spatialFeatureName]);
+          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
         }
 
       });
@@ -921,7 +922,7 @@ export class RegressionDiagramComponent implements OnInit {
         var spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
-          this.broadcastService.broadcast("unhighlightFeatureOnMap", [spatialFeatureName]);
+          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
         }										
       });
 
@@ -929,7 +930,7 @@ export class RegressionDiagramComponent implements OnInit {
         var spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
-          this.broadcastService.broadcast("switchHighlightFeatureOnMap", [spatialFeatureName]);
+          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [spatialFeatureName]);
         }
         
       });

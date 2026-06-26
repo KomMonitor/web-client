@@ -8,6 +8,7 @@ import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-servi
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IndicatorNameFilter } from 'pipes/indicator-title-filter.pipe';
@@ -118,7 +119,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
         case 'resizeDiagrams': {
           this.onResizeDiagrams();
         } break;
-        case 'updateDiagrams': {
+        case BroadcastMessage.UpdateDiagrams: {
           this.onUpdateDiagrams(val);
         } break;
         case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin' : {
@@ -127,13 +128,13 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
         case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed' : {
           this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
         } break;
-        case 'updateDiagramsForHoveredFeature': {
+        case BroadcastMessage.UpdateDiagramsForHoveredFeature: {
           this.onUpdateDiagramsForHoveredFeature(val);
         } break;
-        case 'updateDiagramsForUnhoveredFeature': {
+        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature: {
           this.onUpdateDiagramsForUnhoveredFeature(val);
         } break;
-        case 'unselectAllFeatures': {
+        case BroadcastMessage.UnselectAllFeatures: {
 
         } break;
       }
@@ -180,7 +181,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       console.log("updating radar diagram");
       this.setupCompleted = false;
       this.updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
-      this.broadcastService.broadcast("preserveHighlightedFeatures");
+      this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
   }
 
   // RADAR CHART TIME SERIES FUNCTION
@@ -390,7 +391,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                               }
                               htmlString += "</tbody>";
                               htmlString += "</table>";
-                              this.broadcastService.broadcast("AppendExportButtonsForTable", [dataTableId, tableExportName]);
+                              this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [dataTableId, tableExportName]);
                               return htmlString;
                           }
                       },
@@ -503,7 +504,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               var spatialFeatureName = params.data.name;
               // console.log(spatialFeatureName);
               if (spatialFeatureName) {
-                  this.broadcastService.broadcast("highlightFeatureOnMap", [spatialFeatureName]);
+                  this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
               }
           });
           this.radarChart.on('mouseOut', (params) => {
@@ -511,7 +512,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               var spatialFeatureName = params.data.name;
               // console.log(spatialFeatureName);
               if (spatialFeatureName) {
-                  this.broadcastService.broadcast("unhighlightFeatureOnMap", [spatialFeatureName]);
+                  this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
               }
           });
           //disable feature removal for radar chart - seems to be unintuititve

@@ -6,6 +6,7 @@ import { LabelService } from 'services/label-service/label.service';
 import * as echarts from 'echarts';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { FilterHelperService } from 'services/filter-helper-service/filter-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { fromEvent, Observable, Subscription } from "rxjs";
@@ -65,19 +66,19 @@ export class KommonitorDiagramsComponent implements OnInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
-        case 'updateDiagrams': {
+        case BroadcastMessage.UpdateDiagrams: {
           this.updateDiagrams(values);
         } break;
-        case 'updateDiagramsForHoveredFeature': {
+        case BroadcastMessage.UpdateDiagramsForHoveredFeature: {
           this.updateDiagramsForHoveredFeature(values);
         } break;
-        case 'updateDiagramsForUnhoveredFeature': {
+        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature: {
           this.updateDiagramsForUnhoveredFeature(values);
         } break;
         case 'resizeDiagrams': {
           this.resizeDiagrams();
         } break;
-        case 'AppendExportButtonsForTable': {
+        case BroadcastMessage.AppendExportButtonsForTable: {
           this.AppendExportButtonsForTable(values);
         } break;
       }
@@ -266,7 +267,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         let spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         if(spatialFeatureName){
           // console.log(spatialFeatureName);
-          this.broadcastService.broadcast("highlightFeatureOnMap", [spatialFeatureName]);
+          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
         }
         
       });
@@ -285,7 +286,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         let spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
-          this.broadcastService.broadcast("unhighlightFeatureOnMap", [spatialFeatureName]);
+          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
         }
         
       });
@@ -303,7 +304,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         let spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
-          this.broadcastService.broadcast("switchHighlightFeatureOnMap", [spatialFeatureName]);
+          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [spatialFeatureName]);
         }
         
       });

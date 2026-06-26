@@ -65,6 +65,8 @@ toggleLegendControl                                         # kommonitor-map.com
 allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin  # kommonitor-map.component switch
 updateShowRegionalDefaultOption                             # kommonitor-classification.component switch; einziger "Sender" ist ein auskommentierter $rootScope.$broadcast in kommonitor-map
 updateIndicatorOgcServices                                  # kommonitor-data-setup.component switch; kein Sender
+resizeDiagrams                                              # kommonitor-diagrams / indicator-radar / regression-diagram switch; kein Sender
+allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed  # indicator-radar / regression-diagram switch; kein Sender
 ```
 
 ## Frage: Ist ein Enum technisch möglich?
@@ -177,7 +179,11 @@ String-Empfänger vorbei.
    (1). Enthält den **`DisableBalance`-Bugfix** und die **LIKE-Kommentar-Bereinigung**. Vier
    `case`s mit Leerzeichen vor `:` manuell migriert; toter Empfänger
    `updateIndicatorOgcServices` (s. o.) blieb Roh-String.
-4. **Diagramme**: `kommonitor-diagrams`, `indicator-radar`, `regression-diagram`.
+4. **Diagramme** ✅ *(erledigt 2026-06-26)* — `kommonitor-diagrams` (3 Sender, 4 von 5 `case`s)
+   + `indicator-radar` (4 Sender, 4 von 7 `case`s) + `regression-diagram` (6 Sender, 3 von 6
+   `case`s). Ein `case 'updateDiagrams' :` mit Leerzeichen vor `:` manuell migriert; ein
+   auskommentierter `broadcast` in `indicator-radar` blieb Roh-String. Tote Empfänger
+   `resizeDiagrams` und die beiden `…setup begin/completed` (s. o.) blieben Roh-String.
 5. **Reachability**: alle `reachability-*`-Komponenten + `reachbility-helper`.
 6. **Admin**: Georesources / Indicators / SpatialUnits Management + Modals +
    `feature-table-data-grid-helper` (die 3 dynamischen Helper hier zuerst definieren).
