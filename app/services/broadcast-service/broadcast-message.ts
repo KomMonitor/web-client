@@ -144,3 +144,26 @@ export const hideLoadingIconFor = (resourceType: string) =>
   `hideLoadingIcon_${resourceType}` as const;
 export const onDeleteFeatureEntryFor = (resourceType: string) =>
   `onDeleteFeatureEntry_${resourceType}` as const;
+
+/**
+ * Union of the dynamically built message names (kept in sync with the helpers
+ * above). Used to widen `BroadcastService.broadcast()` so the static names *and*
+ * the dynamic ones are accepted, while arbitrary raw strings are rejected.
+ */
+export type DynamicBroadcastMessage =
+  | ReturnType<typeof showLoadingIconFor>
+  | ReturnType<typeof hideLoadingIconFor>
+  | ReturnType<typeof onDeleteFeatureEntryFor>;
+
+/**
+ * Shape of every message on the bus. `msg` accepts the typed names plus an
+ * arbitrary string: the receiver side still compares against a handful of
+ * intentionally-kept legacy "dead receiver" names (no live sender) and the
+ * initial seed value is the empty string. The `& {}` keeps literal autocomplete
+ * for the known names while still permitting any string. `values` is the
+ * heterogeneous payload and stays untyped.
+ */
+export interface BroadcastEnvelope {
+  msg: BroadcastMessage | DynamicBroadcastMessage | (string & {});
+  values?: any;
+}

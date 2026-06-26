@@ -242,14 +242,22 @@ String-Empfänger vorbei.
      Die zuvor roh belassenen Empfänger in `kommonitor-map` / `indicator-radar` /
      `regression-diagram` wurden nachmigriert.
 
-> **Status:** Cluster 1–7 erledigt; app-weit keine migrierbaren Roh-Sender/-Empfänger
-> mehr (geprüft via `grep` gegen alle Enum-Werte). Übrig nur bewusst belassene tote
-> Empfänger (raw) und auskommentierter Legacy-Code.
+> **Status: ✅ ABGESCHLOSSEN.** Cluster 1–7 erledigt; app-weit keine migrierbaren
+> Roh-Sender/-Empfänger mehr (geprüft via `grep` gegen alle Enum-Werte *und* compiler-
+> erzwungen, s. u.). Übrig nur bewusst belassene tote Empfänger (raw) und
+> auskommentierter Legacy-Code.
 >
-> **Letzter offener Schritt — `| string` entfernen:** nicht ersatzlos möglich, da die 3
-> dynamischen Helper Template-Literal-Typen zurückgeben. Die Signatur muss auf
-> ``broadcast(newMsg: BroadcastMessage | `showLoadingIcon_${string}` | `hideLoadingIcon_${string}` | `onDeleteFeatureEntry_${string}`, …)``
-> umgestellt werden (eigener, baubarer Schritt).
+> **`| string` entfernt ✅:** Der Übergangstyp wurde durch einen exportierten Typ
+> `DynamicBroadcastMessage` (Union der 3 Helper-Rückgaben via `ReturnType<…>`) ersetzt:
+> ``broadcast(newMsg: BroadcastMessage | DynamicBroadcastMessage, …)``. Der Compiler
+> erzwingt damit typisierte Namen auf Senderseite — beliebige Roh-Strings werden
+> abgelehnt (Build EXIT 0 bestätigt: kein Roh-String-Sender mehr vorhanden).
+>
+> **`BehaviorSubject<any>` typisiert ✅:** Das Bus-Subject ist jetzt
+> `BehaviorSubject<BroadcastEnvelope>` (`{ msg: BroadcastMessage | DynamicBroadcastMessage
+> | (string & {}); values?: any }`). `msg` lässt bewusst beliebige Strings zu, damit die
+> Empfängerseite weiter gegen die toten Roh-Namen und den Seed `''` vergleichen kann;
+> `values` bleibt als heterogene Payload untypisiert.
 
 ## Migrationsweg (kein Big-Bang)
 

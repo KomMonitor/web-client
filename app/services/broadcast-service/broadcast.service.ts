@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { BroadcastMessage } from './broadcast-message';
+import {
+  BroadcastEnvelope,
+  BroadcastMessage,
+  DynamicBroadcastMessage,
+} from './broadcast-message';
 
 @Injectable({
   providedIn: 'root',
@@ -10,14 +14,15 @@ export class BroadcastService {
     /* intentionally empty */
   }
 
-  broadcastMsg = new BehaviorSubject<any>({ msg: '', values: undefined });
+  broadcastMsg = new BehaviorSubject<BroadcastEnvelope>({ msg: '', values: undefined });
 
   currentBroadcastMsg = this.broadcastMsg.asObservable();
 
-  // `| string` is a transitional type: it lets not-yet-migrated call-sites keep
-  // passing raw strings. Remove it once all senders use BroadcastMessage / the
-  // typed helpers (see documentation/BROADCAST_SERVICE_ENUM.md).
-  broadcast(newMsg: BroadcastMessage | string, values: any = {}) {
+  // Only typed names are accepted: the static BroadcastMessage union plus the
+  // dynamically built names from the typed helpers (showLoadingIconFor etc.).
+  // Raw strings are rejected by the compiler — see
+  // documentation/BROADCAST_SERVICE_ENUM.md.
+  broadcast(newMsg: BroadcastMessage | DynamicBroadcastMessage, values: any = {}) {
     this.broadcastMsg.next({ msg: newMsg, values: values });
   }
 }
