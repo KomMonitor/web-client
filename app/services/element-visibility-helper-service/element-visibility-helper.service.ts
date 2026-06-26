@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AuthService } from 'services/auth-service/auth.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -38,13 +39,13 @@ export class ElementVisibilityHelperService {
       this.elementVisibility['favSelection'] = true;
     else this.elementVisibility['favSelection'] = false;
 
-    /* this.broadcastService.broadcast("changeIndicatorDate"); */
+    /* this.broadcastService.broadcast(BroadcastMessage.ChangeIndicatorDate); */
   }
 
   onChangeIsAdvancedMode() {
     this.initElementVisibility();
     // if any sidebar was previously not displayed we must ensure that it is properly instantiated for current indicator
-    this.broadcastService.broadcast('changeIndicatorDate');
+    this.broadcastService.broadcast(BroadcastMessage.ChangeIndicatorDate);
   }
 
   checkElementVisibility(id) {

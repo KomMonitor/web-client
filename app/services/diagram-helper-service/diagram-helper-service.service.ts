@@ -1,4 +1,5 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { Injectable, inject } from '@angular/core';
 import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
@@ -164,7 +165,7 @@ export class DiagramHelperServiceService {
     }
 
     this.broadcastService.broadcast(
-      'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin'
+      BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin
     );
 
     this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
@@ -217,7 +218,7 @@ export class DiagramHelperServiceService {
       }
     });
     this.broadcastService.broadcast(
-      'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed'
+      BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted
     );
   }
 
@@ -944,7 +945,7 @@ export class DiagramHelperServiceService {
               htmlString += '</tbody>';
               htmlString += '</table>';
 
-              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+              this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [
                 dataTableId,
                 tableExportName,
               ]);
@@ -1150,7 +1151,7 @@ export class DiagramHelperServiceService {
               htmlString += '</tbody>';
               htmlString += '</table>';
 
-              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+              this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [
                 dataTableId,
                 tableExportName,
               ]);
@@ -1371,7 +1372,7 @@ export class DiagramHelperServiceService {
               htmlString += '</tbody>';
               htmlString += '</table>';
 
-              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+              this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [
                 dataTableId,
                 tableExportName,
               ]);
@@ -1984,7 +1985,7 @@ export class DiagramHelperServiceService {
               htmlString += '</tbody>';
               htmlString += '</table>';
 
-              this.broadcastService.broadcast('AppendExportButtonsForTable', [
+              this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [
                 dataTableId,
                 tableExportName,
               ]);

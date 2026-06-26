@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import pako from 'pako';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import domtoimage from 'dom-to-image-more';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
@@ -127,12 +128,12 @@ export class LeafletScreenshotCacheHelperService {
 
   logProgress() {
     if (this.executedScreenshotMapKeys.size % this.logProgressIndexSeparator === 0) {
-      this.broadcastService.broadcast('screenshotsForCurrentSpatialUnitUpdate');
+      this.broadcastService.broadcast(BroadcastMessage.ScreenshotsForCurrentSpatialUnitUpdate);
     }
 
     if (this.targetNumberOfSpatialUnitFeatures <= this.executedScreenshotMapKeys.size) {
       this.screenshotsForCurrentSpatialUnitUpdate = true;
-      this.broadcastService.broadcast('screenshotsForCurrentSpatialUnitUpdate');
+      this.broadcastService.broadcast(BroadcastMessage.ScreenshotsForCurrentSpatialUnitUpdate);
     }
   }
 

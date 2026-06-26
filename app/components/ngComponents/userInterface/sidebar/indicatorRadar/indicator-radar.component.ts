@@ -122,10 +122,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
         case BroadcastMessage.UpdateDiagrams: {
           this.onUpdateDiagrams(val);
         } break;
-        case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin' : {
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin: {
           this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
         } break;
-        case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed' : {
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted: {
           this.onAllIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
         } break;
         case BroadcastMessage.UpdateDiagramsForHoveredFeature: {
@@ -520,7 +520,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           // 	var spatialFeatureName = params.data.name;
           // 	// console.log(spatialFeatureName);
           // if(spatialFeatureName){
-          // 	this.broadcastService.broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+          // 	this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, spatialFeatureName);
           // }
           // });
           this.eventsRegistered = true;

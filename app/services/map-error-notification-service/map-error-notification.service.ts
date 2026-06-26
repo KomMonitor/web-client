@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 /**
  * Map application-error notification, extracted from DataExchangeService (Prio 7 / B4).
@@ -31,7 +32,7 @@ export class MapErrorNotificationService {
         this.errorMessage = this.indicatorValueService.syntaxHighlightJSON(error);
       }
 
-      this.broadcastService.broadcast('hideLoadingIconOnMap');
+      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
 
       $('.mapApplicationErrorAlert').show();
     }, 1000);

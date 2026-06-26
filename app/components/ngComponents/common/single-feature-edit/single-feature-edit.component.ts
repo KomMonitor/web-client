@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { SingleFeatureMapHelperService } from 'services/single-feature-map-helper-service/single-feature-map-helper.service';
@@ -61,16 +62,16 @@ export class SingleFeatureEditComponent implements OnInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
-        case 'onEditGeoresourceFeatures' : {
+        case BroadcastMessage.OnEditGeoresourceFeatures: {
           this.onEditGeoresourceFeatures(values);
         } break;
-        case 'reinitSingleFeatureEdit': {
+        case BroadcastMessage.ReinitSingleFeatureEdit: {
           this.reinitSingleFeatureEdit();
         } break;
-        case 'singleFeatureSelected': {
+        case BroadcastMessage.SingleFeatureSelected: {
           this.singleFeatureSelected(values);
         } break;
-        case 'onUpdateSingleFeatureGeometry': {
+        case BroadcastMessage.OnUpdateSingleFeatureGeometry: {
           this.onUpdateSingleFeatureGeometry(values);
         } break;
       }
@@ -458,19 +459,19 @@ export class SingleFeatureEditComponent implements OnInit {
   }
 
   broadcastUpdate_addSingleFeature() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated_addSingleFeature", [this.featureGeometryValue.features[0]]);
+    this.broadcastService.broadcast(BroadcastMessage.GeoresourceGeoJSONUpdatedAddSingleFeature, [this.featureGeometryValue.features[0]]);
   };
 
   broadcastUpdate_editSingleFeature() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated_editSingleFeature", [this.featureGeometryValue.features[0]]);
+    this.broadcastService.broadcast(BroadcastMessage.GeoresourceGeoJSONUpdatedEditSingleFeature, [this.featureGeometryValue.features[0]]);
   };
 
   broadcastUpdate_deleteSingleFeature() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated_deleteSingleFeature", [this.featureGeometryValue.features[0]]);
+    this.broadcastService.broadcast(BroadcastMessage.GeoresourceGeoJSONUpdatedDeleteSingleFeature, [this.featureGeometryValue.features[0]]);
   };
 
   broadcastUpdate_wholeGeoJSON() {
-    this.broadcastService.broadcast("georesourceGeoJSONUpdated", [this.georesourceFeaturesGeoJSON]);
+    this.broadcastService.broadcast(BroadcastMessage.GeoresourceGeoJSONUpdated, [this.georesourceFeaturesGeoJSON]);
   };
 
   onUpdateSingleFeatureGeometry([geoJSON, drawControl]) {

@@ -369,7 +369,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         case BroadcastMessage.ChangeDynamicBreaks: {
           this.changeDynamicBreaks(values);
         } break;
-        case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin': {
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin: {
           this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
         } break;
         case BroadcastMessage.RestyleCurrentLayer: {

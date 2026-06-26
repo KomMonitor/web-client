@@ -30,10 +30,17 @@ export const BroadcastMessage = {
   AdjustOpacityForPoiLayer: 'adjustOpacityForPoiLayer',
   AdjustOpacityForWfsLayer: 'adjustOpacityForWfsLayer',
   AdjustOpacityForWmsLayer: 'adjustOpacityForWmsLayer',
+  // NOTE: the two names below contain spaces — kept verbatim as they are on the bus.
+  AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
+    'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin',
+  AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
+    'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed',
   AppendExportButtonsForTable: 'AppendExportButtonsForTable',
   ApplyNoDataDisplay: 'applyNoDataDisplay',
   AvailableRolesUpdate: 'availableRolesUpdate',
   BatchUpdateCompleted: 'batchUpdateCompleted',
+  CSVFromFileFinishedIndicatorRegionalReferenceValues:
+    'CSVFromFileFinished_indicatorRegionalReferenceValues',
   ChangeBreaks: 'changeBreaks',
   ChangeClassifyMethod: 'changeClassifyMethod',
   ChangeColorScheme: 'changeColorScheme',

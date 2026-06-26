@@ -2,6 +2,7 @@ import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
@@ -235,10 +236,10 @@ export class IndicatorAddComponent implements OnInit {
         case 'reportingConfigureNewPoiLayerShown': {
           this.initialize();
         } break;
-        case 'reportingIsochronesCalculationStarted': {
+        case BroadcastMessage.ReportingIsochronesCalculationStarted: {
           this.reportingIsochronesCalculationStarted();
         } break;
-        case 'reportingIsochronesCalculationFinished': {
+        case BroadcastMessage.ReportingIsochronesCalculationFinished: {
           this.reportingIsochronesCalculationFinished(values);
         } break;
       }
@@ -1603,7 +1604,7 @@ export class IndicatorAddComponent implements OnInit {
       // reachability config requires this new property
       this.selectedPoiLayer.geoJSON_reachability = this.selectedPoiLayer.geoJSON;
     
-      this.broadcastSerice.broadcast("reportingPoiLayerSelected", [this.selectedPoiLayer]);
+      this.broadcastSerice.broadcast(BroadcastMessage.ReportingPoiLayerSelected, [this.selectedPoiLayer]);
 
       // get a new template (in case another poi layer was selected previously)
       //this.reportingService.clonedTemplate = this.getCleanTemplate();

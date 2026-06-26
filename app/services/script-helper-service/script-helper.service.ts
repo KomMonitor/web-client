@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 declare const MathJax: any;
@@ -341,7 +342,7 @@ export class ScriptHelperService {
       )
       .subscribe({
         next: (_response) => {
-          this.broadcastService.broadcast('refreshIndicatorOverviewTable', [
+          this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, [
             'edit',
             targetIndicatorMetadata.indicatorId,
           ]);

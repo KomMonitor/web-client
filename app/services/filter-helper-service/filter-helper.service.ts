@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { MapService } from 'services/map-service/map.service';
@@ -101,11 +102,11 @@ export class FilterHelperService {
         false
       );
     }
-    this.broadcastService.broadcast('updateIndicatorValueRangeFilter', [
+    this.broadcastService.broadcast(BroadcastMessage.UpdateIndicatorValueRangeFilter, [
       this.selectionState.selectedDate,
       indicatorMetadataAndGeoJSON,
     ]);
-    this.broadcastService.broadcast('updateMeasureOfValueBar', [
+    this.broadcastService.broadcast(BroadcastMessage.UpdateMeasureOfValueBar, [
       this.selectionState.selectedDate,
       indicatorMetadataAndGeoJSON,
     ]);
@@ -179,7 +180,7 @@ export class FilterHelperService {
         }
       }
     }
-    this.broadcastService.broadcast('onRemovedFeatureFromSelection', [
+    this.broadcastService.broadcast(BroadcastMessage.OnRemovedFeatureFromSelection, [
       this.selectedIndicatorFeatureIds,
     ]);
   }
@@ -233,14 +234,14 @@ export class FilterHelperService {
         feature
       );
     }
-    this.broadcastService.broadcast('onAddedFeatureToSelection', [
+    this.broadcastService.broadcast(BroadcastMessage.OnAddedFeatureToSelection, [
       this.selectedIndicatorFeatureIds,
     ]);
   }
 
   removeFeatureFromSelection(feature) {
     this.selectedIndicatorFeatureIds.delete('' + feature);
-    this.broadcastService.broadcast('onRemovedFeatureFromSelection', [
+    this.broadcastService.broadcast(BroadcastMessage.OnRemovedFeatureFromSelection, [
       this.selectedIndicatorFeatureIds,
     ]);
   }

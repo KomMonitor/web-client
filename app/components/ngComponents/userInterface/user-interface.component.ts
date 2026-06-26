@@ -9,6 +9,7 @@ import { SelectionStateService } from 'services/selection-state-service/selectio
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { InfoModal } from './infoModal/info-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
 import { AuthService } from 'services/auth-service/auth.service';
@@ -259,24 +260,24 @@ export class UserInterfaceComponent implements OnInit {
   }
 
   onExportMapButtonClick(){
-    this.broadcastService.broadcast("exportMap");
+    this.broadcastService.broadcast(BroadcastMessage.ExportMap);
   }
 
   onUnselectFeaturesButtonClick(){
-    this.broadcastService.broadcast("unselectAllFeatures");
+    this.broadcastService.broadcast(BroadcastMessage.UnselectAllFeatures);
   }
 
   onOpenLayerControlButtonClick(){
-    this.broadcastService.broadcast("openLayerControl");
+    this.broadcastService.broadcast(BroadcastMessage.OpenLayerControl);
   }
 
   onToggleInfoControlButtonClick(){
-    this.broadcastService.broadcast("toggleInfoControl");
+    this.broadcastService.broadcast(BroadcastMessage.ToggleInfoControl);
   }
 
   onExpertButtonClick() {
     this.expertToolbarVisible = !this.expertToolbarVisible;
-    this.broadcastService.broadcast("toggleExpertControl");
+    this.broadcastService.broadcast(BroadcastMessage.ToggleExpertControl);
   }
 
   onDiagramSubMenuOver() {
@@ -313,11 +314,11 @@ export class UserInterfaceComponent implements OnInit {
   }
         
   onRangeFilterCloseButtonClick() {
-    this.broadcastService.broadcast('removeRangeFilter');
+    this.broadcastService.broadcast(BroadcastMessage.RemoveRangeFilter);
   }
   
   onBalanceCloseButtonClick() {
-    this.broadcastService.broadcast('disableBalance');
+    this.broadcastService.broadcast(BroadcastMessage.DisableBalance);
   }
 
   filterModusActive():boolean {

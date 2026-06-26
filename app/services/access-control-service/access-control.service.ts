@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { AccessControlMetadata } from 'components/ngComponents/models/permissions.models';
 
 /**
@@ -205,7 +206,7 @@ export class AccessControlService {
       }
     }
     // we need to refresh all modals as roles have changed
-    this.broadcastService.broadcast('availableRolesUpdate');
+    this.broadcastService.broadcast(BroadcastMessage.AvailableRolesUpdate);
   }
 
   checkCreatePermission() {

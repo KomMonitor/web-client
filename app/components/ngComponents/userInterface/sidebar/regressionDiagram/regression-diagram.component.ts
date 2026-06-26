@@ -137,10 +137,10 @@ export class RegressionDiagramComponent implements OnInit {
         case 'resizeDiagrams': {
           this.resizeDiagrams();
         } break;  
-        case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin': {
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin: {
           this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
         } break;
-        case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed': {
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted: {
           this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
         } break;
       }

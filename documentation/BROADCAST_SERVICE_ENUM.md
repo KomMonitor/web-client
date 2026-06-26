@@ -19,7 +19,9 @@ broadcast(newMsg: string, values: any = {}) {
 ```
 
 - **226 Call-Sites** (`*.broadcast('...')`) über Services und Komponenten verteilt.
-- **103 eindeutige statische** Message-Namen + **3 dynamisch gebaute** Muster (= 106 gesamt).
+- **~106 eindeutige statische** Message-Namen + **3 dynamisch gebaute** Muster. Das Enum
+  `BroadcastMessage` enthält final **105 typisierte Namen** (inkl. 3 erst in Cluster 7 über
+  Multi-Line-Sender gefundene; ohne die fälschlich doppelte `DisableBalance`-Variante).
 - **18 Empfänger-Blöcke** (`subscribe`) in 18 Dateien — die Empfängerseite ist überschaubar.
 - Empfänger vergleichen durchgängig per String-Literal:
   `if (data.msg === 'initialMetadataLoadingCompleted')`, `switch`/`if`-Ketten auf
@@ -51,6 +53,7 @@ onAddedFeatureToSelection
 reopenBatchUpdateResultModal
 resetTimeseriesMapping
 onOpenAddFilterModal
+CSVFromFileFinished_indicatorRegionalReferenceValues   # file-helper.service; Multi-Line-Sender, kein Empfänger
 ```
 
 ### Tote Empfänger (kein Sender auffindbar)
@@ -60,14 +63,17 @@ gibt (auch nicht dynamisch). Beim Cluster-Durchlauf als Roh-String belassen (nic
 Enum) und für späteres Löschen vormerken. Viele davon sind vermutlich Legacy-Reste aus
 der AngularJS-Zeit (`$scope.$broadcast` ohne Angular-Bus-Gegenstück):
 
+> Korrektur (Cluster 7): `allIndicatorPropertiesForCurrentSpatialUnitAndTime setup
+> begin` und `… setup completed` standen hier zunächst irrtümlich — sie haben sehr wohl
+> einen **Multi-Line-Sender** in `diagram-helper` (`broadcast(\n 'name'\n)`), den das
+> zeilenbasierte Sender-Grep übersah. Sie sind jetzt im Enum und migriert.
+
 ```
 changeSpatialUnitViaInfoControl                              # kommonitor-map.component switch
 toggleLegendControl                                         # kommonitor-map.component switch
-allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin  # kommonitor-map.component switch
 updateShowRegionalDefaultOption                             # kommonitor-classification.component switch; einziger "Sender" ist ein auskommentierter $rootScope.$broadcast in kommonitor-map
 updateIndicatorOgcServices                                  # kommonitor-data-setup.component switch; kein Sender
 resizeDiagrams                                              # kommonitor-diagrams / indicator-radar / regression-diagram switch; kein Sender
-allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed  # indicator-radar / regression-diagram switch; kein Sender
 switchReportingMode                                        # kommonitor-reachability / reachability-scenario-configuration switch; nur Legacy-$scope.$broadcast in indicator-add, kein Angular-Bus-Sender
 onManageReachabilityScenario                               # reachability-scenario-configuration switch; kein Sender
 onGlobalFilterDelete                                        # admin-filter-config switch; kein Sender
@@ -143,7 +149,7 @@ dann erzwingt der Compiler typisierte Namen auf Sende- *und* (per Vergleich gege
 | Metrik | Wert |
 |---|---|
 | Sender-Call-Sites `.broadcast(...)` | 226 |
-| Eindeutige statische Namen | 103 |
+| Eindeutige statische Namen | ~106 (Enum: 105 typisierte Namen) |
 | Dynamisch gebaute Muster | 3 (alle in `feature-table-data-grid-helper.service.ts`) |
 | Empfänger-Blöcke (`subscribe`) | 18 Dateien |
 
@@ -179,8 +185,8 @@ String-Empfänger vorbei.
    (3 Sender) + `single-feature-map-helper` (3 Sender, 1 `case`). Alle Roh-Strings →
    `BroadcastMessage.*`. **Korrektur:** `reachability-map-helper` gehört *nicht* dazu —
    es hat keine Broadcast-Stellen (der `case 'driving-car'`-Switch läuft auf
-   `transitMode`, nicht auf `msg`). Die 3 toten Empfänger (s. o.) blieben bewusst
-   Roh-String.
+   `transitMode`, nicht auf `msg`). Damals als „tot" belassen: `changeSpatialUnitViaInfoControl`
+   und `toggleLegendControl` (bleiben roh); `…setup begin` wurde in Cluster 7 nachmigriert.
 2. **Classification / Legend** ✅ *(erledigt 2026-06-26)* — `kommonitor-classification`
    (15 Sender, 2 von 3 `case`s) + `kommonitor-legend` (2 Sender, 4 `case`s). Ein
    `case 'onChangeSelectedIndicator' :` mit Leerzeichen vor dem Doppelpunkt manuell
@@ -196,8 +202,10 @@ String-Empfänger vorbei.
 4. **Diagramme** ✅ *(erledigt 2026-06-26)* — `kommonitor-diagrams` (3 Sender, 4 von 5 `case`s)
    + `indicator-radar` (4 Sender, 4 von 7 `case`s) + `regression-diagram` (6 Sender, 3 von 6
    `case`s). Ein `case 'updateDiagrams' :` mit Leerzeichen vor `:` manuell migriert; ein
-   auskommentierter `broadcast` in `indicator-radar` blieb Roh-String. Tote Empfänger
-   `resizeDiagrams` und die beiden `…setup begin/completed` (s. o.) blieben Roh-String.
+   auskommentierter `broadcast` in `indicator-radar` blieb Roh-String. Toter Empfänger
+   `resizeDiagrams` blieb Roh-String. (Die `…setup begin/completed`-`case`s blieben hier
+   zunächst roh und wurden in Cluster 7 nachmigriert, nachdem ihr Multi-Line-Sender
+   gefunden war.)
 5. **Reachability** ✅ *(erledigt 2026-06-26)* — `kommonitor-reachability` (2 Sender, 1 von 2
    `case`s) + `reachability-scenario-modal` (5 Sender, 1 `case`) + `reachability-helper.service`
    (3 Sender) + `reachability-scenario-configuration` (3 Sender, 3 von 5 `case`s) +
@@ -216,20 +224,32 @@ String-Empfänger vorbei.
      in den 3 Edit-Features-Modals entsprechend (Multi-Line-Konkatenation, `?.` entfernt).
    - 11 tote Empfänger gefunden (s. o.); `poi/loi/aoi`-`case`s unangetastet (Switch auf
      `georesourceType`, kein Broadcast).
-7. **Rest / verstreut** ⬜ *(offen)* — Sender/Empfänger außerhalb der Cluster 1–6, jeweils
-   nur ein paar Stellen pro Datei:
+7. **Rest / verstreut** ✅ *(erledigt 2026-06-26)* — Sender/Empfänger außerhalb der
+   Cluster 1–6, jeweils nur ein paar Stellen pro Datei:
    - Services: `access-control-service` (1), `diagram-helper-service` (4×
-     `AppendExportButtonsForTable`), `element-visibility-helper-service` (1),
-     `filter-helper-service` (5), `leaflet-screenshot-cache-helper-service` (2),
-     `map-error-notification-service` (1), `script-helper-service` (1).
+     `AppendExportButtonsForTable` + 2 Multi-Line-Sender), `element-visibility-helper-service`
+     (1), `filter-helper-service` (5), `leaflet-screenshot-cache-helper-service` (2),
+     `map-error-notification-service` (1), `script-helper-service` (1), `file-helper-service`
+     (1 Multi-Line-Sender).
    - Komponenten: `user-interface.component` (7 Sender), `common/single-feature-edit`
-     (4 Sender + 4 `case`s), `reporting/indicator-add` (Sender + 2 `case`s).
-   - Hinweise: `indicator-add` verwendet `this.broadcastSerice` (Tippfehler im
-     Property-Namen) und Legacy-`$scope.$broadcast`-Aufrufe — beim Umstellen prüfen.
+     (4 Sender + 4 `case`s), `reporting/indicator-add` (Sender + reportingIsochrones-`case`s;
+     der `this.broadcastSerice`-Tippfehler im Property-Namen wurde belassen, nur die
+     Nachricht typisiert).
+   - **Enum-Korrektur:** 3 Namen, die das zeilenbasierte Sender-Grep übersah, weil ihr
+     Argument auf einer Folgezeile steht (`broadcast(\n 'name'\n)`), ergänzt — Enum nun
+     **105 Namen**: `…SetupBegin`, `…SetupCompleted` (live; vorher fälschlich „tote
+     Empfänger") und `CSVFromFileFinishedIndicatorRegionalReferenceValues` (toter Sender).
+     Die zuvor roh belassenen Empfänger in `kommonitor-map` / `indicator-radar` /
+     `regression-diagram` wurden nachmigriert.
 
-> Solange Cluster 7 offen ist, bleibt `| string` in der `broadcast()`-Signatur stehen.
-> Erst wenn `git grep "broadcast('"` / `"broadcast(\""` und `"\.msg === '"` / `"case '"`
-> keine Enum-Namen mehr finden, kann der Übergangstyp entfernt werden.
+> **Status:** Cluster 1–7 erledigt; app-weit keine migrierbaren Roh-Sender/-Empfänger
+> mehr (geprüft via `grep` gegen alle Enum-Werte). Übrig nur bewusst belassene tote
+> Empfänger (raw) und auskommentierter Legacy-Code.
+>
+> **Letzter offener Schritt — `| string` entfernen:** nicht ersatzlos möglich, da die 3
+> dynamischen Helper Template-Literal-Typen zurückgeben. Die Signatur muss auf
+> ``broadcast(newMsg: BroadcastMessage | `showLoadingIcon_${string}` | `hideLoadingIcon_${string}` | `onDeleteFeatureEntry_${string}`, …)``
+> umgestellt werden (eigener, baubarer Schritt).
 
 ## Migrationsweg (kein Big-Bang)
 
@@ -248,8 +268,9 @@ Passend zum inkrementellen Vorgehen aus `PROPOSED_CHANGES.md` /
 
 ## Vollständige Liste der aktuell verwendeten Message-Namen
 
-Statische Namen (Stand 2026-06-26, dedupliziert — 103 Stück inkl. der fälschlichen
-Variante `DisableBalance`; im Enum landen die 102 kanonischen Namen):
+Statische Namen (Stand 2026-06-26, dedupliziert). Inkl. der 3 erst in Cluster 7 über
+Multi-Line-Sender gefundenen Namen umfasst das Enum **105 kanonische Namen** (ohne die
+fälschlich doppelte `DisableBalance`-Variante):
 
 > Hinweis: `initialMetadataLoadingCompleted`, `initialMetadataLoadingFailed` und
 > `LIKEinitialMetadataLoadingCompleted` sind seit dem `metadata-bootstrap`-Refactor
@@ -271,10 +292,13 @@ adjustOpacityForLoiLayer
 adjustOpacityForPoiLayer
 adjustOpacityForWfsLayer
 adjustOpacityForWmsLayer
+allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin     # Multi-Line-Sender (diagram-helper)
+allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed # Multi-Line-Sender (diagram-helper)
 AppendExportButtonsForTable
 applyNoDataDisplay
 availableRolesUpdate
 batchUpdateCompleted
+CSVFromFileFinished_indicatorRegionalReferenceValues   # Multi-Line-Sender (file-helper), kein Empfänger
 changeBreaks
 changeClassifyMethod
 changeColorScheme

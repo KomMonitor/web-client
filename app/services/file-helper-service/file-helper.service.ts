@@ -3,6 +3,7 @@ import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';
 import shp from 'shpjs';
 import Papa from 'papaparse';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { BehaviorSubject } from 'rxjs';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models.js';
 
@@ -353,7 +354,7 @@ export class FileHelperService {
       );
 
       this.broadcastService.broadcast(
-        'CSVFromFileFinished_indicatorRegionalReferenceValues',
+        BroadcastMessage.CSVFromFileFinishedIndicatorRegionalReferenceValues,
         indicatorRegionalReferenceValuesObject
       );
     };
