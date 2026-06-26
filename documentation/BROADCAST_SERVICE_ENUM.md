@@ -62,6 +62,7 @@ späteres Löschen vormerken:
 changeSpatialUnitViaInfoControl                              # kommonitor-map.component switch
 toggleLegendControl                                         # kommonitor-map.component switch
 allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin  # kommonitor-map.component switch
+updateShowRegionalDefaultOption                             # kommonitor-classification.component switch; einziger "Sender" ist ein auskommentierter $rootScope.$broadcast in kommonitor-map
 ```
 
 ## Frage: Ist ein Enum technisch möglich?
@@ -162,7 +163,11 @@ String-Empfänger vorbei.
    es hat keine Broadcast-Stellen (der `case 'driving-car'`-Switch läuft auf
    `transitMode`, nicht auf `msg`). Die 3 toten Empfänger (s. o.) blieben bewusst
    Roh-String.
-2. **Classification / Legend**: `kommonitor-classification` + `kommonitor-legend`.
+2. **Classification / Legend** ✅ *(erledigt 2026-06-26)* — `kommonitor-classification`
+   (15 Sender, 2 von 3 `case`s) + `kommonitor-legend` (2 Sender, 4 `case`s). Ein
+   `case 'onChangeSelectedIndicator' :` mit Leerzeichen vor dem Doppelpunkt manuell
+   migriert; ein auskommentierter Legacy-`broadcast` in `kommonitor-legend` blieb
+   Roh-String. Toter Empfänger `updateShowRegionalDefaultOption` (s. o.) blieb Roh-String.
 3. **DataSetup / Balance / Filter / POI**: `kommonitor-data-setup` (+ `DisableBalance`-Fix),
    `kommonitor-balance`, `kommonitor-filter`, `poi.component` (+ LIKE-Kommentar bereinigen).
 4. **Diagramme**: `kommonitor-diagrams`, `indicator-radar`, `regression-diagram`.

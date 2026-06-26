@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -151,16 +152,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
         let values:any = broadcastMsg.values;
   
         switch (title) {
-          case 'updateLegendDisplay': {
+          case BroadcastMessage.UpdateLegendDisplay: {
              this.updateLegendDisplay(values);
           } break;
-          case 'updateDatePickerAvailableDates': {
+          case BroadcastMessage.UpdateDatePickerAvailableDates: {
             this.onUpdateDatePicker(values);
           } break;
-          case 'updateDatePickerSelectedDate': {
+          case BroadcastMessage.UpdateDatePickerSelectedDate: {
             this.onUpdateDatePickerSelectedDate(values);
           } break;
-          case 'onGlobalFilterChange': {
+          case BroadcastMessage.OnGlobalFilterChange: {
             this.onGlobalFilterChange();
           } break;
         }
@@ -195,7 +196,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     var dateComponents = selectedDate.split("-");
     this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
     
-    this.broadcastService.broadcast("updateClassificationComponent", [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
+    this.broadcastService.broadcast(BroadcastMessage.UpdateClassificationComponent, [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
   }
 
   filteredSpatialUnits() {
@@ -224,7 +225,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       if(this.selectionState.selectedSpatialUnit && this.selectionState.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
 
         this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
-        this.broadcastService.broadcast("changeSpatialUnit");
+        this.broadcastService.broadcast(BroadcastMessage.ChangeSpatialUnit);
 
         if(this.envConfigService.enableSpatialUnitNotificationSelection) {
           if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {

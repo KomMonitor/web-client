@@ -4,6 +4,7 @@ import { SelectionStateService } from 'services/selection-state-service/selectio
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { colorbrewer } from './colors';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
@@ -71,10 +72,10 @@ export class KommonitorClassificationComponent implements OnInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
-        case 'onChangeSelectedIndicator' : {
+        case BroadcastMessage.OnChangeSelectedIndicator: {
           this.onChangeSelectedIndicator();
         } break;
-        case 'updateClassificationComponent': {
+        case BroadcastMessage.UpdateClassificationComponent: {
           this.updateClassificationComponent(values);
         } break;
         case 'updateShowRegionalDefaultOption': {
@@ -130,7 +131,7 @@ export class KommonitorClassificationComponent implements OnInit {
 
     this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName = this.selectedColorBrewerPaletteEntry.paletteName;
 
-    this.broadcastService.broadcast("changeColorScheme", [this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName]);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeColorScheme, [this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName]);
 
   };
 
@@ -167,15 +168,15 @@ export class KommonitorClassificationComponent implements OnInit {
     this.showMethodSelection = false;
     this.visualStyleHelperService.classifyMethod = method.id;
     console.log(method)
-    this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleHelperService.classifyMethod]);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeClassifyMethod, [this.visualStyleHelperService.classifyMethod]);
   }
   
   onChangeSelectedClassifyMethod() {
-    this.broadcastService.broadcast("changeClassifyMethod", [this.visualStyleHelperService.classifyMethod]);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeClassifyMethod, [this.visualStyleHelperService.classifyMethod]);
   } 
  
   onChangeNumberOfClasses() {
-    this.broadcastService.broadcast("changeNumClasses", [this.visualStyleHelperService.numClasses]);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeNumClasses, [this.visualStyleHelperService.numClasses]);
   }
 
  toggleAddBtn(e, site) {
@@ -218,7 +219,7 @@ export class KommonitorClassificationComponent implements OnInit {
             return a - b;
           });
 
-          this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
+          this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
         }
 
         if((this.chartDisplayState.isBalanceChecked 
@@ -249,7 +250,7 @@ export class KommonitorClassificationComponent implements OnInit {
           let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
           let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
         
-          this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]]);
+          this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
         }
       }
     }
@@ -267,7 +268,7 @@ export class KommonitorClassificationComponent implements OnInit {
       }
     });
  
-    this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]]);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
   }
  
  breakIsUnalterable(br) {
@@ -302,7 +303,7 @@ export class KommonitorClassificationComponent implements OnInit {
       if(this.chartDisplayState.isMeasureOfValueChecked) {
         this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
         
-        this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
+        this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
         this.updateDynamicBreaksFromManualBreaks();
       }
       else {
@@ -310,14 +311,14 @@ export class KommonitorClassificationComponent implements OnInit {
         let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
         let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
         
-        this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]])
+        this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]])
       }
     }
 
     else {
       this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
      
-      this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
+      this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
     }
   }
 
@@ -341,7 +342,7 @@ export class KommonitorClassificationComponent implements OnInit {
       });
 
       
-      this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
+      this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
       
       if((this.chartDisplayState.isBalanceChecked 
         || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
@@ -373,7 +374,7 @@ export class KommonitorClassificationComponent implements OnInit {
         return a - b;
       });
       
-      this.broadcastService.broadcast("changeDynamicBreaks", [[this.visualStyleHelperService.dynamicBrew[0].breaks, this.visualStyleHelperService.dynamicBrew[1].breaks]]);
+      this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[this.visualStyleHelperService.dynamicBrew[0].breaks, this.visualStyleHelperService.dynamicBrew[1].breaks]]);
     }
   }
 
@@ -403,7 +404,7 @@ export class KommonitorClassificationComponent implements OnInit {
   }
   
  restyleCurrentLayer() {
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
  
  getWidthForHistogramBar(i) {
@@ -555,7 +556,7 @@ export class KommonitorClassificationComponent implements OnInit {
               return a - b;
             });
             
-            this.broadcastService.broadcast("changeBreaks", [this.visualStyleHelperService.manualBrew.breaks]);
+            this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
             if((this.chartDisplayState.isBalanceChecked 
               || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
               ||this.containsNegativeValues) 
@@ -595,7 +596,7 @@ export class KommonitorClassificationComponent implements OnInit {
             let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
             let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
             
-            this.broadcastService.broadcast("changeDynamicBreaks", [[increaseBreaks, decreaseBreaks]]);
+            this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
           }
         })();
       }
