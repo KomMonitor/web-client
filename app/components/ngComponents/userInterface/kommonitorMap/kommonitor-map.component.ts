@@ -3,6 +3,7 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import * as L from 'leaflet';
 import "leaflet.markercluster";
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -305,118 +306,118 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       let values: any = broadcastMsg.values;
 
       switch (title) {
-        case 'changeClassifyMethod': {
+        case BroadcastMessage.ChangeClassifyMethod: {
           this.changeClassifyMethod(values);
         } break;
-        case 'changeNumClasses': {
+        case BroadcastMessage.ChangeNumClasses: {
           this.changeNumClasses(values);
         } break;
-        case 'replaceIndicatorAsGeoJSON': { // eigentlich alt, wird aber teilweise noch genutzt, todo
+        case BroadcastMessage.ReplaceIndicatorAsGeoJSON: { // eigentlich alt, wird aber teilweise noch genutzt, todo
           setTimeout(() => this.onReplaceIndicatorAsGeoJSON(values), 1000);
         } break;
-        case 'changeSpatialUnit': {
+        case BroadcastMessage.ChangeSpatialUnit: {
           this.onChangeSpatialUnit();
         } break;
-        case 'showLoadingIconOnMap': {
+        case BroadcastMessage.ShowLoadingIconOnMap: {
           this.showLoadingIconOnMap();
         } break;
-        case 'hideLoadingIconOnMap': {
+        case BroadcastMessage.HideLoadingIconOnMap: {
           this.hideLoadingIconOnMap();
         } break;
-        case 'addPoiGeoresourceAsGeoJSON': {
+        case BroadcastMessage.AddPoiGeoresourceAsGeoJSON: {
           this.addPoiGeoresourceAsGeoJSON(values);
         } break;
-        case 'removePoiGeoresource': {
+        case BroadcastMessage.RemovePoiGeoresource: {
           this.removePoiGeoresource(values);
         } break;
-        case 'addWmsLayerToMap': {
+        case BroadcastMessage.AddWmsLayerToMap: {
           this.addWmsLayerToMap(values);
         } break;
-        case 'removeWmsLayerFromMap': {
+        case BroadcastMessage.RemoveWmsLayerFromMap: {
           this.removeWmsLayerFromMap(values);
         } break;
-        case 'addWfsLayerToMap': {
+        case BroadcastMessage.AddWfsLayerToMap: {
           this.addWfsLayerToMap(values);
         } break;
-        case 'removeWfsLayerFromMap': {
+        case BroadcastMessage.RemoveWfsLayerFromMap: {
           this.removeWfsLayerFromMap(values)
         } break;
-        case 'addLoiGeoresourceAsGeoJSON': {
+        case BroadcastMessage.AddLoiGeoresourceAsGeoJSON: {
           this.addLoiGeoresourceAsGeoJSON(values);
         } break;
-        case 'removeLoiGeoresource': {
+        case BroadcastMessage.RemoveLoiGeoresource: {
           this.removeLoiGeoresource(values);
         } break;
-        case 'addAoiGeoresourceAsGeoJSON': {
+        case BroadcastMessage.AddAoiGeoresourceAsGeoJSON: {
           this.addAoiGeoresourceAsGeoJSON(values);
         } break;
-        case 'removeAoiGeoresource': {
+        case BroadcastMessage.RemoveAoiGeoresource: {
           this.removeAoiGeoresource(values);
         } break;
-        case 'exportMap': {
+        case BroadcastMessage.ExportMap: {
           this.exportMap();
         } break;
         case 'changeSpatialUnitViaInfoControl': {
           this.changeSpatialUnitViaInfoControl();
         } break;
-        case 'toggleInfoControl': {
+        case BroadcastMessage.ToggleInfoControl: {
           this.toggleInfoControl();
         } break;
         case 'toggleLegendControl': {
           this.toggleLegendControl();
         } break;
-        case 'changeDynamicBreaks': {
+        case BroadcastMessage.ChangeDynamicBreaks: {
           this.changeDynamicBreaks(values);
         } break;
         case 'allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin': {
           this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
         } break;
-        case 'restyleCurrentLayer': {
+        case BroadcastMessage.RestyleCurrentLayer: {
           this.restyleCurrentLayer(values);
         } break;
-        case 'preserveHighlightedFeatures': {
+        case BroadcastMessage.PreserveHighlightedFeatures: {
           this.preserveHighlightedFeatures();
         } break;
-        case 'changeColorScheme': {
+        case BroadcastMessage.ChangeColorScheme: {
           this.changeColorScheme(values);
         } break;
-        case 'changeBreaks': {
+        case BroadcastMessage.ChangeBreaks: {
           this.changeBreaks(values);
         } break;
-        case 'unselectAllFeatures': {
+        case BroadcastMessage.UnselectAllFeatures: {
           this.unselectAllFeatures();
         } break;
-        case 'onGlobalFilterChange': {
+        case BroadcastMessage.OnGlobalFilterChange: {
           this.onGlobalFilterChange();
         } break;
-        case 'openLayerControl': {
+        case BroadcastMessage.OpenLayerControl: {
           this.openLayerControl();
         } break;
-        case 'highlightFeatureOnMap': {
+        case BroadcastMessage.HighlightFeatureOnMap: {
           this.highlightFeatureOnMap(values);
         } break;
-        case 'switchHighlightFeatureOnMap': {
+        case BroadcastMessage.SwitchHighlightFeatureOnMap: {
           this.switchHighlightFeatureOnMap(values);
         } break;
-        case 'unhighlightFeatureOnMap': {
+        case BroadcastMessage.UnhighlightFeatureOnMap: {
           this.unhighlightFeatureOnMap(values);
         } break;
-        case 'toggleExpertControl': {
+        case BroadcastMessage.ToggleExpertControl: {
           this.toggleExpertControl();
         } break;
-        case 'addFileLayerToMap': {
+        case BroadcastMessage.AddFileLayerToMap: {
           this.addFileLayerToMap(values);
         } break;
-        case 'adjustOpacityForFileLayer': {
+        case BroadcastMessage.AdjustOpacityForFileLayer: {
           this.adjustOpacityForFileLayer(values);
         } break;
-        case 'adjustColorForFileLayer': {
+        case BroadcastMessage.AdjustColorForFileLayer: {
           this.adjustColorForFileLayer(values);
         } break;
-        case 'replaceReachabilityScenarioOnMainMap': {
+        case BroadcastMessage.ReplaceReachabilityScenarioOnMainMap: {
           this.replaceReachabilityScenarioOnMainMap(values);
         } break;
-        case 'removeReachabilityScenarioFromMainMap': {
+        case BroadcastMessage.RemoveReachabilityScenarioFromMainMap: {
           this.removeReachabilityScenarioFromMainMap();
         } break;
       }
@@ -1176,7 +1177,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   // });
 
   changeSpatialUnitViaInfoControl() {
-    this.broadcastService.broadcast('changeSpatialUnit');
+    this.broadcastService.broadcast(BroadcastMessage.ChangeSpatialUnit);
   }
 
 
@@ -1423,7 +1424,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.visualStyleHelperService.classifyMethod = method;
     }, 350);
 
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
 
   changeNumClasses([num]) {
@@ -1433,13 +1434,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.visualStyleHelperService.numClasses = num;
     }, 350);
 
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
 
   changeColorScheme([colorSchemeName]) {
     this.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName = colorSchemeName;
 
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
 
   changeBreaks([breaks]) {
@@ -1454,7 +1455,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.visualStyleHelperService.manualBrew.breaks = breaks;
       this.updateManualMOVBreaksFromDefaultManualBreaks();
-      this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+      this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
     }, 1);
   }
 
@@ -1488,7 +1489,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }, 1);
     this.updateManualMOVBreaksFromDefaultManualBreaks();
 
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
   /*
     $scope.$on("changeMOV", function (event, mov) {
@@ -1504,7 +1505,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         $scope.resetNoDataDisplay();
       }
   
-      this.broadcastService.broadcast("restyleCurrentLayer", false);
+      this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, false);
   
       // ensure that highlighted features remain highlighted
       preserveHighlightedFeatures();
@@ -2317,7 +2318,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.showFileLayer(fileLayer, dataset);
     } catch (error) {
       console.error(error);
-      this.broadcastService.broadcast("FileLayerError", [error, dataset]);
+      this.broadcastService.broadcast(BroadcastMessage.FileLayerError, [error, dataset]);
     }
   }
 
@@ -2401,7 +2402,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setTemporarilyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    this.broadcastService.broadcast("updateDiagramsForHoveredFeature", [layer.feature.properties]);
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForHoveredFeature, [layer.feature.properties]);
   }
 
   highlightClickedFeature(layer) {
@@ -2409,7 +2410,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setPermanentlyHighlightedStyle(layer);
 
     // update diagrams for hovered feature
-    this.broadcastService.broadcast("updateDiagramsForHoveredFeature", [layer.feature.properties]);
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForHoveredFeature, [layer.feature.properties]);
   }
 
   setPermanentlyHighlightedStyle(layer) {
@@ -2475,7 +2476,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (layer.feature) {
         if (this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
           this.setPermanentlyHighlightedStyle(layer);
-          this.broadcastService.broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+          this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForHoveredFeature, layer.feature.properties);
         }
       }
     });
@@ -2526,7 +2527,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     }
 
     //update diagrams for unhoveredFeature
-    this.broadcastService.broadcast("updateDiagramsForUnhoveredFeature", [layer.feature.properties]);
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagramsForUnhoveredFeature, [layer.feature.properties]);
   }
 
   resetHighlightClickedFeature(layer) {
@@ -3072,7 +3073,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.currentIndicatorLayer = layer;
 
-    this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
+    this.broadcastService.broadcast(BroadcastMessage.UpdateLegendDisplay, [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
 
     // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
     //   layer.style.color = undefined;
@@ -3103,8 +3104,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.showOutlierInfoAlert = true;
     }
 
-    this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
-    this.broadcastService.broadcast("indicatortMapDisplayFinished");
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
+    this.broadcastService.broadcast(BroadcastMessage.IndicatortMapDisplayFinished);
 
     this.map.invalidateSize(true);
     this.hideLoadingIconOnMap();
@@ -3144,7 +3145,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin() {
     this.updateManualMOVBreaksFromDefaultManualBreaks();
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
 
   restyleCurrentLayer([skipDiagramRefresh]) {
@@ -3355,16 +3356,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         });
       }
 
-      this.broadcastService.broadcast("updateLegendDisplay", [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
+      this.broadcastService.broadcast(BroadcastMessage.UpdateLegendDisplay, [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
 
       if (!skipDiagramRefresh) {
         let justRestyling = true;
 
         if (this.visualStyleHelperService.classifyMethod == 'manual') {
-          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
+          this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
         }
         else {
-          this.broadcastService.broadcast("updateDiagrams", [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
+          this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
         }
 
       }
@@ -3498,7 +3499,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   unselectAllFeatures() {
 
     this.filterHelperService.clearSelectedFeatures();
-    this.broadcastService.broadcast("restyleCurrentLayer", [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
 
   /*

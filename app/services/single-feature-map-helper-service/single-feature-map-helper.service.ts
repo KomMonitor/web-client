@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
@@ -47,7 +48,7 @@ export class SingleFeatureMapHelperService {
       const values: any = broadcastMsg.values;
 
       switch (title) {
-        case 'onUpdateSingleFeatureGeometry':
+        case BroadcastMessage.OnUpdateSingleFeatureGeometry:
           {
             this.onUpdateSingleFeatureGeometry(values);
           }
@@ -76,7 +77,7 @@ export class SingleFeatureMapHelperService {
 
         layer.on({
           click: () => {
-            this.broadcastService.broadcast('singleFeatureSelected', [feature]);
+            this.broadcastService.broadcast(BroadcastMessage.SingleFeatureSelected, [feature]);
             layer.openPopup();
           },
         });
@@ -231,7 +232,7 @@ export class SingleFeatureMapHelperService {
 
         layer.on({
           click: () => {
-            this.broadcastService.broadcast('singleFeatureSelected', [feature]);
+            this.broadcastService.broadcast(BroadcastMessage.SingleFeatureSelected, [feature]);
             layer.openPopup();
           },
         });
@@ -261,7 +262,7 @@ export class SingleFeatureMapHelperService {
     layer.on({
       click: () => {
 
-        this.broadcastService.broadcast("singleFeatureSelected", [feature]);
+        this.broadcastService.broadcast(BroadcastMessage.SingleFeatureSelected, [feature]);
 
         var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
         for (var p in feature.properties) {

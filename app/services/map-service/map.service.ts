@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 export interface MapRefreshObject {
   values: MapRefreshValues;
@@ -124,64 +125,64 @@ export class MapService {
   }
 
   removePoiGeoresource(reference) {
-    this.broadcastService.broadcast('removePoiGeoresource', [reference]);
+    this.broadcastService.broadcast(BroadcastMessage.RemovePoiGeoresource, [reference]);
   }
 
   removeWfsLayerFromMap(wfs) {
-    this.broadcastService.broadcast('removeWfsLayerFromMap', [wfs]);
+    this.broadcastService.broadcast(BroadcastMessage.RemoveWfsLayerFromMap, [wfs]);
   }
 
   addWfsLayerToMap(wfs, opacity, useCluster) {
     console.log('addWfsLayerToMap');
-    this.broadcastService.broadcast('addWfsLayerToMap', [wfs, opacity, useCluster]);
+    this.broadcastService.broadcast(BroadcastMessage.AddWfsLayerToMap, [wfs, opacity, useCluster]);
   }
 
   removeLoiGeoresource(loiGeoresource) {
-    this.broadcastService.broadcast('removeLoiGeoresource', [loiGeoresource]);
+    this.broadcastService.broadcast(BroadcastMessage.RemoveLoiGeoresource, [loiGeoresource]);
   }
 
   addWmsLayerToMap(dataset, opacity) {
     console.log('addWmsLayerToMap');
-    this.broadcastService.broadcast('addWmsLayerToMap', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AddWmsLayerToMap, [dataset, opacity]);
   }
 
   removeWmsLayerFromMap(dataset) {
-    this.broadcastService.broadcast('removeWmsLayerFromMap', [dataset]);
+    this.broadcastService.broadcast(BroadcastMessage.RemoveWmsLayerFromMap, [dataset]);
   }
 
   adjustOpacityForWmsLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForWmsLayer(dataset, opacity);
-    this.broadcastService.broadcast('adjustOpacityForWmsLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWmsLayer, [dataset, opacity]);
   }
 
   adjustOpacityForAoiLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForAoiLayer(dataset, opacity);
-    this.broadcastService.broadcast('adjustOpacityForAoiLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForAoiLayer, [dataset, opacity]);
   }
 
   adjustOpacityForPoiLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForPoiLayer(dataset, opacity);
-    this.broadcastService.broadcast('adjustOpacityForPoiLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForPoiLayer, [dataset, opacity]);
   }
 
   adjustOpacityForLoiLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForLoiLayer(dataset, opacity);
-    this.broadcastService.broadcast('adjustOpacityForLoiLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForLoiLayer, [dataset, opacity]);
   }
 
   adjustOpacityForWfsLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustOpacityForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast('adjustOpacityForWfsLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForWfsLayer, [dataset, opacity]);
   }
 
   adjustColorForWfsLayer(dataset, opacity) {
     //this.ajskommonitorMapServiceProvider.adjustColorForWfsLayer(dataset, opacity);
-    this.broadcastService.broadcast('adjustColorForWfsLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForWfsLayer, [dataset, opacity]);
   }
 
   restyleCurrentLayer() {
     //this.ajskommonitorMapServiceProvider.restyleCurrentLayer();
-    this.broadcastService.broadcast('restyleCurrentLayer', [false]);
+    this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
 
   replaceIndicatorGeoJSON(
@@ -192,7 +193,7 @@ export class MapService {
     isCustomComputation = false
   ) {
     //this.ajskommonitorMapServiceProvider.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
-    this.broadcastService.broadcast('replaceIndicatorAsGeoJSON', [
+    this.broadcastService.broadcast(BroadcastMessage.ReplaceIndicatorAsGeoJSON, [
       indicatorMetadataAndGeoJSON,
       spatialUnitName,
       date,
@@ -202,7 +203,7 @@ export class MapService {
   }
 
   addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster) {
-    this.broadcastService.broadcast('addPoiGeoresourceAsGeoJSON', [
+    this.broadcastService.broadcast(BroadcastMessage.AddPoiGeoresourceAsGeoJSON, [
       poiGeoresource,
       date,
       useCluster,
@@ -210,38 +211,38 @@ export class MapService {
   }
 
   addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
-    this.broadcastService.broadcast('addAoiGeoresourceAsGeoJSON', [aoiGeoresource, date]);
+    this.broadcastService.broadcast(BroadcastMessage.AddAoiGeoresourceAsGeoJSON, [aoiGeoresource, date]);
   }
 
   addLoiGeoresourceGeoJSON(loiGeoresource, date) {
-    this.broadcastService.broadcast('addLoiGeoresourceAsGeoJSON', [loiGeoresource, date]);
+    this.broadcastService.broadcast(BroadcastMessage.AddLoiGeoresourceAsGeoJSON, [loiGeoresource, date]);
   }
 
   removeAoiGeoresource(aoiGeoresource) {
-    this.broadcastService.broadcast('removeAoiGeoresource', [aoiGeoresource]);
+    this.broadcastService.broadcast(BroadcastMessage.RemoveAoiGeoresource, [aoiGeoresource]);
   }
 
   replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    this.broadcastService.broadcast('replaceReachabilityScenarioOnMainMap', [reachabilityScenario]);
+    this.broadcastService.broadcast(BroadcastMessage.ReplaceReachabilityScenarioOnMainMap, [reachabilityScenario]);
   }
 
   removeReachabilityScenarioFromMainMap() {
-    this.broadcastService.broadcast('removeReachabilityScenarioFromMainMap');
+    this.broadcastService.broadcast(BroadcastMessage.RemoveReachabilityScenarioFromMainMap);
   }
 
   addFileLayerToMap(dataset, _opacity) {
-    this.broadcastService.broadcast('addFileLayerToMap', [dataset]);
+    this.broadcastService.broadcast(BroadcastMessage.AddFileLayerToMap, [dataset]);
   }
 
   removeFileLayerFromMap(dataset) {
-    this.broadcastService.broadcast('removeFileLayerFromMap', [dataset]);
+    this.broadcastService.broadcast(BroadcastMessage.RemoveFileLayerFromMap, [dataset]);
   }
 
   adjustOpacityForFileLayer(dataset, opacity) {
-    this.broadcastService.broadcast('adjustOpacityForFileLayer', [dataset, opacity]);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustOpacityForFileLayer, [dataset, opacity]);
   }
 
   adjustColorForFileLayer(dataset) {
-    this.broadcastService.broadcast('adjustColorForFileLayer', dataset);
+    this.broadcastService.broadcast(BroadcastMessage.AdjustColorForFileLayer, dataset);
   }
 }

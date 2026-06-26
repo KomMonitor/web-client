@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import * as L from 'leaflet';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import 'leaflet.awesome-markers';
 
@@ -439,14 +440,14 @@ export class GenericMapHelperService {
       );
       map.addControl(drawControl);
 
-      this.broadcastService.broadcast('onUpdateSingleFeatureGeometry', [
+      this.broadcastService.broadcast(BroadcastMessage.OnUpdateSingleFeatureGeometry, [
         featureLayer.toGeoJSON(),
         drawControl,
       ]);
     });
 
     map.on(L.Draw.Event.EDITED, (_event) => {
-      this.broadcastService.broadcast('onUpdateSingleFeatureGeometry', [
+      this.broadcastService.broadcast(BroadcastMessage.OnUpdateSingleFeatureGeometry, [
         featureLayer.toGeoJSON(),
         drawControl,
       ]);
@@ -463,7 +464,7 @@ export class GenericMapHelperService {
       );
       map.addControl(drawControl);
 
-      this.broadcastService.broadcast('onUpdateSingleFeatureGeometry', [undefined, drawControl]);
+      this.broadcastService.broadcast(BroadcastMessage.OnUpdateSingleFeatureGeometry, [undefined, drawControl]);
     });
 
     return {

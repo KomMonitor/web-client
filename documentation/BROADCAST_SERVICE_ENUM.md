@@ -52,6 +52,18 @@ resetTimeseriesMapping
 onOpenAddFilterModal
 ```
 
+### Tote Empfänger (kein Sender auffindbar)
+
+`case`-Zweige, die empfangen, für die es aber **keinen Sender** gibt (auch nicht
+dynamisch). Beim Cluster-Durchlauf als Roh-String belassen (nicht ins Enum) und für
+späteres Löschen vormerken:
+
+```
+changeSpatialUnitViaInfoControl                              # kommonitor-map.component switch
+toggleLegendControl                                         # kommonitor-map.component switch
+allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin  # kommonitor-map.component switch
+```
+
 ## Frage: Ist ein Enum technisch möglich?
 
 Ja, problemlos. Die einzige Komplikation sind **6 dynamisch gebaute Namen** in
@@ -71,14 +83,12 @@ Grund: Die Werte sollen **echte Strings** bleiben (kompatibel zu allen bestehend
 `=== '...'`-Vergleichen, daher inkrementell migrierbar), und ein `const`-Objekt ist
 tree-shake-freundlich. Der IDE-Nutzen (Autocomplete, Find-usages, Rename) ist
 identisch zu einem `enum`. Wer die Enum-Syntax bevorzugt, kann genauso
-`enum BroadcastMessage { InitialMetadataLoadingCompleted = 'initialMetadataLoadingCompleted', ... }`
+`enum BroadcastMessage { RestyleCurrentLayer = 'restyleCurrentLayer', ... }`
 verwenden — funktional gleichwertig.
 
 ```ts
 // app/services/broadcast-service/broadcast-message.ts
 export const BroadcastMessage = {
-  InitialMetadataLoadingCompleted: 'initialMetadataLoadingCompleted',
-  InitialMetadataLoadingFailed: 'initialMetadataLoadingFailed',
   HideLoadingIconOnMap: 'hideLoadingIconOnMap',
   ShowLoadingIconOnMap: 'showLoadingIconOnMap',
   RestyleCurrentLayer: 'restyleCurrentLayer',
@@ -145,9 +155,13 @@ Empfohlene Reihenfolge nach Kopplung/Risiko. Pro Schritt **Sender und zugehörig
 Empfänger zusammen** umstellen, sonst läuft ein typisierter Sender an einem
 String-Empfänger vorbei.
 
-1. **Map-Kern** (größter, am stärksten gekoppelt): `map.service` + `kommonitor-map.component`
-   (38-Vergleichs-Handler!) + `generic-map-helper` + `single-feature-map-helper`
-   + `reachability-map-helper`.
+1. **Map-Kern** ✅ *(erledigt 2026-06-26)* — `map.service` (24 Sender) +
+   `kommonitor-map.component` (20 Sender, 35 von 38 `case`s) + `generic-map-helper`
+   (3 Sender) + `single-feature-map-helper` (3 Sender, 1 `case`). Alle Roh-Strings →
+   `BroadcastMessage.*`. **Korrektur:** `reachability-map-helper` gehört *nicht* dazu —
+   es hat keine Broadcast-Stellen (der `case 'driving-car'`-Switch läuft auf
+   `transitMode`, nicht auf `msg`). Die 3 toten Empfänger (s. o.) blieben bewusst
+   Roh-String.
 2. **Classification / Legend**: `kommonitor-classification` + `kommonitor-legend`.
 3. **DataSetup / Balance / Filter / POI**: `kommonitor-data-setup` (+ `DisableBalance`-Fix),
    `kommonitor-balance`, `kommonitor-filter`, `poi.component` (+ LIKE-Kommentar bereinigen).
