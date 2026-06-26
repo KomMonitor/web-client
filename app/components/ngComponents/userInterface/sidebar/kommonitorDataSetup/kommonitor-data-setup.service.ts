@@ -12,6 +12,7 @@ import { GeoresourceMetadataStoreService } from "services/georesource-metadata-s
 import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
 import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
 import { MapService } from "services/map-service/map.service";
 import {
   IndicatorsDataset,
@@ -221,12 +222,12 @@ export class KommonitorDataSetupService {
       }
     }
 
-    this.broadcastService.broadcast("updateBalanceSlider", [
+    this.broadcastService.broadcast(BroadcastMessage.UpdateBalanceSlider, [
       this.selectionState.selectedDate,
     ]);
     // time here seems to be crucial, "500" does not work
     setTimeout(() => {
-      this.broadcastService.broadcast("updateIndicatorValueRangeFilter", [
+      this.broadcastService.broadcast(BroadcastMessage.UpdateIndicatorValueRangeFilter, [
         this.selectionState.selectedDate,
         this.selectionState.selectedIndicator,
       ]);

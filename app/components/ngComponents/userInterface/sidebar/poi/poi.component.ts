@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
@@ -62,7 +63,7 @@ export class PoiComponent implements OnInit {
   ngOnInit(): void {
     // (Re-)initialize whenever metadata loading completes — on the initial load
     // and on every global filter reload. Replaces the former fixed 2s timeout
-    // and the LIKEinitialMetadataLoadingCompleted broadcast. No skip() here so a
+    // and the former metadata-loading-completed broadcast. No skip() here so a
     // late mount still initializes from the already-completed state.
     this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -78,12 +79,12 @@ export class PoiComponent implements OnInit {
         let title = broadcastMsg.msg;
 
         switch (title) {
-          case "selectedIndicatorDateHasChanged":
+          case BroadcastMessage.SelectedIndicatorDateHasChanged:
             {
               this.layerService.selectedIndicatorDateHasChanged();
             }
             break;
-          case "geoFavItemsStored":
+          case BroadcastMessage.GeoFavItemsStored:
             {
               this.favoritesService.favItemsStored();
             }

@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
 import { MapOverlayStateService } from "services/map-overlay-state-service/map-overlay-state.service";
 import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
 import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
@@ -125,7 +126,7 @@ export class GeoresourceLayerService {
 
     setTimeout(() => {
       this.loadingData = true;
-      this.broadcastService.broadcast("showLoadingIconOnMap");
+      this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
     });
 
     setTimeout(() => {
@@ -187,7 +188,7 @@ export class GeoresourceLayerService {
 
   addGeoresourceLayerToMap(resource: GeoresourcesDataset) {
     this.loadingData = true;
-    this.broadcastService.broadcast("showLoadingIconOnMap");
+    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
     const date = this.getQueryDate(resource);
     const [year, month, day] = date.split("-");
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
@@ -215,7 +216,7 @@ export class GeoresourceLayerService {
 
   removeGeoresourceLayerFromMap(resource: GeoresourcesDataset) {
     this.loadingData = true;
-    this.broadcastService.broadcast("showLoadingIconOnMap");
+    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
     if (resource.isPOI) this.mapService.removePoiGeoresource(resource);
     else if (resource.isLOI) this.mapService.removeLoiGeoresource(resource);
     else if (resource.isAOI) this.mapService.removeAoiGeoresource(resource);

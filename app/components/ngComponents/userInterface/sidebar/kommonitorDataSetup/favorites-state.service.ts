@@ -1,5 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { FavService } from "services/fav-service/fav.service";
 
@@ -73,7 +74,7 @@ export class FavoritesStateService {
   saveFavSelection(broadcast: boolean): void {
     if (broadcast) {
       this.favService.storeFavSelection();
-      this.broadcastService.broadcast("favItemsStored", [false]);
+      this.broadcastService.broadcast(BroadcastMessage.FavItemsStored, [false]);
     }
     this.setToastStatus(2);
   }

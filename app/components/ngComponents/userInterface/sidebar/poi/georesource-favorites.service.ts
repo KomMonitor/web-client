@@ -1,5 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
 import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
 import { FavService } from "services/fav-service/fav.service";
 import { WmsDataset } from "components/ngComponents/models/services.models";
@@ -151,7 +152,7 @@ export class GeoresourceFavoritesService {
     this.handleToastStatus(2);
 
     if (broadcast === true)
-      this.broadcastService.broadcast("geoFavItemsStored", [false]);
+      this.broadcastService.broadcast(BroadcastMessage.GeoFavItemsStored, [false]);
   }
 
   favItemsStored() {

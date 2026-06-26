@@ -30,15 +30,16 @@ broadcast(newMsg: string, values: any = {}) {
 
 ### Konkrete Bugs/Risiken, die das heute erzeugt
 
-- **Casing-Mismatch (echter latenter Bug, weiterhin aktiv):**
-  `kommonitor-data-setup.component.ts:493` sendet `"DisableBalance"` (großes D),
-  der einzige Empfänger in `kommonitor-balance.component.ts:67` lauscht aber nur auf
-  `'disableBalance'`. Der Broadcast läuft ins Leere. (Der korrekt geschriebene
-  `'disableBalance'` wird zusätzlich aus `user-interface.component.ts:320` gesendet
-  und funktioniert — der data-setup-Sender ist der defekte.) **Bei Migration mitfixen.**
-- **`LIKEinitialMetadataLoadingCompleted` — faktisch erledigt:** Es existiert kein
-  realer Sender/Empfänger mehr; der Name überlebt nur noch in einem Kommentar in
-  `poi.component.ts:65`. Beim Cluster-Durchlauf den Restkommentar bereinigen.
+- **Casing-Mismatch — behoben ✅ (Cluster 3, 2026-06-26):**
+  `kommonitor-data-setup.component.ts:493` sendete `"DisableBalance"` (großes D),
+  der einzige Empfänger in `kommonitor-balance.component.ts:67` lauschte aber nur auf
+  `'disableBalance'`. Mit der Migration sendet der Sender jetzt
+  `BroadcastMessage.DisableBalance` (= `'disableBalance'`) und passt zum Empfänger.
+  (Ein verbliebenes `"DisableBalance"` existiert nur noch als auskommentierter
+  Legacy-`$rootScope.$broadcast` in `kommonitor-filter.component.ts:565`.)
+- **`LIKEinitialMetadataLoadingCompleted` — erledigt ✅ (Cluster 3):** Es gab keinen
+  realen Sender/Empfänger mehr; der tote String-Name wurde aus dem erläuternden
+  Kommentar in `poi.component.ts` entfernt (Erklärung beibehalten).
 
 ### Tote Sender (kein Empfänger auffindbar)
 
@@ -63,6 +64,7 @@ changeSpatialUnitViaInfoControl                              # kommonitor-map.co
 toggleLegendControl                                         # kommonitor-map.component switch
 allIndicatorPropertiesForCurrentSpatialUnitAndTime setup begin  # kommonitor-map.component switch
 updateShowRegionalDefaultOption                             # kommonitor-classification.component switch; einziger "Sender" ist ein auskommentierter $rootScope.$broadcast in kommonitor-map
+updateIndicatorOgcServices                                  # kommonitor-data-setup.component switch; kein Sender
 ```
 
 ## Frage: Ist ein Enum technisch möglich?
@@ -168,8 +170,13 @@ String-Empfänger vorbei.
    `case 'onChangeSelectedIndicator' :` mit Leerzeichen vor dem Doppelpunkt manuell
    migriert; ein auskommentierter Legacy-`broadcast` in `kommonitor-legend` blieb
    Roh-String. Toter Empfänger `updateShowRegionalDefaultOption` (s. o.) blieb Roh-String.
-3. **DataSetup / Balance / Filter / POI**: `kommonitor-data-setup` (+ `DisableBalance`-Fix),
-   `kommonitor-balance`, `kommonitor-filter`, `poi.component` (+ LIKE-Kommentar bereinigen).
+3. **DataSetup / Balance / Filter / POI** ✅ *(erledigt 2026-06-26)* — `kommonitor-data-setup`
+   (.component 20 Sender + 1 von 2 `case`s, .service 2 Sender) + `favorites-state.service`
+   (1) + `kommonitor-balance` (2 `case`s) + `kommonitor-filter` (1 Sender, 5 `case`s) +
+   `poi.component` (2 `case`s) + `georesource-layer.service` (3) + `georesource-favorites.service`
+   (1). Enthält den **`DisableBalance`-Bugfix** und die **LIKE-Kommentar-Bereinigung**. Vier
+   `case`s mit Leerzeichen vor `:` manuell migriert; toter Empfänger
+   `updateIndicatorOgcServices` (s. o.) blieb Roh-String.
 4. **Diagramme**: `kommonitor-diagrams`, `indicator-radar`, `regression-diagram`.
 5. **Reachability**: alle `reachability-*`-Komponenten + `reachbility-helper`.
 6. **Admin**: Georesources / Indicators / SpatialUnits Management + Modals +

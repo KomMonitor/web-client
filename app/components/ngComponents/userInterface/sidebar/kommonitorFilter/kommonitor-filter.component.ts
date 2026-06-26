@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
@@ -182,19 +183,19 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         let val:any = result.values;
 
         switch (msg) {
-          case 'onChangeSelectedIndicator': {
+          case BroadcastMessage.OnChangeSelectedIndicator: {
             this.onOnChangeSelectedIndicator();
           } break;
-          case 'replaceIndicatorAsGeoJSON': {
+          case BroadcastMessage.ReplaceIndicatorAsGeoJSON: {
             this.replaceIndicatorAsGeoJSON(val);
           } break;
-          case 'updateMeasureOfValueBar' :{
+          case BroadcastMessage.UpdateMeasureOfValueBar: {
             this.updateMeasureOfValueBar(val);
           } break;
-          case 'updateIndicatorValueRangeFilter' : {
+          case BroadcastMessage.UpdateIndicatorValueRangeFilter: {
             this.updateIndicatorValueRangeFilter(val);
           } break;
-          case 'removeRangeFilter': {
+          case BroadcastMessage.RemoveRangeFilter: {
             this.removeRangeFilter();
           } break;
         }
@@ -235,7 +236,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       ? this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter)
       : this.metadataBootstrap.fetchAllMetadata();
 
-    this.broadcastService.broadcast("onGlobalFilterChange");
+    this.broadcastService.broadcast(BroadcastMessage.OnGlobalFilterChange);
 
     // Clear the local spinner once the reload actually finishes (replaces the
     // former fixed 1s timeout). Consumers that need to react to the reload

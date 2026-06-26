@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
@@ -60,11 +61,11 @@ export class KommonitorBalanceComponent implements OnInit {
       let values:any = res.values;
 
       switch (msg) {
-        case 'updateBalanceSlider' : {
+        case BroadcastMessage.UpdateBalanceSlider: {
             // hier war mal ein 1000 timeout
             this.setupRangeSliderForBalance(values);
         } break;
-        case 'disableBalance' : {
+        case BroadcastMessage.DisableBalance: {
           this.disableBalance();
         } break;
       }

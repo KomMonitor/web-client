@@ -6,6 +6,7 @@ import { ExpandableBoxComponent } from "components/ngComponents/common/expandabl
 import { IndicatorMetadataTooltipComponent } from "components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component";
 import { IndicatorsDataset, IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
 import { BroadcastService } from "services/broadcast-service/broadcast.service";
+import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
 import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
 import { EnvConfigService } from "services/env-config-service/env-config.service";
 import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
@@ -110,7 +111,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         const values: any = res.values;
 
         switch (msg) {
-          case "changeSpatialUnit":
+          case BroadcastMessage.ChangeSpatialUnit:
             this.onChangeSelectedSpatialUnit();
             break;
           case "updateIndicatorOgcServices":
@@ -147,7 +148,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       );
       this.loadingData = false;
 
-      this.broadcastService.broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
 
       return;
     }
@@ -224,7 +225,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         "Initiales Darstellen eines Indikators ist gescheitert.",
       );
       this.loadingData = false;
-      this.broadcastService.broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
 
       return;
     }
@@ -315,10 +316,10 @@ export class KommonitorDataSetupComponent implements OnInit {
       availableDates[availableDates.length - 1];
 
     const ngbDates = this.dataSetupService.prepNgbDates(availableDates);
-    this.broadcastService.broadcast("updateDatePickerAvailableDates", [
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerAvailableDates, [
       ngbDates,
     ]);
-    this.broadcastService.broadcast("updateDatePickerSelectedDate", [
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerSelectedDate, [
       ngbDates[ngbDates.length - 1],
     ]);
   }
@@ -335,26 +336,26 @@ export class KommonitorDataSetupComponent implements OnInit {
       const preppedDate = this.dataSetupService.prepNgbDates([
         this.selectionState.selectedDate,
       ])[0];
-      this.broadcastService.broadcast("updateDatePickerSelectedDate", [
+      this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerSelectedDate, [
         preppedDate,
       ]);
 
       if (this.applyMeasureOfValueUpdate()) {
-        this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
+        this.broadcastService.broadcast(BroadcastMessage.SelectedIndicatorDateHasChanged);
       }
     }
   }
 
   private applyMeasureOfValueUpdate(): boolean {
     this.loadingData = true;
-    this.broadcastService.broadcast("showLoadingIconOnMap");
+    this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
 
     try {
       this.tryUpdateMeasureOfValueBarForIndicator();
     } catch (error) {
       console.error(error);
       this.loadingData = false;
-      this.broadcastService.broadcast("hideLoadingIconOnMap");
+      this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
       this.mapErrorNotificationService.displayMapApplicationError(error);
       return false;
     }
@@ -362,11 +363,11 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.dataSetupService.modifyExports(false);
 
     if (this.envConfigService.useNoDataToggle) {
-      this.broadcastService.broadcast("applyNoDataDisplay");
+      this.broadcastService.broadcast(BroadcastMessage.ApplyNoDataDisplay);
     }
 
     this.loadingData = false;
-    this.broadcastService.broadcast("hideLoadingIconOnMap");
+    this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
     return true;
   }
 
@@ -374,7 +375,7 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.dataSetupService.fetchIndicatorGeoJson(this.date).subscribe({
       next: (response: any) => {
         this.selectionState.selectedIndicator.geoJSON = response;
-        this.broadcastService.broadcast("updateMeasureOfValueBar", [
+        this.broadcastService.broadcast(BroadcastMessage.UpdateMeasureOfValueBar, [
           this.date,
           this.selectionState.selectedIndicator,
         ]);
@@ -382,7 +383,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       error: (error) => {
         this.loadingData = false;
         this.mapErrorNotificationService.displayMapApplicationError(error);
-        this.broadcastService.broadcast("hideLoadingIconOnMap");
+        this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
       },
     });
   }
@@ -396,7 +397,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.selectedDate = this.selectionState.selectedDate;
 
       if (this.applyMeasureOfValueUpdate()) {
-        this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
+        this.broadcastService.broadcast(BroadcastMessage.SelectedIndicatorDateHasChanged);
       }
     }
   }
@@ -442,18 +443,18 @@ export class KommonitorDataSetupComponent implements OnInit {
         // Hide the map's loading overlay too; onChangeSelectedIndicator showed it
         // via "showLoadingIconOnMap" and the success path only clears it after the
         // map renders, so without this the overlay stays stuck on a load failure.
-        this.broadcastService.broadcast("hideLoadingIconOnMap");
+        this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
         this.mapErrorNotificationService.displayMapApplicationError(error);
       },
     });
   }
 
   onChangeSelectedIndicator(recenterMap) {
-    this.broadcastService.broadcast("onChangeSelectedIndicator");
+    this.broadcastService.broadcast(BroadcastMessage.OnChangeSelectedIndicator);
 
     if (this.selectionState.selectedIndicator) {
       this.loadingData = true;
-      this.broadcastService.broadcast("showLoadingIconOnMap");
+      this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
 
       this.changeIndicatorWasClicked = true;
 
@@ -484,18 +485,18 @@ export class KommonitorDataSetupComponent implements OnInit {
       } catch (error) {
         console.error(error);
         this.loadingData = false;
-        this.broadcastService.broadcast("hideLoadingIconOnMap");
+        this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
 
         this.mapErrorNotificationService.displayMapApplicationError(error);
         return;
       }
 
-      this.broadcastService.broadcast("DisableBalance");
+      this.broadcastService.broadcast(BroadcastMessage.DisableBalance);
 
       this.dataSetupService.modifyExports(true);
 
       if (this.envConfigService.useNoDataToggle) {
-        this.broadcastService.broadcast("applyNoDataDisplay");
+        this.broadcastService.broadcast(BroadcastMessage.ApplyNoDataDisplay);
       }
 
       this.loadingData = false;
@@ -511,6 +512,6 @@ export class KommonitorDataSetupComponent implements OnInit {
           this.selectedIndicatorBackup;
       }
     }
-    this.broadcastService.broadcast("selectedIndicatorDateHasChanged");
+    this.broadcastService.broadcast(BroadcastMessage.SelectedIndicatorDateHasChanged);
   }
 }
