@@ -5,6 +5,7 @@ import { ReachabilityScenarioHelperService } from 'services/reachability-scenari
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReachabilityScenarioModalComponent } from './reachability-scenario-modal/reachability-scenario-modal.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
@@ -82,7 +83,7 @@ export class KommonitorReachabilityComponent implements OnInit {
         case 'switchReportingMode': {
           this.changeStartPointsSource_fromLayer();
         } break;
-        case 'removePotentialDrawnStartingPoints': {
+        case BroadcastMessage.RemovePotentialDrawnStartingPoints: {
           this.removePotentialDrawnStartingPoints();
         } break;
       }
@@ -207,7 +208,7 @@ export class KommonitorReachabilityComponent implements OnInit {
 
   disablePointDrawTool() {
     // disable/hide leaflet-draw toolbar for only POINT features
-    this.broadcastService.broadcast("disablePointDrawTool");
+    this.broadcastService.broadcast(BroadcastMessage.DisablePointDrawTool);
   }
 
   removePotentialDrawnStartingPoints() {
@@ -217,7 +218,7 @@ export class KommonitorReachabilityComponent implements OnInit {
   }
 
   removeAllDrawnPoints() {
-    this.broadcastService.broadcast("removeAllDrawnPoints");
+    this.broadcastService.broadcast(BroadcastMessage.RemoveAllDrawnPoints);
   }
 
   openReachabilityScenarioModal(scenarioDataset: any = false) {

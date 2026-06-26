@@ -7,6 +7,7 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
 import { ColorPickerDirective } from "ngx-color-picker";
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 
 @Component({
   standalone: true,
@@ -113,6 +114,6 @@ export class ReachbilityScenarioSetupComponent implements OnInit {
       }
     }
 
-    this.broadcastService.broadcast("onEditGeoresourceFeatures", [this.reachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly]);
+    this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceFeatures, [this.reachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly]);
   };
 }

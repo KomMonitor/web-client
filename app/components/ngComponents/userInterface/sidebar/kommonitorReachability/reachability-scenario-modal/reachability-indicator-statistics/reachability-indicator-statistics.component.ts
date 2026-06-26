@@ -3,6 +3,7 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
@@ -92,10 +93,10 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
-        case 'isochronesCalculationFinished' : {
+        case BroadcastMessage.IsochronesCalculationFinished: {
           this.isochronesCalculationFinished(values);
         } break;
-        case 'reinitIndicatorStatisticsConfiguration': {
+        case BroadcastMessage.ReinitIndicatorStatisticsConfiguration: {
           this.reachabilityMapHelperService.invalidateMap(this.domId);
         } break;
       }

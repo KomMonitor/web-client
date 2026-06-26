@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { GenericMapHelperService } from 'services/generic-map-helper-service/generic-map-helper.service';
 import { ReachabilityMapHelperService } from 'services/reachability-map-helper-service/reachability-map-helper.service';
@@ -69,16 +70,16 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
         case 'switchReportingMode' : {
           this.switchReportingMode(values);
         } break;
-        case 'reportingPoiLayerSelected':  {
+        case BroadcastMessage.ReportingPoiLayerSelected:  {
           this.reportingPoiLayerSelected(values);
         } break;
         case 'onManageReachabilityScenario': {
           this.onManageReachabilityScenario(values);
         } break;
-        case 'isochronesCalculationFinished': {
+        case BroadcastMessage.IsochronesCalculationFinished: {
           this.isochronesCalculationFinished();
         } break;
-        case 'reinitReachabilityConfiguration': {
+        case BroadcastMessage.ReinitReachabilityConfiguration: {
           this.reachabilityMapHelperService.invalidateMap(this.domId);
         } break;
       }
@@ -145,11 +146,11 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
     this.reachabilityHelperService.resetSettings();
 
-    this.broadcastService.broadcast('changeStartPointsSource_fromLayer');
+    this.broadcastService.broadcast(BroadcastMessage.ChangeStartPointsSourceFromLayer);
 
     this.isTime = false;
 
-    this.broadcastService.broadcast('removePotentialDrawnStartingPoints');
+    this.broadcastService.broadcast(BroadcastMessage.RemovePotentialDrawnStartingPoints);
 
     this.error = undefined;
   }
@@ -163,7 +164,7 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
     this.mapOverlayState.isochroneLegend = undefined;
     // remove any diagram
-    this.broadcastService.broadcast("resetPoisInIsochrone");
+    this.broadcastService.broadcast(BroadcastMessage.ResetPoisInIsochrone);
     this.reachabilityHelperService.settings.loadingData = false;
   }
 

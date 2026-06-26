@@ -1,4 +1,5 @@
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -340,7 +341,7 @@ export class ReachabilityHelperService {
       // reporting uses it's own loading overlay, which is controlled there
       this.settings.loadingData = true;
     } else {
-      this.broadcastService.broadcast('reportingIsochronesCalculationStarted');
+      this.broadcastService.broadcast(BroadcastMessage.ReportingIsochronesCalculationStarted);
     }
 
     this.checkArrayInput();
@@ -363,13 +364,13 @@ export class ReachabilityHelperService {
     if (isUsedInReporting) {
       // No need to add isochrones to main map.
       // Instead they are returned to reporting modal
-      this.broadcastService.broadcast('reportingIsochronesCalculationFinished', [resultIsochrones]);
+      this.broadcastService.broadcast(BroadcastMessage.ReportingIsochronesCalculationFinished, [resultIsochrones]);
       return;
     }
 
     this.currentIsochronesGeoJSON = resultIsochrones;
 
-    this.broadcastService.broadcast('isochronesCalculationFinished');
+    this.broadcastService.broadcast(BroadcastMessage.IsochronesCalculationFinished);
 
     this.settings.loadingData = false;
   }

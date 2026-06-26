@@ -4,6 +4,7 @@ import { ChangeDetectorRef, Component, inject, OnChanges, OnInit } from '@angula
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
@@ -58,7 +59,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
       let values:any = broadcastMsg.values;
 
       switch (title) {
-        case 'georesourceGeoJSONUpdated' : {
+        case BroadcastMessage.GeoresourceGeoJSONUpdated: {
           if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
             this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = values[0];
             this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = values[0];
@@ -69,7 +70,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   }
 
   onEditFeaturesClick() {
-    setTimeout(() => this.broadcastService.broadcast('reinitSingleFeatureEdit'),250);
+    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitSingleFeatureEdit),250);
   }
 
   onClickAddScenario() {
@@ -78,15 +79,15 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   }
 
   onReachbilityConfigurationClick() {
-    setTimeout(() => this.broadcastService.broadcast('reinitReachabilityConfiguration'),250);
+    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitReachabilityConfiguration),250);
   }
 
   onPoisInReachabilityClick() {
-    setTimeout(() => this.broadcastService.broadcast('reinitPoisInReachabilityMap'),250);
+    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitPoisInReachabilityMap),250);
   }
 
   onIndicatorStatisticsClick() {
-    setTimeout(() => this.broadcastService.broadcast('reinitIndicatorStatisticsConfiguration'),250);
+    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitIndicatorStatisticsConfiguration),250);
   }
   
 
@@ -192,7 +193,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
         }
       }
 
-      this.broadcastService.broadcast("onEditGeoresourceFeatures", [this.reachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly]);
+      this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceFeatures, [this.reachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly]);
 
     };
 

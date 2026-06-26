@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import * as turf from '@turf/turf';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
@@ -73,16 +74,16 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       let values: any = broadcastMsg.values;
 
       switch (title) {
-        case 'resetPoisInIsochrone': {
+        case BroadcastMessage.ResetPoisInIsochrone: {
           this.resetPoisInIsochrone();
         } break;
-        case 'isochronesCalculationFinished': {
+        case BroadcastMessage.IsochronesCalculationFinished: {
           this.isochronesCalculationFinished(values);
         } break;
-        case 'selectedIndicatorDateHasChanged': {
+        case BroadcastMessage.SelectedIndicatorDateHasChanged: {
           this.selectedIndicatorDateHasChanged();
         } break;
-        case 'reinitPoisInReachabilityMap': {
+        case BroadcastMessage.ReinitPoisInReachabilityMap: {
           this.reachabilityMapHelperService.invalidateMap(this.domId);
         } break
       }

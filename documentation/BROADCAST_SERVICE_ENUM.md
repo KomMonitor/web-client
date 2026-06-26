@@ -67,6 +67,8 @@ updateShowRegionalDefaultOption                             # kommonitor-classif
 updateIndicatorOgcServices                                  # kommonitor-data-setup.component switch; kein Sender
 resizeDiagrams                                              # kommonitor-diagrams / indicator-radar / regression-diagram switch; kein Sender
 allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed  # indicator-radar / regression-diagram switch; kein Sender
+switchReportingMode                                        # kommonitor-reachability / reachability-scenario-configuration switch; nur Legacy-$scope.$broadcast in indicator-add, kein Angular-Bus-Sender
+onManageReachabilityScenario                               # reachability-scenario-configuration switch; kein Sender
 ```
 
 ## Frage: Ist ein Enum technisch möglich?
@@ -184,7 +186,12 @@ String-Empfänger vorbei.
    `case`s). Ein `case 'updateDiagrams' :` mit Leerzeichen vor `:` manuell migriert; ein
    auskommentierter `broadcast` in `indicator-radar` blieb Roh-String. Tote Empfänger
    `resizeDiagrams` und die beiden `…setup begin/completed` (s. o.) blieben Roh-String.
-5. **Reachability**: alle `reachability-*`-Komponenten + `reachbility-helper`.
+5. **Reachability** ✅ *(erledigt 2026-06-26)* — `kommonitor-reachability` (2 Sender, 1 von 2
+   `case`s) + `reachability-scenario-modal` (5 Sender, 1 `case`) + `reachability-helper.service`
+   (3 Sender) + `reachability-scenario-configuration` (3 Sender, 3 von 5 `case`s) +
+   `reachbility-scenario-setup` (1 Sender) + `reachability-indicator-statistics` (2 `case`s) +
+   `reachability-poi-in-iso` (4 `case`s). Zwei Space-Variant-`case`s manuell migriert. Tote
+   Empfänger `switchReportingMode` und `onManageReachabilityScenario` (s. o.) blieben Roh-String.
 6. **Admin**: Georesources / Indicators / SpatialUnits Management + Modals +
    `feature-table-data-grid-helper` (die 3 dynamischen Helper hier zuerst definieren).
 
