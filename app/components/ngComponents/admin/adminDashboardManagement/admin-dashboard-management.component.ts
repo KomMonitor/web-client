@@ -137,9 +137,6 @@ export class AdminDashboardManagementComponent {
     const main = this.mainTopics();
     return `${main.length}/${collectSubTopics(main).length}`;
   });
-  topicsLabel = computed(() =>
-    [this.t('ADMIN_DASHBOARD.MAIN_TOPICS'), this.t('ADMIN_DASHBOARD.SUB_TOPICS')].join('/')
-  );
 
   indicatorsPerTopicChartOptions = computed<EChartsOption>(() => {
     const data: PieSeriesDataItem[] = (this.topicHierarchyStore.topicIndicatorHierarchy ?? [])
