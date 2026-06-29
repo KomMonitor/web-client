@@ -279,12 +279,12 @@ export class GeoresourceAddModalComponent implements OnInit {
       this.kommonitorImporterHelperService.availableDatasourceTypes || [];
 
     // Initialize metadata structure pretty print
-    this.georesourceMetadataStructure_pretty =
-      this.indicatorValueService.syntaxHighlightJSON(this.georesourceMetadataStructure);
-    this.georesourceMappingConfigStructure_pretty =
-      this.indicatorValueService.syntaxHighlightJSON(
-        this.kommonitorImporterHelperService.mappingConfigStructure
-      );
+    this.georesourceMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
+      this.georesourceMetadataStructure
+    );
+    this.georesourceMappingConfigStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
+      this.kommonitorImporterHelperService.mappingConfigStructure
+    );
   }
 
   private refreshRoles(): void {

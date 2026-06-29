@@ -25,9 +25,7 @@ describe('PoiPresentationService', () => {
 
   it('maps a known dash-array string to its SVG', () => {
     const known = LOI_DASH_ARRAY_OBJECTS[1];
-    expect(service.getLoiDashSvgFromStringValue(known.dashArrayValue)).toBe(
-      known.svgString,
-    );
+    expect(service.getLoiDashSvgFromStringValue(known.dashArrayValue)).toBe(known.svgString);
   });
 
   it('returns an empty string for an unknown dash-array string', () => {

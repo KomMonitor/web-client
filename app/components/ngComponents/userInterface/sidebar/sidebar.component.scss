@@ -1,19 +1,17 @@
 :host {
-
   position: relative;
   display: block;
   width: 100%;
   height: 100%;
-  background: rgb(236,240,245);
+  background: rgb(236, 240, 245);
   transition: opacity 0.3s;
   overflow-y: auto;
   overflow-x: hidden;
 
   #sidebarContentWrapper {
-    
     width: 35vw;
     margin-top: 2em;
-    margin-right: .5em;
+    margin-right: 0.5em;
 
     &.disabled {
       display: none;
@@ -25,7 +23,7 @@
 
     .close {
       position: absolute;
-      right: .5em;
+      right: 0.5em;
       top: 0;
       font-size: 20px;
       cursor: pointer;
@@ -35,7 +33,7 @@
   #buttonWrapper {
     position: absolute;
     right: -150px;
-    top:0;
+    top: 0;
     z-index: 9999;
 
     ul {
@@ -43,11 +41,10 @@
 
       li button {
         background-color: lightblue;
-        padding: .5em;
+        padding: 0.5em;
         font-weight: bold;
-        border-radius: .4em;
+        border-radius: 0.4em;
       }
     }
   }
-  
 }

@@ -1,56 +1,56 @@
 :host {
-    .box-wrapper {
-        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-        background: #ffffff;
-        border: 1px solid #d2d6de;
+  .box-wrapper {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    border: 1px solid #d2d6de;
 
-        margin-bottom: 1em;
+    margin-bottom: 1em;
 
-        .box-header {
-            position: relative;
-            border-radius: 3px;
-            border-top: 3px solid #d2d6de;
-            padding: 5px 5px 5px 10px;
-            width: 100%;
-            display: flex;
-            align-items: center;
+    .box-header {
+      position: relative;
+      border-radius: 3px;
+      border-top: 3px solid #d2d6de;
+      padding: 5px 5px 5px 10px;
+      width: 100%;
+      display: flex;
+      align-items: center;
 
-            .box-title {
-                font-size: 18px;
-                flex-grow: 1;
-                font-weight: 500;
-            }
+      .box-title {
+        font-size: 18px;
+        flex-grow: 1;
+        font-weight: 500;
+      }
 
-            .btn-box-tool {
-                background: none;
-                cursor: pointer;
-                font-size: 12px;
-                color: #97a0b3;
-            }
+      .btn-box-tool {
+        background: none;
+        cursor: pointer;
+        font-size: 12px;
+        color: #97a0b3;
+      }
 
-            &.top-border-primary {
-                border-top-color: var(--kommonitor-primary);
-            }
+      &.top-border-primary {
+        border-top-color: var(--kommonitor-primary);
+      }
 
-            &.top-border-red {
-                border-top-color: #d73925;
-            }
+      &.top-border-red {
+        border-top-color: #d73925;
+      }
 
-            &.top-border-green {
-                border-top-color: #00a65a;
-            }
+      &.top-border-green {
+        border-top-color: #00a65a;
+      }
 
-            &.top-border-cyan {
-                border-top-color: #00c0ef;
-            }
+      &.top-border-cyan {
+        border-top-color: #00c0ef;
+      }
 
-            &.collapsible:hover {
-                cursor: pointer;
-            }
-        }
-
-        .box-body {
-            padding: 10px;
-        }
+      &.collapsible:hover {
+        cursor: pointer;
+      }
     }
+
+    .box-body {
+      padding: 10px;
+    }
+  }
 }

@@ -1,11 +1,11 @@
-import { inject, Injectable } from "@angular/core";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { FavService } from "services/fav-service/fav.service";
+import { inject, Injectable } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { FavService } from 'services/fav-service/fav.service';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class FavoritesStateService {
   private readonly favService = inject(FavService);
@@ -20,9 +20,9 @@ export class FavoritesStateService {
   showFavSelection = false;
 
   readonly toastText = [
-    "",
-    "Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken",
-    "Auswahl erfolgreich gespeichert",
+    '',
+    'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+    'Auswahl erfolgreich gespeichert',
   ];
 
   initFromUserInfo(): void {
@@ -44,7 +44,7 @@ export class FavoritesStateService {
     this.searchIndicatorTopicFavItemsRecursive(
       this.topicHierarchyStore.topicIndicatorHierarchy,
       topicId,
-      selected,
+      selected
     );
     this.handleFavSelection();
   }
@@ -100,29 +100,19 @@ export class FavoritesStateService {
   private searchIndicatorTopicFavItemsRecursive(
     tree: any[],
     id: string,
-    selected: boolean,
+    selected: boolean
   ): boolean {
     let ret = false;
     tree.forEach((entry) => {
       if (entry.topicId === id) {
         if (selected) {
-          if (!this.indicatorTopicFavItems.includes(id))
-            this.indicatorTopicFavItems.push(id);
+          if (!this.indicatorTopicFavItems.includes(id)) this.indicatorTopicFavItems.push(id);
         } else {
-          this.indicatorTopicFavItems = this.indicatorTopicFavItems.filter(
-            (e) => e !== id,
-          );
+          this.indicatorTopicFavItems = this.indicatorTopicFavItems.filter((e) => e !== id);
         }
         ret = true;
       } else {
-        if (
-          this.searchIndicatorTopicFavItemsRecursive(
-            entry.subTopics,
-            id,
-            selected,
-          )
-        )
-          ret = true;
+        if (this.searchIndicatorTopicFavItemsRecursive(entry.subTopics, id, selected)) ret = true;
       }
     });
     return ret;
@@ -136,9 +126,7 @@ export class FavoritesStateService {
             if (!this.indicatorFavItems.includes(base.indicatorId))
               this.indicatorFavItems.push(base.indicatorId);
           } else {
-            this.indicatorFavItems = this.indicatorFavItems.filter(
-              (e) => e !== base.indicatorId,
-            );
+            this.indicatorFavItems = this.indicatorFavItems.filter((e) => e !== base.indicatorId);
           }
         });
       }

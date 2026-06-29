@@ -180,17 +180,15 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
     // React to metadata loading state transitions. skip(1) drops the
     // BehaviorSubject's replayed current value so this keeps the original
     // one-shot semantics of the former broadcast events.
-    const loadingSub = this.metadataBootstrap.metadataLoading$
-      .pipe(skip(1))
-      .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) {
-          setTimeout(() => {
-            this.initializeOrRefreshOverviewTable();
-          }, 250);
-        } else if (state === MetadataLoadingState.ERROR) {
-          this.loadingData = false;
-        }
-      });
+    const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
+      if (state === MetadataLoadingState.COMPLETE) {
+        setTimeout(() => {
+          this.initializeOrRefreshOverviewTable();
+        }, 250);
+      } else if (state === MetadataLoadingState.ERROR) {
+        this.loadingData = false;
+      }
+    });
     this.subscriptions.push(loadingSub);
 
     // Listen for broadcast messages
@@ -244,12 +242,16 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
         .fetchGeoresourcesMetadata(this.kommonitorDataExchangeService.currentKeycloakLoginRoles)
         .then((_response: any) => {
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+          this.broadcastService.broadcast(
+            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+          );
           this.loadingData = false;
         })
         .catch((_response: any) => {
           this.loadingData = false;
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+          this.broadcastService.broadcast(
+            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+          );
         });
     } else if (crudType && targetGeoresourceId) {
       if (crudType === 'add') {
@@ -261,12 +263,16 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
           .then((data: any) => {
             this.kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+            );
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+            );
           });
       } else if (crudType === 'edit') {
         this.kommonitorCacheHelperService
@@ -277,26 +283,34 @@ export class AdminGeoresourcesManagementComponent implements OnInit, OnDestroy, 
           .then((data: any) => {
             this.kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+            );
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+            );
           });
       } else if (crudType === 'delete') {
         // targetGeoresourceId might be array in this case
         if (targetGeoresourceId && typeof targetGeoresourceId === 'string') {
           this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(targetGeoresourceId);
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+          this.broadcastService.broadcast(
+            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+          );
           this.loadingData = false;
         } else if (targetGeoresourceId && Array.isArray(targetGeoresourceId)) {
           for (const id of targetGeoresourceId) {
             this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
           }
           this.initializeOrRefreshOverviewTable();
-          this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTableCompleted);
+          this.broadcastService.broadcast(
+            BroadcastMessage.RefreshGeoresourceOverviewTableCompleted
+          );
           this.loadingData = false;
         }
       }

@@ -97,7 +97,10 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
     // Listen for batch update completion
     const batchUpdateSub = this.broadcastService.currentBroadcastMsg.subscribe((data: any) => {
-      if (data.msg === BroadcastMessage.BatchUpdateCompleted && data.resourceType === 'georesource') {
+      if (
+        data.msg === BroadcastMessage.BatchUpdateCompleted &&
+        data.resourceType === 'georesource'
+      ) {
         this.lastUpdateResponseObj = data;
       }
     });
@@ -303,7 +306,10 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   reopenResultModal(): void {
     if (this.lastUpdateResponseObj !== undefined) {
-      this.broadcastService.broadcast(BroadcastMessage.ReopenBatchUpdateResultModal, this.lastUpdateResponseObj);
+      this.broadcastService.broadcast(
+        BroadcastMessage.ReopenBatchUpdateResultModal,
+        this.lastUpdateResponseObj
+      );
     }
   }
 

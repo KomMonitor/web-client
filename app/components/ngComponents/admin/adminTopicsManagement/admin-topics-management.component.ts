@@ -85,7 +85,9 @@ export class AdminTopicsManagementComponent implements OnInit, OnDestroy {
 
   private setSorting(topic: TopicResourceType, order: TopicOrderMode) {
     this.topicSrvc.setOrderMode(topic, order).subscribe({
-      next: () => { /* result handled via error callback */ },
+      next: () => {
+        /* result handled via error callback */
+      },
       error: (error) => {
         console.error('Failed to set topic order mode:', error);
       },

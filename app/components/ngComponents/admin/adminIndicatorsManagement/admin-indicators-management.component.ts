@@ -197,23 +197,21 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     // React to metadata loading state transitions. skip(1) drops the
     // BehaviorSubject's replayed current value so this keeps the original
     // one-shot semantics of the former broadcast events.
-    const loadingSub = this.metadataBootstrap.metadataLoading$
-      .pipe(skip(1))
-      .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) {
-          this.zone.run(() => {
-            setTimeout(() => {
-              this.initializeOrRefreshOverviewTable();
-              // Also ensure topics are collapsed when metadata is loaded
-              this.initializeCollapsedTopics();
-            }, 250);
-          });
-        } else if (state === MetadataLoadingState.ERROR) {
-          this.zone.run(() => {
-            this.loadingData = false;
-          });
-        }
-      });
+    const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
+      if (state === MetadataLoadingState.COMPLETE) {
+        this.zone.run(() => {
+          setTimeout(() => {
+            this.initializeOrRefreshOverviewTable();
+            // Also ensure topics are collapsed when metadata is loaded
+            this.initializeCollapsedTopics();
+          }, 250);
+        });
+      } else if (state === MetadataLoadingState.ERROR) {
+        this.zone.run(() => {
+          this.loadingData = false;
+        });
+      }
+    });
     this.subscriptions.push(loadingSub);
 
     // Listen for the global metadata loading completion event
@@ -708,12 +706,16 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           .then((data: any) => {
             this.indicatorStore.addSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
+            );
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
+            );
           });
       } else if (crudType === 'edit') {
         this.kommonitorCacheHelperService
@@ -724,12 +726,16 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
           .then((data: any) => {
             this.indicatorStore.replaceSingleIndicatorMetadata(data);
             this.initializeOrRefreshOverviewTable();
-            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
+            );
             this.loadingData = false;
           })
           .catch((_response: any) => {
             this.loadingData = false;
-            this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTableCompleted);
+            this.broadcastService.broadcast(
+              BroadcastMessage.RefreshIndicatorOverviewTableCompleted
+            );
           });
       } else if (crudType === 'delete') {
         this.indicatorStore.deleteSingleIndicatorMetadata(targetIndicatorId);

@@ -164,8 +164,12 @@ export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
 
   @ViewChild('inputEl', { static: true }) inputEl!: ElementRef<HTMLInputElement>;
 
-  private onChange: (value: string | null) => void = () => { /* set via registerOnChange */ };
-  private onTouched: () => void = () => { /* set via registerOnTouched */ };
+  private onChange: (value: string | null) => void = () => {
+    /* set via registerOnChange */
+  };
+  private onTouched: () => void = () => {
+    /* set via registerOnTouched */
+  };
 
   ngOnInit(): void {
     this.control.valueChanges.subscribe((value) => {

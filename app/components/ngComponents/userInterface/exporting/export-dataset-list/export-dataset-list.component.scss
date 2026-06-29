@@ -15,9 +15,7 @@
 .card {
   --card-border-width: 1px;
   --card-border-width-success: 3px;
-  --card-border-offset: calc(
-    var(--card-border-width-success) - var(--card-border-width)
-  );
+  --card-border-offset: calc(var(--card-border-width-success) - var(--card-border-width));
 
   border-width: var(--card-border-width);
 

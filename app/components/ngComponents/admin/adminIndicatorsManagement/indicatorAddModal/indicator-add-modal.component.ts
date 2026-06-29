@@ -230,9 +230,7 @@ export class IndicatorAddModalComponent implements OnInit {
     this.loadingData = true;
 
     // Load available spatial units
-    if (
-      this.spatialUnitStore.availableSpatialUnits
-    ) {
+    if (this.spatialUnitStore.availableSpatialUnits) {
       this.availableSpatialUnits = this.spatialUnitStore.availableSpatialUnits;
       this.indicatorLowestSpatialUnitMetadataObjectForComputation =
         this.availableSpatialUnits.length > 0 ? this.availableSpatialUnits[0] : null;
@@ -251,16 +249,12 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Load available indicators
-    if (
-      this.indicatorStore.availableIndicators
-    ) {
+    if (this.indicatorStore.availableIndicators) {
       this.availableIndicators = this.indicatorStore.availableIndicators;
     }
 
     // Load available georesources
-    if (
-      this.georesourceStore.availableGeoresources
-    ) {
+    if (this.georesourceStore.availableGeoresources) {
       this.availableGeoresources = this.georesourceStore.availableGeoresources;
     }
 
@@ -298,10 +292,7 @@ export class IndicatorAddModalComponent implements OnInit {
     }
 
     // Initialize role management if available
-    if (
-      this.accessControlService.accessControl &&
-      this.roleManagementHelper
-    ) {
+    if (this.accessControlService.accessControl && this.roleManagementHelper) {
       this.roleManagementTableOptions = this.roleManagementHelper.buildRoleManagementGrid(
         'indicatorAddRoleManagementTable',
         this.roleManagementTableOptions,
@@ -350,11 +341,7 @@ export class IndicatorAddModalComponent implements OnInit {
   checkDatasetName() {
     this.datasetNameInvalid = false;
 
-    if (
-      this.datasetName &&
-      this.indicatorType &&
-      this.indicatorStore.availableIndicators
-    ) {
+    if (this.datasetName && this.indicatorType && this.indicatorStore.availableIndicators) {
       this.indicatorStore.availableIndicators.forEach((indicator: any) => {
         if (
           indicator.datasetName === this.datasetName &&
@@ -564,9 +551,7 @@ export class IndicatorAddModalComponent implements OnInit {
       this.postBody_indicators = this.buildPostBody_indicators();
 
       // Check if service is available
-      if (
-        !this.envConfigService.baseUrlToKomMonitorDataAPI
-      ) {
+      if (!this.envConfigService.baseUrlToKomMonitorDataAPI) {
         throw new Error('Data exchange service not available');
       }
 
@@ -595,13 +580,9 @@ export class IndicatorAddModalComponent implements OnInit {
         this.activeModal.close('success');
       }, 2000);
     } catch (error: any) {
-      if (
-        this.indicatorValueService.syntaxHighlightJSON
-      ) {
+      if (this.indicatorValueService.syntaxHighlightJSON) {
         if (error.data) {
-          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
-            error.data
-          );
+          this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
         } else {
           this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
         }

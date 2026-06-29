@@ -112,10 +112,7 @@
                       required
                     >
                       <option [ngValue]="null">-- Indikator wählen --</option>
-                      @for (
-                        avIndicator of indicatorStore.availableIndicators;
-                        track avIndicator
-                      ) {
+                      @for (avIndicator of indicatorStore.availableIndicators; track avIndicator) {
                         <option [ngValue]="avIndicator">
                           {{ avIndicator.indicatorName }}
                         </option>

@@ -72,7 +72,14 @@ export class LeafletScreenshotCacheHelperService {
     );
   }
 
-  async storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, imageDataUrl, templateName?) {
+  async storeResourceInCache(
+    mapName,
+    spatialUnitId,
+    featureId,
+    pageOrientation,
+    imageDataUrl,
+    templateName?
+  ) {
     const CacheKey = this.generateUniqueCacheKey(
       mapName,
       spatialUnitId,

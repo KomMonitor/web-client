@@ -464,7 +464,10 @@ export class GenericMapHelperService {
       );
       map.addControl(drawControl);
 
-      this.broadcastService.broadcast(BroadcastMessage.OnUpdateSingleFeatureGeometry, [undefined, drawControl]);
+      this.broadcastService.broadcast(BroadcastMessage.OnUpdateSingleFeatureGeometry, [
+        undefined,
+        drawControl,
+      ]);
     });
 
     return {

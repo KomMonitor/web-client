@@ -266,12 +266,15 @@
                 <label>aktuelle Eigentümer-Organisationseinheit</label>
                 <p>
                   {{
-                    accessControlService.getAccessControlById(currentIndicatorDataset?.ownerId)?.name
+                    accessControlService.getAccessControlById(currentIndicatorDataset?.ownerId)
+                      ?.name
                   }}
                 </p>
                 @if (ownerOrganization != currentIndicatorDataset?.ownerId) {
                   <div class="help-block" style="color: red">
-                    <p>ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.</p>
+                    <p>
+                      ACHTUNG: Sie sind dabei, die Eigentümerschaft an diesem Datensatz zu ändern.
+                    </p>
                   </div>
                 }
               </div>

@@ -205,9 +205,7 @@ export class KommonitorIndicatorDataGridHelperService {
         },
         filter: 'agTextColumnFilter',
         filterValueGetter: (params: any) => {
-          return (
-            '' + this.accessControlService.getAllowedRolesString(params.data.permissions)
-          );
+          return '' + this.accessControlService.getAllowedRolesString(params.data.permissions);
         },
       },
       {
@@ -325,8 +323,7 @@ export class KommonitorIndicatorDataGridHelperService {
       }
 
       const indicatorId = event.target.id.split('_')[3];
-      const indicatorMetadata =
-        this.indicatorStore.getIndicatorMetadataById(indicatorId);
+      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorMetadata', indicatorMetadata);
@@ -344,8 +341,7 @@ export class KommonitorIndicatorDataGridHelperService {
       }
 
       const indicatorId = event.target.id.split('_')[3];
-      const indicatorMetadata =
-        this.indicatorStore.getIndicatorMetadataById(indicatorId);
+      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorFeatures', indicatorMetadata);
@@ -362,8 +358,7 @@ export class KommonitorIndicatorDataGridHelperService {
       }
 
       const indicatorId = event.target.id.split('_')[3];
-      const indicatorMetadata =
-        this.indicatorStore.getIndicatorMetadataById(indicatorId);
+      const indicatorMetadata = this.indicatorStore.getIndicatorMetadataById(indicatorId);
 
       // Broadcast event for Angular component to handle
       this.broadcastEvent('onEditIndicatorSpatialUnitRoles', indicatorMetadata);

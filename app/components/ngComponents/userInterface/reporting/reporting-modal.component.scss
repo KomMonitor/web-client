@@ -1,18 +1,17 @@
-::ng-deep .modal-holder .modal-dialog { 
+::ng-deep .modal-holder .modal-dialog {
   max-width: max-content;
   width: max-content;
   transform: none !important;
 }
 
 ::ng-deep {
+  .btn {
+    font-size: 14px !important;
+  }
 
-    .btn {
-      font-size: 14px !important;
-    }
-
-    .btn-warning {
-      color: #fff !important;
-    }
+  .btn-warning {
+    color: #fff !important;
+  }
 }
 
 :host {
@@ -27,17 +26,19 @@
     &.content-small {
       width: 40vw;
     }
-    
-    .modal-header {
 
+    .modal-header {
       button {
         border: none;
         background-color: #fff;
       }
-      
+
       h4 {
         margin: 0 0 5px;
-        font: 16px/18px Arial, Helvetica, sans-serif !important;
+        font:
+          16px/18px Arial,
+          Helvetica,
+          sans-serif !important;
         color: #777 !important;
       }
     }
@@ -46,7 +47,7 @@
 
 ::ng-deep .modal-custom-footer {
   margin-top: 1em;
-  display: grid; 
+  display: grid;
   grid-template-columns: auto auto;
 
   .btn {

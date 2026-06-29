@@ -1,18 +1,11 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
-} from "components/ngComponents/models/georesources.models";
-import { GeoresourceDatasetTableComponent } from "../georesource-dataset-table/georesource-dataset-table.component";
+} from 'components/ngComponents/models/georesources.models';
+import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/georesource-dataset-table.component';
 
 /**
  * Renders the georesource topic hierarchy recursively (arbitrary depth) instead
@@ -25,9 +18,9 @@ import { GeoresourceDatasetTableComponent } from "../georesource-dataset-table/g
  * outputs.
  */
 @Component({
-  selector: "app-georesource-topic-tree",
-  templateUrl: "./georesource-topic-tree.component.html",
-  styleUrls: ["./georesource-topic-tree.component.scss"],
+  selector: 'app-georesource-topic-tree',
+  templateUrl: './georesource-topic-tree.component.html',
+  styleUrls: ['./georesource-topic-tree.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, GeoresourceDatasetTableComponent],
 })
@@ -54,7 +47,7 @@ export class GeoresourceTopicTreeComponent implements OnChanges {
   collapsedTopicIds: string[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["topics"]) {
+    if (changes['topics']) {
       this.collapsedTopicIds = [];
       this.initCollapsedState(this.topics);
     }
@@ -62,9 +55,7 @@ export class GeoresourceTopicTreeComponent implements OnChanges {
 
   onTopicClick(topicId: string): void {
     if (this.collapsedTopicIds.includes(topicId)) {
-      this.collapsedTopicIds = this.collapsedTopicIds.filter(
-        (e) => e !== topicId,
-      );
+      this.collapsedTopicIds = this.collapsedTopicIds.filter((e) => e !== topicId);
     } else {
       this.collapsedTopicIds.push(topicId);
     }

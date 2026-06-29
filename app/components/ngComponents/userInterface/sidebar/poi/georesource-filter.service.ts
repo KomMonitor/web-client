@@ -40,7 +40,7 @@ export class GeoresourceFilterService {
   /** (Re)builds the keyword/type-filtered topic hierarchy for the catalogue. */
   refreshPreppedHierarchy(): void {
     this.preppedTopicGeoresourceHierarchy = this.prepareTopicGeoresourceHierarchyRecursive(
-      this.topicHierarchyStore.topicGeoresourceHierarchy,
+      this.topicHierarchyStore.topicGeoresourceHierarchy
     );
   }
 
@@ -51,7 +51,7 @@ export class GeoresourceFilterService {
       this.showLOI,
       this.showAOI,
       this.showWMS,
-      this.showWFS,
+      this.showWFS
     );
 
     setTimeout(() => {

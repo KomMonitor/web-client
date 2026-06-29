@@ -185,7 +185,9 @@ export class AdminRoleManagementComponent implements OnInit {
 
     modalRef.result
       .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => { /* modal dismissed */ });
+      .catch(() => {
+        /* modal dismissed */
+      });
   }
 
   openEditMetadataModal(dataset: AccessControlMetadata): void {
@@ -202,7 +204,9 @@ export class AdminRoleManagementComponent implements OnInit {
 
     modalRef.result
       .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => { /* modal dismissed */ });
+      .catch(() => {
+        /* modal dismissed */
+      });
   }
 
   openDeleteModal(): void {
@@ -218,7 +222,9 @@ export class AdminRoleManagementComponent implements OnInit {
 
     modalRef.result
       .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => { /* modal dismissed */ });
+      .catch(() => {
+        /* modal dismissed */
+      });
   }
 
   openEditGroupRightsModal(dataset: AccessControlTableEntry) {
@@ -234,7 +240,9 @@ export class AdminRoleManagementComponent implements OnInit {
 
     modalRef.result
       .then((reloadData) => reloadData && this.fetchAccessControlData(false))
-      .catch(() => { /* modal dismissed */ });
+      .catch(() => {
+        /* modal dismissed */
+      });
   }
 
   selectionChanged($event: SelectionChangedEvent<AccessControlTableEntry, any>) {

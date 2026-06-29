@@ -1,29 +1,29 @@
-import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { GeometrySimplificationService } from "services/geometry-simplification-service/geometry-simplification.service";
-import { MapOverlayStateService } from "services/map-overlay-state-service/map-overlay-state.service";
-import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
-import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
-import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
-import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
-import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
-import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
-import { MapService } from "services/map-service/map.service";
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { GeometrySimplificationService } from 'services/geometry-simplification-service/geometry-simplification.service';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { MapService } from 'services/map-service/map.service';
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
-} from "components/ngComponents/models/indicators.models";
-import { WmsDataset } from "components/ngComponents/models/services.models";
-import { TopicOrderMode } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
-import { Indicator } from "components/ngComponents/userInterface/exporting/models";
+} from 'components/ngComponents/models/indicators.models';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { TopicOrderMode } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class KommonitorDataSetupService {
   private readonly http = inject(HttpClient);
@@ -40,18 +40,18 @@ export class KommonitorDataSetupService {
   private readonly mapService = inject(MapService);
 
   private readonly months = [
-    "Januar",
-    "Februar",
-    "März",
-    "April",
-    "Mai",
-    "Juni",
-    "Juli",
-    "August",
-    "September",
-    "Oktober",
-    "November",
-    "Dezember",
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
   ];
 
   getRandomInt(min: number, max: number): number {
@@ -74,7 +74,7 @@ export class KommonitorDataSetupService {
 
   prepNgbDates(dates: string[]): NgbDateStruct[] {
     return dates.map((date) => {
-      const parts = date.split("-");
+      const parts = date.split('-');
       return {
         year: parseInt(parts[0]),
         month: parseInt(parts[1]),
@@ -92,16 +92,15 @@ export class KommonitorDataSetupService {
   }
 
   dateStringToMs(dateStr: string): number {
-    const parts = dateStr.split(" ");
-    const offset =
-      new Date("November 1, 2000 00:00:00").getTimezoneOffset() * 60 * 1000;
+    const parts = dateStr.split(' ');
+    const offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset() * 60 * 1000;
     const tms = new Date(
       parts[2] +
-        "-" +
+        '-' +
         (this.months.indexOf(parts[1]) + 1) +
-        "-" +
-        parts[0].replace(".", "") +
-        "T00:00:00Z",
+        '-' +
+        parts[0].replace('.', '') +
+        'T00:00:00Z'
     ).getTime();
     return tms + offset;
   }
@@ -112,11 +111,7 @@ export class KommonitorDataSetupService {
       entry.parent = parent;
 
       if (entry.subTopics.length > 0) {
-        entry.subTopics = this.prepTopicsTree(
-          entry.subTopics,
-          level + 1,
-          entry.topicId,
-        );
+        entry.subTopics = this.prepTopicsTree(entry.subTopics, level + 1, entry.topicId);
       }
     });
 
@@ -124,40 +119,36 @@ export class KommonitorDataSetupService {
   }
 
   prepareKeywordFilteredList(): any[] {
-    const indicators =
-      this.metadataFilterService.displayableIndicators_keywordFiltered.map(
-        (item: any) => ({ ...item, listType: "indicator" }),
-      );
+    const indicators = this.metadataFilterService.displayableIndicators_keywordFiltered.map(
+      (item: any) => ({ ...item, listType: 'indicator' })
+    );
     const wms = this.georesourceStore
       .getAvailableIndiWmsDatasets()
-      .map((item) => ({ ...item, listType: "wms" }));
+      .map((item) => ({ ...item, listType: 'wms' }));
 
     return [...indicators, ...wms].sort((a, b) => {
-      const aKey = (a.indicatorName ?? a.title)?.toLowerCase() ?? "";
-      const bKey = (b.indicatorName ?? b.title)?.toLowerCase() ?? "";
+      const aKey = (a.indicatorName ?? a.title)?.toLowerCase() ?? '';
+      const bKey = (b.indicatorName ?? b.title)?.toLowerCase() ?? '';
       return aKey.localeCompare(bKey);
     });
   }
 
   prepareIndicatorTopicsRecursive(
     tree: IndicatorsTopicsHierarchy[],
-    topicSorting: TopicOrderMode | undefined,
+    topicSorting: TopicOrderMode | undefined
   ): IndicatorsTopicsHierarchy[] {
     let retTree = tree.filter((e) => e.indicatorCount > 0);
 
-    if (topicSorting === "custom") {
+    if (topicSorting === 'custom') {
       retTree = retTree.sort((a, b) => a.displayOrder - b.displayOrder);
     }
-    if (topicSorting === "alphabetical") {
+    if (topicSorting === 'alphabetical') {
       retTree = retTree.sort((a, b) => (a.topicName > b.topicName ? 1 : -1));
     }
 
     retTree.forEach((elem) => {
       if (elem.subTopics.length > 0) {
-        elem.subTopics = this.prepareIndicatorTopicsRecursive(
-          elem.subTopics,
-          topicSorting,
-        );
+        elem.subTopics = this.prepareIndicatorTopicsRecursive(elem.subTopics, topicSorting);
       }
     });
 
@@ -166,7 +157,7 @@ export class KommonitorDataSetupService {
 
   isTopicContainingSelectedIndicator(topic: IndicatorsTopicsHierarchy): boolean {
     const indicatorMatch = topic.indicatorData.some(
-      (e) => e.indicatorId === this.selectionState.selectedIndicator.indicatorId,
+      (e) => e.indicatorId === this.selectionState.selectedIndicator.indicatorId
     );
     const wmsMatch = topic.wmsData.some((e) => e.isSelected === true);
 
@@ -176,14 +167,11 @@ export class KommonitorDataSetupService {
   }
 
   getFirstSpatialUnitForSelectedIndicator(): any {
-    const applicableSpatialUnits =
-      this.selectionState.selectedIndicator.applicableSpatialUnits;
+    const applicableSpatialUnits = this.selectionState.selectedIndicator.applicableSpatialUnits;
 
     for (const spatialUnitEntry of this.spatialUnitStore.availableSpatialUnits) {
       if (
-        applicableSpatialUnits.some(
-          (o) => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel,
-        )
+        applicableSpatialUnits.some((o) => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel)
       ) {
         return spatialUnitEntry;
       }
@@ -195,13 +183,13 @@ export class KommonitorDataSetupService {
   createDatesFromIndicatorDates(indicatorDates: string[]): number[] {
     return indicatorDates
       .map((dateStr) => {
-        const dateComponents = dateStr.split("-");
+        const dateComponents = dateStr.split('-');
         return this.metadataExportService.dateToTS(
           new Date(
             Number(dateComponents[0]),
             Number(dateComponents[1]) - 1,
-            Number(dateComponents[2]),
-          ),
+            Number(dateComponents[2])
+          )
         );
       })
       .filter((v): v is number => v !== undefined);
@@ -211,8 +199,7 @@ export class KommonitorDataSetupService {
     this.mapOverlayState.wmsUrlForSelectedIndicator = undefined;
     this.mapOverlayState.wfsUrlForSelectedIndicator = undefined;
 
-    const selectedSpatialUnitName =
-      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    const selectedSpatialUnitName = this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
     for (const ogcServiceEntry of this.selectionState.selectedIndicator.ogcServices) {
       if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName) {
@@ -257,12 +244,12 @@ export class KommonitorDataSetupService {
 
     if (!(date && this.selectionState.selectedSpatialUnit && indicatorId)) {
       this.mapErrorNotificationService.displayMapApplicationError(
-        "Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.",
+        'Beim Versuch, einen Beispielindikator zu laden, ist ein Fehler aufgetreten. Der Datenbankeintrag scheint eine fehlerhafte Kombination aus Raumebene und Zeitschnitt zu enthalten.'
       );
-      throw Error("Not all parameters have been set up yet.");
+      throw Error('Not all parameters have been set up yet.');
     }
 
-    const [year, month, day] = date.split("-");
+    const [year, month, day] = date.split('-');
     const { spatialUnitId } = this.selectionState.selectedSpatialUnit;
     const base = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource();
     const simplify = `${this.geometrySimplification.simplifyGeometriesParameterName}=${this.geometrySimplification.simplifyGeometries}`;

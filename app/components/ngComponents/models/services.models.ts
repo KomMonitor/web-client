@@ -26,10 +26,10 @@ export interface ConnectionDetails {
 }
 
 export enum ServiceType {
-  WMS = 'wms'
+  WMS = 'wms',
 }
 
 export enum WmsResourceType {
   GEORESOURCE = 'georesource',
-  INDICATOR = 'indicator'
+  INDICATOR = 'indicator',
 }

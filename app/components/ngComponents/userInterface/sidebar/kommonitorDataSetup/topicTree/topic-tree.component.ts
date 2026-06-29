@@ -6,25 +6,25 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
-import { KommonitorDataSetupService } from "../kommonitor-data-setup.service";
-import { ExportModeService } from "../export-mode.service";
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { KommonitorDataSetupService } from '../kommonitor-data-setup.service';
+import { ExportModeService } from '../export-mode.service';
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
-} from "components/ngComponents/models/indicators.models";
-import { WmsDataset } from "components/ngComponents/models/services.models";
-import { IndicatorMetadataTooltipComponent } from "components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component";
-import { WmsTableComponent } from "../wmsTable/wms-table.component";
-import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
-import { Indicator } from "components/ngComponents/userInterface/exporting/models";
+} from 'components/ngComponents/models/indicators.models';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import { WmsTableComponent } from '../wmsTable/wms-table.component';
+import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
+import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
 
 @Component({
-  selector: "app-topic-tree",
-  templateUrl: "./topic-tree.component.html",
-  styleUrls: ["./topic-tree.component.scss"],
+  selector: 'app-topic-tree',
+  templateUrl: './topic-tree.component.html',
+  styleUrls: ['./topic-tree.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -53,7 +53,7 @@ export class TopicTreeComponent implements OnChanges {
   collapsedTopicIds: string[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["topics"]) {
+    if (changes['topics']) {
       this.collapsedTopicIds = [];
       this.initCollapsedState(this.topics);
     }
@@ -61,9 +61,7 @@ export class TopicTreeComponent implements OnChanges {
 
   onTopicClick(topicId: string): void {
     if (this.collapsedTopicIds.includes(topicId)) {
-      this.collapsedTopicIds = this.collapsedTopicIds.filter(
-        (e) => e !== topicId,
-      );
+      this.collapsedTopicIds = this.collapsedTopicIds.filter((e) => e !== topicId);
     } else {
       this.collapsedTopicIds.push(topicId);
     }

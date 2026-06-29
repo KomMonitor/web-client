@@ -536,7 +536,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
             this.refreshRoleManagementTable();
           }
         },
-        error: (_error) => { /* ignore */ },
+        error: (_error) => {
+          /* ignore */
+        },
       });
     }
   }

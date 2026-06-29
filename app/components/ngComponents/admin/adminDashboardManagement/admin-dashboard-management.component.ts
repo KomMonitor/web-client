@@ -9,7 +9,10 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { SmallBoxComponent } from './small-box/small-box.component';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
-import { MetadataBootstrapService, MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
@@ -174,14 +177,17 @@ export class AdminDashboardManagementComponent implements OnInit {
   }
 
   private updateDisplayValues(): void {
-
     this.organisationCount.set(String(this.accessControlService.accessControl?.length ?? 0));
     this.indicatorCount.set(String(this.indicatorStore.availableIndicators?.length ?? 0));
     this.georesourceCount.set(String(this.georesourceStore.availableGeoresources?.length ?? 0));
     this.spatialUnitCount.set(String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0));
-    this.indicatorScriptCount.set(String(this.processScriptStore.availableProcessScripts?.length ?? 0));
+    this.indicatorScriptCount.set(
+      String(this.processScriptStore.availableProcessScripts?.length ?? 0)
+    );
 
-    const mainTopics = (this.topicStore.availableTopics ?? []).filter((t: any) => t.topicType === 'main');
+    const mainTopics = (this.topicStore.availableTopics ?? []).filter(
+      (t: any) => t.topicType === 'main'
+    );
     const subTopics = collectSubTopics(mainTopics);
 
     this.topicCounts.set(`${mainTopics.length}/${subTopics.length}`);

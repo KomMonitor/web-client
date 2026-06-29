@@ -80,7 +80,10 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private setupEventListeners(): void {
     // Listen for batch update completion
     const sub1 = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === BroadcastMessage.BatchUpdateCompleted && (data as any).resourceType === 'indicator') {
+      if (
+        data.msg === BroadcastMessage.BatchUpdateCompleted &&
+        (data as any).resourceType === 'indicator'
+      ) {
         this.lastUpdateResponseObj = data;
       } else if (data.msg === BroadcastMessage.RefreshIndicatorOverviewTableCompleted) {
         this.refreshNameColumn();
@@ -323,7 +326,10 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
 
   public reopenResultModal(): void {
     if (this.lastUpdateResponseObj) {
-      this.broadcastService.broadcast(BroadcastMessage.ReopenBatchUpdateResultModal, this.lastUpdateResponseObj);
+      this.broadcastService.broadcast(
+        BroadcastMessage.ReopenBatchUpdateResultModal,
+        this.lastUpdateResponseObj
+      );
     }
   }
 
@@ -409,9 +415,7 @@ export class IndicatorBatchUpdateModalComponent implements OnInit, OnDestroy {
   private getSpatialUnitObjectByName(name: string): any {
     // Implementation to get spatial unit object by name
     if (this.spatialUnitStore.availableSpatialUnits) {
-      return this.spatialUnitStore.availableSpatialUnits.find(
-        (s) => s.spatialUnitLevel === name
-      );
+      return this.spatialUnitStore.availableSpatialUnits.find((s) => s.spatialUnitLevel === name);
     }
     return null;
   }

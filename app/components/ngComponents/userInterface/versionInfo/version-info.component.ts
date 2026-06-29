@@ -6,8 +6,6 @@ import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './version-info.component.html',
   styleUrls: ['./version-info.component.scss'],
   imports: [NgbAccordionModule],
-  standalone: true
+  standalone: true,
 })
-export class VersionInfoComponent {
-
-}
+export class VersionInfoComponent {}

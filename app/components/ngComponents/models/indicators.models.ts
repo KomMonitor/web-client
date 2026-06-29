@@ -1,5 +1,4 @@
-import { WmsDataset } from "./services.models";
-
+import { WmsDataset } from './services.models';
 
 export interface IndicatorsTopicsHierarchy {
   indicatorCount: number;

@@ -1,9 +1,9 @@
-import { inject, Injectable } from "@angular/core";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { FavService } from "services/fav-service/fav.service";
-import { WmsDataset } from "components/ngComponents/models/services.models";
+import { inject, Injectable } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { FavService } from 'services/fav-service/fav.service';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
 
 /**
  * Holds the georesource favourite-selection state (POI/LOI/AOI, WMS and topic
@@ -14,7 +14,7 @@ import { WmsDataset } from "components/ngComponents/models/services.models";
  * remain visible in the favourites tab even after being toggled off, until the
  * selection is saved or reloaded.
  */
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class GeoresourceFavoritesService {
   private readonly favService = inject(FavService);
   private readonly topicHierarchyStore = inject(TopicHierarchyStoreService);
@@ -34,9 +34,9 @@ export class GeoresourceFavoritesService {
   toastStatus = 0;
 
   readonly toastText = [
-    "",
-    "Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken",
-    "Auswahl erfolgreich gespeichert",
+    '',
+    'Favoriten-Auswahl nicht gesichert. Zum speichern hier klicken',
+    'Auswahl erfolgreich gespeichert',
   ];
 
   /** Builds the flattened favourites topic tree from the topic hierarchy. */
@@ -44,7 +44,7 @@ export class GeoresourceFavoritesService {
     this.georesourceFavTopicsTree = this.prepTopicsTree(
       this.topicHierarchyStore.topicGeoresourceHierarchy,
       0,
-      undefined,
+      undefined
     );
   }
 
@@ -71,11 +71,7 @@ export class GeoresourceFavoritesService {
 
       if (entry.subTopics.length > 0) {
         const newLevel = level + 1;
-        entry.subTopics = this.prepTopicsTree(
-          entry.subTopics,
-          newLevel,
-          entry.topicId,
-        );
+        entry.subTopics = this.prepTopicsTree(entry.subTopics, newLevel, entry.topicId);
       }
     });
 
@@ -87,14 +83,12 @@ export class GeoresourceFavoritesService {
   }
 
   poiFavSelected(id) {
-    if (Array.isArray(id))
-      return id.some((e) => this.poiFavItems.includes(e.georesourceId));
+    if (Array.isArray(id)) return id.some((e) => this.poiFavItems.includes(e.georesourceId));
     else return this.poiFavItems.includes(id);
   }
 
   wmsFavSelected(id) {
-    if (Array.isArray(id))
-      return id.some((e) => this.wmsFavItems.includes(e.id));
+    if (Array.isArray(id)) return id.some((e) => this.wmsFavItems.includes(e.id));
     else return this.wmsFavItems.includes(id);
   }
 
@@ -117,13 +111,13 @@ export class GeoresourceFavoritesService {
       this.searchGeoresourceTopicFavItemsRecursive(
         this.topicHierarchyStore.topicGeoresourceHierarchy,
         topicId,
-        true,
+        true
       );
     else
       this.searchGeoresourceTopicFavItemsRecursive(
         this.topicHierarchyStore.topicGeoresourceHierarchy,
         topicId,
-        false,
+        false
       );
 
     this.onHandleFavSelection(favTab);
@@ -175,19 +169,15 @@ export class GeoresourceFavoritesService {
     tree.forEach((entry) => {
       if (entry.topicId == id) {
         if (selected === true) {
-          if (!this.georesourceTopicFavItems.includes(id))
-            this.georesourceTopicFavItems.push(id);
-        } else
-          this.georesourceTopicFavItems = this.georesourceTopicFavItems.filter(
-            (e) => e != id,
-          );
+          if (!this.georesourceTopicFavItems.includes(id)) this.georesourceTopicFavItems.push(id);
+        } else this.georesourceTopicFavItems = this.georesourceTopicFavItems.filter((e) => e != id);
 
         ret = true;
       } else {
         const itemFound = this.searchGeoresourceTopicFavItemsRecursive(
           entry.subTopics,
           id,
-          selected,
+          selected
         );
         if (itemFound === true) ret = true;
       }
@@ -199,16 +189,16 @@ export class GeoresourceFavoritesService {
   checkGeoresourceDataFavItems(entry, selected) {
     const types = [
       {
-        typeName: "poiData",
-        typeFav: "poiFavItems",
+        typeName: 'poiData',
+        typeFav: 'poiFavItems',
       },
       {
-        typeName: "aoiData",
-        typeFav: "poiFavItems",
+        typeName: 'aoiData',
+        typeFav: 'poiFavItems',
       },
       {
-        typeName: "loiData",
-        typeFav: "poiFavItems",
+        typeName: 'loiData',
+        typeFav: 'poiFavItems',
       },
     ];
 
@@ -217,10 +207,7 @@ export class GeoresourceFavoritesService {
         if (selected === true) {
           if (!this[type.typeFav].includes(typeElem.georesourceId))
             this[type.typeFav].push(typeElem.georesourceId);
-        } else
-          this[type.typeFav] = this[type.typeFav].filter(
-            (e) => e != typeElem.georesourceId,
-          );
+        } else this[type.typeFav] = this[type.typeFav].filter((e) => e != typeElem.georesourceId);
       });
     });
   }
@@ -232,26 +219,19 @@ export class GeoresourceFavoritesService {
           this.georesourceTopicFavItems.push(entry.topicId);
       } else
         this.georesourceTopicFavItems = this.georesourceTopicFavItems.filter(
-          (e) => e != entry.topicId,
+          (e) => e != entry.topicId
         );
 
       if (entry.subTopics.length > 0)
         this.checkGeoresourceTopicFavItemsRecursive(entry.subTopics, selected);
 
-      if (
-        entry.poiData.length > 0 ||
-        entry.aoiData.length > 0 ||
-        entry.loiData.length > 0
-      )
+      if (entry.poiData.length > 0 || entry.aoiData.length > 0 || entry.loiData.length > 0)
         this.checkGeoresourceDataFavItems(entry, selected);
     });
   }
 
   favTabShowTopic(topic) {
-    if (
-      this.topicOrGeoresourceInFavRecursive([topic]) ||
-      this.topicInFavTopBottom(topic)
-    )
+    if (this.topicOrGeoresourceInFavRecursive([topic]) || this.topicInFavTopBottom(topic))
       return true;
 
     return false;
@@ -264,15 +244,9 @@ export class GeoresourceFavoritesService {
     if (this.FavTabGeoresourceTopicFavItems.includes(topic.topicId)) ret = true;
 
     while (parentNext !== undefined && ret === false) {
-      ret = this.parentInFavRecursive(
-        this.georesourceFavTopicsTree,
-        parentNext,
-      );
+      ret = this.parentInFavRecursive(this.georesourceFavTopicsTree, parentNext);
       if (ret === false)
-        parentNext = this.findParentNextRecursive(
-          this.georesourceFavTopicsTree,
-          parentNext,
-        );
+        parentNext = this.findParentNextRecursive(this.georesourceFavTopicsTree, parentNext);
     }
 
     return ret;
@@ -281,10 +255,7 @@ export class GeoresourceFavoritesService {
   parentInFavRecursive(tree, parentId) {
     let ret = false;
     tree.forEach((elem) => {
-      if (
-        elem.topicId == parentId &&
-        this.FavTabGeoresourceTopicFavItems.includes(parentId)
-      )
+      if (elem.topicId == parentId && this.FavTabGeoresourceTopicFavItems.includes(parentId))
         ret = true;
 
       if (elem.subTopics && elem.subTopics.length > 0 && ret === false)
@@ -301,11 +272,7 @@ export class GeoresourceFavoritesService {
         parentNext = elem.parent;
       }
 
-      if (
-        elem.subTopics &&
-        elem.subTopics.length > 0 &&
-        parentNext === undefined
-      )
+      if (elem.subTopics && elem.subTopics.length > 0 && parentNext === undefined)
         parentNext = this.findParentNextRecursive(elem.subTopics, parent);
     });
 
@@ -314,15 +281,9 @@ export class GeoresourceFavoritesService {
 
   FavTabShowPOIHeader(topic) {
     if (
-      topic.poiData.some((e) =>
-        this.FavTabPoiFavItems.includes(e.georesourceId),
-      ) ||
-      topic.aoiData.some((e) =>
-        this.FavTabPoiFavItems.includes(e.georesourceId),
-      ) ||
-      topic.loiData.some((e) =>
-        this.FavTabPoiFavItems.includes(e.georesourceId),
-      ) ||
+      topic.poiData.some((e) => this.FavTabPoiFavItems.includes(e.georesourceId)) ||
+      topic.aoiData.some((e) => this.FavTabPoiFavItems.includes(e.georesourceId)) ||
+      topic.loiData.some((e) => this.FavTabPoiFavItems.includes(e.georesourceId)) ||
       topic.wmsData.some((e) => this.FavTabWmsFavItems.includes(e.id)) ||
       this.topicInFavTopBottom(topic)
     )
@@ -332,10 +293,7 @@ export class GeoresourceFavoritesService {
   }
 
   FavTabShowPoi(topic, georesourceId) {
-    if (
-      this.FavTabPoiFavItems.includes(georesourceId) ||
-      this.topicInFavTopBottom(topic)
-    )
+    if (this.FavTabPoiFavItems.includes(georesourceId) || this.topicInFavTopBottom(topic))
       return true;
 
     return false;

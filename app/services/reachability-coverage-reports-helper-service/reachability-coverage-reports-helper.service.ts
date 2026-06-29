@@ -190,9 +190,7 @@ export class ReachabilityCoverageReportsHelperService {
       }
 
       const coverage_absolute =
-        this.getIndicatorValue_asFormattedText(
-          overallCoverageEntry.coverage[0].absoluteCoverage
-        ) +
+        this.getIndicatorValue_asFormattedText(overallCoverageEntry.coverage[0].absoluteCoverage) +
         ' von ' +
         this.getIndicatorValue_asFormattedText(
           indicatorStatistic.coverageResult.timeseries[0].value

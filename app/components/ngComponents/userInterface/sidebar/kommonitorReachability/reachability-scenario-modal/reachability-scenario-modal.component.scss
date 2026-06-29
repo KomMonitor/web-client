@@ -1,23 +1,21 @@
-::ng-deep .modal-holder .modal-dialog { 
+::ng-deep .modal-holder .modal-dialog {
   max-width: max-content;
   width: max-content;
   transform: none !important;
 }
 
 ::ng-deep {
+  .btn {
+    font-size: 14px !important;
+  }
 
-    .btn {
-      font-size: 14px !important;
-    }
-
-    .btn-warning {
-      color: #fff !important;
-    }
+  .btn-warning {
+    color: #fff !important;
+  }
 }
 
 ::ng-deep {
   .reachability-feature-btn-wrapper {
-
     display: flex;
     width: 100%;
     gap: 1px;
@@ -25,7 +23,7 @@
     .feature-btn {
       flex: 1;
       background-color: var(--kommonitor-primary);
-      padding: .4em;
+      padding: 0.4em;
       color: #fff;
       font-size: 14px;
       border: none;
@@ -36,13 +34,13 @@
     }
 
     .feature-btn:first-of-type {
-      border-top-left-radius: .2em;
-      border-bottom-left-radius: .2em;
+      border-top-left-radius: 0.2em;
+      border-bottom-left-radius: 0.2em;
     }
 
     .feature-btn:last-of-type {
-      border-top-right-radius: .2em;
-      border-bottom-right-radius: .2em;
+      border-top-right-radius: 0.2em;
+      border-bottom-right-radius: 0.2em;
     }
   }
 }
@@ -59,17 +57,19 @@
     &.content-small {
       width: 40vw;
     }
-    
-    .modal-header {
 
+    .modal-header {
       button {
         border: none;
         background-color: #fff;
       }
-      
+
       h4 {
         margin: 0 0 5px;
-        font: 16px/18px Arial, Helvetica, sans-serif !important;
+        font:
+          16px/18px Arial,
+          Helvetica,
+          sans-serif !important;
         color: #777 !important;
       }
     }
@@ -78,7 +78,7 @@
 
 ::ng-deep .modal-custom-footer {
   margin-top: 1em;
-  display: grid; 
+  display: grid;
   grid-template-columns: auto auto;
 
   .btn {

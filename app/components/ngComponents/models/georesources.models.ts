@@ -1,4 +1,3 @@
-
 export interface GeoresourcesTopicsHierarchy {
   aoiCount: number;
   aoiData: GeoresourcesDataset[];
@@ -6,10 +5,10 @@ export interface GeoresourcesTopicsHierarchy {
   loiCount: number;
   loiData: GeoresourcesDataset[];
   ownCount: number;
-  parent: undefined
+  parent: undefined;
   poiCount: number;
   poiData: GeoresourcesDataset[];
-  subTopics: GeoresourcesTopicsHierarchy[]
+  subTopics: GeoresourcesTopicsHierarchy[];
   topicDescription: string;
   topicId: string;
   topicName: string;

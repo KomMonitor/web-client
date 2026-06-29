@@ -211,11 +211,17 @@ export class MapService {
   }
 
   addAoiGeoresourceGeoJSON(aoiGeoresource, date) {
-    this.broadcastService.broadcast(BroadcastMessage.AddAoiGeoresourceAsGeoJSON, [aoiGeoresource, date]);
+    this.broadcastService.broadcast(BroadcastMessage.AddAoiGeoresourceAsGeoJSON, [
+      aoiGeoresource,
+      date,
+    ]);
   }
 
   addLoiGeoresourceGeoJSON(loiGeoresource, date) {
-    this.broadcastService.broadcast(BroadcastMessage.AddLoiGeoresourceAsGeoJSON, [loiGeoresource, date]);
+    this.broadcastService.broadcast(BroadcastMessage.AddLoiGeoresourceAsGeoJSON, [
+      loiGeoresource,
+      date,
+    ]);
   }
 
   removeAoiGeoresource(aoiGeoresource) {
@@ -223,7 +229,9 @@ export class MapService {
   }
 
   replaceReachabilityScenarioOnMainMap(reachabilityScenario) {
-    this.broadcastService.broadcast(BroadcastMessage.ReplaceReachabilityScenarioOnMainMap, [reachabilityScenario]);
+    this.broadcastService.broadcast(BroadcastMessage.ReplaceReachabilityScenarioOnMainMap, [
+      reachabilityScenario,
+    ]);
   }
 
   removeReachabilityScenarioFromMainMap() {

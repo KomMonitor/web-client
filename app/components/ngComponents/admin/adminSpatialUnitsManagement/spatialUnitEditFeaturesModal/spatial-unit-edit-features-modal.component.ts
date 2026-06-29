@@ -1,7 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage, showLoadingIconFor, hideLoadingIconFor, onDeleteFeatureEntryFor } from 'services/broadcast-service/broadcast-message';
+import {
+  BroadcastMessage,
+  showLoadingIconFor,
+  hideLoadingIconFor,
+  onDeleteFeatureEntryFor,
+} from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
@@ -221,15 +226,18 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           if (broadcastMsg.msg === 'onEditSpatialUnitFeatures') {
             this.onEditSpatialUnitFeatures(broadcastMsg.values);
           } else if (
-            broadcastMsg.msg === showLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
+            broadcastMsg.msg ===
+            showLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             this.loadingData = true;
           } else if (
-            broadcastMsg.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
+            broadcastMsg.msg ===
+            hideLoadingIconFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             this.loadingData = false;
           } else if (
-            broadcastMsg.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_spatialUnit)
+            broadcastMsg.msg ===
+            onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_spatialUnit)
           ) {
             // Handle individual feature deletion
             this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {

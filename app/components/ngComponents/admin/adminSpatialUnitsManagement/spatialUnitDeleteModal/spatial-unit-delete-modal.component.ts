@@ -110,7 +110,10 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
 
         // Refresh spatial unit overview table
         const deletedIds = this.successfullyDeletedDatasets.map((dataset) => dataset.spatialUnitId);
-        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, ['delete', deletedIds]);
+        this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, [
+          'delete',
+          deletedIds,
+        ]);
 
         // Refresh all admin dashboard diagrams due to modified metadata
         setTimeout(() => {

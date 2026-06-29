@@ -44,9 +44,8 @@ export class AddTopicComponent {
           this.newTopicTitle = '';
         },
         error: (error) => {
-          this.errorHandlingService.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
-            error?.data || error
-          );
+          this.errorHandlingService.errorMessagePart =
+            this.indicatorValueService.syntaxHighlightJSON(error?.data || error);
         },
       });
   }

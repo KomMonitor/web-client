@@ -13,10 +13,7 @@ import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 
-import {
-  MetadataBootstrapService,
-  MetadataLoadingState,
-} from './metadata-bootstrap.service';
+import { MetadataBootstrapService, MetadataLoadingState } from './metadata-bootstrap.service';
 
 /** Minimal manually-resolvable promise for controlling async timing in tests. */
 function deferred<T = void>() {
@@ -32,7 +29,11 @@ function deferred<T = void>() {
 describe('MetadataBootstrapService', () => {
   let service: MetadataBootstrapService;
 
-  let authService: { isAuthenticated: jest.Mock; loadUserProfile: jest.Mock; getTokenParsed: jest.Mock };
+  let authService: {
+    isAuthenticated: jest.Mock;
+    loadUserProfile: jest.Mock;
+    getTokenParsed: jest.Mock;
+  };
   let cacheHelper: {
     init: jest.Mock;
     fetchTopicsMetadata: jest.Mock;
@@ -68,7 +69,10 @@ describe('MetadataBootstrapService', () => {
         MetadataBootstrapService,
         { provide: AuthService, useValue: authService },
         { provide: CacheHelperServiceService, useValue: cacheHelper },
-        { provide: MapErrorNotificationService, useValue: { displayMapApplicationError: mapError } },
+        {
+          provide: MapErrorNotificationService,
+          useValue: { displayMapApplicationError: mapError },
+        },
         { provide: OptionTitleTooltipService, useValue: tooltip },
         {
           provide: AccessControlService,

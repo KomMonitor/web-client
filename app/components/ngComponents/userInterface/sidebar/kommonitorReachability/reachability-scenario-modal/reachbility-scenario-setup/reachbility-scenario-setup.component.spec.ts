@@ -11,10 +11,7 @@ describe('ReachbilityScenarioSetupComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ReachbilityScenarioSetupComponent],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     fixture = TestBed.createComponent(ReachbilityScenarioSetupComponent);
     component = fixture.componentInstance;

@@ -7,10 +7,9 @@ declare const $: any;
 @Component({
   selector: 'app-language-switcher',
   templateUrl: './language-switcher.component.html',
-  styleUrls: ['./language-switcher.component.scss']
+  styleUrls: ['./language-switcher.component.scss'],
 })
 export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewInit {
-  
   currentLanguage: string = 'de';
   supportedLanguages = [
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
@@ -18,7 +17,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
     { code: 'de-li', name: 'Deutsch (Liechtenstein)', flag: '🇱🇮' },
     { code: 'de-lu', name: 'Deutsch (Luxemburg)', flag: '🇱🇺' },
     { code: 'de-ch', name: 'Deutsch (Schweiz)', flag: '🇨🇭' },
-    { code: 'en', name: 'English', flag: '🇬🇧' }
+    { code: 'en', name: 'English', flag: '🇬🇧' },
   ];
 
   private languageChangeSubscription: Subscription | undefined;
@@ -28,7 +27,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   ngOnInit(): void {
     // Get current language from service
     this.currentLanguage = this.translateService.currentLang || 'de';
-    
+
     // Set default language if none is set
     if (!this.translateService.currentLang) {
       this.translateService.setDefaultLang('de');
@@ -43,7 +42,11 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
 
     // Load saved language preference
     const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(savedLanguage) && savedLanguage !== this.currentLanguage) {
+    if (
+      savedLanguage &&
+      ['de', 'de-at', 'de-li', 'de-lu', 'de-ch', 'en'].includes(savedLanguage) &&
+      savedLanguage !== this.currentLanguage
+    ) {
       this.changeLanguage(savedLanguage);
     }
 
@@ -67,18 +70,18 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   changeLanguage(languageCode: string): void {
     try {
       console.log('Changing language to:', languageCode);
-      
+
       this.currentLanguage = languageCode;
       this.translateService.use(languageCode);
-      
+
       // Store language preference in localStorage
       localStorage.setItem('preferredLanguage', languageCode);
-      
+
       // Close dropdown after selection
       if (typeof $ !== 'undefined') {
         $('#languageDropdown').dropdown('hide');
       }
-      
+
       console.log('Language changed successfully to:', languageCode);
     } catch (error) {
       console.error('Error changing language:', error);
@@ -86,12 +89,12 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   getCurrentLanguageName(): string {
-    const lang = this.supportedLanguages.find(l => l.code === this.currentLanguage);
+    const lang = this.supportedLanguages.find((l) => l.code === this.currentLanguage);
     return lang ? lang.name : 'Deutsch';
   }
 
   getCurrentLanguageFlag(): string {
-    const lang = this.supportedLanguages.find(l => l.code === this.currentLanguage);
+    const lang = this.supportedLanguages.find((l) => l.code === this.currentLanguage);
     return lang ? lang.flag : '🇩🇪';
   }
 
@@ -101,7 +104,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
       const testKey = 'COMMON.LOGIN';
       const translation = this.translateService.instant(testKey);
       console.log(`Translation test for "${testKey}":`, translation);
-      
+
       if (translation === testKey) {
         console.warn('Translation service might not be working properly - key returned as-is');
       } else {
@@ -109,4 +112,4 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
       }
     }, 1000);
   }
-} 
+}

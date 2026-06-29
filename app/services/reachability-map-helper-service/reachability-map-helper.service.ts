@@ -698,8 +698,7 @@ export class ReachabilityMapHelperService {
     const { indicatorId } = indicatorStatisticsCandidate.indicator;
     const { spatialUnitId } = indicatorStatisticsCandidate.spatialUnit;
     const { timestamp } = indicatorStatisticsCandidate;
-    const indicatorMetadataAndGeoJSON =
-      this.indicatorStore.getIndicatorMetadataById(indicatorId);
+    const indicatorMetadataAndGeoJSON = this.indicatorStore.getIndicatorMetadataById(indicatorId);
     indicatorMetadataAndGeoJSON.geoJSON = await this.fetchIndicatorForSpatialUnit(
       indicatorId,
       spatialUnitId,

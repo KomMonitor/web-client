@@ -1,5 +1,5 @@
 export interface Classification {
-  name: string; 
+  name: string;
   id: string;
   imgPath: string;
   description: string;

@@ -163,8 +163,9 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       aoiColor: 'color for area of interest dataset',
     };
 
-    this.georesourceMetadataStructure_pretty =
-      this.indicatorValueService.syntaxHighlightJSON(this.georesourceMetadataStructure);
+    this.georesourceMetadataStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
+      this.georesourceMetadataStructure
+    );
   }
 
   private setupEventListeners(): void {
@@ -750,9 +751,7 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
         },
         error: (error: any) => {
           if (error.data) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
-              error.data
-            );
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.data);
           } else {
             this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
           }

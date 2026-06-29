@@ -12,29 +12,28 @@ interface IndicatorTooltipData {
   templateUrl: './indicator-metadata-tooltip.component.html',
   styleUrls: ['./indicator-metadata-tooltip.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule],
 })
 export class IndicatorMetadataTooltipComponent {
-
   @Input() indicatorData!: IndicatorTooltipData;
 
-  mousePosX!:string;
-  mousePosY!:string;
+  mousePosX!: string;
+  mousePosY!: string;
 
   offsetX: number = 20;
   offsetY: number = -100;
 
   @HostListener('mousemove', ['$event']) onMouseMove(event) {
-    this.mousePosX = `${event.clientX+this.offsetX}px`;
-    this.mousePosY = `${event.clientY+this.offsetY}px`;
+    this.mousePosX = `${event.clientX + this.offsetX}px`;
+    this.mousePosY = `${event.clientY + this.offsetY}px`;
   }
 
-  onMouseover(prefix:string = '') {
+  onMouseover(prefix: string = '') {
     const elem = document.getElementById(`${prefix}tooltip-${this.indicatorData.data.indicatorId}`);
     elem!.style.display = 'block';
   }
 
-  onMouseout(prefix:string = '') {
+  onMouseout(prefix: string = '') {
     const elem = document.getElementById(`${prefix}tooltip-${this.indicatorData.data.indicatorId}`);
     elem!.style.display = 'none';
   }

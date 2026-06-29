@@ -8,7 +8,12 @@ import { GridOptions } from 'ag-grid-community';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { KommonitorImporterHelperService } from '../../../../../services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { BroadcastService } from '../../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage, showLoadingIconFor, hideLoadingIconFor, onDeleteFeatureEntryFor } from '../../../../../services/broadcast-service/broadcast-message';
+import {
+  BroadcastMessage,
+  showLoadingIconFor,
+  hideLoadingIconFor,
+  onDeleteFeatureEntryFor,
+} from '../../../../../services/broadcast-service/broadcast-message';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from '../../../../../services/access-control-service/access-control.service';
 import { IndicatorValueService } from '../../../../../services/indicator-value-service/indicator-value.service';
@@ -118,7 +123,9 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         this.loadingData = true;
       } else if (data.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_indicator)) {
         this.loadingData = false;
-      } else if (data.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_indicator)) {
+      } else if (
+        data.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_indicator)
+      ) {
         this.broadcastService.broadcast(BroadcastMessage.RefreshIndicatorOverviewTable, {
           action: 'edit',
           indicatorId: this.currentIndicatorDataset.indicatorId,

@@ -149,7 +149,9 @@ export class MetadataBootstrapService {
   }
 
   async fetchTopicsMetadata(keycloakRolesArray) {
-    this.topicStore.setTopics(await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray));
+    this.topicStore.setTopics(
+      await this.cacheHelperService.fetchTopicsMetadata(keycloakRolesArray)
+    );
   }
 
   async fetchSpatialUnitsMetadata(keycloakRolesArray) {
@@ -172,7 +174,9 @@ export class MetadataBootstrapService {
 
   async fetchIndicatorScriptsMetadata() {
     this.processScriptStore.setProcessScripts(
-      await this.cacheHelperService.fetchProcessScriptsMetadata(this.accessControlService.currentKeycloakLoginRoles)
+      await this.cacheHelperService.fetchProcessScriptsMetadata(
+        this.accessControlService.currentKeycloakLoginRoles
+      )
     );
   }
 

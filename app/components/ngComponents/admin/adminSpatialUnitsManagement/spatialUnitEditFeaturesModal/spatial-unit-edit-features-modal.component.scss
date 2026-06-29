@@ -250,7 +250,7 @@
   color: #fff;
 }
 
-.progressbar li.active~li::before {
+.progressbar li.active ~ li::before {
   background-color: #dee2e6;
   color: #6c757d;
 }
@@ -418,21 +418,21 @@ fieldset {
   vertical-align: middle;
 }
 
-.btn-group>.btn {
+.btn-group > .btn {
   position: relative;
   flex: 1 1 auto;
 }
 
-.btn-group>.btn:not(:first-child) {
+.btn-group > .btn:not(:first-child) {
   margin-left: -1px;
 }
 
-.btn-group>.btn:not(:last-child):not(.dropdown-toggle) {
+.btn-group > .btn:not(:last-child):not(.dropdown-toggle) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.btn-group>.btn:not(:first-child) {
+.btn-group > .btn:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -498,7 +498,7 @@ fieldset {
   width: 100%;
 }
 
-.input-group>.form-control {
+.input-group > .form-control {
   position: relative;
   flex: 1 1 auto;
   width: 1%;
@@ -520,18 +520,18 @@ fieldset {
   border-radius: 0.25rem;
 }
 
-.input-group>.input-group-text:not(:last-child) {
+.input-group > .input-group-text:not(:last-child) {
   border-right: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.input-group>.form-control:not(:last-child) {
+.input-group > .form-control:not(:last-child) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.input-group>.form-control:not(:first-child) {
+.input-group > .form-control:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -678,7 +678,6 @@ fieldset {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-
   .col-md-3,
   .col-md-6 {
     margin-bottom: 1rem;
@@ -1000,14 +999,14 @@ fieldset {
   z-index: 10;
 }
 
-.date-input-group>div {
+.date-input-group > div {
   flex: 1 1 auto !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.date-input-group>div>.form-control,
-.date-input-group>.form-control {
+.date-input-group > div > .form-control,
+.date-input-group > .form-control {
   width: 100% !important;
   height: 100% !important;
   border-left: 0 !important;

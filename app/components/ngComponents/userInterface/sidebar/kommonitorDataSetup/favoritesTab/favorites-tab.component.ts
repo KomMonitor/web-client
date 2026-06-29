@@ -6,26 +6,26 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
-import { KommonitorDataSetupService } from "../kommonitor-data-setup.service";
-import { ExportModeService } from "../export-mode.service";
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { KommonitorDataSetupService } from '../kommonitor-data-setup.service';
+import { ExportModeService } from '../export-mode.service';
 import {
   IndicatorsDataset,
   IndicatorsTopicsHierarchy,
-} from "components/ngComponents/models/indicators.models";
-import { WmsDataset } from "components/ngComponents/models/services.models";
-import { IndicatorFavFilter } from "pipes/indicator-fav-filter.pipe";
-import { IndicatorMetadataTooltipComponent } from "components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component";
-import { WmsTableComponent } from "../wmsTable/wms-table.component";
-import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
-import { Indicator } from "components/ngComponents/userInterface/exporting/models";
+} from 'components/ngComponents/models/indicators.models';
+import { WmsDataset } from 'components/ngComponents/models/services.models';
+import { IndicatorFavFilter } from 'pipes/indicator-fav-filter.pipe';
+import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import { WmsTableComponent } from '../wmsTable/wms-table.component';
+import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
+import { Indicator } from 'components/ngComponents/userInterface/exporting/models';
 
 @Component({
-  selector: "app-favorites-tab",
-  templateUrl: "./favorites-tab.component.html",
-  styleUrls: ["./favorites-tab.component.scss"],
+  selector: 'app-favorites-tab',
+  templateUrl: './favorites-tab.component.html',
+  styleUrls: ['./favorites-tab.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -55,7 +55,7 @@ export class FavoritesTabComponent implements OnChanges {
   collapsedTopicIds: string[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["indicatorFavTopicsTree"]) {
+    if (changes['indicatorFavTopicsTree']) {
       this.collapsedTopicIds = [];
       this.initCollapsedState(this.indicatorFavTopicsTree);
     }
@@ -85,5 +85,4 @@ export class FavoritesTabComponent implements OnChanges {
       }
     });
   }
-
 }

@@ -355,18 +355,14 @@ export class AdminFilterConfigComponent implements OnInit {
         filter.indicatorTopics.forEach((indicatorTopicElement, indicatorTopicIndex) => {
           this.mergedFilterConfig[filterIndex].indicatorTopics[indicatorTopicIndex] =
             this.searchTopicRecursive(
-              this.topicStore.availableTopics.filter(
-                (e) => e.topicResource == 'indicator'
-              ),
+              this.topicStore.availableTopics.filter((e) => e.topicResource == 'indicator'),
               indicatorTopicElement
             );
         });
         filter.georesourceTopics.forEach((georesourceTopicElement, georesourceTopicIndex) => {
           this.mergedFilterConfig[filterIndex].georesourceTopics[georesourceTopicIndex] =
             this.searchTopicRecursive(
-              this.topicStore.availableTopics.filter(
-                (e) => e.topicResource == 'georesource'
-              ),
+              this.topicStore.availableTopics.filter((e) => e.topicResource == 'georesource'),
               georesourceTopicElement
             );
         });

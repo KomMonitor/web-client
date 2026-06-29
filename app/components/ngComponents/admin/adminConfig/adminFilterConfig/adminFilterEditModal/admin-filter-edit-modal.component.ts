@@ -451,16 +451,12 @@ export class AdminFilterEditModalComponent implements OnInit {
         this.selectedGeoresourceTopicEditIds = elem.georesourceTopics;
 
         this.indicatorTopicsEditTree = this.prepTopicsTree(
-          this.topicStore.availableTopics.filter(
-            (e) => e.topicResource == 'indicator'
-          ),
+          this.topicStore.availableTopics.filter((e) => e.topicResource == 'indicator'),
           0,
           this.selectedIndicatorTopicEditIds
         );
         this.georesourceTopicsEditTree = this.prepTopicsTree(
-          this.topicStore.availableTopics.filter(
-            (e) => e.topicResource == 'georesource'
-          ),
+          this.topicStore.availableTopics.filter((e) => e.topicResource == 'georesource'),
           0,
           this.selectedGeoresourceTopicEditIds
         );

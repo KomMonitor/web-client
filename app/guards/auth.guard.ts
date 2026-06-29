@@ -1,10 +1,10 @@
-import { inject } from "@angular/core";
-import { CanActivateFn, Router } from "@angular/router";
-import { AuthService } from "services/auth-service/auth.service";
-import { AdminLoginStateService } from "services/admin-login-state-service/admin-login-state.service";
-import { EnvConfigService } from "../services/env-config-service/env-config.service";
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from 'services/auth-service/auth.service';
+import { AdminLoginStateService } from 'services/admin-login-state-service/admin-login-state.service';
+import { EnvConfigService } from '../services/env-config-service/env-config.service';
 
-const ADMIN_ROLE_SUFFIXES = ["-creator", "-publisher", "-editor"] as const;
+const ADMIN_ROLE_SUFFIXES = ['-creator', '-publisher', '-editor'] as const;
 
 export const authAdminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -20,12 +20,12 @@ export const authAdminGuard: CanActivateFn = () => {
         tokenParsed.realm_access &&
         tokenParsed.realm_access.roles &&
         tokenParsed.realm_access.roles.some((role) =>
-          ADMIN_ROLE_SUFFIXES.some((suffix) => role.endsWith(suffix)),
+          ADMIN_ROLE_SUFFIXES.some((suffix) => role.endsWith(suffix))
         )
       ) {
         return true;
       }
-      return router.createUrlTree(["/"]);
+      return router.createUrlTree(['/']);
     }
     authService.login();
     return false;
@@ -35,5 +35,5 @@ export const authAdminGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.createUrlTree(["/"]);
+  return router.createUrlTree(['/']);
 };

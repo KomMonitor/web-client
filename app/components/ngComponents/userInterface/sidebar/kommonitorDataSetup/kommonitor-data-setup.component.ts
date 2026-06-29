@@ -1,36 +1,42 @@
-import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { IndicatorMetadataTooltipComponent } from "components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component";
-import { IndicatorsDataset, IndicatorsTopicsHierarchy } from "components/ngComponents/models/indicators.models";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
-import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
-import { EnvConfigService } from "services/env-config-service/env-config.service";
-import { IndicatorMetadataStoreService } from "services/indicator-metadata-store-service/indicator-metadata-store.service";
-import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
-import { MapService } from "services/map-service/map.service";
-import { MetadataBootstrapService, MetadataLoadingState } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
-import { MetadataFilterService } from "services/metadata-filter-service/metadata-filter.service";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
-import { SpatialUnitMetadataStoreService } from "services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { TopicOrderMode } from "../../../admin/adminTopicsManagement/admin-topics-management.component";
-import { AdminTopicsManagementService } from "../../../admin/adminTopicsManagement/admin-topics-management.service";
-import { ExportItemCheckboxComponent } from "../../exporting/export-item-checkbox/export-item-checkbox.component";
-import { Indicator } from "../../exporting/models";
-import { ExportModeService } from "./export-mode.service";
-import { FavoritesStateService } from "./favorites-state.service";
-import { FavoritesTabComponent } from "./favoritesTab/favorites-tab.component";
-import { KommonitorDataSetupService } from "./kommonitor-data-setup.service";
-import { TopicTreeComponent } from "./topicTree/topic-tree.component";
+import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { IndicatorMetadataTooltipComponent } from 'components/ngComponents/customElements/indicator-metadata-tooltip/indicator-metadata-tooltip.component';
+import {
+  IndicatorsDataset,
+  IndicatorsTopicsHierarchy,
+} from 'components/ngComponents/models/indicators.models';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
+import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store-service/indicator-metadata-store.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { MapService } from 'services/map-service/map.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { MetadataFilterService } from 'services/metadata-filter-service/metadata-filter.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { TopicOrderMode } from '../../../admin/adminTopicsManagement/admin-topics-management.component';
+import { AdminTopicsManagementService } from '../../../admin/adminTopicsManagement/admin-topics-management.service';
+import { ExportItemCheckboxComponent } from '../../exporting/export-item-checkbox/export-item-checkbox.component';
+import { Indicator } from '../../exporting/models';
+import { ExportModeService } from './export-mode.service';
+import { FavoritesStateService } from './favorites-state.service';
+import { FavoritesTabComponent } from './favoritesTab/favorites-tab.component';
+import { KommonitorDataSetupService } from './kommonitor-data-setup.service';
+import { TopicTreeComponent } from './topicTree/topic-tree.component';
 
 @Component({
-  selector: "app-kommonitor-data-setup",
-  templateUrl: "./kommonitor-data-setup.component.html",
-  styleUrls: ["./kommonitor-data-setup.component.scss"],
+  selector: 'app-kommonitor-data-setup',
+  templateUrl: './kommonitor-data-setup.component.html',
+  styleUrls: ['./kommonitor-data-setup.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -52,16 +58,12 @@ export class KommonitorDataSetupComponent implements OnInit {
   private readonly spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   private readonly indicatorStore = inject(IndicatorMetadataStoreService);
   private readonly broadcastService = inject(BroadcastService);
-  private readonly elementVisibilityHelperService = inject(
-    ElementVisibilityHelperService,
-  );
+  private readonly elementVisibilityHelperService = inject(ElementVisibilityHelperService);
   private readonly mapService = inject(MapService);
   private readonly dataSetupService = inject(KommonitorDataSetupService);
   protected readonly exportModeService = inject(ExportModeService);
   protected readonly favStateService = inject(FavoritesStateService);
-  private readonly adminTopicsManagementService = inject(
-    AdminTopicsManagementService,
-  );
+  private readonly adminTopicsManagementService = inject(AdminTopicsManagementService);
   private readonly envConfigService = inject(EnvConfigService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -81,28 +83,23 @@ export class KommonitorDataSetupComponent implements OnInit {
 
   ngOnInit(): void {
     this.adminTopicsManagementService
-      .getOrderMode("indicator")
+      .getOrderMode('indicator')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res) => (this.topicSorting = res));
 
     this.metadataBootstrap.metadataLoading$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
-        if (value == MetadataLoadingState.COMPLETE)
-          this.onInitialMetadataLoadingComplete();
+        if (value == MetadataLoadingState.COMPLETE) this.onInitialMetadataLoadingComplete();
       });
 
-    this.mapService.dateSlider$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        if (value.selected) this.onChangeDateSliderItem(value.selected);
-      });
+    this.mapService.dateSlider$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      if (value.selected) this.onChangeDateSliderItem(value.selected);
+    });
 
-    this.selectionState.selectedDate$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.changeIndicatorDate();
-      });
+    this.selectionState.selectedDate$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.changeIndicatorDate();
+    });
 
     this.broadcastService.currentBroadcastMsg
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -114,7 +111,7 @@ export class KommonitorDataSetupComponent implements OnInit {
           case BroadcastMessage.ChangeSpatialUnit:
             this.onChangeSelectedSpatialUnit();
             break;
-          case "updateIndicatorOgcServices":
+          case 'updateIndicatorOgcServices':
             this.dataSetupService.updateIndicatorOgcServices(values);
             break;
         }
@@ -122,17 +119,15 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onInitialMetadataLoadingComplete() {
-    console.log("Load an initial example indicator");
+    console.log('Load an initial example indicator');
 
     this.mapService.resetMapRefreshState();
 
-    this.preppedIndicatorTopics =
-      this.dataSetupService.prepareIndicatorTopicsRecursive(
-        this.topicHierarchyStore.topicIndicatorHierarchy,
-        this.topicSorting,
-      );
-    this.preppedKeywordList =
-      this.dataSetupService.prepareKeywordFilteredList();
+    this.preppedIndicatorTopics = this.dataSetupService.prepareIndicatorTopicsRecursive(
+      this.topicHierarchyStore.topicIndicatorHierarchy,
+      this.topicSorting
+    );
+    this.preppedKeywordList = this.dataSetupService.prepareKeywordFilteredList();
 
     this.prepareHeadlineIndicatorTopics();
 
@@ -141,10 +136,10 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.indicatorStore.displayableIndicators == undefined ||
       this.indicatorStore.displayableIndicators.length === 0
     ) {
-      console.error("Kein darstellbarer Indikator konnte gefunden werden.");
+      console.error('Kein darstellbarer Indikator konnte gefunden werden.');
 
       this.mapErrorNotificationService.displayMapApplicationError(
-        "Kein darstellbarer Indikator konnte gefunden werden.",
+        'Kein darstellbarer Indikator konnte gefunden werden.'
       );
       this.loadingData = false;
 
@@ -156,19 +151,12 @@ export class KommonitorDataSetupComponent implements OnInit {
     try {
       let indicatorIndex: number | undefined = undefined;
 
-      for (
-        let index = 0;
-        index < this.indicatorStore.displayableIndicators.length;
-        index++
-      ) {
+      for (let index = 0; index < this.indicatorStore.displayableIndicators.length; index++) {
         if (
           this.indicatorStore.displayableIndicators[index].indicatorId ===
           this.envConfigService.initialIndicatorId
         ) {
-          if (
-            this.indicatorStore.displayableIndicators[index]
-              .applicableDates.length > 0
-          ) {
+          if (this.indicatorStore.displayableIndicators[index].applicableDates.length > 0) {
             indicatorIndex = index;
             break;
           }
@@ -179,12 +167,9 @@ export class KommonitorDataSetupComponent implements OnInit {
         for (let t = 0; t < 75; t++) {
           const randIndex = this.dataSetupService.getRandomInt(
             0,
-            this.indicatorStore.displayableIndicators.length - 1,
+            this.indicatorStore.displayableIndicators.length - 1
           );
-          if (
-            this.indicatorStore.displayableIndicators[randIndex]
-              .applicableDates.length > 0
-          ) {
+          if (this.indicatorStore.displayableIndicators[randIndex].applicableDates.length > 0) {
             indicatorIndex = randIndex;
             break;
           }
@@ -198,16 +183,11 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.selectionState.selectedIndicator =
         this.indicatorStore.displayableIndicators[indicatorIndex];
       // create Backup which is used when currently selected indicator is filtered out in select
-      this.selectedIndicatorBackup =
-        this.selectionState.selectedIndicator;
+      this.selectedIndicatorBackup = this.selectionState.selectedIndicator;
 
       // set spatialUnit
-      for (const spatialUnitEntry of this.spatialUnitStore
-        .availableSpatialUnits) {
-        if (
-          spatialUnitEntry.spatialUnitLevel ===
-          this.envConfigService.initialSpatialUnitName
-        ) {
+      for (const spatialUnitEntry of this.spatialUnitStore.availableSpatialUnits) {
+        if (spatialUnitEntry.spatialUnitLevel === this.envConfigService.initialSpatialUnitName) {
           this.selectionState.selectedSpatialUnit = spatialUnitEntry;
           break;
         }
@@ -219,10 +199,10 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.onChangeSelectedIndicator(this.envConfigService.centerMapInitially);
     } catch (error) {
-      console.error("Initiales Darstellen eines Indikators ist gescheitert.");
+      console.error('Initiales Darstellen eines Indikators ist gescheitert.');
 
       this.mapErrorNotificationService.displayMapApplicationError(
-        "Initiales Darstellen eines Indikators ist gescheitert.",
+        'Initiales Darstellen eines Indikators ist gescheitert.'
       );
       this.loadingData = false;
       this.broadcastService.broadcast(BroadcastMessage.HideLoadingIconOnMap);
@@ -236,37 +216,27 @@ export class KommonitorDataSetupComponent implements OnInit {
     this.favStateService.initFromUserInfo();
 
     setTimeout(() => {
-      if (
-        this.elementVisibilityHelperService.elementVisibility.favSelection ===
-        true
-      )
+      if (this.elementVisibilityHelperService.elementVisibility.favSelection === true)
         this.favStateService.showFavSelection = true;
     }, 1000);
 
-    this.favStateService.indicatorFavTopicsTree =
-      this.dataSetupService.prepTopicsTree(
-        this.topicHierarchyStore.topicIndicatorHierarchy,
-        0,
-        undefined,
-      );
+    this.favStateService.indicatorFavTopicsTree = this.dataSetupService.prepTopicsTree(
+      this.topicHierarchyStore.topicIndicatorHierarchy,
+      0,
+      undefined
+    );
   }
 
   prepareHeadlineIndicatorTopics() {
     this.topicHierarchyStore.headlineIndicatorHierarchy.forEach((elem: any) => {
-      if (
-        !this.headlineTopicsCollapsed.includes(
-          elem.headlineIndicator.indicatorId,
-        )
-      )
+      if (!this.headlineTopicsCollapsed.includes(elem.headlineIndicator.indicatorId))
         this.headlineTopicsCollapsed.push(elem.headlineIndicator.indicatorId);
     });
   }
 
   onHeadlineTopicClick(topicID: string) {
     if (this.headlineTopicsCollapsed.includes(topicID))
-      this.headlineTopicsCollapsed = this.headlineTopicsCollapsed.filter(
-        (e) => e != topicID,
-      );
+      this.headlineTopicsCollapsed = this.headlineTopicsCollapsed.filter((e) => e != topicID);
     else this.headlineTopicsCollapsed.push(topicID);
   }
 
@@ -280,14 +250,9 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   setupDateSliderForIndicator() {
-    const availableDates =
-      this.selectionState.selectedIndicator.applicableDates;
-    this.selectionState.selectedDate =
-      availableDates[availableDates.length - 1];
-    const dates =
-      this.selectionState.selectedIndicator.applicableDates.map(
-        (e) => new Date(e),
-      );
+    const availableDates = this.selectionState.selectedIndicator.applicableDates;
+    this.selectionState.selectedDate = availableDates[availableDates.length - 1];
+    const dates = this.selectionState.selectedIndicator.applicableDates.map((e) => new Date(e));
 
     this.mapService.setDateSliderValues({
       data: dates,
@@ -296,49 +261,35 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeIndicatorFilter() {
-    this.metadataFilterService.onChangeIndicatorKeywordFilter(
-      this.indicatorNameFilter,
-    );
+    this.metadataFilterService.onChangeIndicatorKeywordFilter(this.indicatorNameFilter);
 
-    this.preppedIndicatorTopics =
-      this.dataSetupService.prepareIndicatorTopicsRecursive(
-        this.topicHierarchyStore.topicIndicatorHierarchy,
-        this.topicSorting,
-      );
+    this.preppedIndicatorTopics = this.dataSetupService.prepareIndicatorTopicsRecursive(
+      this.topicHierarchyStore.topicIndicatorHierarchy,
+      this.topicSorting
+    );
   }
 
   setupDatePickerForIndicator() {
-    const availableDates =
-      this.selectionState.selectedIndicator.applicableDates;
+    const availableDates = this.selectionState.selectedIndicator.applicableDates;
     this.date = availableDates[availableDates.length - 1];
     this.selectedDate = availableDates[availableDates.length - 1];
-    this.selectionState.selectedDate =
-      availableDates[availableDates.length - 1];
+    this.selectionState.selectedDate = availableDates[availableDates.length - 1];
 
     const ngbDates = this.dataSetupService.prepNgbDates(availableDates);
-    this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerAvailableDates, [
-      ngbDates,
-    ]);
+    this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerAvailableDates, [ngbDates]);
     this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerSelectedDate, [
       ngbDates[ngbDates.length - 1],
     ]);
   }
 
   onChangeDateSliderItem(data: Date) {
-    if (
-      !this.changeIndicatorWasClicked &&
-      this.selectionState.selectedIndicator
-    ) {
-      this.selectedDate = data.toISOString().split("T")[0];
+    if (!this.changeIndicatorWasClicked && this.selectionState.selectedIndicator) {
+      this.selectedDate = data.toISOString().split('T')[0];
       this.date = this.selectedDate;
       this.selectionState.selectedDate = this.selectedDate;
 
-      const preppedDate = this.dataSetupService.prepNgbDates([
-        this.selectionState.selectedDate,
-      ])[0];
-      this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerSelectedDate, [
-        preppedDate,
-      ]);
+      const preppedDate = this.dataSetupService.prepNgbDates([this.selectionState.selectedDate])[0];
+      this.broadcastService.broadcast(BroadcastMessage.UpdateDatePickerSelectedDate, [preppedDate]);
 
       if (this.applyMeasureOfValueUpdate()) {
         this.broadcastService.broadcast(BroadcastMessage.SelectedIndicatorDateHasChanged);
@@ -389,10 +340,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   changeIndicatorDate() {
-    if (
-      this.selectionState.selectedIndicator &&
-      this.selectionState.selectedDate
-    ) {
+    if (this.selectionState.selectedIndicator && this.selectionState.selectedDate) {
       this.date = this.selectionState.selectedDate;
       this.selectedDate = this.selectionState.selectedDate;
 
@@ -403,10 +351,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeSelectedSpatialUnit() {
-    if (
-      !this.changeIndicatorWasClicked &&
-      this.selectionState.selectedIndicator
-    ) {
+    if (!this.changeIndicatorWasClicked && this.selectionState.selectedIndicator) {
       this.applyMeasureOfValueUpdate();
     }
   }
@@ -416,7 +361,7 @@ export class KommonitorDataSetupComponent implements OnInit {
   }
 
   onChangeSelectedIndicator_fromAlphabeticalList(dataset) {
-    if (dataset.listType == "indicator") {
+    if (dataset.listType == 'indicator') {
       this.selectionState.selectedIndicator = dataset;
       this.onChangeSelectedIndicator(false);
     } else {
@@ -431,8 +376,7 @@ export class KommonitorDataSetupComponent implements OnInit {
         this.selectionState.selectedIndicator.geoJSON = response;
         this.mapService.setMapRefreshValues({
           indicator: this.selectionState.selectedIndicator,
-          spatialUnit:
-            this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+          spatialUnit: this.selectionState.selectedSpatialUnit.spatialUnitLevel,
           date: this.selectionState.selectedDate,
           justRestyling: false,
           customComputation: false,
@@ -458,11 +402,10 @@ export class KommonitorDataSetupComponent implements OnInit {
 
       this.changeIndicatorWasClicked = true;
 
-      this.selectedIndicatorBackup =
-        this.selectionState.selectedIndicator;
+      this.selectedIndicatorBackup = this.selectionState.selectedIndicator;
 
       this.selectionState.setSelectedDate(
-        this.selectionState.selectedIndicator.applicableDates.at(-1),
+        this.selectionState.selectedIndicator.applicableDates.at(-1)
       );
 
       this.setupDateSliderForIndicator();
@@ -471,9 +414,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       if (
         !this.selectionState.selectedSpatialUnit ||
         !this.selectionState.selectedIndicator.applicableSpatialUnits.some(
-          (o) =>
-            o.spatialUnitName ===
-            this.selectionState.selectedSpatialUnit.spatialUnitLevel,
+          (o) => o.spatialUnitName === this.selectionState.selectedSpatialUnit.spatialUnitLevel
         )
       ) {
         this.selectionState.selectedSpatialUnit =
@@ -508,8 +449,7 @@ export class KommonitorDataSetupComponent implements OnInit {
       this.changeIndicatorWasClicked = false;
     } else {
       if (this.selectedIndicatorBackup) {
-        this.selectionState.selectedIndicator =
-          this.selectedIndicatorBackup;
+        this.selectionState.selectedIndicator = this.selectedIndicatorBackup;
       }
     }
     this.broadcastService.broadcast(BroadcastMessage.SelectedIndicatorDateHasChanged);

@@ -1,4 +1,4 @@
-import { Injectable, TemplateRef } from "@angular/core";
+import { Injectable, TemplateRef } from '@angular/core';
 
 export interface NotificationOptions {
   header?: string;
@@ -12,7 +12,7 @@ interface Notification {
   options: Partial<NotificationOptions>;
 }
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class NotificationService {
   notifications: Notification[] = [];
 
@@ -23,36 +23,27 @@ export class NotificationService {
     });
   }
 
-  showSuccess(
-    message: string,
-    options: Partial<NotificationOptions> = {},
-  ): void {
+  showSuccess(message: string, options: Partial<NotificationOptions> = {}): void {
     this.notifications.push({
       content: message,
       options: {
-        classname: "bg-success text-light",
+        classname: 'bg-success text-light',
         ...options,
       },
     });
   }
 
-  showError(
-    errorText: string,
-    options: Partial<NotificationOptions> = {},
-  ): void {
+  showError(errorText: string, options: Partial<NotificationOptions> = {}): void {
     this.notifications.push({
       content: errorText,
       options: {
-        classname: "bg-danger text-light",
+        classname: 'bg-danger text-light',
         ...options,
       },
     });
   }
 
-  showTemplate(
-    template: TemplateRef<any>,
-    options: Partial<NotificationOptions> = {},
-  ): void {
+  showTemplate(template: TemplateRef<any>, options: Partial<NotificationOptions> = {}): void {
     this.notifications.push({
       content: template,
       options,

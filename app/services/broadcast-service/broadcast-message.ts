@@ -129,8 +129,7 @@ export const BroadcastMessage = {
   UpdateMeasureOfValueBar: 'updateMeasureOfValueBar',
 } as const;
 
-export type BroadcastMessage =
-  (typeof BroadcastMessage)[keyof typeof BroadcastMessage];
+export type BroadcastMessage = (typeof BroadcastMessage)[keyof typeof BroadcastMessage];
 
 /**
  * Helpers for the dynamically built message names from

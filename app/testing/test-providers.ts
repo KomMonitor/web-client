@@ -1,11 +1,8 @@
-import { Provider } from "@angular/core";
-import {
-  HttpClientTestingModule,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
-import { provideHttpClient } from "@angular/common/http";
-import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { TranslateModule } from "@ngx-translate/core";
+import { Provider } from '@angular/core';
+import { HttpClientTestingModule, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Shared test helpers for the Prio-6 baseline.
@@ -19,10 +16,7 @@ import { TranslateModule } from "@ngx-translate/core";
  */
 
 /** Common imports for component/service specs that touch HTTP + i18n. */
-export const commonTestImports = [
-  HttpClientTestingModule,
-  TranslateModule.forRoot(),
-];
+export const commonTestImports = [HttpClientTestingModule, TranslateModule.forRoot()];
 
 /** Common providers (HttpClient testing backend + no-op animations). */
 export const commonTestProviders: Provider[] = [

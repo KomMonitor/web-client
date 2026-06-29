@@ -1,11 +1,6 @@
 <div class="form-check">
   <label class="form-check-label">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      [checked]="isInExport()"
-      (change)="toggle()"
-    />
-    {{ isInExport() ? "aus Export entfernen" : "in Export übernehmen" }}
+    <input class="form-check-input" type="checkbox" [checked]="isInExport()" (change)="toggle()" />
+    {{ isInExport() ? 'aus Export entfernen' : 'in Export übernehmen' }}
   </label>
 </div>

@@ -6,7 +6,10 @@ import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { MetadataBootstrapService, MetadataLoadingState } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import {
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { ReachabilityScenarioHelperService } from 'services/reachability-scenario-helper-service/reachability-scenario-helper-service.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
 import uuidv4 from '../../../customizedExternalLibs/uuidv4.js';

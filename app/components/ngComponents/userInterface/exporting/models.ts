@@ -1,15 +1,10 @@
-export type TimeSelectionMode = "points" | "range";
+export type TimeSelectionMode = 'points' | 'range';
 
 export type SelectedTargetTime =
-  | { mode: "point"; value: string }
-  | { mode: "range"; start: string; end: string };
+  | { mode: 'point'; value: string }
+  | { mode: 'range'; start: string; end: string };
 
-export const AVAILABLE_FORMATS = [
-  "GeoPackage",
-  "Excel",
-  "CSV",
-  "GeoJSON",
-] as const;
+export const AVAILABLE_FORMATS = ['GeoPackage', 'Excel', 'CSV', 'GeoJSON'] as const;
 
 export type ExportFormat = (typeof AVAILABLE_FORMATS)[number];
 
@@ -50,9 +45,9 @@ export type ExportItem = IndicatorExportItem | GeoressourceExportItem;
 
 export const sortTimestamps = (
   timestamps: string[],
-  direction: "asc" | "desc" = "desc",
+  direction: 'asc' | 'desc' = 'desc'
 ): string[] => {
   return [...timestamps].sort((a, b) =>
-    direction === "desc" ? b.localeCompare(a) : a.localeCompare(b),
+    direction === 'desc' ? b.localeCompare(a) : a.localeCompare(b)
   );
 };

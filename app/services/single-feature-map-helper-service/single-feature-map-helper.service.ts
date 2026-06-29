@@ -150,8 +150,7 @@ export class SingleFeatureMapHelperService {
     if (this.indicatorValueService.indicatorValueIsNoData(indicatorValue)) {
       feature.tempData.indicatorValueText = 'NoData';
     } else {
-      feature.tempData.indicatorValueText =
-        this.getIndicatorValue_asFormattedText(indicatorValue);
+      feature.tempData.indicatorValueText = this.getIndicatorValue_asFormattedText(indicatorValue);
     }
     feature.tempData.unitText = this.selectionState.selectedIndicator.unit;
 

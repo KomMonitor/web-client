@@ -1,5 +1,4 @@
 :host {
-  
   --awesome-marker-default-width: 35px;
   --awesome-marker-default-height: 45px;
   --awesome-marker-default-background-width: 720px;
@@ -21,7 +20,7 @@
   --awesome-marker-scale-factor-extra-small: 0.75;
   --awesome-marker-scale-factor-small: 0.85;
   --awesome-marker-scale-factor-middlesized: 1;
-  --awesome-marker-scale-factor-large: 1.10;
+  --awesome-marker-scale-factor-large: 1.1;
   --awesome-marker-color-scale-additional-factor: 1.005;
 
   position: absolute !important;
@@ -42,207 +41,477 @@
     width: 100%;
     height: 100%;
   }
-  
-  ::ng-deep .awesome-marker {
 
+  ::ng-deep .awesome-marker {
     &:has(i.vector-marker-icon-extra-small) {
-      width: calc(var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-extra-small)) !important;
-      height: calc(var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-extra-small)) !important;
-      background-size: calc(var(--awesome-marker-default-background-width) * var(--awesome-marker-scale-factor-extra-small)) calc(var(--awesome-marker-default-background-height) * var(--awesome-marker-scale-factor-extra-small)) !important;
-      
+      width: calc(
+        var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-extra-small)
+      ) !important;
+      height: calc(
+        var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-extra-small)
+      ) !important;
+      background-size: calc(
+          var(--awesome-marker-default-background-width) *
+            var(--awesome-marker-scale-factor-extra-small)
+        )
+        calc(
+          var(--awesome-marker-default-background-height) *
+            var(--awesome-marker-scale-factor-extra-small)
+        ) !important;
+
       &:has(i.vector-marker-icon-color-red) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-orange) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-orange)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-orange)
+              ) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-green) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-blue) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-purple) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-purple)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-purple)
+              ) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-beige) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-pink) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-white) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-gray) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-black) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) * var(--awesome-marker-scale-factor-extra-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) *
+              var(--awesome-marker-scale-factor-extra-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       i {
-        font-size: calc(var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-extra-small));
+        font-size: calc(
+          var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-extra-small)
+        );
       }
     }
 
     &:has(i.vector-marker-icon-small) {
-      width: calc(var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-small)) !important;
-      height: calc(var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-small)) !important;
-      background-size: calc(var(--awesome-marker-default-background-width) * var(--awesome-marker-scale-factor-small)) calc(var(--awesome-marker-default-background-height) * var(--awesome-marker-scale-factor-small)) !important;
-      
+      width: calc(
+        var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-small)
+      ) !important;
+      height: calc(
+        var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-small)
+      ) !important;
+      background-size: calc(
+          var(--awesome-marker-default-background-width) * var(--awesome-marker-scale-factor-small)
+        )
+        calc(
+          var(--awesome-marker-default-background-height) * var(--awesome-marker-scale-factor-small)
+        ) !important;
+
       &:has(i.vector-marker-icon-color-red) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-orange) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-orange)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-orange)
+              ) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-green) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-blue) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-purple) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-purple)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-purple)
+              ) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-beige) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-pink) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-white) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-gray) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-black) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) * var(--awesome-marker-scale-factor-small) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) *
+              var(--awesome-marker-scale-factor-small) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       i {
-        font-size: calc(var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-small));
+        font-size: calc(
+          var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-small)
+        );
       }
     }
 
-
     &:has(i.vector-marker-icon-middlesized) {
-      width: calc(var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-middlesized)) !important;
-      height: calc(var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-middlesized)) !important;
-      background-size: calc(var(--awesome-marker-default-background-width) * var(--awesome-marker-scale-factor-middlesized)) calc(var(--awesome-marker-default-background-height) * var(--awesome-marker-scale-factor-middlesized)) !important;
-    
+      width: calc(
+        var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-middlesized)
+      ) !important;
+      height: calc(
+        var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-middlesized)
+      ) !important;
+      background-size: calc(
+          var(--awesome-marker-default-background-width) *
+            var(--awesome-marker-scale-factor-middlesized)
+        )
+        calc(
+          var(--awesome-marker-default-background-height) *
+            var(--awesome-marker-scale-factor-middlesized)
+        ) !important;
+
       &:has(i.vector-marker-icon-color-red) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-orange) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-orange)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-orange)
+              ) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-green) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-blue) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-purple) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-purple)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-purple)
+              ) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-beige) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-pink) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-white) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-gray) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-black) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) * var(--awesome-marker-scale-factor-middlesized) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) *
+              var(--awesome-marker-scale-factor-middlesized) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       i {
-        font-size: calc(var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-middlesized));
+        font-size: calc(
+          var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-middlesized)
+        );
       }
     }
 
     &:has(i.vector-marker-icon-large) {
-      width: calc(var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-large)) !important;
-      height: calc(var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-large)) !important;
-      background-size: calc(var(--awesome-marker-default-background-width) * var(--awesome-marker-scale-factor-large)) calc(var(--awesome-marker-default-background-height) * var(--awesome-marker-scale-factor-large)) !important;
+      width: calc(
+        var(--awesome-marker-default-width) * var(--awesome-marker-scale-factor-large)
+      ) !important;
+      height: calc(
+        var(--awesome-marker-default-height) * var(--awesome-marker-scale-factor-large)
+      ) !important;
+      background-size: calc(
+          var(--awesome-marker-default-background-width) * var(--awesome-marker-scale-factor-large)
+        )
+        calc(
+          var(--awesome-marker-default-background-height) * var(--awesome-marker-scale-factor-large)
+        ) !important;
 
       &:has(i.vector-marker-icon-color-red) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-red)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-orange) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-orange)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-orange)
+              ) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-green) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-green)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-blue) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-blue)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-purple) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-purple)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (
+                var(--awesome-marker-default-color-offset) *
+                  var(--awesome-marker-color-index-purple)
+              ) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-beige) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-beige)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-pink) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-pink)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-white) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-white)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-gray) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-gray)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       &:has(i.vector-marker-icon-color-black) {
-        background-position: calc((var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) * var(--awesome-marker-scale-factor-large) * var(--awesome-marker-color-scale-additional-factor)) 0 !important;
+        background-position: calc(
+            (var(--awesome-marker-default-color-offset) * var(--awesome-marker-color-index-black)) *
+              var(--awesome-marker-scale-factor-large) *
+              var(--awesome-marker-color-scale-additional-factor)
+          )
+          0 !important;
       }
 
       i {
-        font-size: calc(var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-large));
+        font-size: calc(
+          var(--awesome-marker-default-icon-size) * var(--awesome-marker-scale-factor-large)
+        );
       }
     }
   }

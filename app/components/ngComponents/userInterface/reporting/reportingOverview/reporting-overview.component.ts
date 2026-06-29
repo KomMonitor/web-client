@@ -450,7 +450,10 @@ export class ReportingOverviewComponent implements OnInit {
         }
         for (const page of this.reportingService.workingTemplate.pages) {
           for (const pageElement of page.pageElements) {
-            if (pageElement.type === 'map' && Object.prototype.hasOwnProperty.call(pageElement, 'echartsMaps')) {
+            if (
+              pageElement.type === 'map' &&
+              Object.prototype.hasOwnProperty.call(pageElement, 'echartsMaps')
+            ) {
               for (const map of pageElement.echartsMaps) {
                 echarts.registerMap(map.name, map.geoJson);
               }

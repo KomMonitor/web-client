@@ -3220,11 +3220,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
       let containsZero = false;
       let containsNoData = false;
-      if (
-        this.getIndicatorValue_asNumber(
-          feature.properties[this.indicatorPropertyName]
-        ) == 0
-      ) {
+      if (this.getIndicatorValue_asNumber(feature.properties[this.indicatorPropertyName]) == 0) {
         this.currentIndicatorContainsZeroValues = true;
         containsZero = true;
       }
@@ -3621,11 +3617,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       for (const feature of this.currentIndicatorMetadataAndGeoJSON.geoJSON.features) {
         let containsZero = false;
         let containsNoData = false;
-        if (
-          this.getIndicatorValue_asNumber(
-            feature.properties[this.indicatorPropertyName]
-          ) == 0
-        ) {
+        if (this.getIndicatorValue_asNumber(feature.properties[this.indicatorPropertyName]) == 0) {
           this.currentIndicatorContainsZeroValues = true;
           containsZero = true;
         }

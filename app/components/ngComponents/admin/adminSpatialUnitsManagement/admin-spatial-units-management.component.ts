@@ -302,15 +302,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // React to metadata loading state transitions. skip(1) drops the
     // BehaviorSubject's replayed current value so this keeps the original
     // one-shot semantics of the former broadcast event.
-    const loadingSub = this.metadataBootstrap.metadataLoading$
-      .pipe(skip(1))
-      .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) {
-          this.zone.run(() => {
-            this.fetchSpatialUnitsData();
-          });
-        }
-      });
+    const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
+      if (state === MetadataLoadingState.COMPLETE) {
+        this.zone.run(() => {
+          this.fetchSpatialUnitsData();
+        });
+      }
+    });
     this.subscriptions.push(loadingSub);
 
     // Listen for the global metadata loading completion event

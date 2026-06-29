@@ -12,7 +12,12 @@ import {
 } from 'ag-grid-community';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage, showLoadingIconFor, hideLoadingIconFor, onDeleteFeatureEntryFor } from 'services/broadcast-service/broadcast-message';
+import {
+  BroadcastMessage,
+  showLoadingIconFor,
+  hideLoadingIconFor,
+  onDeleteFeatureEntryFor,
+} from 'services/broadcast-service/broadcast-message';
 
 import { FormsModule } from '@angular/forms';
 import { SingleFeatureEditComponent } from 'components/ngComponents/common/single-feature-edit/single-feature-edit.component';
@@ -172,10 +177,9 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   private initializeMappingConfigStructure(): void {
-    this.georesourceMappingConfigStructure_pretty =
-      this.indicatorValueService.syntaxHighlightJSON(
-        this.kommonitorImporterHelperService.mappingConfigStructure
-      );
+    this.georesourceMappingConfigStructure_pretty = this.indicatorValueService.syntaxHighlightJSON(
+      this.kommonitorImporterHelperService.mappingConfigStructure
+    );
   }
 
   private initializeDatePickers(): void {
@@ -209,15 +213,18 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
           if (broadcastMsg.msg === BroadcastMessage.OnEditGeoresourceFeatures) {
             this.onEditGeoresourceFeatures(broadcastMsg.values);
           } else if (
-            broadcastMsg.msg === showLoadingIconFor(this.featureTableHelper.resourceType_georesource)
+            broadcastMsg.msg ===
+            showLoadingIconFor(this.featureTableHelper.resourceType_georesource)
           ) {
             this.loadingData = true;
           } else if (
-            broadcastMsg.msg === hideLoadingIconFor(this.featureTableHelper.resourceType_georesource)
+            broadcastMsg.msg ===
+            hideLoadingIconFor(this.featureTableHelper.resourceType_georesource)
           ) {
             this.loadingData = false;
           } else if (
-            broadcastMsg.msg === onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_georesource)
+            broadcastMsg.msg ===
+            onDeleteFeatureEntryFor(this.featureTableHelper.resourceType_georesource)
           ) {
             this.broadcastService.broadcast(BroadcastMessage.RefreshGeoresourceOverviewTable, {
               crudType: 'edit',
@@ -619,9 +626,7 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
         },
         error: (error: any) => {
           if (error.error) {
-            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(
-              error.error
-            );
+            this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error.error);
           } else {
             this.errorMessagePart = this.indicatorValueService.syntaxHighlightJSON(error);
           }

@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { WmsResourceType } from "components/ngComponents/models/services.models";
-import { Subject } from "rxjs";
+import { Injectable } from '@angular/core';
+import { WmsResourceType } from 'components/ngComponents/models/services.models';
+import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class WmsSharedComponentsService {

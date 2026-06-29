@@ -147,8 +147,7 @@ export class ShareHelperService {
     } else {
       for (const spatialUnit of this.selectionState.selectedIndicator.applicableSpatialUnits) {
         if (
-          spatialUnit.spatialUnitName ==
-          this.selectionState.selectedSpatialUnit.spatialUnitLevel
+          spatialUnit.spatialUnitName == this.selectionState.selectedSpatialUnit.spatialUnitLevel
         ) {
           if (spatialUnit.permissions.length > 0) {
             this.setShareLinkParam(this.paramName_loginRequired, 'true');

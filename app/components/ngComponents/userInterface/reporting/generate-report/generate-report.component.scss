@@ -1,9 +1,8 @@
-::ng-deep .modal-holder .modal-dialog { 
+::ng-deep .modal-holder .modal-dialog {
   max-width: max-content;
   width: max-content;
   transform: none !important;
 }
-
 
 .modal-content {
   width: 25vw;
@@ -14,15 +13,17 @@
   }
 
   .modal-header {
-
     button {
       border: none;
       background-color: #fff;
     }
-    
+
     h4 {
       margin: 0 0 5px;
-      font: 16px/18px Arial, Helvetica, sans-serif !important;
+      font:
+        16px/18px Arial,
+        Helvetica,
+        sans-serif !important;
       color: #777 !important;
     }
   }

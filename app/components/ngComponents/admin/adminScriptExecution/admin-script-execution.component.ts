@@ -95,8 +95,7 @@ export class AdminScriptExecutionComponent implements OnInit {
       headerName: 'Job-Data',
       field: 'jobData',
       minWidth: 500,
-      cellRenderer: (params) =>
-        this.indicatorValueService.syntaxHighlightJSON(params.data.jobData),
+      cellRenderer: (params) => this.indicatorValueService.syntaxHighlightJSON(params.data.jobData),
       filter: 'agTextColumnFilter',
     },
     {

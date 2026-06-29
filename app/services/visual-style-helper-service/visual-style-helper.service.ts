@@ -370,14 +370,8 @@ export class VisualStyleHelperServiceNew {
         continue;
       }
 
-      if (
-        !values.includes(
-          this.getIndicatorValue_asNumber(feature.properties[propertyName])
-        )
-      ) {
-        values.push(
-          this.getIndicatorValue_asNumber(feature.properties[propertyName])
-        );
+      if (!values.includes(this.getIndicatorValue_asNumber(feature.properties[propertyName]))) {
+        values.push(this.getIndicatorValue_asNumber(feature.properties[propertyName]));
       }
     }
 
@@ -576,8 +570,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue) {
-    const indicatorTimeSeriesDatesArray =
-      this.selectionState.selectedIndicator.applicableDates;
+    const indicatorTimeSeriesDatesArray = this.selectionState.selectedIndicator.applicableDates;
 
     for (const date of indicatorTimeSeriesDatesArray) {
       const propertyName = this.envConfigService.indicatorDatePrefix + date;
@@ -766,8 +759,7 @@ export class VisualStyleHelperServiceNew {
   }
 
   setupDynamicBrewValues_wholeTimeseries(geoJSON) {
-    const indicatorTimeSeriesDatesArray =
-      this.selectionState.selectedIndicator.applicableDates;
+    const indicatorTimeSeriesDatesArray = this.selectionState.selectedIndicator.applicableDates;
 
     for (const date of indicatorTimeSeriesDatesArray) {
       const propertyName = this.envConfigService.indicatorDatePrefix + date;
@@ -794,9 +786,7 @@ export class VisualStyleHelperServiceNew {
         this.envConfigService.useOutlierDetectionOnIndicator
       ) {
         continue;
-      } else if (
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
-      ) {
+      } else if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
         if (
           !this.positiveValues.includes(
             this.getIndicatorValue_asNumber(feature.properties[propertyName])
@@ -806,9 +796,7 @@ export class VisualStyleHelperServiceNew {
             this.getIndicatorValue_asNumber(feature.properties[propertyName])
           );
         }
-      } else if (
-        this.getIndicatorValue_asNumber(feature.properties[propertyName]) < 0
-      ) {
+      } else if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) < 0) {
         if (
           !this.negativeValues.includes(
             this.getIndicatorValue_asNumber(feature.properties[propertyName])
@@ -925,13 +913,10 @@ export class VisualStyleHelperServiceNew {
       }
     } else {
       if (datasetContainsNegativeValues) {
-        if (
-          this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
-        ) {
+        if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
           if (
             this.envConfigService.classifyZeroSeparately &&
-            this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
-              0
+            this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
           ) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
@@ -960,8 +945,7 @@ export class VisualStyleHelperServiceNew {
         } else {
           if (
             this.envConfigService.classifyZeroSeparately &&
-            this.getIndicatorValue_asNumber(feature.properties[propertyName]) ==
-              0
+            this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0
           ) {
             fillColor = this.getFillColorForZero(incrementFeatures);
             if (useTransparencyOnIndicator) {
@@ -1201,9 +1185,7 @@ export class VisualStyleHelperServiceNew {
     }
 
     let fillColor;
-    if (
-      this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0
-    ) {
+    if (this.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
       if (
         this.envConfigService.classifyZeroSeparately &&
         this.getIndicatorValue_asNumber(feature.properties[propertyName]) == 0

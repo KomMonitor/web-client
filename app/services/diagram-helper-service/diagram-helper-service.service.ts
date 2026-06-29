@@ -55,7 +55,11 @@ export class DiagramHelperServiceService {
     );
   }
 
-  private getIndicatorValueFromArray_asNumber(propertiesArray, targetDateString, precision = undefined) {
+  private getIndicatorValueFromArray_asNumber(
+    propertiesArray,
+    targetDateString,
+    precision = undefined
+  ) {
     return this.indicatorValueService.getIndicatorValueFromArray_asNumber(
       propertiesArray,
       targetDateString,
@@ -300,10 +304,7 @@ export class DiagramHelperServiceService {
       color = this.defaultColorForFilteredValues;
     } else if (
       this.envConfigService.classifyZeroSeparately &&
-      this.getIndicatorValueFromArray_asNumber(
-        feature.properties,
-        targetDate
-      ) == 0
+      this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == 0
     ) {
       color = this.defaultColorForZeroValues;
     } else if (
@@ -320,10 +321,8 @@ export class DiagramHelperServiceService {
       color = this.defaultColorForOutliers_high;
     } else if (isMeasureOfValueChecked) {
       if (
-        this.getIndicatorValueFromArray_asNumber(
-          feature.properties,
-          targetDate
-        ) >= +Number(measureOfValue).toFixed(this.numberOfDecimals)
+        this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >=
+        +Number(measureOfValue).toFixed(this.numberOfDecimals)
       ) {
         color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);
       } else {
@@ -338,13 +337,10 @@ export class DiagramHelperServiceService {
         }
       } else {
         if (this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)) {
-          if (
-            this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0
-          ) {
+          if (this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0) {
             if (
               this.envConfigService.classifyZeroSeparately &&
-              this.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
-                0
+              this.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0
             ) {
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
@@ -356,8 +352,7 @@ export class DiagramHelperServiceService {
           } else {
             if (
               this.envConfigService.classifyZeroSeparately &&
-              this.getIndicatorValue_asNumber(feature.properties[targetDate]) ==
-                0
+              this.getIndicatorValue_asNumber(feature.properties[targetDate]) == 0
             ) {
               color = this.defaultColorForZeroValues;
               // if(__env.useTransparencyOnIndicator){
@@ -398,10 +393,8 @@ export class DiagramHelperServiceService {
     let color;
     for (let index = 0; index < brewInstance.breaks.length; index++) {
       if (
-        this.getIndicatorValueFromArray_asNumber(
-          feature.properties,
-          targetDate
-        ) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])
+        this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) ==
+        this.getIndicatorValue_asNumber(brewInstance.breaks[index])
       ) {
         if (index < brewInstance.breaks.length - 1) {
           // min value
@@ -418,10 +411,8 @@ export class DiagramHelperServiceService {
         }
       } else {
         if (
-          this.getIndicatorValueFromArray_asNumber(
-            feature.properties,
-            targetDate
-          ) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])
+          this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) <
+          this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])
         ) {
           color = brewInstance.colors[index];
           break;
@@ -933,9 +924,7 @@ export class DiagramHelperServiceService {
               htmlString += '<tbody>';
 
               for (const seriesItem of seriesData) {
-                const value = this.getIndicatorValue_asFormattedText(
-                  seriesItem.value
-                );
+                const value = this.getIndicatorValue_asFormattedText(seriesItem.value);
                 htmlString += '<tr>';
                 htmlString += '<td>' + seriesItem.name + '</td>';
                 htmlString += '<td>' + value + '</td>';
@@ -1033,11 +1022,7 @@ export class DiagramHelperServiceService {
       verticalAlign: 'middle',
       rotate: 90,
       formatter: (params) => {
-        return (
-          params.name +
-          '  ' +
-          this.getIndicatorValue_asFormattedText(params.value)
-        );
+        return params.name + '  ' + this.getIndicatorValue_asFormattedText(params.value);
       },
       // formatter: '{b} {c}'
     };
@@ -1139,9 +1124,7 @@ export class DiagramHelperServiceService {
               htmlString += '<tbody>';
 
               for (let i = 0; i < barData.length; i++) {
-                const value = this.getIndicatorValue_asFormattedText(
-                  barData[i].value
-                );
+                const value = this.getIndicatorValue_asFormattedText(barData[i].value);
                 htmlString += '<tr>';
                 htmlString += '<td>' + featureNames[i] + '</td>';
                 htmlString += '<td>' + value + '</td>';
@@ -1280,9 +1263,7 @@ export class DiagramHelperServiceService {
 
           params.forEach((paramObj) => {
             if (!paramObj.seriesName.includes('Stack')) {
-              const value = this.getIndicatorValue_asFormattedText(
-                paramObj.value
-              );
+              const value = this.getIndicatorValue_asFormattedText(paramObj.value);
               string +=
                 paramObj.seriesName +
                 ': ' +
@@ -1361,9 +1342,7 @@ export class DiagramHelperServiceService {
                 htmlString += '<tr>';
                 htmlString += '<td>' + timestamps[j] + '</td>';
                 for (const lineSeriesItem of lineSeries) {
-                  const value = this.getIndicatorValue_asFormattedText(
-                    lineSeriesItem.data[j]
-                  );
+                  const value = this.getIndicatorValue_asFormattedText(lineSeriesItem.data[j]);
                   htmlString += '<td>' + value + '</td>';
                 }
                 htmlString += '</tr>';

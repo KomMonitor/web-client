@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import {
-  BroadcastEnvelope,
-  BroadcastMessage,
-  DynamicBroadcastMessage,
-} from './broadcast-message';
+import { BroadcastEnvelope, BroadcastMessage, DynamicBroadcastMessage } from './broadcast-message';
 
 @Injectable({
   providedIn: 'root',

@@ -1,5 +1,4 @@
 :host {
-
   .style-fav-normal-item-0 {
     background-color: var(--kommonitor-hierarchy-level-0);
     color: #000 !important;
@@ -21,28 +20,44 @@
   }
 
   .style-fav-selected-poi-0 {
-    background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-0) 12px) !important;
+    background: linear-gradient(
+      to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-0) 12px
+    ) !important;
     color: #000 !important;
   }
 
   .style-fav-selected-poi-1 {
-    background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-1) 12px) !important;
+    background: linear-gradient(
+      to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-1) 12px
+    ) !important;
     color: #000 !important;
   }
 
   .style-fav-selected-poi-2 {
-    background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-2) 12px) !important;
+    background: linear-gradient(
+      to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-2) 12px
+    ) !important;
     color: #000 !important;
   }
 
   .style-fav-selected-poi-3 {
-    background: linear-gradient(to right, var(--kommonitor-primary) 12px, var(--kommonitor-hierarchy-level-3) 12px) !important;
+    background: linear-gradient(
+      to right,
+      var(--kommonitor-primary) 12px,
+      var(--kommonitor-hierarchy-level-3) 12px
+    ) !important;
     color: #000 !important;
   }
 
   .list-group-item div:first-child p,
   .georesources-grid-item.list-group-item p {
-    margin: .5em 0 !important;
+    margin: 0.5em 0 !important;
   }
 }
 
