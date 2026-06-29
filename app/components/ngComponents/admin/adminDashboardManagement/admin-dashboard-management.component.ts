@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { EChartsOption, TooltipComponentOption } from 'echarts';
@@ -111,8 +112,16 @@ export class AdminDashboardManagementComponent {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private accessControlService = inject(AccessControlService);
 
-  // Tracks language switches so translation-dependent computeds re-run on change.
-  private langChange = toSignal(this.translateService.onLangChange);
+  // Tracks language switches AND async translation-bundle loading, so translation-dependent
+  // computeds re-run once translations become available or change. onLangChange alone does not
+  // fire on the initial async i18n load, which would otherwise leave titles stuck as raw keys.
+  private translationsReady = toSignal(
+    merge(
+      this.translateService.onLangChange,
+      this.translateService.onDefaultLangChange,
+      this.translateService.onTranslationChange
+    )
+  );
 
   // All values below are derived directly from the signal-backed metadata stores: they
   // re-render automatically when store data changes (admin CRUD) or the language switches —
@@ -183,7 +192,7 @@ export class AdminDashboardManagementComponent {
 
   /** Translate a key while tracking language changes so dependent computeds re-run on switch. */
   private t(key: string): string {
-    this.langChange();
+    this.translationsReady();
     return this.translateService.instant(key);
   }
 }
