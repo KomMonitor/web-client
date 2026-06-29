@@ -1,32 +1,35 @@
-# ---- Base build ----
-FROM node:22-alpine as build
+# ---- Build stage ----
+# Node 24 to match .nvmrc / CI (quality-gate runs on Node 24)
+FROM node:24-alpine AS build
 
-
+# Toolchain for native node-gyp dependencies
 RUN apk add --no-cache \
   git \
   python3 \
   g++ \
   make
 
-RUN mkdir -p /kommonitor-webclient 
-
-# Copy source files for build
-ADD . /kommonitor-webclient
 WORKDIR /kommonitor-webclient
 
-# Run the build
-RUN npm install --force
+# Install dependencies first so this layer is cached unless the lockfile changes.
+# Use `npm ci --force` to mirror the CI install (reproducible, lockfile-driven).
+COPY package.json package-lock.json ./
+RUN npm ci --force
+
+# Copy the rest of the source and run the production build
+COPY . .
 RUN npm run build
 
-# actual image
+# ---- Runtime stage ----
 FROM nginx:stable-alpine
 
-COPY --from=build kommonitor-webclient/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /kommonitor-webclient/nginx.conf /etc/nginx/nginx.conf
 
 WORKDIR /usr/share/nginx/html
 
 ## Remove default nginx website
 RUN rm -rf /usr/share/nginx/html/*
-## From 'builder' stage copy over the artifacts in dist folder to default nginx public folder
-COPY --from=build kommonitor-webclient/dist/kommonitor-client /usr/share/nginx/html
+## Copy the built artifacts (Angular `application` builder emits straight into dist/kommonitor-client)
+COPY --from=build /kommonitor-webclient/dist/kommonitor-client /usr/share/nginx/html
+
 CMD ["nginx", "-g", "daemon off;"]
