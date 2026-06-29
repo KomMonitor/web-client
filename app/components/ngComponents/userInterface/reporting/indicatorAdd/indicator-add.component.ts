@@ -571,7 +571,7 @@ export class IndicatorAddComponent implements OnInit {
           this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
         } catch (error) {
           console.error('Auto-initialization after indicator selection failed:', error);
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
         } finally {
           this.loadingData = false;
         }
@@ -634,7 +634,7 @@ export class IndicatorAddComponent implements OnInit {
           await this.initializeAllDiagrams();
         } catch (error) {
           console.error('Diagram re-initialization after area change failed:', error);
-          this.dataExchangeService.displayMapApplicationError(error);
+          this.mapErrorNotificationService.displayMapApplicationError(error);
         } finally {
           this.loadingData = false;
         }
@@ -1095,7 +1095,7 @@ export class IndicatorAddComponent implements OnInit {
             await this.initializeAllDiagrams();
           } catch (error) {
             console.error('Diagram re-initialization after timestamp change failed:', error);
-            this.dataExchangeService.displayMapApplicationError(error);
+            this.mapErrorNotificationService.displayMapApplicationError(error);
           } finally {
             this.loadingData = false;
           }
@@ -3721,7 +3721,7 @@ export class IndicatorAddComponent implements OnInit {
       await this.initializeAllDiagrams();
     } catch (error) {
       console.error('Report preparation failed:', error);
-      this.dataExchangeService.displayMapApplicationError(error);
+      this.mapErrorNotificationService.displayMapApplicationError(error);
       this.preparationNeeded = true;
     } finally {
       this.loadingData = false;
