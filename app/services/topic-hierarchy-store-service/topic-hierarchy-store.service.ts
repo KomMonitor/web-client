@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indicators.models';
 
@@ -17,7 +17,15 @@ import { IndicatorsTopicsHierarchy } from 'components/ngComponents/models/indica
 export class TopicHierarchyStoreService {
   private topicHierarchyService = inject(TopicHierarchyService);
 
-  topicIndicatorHierarchy: IndicatorsTopicsHierarchy[] = [];
+  // Signal-backed so reactive consumers (computed/templates) re-derive on change,
+  // while existing imperative reads/assignments keep working via the getter/setter shim.
+  private _topicIndicatorHierarchy = signal<IndicatorsTopicsHierarchy[]>([]);
+  get topicIndicatorHierarchy(): IndicatorsTopicsHierarchy[] {
+    return this._topicIndicatorHierarchy();
+  }
+  set topicIndicatorHierarchy(value: IndicatorsTopicsHierarchy[]) {
+    this._topicIndicatorHierarchy.set(value);
+  }
   headlineIndicatorHierarchy: any[] = [];
   computationIndicatorHierarchy: any[] = [];
   topicGeoresourceHierarchy: any[] = [];

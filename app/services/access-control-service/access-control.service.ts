@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -26,7 +26,15 @@ export class AccessControlService {
   availablePermissions: any[] = [];
   availableUsers: any[] = [];
 
-  accessControl: any[] = [];
+  // Signal-backed so reactive consumers (computed/templates) re-derive on change,
+  // while existing imperative reads/assignments keep working via the getter/setter shim.
+  private _accessControl = signal<any[]>([]);
+  get accessControl(): any[] {
+    return this._accessControl();
+  }
+  set accessControl(value: any[]) {
+    this._accessControl.set(value);
+  }
   accessControl_map = new Map();
   allowedAccessControl: any[] = [];
 

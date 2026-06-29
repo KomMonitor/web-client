@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 /**
  * Process-script metadata store extracted from DataExchangeService
@@ -11,11 +11,24 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ProcessScriptMetadataStoreService {
-  availableProcessScripts: any[] = [];
+  // Signal-backed so reactive consumers (computed/templates) re-derive on change,
+  // while existing imperative reads/assignments keep working via the getter/setter shim.
+  private _availableProcessScripts = signal<any[]>([]);
+  get availableProcessScripts(): any[] {
+    return this._availableProcessScripts();
+  }
+  set availableProcessScripts(value: any[]) {
+    this._availableProcessScripts.set(value);
+  }
   availableProcessScripts_map = new Map();
 
   setProcessScripts(scriptsArray) {
     this.availableProcessScripts_map = new Map(scriptsArray.map((s) => [s.scriptId, s]));
+    this.availableProcessScripts = Array.from(this.availableProcessScripts_map.values());
+  }
+
+  deleteSingleProcessScriptMetadata(scriptId: string) {
+    this.availableProcessScripts_map.delete(scriptId);
     this.availableProcessScripts = Array.from(this.availableProcessScripts_map.values());
   }
 }

@@ -179,12 +179,7 @@ export class AdminScriptManagementComponent implements OnInit, OnDestroy {
     } else if (crudType === 'delete') {
       const idsToDelete = Array.isArray(scriptId) ? scriptId : [scriptId];
       for (const id of idsToDelete) {
-        const idx = this.processScriptStore.availableProcessScripts.findIndex(
-          (s: any) => s.scriptId === id
-        );
-        if (idx > -1) {
-          this.processScriptStore.availableProcessScripts.splice(idx, 1);
-        }
+        this.processScriptStore.deleteSingleProcessScriptMetadata(id);
       }
       this.initializeOrRefreshOverviewTable();
       this.loadingData = false;

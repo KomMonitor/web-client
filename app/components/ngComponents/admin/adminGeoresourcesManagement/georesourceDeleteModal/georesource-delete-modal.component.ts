@@ -193,14 +193,8 @@ export class GeoresourceDeleteModalComponent implements OnInit, OnDestroy {
         console.log(`Successfully deleted georesource ${dataset.georesourceId}`);
         this.successfullyDeletedDatasets.push(dataset);
 
-        // Remove entry from array
-        const index = this.kommonitorDataExchangeService.availableGeoresources.findIndex(
-          (geo: any) => geo.georesourceId === dataset.georesourceId
-        );
-
-        if (index > -1) {
-          this.kommonitorDataExchangeService.availableGeoresources.splice(index, 1);
-        }
+        // Remove entry from the store (keeps the id-map in sync and notifies reactive consumers)
+        this.kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(dataset.georesourceId);
       }),
       catchError((error) => {
         console.error(`Failed to delete georesource ${dataset.georesourceId}:`, error);

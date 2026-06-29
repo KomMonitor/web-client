@@ -225,7 +225,7 @@ export class RoleAddModalComponent implements OnInit {
     { label: 'Rechte anderer Gruppen an neuer Gruppe' },
   ];
   protected currentStep: number = 1;
-  protected accessControlOptions = this.kommonitorDataExchangeService.accessControl.sort(
+  protected accessControlOptions = [...this.kommonitorDataExchangeService.accessControl].sort(
     (left, right) => left.name.localeCompare(right.name, 'de')
   );
 

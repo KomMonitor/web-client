@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 /**
  * Topic metadata store extracted from DataExchangeService
@@ -11,7 +11,15 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class TopicMetadataStoreService {
-  availableTopics: any[] = [];
+  // Signal-backed so reactive consumers (computed/templates) re-derive on change,
+  // while existing imperative reads/assignments keep working via the getter/setter shim.
+  private _availableTopics = signal<any[]>([]);
+  get availableTopics(): any[] {
+    return this._availableTopics();
+  }
+  set availableTopics(value: any[]) {
+    this._availableTopics.set(value);
+  }
 
   setTopics(topicsArray) {
     this.availableTopics = topicsArray;

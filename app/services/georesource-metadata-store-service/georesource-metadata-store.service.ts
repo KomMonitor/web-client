@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
@@ -25,7 +25,15 @@ export class GeoresourceMetadataStoreService {
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
   private topicStore = inject(TopicMetadataStoreService);
 
-  availableGeoresources: GeoresourcesDataset[] = [];
+  // Signal-backed so reactive consumers (computed/templates) re-derive on change,
+  // while existing imperative reads/assignments keep working via the getter/setter shim.
+  private _availableGeoresources = signal<GeoresourcesDataset[]>([]);
+  get availableGeoresources(): GeoresourcesDataset[] {
+    return this._availableGeoresources();
+  }
+  set availableGeoresources(value: GeoresourcesDataset[]) {
+    this._availableGeoresources.set(value);
+  }
   availableGeoresources_map = new Map();
   displayableGeoresources: any;
 
@@ -56,13 +64,17 @@ export class GeoresourceMetadataStoreService {
     const index = this.availableGeoresources.findIndex(
       (g) => g.georesourceId === georesourceMetadata.georesourceId
     );
-    if (index !== -1) this.availableGeoresources[index] = georesourceMetadata;
+    if (index !== -1)
+      this.availableGeoresources = this.availableGeoresources.map((it, i) =>
+        i === index ? georesourceMetadata : it
+      );
     this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
   }
 
   deleteSingleGeoresourceMetadata(georesourceId) {
     const index = this.availableGeoresources.findIndex((g) => g.georesourceId === georesourceId);
-    if (index !== -1) this.availableGeoresources.splice(index, 1);
+    if (index !== -1)
+      this.availableGeoresources = this.availableGeoresources.filter((_, i) => i !== index);
     this.availableGeoresources_map.delete(georesourceId);
   }
 

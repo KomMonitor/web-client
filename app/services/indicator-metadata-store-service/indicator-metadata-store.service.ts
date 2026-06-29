@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 /**
@@ -18,7 +18,15 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 export class IndicatorMetadataStoreService {
   private envConfigService = inject(EnvConfigService);
 
-  availableIndicators: any = [];
+  // Signal-backed so reactive consumers (computed/templates) re-derive on change,
+  // while existing imperative reads/assignments keep working via the getter/setter shim.
+  private _availableIndicators = signal<any[]>([]);
+  get availableIndicators(): any[] {
+    return this._availableIndicators();
+  }
+  set availableIndicators(value: any[]) {
+    this._availableIndicators.set(value);
+  }
   availableIndicators_map = new Map();
   displayableIndicators: any;
 
@@ -46,7 +54,10 @@ export class IndicatorMetadataStoreService {
     const index = this.availableIndicators.findIndex(
       (i) => i.indicatorId === indicatorMetadata.indicatorId
     );
-    if (index !== -1) this.availableIndicators[index] = modified;
+    if (index !== -1)
+      this.availableIndicators = this.availableIndicators.map((it, i) =>
+        i === index ? modified : it
+      );
     this.availableIndicators_map.set(indicatorMetadata.indicatorId, modified);
   }
 
@@ -56,7 +67,8 @@ export class IndicatorMetadataStoreService {
 
   deleteSingleIndicatorMetadata(indicatorId) {
     const index = this.availableIndicators.findIndex((i) => i.indicatorId === indicatorId);
-    if (index !== -1) this.availableIndicators.splice(index, 1);
+    if (index !== -1)
+      this.availableIndicators = this.availableIndicators.filter((_, i) => i !== index);
     this.availableIndicators_map.delete(indicatorId);
   }
 
