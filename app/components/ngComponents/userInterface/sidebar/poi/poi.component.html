@@ -1,11 +1,10 @@
 <div id="poi">
   <div style="text-align: center">
-    <div
-      class="loading-overlay-sidebar-small ng-hide"
-      *ngIf="layerService.loadingData"
-    >
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
+    @if (layerService.loadingData) {
+      <div class="loading-overlay-sidebar-small ng-hide">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
   </div>
 
   <expandable-box [title]="'Georessourcenauswahl'" [collapsed]="false">
@@ -29,9 +28,7 @@
       <br />
 
       <label>
-        <b title="Auswahl zur Größe der POI-Marker"
-          >Größe der Points of Interest</b
-        >
+        <b title="Auswahl zur Größe der POI-Marker">Größe der Points of Interest</b>
         &nbsp;
 
         <select
@@ -39,9 +36,11 @@
           [(ngModel)]="poiPresentationService.selectedPoiSize"
           class="form-control"
         >
-          <option *ngFor="let item of poiSizes" [ngValue]="item">
-            {{ item.label }}
-          </option>
+          @for (item of poiSizes; track item) {
+            <option [ngValue]="item">
+              {{ item.label }}
+            </option>
+          }
         </select>
       </label>
     </div>
@@ -62,10 +61,7 @@
 
     <br />
 
-    <div
-      class="export-mode-switch"
-      style="display: flex; align-items: center; gap: 8px"
-    >
+    <div class="export-mode-switch" style="display: flex; align-items: center; gap: 8px">
       <label class="switch">
         <input
           type="checkbox"
@@ -105,26 +101,23 @@
           >Alphabetische Listen</a
         >
       </li>
-      <li class="nav-item" *ngIf="showFavSelection">
-        <a
-          class="nav-link"
-          id="poiTab3"
-          data-bs-toggle="tab"
-          data-bs-target="#poiTab3Content"
-          role="tab"
-          aria-controls="poiTab3Content"
-          aria-selected="false"
-          >Favoriten</a
-        >
-      </li>
+      @if (showFavSelection) {
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            id="poiTab3"
+            data-bs-toggle="tab"
+            data-bs-target="#poiTab3Content"
+            role="tab"
+            aria-controls="poiTab3Content"
+            aria-selected="false"
+            >Favoriten</a
+          >
+        </li>
+      }
     </ul>
     <div class="tab-content">
-      <div
-        class="tab-pane active"
-        id="poiTab1Content"
-        role="tabpanel"
-        aria-labelledby="poiTab1"
-      >
+      <div class="tab-pane active" id="poiTab1Content" role="tabpanel" aria-labelledby="poiTab1">
         <app-georesource-catalogue-tab
           [showFavSelection]="showFavSelection"
           (toggleGeoresourceOnMap)="handleGeoresourceOnMap($event)"
@@ -134,12 +127,7 @@
         </app-georesource-catalogue-tab>
       </div>
 
-      <div
-        class="tab-pane"
-        id="poiTab2Content"
-        role="tabpanel"
-        aria-labelledby="poiTab2"
-      >
+      <div class="tab-pane" id="poiTab2Content" role="tabpanel" aria-labelledby="poiTab2">
         <app-georesource-list-tab
           [showFavSelection]="showFavSelection"
           (toggleGeoresourceOnMap)="handleGeoresourceOnMap($event)"
@@ -148,34 +136,31 @@
         </app-georesource-list-tab>
       </div>
 
+      @if (showFavSelection) {
+        <div class="tab-pane" id="poiTab3Content" role="tabpanel" aria-labelledby="poiTab3">
+          <app-georesource-fav-tab
+            [showFavSelection]="showFavSelection"
+            (toggleGeoresourceOnMap)="handleGeoresourceOnMap($event)"
+            (showAllOnTopic)="handleShowAllOnTopic($event, 'favs')"
+            (zoomToLayer)="zoomToLayer($event)"
+          >
+          </app-georesource-fav-tab>
+        </div>
+      }
+    </div>
+    @if (showFavSelection) {
       <div
-        class="tab-pane"
-        id="poiTab3Content"
-        role="tabpanel"
-        aria-labelledby="poiTab3"
-        *ngIf="showFavSelection"
+        class="favoritesToast"
+        id="favoritesToast"
+        (click)="favoritesService.onSaveFavSelection([true])"
+        [ngClass]="{
+          disabled: favoritesService.toastStatus == 0,
+          notSaved: favoritesService.toastStatus == 1,
+          saved: favoritesService.toastStatus == 2,
+        }"
       >
-        <app-georesource-fav-tab
-          [showFavSelection]="showFavSelection"
-          (toggleGeoresourceOnMap)="handleGeoresourceOnMap($event)"
-          (showAllOnTopic)="handleShowAllOnTopic($event, 'favs')"
-          (zoomToLayer)="zoomToLayer($event)"
-        >
-        </app-georesource-fav-tab>
+        {{ favoritesService.toastText[favoritesService.toastStatus] }}
       </div>
-    </div>
-    <div
-      class="favoritesToast"
-      id="favoritesToast"
-      (click)="favoritesService.onSaveFavSelection([true])"
-      [ngClass]="{
-        disabled: favoritesService.toastStatus == 0,
-        notSaved: favoritesService.toastStatus == 1,
-        saved: favoritesService.toastStatus == 2,
-      }"
-      *ngIf="showFavSelection"
-    >
-      {{ favoritesService.toastText[favoritesService.toastStatus] }}
-    </div>
+    }
   </expandable-box>
 </div>

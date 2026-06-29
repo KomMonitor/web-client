@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
@@ -8,18 +7,17 @@ import { OgcService } from 'services/ogcServices/ogc.service';
   selector: 'app-wms-delete-modal',
   templateUrl: './wms-delete-modal.component.html',
   styleUrls: ['./wms-delete-modal.component.scss'],
-  imports: [CommonModule],
-  standalone: true
+  imports: [],
+  standalone: true,
 })
 export class WmsDeleteModalComponent {
- 
   datasetToDelete: WmsDataset | undefined;
 
-  loadingData:boolean = false;
+  loadingData: boolean = false;
   showSuccessAlert = false;
   showErrorAlert = false;
 
-  errorMessage!:string;
+  errorMessage!: string;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -29,7 +27,7 @@ export class WmsDeleteModalComponent {
   close(): void {
     this.activeModal.close(true);
   }
-  
+
   hideSuccessAlert(): void {
     this.showSuccessAlert = false;
   }
@@ -39,17 +37,16 @@ export class WmsDeleteModalComponent {
   }
 
   deleteGeoresources() {
-
-    if(this.datasetToDelete)
+    if (this.datasetToDelete)
       this.ogcService.deleteWms(this.datasetToDelete).subscribe({
-        next: response => {
+        next: (response) => {
           this.showSuccessAlert = true;
           this.datasetToDelete = undefined;
         },
-        error: error => {
+        error: (error) => {
           this.showErrorAlert = true;
           this.errorMessage = error.message;
-        }
+        },
       });
   }
 }

@@ -1,24 +1,16 @@
-<p
-  *ngIf="
-    srvc.indicatorItems().length === 0 && srvc.georessourceItems().length === 0
-  "
->
-  Es wurden keine Datensätze für den Download ausgewählt.
-</p>
+@if (srvc.indicatorItems().length === 0 && srvc.georessourceItems().length === 0) {
+  <p>Es wurden keine Datensätze für den Download ausgewählt.</p>
+}
 
-<ng-container
-  *ngIf="srvc.indicatorItems().length > 0 || srvc.georessourceItems().length > 0"
->
+@if (srvc.indicatorItems().length > 0 || srvc.georessourceItems().length > 0) {
   <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs mb-3">
     <li [ngbNavItem]="'indicators'">
       <button ngbNavLink>
         Indikatoren
-        <span class="badge bg-primary ms-1">{{
-          srvc.indicatorItems().length
-        }}</span>
+        <span class="badge bg-primary ms-1">{{ srvc.indicatorItems().length }}</span>
       </button>
       <ng-template ngbNavContent>
-        <ng-container *ngFor="let item of srvc.indicatorItems()">
+        @for (item of srvc.indicatorItems(); track item) {
           <div
             [id]="item.dataset.id"
             class="card mb-3"
@@ -29,11 +21,12 @@
                 <div>
                   <h4>
                     {{ item.dataset.name }}
-                    <i
-                      *ngIf="isIndicatorItemValid(item)"
-                      class="fas fa-check-circle text-success ms-1"
-                      title="Bereit für den Download"
-                    ></i>
+                    @if (isIndicatorItemValid(item)) {
+                      <i
+                        class="fas fa-check-circle text-success ms-1"
+                        title="Bereit für den Download"
+                      ></i>
+                    }
                   </h4>
                 </div>
                 <div style="flex: 1"></div>
@@ -46,99 +39,89 @@
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
-
               <div class="row">
                 <div class="col-md-6">
                   <div>Raumebene(n)</div>
-
-                  <div
-                    *ngIf="
-                      srvc.exportType() === 'single' ||
-                      srvc.exportType() === 'multiple'
-                    "
-                  >
-                    <div
-                      *ngFor="let lvl of getIndicatorLevels(item)"
-                      class="form-check"
-                    >
-                      <label class="form-check-label"
-                        ><input
-                          class="form-check-input"
-                          type="checkbox"
-                          [checked]="item.selectedSpatialUnitIds.includes(lvl.id)"
-                          (change)="srvc.toggleSpatialUnit(item, lvl.id)"
-                        />{{ lvl.name }}</label
-                      >
+                  @if (srvc.exportType() === 'single' || srvc.exportType() === 'multiple') {
+                    <div>
+                      @for (lvl of getIndicatorLevels(item); track lvl) {
+                        <div class="form-check">
+                          <label class="form-check-label"
+                            ><input
+                              class="form-check-input"
+                              type="checkbox"
+                              [checked]="item.selectedSpatialUnitIds.includes(lvl.id)"
+                              (change)="srvc.toggleSpatialUnit(item, lvl.id)"
+                            />{{ lvl.name }}</label
+                          >
+                        </div>
+                      }
                     </div>
-                  </div>
-
-                  <div *ngIf="srvc.exportType() === 'spatialUnit'">
-                    <div class="alert alert-info" role="alert">
-                      Bitte Ebene links wählen
+                  }
+                  @if (srvc.exportType() === 'spatialUnit') {
+                    <div>
+                      <div class="alert alert-info" role="alert">Bitte Ebene links wählen</div>
                     </div>
-                  </div>
+                  }
                 </div>
-
                 <div class="col-md-6">
                   <app-export-item-time-selection [exportItem]="item" />
                 </div>
               </div>
-
               <app-export-format-selection [exportItem]="item" />
             </div>
           </div>
-        </ng-container>
+        }
       </ng-template>
     </li>
-    <li [ngbNavItem]="'georessources'" *ngIf="srvc.exportType() === 'single'">
-      <button ngbNavLink>
-        Georessourcen
-        <span class="badge bg-success ms-1">{{
-          srvc.georessourceItems().length
-        }}</span>
-      </button>
-      <ng-template ngbNavContent>
-        <ng-container *ngFor="let item of srvc.georessourceItems()">
-          <div
-            [id]="item.dataset.id"
-            class="card mb-3"
-            [class.border-success]="isGeoressourceItemValid(item)"
-          >
-            <div class="card-body">
-              <div style="display: flex">
-                <div>
-                  <h4>
-                    {{ item.dataset.name }}
-                    <i
-                      *ngIf="isGeoressourceItemValid(item)"
-                      class="fas fa-check-circle text-success ms-1"
-                      title="Bereit für den Download"
-                    ></i>
-                  </h4>
+    @if (srvc.exportType() === 'single') {
+      <li [ngbNavItem]="'georessources'">
+        <button ngbNavLink>
+          Georessourcen
+          <span class="badge bg-success ms-1">{{ srvc.georessourceItems().length }}</span>
+        </button>
+        <ng-template ngbNavContent>
+          @for (item of srvc.georessourceItems(); track item) {
+            <div
+              [id]="item.dataset.id"
+              class="card mb-3"
+              [class.border-success]="isGeoressourceItemValid(item)"
+            >
+              <div class="card-body">
+                <div style="display: flex">
+                  <div>
+                    <h4>
+                      {{ item.dataset.name }}
+                      @if (isGeoressourceItemValid(item)) {
+                        <i
+                          class="fas fa-check-circle text-success ms-1"
+                          title="Bereit für den Download"
+                        ></i>
+                      }
+                    </h4>
+                  </div>
+                  <div style="flex: 1"></div>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    style="align-self: center; border-radius: 50%"
+                    (click)="srvc.removeGeoressource(item.dataset.id)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </div>
-                <div style="flex: 1"></div>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  style="align-self: center; border-radius: 50%"
-                  (click)="srvc.removeGeoressource(item.dataset.id)"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <app-export-item-time-selection [exportItem]="item" />
+                <div class="row">
+                  <div class="col-md-12">
+                    <app-export-item-time-selection [exportItem]="item" />
+                  </div>
                 </div>
+                <app-export-format-selection [exportItem]="item" />
               </div>
-
-              <app-export-format-selection [exportItem]="item" />
             </div>
-          </div>
-        </ng-container>
-      </ng-template>
-    </li>
+          }
+        </ng-template>
+      </li>
+    }
   </ul>
   <div [ngbNavOutlet]="nav" class="nav-content"></div>
-</ng-container>
+}

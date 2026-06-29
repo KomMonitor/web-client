@@ -1,6 +1,5 @@
-import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 export interface EpsgOption {
   code: number;
@@ -8,24 +7,24 @@ export interface EpsgOption {
 }
 
 export const PREDEFINED_EPSG_CODES: EpsgOption[] = [
-  { code: 4326, label: "EPSG:4326 – WGS 84 (Geographisch)" },
-  { code: 3857, label: "EPSG:3857 – Web Mercator (Pseudo Mercator)" },
-  { code: 4258, label: "EPSG:4258 – ETRS89 (Geographisch)" },
-  { code: 25832, label: "EPSG:25832 – ETRS89 / UTM Zone 32N" },
-  { code: 25833, label: "EPSG:25833 – ETRS89 / UTM Zone 33N" },
-  { code: 31467, label: "EPSG:31467 – DHDN / Gauß-Krüger Zone 3" },
-  { code: 31468, label: "EPSG:31468 – DHDN / Gauß-Krüger Zone 4" },
-  { code: 32632, label: "EPSG:32632 – WGS 84 / UTM Zone 32N" },
+  { code: 4326, label: 'EPSG:4326 – WGS 84 (Geographisch)' },
+  { code: 3857, label: 'EPSG:3857 – Web Mercator (Pseudo Mercator)' },
+  { code: 4258, label: 'EPSG:4258 – ETRS89 (Geographisch)' },
+  { code: 25832, label: 'EPSG:25832 – ETRS89 / UTM Zone 32N' },
+  { code: 25833, label: 'EPSG:25833 – ETRS89 / UTM Zone 33N' },
+  { code: 31467, label: 'EPSG:31467 – DHDN / Gauß-Krüger Zone 3' },
+  { code: 31468, label: 'EPSG:31468 – DHDN / Gauß-Krüger Zone 4' },
+  { code: 32632, label: 'EPSG:32632 – WGS 84 / UTM Zone 32N' },
 ];
 
 const CUSTOM_VALUE = -1;
 
 @Component({
-  selector: "app-epsg-selector",
-  templateUrl: "./epsg-selector.component.html",
-  styleUrls: ["./epsg-selector.component.scss"],
+  selector: 'app-epsg-selector',
+  templateUrl: './epsg-selector.component.html',
+  styleUrls: ['./epsg-selector.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
 })
 export class EpsgSelectorComponent implements OnInit {
   @Output() epsgCodeChange = new EventEmitter<number | null>();

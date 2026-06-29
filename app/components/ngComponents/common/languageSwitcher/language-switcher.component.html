@@ -1,18 +1,28 @@
-<div class="language-switcher"> 
+<div class="language-switcher">
   <div class="dropdown">
-    <button class="btn btn-link dropdown-toggle" type="button" id="languageDropdown" 
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button
+      class="btn btn-link dropdown-toggle"
+      type="button"
+      id="languageDropdown"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
       <span class="flag">{{ getCurrentLanguageFlag() }}</span>
       <span class="language-name">{{ getCurrentLanguageName() }}</span>
     </button>
     <div class="dropdown-menu" aria-labelledby="languageDropdown">
-      <a class="dropdown-item" href="#" 
-         *ngFor="let lang of supportedLanguages" 
-         (click)="changeLanguage(lang.code); $event.preventDefault()"
-         [class.active]="lang.code === currentLanguage">
-        <span class="flag">{{ lang.flag }}</span>
-        <span class="language-name">{{ lang.name }}</span>
-      </a>
+      @for (lang of supportedLanguages; track lang) {
+        <a
+          class="dropdown-item"
+          href="#"
+          (click)="changeLanguage(lang.code); $event.preventDefault()"
+          [class.active]="lang.code === currentLanguage"
+        >
+          <span class="flag">{{ lang.flag }}</span>
+          <span class="language-name">{{ lang.name }}</span>
+        </a>
+      }
     </div>
   </div>
-</div> 
+</div>

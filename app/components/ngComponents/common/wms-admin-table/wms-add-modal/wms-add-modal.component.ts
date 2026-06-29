@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
@@ -9,34 +15,33 @@ import { AccessControlService } from 'services/access-control-service/access-con
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
 import uuidv4 from '../../../../../../customizedExternalLibs/uuidv4.js';
-import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
-import { AgGridAngular } from "ag-grid-angular";
-import { CommonModule } from '@angular/common';
+import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+import { AgGridAngular } from 'ag-grid-angular';
+
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 
 @Component({
   selector: 'app-wms-add-modal',
   templateUrl: './wms-add-modal.component.html',
   styleUrls: ['./wms-add-modal.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, AgGridAngular, CommonModule],
-  standalone: true
+  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, AgGridAngular],
+  standalone: true,
 })
 export class WmsAddModalComponent implements OnInit {
-  
   @Input() resourceType!: any;
 
-  totalSteps:number = 4;
+  totalSteps: number = 4;
   currentStep: number = 1;
 
   isSubmitting = false;
   errorMessage = false;
   successMessage = false;
   loadingData = false;
-  
+
   testErrorMessage = false;
   testSuccessMessage = false;
 
-  wmsTestStatus:boolean | undefined = undefined;
+  wmsTestStatus: boolean | undefined = undefined;
 
   metadataForm = new FormGroup({
     title: new FormControl<string>('', Validators.required),
@@ -44,16 +49,16 @@ export class WmsAddModalComponent implements OnInit {
     databasis: new FormControl<string>(''),
     datasource: new FormControl<string>('', Validators.required),
     contact: new FormControl<string>('', Validators.required),
-    note: new FormControl<string>('')
+    note: new FormControl<string>(''),
   });
 
   connectForm = new FormGroup({
     url: new FormControl<string>('', Validators.required),
-    layer: new FormControl<string>('', Validators.required)
-  })
+    layer: new FormControl<string>('', Validators.required),
+  });
 
   datasetNameInvalid: boolean = false;
-  
+
   // Topic hierarchy
   georesourceTopic_mainTopic: any = null;
   georesourceTopic_subTopic: any = null;
@@ -88,7 +93,9 @@ export class WmsAddModalComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.availableTopics = this.topicStore.availableTopics.filter(e => e.topicResource==this.resourceType);
+    this.availableTopics = this.topicStore.availableTopics.filter(
+      (e) => e.topicResource == this.resourceType
+    );
   }
 
   // Multi-step form navigation
@@ -115,17 +122,13 @@ export class WmsAddModalComponent implements OnInit {
   }
 
   addWms() {
-
     let topicRef = this.georesourceTopic_mainTopic;
-    
-    if(this.georesourceTopic_subTopic)
-      topicRef = this.georesourceTopic_subTopic;
 
-    if(this.georesourceTopic_subsubTopic)
-      topicRef = this.georesourceTopic_subsubTopic;
+    if (this.georesourceTopic_subTopic) topicRef = this.georesourceTopic_subTopic;
 
-    if(this.georesourceTopic_subsubsubTopic)
-      topicRef = this.georesourceTopic_subsubsubTopic;
+    if (this.georesourceTopic_subsubTopic) topicRef = this.georesourceTopic_subsubTopic;
+
+    if (this.georesourceTopic_subsubsubTopic) topicRef = this.georesourceTopic_subsubsubTopic;
 
     const data = {
       title: this.metadataForm.controls.title.value,
@@ -138,31 +141,31 @@ export class WmsAddModalComponent implements OnInit {
         id: '',
         baseUrl: this.connectForm.controls.url.value,
         layerName: this.connectForm.controls.layer.value,
-        serviceType: 'wms'
+        serviceType: 'wms',
       },
       topicReference: topicRef.topicId,
       ownerId: this.ownerOrganization,
       serviceResource: this.resourceType,
       isPublic: this.isPublic,
-      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
+      permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
+        this.roleManagementGridOptions
+      ),
     };
 
     this.ogcService.registerWms(data).subscribe({
-      next: response => {
+      next: (response) => {
         this.successMessagePart = response.title;
         this.successMessage = true;
         this.resetWmsAddForm();
-      }, 
-      error: error => {
+      },
+      error: (error) => {
         this.errorMessagePart = error.message;
         this.errorMessage = true;
-      }
+      },
     });
   }
 
-  checkDatasetName() {
-
-  }
+  checkDatasetName() {}
 
   onChangeOwner(orgUnitId: string): void {
     this.ownerOrganization = orgUnitId;
@@ -172,19 +175,23 @@ export class WmsAddModalComponent implements OnInit {
   onChangeIsPublic(isPublic: boolean): void {
     this.isPublic = isPublic;
   }
-  
-  private refreshRoles(orgUnitId:string): void {
+
+  private refreshRoles(orgUnitId: string): void {
     let permissionIds_ownerUnit: string[] = [];
-    
+
     if (orgUnitId) {
       const accessControl = this.accessControlService.getAccessControlById(orgUnitId);
-      permissionIds_ownerUnit = accessControl?.permissions
-        ?.filter(permission => permission.permissionLevel === "viewer" || permission.permissionLevel === "editor")
-        .map(permission => permission.permissionId) || [];
+      permissionIds_ownerUnit =
+        accessControl?.permissions
+          ?.filter(
+            (permission) =>
+              permission.permissionLevel === 'viewer' || permission.permissionLevel === 'editor'
+          )
+          .map((permission) => permission.permissionId) || [];
     }
 
     // Set datasetOwner flags
-    this.accessControlService.accessControl?.forEach(item => {
+    this.accessControlService.accessControl?.forEach((item) => {
       item.datasetOwner = item.organizationalUnitId === orgUnitId;
     });
 
@@ -201,16 +208,16 @@ export class WmsAddModalComponent implements OnInit {
     if (this.roleManagementTableOptions) {
       this.roleManagementColumnDefs = this.roleManagementTableOptions.columnDefs || [];
       this.roleManagementRowData = this.roleManagementTableOptions.rowData || [];
-      
+
       // Build grid configuration (this will use the components from roleManagementTableOptions)
       this.buildRoleManagementGridConfig();
-      
+
       // If grid is already initialized, update the data and grid options
       if (this.roleManagementGridApi) {
         // Update data
         this.roleManagementGridApi.setRowData(this.roleManagementRowData);
         this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
-        
+
         // Refresh the grid to ensure it updates
         setTimeout(() => {
           if (this.roleManagementGridApi) {
@@ -239,7 +246,7 @@ export class WmsAddModalComponent implements OnInit {
 
     this.currentStep = 1;
   }
-  
+
   hideSuccessAlert(): void {
     this.successMessage = false;
     this.testSuccessMessage = false;
@@ -253,34 +260,29 @@ export class WmsAddModalComponent implements OnInit {
   }
 
   testConnection() {
-
     this.testErrorMessage = false;
     this.testSuccessMessage = false;
 
     const url = this.connectForm.controls.url.value;
     const layer = this.connectForm.controls.layer.value;
 
-    if(url && layer) {
-
+    if (url && layer) {
       this.ogcService.testConnection(url).subscribe({
-        next: response => {
-
-          if(response.success===true)
-            this.testSuccessMessage = true;
-          else
-            this.testErrorMessage = true;
+        next: (response) => {
+          if (response.success === true) this.testSuccessMessage = true;
+          else this.testErrorMessage = true;
         },
-        error: error => {
+        error: (error) => {
           this.testErrorMessage = true;
-        }
-      })
+        },
+      });
     }
   }
 
   onRoleManagementGridReady(params: any) {
     this.roleManagementGridApi = params.api;
     this.roleManagementColumnApi = params.columnApi;
-    
+
     // Update the service with the grid API so it can be used for getSelectedRoleIds
     this.roleManagementHelper.setGridApi(params.api);
   }
@@ -314,7 +316,7 @@ export class WmsAddModalComponent implements OnInit {
     if (headerElement) {
       const headerTextElements = headerElement.querySelectorAll('.ag-header-cell-text');
       let maxHeight = 0;
-      headerTextElements.forEach(element => {
+      headerTextElements.forEach((element) => {
         const height = element.scrollHeight;
         if (height > maxHeight) {
           maxHeight = height;
@@ -331,7 +333,7 @@ export class WmsAddModalComponent implements OnInit {
     const baseGridOptions = this.roleManagementHelper.buildRoleManagementGridOptionsPublic(
       this.roleManagementTableOptions?.components
     );
-    
+
     // Apply component-specific overrides
     this.roleManagementGridOptions = {
       ...baseGridOptions,
@@ -343,7 +345,7 @@ export class WmsAddModalComponent implements OnInit {
       },
       onColumnResized: (event) => {
         this.onRoleManagementColumnResized(event);
-      }
+      },
     };
   }
 }

@@ -1,15 +1,27 @@
 <div class="indicator-tooltip-iconWrapper">
-  <i class="fa fa-circle-info" (mouseover)="onMouseover(indicatorData.prefix)" (mouseout)="onMouseout(indicatorData.prefix)"></i>
+  <i
+    class="fa fa-circle-info"
+    (mouseover)="onMouseover(indicatorData.prefix)"
+    (mouseout)="onMouseout(indicatorData.prefix)"
+  ></i>
 </div>
 
-<div class="indicator-tooltip-contentWrapper" id="{{indicatorData.prefix}}tooltip-{{indicatorData.data.indicatorId}}" [ngStyle]="{left: mousePosX, top:mousePosY}">
-  <h4>{{indicatorData.data.indicatorName}}</h4>
-  <p *ngIf="indicatorData.data.metadata?.description" [innerHTML]="indicatorData.data.metadata.description"></p>							
-                
+<div
+  class="indicator-tooltip-contentWrapper"
+  id="{{ indicatorData.prefix }}tooltip-{{ indicatorData.data.indicatorId }}"
+  [ngStyle]="{ left: mousePosX, top: mousePosY }"
+>
+  <h4>{{ indicatorData.data.indicatorName }}</h4>
+  @if (indicatorData.data.metadata?.description) {
+    <p [innerHTML]="indicatorData.data.metadata.description"></p>
+  }
+
   <br />
-        
-  <div *ngIf="indicatorData.data.interpretation && indicatorData.data.interpretation !== ''">
-    <label>Interpretationshilfe:</label>
-    <p [innerHTML]="indicatorData.data.interpretation"></p>	
-  </div>
+
+  @if (indicatorData.data.interpretation && indicatorData.data.interpretation !== '') {
+    <div>
+      <label>Interpretationshilfe:</label>
+      <p [innerHTML]="indicatorData.data.interpretation"></p>
+    </div>
+  }
 </div>

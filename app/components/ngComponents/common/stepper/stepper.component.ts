@@ -9,21 +9,23 @@ import {
   ViewChildren,
   ElementRef,
   QueryList,
-  HostListener, AfterViewInit, OnChanges, OnDestroy,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
+  HostListener,
+  AfterViewInit,
+  OnChanges,
+  OnDestroy,
+} from '@angular/core';
 
 export interface StepperStep {
   label: string;
 }
 
 @Component({
-  selector: "app-stepper",
-  templateUrl: "./stepper.component.html",
-  styleUrls: ["./stepper.component.scss"],
+  selector: 'app-stepper',
+  templateUrl: './stepper.component.html',
+  styleUrls: ['./stepper.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [],
 })
 export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) steps!: StepperStep[];
@@ -50,10 +52,7 @@ export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
   get progressPercent(): number {
     if (!this.steps || this.steps.length <= 1) return 100;
     const totalGaps = this.steps.length - 1;
-    const completedGaps = Math.max(
-      0,
-      Math.min(this.currentStep - 1, totalGaps),
-    );
+    const completedGaps = Math.max(0, Math.min(this.currentStep - 1, totalGaps));
     return (completedGaps / totalGaps) * 100;
   }
 
@@ -63,11 +62,9 @@ export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
-  @ViewChild("stepperRoot", { read: ElementRef })
+  @ViewChild('stepperRoot', { read: ElementRef })
   stepperRoot!: ElementRef<HTMLDivElement>;
-  @ViewChildren("circle", { read: ElementRef }) circles!: QueryList<
-    ElementRef<HTMLElement>
-  >;
+  @ViewChildren('circle', { read: ElementRef }) circles!: QueryList<ElementRef<HTMLElement>>;
 
   private _updateTimeout: any = null;
 
@@ -80,7 +77,7 @@ export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["currentStep"] || changes["steps"]) {
+    if (changes['currentStep'] || changes['steps']) {
       this.scheduleUpdate();
     }
   }
@@ -91,7 +88,7 @@ export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
-  @HostListener("window:resize") onWindowResize(): void {
+  @HostListener('window:resize') onWindowResize(): void {
     this.scheduleUpdate();
   }
 
@@ -110,8 +107,7 @@ export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
 
       const rootRect = root.getBoundingClientRect();
       const first = circles[0].nativeElement.getBoundingClientRect();
-      const last =
-        circles[circles.length - 1].nativeElement.getBoundingClientRect();
+      const last = circles[circles.length - 1].nativeElement.getBoundingClientRect();
 
       // center x coordinates relative to root
       const firstCenter = (first.left + first.right) / 2 - rootRect.left;
@@ -120,21 +116,16 @@ export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
       const left = Math.max(0, firstCenter);
       const width = Math.max(0, lastCenter - firstCenter);
 
-      root.style.setProperty("--line-left", `${left}px`);
-      root.style.setProperty("--line-width", `${width}px`);
+      root.style.setProperty('--line-left', `${left}px`);
+      root.style.setProperty('--line-width', `${width}px`);
 
       // set progress width in px: distance from first bubble center to
       // the center of the current step's bubble (so it aligns exactly)
-      const clampedIndex = Math.max(
-        0,
-        Math.min(this.currentStep - 1, circles.length - 1),
-      );
-      const currentRect =
-        circles[clampedIndex].nativeElement.getBoundingClientRect();
-      const currentCenter =
-        (currentRect.left + currentRect.right) / 2 - rootRect.left;
+      const clampedIndex = Math.max(0, Math.min(this.currentStep - 1, circles.length - 1));
+      const currentRect = circles[clampedIndex].nativeElement.getBoundingClientRect();
+      const currentCenter = (currentRect.left + currentRect.right) / 2 - rootRect.left;
       const progressPx = Math.max(0, currentCenter - firstCenter);
-      root.style.setProperty("--progress-width", `${progressPx}px`);
+      root.style.setProperty('--progress-width', `${progressPx}px`);
     } catch (e) {
       // fail silently
     }

@@ -1,7 +1,5 @@
 <div id="kommonitorReachability">
-
   <app-loading-overlay [loading]="(loading$ | async) ?? false">
-
     <expandable-box [title]="'Schnellberechnung'" [collapsed]="false">
       <b>Einstiegs-Modus</b>
       <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs nav-fill">
@@ -9,25 +7,40 @@
           <button ngbNavLink (click)="onSinglePointSelection()">Einzelpunkt</button>
           <ng-template ngbNavContent>
             <div class="search-wrapper">
-              <input type="text" [value]="query" (input)="onSearch($any($event.target).value)"
-                placeholder="Adresse suchen" class="form-control" />
-              <div class="autocomplete" *ngIf="results.length">
-                <div class="autocomplete-item" *ngFor="let result of results" (click)="selectResult(result)">
-                  {{ result.label }}
+              <input
+                type="text"
+                [value]="query"
+                (input)="onSearch($any($event.target).value)"
+                placeholder="Adresse suchen"
+                class="form-control"
+              />
+              @if (results.length) {
+                <div class="autocomplete">
+                  @for (result of results; track result) {
+                    <div class="autocomplete-item" (click)="selectResult(result)">
+                      {{ result.label }}
+                    </div>
+                  }
                 </div>
-              </div>
+              }
             </div>
           </ng-template>
         </li>
         <li [ngbNavItem]="2">
           <button ngbNavLink (click)="onMapSelection()">Karte</button>
           <ng-template ngbNavContent>
-            <div *ngIf="reachabilityCombinerService.locations.length==0" class="mapSelection_info">Beliebige Standorte
-              auf der Karte wählen</div>
-            <div *ngFor="let item of reachabilityCombinerService.locations" class="mapItem">
-              <i class="fa-solid fa-trash" (click)="reachabilityCombinerService.deleteLocation(item)"></i>
-              <p>{{item.label}}</p>
-            </div>
+            @if (reachabilityCombinerService.locations.length == 0) {
+              <div class="mapSelection_info">Beliebige Standorte auf der Karte wählen</div>
+            }
+            @for (item of reachabilityCombinerService.locations; track item) {
+              <div class="mapItem">
+                <i
+                  class="fa-solid fa-trash"
+                  (click)="reachabilityCombinerService.deleteLocation(item)"
+                ></i>
+                <p>{{ item.label }}</p>
+              </div>
+            }
           </ng-template>
         </li>
         <li [ngbNavItem]="3" (click)="onLayerSelection()">
@@ -36,75 +49,128 @@
             <div class="layerSelectWrapper">
               <div>
                 <b>Layer</b>
-                <select style="font-size: 12px;" [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"
-                  (change)="reachabilityCombinerService.onChangePoiResource()" class="form-control" required>
-                  <option disabled selected value> -- Punkt-Layer w&auml;hlen --</option>
-                  <option *ngFor="let poi of reachabilityCombinerService.filteredDisplayableGeoresources"
-                    [ngValue]="poi">{{poi.datasetName}}</option>
+                <select
+                  style="font-size: 12px"
+                  [(ngModel)]="reachabilityCombinerService.selectedStartPointLayer"
+                  (change)="reachabilityCombinerService.onChangePoiResource()"
+                  class="form-control"
+                  required
+                >
+                  <option disabled selected value>-- Punkt-Layer w&auml;hlen --</option>
+                  @for (
+                    poi of reachabilityCombinerService.filteredDisplayableGeoresources;
+                    track poi
+                  ) {
+                    <option [ngValue]="poi">{{ poi.datasetName }}</option>
+                  }
                 </select>
               </div>
-              <div
-                *ngIf="reachabilityCombinerService.selectedStartPointLayer && !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource && !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer">
-                <b>Datum</b>
-                <select [(ngModel)]="reachabilityCombinerService.selectedStartDate"
-                  (change)="reachabilityCombinerService.fetchPoiResourceGeoJSON()" class="form-control" required>
-                  <option *ngFor="let date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity"
-                    [value]="date.startDate">{{date.startDate}}</option>
-                </select>
-              </div>
+              @if (
+                reachabilityCombinerService.selectedStartPointLayer &&
+                !reachabilityCombinerService.selectedStartPointLayer?.isNewReachabilityDataSource &&
+                !reachabilityCombinerService.selectedStartPointLayer?.isTmpDataLayer
+              ) {
+                <div>
+                  <b>Datum</b>
+                  <select
+                    [(ngModel)]="reachabilityCombinerService.selectedStartDate"
+                    (change)="reachabilityCombinerService.fetchPoiResourceGeoJSON()"
+                    class="form-control"
+                    required
+                  >
+                    @for (
+                      date of reachabilityCombinerService.filteredAvailablePeriodsOfValidity;
+                      track date
+                    ) {
+                      <option [value]="date.startDate">{{ date.startDate }}</option>
+                    }
+                  </select>
+                </div>
+              }
             </div>
           </ng-template>
         </li>
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
-      <br>
-      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()">Berechnung
-        starten</button>
+      <br />
+      <button class="btn btn-primary btn-sm w-100 margin-bottom" (click)="startCalculation()">
+        Berechnung starten
+      </button>
       <div class="button-wrapper">
-        <button class="btn btn-primary btn-sm w-100" (click)="createScenario()"
-          [disabled]="!reachabilityCombinerService.isValidCalculation">Als Szenario übernehmen</button>
-        <button class="btn btn-danger btn-sm w-100"
-          (click)="reachabilityCombinerService.resetLocations()">Zurücksetzen</button>
+        <button
+          class="btn btn-primary btn-sm w-100"
+          (click)="createScenario()"
+          [disabled]="!reachabilityCombinerService.isValidCalculation"
+        >
+          Als Szenario übernehmen
+        </button>
+        <button
+          class="btn btn-danger btn-sm w-100"
+          (click)="reachabilityCombinerService.resetLocations()"
+        >
+          Zurücksetzen
+        </button>
       </div>
     </expandable-box>
 
     <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">
       <b>Verkehrsmittel</b>
       <div class="modeWrapper">
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode === 'foot-walking'}"
-          (click)="reachabilityCombinerService.setTransitMode('foot-walking')">
+        <div
+          class="modeItem"
+          [ngClass]="{
+            active: reachabilityCombinerService.settings.transitMode === 'foot-walking',
+          }"
+          (click)="reachabilityCombinerService.setTransitMode('foot-walking')"
+        >
           <i class="fa-solid fa-person-walking"></i>
           Fussgänger
         </div>
-        <div class="modeItem"
-          [ngClass]="{'active': reachabilityCombinerService.settings.transitMode === 'cycling-regular'}"
-          (click)="reachabilityCombinerService.setTransitMode('cycling-regular')">
+        <div
+          class="modeItem"
+          [ngClass]="{
+            active: reachabilityCombinerService.settings.transitMode === 'cycling-regular',
+          }"
+          (click)="reachabilityCombinerService.setTransitMode('cycling-regular')"
+        >
           <i class="fa-solid fa-bicycle"></i>
           Fahrrad
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode === 'driving-car'}"
-          (click)="reachabilityCombinerService.setTransitMode('driving-car')">
+        <div
+          class="modeItem"
+          [ngClass]="{ active: reachabilityCombinerService.settings.transitMode === 'driving-car' }"
+          (click)="reachabilityCombinerService.setTransitMode('driving-car')"
+        >
           <i class="fa-solid fa-car-side"></i>
           PKW
         </div>
       </div>
       <b>Basis der Erreichbarkeit</b>
       <div class="focusWrapper">
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus === 'time'}"
-          (click)="reachabilityCombinerService.setFocusMode('time'); onFocusModeChange()">
+        <div
+          class="modeItem"
+          [ngClass]="{ active: reachabilityCombinerService.settings.focus === 'time' }"
+          (click)="reachabilityCombinerService.setFocusMode('time'); onFocusModeChange()"
+        >
           <i class="fa-solid fa-stopwatch"></i>
           Zeit (Min)
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus === 'distance'}"
-          (click)="reachabilityCombinerService.setFocusMode('distance'); onFocusModeChange()">
+        <div
+          class="modeItem"
+          [ngClass]="{ active: reachabilityCombinerService.settings.focus === 'distance' }"
+          (click)="reachabilityCombinerService.setFocusMode('distance'); onFocusModeChange()"
+        >
           <i class="fa-solid fa-ruler-horizontal"></i>
           Distanz (m)
         </div>
       </div>
       <b>Mehrfach-Reichweiten</b>
-      <multi-select-slider [range]="sliderRange" [selectedValues]="reachabilityCombinerService.settings.ranges"
+      <multi-select-slider
+        [range]="sliderRange"
+        [selectedValues]="reachabilityCombinerService.settings.ranges"
         [unit]="reachabilityCombinerService.settings.focusUnit"
-        (change)="reachabilityCombinerService.startQuickCalculation()"></multi-select-slider>
+        (change)="reachabilityCombinerService.startQuickCalculation()"
+      ></multi-select-slider>
     </expandable-box>
 
     <expandable-box [title]="'Szenario-Verwaltung'" [collapsed]="false">
@@ -126,9 +192,8 @@
           Karte leeren
         </div>
       </div>
-      <hr>
-      <div style="max-height: 50vh; overflow: auto;">
-
+      <hr />
+      <div style="max-height: 50vh; overflow: auto">
         <table class="table table-condensed">
           <thead>
             <tr>
@@ -137,69 +202,97 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let reachabilityScenario of reachabilityScenarioHelperService.reachabilityScenarios">
-              <td>
-                <b>{{reachabilityScenario.scenarioName}}</b>
-                <br />
-                <!-- <div>
-                  <button class="btn btn-warning btn-sm" title="Editieren" (click)="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fa-solid fa-pen" ></i></button>
-                  <button class="btn btn-danger btn-sm" title="L&ouml;schen" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.removeReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-trash-can"></i></button>
-                  <button class="btn btn-info btn-sm" title="Duplizieren" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-copy" ></i></button>
-                </div> -->
-                <div>
-                  <i title="Editieren" style="cursor: pointer;" class="fa-solid fa-pen"
-                    (click)="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal"
-                    data-target="#modal-manage-reachability-scenario"></i>
-                  &nbsp; &nbsp;
-                  <i class="fa-solid fa-trash-can" style="cursor: pointer;" title="L&ouml;schen"
-                    (click)="reachabilityScenarioHelperService.removeReachabilityScenario(reachabilityScenario)"></i>
-                  &nbsp; &nbsp;
-                  <i class="fa-solid fa-copy" style="cursor: pointer;" title="Duplizieren"
-                    (click)="reachabilityScenarioHelperService.cloneReachabilityScenario(reachabilityScenario)"></i>
-                  &nbsp; &nbsp;
-                  <i class="fa-solid fa-map-location-dot" style="cursor: pointer;" title="auf Hauptkarte anzeigen"
-                    (click)="displayReachabilityScenarioOnMainMap(reachabilityScenario)"></i>
-                </div>
-              </td>
-              <td>
-                {{reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName}}
-              </td>
-
-            </tr>
+            @for (
+              reachabilityScenario of reachabilityScenarioHelperService.reachabilityScenarios;
+              track reachabilityScenario
+            ) {
+              <tr>
+                <td>
+                  <b>{{ reachabilityScenario.scenarioName }}</b>
+                  <br />
+                  <!-- <div>
+                      <button class="btn btn-warning btn-sm" title="Editieren" (click)="openReachabilityScenarioModal(reachabilityScenario)" data-toggle="modal" data-target="#modal-manage-reachability-scenario"><i class="fa-solid fa-pen" ></i></button>
+                      <button class="btn btn-danger btn-sm" title="L&ouml;schen" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.removeReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-trash-can"></i></button>
+                      <button class="btn btn-info btn-sm" title="Duplizieren" (click)="$ctrl.kommonitorReachabilityScenarioHelperServiceInstance.cloneReachabilityScenario(reachabilityScenario)"><i class="fa-solid fa-copy" ></i></button>
+                    </div> -->
+                  <div>
+                    <i
+                      title="Editieren"
+                      style="cursor: pointer"
+                      class="fa-solid fa-pen"
+                      (click)="openReachabilityScenarioModal(reachabilityScenario)"
+                      data-toggle="modal"
+                      data-target="#modal-manage-reachability-scenario"
+                    ></i>
+                    &nbsp; &nbsp;
+                    <i
+                      class="fa-solid fa-trash-can"
+                      style="cursor: pointer"
+                      title="L&ouml;schen"
+                      (click)="
+                        reachabilityScenarioHelperService.removeReachabilityScenario(
+                          reachabilityScenario
+                        )
+                      "
+                    ></i>
+                    &nbsp; &nbsp;
+                    <i
+                      class="fa-solid fa-copy"
+                      style="cursor: pointer"
+                      title="Duplizieren"
+                      (click)="
+                        reachabilityScenarioHelperService.cloneReachabilityScenario(
+                          reachabilityScenario
+                        )
+                      "
+                    ></i>
+                    &nbsp; &nbsp;
+                    <i
+                      class="fa-solid fa-map-location-dot"
+                      style="cursor: pointer"
+                      title="auf Hauptkarte anzeigen"
+                      (click)="displayReachabilityScenarioOnMainMap(reachabilityScenario)"
+                    ></i>
+                  </div>
+                </td>
+                <td>
+                  {{
+                    reachabilityScenario.reachabilitySettings.selectedStartPointLayer.datasetName
+                  }}
+                </td>
+              </tr>
+            }
           </tbody>
         </table>
-
       </div>
 
       <div class="row" [hidden]="!mapOverlayState.reachabilityScenarioOnMainMap">
-
         <div class="col-md-2"></div>
 
         <div class="col-md-8 col-sm-6 col-xs-12">
           <!-- Legend -->
           <div class="just-padding">
-
             <div [hidden]="!mapOverlayState.isochroneLegend">
               <div style="text-align: center">
                 <div class="legend" style="text-align: left">
-                  <label>Punktdatenquelle:
-                  </label>&nbsp;
-                  {{mapOverlayState.isochroneLegend.datasetName}}
+                  <label>Punktdatenquelle: </label>&nbsp;
+                  {{ mapOverlayState.isochroneLegend.datasetName }}
                   <br />
-                  <label>Fortbewegungsart:
-                  </label>&nbsp;
-                  {{mapOverlayState.isochroneLegend.transitMode}}
+                  <label>Fortbewegungsart: </label>&nbsp;
+                  {{ mapOverlayState.isochroneLegend.transitMode }}
                   <br />
                   <label>Abbruchkriterium: </label>&nbsp;
-                  {{mapOverlayState.isochroneLegend.reachMode}}
+                  {{ mapOverlayState.isochroneLegend.reachMode }}
                   <br />
                   <label>Einheit: </label>&nbsp;
-                  {{mapOverlayState.isochroneLegend.cutOffUnit}}
+                  {{ mapOverlayState.isochroneLegend.cutOffUnit }}
                   <br />
-                  <div *ngFor="let entry of mapOverlayState.isochroneLegend.colorValueEntries">
-                    <i [ngStyle]="{background: entry.color, opacity: 0.3}"></i>
-                    {{entry.value}}
-                  </div>
+                  @for (entry of mapOverlayState.isochroneLegend.colorValueEntries; track entry) {
+                    <div>
+                      <i [ngStyle]="{ background: entry.color, opacity: 0.3 }"></i>
+                      {{ entry.value }}
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -207,7 +300,6 @@
         </div>
 
         <div class="col-md-2"></div>
-
       </div>
     </expandable-box>
   </app-loading-overlay>

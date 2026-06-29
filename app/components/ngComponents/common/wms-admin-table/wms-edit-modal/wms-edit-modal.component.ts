@@ -1,38 +1,43 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcDataGridHelperService } from 'services/adminOgcServices/ogc-data-grid-helper.service';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { OgcService } from 'services/ogcServices/ogc.service';
-import { AdminTopicsManagementComponent } from "components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component";
-import { CommonModule } from '@angular/common';
+import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
+
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 
 @Component({
   selector: 'app-wms-edit-modal',
   templateUrl: './wms-edit-modal.component.html',
   styleUrls: ['./wms-edit-modal.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent],
-  standalone: true
+  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent],
+  standalone: true,
 })
 export class WmsEditModalComponent {
-
   currentGeoresourceDataset!: WmsDataset;
 
-  totalSteps:number = 3;
+  totalSteps: number = 3;
   currentStep: number = 1;
 
   isSubmitting = false;
   errorMessage = false;
   successMessage = false;
   loadingData = false;
-  
+
   testErrorMessage = false;
   testSuccessMessage = false;
 
-  wmsTestStatus:boolean | undefined = undefined;
+  wmsTestStatus: boolean | undefined = undefined;
 
   metadataForm = new FormGroup({
     title: new FormControl<string>('', Validators.required),
@@ -40,16 +45,16 @@ export class WmsEditModalComponent {
     databasis: new FormControl<string>(''),
     datasource: new FormControl<string>('', Validators.required),
     contact: new FormControl<string>('', Validators.required),
-    note: new FormControl<string>('')
+    note: new FormControl<string>(''),
   });
 
   connectForm = new FormGroup({
     url: new FormControl<string>('', Validators.required),
-    layer: new FormControl<string>('', Validators.required)
+    layer: new FormControl<string>('', Validators.required),
   });
 
   datasetNameInvalid: boolean = false;
-  
+
   // Topic hierarchy
   georesourceTopic_mainTopic: any = null;
   georesourceTopic_subTopic: any = null;
@@ -67,24 +72,38 @@ export class WmsEditModalComponent {
     private topicStore: TopicMetadataStoreService,
     private ogcService: OgcService,
     protected dataGridHelperService: OgcDataGridHelperService,
-    private topicHierarchyService: TopicHierarchyService,
+    private topicHierarchyService: TopicHierarchyService
   ) {
-    this.availableTopics = this.topicStore.availableTopics.filter(e => e.topicResource=='georesource');
+    this.availableTopics = this.topicStore.availableTopics.filter(
+      (e) => e.topicResource == 'georesource'
+    );
   }
 
   reInit() {
     this.metadataForm = new FormGroup({
       title: new FormControl<string>(this.currentGeoresourceDataset.title, Validators.required),
-      description: new FormControl<string>(this.currentGeoresourceDataset.description, Validators.required),
+      description: new FormControl<string>(
+        this.currentGeoresourceDataset.description,
+        Validators.required
+      ),
       databasis: new FormControl<string>(this.currentGeoresourceDataset.databasis),
-      datasource: new FormControl<string>(this.currentGeoresourceDataset.datasource, Validators.required),
+      datasource: new FormControl<string>(
+        this.currentGeoresourceDataset.datasource,
+        Validators.required
+      ),
       contact: new FormControl<string>(this.currentGeoresourceDataset.contact, Validators.required),
-      note: new FormControl<string>(this.currentGeoresourceDataset.note)
+      note: new FormControl<string>(this.currentGeoresourceDataset.note),
     });
 
     this.connectForm = new FormGroup({
-      url: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.baseUrl, Validators.required),
-      layer: new FormControl<string>(this.currentGeoresourceDataset.connectionDetails.layerName, Validators.required)
+      url: new FormControl<string>(
+        this.currentGeoresourceDataset.connectionDetails.baseUrl,
+        Validators.required
+      ),
+      layer: new FormControl<string>(
+        this.currentGeoresourceDataset.connectionDetails.layerName,
+        Validators.required
+      ),
     });
 
     // Set topic hierarchy
@@ -131,17 +150,13 @@ export class WmsEditModalComponent {
   }
 
   editWms() {
-
     let topicRef = this.georesourceTopic_mainTopic;
-    
-    if(this.georesourceTopic_subTopic)
-      topicRef = this.georesourceTopic_subTopic;
 
-    if(this.georesourceTopic_subsubTopic)
-      topicRef = this.georesourceTopic_subsubTopic;
+    if (this.georesourceTopic_subTopic) topicRef = this.georesourceTopic_subTopic;
 
-    if(this.georesourceTopic_subsubsubTopic)
-      topicRef = this.georesourceTopic_subsubsubTopic;
+    if (this.georesourceTopic_subsubTopic) topicRef = this.georesourceTopic_subsubTopic;
+
+    if (this.georesourceTopic_subsubsubTopic) topicRef = this.georesourceTopic_subsubsubTopic;
 
     const data = {
       title: this.metadataForm.controls.title.value,
@@ -154,27 +169,25 @@ export class WmsEditModalComponent {
         id: '',
         baseUrl: this.connectForm.controls.url.value,
         layerName: this.connectForm.controls.layer.value,
-        serviceType: 'wms'
+        serviceType: 'wms',
       },
       topicReference: topicRef.topicId,
-      serviceResource: this.currentGeoresourceDataset.serviceResource
+      serviceResource: this.currentGeoresourceDataset.serviceResource,
     };
 
     this.ogcService.updateWms(this.currentGeoresourceDataset.id, data).subscribe({
-      next: response => {
+      next: (response) => {
         this.successMessagePart = this.currentGeoresourceDataset.title;
         this.successMessage = true;
-      }, 
-      error: error => {
+      },
+      error: (error) => {
         this.errorMessagePart = error.message;
         this.errorMessage = true;
-      }
+      },
     });
   }
 
-  checkDatasetName() {
-
-  }
+  checkDatasetName() {}
 
   resetWmsAddForm() {
     this.metadataForm.reset();
@@ -187,7 +200,7 @@ export class WmsEditModalComponent {
 
     this.wmsTestStatus = undefined;
   }
-  
+
   hideSuccessAlert(): void {
     this.successMessage = false;
     this.testSuccessMessage = false;
@@ -199,27 +212,22 @@ export class WmsEditModalComponent {
   }
 
   testConnection() {
-
     this.testErrorMessage = false;
     this.testSuccessMessage = false;
 
     const url = this.connectForm.controls.url.value;
     const layer = this.connectForm.controls.layer.value;
 
-    if(url && layer) {
-
+    if (url && layer) {
       this.ogcService.testConnection(url).subscribe({
-        next: response => {
-
-          if(response.success===true)
-            this.testSuccessMessage = true;
-          else
-            this.testErrorMessage = true;
+        next: (response) => {
+          if (response.success === true) this.testSuccessMessage = true;
+          else this.testErrorMessage = true;
         },
-        error: error => {
+        error: (error) => {
           this.testErrorMessage = true;
-        }
-      })
+        },
+      });
     }
   }
 }

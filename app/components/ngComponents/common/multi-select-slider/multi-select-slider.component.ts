@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -20,7 +19,7 @@ import * as noUiSlider from 'nouislider';
   selector: 'multi-select-slider',
   templateUrl: './multi-select-slider.component.html',
   styleUrls: ['./multi-select-slider.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
 })
 export class MultiSelectSliderComponent implements AfterViewInit, OnChanges {
   @ViewChild('sliderContainer') sliderContainer!: ElementRef;

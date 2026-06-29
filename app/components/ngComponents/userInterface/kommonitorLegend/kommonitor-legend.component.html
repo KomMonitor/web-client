@@ -1,530 +1,1058 @@
-<button type="button" id="sidebarLegendCollapse" (click)="legendVisible = !legendVisible" class="buttonLegendClass" title="Legenden- und Informationsfenster">
-		<i class="fas fa-info"></i>
+<button
+  type="button"
+  id="sidebarLegendCollapse"
+  (click)="legendVisible = !legendVisible"
+  class="buttonLegendClass"
+  title="Legenden- und Informationsfenster"
+>
+  <i class="fas fa-info"></i>
 </button>
-<div id="legendWrapper" *ngIf="selectionState.selectedIndicator" [hidden]="!legendVisible">
-
+@if (selectionState.selectedIndicator) {
+  <div id="legendWrapper" [hidden]="!legendVisible">
     <expandable-box [title]="'Raumebene und Export'" [collapsed]="true">
-      <div class="boxedLegend">						
-        <div class="row" style="margin-right: 0px;">
-          <div class="col-sm-7"> <!-- *ngIf="env.enableSpatialUnitNotificationButton" -->
-            <div class="text-left"><label>Raumebene</label><a *ngIf="spatialUnitNotificationModalEnabled()" (click)="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumebenen&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
-              <select (change)="onChangeSelectedSpatialUnit()" [(ngModel)]="selectionState.selectedSpatialUnit" class="form-control">
-                <option disabled selected value> -- Raumebene w&auml;hlen --</option>
-                <option *ngFor="let item of filteredSpatialUnits()" [ngValue]="item">{{item.spatialUnitLevel }}</option>
-              </select>
+      <div class="boxedLegend">
+        <div class="row" style="margin-right: 0px">
+          <div class="col-sm-7">
+            <!-- *ngIf="env.enableSpatialUnitNotificationButton" -->
+            <div class="text-left">
+              <label>Raumebene</label>
+              @if (spatialUnitNotificationModalEnabled()) {
+                <a
+                  (click)="showSpatialUnitNotificationModalIfEnabled()"
+                  style="
+                    font-size: 1.2em;
+                    float: right;
+                    margin-right: 1%;
+                    margin-top: 0.5%;
+                    cursor: pointer;
+                  "
+                  title="Information zu Raumebenen&nbsp;&nbsp;"
+                  ><span class="glyphicon glyphicon-info-sign"></span
+                ></a>
+              }
+            </div>
+            <select
+              (change)="onChangeSelectedSpatialUnit()"
+              [(ngModel)]="selectionState.selectedSpatialUnit"
+              class="form-control"
+            >
+              <option disabled selected value>-- Raumebene w&auml;hlen --</option>
+              @for (item of filteredSpatialUnits(); track item) {
+                <option [ngValue]="item">{{ item.spatialUnitLevel }}</option>
+              }
+            </select>
           </div>
           <div class="col-sm-4">
             <div class="text-left"><label>Datum</label></div>
-              <div class="col-12">
-                  <input
-                    class="form-control"
-                    placeholder="yyyy-mm-dd"
-                    name="dp"
-                    [(ngModel)]="datePickerDate"
-                    [markDisabled]="isDisabledDate"
-                    ngbDatepicker
-                    #d="ngbDatepicker"
-                    (click)="d.toggle()"
-                    (ngModelChange)="onChangeIndicatorDatepickerDate()"
-                    [disabled]="(selectionState.disableIndicatorDatePicker===true ? true : false)"
-                  />
-              </div>
+            <div class="col-12">
+              <input
+                class="form-control"
+                placeholder="yyyy-mm-dd"
+                name="dp"
+                [(ngModel)]="datePickerDate"
+                [markDisabled]="isDisabledDate"
+                ngbDatepicker
+                #d="ngbDatepicker"
+                (click)="d.toggle()"
+                (ngModelChange)="onChangeIndicatorDatepickerDate()"
+                [disabled]="selectionState.disableIndicatorDatePicker === true ? true : false"
+              />
+            </div>
           </div>
-        </div><br>
-
-  <!--  *ngIf="elementVisibilityService.elementVisibility?.indicatorLegendExportButtons" -->
+        </div>
+        <br />
+        <!--  *ngIf="elementVisibilityService.elementVisibility?.indicatorLegendExportButtons" -->
         <label><i class="fa fa-file-download"></i>&nbsp;&nbsp;&nbsp;Export</label>
         <br />
-        <div class="btn-group"  id="indicatorLegendExportButtons">
-          <button id="downloadMetadata" (click)="onClickDownloadMetadata()" class="btn btn-secondary btn-sm">Metadatenblatt</button>
-          <button id="downloadGeoJSON" (click)="downloadIndicatorAsGeoJSON()" class="btn btn-primary btn-sm">GeoJSON</button>
-          <button id="downloadShape" (click)="downloadIndicatorAsShape()" class="btn btn-primary btn-sm">ESRI
-            Shape</button>
-          <button id="downloadCSV" (click)="downloadIndicatorAsCSV()" class="btn btn-primary btn-sm">CSV</button>		
+        <div class="btn-group" id="indicatorLegendExportButtons">
+          <button
+            id="downloadMetadata"
+            (click)="onClickDownloadMetadata()"
+            class="btn btn-secondary btn-sm"
+          >
+            Metadatenblatt
+          </button>
+          <button
+            id="downloadGeoJSON"
+            (click)="downloadIndicatorAsGeoJSON()"
+            class="btn btn-primary btn-sm"
+          >
+            GeoJSON
+          </button>
+          <button
+            id="downloadShape"
+            (click)="downloadIndicatorAsShape()"
+            class="btn btn-primary btn-sm"
+          >
+            ESRI Shape
+          </button>
+          <button
+            id="downloadCSV"
+            (click)="downloadIndicatorAsCSV()"
+            class="btn btn-primary btn-sm"
+          >
+            CSV
+          </button>
         </div>
-        <br>
-        <br>
-        <button title="Teilen Sie die aktuelle Indikatorenansicht mittels eines Links" id="shareLinkButton" (click)="onClickShareLinkButton()" class="btn btn-info btn-sm"><i class="fas fa-share-alt"></i>aktuelle Ansicht teilen</button>
-        <div id="snackbar">Link zur aktuellen Indikatoren-Ansicht in Zwischenablage kopiert</div>	
+        <br />
+        <br />
+        <button
+          title="Teilen Sie die aktuelle Indikatorenansicht mittels eines Links"
+          id="shareLinkButton"
+          (click)="onClickShareLinkButton()"
+          class="btn btn-info btn-sm"
+        >
+          <i class="fas fa-share-alt"></i>aktuelle Ansicht teilen
+        </button>
+        <div id="snackbar">Link zur aktuellen Indikatoren-Ansicht in Zwischenablage kopiert</div>
       </div>
     </expandable-box>
-  
-    <expandable-box [title]="'Legenden'" *ngIf="selectionState.selectedIndicator" [collapsed]="false">
-      <div class="boxedLegend">
-
-        <ul class="nav nav-tabs" id="legendTabs" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link" [ngClass]="{'active': !hasActiveWMSLayers()}" id="legendTab1" data-bs-toggle="tab" data-bs-target="#legendTab1Content"
-              role="tab" aria-controls="legendTab1Content" aria-selected="true">Indikator</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="legendTab2" data-bs-toggle="tab" data-bs-target="#legendTab2Content" role="tab"
-              aria-controls="legendTab2Content" aria-selected="false">Indikator-Metadaten</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [ngClass]="{'active': hasActiveWMSLayers()}" *ngIf="hasActiveWMSLayers()" id="legendTab3" data-bs-toggle="tab" data-bs-target="#legendTab3Content" role="tab"
-              aria-controls="legendTab3Content" aria-selected="false">WMS-Dienste</a>
-          </li>
-        </ul>
-        <div class="tab-content" id="legendTabContent">
-          <div class="tab-pane" [ngClass]="{'active': !hasActiveWMSLayers()}" id="legendTab1Content" role="tabpanel"
-            aria-labelledby="legendTab1">
-              
-            <div class="just-padding">
-              
-              <h4>{{selectionState.selectedIndicator.indicatorName}}</h4>
-              <h5 *ngIf="visualStyleService.isCustomComputation">&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
-              <p [innerHTML]="selectionState.selectedIndicator.metadata.description"></p>							
-              
-              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('STATUS') && !chartDisplayState.isMeasureOfValueChecked && !chartDisplayState.isBalanceChecked">
-                <em>Darstellung der Indikatorenwerte {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
-                <div *ngIf="selectionState.selectedIndicator.referenceDateNote">
-                  <em><b>Hinweis Referenzdatum:</b> {{selectionState.selectedIndicator.referenceDateNote}}</em>
-                </div>
-              </div>
-              <div *ngIf="selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') && ! chartDisplayState.isMeasureOfValueChecked && !chartDisplayState.isBalanceChecked">
-                <em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
-              </div>
-              <div *ngIf="chartDisplayState.isMeasureOfValueChecked">
-                <em>Schwellwert-Klassifizierung</em>
-                <em>Gew&auml;hlter Zeitpunkt: </em> {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}
-                <em>aktueller Schwellwert: </em> {{chartDisplayState.measureOfValue}}
-              </div>
-              <div *ngIf="chartDisplayState.isBalanceChecked">
-                <em>Bilanzierung - {{chartDisplayState.indicatorAndMetadataAsBalance['fromDate']}} - {{chartDisplayState.indicatorAndMetadataAsBalance['toDate']}}</em>
-              </div>
-              
-              <br />
-      
-              <div *ngIf="selectionState.selectedIndicator.interpretation && selectionState.selectedIndicator.interpretation !== ''">
-                <label>Interpretationshilfe:</label>
-                <p [innerHTML]="selectionState.selectedIndicator.interpretation"></p>	
-              </div>						
-              <br />				
-              
-
-              <div class="row" style="margin-right: 0px;">
-                <div class="col-md-3"><b>Symbolik</b></div>
-                <div class="col-md-6"><b>Wertebereich</b> [{{selectionState.selectedIndicator.unit}}]</div>
-                <div class="col-md-3"><b>Anzahl Raumeinheiten</b></div><br>
-              </div>
-              <div *ngIf="containsNoData">
-                <div class="row" style="margin-right: 0px;">
-                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForNoDataValues, border: '2px solid '+ defaultBorderColorForNoDataValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
-                  <div class="col-md-6">Leerwert</div>
-                  <div class="col-md-3">{{visualStyleService.featuresPerNoData}}</div><br>
-                </div>				
-              </div>
-              <div *ngIf="containsOutliers_low && envConfigService.useOutlierDetectionOnIndicator">
-                <div class="row" style="margin-right: 0px;">
-                  <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
-                  <div class="col-md-6">untere Ausrei&szlig;er {{makeOutliersLowLegendString(outliers_low)}}</div>
-                  <div class="col-md-3">{{visualStyleService.featuresPerOutlierLow}}</div><br>
-                </div>				
-              </div>
-              <div *ngIf="containsOutliers_high && envConfigService.useOutlierDetectionOnIndicator">
-                <div class="row" style="margin-right: 0px;">
-                  <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
-                  <div class="col-md-6">obere Ausrei&szlig;er {{makeOutliersHighLegendString(outliers_high)}}</div>
-                  <div class="col-md-3">{{visualStyleService.featuresPerOutlierHigh}}</div><br>
-                </div>				
-              </div>
-              <div *ngIf="(filterHelperService.filteredIndicatorFeatureIds.size > 0) && (!filterHelperService.completelyRemoveFilteredFeaturesFromDisplay)">
-                <div class="row" style="margin-right: 0px;">
-                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForFilteredValues, border: '2px solid '+ defaultBorderColorForFilteredValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
-                  <div class="col-md-6">gefilterte Raumeinheiten</div>
-                  <div class="col-md-3">{{filterHelperService.filteredIndicatorFeatureIds.size}}</div><br>
-                </div>				
-              </div>
-              <br/>
-              <!-- Measure of Value legend items -->
-              <div *ngIf="chartDisplayState.isMeasureOfValueChecked">
-                <!-- zero -->
-                <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
-                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
-                  <div class="col-md-6">0</div>
-                  <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
-                </div>	
-
-                <br/>
-
-                <!-- lesser than values -->
-                <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.measureOfValueBrew[1].colors; let i = index">
-                  <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                  <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i + 1])}}</div>
-                  <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[1].breaks[i])}}</div>
-                  <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
-                </div>
-
-                <br/>
-
-                <!-- higher than values -->
-                <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.measureOfValueBrew[0].colors; let i = index">
-                  <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                  <div class="col-md-6 " *ngIf="visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i + 1])}}</div>
-                  <div class="col-md-6 " *ngIf="! visualStyleService.measureOfValueBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.measureOfValueBrew[0].breaks[i])}}</div>
-                  <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
-                </div>
-
-              </div>
-              <!-- Dynamic legend items -->
-              <div *ngIf="(chartDisplayState.isBalanceChecked || selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! chartDisplayState.isMeasureOfValueChecked">					
-                <!-- < 0 values -->
-                  <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]">
-                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[1].colors; let i = index">
-                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[1].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[1].breaks[i])}}</div>
-                    <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
+    @if (selectionState.selectedIndicator) {
+      <expandable-box [title]="'Legenden'" [collapsed]="false">
+        <div class="boxedLegend">
+          <ul class="nav nav-tabs" id="legendTabs" role="tablist">
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                [ngClass]="{ active: !hasActiveWMSLayers() }"
+                id="legendTab1"
+                data-bs-toggle="tab"
+                data-bs-target="#legendTab1Content"
+                role="tab"
+                aria-controls="legendTab1Content"
+                aria-selected="true"
+                >Indikator</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                id="legendTab2"
+                data-bs-toggle="tab"
+                data-bs-target="#legendTab2Content"
+                role="tab"
+                aria-controls="legendTab2Content"
+                aria-selected="false"
+                >Indikator-Metadaten</a
+              >
+            </li>
+            <li class="nav-item">
+              @if (hasActiveWMSLayers()) {
+                <a
+                  class="nav-link"
+                  [ngClass]="{ active: hasActiveWMSLayers() }"
+                  id="legendTab3"
+                  data-bs-toggle="tab"
+                  data-bs-target="#legendTab3Content"
+                  role="tab"
+                  aria-controls="legendTab3Content"
+                  aria-selected="false"
+                  >WMS-Dienste</a
+                >
+              }
+            </li>
+          </ul>
+          <div class="tab-content" id="legendTabContent">
+            <div
+              class="tab-pane"
+              [ngClass]="{ active: !hasActiveWMSLayers() }"
+              id="legendTab1Content"
+              role="tabpanel"
+              aria-labelledby="legendTab1"
+            >
+              <div class="just-padding">
+                <h4>{{ selectionState.selectedIndicator.indicatorName }}</h4>
+                @if (visualStyleService.isCustomComputation) {
+                  <h5>&nbsp;-&nbsp; <i>individuelles Berechnungsergebnis</i></h5>
+                }
+                <p [innerHTML]="selectionState.selectedIndicator.metadata.description"></p>
+                @if (
+                  selectionState.selectedIndicator.indicatorType.includes('STATUS') &&
+                  !chartDisplayState.isMeasureOfValueChecked &&
+                  !chartDisplayState.isBalanceChecked
+                ) {
+                  <div>
+                    <em
+                      >Darstellung der Indikatorenwerte
+                      {{
+                        metadataExportService.tsToDate_withOptionalUpdateInterval(
+                          dateAsDate,
+                          selectionState.selectedIndicator.metadata.updateInterval
+                        )
+                      }}</em
+                    >
+                    @if (selectionState.selectedIndicator.referenceDateNote) {
+                      <div>
+                        <em
+                          ><b>Hinweis Referenzdatum:</b>
+                          {{ selectionState.selectedIndicator.referenceDateNote }}</em
+                        >
+                      </div>
+                    }
                   </div>
-                </div>
-
-                <br/>
-
-                <!-- zero -->
-                <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
-                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
-                  <div class="col-md-6">0</div>
-                  <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
-                </div>	
-
+                }
+                @if (
+                  selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') &&
+                  !chartDisplayState.isMeasureOfValueChecked &&
+                  !chartDisplayState.isBalanceChecked
+                ) {
+                  <div>
+                    <em
+                      >Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt
+                      {{
+                        metadataExportService.tsToDate_withOptionalUpdateInterval(
+                          dateAsDate,
+                          selectionState.selectedIndicator.metadata.updateInterval
+                        )
+                      }}</em
+                    >
+                  </div>
+                }
+                @if (chartDisplayState.isMeasureOfValueChecked) {
+                  <div>
+                    <em>Schwellwert-Klassifizierung</em>
+                    <em>Gew&auml;hlter Zeitpunkt: </em>
+                    {{
+                      metadataExportService.tsToDate_withOptionalUpdateInterval(
+                        dateAsDate,
+                        selectionState.selectedIndicator.metadata.updateInterval
+                      )
+                    }}
+                    <em>aktueller Schwellwert: </em> {{ chartDisplayState.measureOfValue }}
+                  </div>
+                }
+                @if (chartDisplayState.isBalanceChecked) {
+                  <div>
+                    <em
+                      >Bilanzierung -
+                      {{ chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] }} -
+                      {{ chartDisplayState.indicatorAndMetadataAsBalance['toDate'] }}</em
+                    >
+                  </div>
+                }
                 <br />
-
-                <!-- > 0 values -->
-                  <div *ngIf="visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[0]">
-                  <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.dynamicBrew[0].colors; let i = index">
-                    <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                    <div class="col-md-6 " *ngIf="visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i + 1])}}</div>
-                    <div class="col-md-6 " *ngIf="! visualStyleService.dynamicBrew[0].breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.dynamicBrew[0].breaks[i])}}</div>
-                    <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
+                @if (
+                  selectionState.selectedIndicator.interpretation &&
+                  selectionState.selectedIndicator.interpretation !== ''
+                ) {
+                  <div>
+                    <label>Interpretationshilfe:</label>
+                    <p [innerHTML]="selectionState.selectedIndicator.interpretation"></p>
                   </div>
-                  </div>
-              </div>
-
-              <!-- Static/Status legend items -->
-              <div *ngIf="(selectionState.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! chartDisplayState.isMeasureOfValueChecked && ! chartDisplayState.isBalanceChecked">
-        
-                <!-- zero -->
-                <div class="row" style="margin-right: 0px;" *ngIf="envConfigService.classifyZeroSeparately && containsZeroValues">
-                  <div class="col-md-3"><i [ngStyle]="{background: defaultColorForZeroValues, opacity: visualStyleService.currentIndicatorOpacity}"></i></div>
-                  <div class="col-md-6">0</div>
-                  <div class="col-md-3">{{visualStyleService.featuresPerZero}}</div><br>
-                </div>	
-
+                }
                 <br />
-
-                <div [ngSwitch]="visualStyleService.classifyMethod">
-                  <div *ngSwitchCase="'manual'">
-                    <!-- manual classification -->
-                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.manualBrew?.colors; let i = index">
-                      <div class="col-md-3 ">
-                        <i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}">
-                        </i> 
+                <div class="row" style="margin-right: 0px">
+                  <div class="col-md-3"><b>Symbolik</b></div>
+                  <div class="col-md-6">
+                    <b>Wertebereich</b> [{{ selectionState.selectedIndicator.unit }}]
+                  </div>
+                  <div class="col-md-3"><b>Anzahl Raumeinheiten</b></div>
+                  <br />
+                </div>
+                @if (containsNoData) {
+                  <div>
+                    <div class="row" style="margin-right: 0px">
+                      <div class="col-md-3">
+                        <i
+                          [ngStyle]="{
+                            background: defaultColorForNoDataValues,
+                            border: '2px solid ' + defaultBorderColorForNoDataValues,
+                            opacity: visualStyleService.currentIndicatorOpacity,
+                          }"
+                        ></i>
                       </div>
-                      <div class="col-md-6 " *ngIf="visualStyleService.manualBrew.breaks[i + 1]" >
-                        {{getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}} &dash; &lt; 
-                        {{getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i + 1])}}
-                      </div>
-                      <div class="col-md-6 " *ngIf="! visualStyleService.manualBrew.breaks[i + 1]" >
-                        {{getIndicatorValue_asFormattedText(visualStyleService.manualBrew.breaks[i])}}
-                      </div>
-                      <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div>
+                      <div class="col-md-6">Leerwert</div>
+                      <div class="col-md-3">{{ visualStyleService.featuresPerNoData }}</div>
+                      <br />
                     </div>
                   </div>
-                  <div *ngSwitchDefault>
-                    <!-- default values -->
-                    <div class="row" style="margin-right: 0px;" *ngFor="let color of visualStyleService.defaultBrew?.colors; let i = index">
-                      <div class="col-md-3 "><i [ngStyle]="{background: color, opacity: visualStyleService.currentIndicatorOpacity}"></i> </div>
-                      <div class="col-md-6 " *ngIf="visualStyleService.defaultBrew.breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}} &dash; &lt; {{getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i + 1])}}</div>
-                      <div class="col-md-6 " *ngIf="! visualStyleService.defaultBrew.breaks[i + 1]" >{{getIndicatorValue_asFormattedText(visualStyleService.defaultBrew.breaks[i])}}</div>
-                      <div class="col-md-3 ">{{visualStyleService.featuresPerColorMap.get(color) || 0}}</div> <!-- hier -->
+                }
+                @if (containsOutliers_low && envConfigService.useOutlierDetectionOnIndicator) {
+                  <div>
+                    <div class="row" style="margin-right: 0px">
+                      <div class="col-md-3"><i ng-bind-html="svgString_outlierLow"></i></div>
+                      <div class="col-md-6">
+                        untere Ausrei&szlig;er {{ makeOutliersLowLegendString(outliers_low) }}
+                      </div>
+                      <div class="col-md-3">{{ visualStyleService.featuresPerOutlierLow }}</div>
+                      <br />
+                    </div>
+                  </div>
+                }
+                @if (containsOutliers_high && envConfigService.useOutlierDetectionOnIndicator) {
+                  <div>
+                    <div class="row" style="margin-right: 0px">
+                      <div class="col-md-3"><i ng-bind-html="svgString_outlierHigh"></i></div>
+                      <div class="col-md-6">
+                        obere Ausrei&szlig;er {{ makeOutliersHighLegendString(outliers_high) }}
+                      </div>
+                      <div class="col-md-3">{{ visualStyleService.featuresPerOutlierHigh }}</div>
+                      <br />
+                    </div>
+                  </div>
+                }
+                @if (
+                  filterHelperService.filteredIndicatorFeatureIds.size > 0 &&
+                  !filterHelperService.completelyRemoveFilteredFeaturesFromDisplay
+                ) {
+                  <div>
+                    <div class="row" style="margin-right: 0px">
+                      <div class="col-md-3">
+                        <i
+                          [ngStyle]="{
+                            background: defaultColorForFilteredValues,
+                            border: '2px solid ' + defaultBorderColorForFilteredValues,
+                            opacity: visualStyleService.currentIndicatorOpacity,
+                          }"
+                        ></i>
+                      </div>
+                      <div class="col-md-6">gefilterte Raumeinheiten</div>
+                      <div class="col-md-3">
+                        {{ filterHelperService.filteredIndicatorFeatureIds.size }}
+                      </div>
+                      <br />
+                    </div>
+                  </div>
+                }
+                <br />
+                <!-- Measure of Value legend items -->
+                @if (chartDisplayState.isMeasureOfValueChecked) {
+                  <div>
+                    <!-- zero -->
+                    @if (envConfigService.classifyZeroSeparately && containsZeroValues) {
+                      <div class="row" style="margin-right: 0px">
+                        <div class="col-md-3">
+                          <i
+                            [ngStyle]="{
+                              background: defaultColorForZeroValues,
+                              opacity: visualStyleService.currentIndicatorOpacity,
+                            }"
+                          ></i>
+                        </div>
+                        <div class="col-md-6">0</div>
+                        <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
+                        <br />
+                      </div>
+                    }
+                    <br />
+                    <!-- lesser than values -->
+                    @for (
+                      color of visualStyleService.measureOfValueBrew[1].colors;
+                      track color;
+                      let i = $index
+                    ) {
+                      <div class="row" style="margin-right: 0px">
+                        <div class="col-md-3">
+                          <i
+                            [ngStyle]="{
+                              background: color,
+                              opacity: visualStyleService.currentIndicatorOpacity,
+                            }"
+                          ></i>
+                        </div>
+                        @if (visualStyleService.measureOfValueBrew[1].breaks[i + 1]) {
+                          <div class="col-md-6">
+                            {{
+                              getIndicatorValue_asFormattedText(
+                                visualStyleService.measureOfValueBrew[1].breaks[i]
+                              )
+                            }}
+                            &dash; &lt;
+                            {{
+                              getIndicatorValue_asFormattedText(
+                                visualStyleService.measureOfValueBrew[1].breaks[i + 1]
+                              )
+                            }}
+                          </div>
+                        }
+                        @if (!visualStyleService.measureOfValueBrew[1].breaks[i + 1]) {
+                          <div class="col-md-6">
+                            {{
+                              getIndicatorValue_asFormattedText(
+                                visualStyleService.measureOfValueBrew[1].breaks[i]
+                              )
+                            }}
+                          </div>
+                        }
+                        <div class="col-md-3">
+                          {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                        </div>
+                      </div>
+                    }
+                    <br />
+                    <!-- higher than values -->
+                    @for (
+                      color of visualStyleService.measureOfValueBrew[0].colors;
+                      track color;
+                      let i = $index
+                    ) {
+                      <div class="row" style="margin-right: 0px">
+                        <div class="col-md-3">
+                          <i
+                            [ngStyle]="{
+                              background: color,
+                              opacity: visualStyleService.currentIndicatorOpacity,
+                            }"
+                          ></i>
+                        </div>
+                        @if (visualStyleService.measureOfValueBrew[0].breaks[i + 1]) {
+                          <div class="col-md-6">
+                            {{
+                              getIndicatorValue_asFormattedText(
+                                visualStyleService.measureOfValueBrew[0].breaks[i]
+                              )
+                            }}
+                            &dash; &lt;
+                            {{
+                              getIndicatorValue_asFormattedText(
+                                visualStyleService.measureOfValueBrew[0].breaks[i + 1]
+                              )
+                            }}
+                          </div>
+                        }
+                        @if (!visualStyleService.measureOfValueBrew[0].breaks[i + 1]) {
+                          <div class="col-md-6">
+                            {{
+                              getIndicatorValue_asFormattedText(
+                                visualStyleService.measureOfValueBrew[0].breaks[i]
+                              )
+                            }}
+                          </div>
+                        }
+                        <div class="col-md-3">
+                          {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+                <!-- Dynamic legend items -->
+                @if (
+                  (chartDisplayState.isBalanceChecked ||
+                    selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
+                    containsNegativeValues) &&
+                  !chartDisplayState.isMeasureOfValueChecked
+                ) {
+                  <div>
+                    <!-- < 0 values -->
+                    @if (visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[1]) {
+                      <div>
+                        @for (
+                          color of visualStyleService.dynamicBrew[1].colors;
+                          track color;
+                          let i = $index
+                        ) {
+                          <div class="row" style="margin-right: 0px">
+                            <div class="col-md-3">
+                              <i
+                                [ngStyle]="{
+                                  background: color,
+                                  opacity: visualStyleService.currentIndicatorOpacity,
+                                }"
+                              ></i>
+                            </div>
+                            @if (visualStyleService.dynamicBrew[1].breaks[i + 1]) {
+                              <div class="col-md-6">
+                                {{
+                                  getIndicatorValue_asFormattedText(
+                                    visualStyleService.dynamicBrew[1].breaks[i]
+                                  )
+                                }}
+                                &dash; &lt;
+                                {{
+                                  getIndicatorValue_asFormattedText(
+                                    visualStyleService.dynamicBrew[1].breaks[i + 1]
+                                  )
+                                }}
+                              </div>
+                            }
+                            @if (!visualStyleService.dynamicBrew[1].breaks[i + 1]) {
+                              <div class="col-md-6">
+                                {{
+                                  getIndicatorValue_asFormattedText(
+                                    visualStyleService.dynamicBrew[1].breaks[i]
+                                  )
+                                }}
+                              </div>
+                            }
+                            <div class="col-md-3">
+                              {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                    <br />
+                    <!-- zero -->
+                    @if (envConfigService.classifyZeroSeparately && containsZeroValues) {
+                      <div class="row" style="margin-right: 0px">
+                        <div class="col-md-3">
+                          <i
+                            [ngStyle]="{
+                              background: defaultColorForZeroValues,
+                              opacity: visualStyleService.currentIndicatorOpacity,
+                            }"
+                          ></i>
+                        </div>
+                        <div class="col-md-6">0</div>
+                        <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
+                        <br />
+                      </div>
+                    }
+                    <br />
+                    <!-- > 0 values -->
+                    @if (visualStyleService.dynamicBrew && visualStyleService.dynamicBrew[0]) {
+                      <div>
+                        @for (
+                          color of visualStyleService.dynamicBrew[0].colors;
+                          track color;
+                          let i = $index
+                        ) {
+                          <div class="row" style="margin-right: 0px">
+                            <div class="col-md-3">
+                              <i
+                                [ngStyle]="{
+                                  background: color,
+                                  opacity: visualStyleService.currentIndicatorOpacity,
+                                }"
+                              ></i>
+                            </div>
+                            @if (visualStyleService.dynamicBrew[0].breaks[i + 1]) {
+                              <div class="col-md-6">
+                                {{
+                                  getIndicatorValue_asFormattedText(
+                                    visualStyleService.dynamicBrew[0].breaks[i]
+                                  )
+                                }}
+                                &dash; &lt;
+                                {{
+                                  getIndicatorValue_asFormattedText(
+                                    visualStyleService.dynamicBrew[0].breaks[i + 1]
+                                  )
+                                }}
+                              </div>
+                            }
+                            @if (!visualStyleService.dynamicBrew[0].breaks[i + 1]) {
+                              <div class="col-md-6">
+                                {{
+                                  getIndicatorValue_asFormattedText(
+                                    visualStyleService.dynamicBrew[0].breaks[i]
+                                  )
+                                }}
+                              </div>
+                            }
+                            <div class="col-md-3">
+                              {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+                <!-- Static/Status legend items -->
+                @if (
+                  selectionState.selectedIndicator.indicatorType.includes('STATUS') &&
+                  !containsNegativeValues &&
+                  !chartDisplayState.isMeasureOfValueChecked &&
+                  !chartDisplayState.isBalanceChecked
+                ) {
+                  <div>
+                    <!-- zero -->
+                    @if (envConfigService.classifyZeroSeparately && containsZeroValues) {
+                      <div class="row" style="margin-right: 0px">
+                        <div class="col-md-3">
+                          <i
+                            [ngStyle]="{
+                              background: defaultColorForZeroValues,
+                              opacity: visualStyleService.currentIndicatorOpacity,
+                            }"
+                          ></i>
+                        </div>
+                        <div class="col-md-6">0</div>
+                        <div class="col-md-3">{{ visualStyleService.featuresPerZero }}</div>
+                        <br />
+                      </div>
+                    }
+                    <br />
+                    <div>
+                      @switch (visualStyleService.classifyMethod) {
+                        @case ('manual') {
+                          <div>
+                            <!-- manual classification -->
+                            @for (
+                              color of visualStyleService.manualBrew?.colors;
+                              track color;
+                              let i = $index
+                            ) {
+                              <div class="row" style="margin-right: 0px">
+                                <div class="col-md-3">
+                                  <i
+                                    [ngStyle]="{
+                                      background: color,
+                                      opacity: visualStyleService.currentIndicatorOpacity,
+                                    }"
+                                  >
+                                  </i>
+                                </div>
+                                @if (visualStyleService.manualBrew.breaks[i + 1]) {
+                                  <div class="col-md-6">
+                                    {{
+                                      getIndicatorValue_asFormattedText(
+                                        visualStyleService.manualBrew.breaks[i]
+                                      )
+                                    }}
+                                    &dash; &lt;
+                                    {{
+                                      getIndicatorValue_asFormattedText(
+                                        visualStyleService.manualBrew.breaks[i + 1]
+                                      )
+                                    }}
+                                  </div>
+                                }
+                                @if (!visualStyleService.manualBrew.breaks[i + 1]) {
+                                  <div class="col-md-6">
+                                    {{
+                                      getIndicatorValue_asFormattedText(
+                                        visualStyleService.manualBrew.breaks[i]
+                                      )
+                                    }}
+                                  </div>
+                                }
+                                <div class="col-md-3">
+                                  {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        }
+                        @default {
+                          <div>
+                            <!-- default values -->
+                            @for (
+                              color of visualStyleService.defaultBrew?.colors;
+                              track color;
+                              let i = $index
+                            ) {
+                              <div class="row" style="margin-right: 0px">
+                                <div class="col-md-3">
+                                  <i
+                                    [ngStyle]="{
+                                      background: color,
+                                      opacity: visualStyleService.currentIndicatorOpacity,
+                                    }"
+                                  ></i>
+                                </div>
+                                @if (visualStyleService.defaultBrew.breaks[i + 1]) {
+                                  <div class="col-md-6">
+                                    {{
+                                      getIndicatorValue_asFormattedText(
+                                        visualStyleService.defaultBrew.breaks[i]
+                                      )
+                                    }}
+                                    &dash; &lt;
+                                    {{
+                                      getIndicatorValue_asFormattedText(
+                                        visualStyleService.defaultBrew.breaks[i + 1]
+                                      )
+                                    }}
+                                  </div>
+                                }
+                                @if (!visualStyleService.defaultBrew.breaks[i + 1]) {
+                                  <div class="col-md-6">
+                                    {{
+                                      getIndicatorValue_asFormattedText(
+                                        visualStyleService.defaultBrew.breaks[i]
+                                      )
+                                    }}
+                                  </div>
+                                }
+                                <div class="col-md-3">
+                                  {{ visualStyleService.featuresPerColorMap.get(color) || 0 }}
+                                </div>
+                                <!-- hier -->
+                              </div>
+                            }
+                          </div>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+                <div>
+                  <br />
+                  @if (
+                    selectionState.allFeaturesRegionalMean() &&
+                    envConfigService.enableMeanDataDisplayInLegend
+                  ) {
+                    <div>
+                      <b>{{ labelService.labelMean_regional }}</b>
+                      {{
+                        getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())
+                      }}
+                    </div>
+                  }
+                  @if (
+                    selectionState.allFeaturesMean() &&
+                    envConfigService.enableMeanDataDisplayInLegend &&
+                    (envConfigService.configMeanDataDisplay === 'both' ||
+                      (!selectionState.allFeaturesRegionalMean() &&
+                        envConfigService.configMeanDataDisplay === 'preferRegionalMeanIfAvailable'))
+                  ) {
+                    <div>
+                      <b>{{ labelService.labelMean }}</b>
+                      {{ getIndicatorValue_asFormattedText(selectionState.allFeaturesMean()) }}
+                    </div>
+                  }
+                </div>
+                <div id="kommonitorIndicatorClassification">
+                  <div
+                    id="indicatorClassificationCollapse"
+                    (click)="classificationCollapsed = !classificationCollapsed"
+                    style="font-size: 1em; cursor: pointer; margin-top: 16px"
+                    title="Klassifikation anpassen"
+                  >
+                    <span style="font-size: 1.5em" class="fas fa-cogs"></span> &nbsp;
+                    &nbsp;Klassifikation anpassen
+                  </div>
+                  <div
+                    [hidden]="classificationCollapsed"
+                    class="box boxedLegend with-border"
+                    style="border-top: 1px solid #d2d6de; margin-top: 5px"
+                  >
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Klassifikation anpassen</h3>
+                      <div class="box-tools pull-right">
+                        <button
+                          type="button"
+                          class="close"
+                          (click)="classificationCollapsed = !classificationCollapsed"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                    <div class="box-body">
+                      <kommonitor-classification-component></kommonitor-classification-component>
                     </div>
                   </div>
                 </div>
               </div>
-              <div>
-                <br/>
-                <div *ngIf="selectionState.allFeaturesRegionalMean() && envConfigService.enableMeanDataDisplayInLegend">
-                  <b>{{labelService.labelMean_regional}}</b>
-                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())}}
-                </div>
-                <div *ngIf="selectionState.allFeaturesMean() && envConfigService.enableMeanDataDisplayInLegend && (envConfigService.configMeanDataDisplay === 'both' || (! selectionState.allFeaturesRegionalMean() && envConfigService.configMeanDataDisplay === 'preferRegionalMeanIfAvailable'))">
-                  <b>{{labelService.labelMean}}</b>
-                  {{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean())}}
-                </div>
-              </div>
-              <div id="kommonitorIndicatorClassification">
-                <div 
-                  id="indicatorClassificationCollapse"
-                  (click)="classificationCollapsed=!classificationCollapsed"
-                  style="font-size:1.0em; cursor:pointer; margin-top: 16px;"
-                  title="Klassifikation anpassen">
-                <span style="font-size:1.5em;" class="fas fa-cogs"></span> &nbsp; &nbsp;Klassifikation anpassen
-              </div>
-              <div [hidden]="classificationCollapsed" 
-                class="box boxedLegend with-border"
-                style="border-top: 1px solid #d2d6de; margin-top: 5px;">								
-                <div class="box-header with-border">
-                  <h3 class="box-title">Klassifikation anpassen</h3>
-                  <div class="box-tools pull-right">
-                    <button type="button" class="close" (click)="classificationCollapsed=!classificationCollapsed">×</button>
-                  </div>
-                </div>
-                <div class="box-body">
-                  <kommonitor-classification-component></kommonitor-classification-component>
-                </div>
-              </div>
-              </div>
-              
             </div>
-          </div>
-          <div class="tab-pane" id="legendTab2Content" role="tabpanel"
-            aria-labelledby="legendTab2">
-
-            <div class="just-padding">
-              <h4>&Uuml;bersicht Metadaten</h4>
-              <div id="indicatorMetadataOverview" text-align="center" align="center" class="">
-    
-                <table class="table table-condensed">
-                  <!-- <thead>
+            <div
+              class="tab-pane"
+              id="legendTab2Content"
+              role="tabpanel"
+              aria-labelledby="legendTab2"
+            >
+              <div class="just-padding">
+                <h4>&Uuml;bersicht Metadaten</h4>
+                <div id="indicatorMetadataOverview" text-align="center" align="center" class="">
+                  <table class="table table-condensed">
+                    <!-- <thead>
+                      <tr>
+                        <th>Name des Metadatums</th>
+                        <th>Beschreibung des Metadatums</th>
+                      </tr>
+                    </thead> -->
+                    <tbody>
+                      <tr>
+                        <td><b>Name</b></td>
+                        <td>{{ selectionState.selectedIndicator.indicatorName }}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Kategorie</b></td>
+                        @if (selectionState.selectedIndicator.isHeadlineIndicator) {
+                          <td>Leitindikator</td>
+                        }
+                        @if (!selectionState.selectedIndicator.isHeadlineIndicator) {
+                          <td>Basisindikator</td>
+                        }
+                      </tr>
+                      <tr>
+                        <td><b>Typ</b></td>
+                        <td>{{ selectionState.selectedIndicator.indicatorType }}</td>
+                      </tr>
+                      <!-- we hide characteristicValue parameter as it is and old relic not used any longer.
+                      -> deprecated -->
+                      <!-- <tr ng-if="selectionState.selectedIndicator.characteristicValue">
+                      <td><b>Merkmalsauspr&auml;gung</b></td>
+                      <td>{{selectionState.selectedIndicator.characteristicValue}}</td>
+                    </tr> -->
+                      <tr>
+                        <td><b>Kennzeichen/K&uuml;rzel</b></td>
+                        <td>{{ selectionState.selectedIndicator.abbreviation }}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Beschreibung</b></td>
+                        <td
+                          [innerHTML]="selectionState.selectedIndicator.metadata.description"
+                        ></td>
+                      </tr>
+                      <tr>
+                        <td><b>Maßeinheit</b></td>
+                        <td>{{ selectionState.selectedIndicator.unit }}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Methodik</b></td>
+                        <!-- <td [mathjax]="selectionState.selectedIndicator.processDescription"> -->
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td><b>Interpretation</b></td>
+                        <td [innerHTML]="selectionState.selectedIndicator.interpretation"></td>
+                      </tr>
+                      <tr>
+                        <td><b>Datengrundlage</b></td>
+                        <td [innerHTML]="selectionState.selectedIndicator.metadata.databasis"></td>
+                      </tr>
+                      <tr>
+                        <td><b>Datenquelle</b></td>
+                        <td [innerHTML]="selectionState.selectedIndicator.metadata.datasource"></td>
+                      </tr>
+                      <tr>
+                        <td><b>Datenhalter und Kontakt</b></td>
+                        <td [innerHTML]="selectionState.selectedIndicator.metadata.contact"></td>
+                      </tr>
+                      <tr>
+                        <td><b>Bemerkung</b></td>
+                        <td [innerHTML]="selectionState.selectedIndicator.metadata.note"></td>
+                      </tr>
+                      <tr>
+                        <td><b>Fortführungsintervall</b></td>
+                        <td
+                          [innerHTML]="selectionState.selectedIndicator.metadata.updateInterval"
+                        ></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <hr />
+                <br />
+                <div>
+                  <h4>Verkn&uuml;pfte Indikatoren</h4>
+                  @if (
+                    !selectionState.selectedIndicator.referencedIndicators ||
+                    selectionState.selectedIndicator.referencedIndicators.length == 0
+                  ) {
+                    <div>-- keine --</div>
+                  }
+                  @if (selectionState.selectedIndicator.referencedIndicators?.length > 0) {
+                    <div>
+                      <div
+                        id="referencedIndicatorOverview"
+                        text-align="center"
+                        style="text-align: center"
+                        class=""
+                      >
+                        <table class="table table-condensed">
+                          <thead>
                             <tr>
-                              <th>Name des Metadatums</th>
-                              <th>Beschreibung des Metadatums</th>
+                              <th>Name des Indikators</th>
+                              <th>K&uuml;rzel/Kennziffer</th>
+                              <th>Beschreibung der Verkn&uuml;pfung</th>
                             </tr>
-                          </thead> -->
-                  <tbody>
-                    <tr>
-                      <td><b>Name</b></td>
-                      <td>{{selectionState.selectedIndicator.indicatorName}}</td>
-                    </tr>
-                    <tr>
-                      <td><b>Kategorie</b></td>
-                      <td
-                        *ngIf="selectionState.selectedIndicator.isHeadlineIndicator">
-                        Leitindikator</td>
-                      <td
-                        *ngIf="!selectionState.selectedIndicator.isHeadlineIndicator">
-                        Basisindikator</td>
-                    </tr>
-                    <tr>
-                      <td><b>Typ</b></td>
-                      <td>{{selectionState.selectedIndicator.indicatorType}}</td>
-                    </tr>
-                    <!-- we hide characteristicValue parameter as it is and old relic not used any longer. 
-                            -> deprecated -->
-      
-                    <!-- <tr ng-if="selectionState.selectedIndicator.characteristicValue">
-                              <td><b>Merkmalsauspr&auml;gung</b></td>
-                              <td>{{selectionState.selectedIndicator.characteristicValue}}</td>
-                            </tr> -->
-                    <tr>
-                      <td><b>Kennzeichen/K&uuml;rzel</b></td>
-                      <td>{{selectionState.selectedIndicator.abbreviation}}</td>
-                    </tr>
-                    <tr>
-                      <td><b>Beschreibung</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.metadata.description">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Maßeinheit</b></td>
-                      <td>{{selectionState.selectedIndicator.unit}}</td>
-                    </tr>
-                    <tr>
-                      <td><b>Methodik</b></td>
-                      <!-- <td [mathjax]="selectionState.selectedIndicator.processDescription"> -->
-                      <td>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Interpretation</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.interpretation">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Datengrundlage</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.metadata.databasis">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Datenquelle</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.metadata.datasource">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Datenhalter und Kontakt</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.metadata.contact">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Bemerkung</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.metadata.note">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><b>Fortführungsintervall</b></td>
-                      <td [innerHTML]="selectionState.selectedIndicator.metadata.updateInterval">
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-    
-              </div>
-
-              <hr>
-              <br/>
-
-              <div>
-                <h4>Verkn&uuml;pfte Indikatoren</h4>
-                <div *ngIf="!selectionState.selectedIndicator.referencedIndicators || selectionState.selectedIndicator.referencedIndicators.length==0">
-                  -- keine --
+                          </thead>
+                          <tbody>
+                            @for (
+                              indicator of selectionState.selectedIndicator.referencedIndicators;
+                              track indicator
+                            ) {
+                              <tr>
+                                <td>{{ indicator.referencedIndicatorName }}</td>
+                                <td>
+                                  {{
+                                    indicatorStore.getIndicatorAbbreviationFromIndicatorId(
+                                      indicator.referencedIndicatorId
+                                    )
+                                  }}
+                                </td>
+                                <td>{{ indicator.referencedIndicatorDescription }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  }
                 </div>
-                <div *ngIf="selectionState.selectedIndicator.referencedIndicators?.length > 0">
-                  <div id="referencedIndicatorOverview" text-align="center" style="text-align:center" class="">
-        
-                  <table class="table table-condensed">
-                    <thead>
-                      <tr>
-                        <th>Name des Indikators</th>
-                        <th>K&uuml;rzel/Kennziffer</th>
-                        <th>Beschreibung der Verkn&uuml;pfung</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let indicator of selectionState.selectedIndicator.referencedIndicators">
-                        <td>{{indicator.referencedIndicatorName}}</td>
-                        <td>{{indicatorStore.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)}}</td>
-                        <td>{{indicator.referencedIndicatorDescription}}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-        
-                  </div>
-                </div>
-              </div>
-              
-              <hr>
-              <br/>
-
-              <div>
-                <h4>Verkn&uuml;pfte Georessourcen</h4>
-                <div *ngIf="!selectionState.selectedIndicator.referencedGeoresources || selectionState.selectedIndicator.referencedGeoresources.length==0">
-                  -- keine --
-                </div>
-                <div *ngIf="selectionState.selectedIndicator.referencedGeoresources?.length > 0">
-                  <div id="referencedGeoresourcesOverview" text-align="center" style="text-align:center" class="">
+                <hr />
+                <br />
+                <div>
                   <h4>Verkn&uuml;pfte Georessourcen</h4>
-        
-                  <table class="table table-condensed">
-                    <thead>
-                      <tr>
-                        <th>Name der Georessource</th>
-                        <th>Beschreibung der Verkn&uuml;pfung</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let georesource of selectionState.selectedIndicator.referencedGeoresources">
-                        <td>{{georesource.referencedGeoresourceName}}</td>
-                        <td>{{georesource.referencedGeoresourceDescription}}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-        
-                </div>
+                  @if (
+                    !selectionState.selectedIndicator.referencedGeoresources ||
+                    selectionState.selectedIndicator.referencedGeoresources.length == 0
+                  ) {
+                    <div>-- keine --</div>
+                  }
+                  @if (selectionState.selectedIndicator.referencedGeoresources?.length > 0) {
+                    <div>
+                      <div
+                        id="referencedGeoresourcesOverview"
+                        text-align="center"
+                        style="text-align: center"
+                        class=""
+                      >
+                        <h4>Verkn&uuml;pfte Georessourcen</h4>
+                        <table class="table table-condensed">
+                          <thead>
+                            <tr>
+                              <th>Name der Georessource</th>
+                              <th>Beschreibung der Verkn&uuml;pfung</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (
+                              georesource of selectionState.selectedIndicator
+                                .referencedGeoresources;
+                              track georesource
+                            ) {
+                              <tr>
+                                <td>{{ georesource.referencedGeoresourceName }}</td>
+                                <td>{{ georesource.referencedGeoresourceDescription }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  }
                 </div>
               </div>
             </div>
-
-          </div>
-          <div class="tab-pane" [ngClass]="{'active': hasActiveWMSLayers()}" id="legendTab3Content" role="tabpanel" aria-labelledby="legendTab3" *ngIf="hasActiveWMSLayers()">
-
-            
-            <div class="just-padding">
-              <table class="table table-condensed " style="margin-bottom:0px;">
-                <thead>
-                  <tr>
-                    <th>Datensatz</th>
-                    <th>Legende</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  <!--  | filter:{isSelected:'true'} -->
-                  <tr *ngFor="let dataset of georesourceStore.availableWmsDatasets | activeWmsFilter">
-                    <td>
-                      <label [innerHTML]="dataset.title">
-                      </label>
-                    </td>
-                    <td class="text-center">
-                      <img [src]="ogcService.buildLegendUrl(dataset.connectionDetails.baseUrl,dataset.connectionDetails.layerName)">
-                    </td>
-                  </tr>
-
-                </tbody>
-              </table>
-            </div>	
+            @if (hasActiveWMSLayers()) {
+              <div
+                class="tab-pane"
+                [ngClass]="{ active: hasActiveWMSLayers() }"
+                id="legendTab3Content"
+                role="tabpanel"
+                aria-labelledby="legendTab3"
+              >
+                <div class="just-padding">
+                  <table class="table table-condensed" style="margin-bottom: 0px">
+                    <thead>
+                      <tr>
+                        <th>Datensatz</th>
+                        <th>Legende</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!--  | filter:{isSelected:'true'} -->
+                      @for (
+                        dataset of georesourceStore.availableWmsDatasets | activeWmsFilter;
+                        track dataset
+                      ) {
+                        <tr>
+                          <td>
+                            <label [innerHTML]="dataset.title"> </label>
+                          </td>
+                          <td class="text-center">
+                            <img
+                              [src]="
+                                ogcService.buildLegendUrl(
+                                  dataset.connectionDetails.baseUrl,
+                                  dataset.connectionDetails.layerName
+                                )
+                              "
+                            />
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
           </div>
         </div>
-
-      </div>
-
-    </expandable-box>
-  
+      </expandable-box>
+    }
     <expandable-box [title]="'Indikatoren-Statistik'" [collapsed]="true">
-      <em>Referenzzeitpunkt {{metadataExportService.tsToDate_withOptionalUpdateInterval(dateAsDate, selectionState.selectedIndicator.metadata.updateInterval)}}</em>
+      <em
+        >Referenzzeitpunkt
+        {{
+          metadataExportService.tsToDate_withOptionalUpdateInterval(
+            dateAsDate,
+            selectionState.selectedIndicator.metadata.updateInterval
+          )
+        }}</em
+      >
       <table id="statisticalValuesDisplayTable" class="table">
         <thead>
           <tr>
             <th></th>
-            <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size == 0">{{labelService.labelAllFeatures}}</th>
-            <th *ngIf="filterHelperService.filteredIndicatorFeatureIds.size > 0">{{labelService.labelFilteredFeatures}}</th>
-            <th>{{labelService.labelSelectedFeatures}}</th>
+            @if (filterHelperService.filteredIndicatorFeatureIds.size == 0) {
+              <th>{{ labelService.labelAllFeatures }}</th>
+            }
+            @if (filterHelperService.filteredIndicatorFeatureIds.size > 0) {
+              <th>{{ labelService.labelFilteredFeatures }}</th>
+            }
+            <th>{{ labelService.labelSelectedFeatures }}</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>{{labelService.labelNumberOfFeatures}}</td>
-            <td>{{selectionState.allFeaturesNumberOfFeatures()}}</td>
-            <td>{{selectionState.selectedFeaturesNumberOfFeatures()}}</td>
+            <td>{{ labelService.labelNumberOfFeatures }}</td>
+            <td>{{ selectionState.allFeaturesNumberOfFeatures() }}</td>
+            <td>{{ selectionState.selectedFeaturesNumberOfFeatures() }}</td>
           </tr>
-          <tr *ngIf="! selectionState.allFeaturesRegionalSum()">
-            <td>{{labelService.labelSum}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesSum())}}</td>
-            <td>{{selectionState.selectedFeaturesSum()}}</td>
-          </tr>
-          <tr *ngIf="selectionState.allFeaturesRegionalSum()">
-            <td>{{labelService.labelSum_regional}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalSum())}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesSum())}}</td>
-          </tr>
-          <tr *ngIf="selectionState.allFeaturesRegionalMean()">
-            <td>{{labelService.labelMean_regional}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean())}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMean())}}</td>
-          </tr>
-          <tr *ngIf="selectionState.allFeaturesMean() && (envConfigService.configMeanDataDisplay === 'both' || (! selectionState.allFeaturesRegionalMean() && envConfigService.configMeanDataDisplay === 'preferRegionalMeanIfAvailable'))">
-            <td>{{labelService.labelMean}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMean())}}</td>
-            <td>{{selectionState.selectedFeaturesMean()}}</td>
+          @if (!selectionState.allFeaturesRegionalSum()) {
+            <tr>
+              <td>{{ labelService.labelSum }}</td>
+              <td>{{ getIndicatorValue_asFormattedText(selectionState.allFeaturesSum()) }}</td>
+              <td>{{ selectionState.selectedFeaturesSum() }}</td>
+            </tr>
+          }
+          @if (selectionState.allFeaturesRegionalSum()) {
+            <tr>
+              <td>{{ labelService.labelSum_regional }}</td>
+              <td>
+                {{ getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalSum()) }}
+              </td>
+              <td>{{ getIndicatorValue_asFormattedText(selectionState.selectedFeaturesSum()) }}</td>
+            </tr>
+          }
+          @if (selectionState.allFeaturesRegionalMean()) {
+            <tr>
+              <td>{{ labelService.labelMean_regional }}</td>
+              <td>
+                {{ getIndicatorValue_asFormattedText(selectionState.allFeaturesRegionalMean()) }}
+              </td>
+              <td>
+                {{ getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMean()) }}
+              </td>
+            </tr>
+          }
+          @if (
+            selectionState.allFeaturesMean() &&
+            (envConfigService.configMeanDataDisplay === 'both' ||
+              (!selectionState.allFeaturesRegionalMean() &&
+                envConfigService.configMeanDataDisplay === 'preferRegionalMeanIfAvailable'))
+          ) {
+            <tr>
+              <td>{{ labelService.labelMean }}</td>
+              <td>{{ getIndicatorValue_asFormattedText(selectionState.allFeaturesMean()) }}</td>
+              <td>{{ selectionState.selectedFeaturesMean() }}</td>
+            </tr>
+          }
+          <tr>
+            <td>{{ labelService.labelMin }}</td>
+            <td>{{ getIndicatorValue_asFormattedText(selectionState.allFeaturesMin()) }}</td>
+            <td>{{ getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMin()) }}</td>
           </tr>
           <tr>
-            <td>{{labelService.labelMin}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMin())}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMin())}}</td>
+            <td>{{ labelService.labelMax }}</td>
+            <td>{{ getIndicatorValue_asFormattedText(selectionState.allFeaturesMax()) }}</td>
+            <td>{{ getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMax()) }}</td>
           </tr>
           <tr>
-            <td>{{labelService.labelMax}}</td>
-                <td>{{getIndicatorValue_asFormattedText(selectionState.allFeaturesMax())}}</td>
-            <td>{{getIndicatorValue_asFormattedText(selectionState.selectedFeaturesMax())}}</td>
-          </tr>
-          <tr>
-            <td>{{labelService.labelSpatiallyUnassignable_regional}}</td>
-                <td>{{selectionState.allFeaturesRegionalSpatiallyUnassignable() || "-"}}</td>
+            <td>{{ labelService.labelSpatiallyUnassignable_regional }}</td>
+            <td>{{ selectionState.allFeaturesRegionalSpatiallyUnassignable() || '-' }}</td>
             <td>-</td>
           </tr>
         </tbody>
       </table>
     </expandable-box>
-
-</div>
+  </div>
+}

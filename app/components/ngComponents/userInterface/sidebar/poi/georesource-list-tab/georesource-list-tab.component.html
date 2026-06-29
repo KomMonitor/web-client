@@ -1,621 +1,574 @@
 <div class="just-padding">
-  <expandable-box
-    [title]="'Points of Interest'"
-    [collapsed]="true"
-    *ngIf="isGeoresourceInfrastructureEnabled('poi')"
-  >
-    <div id="poiInputForm">
-      <table class="table table-condensed" style="margin-bottom: 0px">
-        <thead>
-          <tr>
-            <th>Datensatz</th>
-            <th>Beschreibung</th>
-            <th>Legende</th>
-            <th *ngIf="layerService.isPerDatasetDate">Lebenszeit-Beginn</th>
-            <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
-              Export
-            </th>
-            <th></th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            *ngFor="
-              let poi of georesourceStore
-                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
-                .poiData
-            "
-          >
-            <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-            <td>
-              <label class="checkbox-inline"
-                ><input
-                  type="checkbox"
-                  value="poi.datasetName"
-                  [(ngModel)]="poi.isSelected"
-                  (change)="toggleGeoresourceOnMap.emit(poi)"
-                />
-
-                <b>{{ poi.datasetName }}</b>
-                <p
-                  *ngIf="poi.isSelected"
-                  title="Auf Layer zoomen"
-                  (click)="zoomToLayer.emit(poi)"
-                >
-                  <i
-                    style="font-size: 1.5em"
-                    class="fas fa-search-location"
-                  ></i>
-                </p>
-              </label>
-              <app-export-item-checkbox
-                *ngIf="exportMode.exportMode()"
-                kind="georessource"
-                [dataset]="exportMode.toExportGeoresource(poi)"
-              ></app-export-item-checkbox>
-            </td>
-            <td>
-              <p>{{ poi.metadata.description }}</p>
-            </td>
-            <td class="text-center">
-              <div style="text-align: center">
-                <div
-                  class="awesome-marker-legend awesome-marker-legend-icon-{{
-                    poi.poiMarkerColor
-                  }}"
-                >
-                  <span
-                    *ngIf="
-                      !poi.poiMarkerStyle || poi.poiMarkerStyle === 'symbol';
-                      else poiMarkerText
-                    "
-                    style="
-                      margin-left: 3px;
-                      margin-right: 3px;
-                      margin-top: 2px;
-                      font-size: 1.2em;
-                    "
-                    [ngStyle]="{ color: poi.poiSymbolColor }"
-                    class="{{ poi.poiSymbolBootstrap3Name | iconTranslate }}"
-                    aria-hidden="true"
-                  ></span>
-                  <ng-template #poiMarkerText>
-                    <span
-                      style="font-size: 0.9em"
-                      [ngStyle]="{ color: poi.poiSymbolColor }"
-                    >
-                      {{ poi.poiMarkerText }}
-                    </span>
-                  </ng-template>
-                </div>
-              </div>
-            </td>
-            <td *ngIf="layerService.isPerDatasetDate">
-              <select
-                style="font-size: 11px; width: 135px; padding: 0px"
-                [(ngModel)]="poi.selectedDate"
-                (change)="layerService.onChangeSelectedDate(poi)"
-                class="form-control"
-                required
-              >
-                <option
-                  *ngFor="let date of poi.availablePeriodsOfValidity"
-                  [ngValue]="date"
-                >
-                  {{ date.startDate }}
-                </option>
-              </select>
-              <!-- 
-                          ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-                          ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
-            </td>
-            <td
-              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
-              class="text-center export-column"
-            >
-              <p
-                class="poiList-downloadLink"
-                (click)="layerService.getExportLinkForGeoresource(poi)"
-                title="Download Features as GeoJSON"
-              >
-                <i class="fas fa-file-download fa-lg"></i>
-              </p>
-
-              <p
-                class="poiList-downloadLink"
-                (click)="
-                  metadataExportService.downloadMetadataPDF_georesource(poi)
-                "
-                title="Download Metadata PDF"
-              >
-                <i class="fas fa-file-export fa-lg"></i>
-              </p>
-              <!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
-            </td>
-            <td>
-              <i
-                *ngIf="showFavSelection"
-                class="fav-star fa-star"
-                [ngClass]="{
-                  'fa-solid': favoritesService.poiFavSelected(
-                    poi.georesourceId
-                  ),
-                  'fa-regular': !favoritesService.poiFavSelected(
-                    poi.georesourceId
-                  ),
-                }"
-                (click)="favoritesService.onPoiFavClick(poi.georesourceId)"
-                style="color: black"
-              ></i>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </expandable-box>
-
-  <expandable-box
-    [title]="'Lines of Interest'"
-    [collapsed]="true"
-    *ngIf="isGeoresourceInfrastructureEnabled('loi')"
-  >
-    <div id="loiInputForm">
-      <table class="table table-condensed" style="margin-bottom: 0px">
-        <thead>
-          <tr>
-            <th>Datensatz</th>
-            <th>Beschreibung</th>
-            <th>Legende</th>
-            <th *ngIf="layerService.isPerDatasetDate">Lebenszeit-Beginn</th>
-            <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
-              Export
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            *ngFor="
-              let loi of georesourceStore
-                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
-                .loiData
-            "
-          >
-            <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-            <td>
-              <label class="checkbox-inline"
-                ><input
-                  type="checkbox"
-                  value="loi.datasetName"
-                  [(ngModel)]="loi.isSelected"
-                  (change)="toggleGeoresourceOnMap.emit(loi)"
-                />
-
-                <b>{{ loi.datasetName }}</b>
-                <p
-                  *ngIf="loi.isSelected"
-                  title="Auf Layer zoomen"
-                  (click)="zoomToLayer.emit(loi)"
-                >
-                  <i
-                    style="font-size: 1.5em"
-                    class="fas fa-search-location"
-                  ></i>
-                </p>
-              </label>
-              <app-export-item-checkbox
-                *ngIf="exportMode.exportMode()"
-                kind="georessource"
-                [dataset]="exportMode.toExportGeoresource(loi)"
-              ></app-export-item-checkbox>
-            </td>
-            <td>
-              <p>{{ loi.metadata.description }}</p>
-            </td>
-            <td class="text-center">
-              <div style="text-align: center">
-                <i
-                  class="poiColorLegend"
-                  [ngStyle]="{ background: loi.loiColor }"
-                  style="display: inherit"
-                >
-                </i>
-              </div>
-            </td>
-            <td *ngIf="layerService.isPerDatasetDate">
-              <select
-                style="font-size: 11px; width: 135px; padding: 0px"
-                [(ngModel)]="loi.selectedDate"
-                (change)="layerService.onChangeSelectedDate(loi)"
-                class="form-control"
-                required
-              >
-                <option
-                  *ngFor="let date of loi.availablePeriodsOfValidity"
-                  [ngValue]="date"
-                >
-                  {{ date.startDate }}
-                </option>
-              </select>
-
-              <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-                          ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
-            </td>
-            <td
-              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
-              class="text-center export-column"
-            >
-              <p
-                class="poiList-downloadLink"
-                (click)="layerService.getExportLinkForGeoresource(loi)"
-                title="Download Features as GeoJSON"
-              >
-                <i class="fas fa-file-download fa-lg"></i>
-              </p>
-
-              <p
-                class="poiList-downloadLink"
-                (click)="
-                  metadataExportService.downloadMetadataPDF_georesource(loi)
-                "
-                title="Download Metadata PDF"
-              >
-                <i class="fas fa-file-export fa-lg"></i>
-              </p>
-              <!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </expandable-box>
-
-  <expandable-box
-    [title]="'Areas of Interest'"
-    [collapsed]="true"
-    *ngIf="isGeoresourceInfrastructureEnabled('aoi')"
-  >
-    <div id="aoiInputForm">
-      <table class="table table-condensed" style="margin-bottom: 0px">
-        <thead>
-          <tr>
-            <th>Datensatz</th>
-            <th>Beschreibung</th>
-            <th>Legende</th>
-            <th *ngIf="layerService.isPerDatasetDate">Lebenszeit-Beginn</th>
-            <th *ngIf="exportButtonVisibility.showGeoresourceExportButtons">
-              Export
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            *ngFor="
-              let aoi of georesourceStore
-                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
-                .aoiData
-            "
-          >
-            <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-            <td>
-              <label class="checkbox-inline"
-                ><input
-                  type="checkbox"
-                  value="aoi.datasetName"
-                  [(ngModel)]="aoi.isSelected"
-                  (change)="toggleGeoresourceOnMap.emit(aoi)"
-                />
-
-                <b>{{ aoi.datasetName }}</b>
-                <p
-                  *ngIf="aoi.isSelected"
-                  title="Auf Layer zoomen"
-                  (click)="zoomToLayer.emit(aoi)"
-                >
-                  <i
-                    style="font-size: 1.5em"
-                    class="fas fa-search-location"
-                  ></i>
-                </p>
-              </label>
-              <app-export-item-checkbox
-                *ngIf="exportMode.exportMode()"
-                kind="georessource"
-                [dataset]="exportMode.toExportGeoresource(aoi)"
-              ></app-export-item-checkbox>
-            </td>
-            <td>
-              <p>{{ aoi.metadata.description }}</p>
-            </td>
-            <td class="text-center">
-              <div style="text-align: center">
-                <i
-                  class="poiColorLegend"
-                  [ngStyle]="{ background: aoi.aoiColor }"
-                  style="display: inherit"
-                >
-                </i>
-              </div>
-            </td>
-            <td *ngIf="layerService.isPerDatasetDate">
-              <select
-                style="font-size: 11px; width: 135px; padding: 0px"
-                [(ngModel)]="aoi.selectedDate"
-                (change)="layerService.onChangeSelectedDate(aoi)"
-                class="form-control"
-                required
-              >
-                <option
-                  *ngFor="let date of aoi.availablePeriodsOfValidity"
-                  [ngValue]="date"
-                >
-                  {{ date.startDate }}
-                </option>
-              </select>
-
-              <!-- 
-                          ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
-                          ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
-            </td>
-            <td
-              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
-              class="text-center export-column"
-            >
-              <p
-                class="poiList-downloadLink"
-                (click)="layerService.getExportLinkForGeoresource(aoi)"
-                title="Download Features as GeoJSON"
-              >
-                <i class="fas fa-file-download fa-lg"></i>
-              </p>
-
-              <p
-                class="poiList-downloadLink"
-                (click)="
-                  metadataExportService.downloadMetadataPDF_georesource(aoi)
-                "
-                title="Download Metadata PDF"
-              >
-                <i class="fas fa-file-export fa-lg"></i>
-              </p>
-              <!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </expandable-box>
-
-  <expandable-box
-    [title]="'Web Map Service (WMS)'"
-    [collapsed]="true"
-    *ngIf="isGeoresourceGeoserviceEnabled('wms')"
-  >
-    <div id="wmsInputForm">
-      <table class="table table-condensed" style="margin-bottom: 0px">
-        <thead>
-          <tr>
-            <th>Datensatz</th>
-            <th>Beschreibung</th>
-            <th>WMS URL</th>
-            <th>Legende</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            *ngFor="
-              let dataset of georesourceStore
-                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
-                .wmsData
-            "
-          >
-            <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-            <td>
-              <label class="checkbox-inline"
-                ><input
-                  type="checkbox"
-                  value="dataset.title"
-                  [(ngModel)]="dataset.isSelected"
-                  (change)="layerService.handleWmsOnMap(dataset)"
-                />
-
-                <b>{{ dataset.title }}</b>
-              </label>
-            </td>
-            <td>
-              <p>{{ dataset.description }}</p>
-            </td>
-            <td
-              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
-              class="text-center"
-            >
-              <div style="text-align: center">
-                <a
-                  [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
-                  title="WMS GetCapabilities URL"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  ><i class="fas fa-cloud-download-alt"></i
-                ></a>
-              </div>
-            </td>
-            <td class="text-center">
-              <div *ngIf="!dataset.showLegend">
-                <button
-                  class="btn btn-sm btn-primary"
-                  (click)="dataset.showLegend = true"
-                >
-                  laden
-                </button>
-              </div>
-              <div *ngIf="dataset.showLegend">
-                <img
-                  [src]="
-                    ogcService.buildLegendUrl(dataset.url, dataset.layerName)
-                  "
-                />
-              </div>
-            </td>
-            <td>
-              <i
-                *ngIf="showFavSelection"
-                class="fav-star fa-star"
-                [ngClass]="{
-                  'fa-solid': favoritesService.wmsFavSelected(dataset.id),
-                  'fa-regular': !favoritesService.wmsFavSelected(dataset.id),
-                }"
-                (click)="favoritesService.onWmsFavClick(dataset.id)"
-                style="color: black"
-              ></i>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </expandable-box>
-
-  <expandable-box
-    [title]="'Web Map Service (WMS)'"
-    [collapsed]="true"
-    *ngIf="isGeoresourceGeoserviceEnabled('wfs')"
-  >
-    <p>
-      Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige
-      Moment dauern. Die Features werden zudem nach dem aktuellen Raumausschnitt
-      der Kartendarstellung gefiltert abgefragt.
-    </p>
-
-    <div id="wfsInputForm">
-      <table class="table table-condensed" style="margin-bottom: 0px">
-        <thead>
-          <tr>
-            <th>Datensatz</th>
-            <th>Beschreibung</th>
-            <th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
-            <th>WFS URL</th>
-            <th>Legende</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            *ngFor="
-              let dataset of georesourceStore
-                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
-                .wfsData
-            "
-          >
-            <td>
-              <label class="checkbox-inline"
-                ><input
-                  type="checkbox"
-                  value="dataset.title"
-                  [(ngModel)]="dataset.isSelected"
-                  (change)="layerService.handleWfsOnMap(dataset)"
-                />
-
-                <b>{{ dataset.title }}</b>
-              </label>
-            </td>
-            <td>
-              <p>{{ dataset.description }}</p>
-            </td>
-            <td>
-              <label class="switch">
-                <input
-                  id="filterCheckbox"
-                  type="checkbox"
-                  [(ngModel)]="dataset.filterFeaturesToMapBBOX"
-                  ng-checked="dataset.filterFeaturesToMapBBOX"
-                />
-                <span class="switchslider round"></span>
-              </label>
-            </td>
-            <td
-              *ngIf="exportButtonVisibility.showGeoresourceExportButtons"
-              class="text-center"
-            >
-              <div style="text-align: center">
-                <a
-                  [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
-                  title="WFS GetCapabilities URL"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  ><i class="fas fa-cloud-download-alt"></i
-                ></a>
-              </div>
-            </td>
-            <td class="text-center">
-              <div>
-                <div *ngIf="dataset.geometryType === 'AOI'">
-                  <div class="input-group colorpicker-component">
-                    <input
-                      type="text"
-                      style="display: none"
-                      class="form-control input-sm"
-                      [(ngModel)]="dataset.aoiColor"
-                      (change)="layerService.adjustWfsLayerColor(dataset)"
-                      placeholder="WFS Darstellungsfarbe"
-                      required
+  @if (isGeoresourceInfrastructureEnabled('poi')) {
+    <expandable-box [title]="'Points of Interest'" [collapsed]="true">
+      <div id="poiInputForm">
+        <table class="table table-condensed" style="margin-bottom: 0px">
+          <thead>
+            <tr>
+              <th>Datensatz</th>
+              <th>Beschreibung</th>
+              <th>Legende</th>
+              @if (layerService.isPerDatasetDate) {
+                <th>Lebenszeit-Beginn</th>
+              }
+              @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                <th>Export</th>
+              }
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              poi of georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
+                .poiData;
+              track poi
+            ) {
+              <tr>
+                <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                <td>
+                  <label class="checkbox-inline"
+                    ><input
+                      type="checkbox"
+                      value="poi.datasetName"
+                      [(ngModel)]="poi.isSelected"
+                      (change)="toggleGeoresourceOnMap.emit(poi)"
                     />
-                    <span
-                      title="Klicken, um die Farbe anzupassen"
-                      style="border: 1px solid #ccc"
-                      class="input-group-addon"
-                      ><i></i
-                    ></span>
-                  </div>
-                </div>
-                <div *ngIf="dataset.geometryType === 'LOI'">
-                  <div class="input-group colorpicker-component">
-                    <input
-                      type="text"
-                      style="display: none"
-                      class="form-control input-sm"
-                      [(ngModel)]="dataset.loiColor"
-                      (change)="layerService.adjustWfsLayerColor(dataset)"
-                      placeholder="WFS Darstellungsfarbe"
-                      required
-                    />
-                    <span
-                      title="Klicken, um die Farbe anzupassen"
-                      style="border: 1px solid #ccc"
-                      class="input-group-addon"
-                      ><i></i
-                    ></span>
-                  </div>
-                </div>
-                <div *ngIf="dataset.geometryType === 'POI'">
+                    <b>{{ poi.datasetName }}</b>
+                    @if (poi.isSelected) {
+                      <p title="Auf Layer zoomen" (click)="zoomToLayer.emit(poi)">
+                        <i style="font-size: 1.5em" class="fas fa-search-location"></i>
+                      </p>
+                    }
+                  </label>
+                  @if (exportMode.exportMode()) {
+                    <app-export-item-checkbox
+                      kind="georessource"
+                      [dataset]="exportMode.toExportGeoresource(poi)"
+                    ></app-export-item-checkbox>
+                  }
+                </td>
+                <td>
+                  <p>{{ poi.metadata.description }}</p>
+                </td>
+                <td class="text-center">
                   <div style="text-align: center">
                     <div
                       class="awesome-marker-legend awesome-marker-legend-icon-{{
-                        dataset.poiMarkerColor
+                        poi.poiMarkerColor
                       }}"
                     >
-                      <span
-                        style="
-                          margin-left: 3px;
-                          margin-right: 3px;
-                          margin-top: 2px;
-                          font-size: 1.2em;
-                        "
-                        [ngStyle]="{ color: dataset.poiSymbolColor }"
-                        class="glyphicon glyphicon-{{
-                          dataset.poiSymbolBootstrap3Name
-                        }}"
-                        aria-hidden="true"
-                      ></span>
+                      @if (!poi.poiMarkerStyle || poi.poiMarkerStyle === 'symbol') {
+                        <span
+                          style="
+                            margin-left: 3px;
+                            margin-right: 3px;
+                            margin-top: 2px;
+                            font-size: 1.2em;
+                          "
+                          [ngStyle]="{ color: poi.poiSymbolColor }"
+                          class="{{ poi.poiSymbolBootstrap3Name | iconTranslate }}"
+                          aria-hidden="true"
+                        ></span>
+                      } @else {
+                        <span style="font-size: 0.9em" [ngStyle]="{ color: poi.poiSymbolColor }">
+                          {{ poi.poiMarkerText }}
+                        </span>
+                      }
                     </div>
                   </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </expandable-box>
+                </td>
+                @if (layerService.isPerDatasetDate) {
+                  <td>
+                    <select
+                      style="font-size: 11px; width: 135px; padding: 0px"
+                      [(ngModel)]="poi.selectedDate"
+                      (change)="layerService.onChangeSelectedDate(poi)"
+                      class="form-control"
+                      required
+                    >
+                      @for (date of poi.availablePeriodsOfValidity; track date) {
+                        <option [ngValue]="date">
+                          {{ date.startDate }}
+                        </option>
+                      }
+                    </select>
+                    <!--
+                  ng-options="date as date.startDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                  ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]" -->
+                  </td>
+                }
+                @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                  <td class="text-center export-column">
+                    <p
+                      class="poiList-downloadLink"
+                      (click)="layerService.getExportLinkForGeoresource(poi)"
+                      title="Download Features as GeoJSON"
+                    >
+                      <i class="fas fa-file-download fa-lg"></i>
+                    </p>
+                    <p
+                      class="poiList-downloadLink"
+                      (click)="metadataExportService.downloadMetadataPDF_georesource(poi)"
+                      title="Download Metadata PDF"
+                    >
+                      <i class="fas fa-file-export fa-lg"></i>
+                    </p>
+                    <!-- <a ng-href="getExportLinkForPoi(poi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
+                  </td>
+                }
+                <td>
+                  @if (showFavSelection) {
+                    <i
+                      class="fav-star fa-star"
+                      [ngClass]="{
+                        'fa-solid': favoritesService.poiFavSelected(poi.georesourceId),
+                        'fa-regular': !favoritesService.poiFavSelected(poi.georesourceId),
+                      }"
+                      (click)="favoritesService.onPoiFavClick(poi.georesourceId)"
+                      style="color: black"
+                    ></i>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </expandable-box>
+  }
+
+  @if (isGeoresourceInfrastructureEnabled('loi')) {
+    <expandable-box [title]="'Lines of Interest'" [collapsed]="true">
+      <div id="loiInputForm">
+        <table class="table table-condensed" style="margin-bottom: 0px">
+          <thead>
+            <tr>
+              <th>Datensatz</th>
+              <th>Beschreibung</th>
+              <th>Legende</th>
+              @if (layerService.isPerDatasetDate) {
+                <th>Lebenszeit-Beginn</th>
+              }
+              @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                <th>Export</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              loi of georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
+                .loiData;
+              track loi
+            ) {
+              <tr>
+                <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                <td>
+                  <label class="checkbox-inline"
+                    ><input
+                      type="checkbox"
+                      value="loi.datasetName"
+                      [(ngModel)]="loi.isSelected"
+                      (change)="toggleGeoresourceOnMap.emit(loi)"
+                    />
+                    <b>{{ loi.datasetName }}</b>
+                    @if (loi.isSelected) {
+                      <p title="Auf Layer zoomen" (click)="zoomToLayer.emit(loi)">
+                        <i style="font-size: 1.5em" class="fas fa-search-location"></i>
+                      </p>
+                    }
+                  </label>
+                  @if (exportMode.exportMode()) {
+                    <app-export-item-checkbox
+                      kind="georessource"
+                      [dataset]="exportMode.toExportGeoresource(loi)"
+                    ></app-export-item-checkbox>
+                  }
+                </td>
+                <td>
+                  <p>{{ loi.metadata.description }}</p>
+                </td>
+                <td class="text-center">
+                  <div style="text-align: center">
+                    <i
+                      class="poiColorLegend"
+                      [ngStyle]="{ background: loi.loiColor }"
+                      style="display: inherit"
+                    >
+                    </i>
+                  </div>
+                </td>
+                @if (layerService.isPerDatasetDate) {
+                  <td>
+                    <select
+                      style="font-size: 11px; width: 135px; padding: 0px"
+                      [(ngModel)]="loi.selectedDate"
+                      (change)="layerService.onChangeSelectedDate(loi)"
+                      class="form-control"
+                      required
+                    >
+                      @for (date of loi.availablePeriodsOfValidity; track date) {
+                        <option [ngValue]="date">
+                          {{ date.startDate }}
+                        </option>
+                      }
+                    </select>
+                    <!-- ng-options="date as date.startDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]" -->
+                  </td>
+                }
+                @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                  <td class="text-center export-column">
+                    <p
+                      class="poiList-downloadLink"
+                      (click)="layerService.getExportLinkForGeoresource(loi)"
+                      title="Download Features as GeoJSON"
+                    >
+                      <i class="fas fa-file-download fa-lg"></i>
+                    </p>
+                    <p
+                      class="poiList-downloadLink"
+                      (click)="metadataExportService.downloadMetadataPDF_georesource(loi)"
+                      title="Download Metadata PDF"
+                    >
+                      <i class="fas fa-file-export fa-lg"></i>
+                    </p>
+                    <!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </expandable-box>
+  }
+
+  @if (isGeoresourceInfrastructureEnabled('aoi')) {
+    <expandable-box [title]="'Areas of Interest'" [collapsed]="true">
+      <div id="aoiInputForm">
+        <table class="table table-condensed" style="margin-bottom: 0px">
+          <thead>
+            <tr>
+              <th>Datensatz</th>
+              <th>Beschreibung</th>
+              <th>Legende</th>
+              @if (layerService.isPerDatasetDate) {
+                <th>Lebenszeit-Beginn</th>
+              }
+              @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                <th>Export</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              aoi of georesourceStore.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay
+                .aoiData;
+              track aoi
+            ) {
+              <tr>
+                <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                <td>
+                  <label class="checkbox-inline"
+                    ><input
+                      type="checkbox"
+                      value="aoi.datasetName"
+                      [(ngModel)]="aoi.isSelected"
+                      (change)="toggleGeoresourceOnMap.emit(aoi)"
+                    />
+                    <b>{{ aoi.datasetName }}</b>
+                    @if (aoi.isSelected) {
+                      <p title="Auf Layer zoomen" (click)="zoomToLayer.emit(aoi)">
+                        <i style="font-size: 1.5em" class="fas fa-search-location"></i>
+                      </p>
+                    }
+                  </label>
+                  @if (exportMode.exportMode()) {
+                    <app-export-item-checkbox
+                      kind="georessource"
+                      [dataset]="exportMode.toExportGeoresource(aoi)"
+                    ></app-export-item-checkbox>
+                  }
+                </td>
+                <td>
+                  <p>{{ aoi.metadata.description }}</p>
+                </td>
+                <td class="text-center">
+                  <div style="text-align: center">
+                    <i
+                      class="poiColorLegend"
+                      [ngStyle]="{ background: aoi.aoiColor }"
+                      style="display: inherit"
+                    >
+                    </i>
+                  </div>
+                </td>
+                @if (layerService.isPerDatasetDate) {
+                  <td>
+                    <select
+                      style="font-size: 11px; width: 135px; padding: 0px"
+                      [(ngModel)]="aoi.selectedDate"
+                      (change)="layerService.onChangeSelectedDate(aoi)"
+                      class="form-control"
+                      required
+                    >
+                      @for (date of aoi.availablePeriodsOfValidity; track date) {
+                        <option [ngValue]="date">
+                          {{ date.startDate }}
+                        </option>
+                      }
+                    </select>
+                    <!--
+                ng-options="date as date.startDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'"
+                ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]" -->
+                  </td>
+                }
+                @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                  <td class="text-center export-column">
+                    <p
+                      class="poiList-downloadLink"
+                      (click)="layerService.getExportLinkForGeoresource(aoi)"
+                      title="Download Features as GeoJSON"
+                    >
+                      <i class="fas fa-file-download fa-lg"></i>
+                    </p>
+                    <p
+                      class="poiList-downloadLink"
+                      (click)="metadataExportService.downloadMetadataPDF_georesource(aoi)"
+                      title="Download Metadata PDF"
+                    >
+                      <i class="fas fa-file-export fa-lg"></i>
+                    </p>
+                    <!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download Features as GeoJSON"><i class="fas fa-file-download fa-lg"></i></a> -->
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </expandable-box>
+  }
+
+  @if (isGeoresourceGeoserviceEnabled('wms')) {
+    <expandable-box [title]="'Web Map Service (WMS)'" [collapsed]="true">
+      <div id="wmsInputForm">
+        <table class="table table-condensed" style="margin-bottom: 0px">
+          <thead>
+            <tr>
+              <th>Datensatz</th>
+              <th>Beschreibung</th>
+              <th>WMS URL</th>
+              <th>Legende</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              dataset of georesourceStore
+                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wmsData;
+              track dataset
+            ) {
+              <tr>
+                <!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+                <td>
+                  <label class="checkbox-inline"
+                    ><input
+                      type="checkbox"
+                      value="dataset.title"
+                      [(ngModel)]="dataset.isSelected"
+                      (change)="layerService.handleWmsOnMap(dataset)"
+                    />
+                    <b>{{ dataset.title }}</b>
+                  </label>
+                </td>
+                <td>
+                  <p>{{ dataset.description }}</p>
+                </td>
+                @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                  <td class="text-center">
+                    <div style="text-align: center">
+                      <a
+                        [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+                        title="WMS GetCapabilities URL"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        ><i class="fas fa-cloud-download-alt"></i
+                      ></a>
+                    </div>
+                  </td>
+                }
+                <td class="text-center">
+                  @if (!dataset.showLegend) {
+                    <div>
+                      <button class="btn btn-sm btn-primary" (click)="dataset.showLegend = true">
+                        laden
+                      </button>
+                    </div>
+                  }
+                  @if (dataset.showLegend) {
+                    <div>
+                      <img [src]="ogcService.buildLegendUrl(dataset.url, dataset.layerName)" />
+                    </div>
+                  }
+                </td>
+                <td>
+                  @if (showFavSelection) {
+                    <i
+                      class="fav-star fa-star"
+                      [ngClass]="{
+                        'fa-solid': favoritesService.wmsFavSelected(dataset.id),
+                        'fa-regular': !favoritesService.wmsFavSelected(dataset.id),
+                      }"
+                      (click)="favoritesService.onWmsFavClick(dataset.id)"
+                      style="color: black"
+                    ></i>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </expandable-box>
+  }
+
+  @if (isGeoresourceGeoserviceEnabled('wfs')) {
+    <expandable-box [title]="'Web Map Service (WMS)'" [collapsed]="true">
+      <p>
+        Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern. Die
+        Features werden zudem nach dem aktuellen Raumausschnitt der Kartendarstellung gefiltert
+        abgefragt.
+      </p>
+      <div id="wfsInputForm">
+        <table class="table table-condensed" style="margin-bottom: 0px">
+          <thead>
+            <tr>
+              <th>Datensatz</th>
+              <th>Beschreibung</th>
+              <th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
+              <th>WFS URL</th>
+              <th>Legende</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              dataset of georesourceStore
+                .displayableGeoresources_keywordFiltered_forAlphabeticalDisplay.wfsData;
+              track dataset
+            ) {
+              <tr>
+                <td>
+                  <label class="checkbox-inline"
+                    ><input
+                      type="checkbox"
+                      value="dataset.title"
+                      [(ngModel)]="dataset.isSelected"
+                      (change)="layerService.handleWfsOnMap(dataset)"
+                    />
+                    <b>{{ dataset.title }}</b>
+                  </label>
+                </td>
+                <td>
+                  <p>{{ dataset.description }}</p>
+                </td>
+                <td>
+                  <label class="switch">
+                    <input
+                      id="filterCheckbox"
+                      type="checkbox"
+                      [(ngModel)]="dataset.filterFeaturesToMapBBOX"
+                      ng-checked="dataset.filterFeaturesToMapBBOX"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
+                </td>
+                @if (exportButtonVisibility.showGeoresourceExportButtons) {
+                  <td class="text-center">
+                    <div style="text-align: center">
+                      <a
+                        [href]="ogcService.buildGetCapabilitiesUrl(dataset.url)"
+                        title="WFS GetCapabilities URL"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        ><i class="fas fa-cloud-download-alt"></i
+                      ></a>
+                    </div>
+                  </td>
+                }
+                <td class="text-center">
+                  <div>
+                    @if (dataset.geometryType === 'AOI') {
+                      <div>
+                        <div class="input-group colorpicker-component">
+                          <input
+                            type="text"
+                            style="display: none"
+                            class="form-control input-sm"
+                            [(ngModel)]="dataset.aoiColor"
+                            (change)="layerService.adjustWfsLayerColor(dataset)"
+                            placeholder="WFS Darstellungsfarbe"
+                            required
+                          />
+                          <span
+                            title="Klicken, um die Farbe anzupassen"
+                            style="border: 1px solid #ccc"
+                            class="input-group-addon"
+                            ><i></i
+                          ></span>
+                        </div>
+                      </div>
+                    }
+                    @if (dataset.geometryType === 'LOI') {
+                      <div>
+                        <div class="input-group colorpicker-component">
+                          <input
+                            type="text"
+                            style="display: none"
+                            class="form-control input-sm"
+                            [(ngModel)]="dataset.loiColor"
+                            (change)="layerService.adjustWfsLayerColor(dataset)"
+                            placeholder="WFS Darstellungsfarbe"
+                            required
+                          />
+                          <span
+                            title="Klicken, um die Farbe anzupassen"
+                            style="border: 1px solid #ccc"
+                            class="input-group-addon"
+                            ><i></i
+                          ></span>
+                        </div>
+                      </div>
+                    }
+                    @if (dataset.geometryType === 'POI') {
+                      <div>
+                        <div style="text-align: center">
+                          <div
+                            class="awesome-marker-legend awesome-marker-legend-icon-{{
+                              dataset.poiMarkerColor
+                            }}"
+                          >
+                            <span
+                              style="
+                                margin-left: 3px;
+                                margin-right: 3px;
+                                margin-top: 2px;
+                                font-size: 1.2em;
+                              "
+                              [ngStyle]="{ color: dataset.poiSymbolColor }"
+                              class="glyphicon glyphicon-{{ dataset.poiSymbolBootstrap3Name }}"
+                              aria-hidden="true"
+                            ></span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </expandable-box>
+  }
 </div>

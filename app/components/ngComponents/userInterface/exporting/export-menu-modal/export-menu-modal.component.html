@@ -9,72 +9,43 @@
     ></button>
   </div>
   <div class="modal-body">
-    <p class="hint">
-      Konfigurieren und starten Sie den Export Ihrer ausgewählten Datensätze.
-    </p>
+    <p class="hint">Konfigurieren und starten Sie den Export Ihrer ausgewählten Datensätze.</p>
 
     <div class="row">
       <div class="col-md-4">
-        <expandable-box
-          title="Kombinierter Export"
-          [collapsed]="false"
-          [isCollapsible]="false"
-        >
+        <expandable-box title="Kombinierter Export" [collapsed]="false" [isCollapsible]="false">
           <app-export-typ-selection />
         </expandable-box>
 
-        <expandable-box
-          title="Export starten"
-          [collapsed]="false"
-          [isCollapsible]="false"
-        >
-          <app-epsg-selector
-            (epsgCodeChange)="onEpsgCodeChange($event)"
-            class="mb-3 d-block"
-          />
-          <div
-            *ngIf="isLoading()"
-            class="alert alert-info py-2 mb-2"
-            role="status"
-          >
-            <i class="fas fa-spinner fa-spin me-1"></i>
-            Export wird vorbereitet...
-          </div>
-          <div
-            *ngIf="
-              stateSrvc.exportType() === 'single' && !stateSrvc.isSingleExportValid()
-            "
-            class="alert alert-warning py-2 mb-2"
-            role="alert"
-          >
-            <i class="fas fa-exclamation-triangle me-1"></i>
-            Bitte wählen Sie mindestens einen Indikator mit Raumebene und
-            Downloadformat oder eine Georessource mit Downloadformat aus.
-          </div>
-          <div
-            *ngIf="
-              stateSrvc.exportType() === 'spatialUnit' &&
-              !stateSrvc.isSpatialUnitExportValid()
-            "
-            class="alert alert-warning py-2 mb-2"
-            role="alert"
-          >
-            <i class="fas fa-exclamation-triangle me-1"></i>
-            Bitte wählen Sie eine Raumebene und mindestens einen Indikator mit
-            mindestens einem Downloadformat aus.
-          </div>
-          <div
-            *ngIf="
-              stateSrvc.exportType() === 'multiple' &&
-              !stateSrvc.isMultipleExportValid()
-            "
-            class="alert alert-warning py-2 mb-2"
-            role="alert"
-          >
-            <i class="fas fa-exclamation-triangle me-1"></i>
-            Bitte wählen Sie mindestens einen Indikator mit mindestens einer
-            Raumebene und mindestens einem Downloadformat aus.
-          </div>
+        <expandable-box title="Export starten" [collapsed]="false" [isCollapsible]="false">
+          <app-epsg-selector (epsgCodeChange)="onEpsgCodeChange($event)" class="mb-3 d-block" />
+          @if (isLoading()) {
+            <div class="alert alert-info py-2 mb-2" role="status">
+              <i class="fas fa-spinner fa-spin me-1"></i>
+              Export wird vorbereitet...
+            </div>
+          }
+          @if (stateSrvc.exportType() === 'single' && !stateSrvc.isSingleExportValid()) {
+            <div class="alert alert-warning py-2 mb-2" role="alert">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Bitte wählen Sie mindestens einen Indikator mit Raumebene und Downloadformat oder eine
+              Georessource mit Downloadformat aus.
+            </div>
+          }
+          @if (stateSrvc.exportType() === 'spatialUnit' && !stateSrvc.isSpatialUnitExportValid()) {
+            <div class="alert alert-warning py-2 mb-2" role="alert">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Bitte wählen Sie eine Raumebene und mindestens einen Indikator mit mindestens einem
+              Downloadformat aus.
+            </div>
+          }
+          @if (stateSrvc.exportType() === 'multiple' && !stateSrvc.isMultipleExportValid()) {
+            <div class="alert alert-warning py-2 mb-2" role="alert">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Bitte wählen Sie mindestens einen Indikator mit mindestens einer Raumebene und
+              mindestens einem Downloadformat aus.
+            </div>
+          }
           <div class="d-grid">
             <button
               type="button"
@@ -82,12 +53,10 @@
               (click)="startDownload()"
               [disabled]="
                 isLoading() ||
-                (stateSrvc.exportType() === 'single' &&
-                  !stateSrvc.isSingleExportValid()) ||
+                (stateSrvc.exportType() === 'single' && !stateSrvc.isSingleExportValid()) ||
                 (stateSrvc.exportType() === 'spatialUnit' &&
                   !stateSrvc.isSpatialUnitExportValid()) ||
-                (stateSrvc.exportType() === 'multiple' &&
-                  !stateSrvc.isMultipleExportValid())
+                (stateSrvc.exportType() === 'multiple' && !stateSrvc.isMultipleExportValid())
               "
             >
               <i class="fas fa-download"></i>
@@ -97,11 +66,7 @@
         </expandable-box>
       </div>
       <div class="col-md-8 dataset-lists">
-        <expandable-box
-          title="Ausgewählte Datensätze"
-          [collapsed]="false"
-          [isCollapsible]="false"
-        >
+        <expandable-box title="Ausgewählte Datensätze" [collapsed]="false" [isCollapsible]="false">
           <app-export-dataset-list />
         </expandable-box>
       </div>

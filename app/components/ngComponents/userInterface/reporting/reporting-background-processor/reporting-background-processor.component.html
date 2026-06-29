@@ -1,32 +1,75 @@
 <!-- Global off-screen background processors for report generation.
-     Placed outside the modal so pages render correctly even when the modal is closed. -->
+Placed outside the modal so pages render correctly even when the modal is closed. -->
 
-<div id="reporting-addIndicator-background-processor"
-     style="position: absolute; left: -10000px; top: -10000px; opacity: 0; width: 1000px; height: 1000px;">
+<div
+  id="reporting-addIndicator-background-processor"
+  style="
+    position: absolute;
+    left: -10000px;
+    top: -10000px;
+    opacity: 0;
+    width: 1000px;
+    height: 1000px;
+  "
+>
   <!-- id must always be present in the DOM so document.getElementById() can find it -->
-  <div id="reporting-addIndicator-background-page"
-       [class]="'reporting-page reporting-page-' + (reportingService.reportingBackgroundState.pageToProcess_add?.orientation || '') + ' reporting-custom-css'">
-    <ng-container *ngIf="reportingService.reportingBackgroundState.pageToProcess_add">
-      <div *ngFor="let pageElement of reportingService.reportingBackgroundState.pageToProcess_add.pageElements; let i = index"
-           [class]="'type-' + pageElement.type"
-           [id]="'reporting-addIndicator-background-page-' + pageElement.type + '-' + i"
-           [style]="getElementStyle(pageElement)">
-      </div>
-    </ng-container>
+  <div
+    id="reporting-addIndicator-background-page"
+    [class]="
+      'reporting-page reporting-page-' +
+      (reportingService.reportingBackgroundState.pageToProcess_add?.orientation || '') +
+      ' reporting-custom-css'
+    "
+  >
+    @if (reportingService.reportingBackgroundState.pageToProcess_add) {
+      @for (
+        pageElement of reportingService.reportingBackgroundState.pageToProcess_add.pageElements;
+        track pageElement;
+        let i = $index
+      ) {
+        <div
+          [class]="'type-' + pageElement.type"
+          [id]="'reporting-addIndicator-background-page-' + pageElement.type + '-' + i"
+          [style]="getElementStyle(pageElement)"
+        ></div>
+      }
+    }
   </div>
 </div>
 
-<div id="reporting-overview-background-processor"
-     style="position: absolute; left: -10000px; top: -10000px; opacity: 0; width: 1000px; height: 1000px;">
+<div
+  id="reporting-overview-background-processor"
+  style="
+    position: absolute;
+    left: -10000px;
+    top: -10000px;
+    opacity: 0;
+    width: 1000px;
+    height: 1000px;
+  "
+>
   <!-- id must always be present in the DOM so document.getElementById() can find it -->
-  <div id="reporting-background-page"
-       [class]="'reporting-page reporting-page-' + (reportingService.reportingBackgroundState.pageToProcess_overview?.orientation || '') + ' reporting-custom-css'">
-    <ng-container *ngIf="reportingService.reportingBackgroundState.pageToProcess_overview">
-      <div *ngFor="let pageElement of reportingService.reportingBackgroundState.pageToProcess_overview.pageElements; let i = index"
-           [class]="'type-' + pageElement.type"
-           [id]="'reporting-background-page-' + pageElement.type + '-' + i"
-           [style]="getElementStyle(pageElement)">
-      </div>
-    </ng-container>
+  <div
+    id="reporting-background-page"
+    [class]="
+      'reporting-page reporting-page-' +
+      (reportingService.reportingBackgroundState.pageToProcess_overview?.orientation || '') +
+      ' reporting-custom-css'
+    "
+  >
+    @if (reportingService.reportingBackgroundState.pageToProcess_overview) {
+      @for (
+        pageElement of reportingService.reportingBackgroundState.pageToProcess_overview
+          .pageElements;
+        track pageElement;
+        let i = $index
+      ) {
+        <div
+          [class]="'type-' + pageElement.type"
+          [id]="'reporting-background-page-' + pageElement.type + '-' + i"
+          [style]="getElementStyle(pageElement)"
+        ></div>
+      }
+    }
   </div>
 </div>

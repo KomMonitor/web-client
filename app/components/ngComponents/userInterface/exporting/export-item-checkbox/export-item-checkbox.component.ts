@@ -1,15 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
-import { ExportingStateService } from "../exporting-state.service";
-import { Georessource, Indicator } from "../models";
+import { Component, Input } from '@angular/core';
+import { ExportingStateService } from '../exporting-state.service';
+import { Georessource, Indicator } from '../models';
 
-export type ExportItemKind = "indicator" | "georessource";
+export type ExportItemKind = 'indicator' | 'georessource';
 
 @Component({
-  selector: "app-export-item-checkbox",
-  templateUrl: "./export-item-checkbox.component.html",
-  styleUrls: ["./export-item-checkbox.component.scss"],
-  imports: [CommonModule],
+  selector: 'app-export-item-checkbox',
+  templateUrl: './export-item-checkbox.component.html',
+  styleUrls: ['./export-item-checkbox.component.scss'],
+  imports: [],
   standalone: true,
 })
 export class ExportItemCheckboxComponent {
@@ -19,14 +18,10 @@ export class ExportItemCheckboxComponent {
   constructor(protected srvc: ExportingStateService) {}
 
   isInExport(): boolean {
-    if (this.kind === "indicator") {
-      return this.srvc
-        .indicatorItems()
-        .some((item) => item.dataset.id === this.dataset.id);
+    if (this.kind === 'indicator') {
+      return this.srvc.indicatorItems().some((item) => item.dataset.id === this.dataset.id);
     }
-    return this.srvc
-      .georessourceItems()
-      .some((item) => item.dataset.id === this.dataset.id);
+    return this.srvc.georessourceItems().some((item) => item.dataset.id === this.dataset.id);
   }
 
   toggle(): void {
@@ -38,7 +33,7 @@ export class ExportItemCheckboxComponent {
   }
 
   private add(): void {
-    if (this.kind === "indicator") {
+    if (this.kind === 'indicator') {
       this.srvc.addIndicator(this.dataset as Indicator);
     } else {
       this.srvc.addGeoressource(this.dataset as Georessource);
@@ -46,7 +41,7 @@ export class ExportItemCheckboxComponent {
   }
 
   private remove(): void {
-    if (this.kind === "indicator") {
+    if (this.kind === 'indicator') {
       this.srvc.removeIndicator(this.dataset.id);
     } else {
       this.srvc.removeGeoressource(this.dataset.id);

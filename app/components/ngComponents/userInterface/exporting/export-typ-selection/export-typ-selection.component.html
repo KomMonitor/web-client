@@ -1,56 +1,54 @@
 <div>
-  <p>
-    Exportieren Sie mehrere Datensätze gebündelt in einem einzigen GeoPackage.
-  </p>
-  <div *ngFor="let opt of options">
-    <div class="form-check">
-      <label class="form-check-label">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="exportType"
-          [value]="opt.val"
-          [checked]="srvc.exportType() === opt.val"
-          (change)="setSelectionType(opt.val)"
-        />
-        {{ opt.label }}
-      </label>
-    </div>
-  </div>
-
-  <div *ngIf="srvc.exportType() === 'spatialUnit'">
-    <hr />
-    <div class="alert alert-info" role="alert">
-      Gemeinsame Raumebene für <strong>alle</strong> Indikatoren.
-    </div>
-    <ng-container *ngIf="srvc.commonSpatialUnits().length > 0; else noCommonUnits">
-      <div>
-        <label>Gemeinsame Raumebene</label>
+  <p>Exportieren Sie mehrere Datensätze gebündelt in einem einzigen GeoPackage.</p>
+  @for (opt of options; track opt) {
+    <div>
+      <div class="form-check">
+        <label class="form-check-label">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="exportType"
+            [value]="opt.val"
+            [checked]="srvc.exportType() === opt.val"
+            (change)="setSelectionType(opt.val)"
+          />
+          {{ opt.label }}
+        </label>
       </div>
-      <select
-        (change)="updateSelectedSpatialUnit($event)"
-        class="form-select"
-      >
-        <option value="" [selected]="srvc.selectedSpatialUnit() === ''">Bitte wählen...</option>
-        <option
-          *ngFor="let unit of srvc.commonSpatialUnits()"
-          [value]="unit.id"
-          [selected]="unit.id === srvc.selectedSpatialUnit()"
-        >
-          {{ unit.name }}
-        </option>
-      </select>
-    </ng-container>
-    <ng-template #noCommonUnits>
-      <div class="alert alert-danger" role="alert">
-        Es gibt keine Raumebene, die für alle ausgewählten Indikatoren-Datensätze verfügbar ist.
-      </div>
-    </ng-template>
-  </div>
-
-  <div *ngIf="srvc.exportType() === 'multiple'">
-    <div class="alert alert-info" role="alert">
-      Bitte wählen Sie die Raumebenen <strong>rechts in der Liste</strong>.
     </div>
-  </div>
+  }
+
+  @if (srvc.exportType() === 'spatialUnit') {
+    <div>
+      <hr />
+      <div class="alert alert-info" role="alert">
+        Gemeinsame Raumebene für <strong>alle</strong> Indikatoren.
+      </div>
+      @if (srvc.commonSpatialUnits().length > 0) {
+        <div>
+          <label>Gemeinsame Raumebene</label>
+        </div>
+        <select (change)="updateSelectedSpatialUnit($event)" class="form-select">
+          <option value="" [selected]="srvc.selectedSpatialUnit() === ''">Bitte wählen...</option>
+          @for (unit of srvc.commonSpatialUnits(); track unit) {
+            <option [value]="unit.id" [selected]="unit.id === srvc.selectedSpatialUnit()">
+              {{ unit.name }}
+            </option>
+          }
+        </select>
+      } @else {
+        <div class="alert alert-danger" role="alert">
+          Es gibt keine Raumebene, die für alle ausgewählten Indikatoren-Datensätze verfügbar ist.
+        </div>
+      }
+    </div>
+  }
+
+  @if (srvc.exportType() === 'multiple') {
+    <div>
+      <div class="alert alert-info" role="alert">
+        Bitte wählen Sie die Raumebenen <strong>rechts in der Liste</strong>.
+      </div>
+    </div>
+  }
 </div>

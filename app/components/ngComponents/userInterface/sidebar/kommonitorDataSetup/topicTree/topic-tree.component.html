@@ -5,9 +5,7 @@
     [ngClass]="{
       'style-headline-indicator': indicator.isHeadlineIndicator,
       'style-simple-indicator': !indicator.isHeadlineIndicator,
-      active:
-        selectionState.selectedIndicator.indicatorId ==
-        indicator.indicatorId,
+      active: selectionState.selectedIndicator.indicatorId == indicator.indicatorId,
     }"
   >
     <div class="list-group-item-entry-grid-layout">
@@ -19,119 +17,108 @@
           (click)="indicatorClicked.emit(indicator)"
         >
           <i
-            [ngClass]="
-              indicator.isHeadlineIndicator
-                ? 'fas fa-tachometer-alt'
-                : 'fas fa-sitemap'
-            "
+            [ngClass]="indicator.isHeadlineIndicator ? 'fas fa-tachometer-alt' : 'fas fa-sitemap'"
           ></i>
-          &nbsp;&nbsp;<b>{{ indicator.indicatorName }}</b> [{{
-            indicator.unit
-          }}]
+          &nbsp;&nbsp;<b>{{ indicator.indicatorName }}</b> [{{ indicator.unit }}]
         </p>
         <app-indicator-metadata-tooltip
           [indicatorData]="{ data: indicator }"
         ></app-indicator-metadata-tooltip>
       </div>
       <div>
-        <i
-          *ngIf="showFavSelection"
-          class="fav-star fa-star"
-          [ngClass]="{
-            'fa-solid': indicatorFavItems.includes(indicator.indicatorId),
-            'fa-regular': !indicatorFavItems.includes(indicator.indicatorId),
-          }"
-          (click)="indicatorFavToggled.emit(indicator.indicatorId)"
-          style="color: black"
-        ></i>
+        @if (showFavSelection) {
+          <i
+            class="fav-star fa-star"
+            [ngClass]="{
+              'fa-solid': indicatorFavItems.includes(indicator.indicatorId),
+              'fa-regular': !indicatorFavItems.includes(indicator.indicatorId),
+            }"
+            (click)="indicatorFavToggled.emit(indicator.indicatorId)"
+            style="color: black"
+          ></i>
+        }
       </div>
     </div>
-    <app-export-item-checkbox
-      *ngIf="exportModeService.exportMode()"
-      kind="indicator"
-      [dataset]="toExportIndicator(indicator)"
-    ></app-export-item-checkbox>
+    @if (exportModeService.exportMode()) {
+      <app-export-item-checkbox
+        kind="indicator"
+        [dataset]="toExportIndicator(indicator)"
+      ></app-export-item-checkbox>
+    }
   </div>
 </ng-template>
 
 <ng-template #TopicTree let-topics="topics" let-level="level">
-  <div *ngFor="let topic of topics">
-    <div
-      class="list-group-item list-group-item-default list-group-item-grid-layout"
-      [ngClass]="
-        'hierarchy-topic-level-' +
-        level +
-        (checkHierarchyIndicatorSelected(topic)
-          ? ' style-hierarchy-selected-indicator-' + level
-          : '')
-      "
-      [id]="topic.topicId"
-    >
-      <i
-        class="fa-solid"
-        (click)="onTopicClick(topic.topicId)"
-        [ngClass]="{
-          'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
-          'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
-        }"
-      ></i>
-      <p
-        [title]="topic.topicDescription"
-        class="collapseTrigger"
-        (click)="onTopicClick(topic.topicId)"
-      >
-        {{ topic.topicName }} ({{ topic.indicatorCount + topic.wmsCount }})
-      </p>
-      <i
-        *ngIf="showFavSelection"
-        class="fav-star fa-star"
-        [ngClass]="{
-          'fa-solid': indicatorTopicFavItems.includes(topic.topicId),
-          'fa-regular': !indicatorTopicFavItems.includes(topic.topicId),
-        }"
-        (click)="indicatorTopicFavToggled.emit(topic.topicId)"
-      ></i>
-    </div>
-
-    <div
-      class="list-group collapse"
-      [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
-    >
-      <ng-container
-        *ngTemplateOutlet="
-          TopicTree;
-          context: { topics: topic.subTopics, level: level + 1 }
-        "
-      ></ng-container>
+  @for (topic of topics; track topic) {
+    <div>
       <div
-        class="list-group indicatorInputForm"
+        class="list-group-item list-group-item-default list-group-item-grid-layout"
+        [ngClass]="
+          'hierarchy-topic-level-' +
+          level +
+          (checkHierarchyIndicatorSelected(topic)
+            ? ' style-hierarchy-selected-indicator-' + level
+            : '')
+        "
+        [id]="topic.topicId"
+      >
+        <i
+          class="fa-solid"
+          (click)="onTopicClick(topic.topicId)"
+          [ngClass]="{
+            'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
+            'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
+          }"
+        ></i>
+        <p
+          [title]="topic.topicDescription"
+          class="collapseTrigger"
+          (click)="onTopicClick(topic.topicId)"
+        >
+          {{ topic.topicName }} ({{ topic.indicatorCount + topic.wmsCount }})
+        </p>
+        @if (showFavSelection) {
+          <i
+            class="fav-star fa-star"
+            [ngClass]="{
+              'fa-solid': indicatorTopicFavItems.includes(topic.topicId),
+              'fa-regular': !indicatorTopicFavItems.includes(topic.topicId),
+            }"
+            (click)="indicatorTopicFavToggled.emit(topic.topicId)"
+          ></i>
+        }
+      </div>
+      <div
+        class="list-group collapse"
         [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
       >
-        <ng-container *ngFor="let indicator of topic.indicatorData">
-          <ng-container
-            *ngTemplateOutlet="
-              IndicatorItem;
-              context: { indicator: indicator }
-            "
-          ></ng-container>
-        </ng-container>
+        <ng-container
+          *ngTemplateOutlet="TopicTree; context: { topics: topic.subTopics, level: level + 1 }"
+        ></ng-container>
         <div
-          *ngIf="topic.wmsData.length"
-          class="list-group-item list-group-item-default"
+          class="list-group indicatorInputForm"
+          [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
         >
-          <app-wms-table
-            [wmsDataList]="topic.wmsData"
-            [showFavSelection]="showFavSelection"
-            [wmsFavItems]="wmsFavItems"
-            (wmsToggled)="wmsToggled.emit($event)"
-            (wmsFavToggled)="wmsFavToggled.emit($event)"
-          ></app-wms-table>
+          @for (indicator of topic.indicatorData; track indicator) {
+            <ng-container
+              *ngTemplateOutlet="IndicatorItem; context: { indicator: indicator }"
+            ></ng-container>
+          }
+          @if (topic.wmsData.length) {
+            <div class="list-group-item list-group-item-default">
+              <app-wms-table
+                [wmsDataList]="topic.wmsData"
+                [showFavSelection]="showFavSelection"
+                [wmsFavItems]="wmsFavItems"
+                (wmsToggled)="wmsToggled.emit($event)"
+                (wmsFavToggled)="wmsFavToggled.emit($event)"
+              ></app-wms-table>
+            </div>
+          }
         </div>
       </div>
     </div>
-  </div>
+  }
 </ng-template>
 
-<ng-container
-  *ngTemplateOutlet="TopicTree; context: { topics: topics, level: 0 }"
-></ng-container>
+<ng-container *ngTemplateOutlet="TopicTree; context: { topics: topics, level: 0 }"></ng-container>

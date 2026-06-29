@@ -1,42 +1,62 @@
 <div id="kommonitorBalance">
-
   <expandable-box [title]="'Bilanzierung'" [collapsed]="false">
-	  <div style="text-align: center">
-      <p *ngIf="envConfigService.enableBilanceTrend">Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
-      <p *ngIf="!envConfigService.enableBilanceTrend">Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+    <div style="text-align: center">
+      @if (envConfigService.enableBilanceTrend) {
+        <p>
+          Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare
+          Zeitperiode.
+        </p>
+      }
+      @if (!envConfigService.enableBilanceTrend) {
+        <p>
+          Zeitliche Bilanzierung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.
+        </p>
+      }
     </div>
 
-    <br/>
+    <br />
 
     <div style="text-align: center">
-
       <!-- Rounded switch -->
       <strong>Bilanzierung aktivieren/deaktivieren</strong>
       &nbsp;
       <label class="switch">
-        <input id="balanceCheckbox" type="checkbox" (change)="onChangeUseBalance()" [(ngModel)]="chartDisplayState.isBalanceChecked" [checked]="chartDisplayState.isBalanceChecked">
+        <input
+          id="balanceCheckbox"
+          type="checkbox"
+          (change)="onChangeUseBalance()"
+          [(ngModel)]="chartDisplayState.isBalanceChecked"
+          [checked]="chartDisplayState.isBalanceChecked"
+        />
         <span class="switchslider round"></span>
       </label>
 
-      <br/>
-      <br/>
+      <br />
+      <br />
 
       <div id="rangeSliderForBalanceWrapper">
         <div id="rangeSlider"></div>
       </div>
 
-      <br/>
-      <br/>
-    </div>	
+      <br />
+      <br />
+    </div>
   </expandable-box>
-  
-  <expandable-box [hidden]="!chartDisplayState.isBalanceChecked" [collapsed]="false" [title]="envConfigService.enableBilanceTrend ? 'Trenddarstellung &uuml;ber alle Raumeinheiten' : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'">
 
+  <expandable-box
+    [hidden]="!chartDisplayState.isBalanceChecked"
+    [collapsed]="false"
+    [title]="
+      envConfigService.enableBilanceTrend
+        ? 'Trenddarstellung &uuml;ber alle Raumeinheiten'
+        : 'Zeitreihendarstellung &uuml;ber alle Raumeinheiten'
+    "
+  >
     <!-- CONFIG FOR TREND CALCULATION -->
     <div style="text-align: center">
       <h4>Diagramm-Konfiguration</h4>
-      
-      <table class="table text-center" style="width:100%;">
+
+      <table class="table text-center" style="width: 100%">
         <tr>
           <th class="text-center">
             <b>Zeige Min/Max Bereich</b>
@@ -47,79 +67,100 @@
           <th>
             <b>Zeige Trendlinie</b>
           </th>
-          <th class="text-center" *ngIf="envConfigService.enableBilanceTrend">
-            <b>Art der Trendberechnung</b>
-          </th>
-          
+          @if (envConfigService.enableBilanceTrend) {
+            <th class="text-center">
+              <b>Art der Trendberechnung</b>
+            </th>
+          }
         </tr>
         <tr>
-          <td class="text-center" >
+          <td class="text-center">
             <label class="switch">
-              <input type="checkbox" [(ngModel)]="trendConfig_allFeatures.showMinMax" (change)="onChangeTrendConfig()" checked>
+              <input
+                type="checkbox"
+                [(ngModel)]="trendConfig_allFeatures.showMinMax"
+                (change)="onChangeTrendConfig()"
+                checked
+              />
               <span class="switchslider round"></span>
             </label>
           </td>
           <td class="text-center">
             <label class="switch">
-              <input type="checkbox" [(ngModel)]="trendConfig_allFeatures.showCompleteTimeseries" (change)="onChangeTrendConfig()" checked>
+              <input
+                type="checkbox"
+                [(ngModel)]="trendConfig_allFeatures.showCompleteTimeseries"
+                (change)="onChangeTrendConfig()"
+                checked
+              />
               <span class="switchslider round"></span>
             </label>
           </td>
-          <td>				
+          <td>
             <label class="switch">
-              <input type="checkbox" [ngModel]="envConfigService.enableBilanceTrend" (change)="onChangeEnableBilanceTrend()"
-                checked>
+              <input
+                type="checkbox"
+                [ngModel]="envConfigService.enableBilanceTrend"
+                (change)="onChangeEnableBilanceTrend()"
+                checked
+              />
               <span class="switchslider round"></span>
             </label>
           </td>
-          <td *ngIf="envConfigService.enableBilanceTrend">
-            <select style="font-size: 12px;"
-              [(ngModel)]="trendConfig_allFeatures.trendComputationType"
-              (change)="onChangeTrendConfig()" class="form-control" required>
-              <option disabled selected value> -- Indikator w&auml;hlen -- </option>
-              <option value="linear" selected>Linear</option>
-              <option value="exponential">Exponential</option>
-              <option value="polynomial_3">Polynomial (Grad 3)</option>
-              <!-- <option value="linear">gleitende Mittelwerte</option> -->
-            </select>
-          </td>
+          @if (envConfigService.enableBilanceTrend) {
+            <td>
+              <select
+                style="font-size: 12px"
+                [(ngModel)]="trendConfig_allFeatures.trendComputationType"
+                (change)="onChangeTrendConfig()"
+                class="form-control"
+                required
+              >
+                <option disabled selected value>-- Indikator w&auml;hlen --</option>
+                <option value="linear" selected>Linear</option>
+                <option value="exponential">Exponential</option>
+                <option value="polynomial_3">Polynomial (Grad 3)</option>
+                <!-- <option value="linear">gleitende Mittelwerte</option> -->
+              </select>
+            </td>
+          }
         </tr>
       </table>
     </div>
-    
+
     <div class="chart">
-      <div id="trendDiagram_allFeatures" style="width:100%; min-height:30vh;"></div>
+      <div id="trendDiagram_allFeatures" style="width: 100%; min-height: 30vh"></div>
     </div>
 
-    <h4 >Statistische Merkmale der Durchschnittslinie</h4>
+    <h4>Statistische Merkmale der Durchschnittslinie</h4>
     <div>
       <div class="row">
         <div class="col-md-2">
-          <label>Min: </label> <i>{{trendAnalysis_allFeatures?.min}}</i>
-          <br/>
-          <label>Max: </label> <i>{{trendAnalysis_allFeatures?.max}}</i>
+          <label>Min: </label> <i>{{ trendAnalysis_allFeatures?.min }}</i>
+          <br />
+          <label>Max: </label> <i>{{ trendAnalysis_allFeatures?.max }}</i>
         </div>
         <div class="col-md-3">
-          <label>Durchschnitt: </label> <i>{{trendAnalysis_allFeatures?.mean}}</i>
-          <br/>
-          <label>Median: </label> <i>{{trendAnalysis_allFeatures?.median}}</i>
+          <label>Durchschnitt: </label> <i>{{ trendAnalysis_allFeatures?.mean }}</i>
+          <br />
+          <label>Median: </label> <i>{{ trendAnalysis_allFeatures?.median }}</i>
         </div>
         <div class="col-md-4">
-          <label>Standardabweichung: </label> <i>{{trendAnalysis_allFeatures?.deviation}}</i>
-          <br/>
-          <label>Varianz: </label> <i>{{trendAnalysis_allFeatures?.variance}}</i>
+          <label>Standardabweichung: </label> <i>{{ trendAnalysis_allFeatures?.deviation }}</i>
+          <br />
+          <label>Varianz: </label> <i>{{ trendAnalysis_allFeatures?.variance }}</i>
         </div>
         <div class="col-md-3">
-          <label>Bilanz: </label> <i>{{trendAnalysis_allFeatures?.balance}}</i>
-        
-          <span *ngIf="envConfigService.enableBilanceTrend">
-            <br/>
-            <label >Trend: </label> <i>{{trendAnalysis_allFeatures?.trend}}</i>
-          </span>
-        </div>
+          <label>Bilanz: </label> <i>{{ trendAnalysis_allFeatures?.balance }}</i>
 
+          @if (envConfigService.enableBilanceTrend) {
+            <span>
+              <br />
+              <label>Trend: </label> <i>{{ trendAnalysis_allFeatures?.trend }}</i>
+            </span>
+          }
+        </div>
       </div>
     </div>
   </expandable-box>
-
 </div>

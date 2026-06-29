@@ -1,157 +1,236 @@
 <div class="container-fluid">
   <div class="row row-no-gutters">
-      <div class="col-sm-12 text-center">
-          <h2 class="fs-title">Templateauswahl</h2>
-          <p class="fs-subtitle">
-              Um die häufigsten Anwendungsfälle abzudecken, stehen für die Reporting-Funktion unterschiedliche
-              Templates zur Verfügung.<br />
-              Die Templates können in einem der folgenden Schritte noch in begrenzem Umfang angepasst werden.
-          </p>
-      </div>
+    <div class="col-sm-12 text-center">
+      <h2 class="fs-title">Templateauswahl</h2>
+      <p class="fs-subtitle">
+        Um die häufigsten Anwendungsfälle abzudecken, stehen für die Reporting-Funktion
+        unterschiedliche Templates zur Verfügung.<br />
+        Die Templates können in einem der folgenden Schritte noch in begrenzem Umfang angepasst
+        werden.
+      </p>
+    </div>
   </div>
   <div class="reporting-content-wrapper">
-      <div class="row">
-          <div class="col-sm-3">
-              <div id="reporting-template-categories-wrapper">
-                  <h3>Kategorien</h3>
+    <div class="row">
+      <div class="col-sm-3">
+        <div id="reporting-template-categories-wrapper">
+          <h3>Kategorien</h3>
 
-                  <div ngbAccordion [closeOthers]="true">
-                    <div ngbAccordionItem [collapsed]="i>0" *ngFor="let category of reportingService.availableTemplateCategories; let i = index">
-                      <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton >{{category.displayName}}</button>
-                      </h2>
-                      <div ngbAccordionCollapse>
-                        <div ngbAccordionBody>
-                          <ul *ngIf="reportingService.availableTemplates">
-                            <li *ngFor="let template of reportingService.availableTemplates | reportingTemplateFilter:category.id"
-                              class="reporting-selectable-template" [ngClass]="{'template-selected': template.id==0 }"
-                              (click)="onTemplateElementClicked($event, template.id)">
-                              {{template.displayName}}
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+          <div ngbAccordion [closeOthers]="true">
+            @for (
+              category of reportingService.availableTemplateCategories;
+              track category;
+              let i = $index
+            ) {
+              <div ngbAccordionItem [collapsed]="i > 0">
+                <h2 ngbAccordionHeader>
+                  <button ngbAccordionButton>{{ category.displayName }}</button>
+                </h2>
+                <div ngbAccordionCollapse>
+                  <div ngbAccordionBody>
+                    @if (reportingService.availableTemplates) {
+                      <ul>
+                        @for (
+                          template of reportingService.availableTemplates
+                            | reportingTemplateFilter: category.id;
+                          track template
+                        ) {
+                          <li
+                            class="reporting-selectable-template"
+                            [ngClass]="{ 'template-selected': template.id == 0 }"
+                            (click)="onTemplateElementClicked($event, template.id)"
+                          >
+                            {{ template.displayName }}
+                          </li>
+                        }
+                      </ul>
+                    }
                   </div>
+                </div>
               </div>
-              
-              <div id="reporting-template-customization-wrapper">
-                  <h3>Allgemeine Einstellungen</h3>
-                  <form>
-                      <label>
-                          Bearbeiter:
-                         <input type="text" name="creator" class="form-control" [(ngModel)]="reportingService.generalSettings.creator">
-                      </label>
-
-                      <label>
-                          Kommune:
-                         <input type="text" name="commune" class="form-control" [(ngModel)]="reportingService.generalSettings.commune">
-                      </label>
-
-                      <label>
-                          Datum:
-                          <input
-                            id="reporting-general-settings-datefield" 
-                            class="form-control"
-                            placeholder="YYYY-MM-DD"
-                            name="creationDate"
-                            [(ngModel)]="datePickerDate"
-                            ngbDatepicker
-                            #d="ngbDatepicker"
-                            (click)="d.toggle()"
-                            (ngModelChange)="onChangeDatepickerDate()"
-                          />
-                      </label>
-
-                      <label for="reporting-load-commune-logo-button" class="btn btn-primary">
-                          <input type="file" (change)="reportingService.readSingleFile($event)" id="reporting-load-commune-logo-button">
-                          <i class="fa fa-file-download"></i>
-                          &nbsp;&nbsp;Logo der Kommune auswählen
-                      </label>
-                      <br />
-                      <br />
-                      <div [hidden]="!templateSupportsFreeText()">
-                          <label for="reporting-general-settings-freetext">Freitext:</label>
-                          <textarea  id="reporting-general-settings-freetext" class="form-control"
-                              name="general-settings-freetext" rows="4" cols="35"
-                              [(ngModel)]="reportingService.generalSettings.freeText"></textarea>
-                      </div>
-
-                      <!--
-                      <label for="reporting-include-cover-page">Deckblatt erzeugen?</label>
-                      <label class="switch">
-                          <input id="reporting-include-cover-page" class="elementCheckbox" type="checkbox"
-                                  ng-model="includeCoverPage" ng-init="includeCoverPage = true" ng-click="elementChbClicked($event)"
-                                  ng-checked="generalSettings.includeCoverPage">
-                          <span class="switchslider round text-left" style="line-height:25px;"></span>
-                      </label>
-
-                      <div [hidden]="includeCoverPage">
-                          <label for="reporting-cover-page-title">Titel des Reports:</label>
-                          <input type="text" id="reporting-cover-page-title"
-                              name="reporting-cover-page-title" ng-model="generalSettings.documentTitle">
-                      </div> 
-                      -->
-
-                  </form>
-              </div>
+            }
           </div>
-          <div class="col-sm-9">
-              <div class="row" style="margin:0">
-                  <div id="reporting-template-preview-area">
-                      <div *ngFor="let page of reportingService.workingTemplate?.pages; index as iPage" 
-                          [ngClass]="{'hiddenPage': !reportingService.showThisPage(page)}"
-                          class="reporting-page reporting-page-{{page.orientation}}">
-                          <div *ngFor="let pageElement of page.pageElements"
-                              [style]="{position: 'absolute',
-                                  top: pageElement.dimensions.top,
-                                  left: pageElement.dimensions.left,
-                                  width: pageElement.dimensions.width,
-                                  height: pageElement.dimensions.height,
-                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
-                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
-                                  <!-- difference from angularJS version -> pageElement.css replaced with fix "border-top" values, only applicable for two items, both with same css -->
-                              
-                              <span [hidden]="pageElement.isPlaceholder == false"
-                                  [style]="pageElement.css ? pageElement.css : ''"
-                                  [innerHTML]="(pageElement.placeholderText ? pageElement.placeholderText : '') | safeHtml">
-                              </span>
-                              <!-- special cases below -->
-                              <span [hidden]="!(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  Erstellt am {{reportingService.generalSettings.creationDate}} von {{reportingService.generalSettings.creator}}, {{reportingService.generalSettings.commune}}
-                              </span>
-
-                              <span [hidden]="!(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  Seite {{ reportingService.getPageNumber(iPage) }}
-                              </span>
-
-                              <span [hidden]="!(pageElement.type === 'textInput' && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{reportingService.generalSettings.freeText}}
-                              </span>
-
-                              <img [hidden]="!(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
-                                  src="{{pageElement.src}}">
-                              
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="modal-custom-footer">
-        <div>
-          <button class="btn btn-warning" (click)='onBackToWorkflowSelectionClicked()'>
-              <i class="fa fa-arrow-left"></i>
-              &nbsp;&nbsp;Zurück zur Workflow-Auswahl
-          </button>
         </div>
-        <div>
-          <button id="reporting-templateSelectedBtn" class="btn btn-success pull-right" (click)='onTemplateSelected()' [disabled]='!reportingService.workingTemplate'>Template auswählen</button>
+
+        <div id="reporting-template-customization-wrapper">
+          <h3>Allgemeine Einstellungen</h3>
+          <form>
+            <label>
+              Bearbeiter:
+              <input
+                type="text"
+                name="creator"
+                class="form-control"
+                [(ngModel)]="reportingService.generalSettings.creator"
+              />
+            </label>
+
+            <label>
+              Kommune:
+              <input
+                type="text"
+                name="commune"
+                class="form-control"
+                [(ngModel)]="reportingService.generalSettings.commune"
+              />
+            </label>
+
+            <label>
+              Datum:
+              <input
+                id="reporting-general-settings-datefield"
+                class="form-control"
+                placeholder="YYYY-MM-DD"
+                name="creationDate"
+                [(ngModel)]="datePickerDate"
+                ngbDatepicker
+                #d="ngbDatepicker"
+                (click)="d.toggle()"
+                (ngModelChange)="onChangeDatepickerDate()"
+              />
+            </label>
+
+            <label for="reporting-load-commune-logo-button" class="btn btn-primary">
+              <input
+                type="file"
+                (change)="reportingService.readSingleFile($event)"
+                id="reporting-load-commune-logo-button"
+              />
+              <i class="fa fa-file-download"></i>
+              &nbsp;&nbsp;Logo der Kommune auswählen
+            </label>
+            <br />
+            <br />
+            <div [hidden]="!templateSupportsFreeText()">
+              <label for="reporting-general-settings-freetext">Freitext:</label>
+              <textarea
+                id="reporting-general-settings-freetext"
+                class="form-control"
+                name="general-settings-freetext"
+                rows="4"
+                cols="35"
+                [(ngModel)]="reportingService.generalSettings.freeText"
+              ></textarea>
+            </div>
+
+            <!--
+            <label for="reporting-include-cover-page">Deckblatt erzeugen?</label>
+            <label class="switch">
+              <input id="reporting-include-cover-page" class="elementCheckbox" type="checkbox"
+                ng-model="includeCoverPage" ng-init="includeCoverPage = true" ng-click="elementChbClicked($event)"
+                ng-checked="generalSettings.includeCoverPage">
+              <span class="switchslider round text-left" style="line-height:25px;"></span>
+            </label>
+
+            <div [hidden]="includeCoverPage">
+              <label for="reporting-cover-page-title">Titel des Reports:</label>
+              <input type="text" id="reporting-cover-page-title"
+                name="reporting-cover-page-title" ng-model="generalSettings.documentTitle">
+            </div>
+            -->
+          </form>
         </div>
       </div>
+      <div class="col-sm-9">
+        <div class="row" style="margin: 0">
+          <div id="reporting-template-preview-area">
+            @for (page of reportingService.workingTemplate?.pages; track page; let iPage = $index) {
+              <div
+                [ngClass]="{ hiddenPage: !reportingService.showThisPage(page) }"
+                class="reporting-page reporting-page-{{ page.orientation }}"
+              >
+                @for (pageElement of page.pageElements; track pageElement) {
+                  <div
+                    [style]="{
+                      position: 'absolute',
+                      top: pageElement.dimensions.top,
+                      left: pageElement.dimensions.left,
+                      width: pageElement.dimensions.width,
+                      height: pageElement.dimensions.height,
+                      border: !pageElement.type.includes('footerHorizontalSpacer-')
+                        ? 'dashed gray 1px'
+                        : '',
+                      'border-top': pageElement.type.includes('footerHorizontalSpacer-')
+                        ? 'solid rgb(148, 148, 148) 1px'
+                        : 'dashed gray 1px',
+                    }"
+                  >
+                    <!-- difference from angularJS version -> pageElement.css replaced with fix "border-top" values, only applicable for two items, both with same css -->
+                    <span
+                      [hidden]="pageElement.isPlaceholder == false"
+                      [style]="pageElement.css ? pageElement.css : ''"
+                      [innerHTML]="
+                        (pageElement.placeholderText ? pageElement.placeholderText : '') | safeHtml
+                      "
+                    >
+                    </span>
+                    <!-- special cases below -->
+                    <span
+                      [hidden]="
+                        !(
+                          pageElement.type.includes('footerCreationInfo-') &&
+                          pageElement.isPlaceholder == false
+                        )
+                      "
+                      [style]="pageElement.css ? pageElement.css : ''"
+                    >
+                      Erstellt am {{ reportingService.generalSettings.creationDate }} von
+                      {{ reportingService.generalSettings.creator }},
+                      {{ reportingService.generalSettings.commune }}
+                    </span>
+                    <span
+                      [hidden]="
+                        !(
+                          pageElement.type.includes('pageNumber-') &&
+                          pageElement.isPlaceholder == false
+                        )
+                      "
+                      [style]="pageElement.css ? pageElement.css : ''"
+                    >
+                      Seite {{ reportingService.getPageNumber(iPage) }}
+                    </span>
+                    <span
+                      [hidden]="
+                        !(pageElement.type === 'textInput' && pageElement.isPlaceholder == false)
+                      "
+                      [style]="pageElement.css ? pageElement.css : ''"
+                    >
+                      {{ reportingService.generalSettings.freeText }}
+                    </span>
+                    <img
+                      [hidden]="
+                        !(
+                          pageElement.type.includes('communeLogo-') &&
+                          pageElement.isPlaceholder == false
+                        )
+                      "
+                      src="{{ pageElement.src }}"
+                    />
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-custom-footer">
+      <div>
+        <button class="btn btn-warning" (click)="onBackToWorkflowSelectionClicked()">
+          <i class="fa fa-arrow-left"></i>
+          &nbsp;&nbsp;Zurück zur Workflow-Auswahl
+        </button>
+      </div>
+      <div>
+        <button
+          id="reporting-templateSelectedBtn"
+          class="btn btn-success pull-right"
+          (click)="onTemplateSelected()"
+          [disabled]="!reportingService.workingTemplate"
+        >
+          Template auswählen
+        </button>
+      </div>
+    </div>
   </div>
 </div>
-

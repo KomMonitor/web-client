@@ -1,4 +1,5 @@
-<div #sliderContainer class="slider" *ngIf="!errorMsg; else errorTemplate"></div>
-<ng-template #errorTemplate>
+@if (!errorMsg) {
+  <div #sliderContainer class="slider"></div>
+} @else {
   <div [innerHTML]="errorMsg"></div>
-</ng-template>
+}

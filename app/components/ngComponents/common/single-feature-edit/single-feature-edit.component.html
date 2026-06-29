@@ -1,188 +1,266 @@
 <div class="row vertical-align">
-
-	<div class="col-md-6 col-sm-6 col-xs-12">
-		<div class="reachability-feature-btn-wrapper">
-			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode === 'create'}"
-				(click)="onChangeEditMode('create')">
-				<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <div class="reachability-feature-btn-wrapper">
+      <button
+        class="feature-btn"
+        [ngClass]="{ active: singleFeatureMapHelperService.editMode === 'create' }"
+        (click)="onChangeEditMode('create')"
+      >
+        <i class="fa-solid fa-plus"></i>&nbsp;Erstellen
       </button>
-			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode === 'edit'}"
-        (click)="onChangeEditMode('edit')">
-				<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
+      <button
+        class="feature-btn"
+        [ngClass]="{ active: singleFeatureMapHelperService.editMode === 'edit' }"
+        (click)="onChangeEditMode('edit')"
+      >
+        <i class="fa-solid fa-pencil"></i>&nbsp;Editieren
       </button>
-			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode === 'delete'}"
-        (click)="onChangeEditMode('delete')">
-				<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
+      <button
+        class="feature-btn"
+        [ngClass]="{ active: singleFeatureMapHelperService.editMode === 'delete' }"
+        (click)="onChangeEditMode('delete')"
+      >
+        <i class="fa-solid fa-trash"></i>&nbsp;Entfernen
       </button>
-		</div>
+    </div>
 
-		<br />
+    <br />
 
-		<div *ngIf="singleFeatureMapHelperService.editMode === 'create'">
-			<i><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button
-				bet&auml;tigen</i>
-		</div>
-		<div *ngIf="singleFeatureMapHelperService.editMode === 'edit'">
-			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und Geometrie editieren,
-				dann <b>Editieren</b>-Button bet&auml;tigen</i>
-		</div>
-		<div *ngIf="singleFeatureMapHelperService.editMode === 'delete'">
-			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann
-				<b>L&ouml;schen</b>-Button bet&auml;tigen</i>
-		</div>
-	</div>
-
+    @if (singleFeatureMapHelperService.editMode === 'create') {
+      <div>
+        <i
+          ><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button
+          bet&auml;tigen</i
+        >
+      </div>
+    }
+    @if (singleFeatureMapHelperService.editMode === 'edit') {
+      <div>
+        <i
+          ><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und
+          Geometrie editieren, dann <b>Editieren</b>-Button bet&auml;tigen</i
+        >
+      </div>
+    }
+    @if (singleFeatureMapHelperService.editMode === 'delete') {
+      <div>
+        <i
+          ><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann
+          <b>L&ouml;schen</b>-Button bet&auml;tigen</i
+        >
+      </div>
+    }
+  </div>
 </div>
 
-<hr>
+<hr />
 <br />
 
-<div class="row ">
-	<div class="col-md-6 col-sm-6 col-xs-12">
-
-		<label>Attribute gem&auml;&szlig; Feature-Schema f&uuml;r <i>{{currentGeoresourceDataset?.datasetName}}</i></label>
-		<div style="max-height: 40vh; overflow: auto;">
-
-			<table class="table table-condensed">
-				<thead>
-					<tr>
-						<th>Attributname</th>
-						<th>Attributwert</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>
-							<b>Feature-ID *</b>
-							<br>
-							<i>Beispiele: {{featureIdExampleString}}</i>
-							<div *ngIf="!featureIdIsUnique" style="color:red;"><b>Eingegebene Feature-ID
-									schon vergeben oder ung&uuml;ltig</b></div>
-						</td>
-						<td>
-							<input type="text" class="form-control" [(ngModel)]="featureIdValue"
-								placeholder="{{featureIdValue}}" (change)="validateSingleFeatureId()"
-								[disabled]="singleFeatureMapHelperService.editMode !== 'create'"
-								required>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Feature-NAME *</b>
-						</td>
-						<td>
-							<input type="text" class="form-control" [(ngModel)]="featureNameValue"
-								[disabled]="singleFeatureMapHelperService.editMode === 'delete'"
-								placeholder="lesbarer Name des Objekts" required>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit *</b>
-						</td>
-						<td>
+<div class="row">
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <label
+      >Attribute gem&auml;&szlig; Feature-Schema f&uuml;r
+      <i>{{ currentGeoresourceDataset?.datasetName }}</i></label
+    >
+    <div style="max-height: 40vh; overflow: auto">
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Attributname</th>
+            <th>Attributwert</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <b>Feature-ID *</b>
+              <br />
+              <i>Beispiele: {{ featureIdExampleString }}</i>
+              @if (!featureIdIsUnique) {
+                <div style="color: red">
+                  <b>Eingegebene Feature-ID schon vergeben oder ung&uuml;ltig</b>
+                </div>
+              }
+            </td>
+            <td>
               <input
-                  class="form-control"
-                  placeholder="yyyy-mm-dd"
-                  name="dp"
-                  [(ngModel)]="featureStartDateValue"
-                  ngbDatepicker
-                  #d="ngbDatepicker"
-                  (click)="d.toggle()"
-                  (ngModelChange)="onStartDateChange($event)"
-                />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</b>
-						</td>
-						<td>
+                type="text"
+                class="form-control"
+                [(ngModel)]="featureIdValue"
+                placeholder="{{ featureIdValue }}"
+                (change)="validateSingleFeatureId()"
+                [disabled]="singleFeatureMapHelperService.editMode !== 'create'"
+                required
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Feature-NAME *</b>
+            </td>
+            <td>
               <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="featureNameValue"
+                [disabled]="singleFeatureMapHelperService.editMode === 'delete'"
+                placeholder="lesbarer Name des Objekts"
+                required
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit *</b>
+            </td>
+            <td>
+              <input
+                class="form-control"
+                placeholder="yyyy-mm-dd"
+                name="dp"
+                [(ngModel)]="featureStartDateValue"
+                ngbDatepicker
+                #d="ngbDatepicker"
+                (click)="d.toggle()"
+                (ngModelChange)="onStartDateChange($event)"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</b>
+            </td>
+            <td>
+              <input
+                class="form-control"
+                placeholder="yyyy-mm-dd"
+                name="dp"
+                [(ngModel)]="featureEndDateValue"
+                ngbDatepicker
+                #d="ngbDatepicker"
+                (click)="d.toggle()"
+                [disabled]="singleFeatureMapHelperService.editMode === 'delete'"
+                (ngModelChange)="onEndDateChange($event)"
+              />
+            </td>
+          </tr>
+          @for (featureSchemaEntry of featureSchemaProperties; track featureSchemaEntry) {
+            <tr>
+              <td>
+                <b>{{ featureSchemaEntry.property }}</b>
+                <br />
+                <i>Beispiel: {{ featureSchemaEntry.exampleValue }}</i>
+              </td>
+              <td>
+                <input
+                  type="text"
                   class="form-control"
-                  placeholder="yyyy-mm-dd"
-                  name="dp"
-                  [(ngModel)]="featureEndDateValue"
-                  ngbDatepicker
-                  #d="ngbDatepicker"
-                  (click)="d.toggle()"
+                  [(ngModel)]="featureSchemaEntry.value"
                   [disabled]="singleFeatureMapHelperService.editMode === 'delete'"
-                  (ngModelChange)="onEndDateChange($event)"
+                  placeholder="optionaler Wert f&uuml;r Attribut '{{
+                    featureSchemaEntry.property
+                  }}'"
+                  required
                 />
-						</td>
-					</tr>
-					<tr *ngFor="let featureSchemaEntry of featureSchemaProperties">
-						<td>
-							<b>{{featureSchemaEntry.property}}</b>
-							<br>
-							<i>Beispiel: {{featureSchemaEntry.exampleValue}}</i>
-						</td>
-						<td>
-							<input type="text" class="form-control" [(ngModel)]="featureSchemaEntry.value"
-								[disabled]="singleFeatureMapHelperService.editMode === 'delete'"
-								placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'"
-								required>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-		</div>
-	</div>
-
-
-	<div class="col-md-6 col-sm-6 col-xs-12">
-		<!-- geometry with interactive map and geocoder functionality -->
-		<!-- together with special helperService that is used to manage map and data -->
-		<label>Geometrie-Definition *</label>
-		<br />
-		<i>in <em style="color: red;">rot</em> dargestellt sind die weiteren Geometrien des Datensatzes</i>
-		<div *ngIf="featureInfoText_singleFeatureAddMenu">
-			<i>{{featureInfoText_singleFeatureAddMenu}}</i>
-		</div>
-		<br />
-		<div *ngIf="!currentGeoresourceDataset">
-			<i>noch kein Geodatensatz selektiert</i>
-		</div>
-		<div id="singleFeatureGeoMap" style="height: 40vh;"></div>
-	</div>
+  <div class="col-md-6 col-sm-6 col-xs-12">
+    <!-- geometry with interactive map and geocoder functionality -->
+    <!-- together with special helperService that is used to manage map and data -->
+    <label>Geometrie-Definition *</label>
+    <br />
+    <i
+      >in <em style="color: red">rot</em> dargestellt sind die weiteren Geometrien des
+      Datensatzes</i
+    >
+    @if (featureInfoText_singleFeatureAddMenu) {
+      <div>
+        <i>{{ featureInfoText_singleFeatureAddMenu }}</i>
+      </div>
+    }
+    <br />
+    @if (!currentGeoresourceDataset) {
+      <div>
+        <i>noch kein Geodatensatz selektiert</i>
+      </div>
+    }
+    <div id="singleFeatureGeoMap" style="height: 40vh"></div>
+  </div>
 </div>
 
 <br />
 
 <div class="row vertical-align">
-	<button type="button" class="btn btn-info"
-		(click)="reinitSingleFeatureEdit()"><i class="fa-solid fa-rotate"></i>&nbsp;&nbsp;Reset
-	</button>
+  <button type="button" class="btn btn-info" (click)="reinitSingleFeatureEdit()">
+    <i class="fa-solid fa-rotate"></i>&nbsp;&nbsp;Reset
+  </button>
 
-	&nbsp; &nbsp; &nbsp;
+  &nbsp; &nbsp; &nbsp;
 
-	<!-- submit button -->
-	<button type="button" class="btn btn-success"
-		*ngIf="singleFeatureMapHelperService.editMode === 'create'"
-		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
-		(click)="addSingleGeoresourceFeature()"><i
-		class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Feature erstellen
-	</button>
-	<button type="button" class="btn btn-warning"
-		*ngIf="singleFeatureMapHelperService.editMode === 'edit'"
-		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
-		(click)="editSingleGeoresourceFeature()"><i
-		class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Feature editieren
-	</button>
-	<button type="button" class="btn btn-danger"
-		*ngIf="singleFeatureMapHelperService.editMode === 'delete'"
-		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
-		(click)="deleteSingleGeoresourceFeature()"><i
-		class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Feature entfernen
-	</button>
-	&nbsp; &nbsp; &nbsp;
-	<button type="button" class="btn btn-info"
-					[disabled]="georesourceFeaturesGeoJSON?.features.length == 0"
-					(click)="exportCurrentDataset()"
-					title="Exportieren des Datensatzes in eine Datei"><i
-          class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Datensatz-Export</button>
-
-
-
+  <!-- submit button -->
+  @if (singleFeatureMapHelperService.editMode === 'create') {
+    <button
+      type="button"
+      class="btn btn-success"
+      [disabled]="
+        !featureGeometryValue ||
+        !featureNameValue ||
+        featureIdValue == undefined ||
+        featureIdValue == null ||
+        !featureIdIsUnique ||
+        !featureStartDateValue
+      "
+      (click)="addSingleGeoresourceFeature()"
+    >
+      <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Feature erstellen
+    </button>
+  }
+  @if (singleFeatureMapHelperService.editMode === 'edit') {
+    <button
+      type="button"
+      class="btn btn-warning"
+      [disabled]="
+        !featureGeometryValue ||
+        !featureNameValue ||
+        featureIdValue == undefined ||
+        featureIdValue == null ||
+        !featureStartDateValue
+      "
+      (click)="editSingleGeoresourceFeature()"
+    >
+      <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Feature editieren
+    </button>
+  }
+  @if (singleFeatureMapHelperService.editMode === 'delete') {
+    <button
+      type="button"
+      class="btn btn-danger"
+      [disabled]="
+        !featureGeometryValue ||
+        !featureNameValue ||
+        featureIdValue == undefined ||
+        featureIdValue == null ||
+        !featureStartDateValue
+      "
+      (click)="deleteSingleGeoresourceFeature()"
+    >
+      <i class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Feature entfernen
+    </button>
+  }
+  &nbsp; &nbsp; &nbsp;
+  <button
+    type="button"
+    class="btn btn-info"
+    [disabled]="georesourceFeaturesGeoJSON?.features.length == 0"
+    (click)="exportCurrentDataset()"
+    title="Exportieren des Datensatzes in eine Datei"
+  >
+    <i class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Datensatz-Export
+  </button>
 </div>

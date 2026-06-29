@@ -6,44 +6,52 @@
     [(ngModel)]="selectedDropdownValue"
     (ngModelChange)="onDropdownChange()"
   >
-    <option *ngFor="let opt of predefinedCodes" [ngValue]="opt.code">
-      {{ opt.label }}
-    </option>
+    @for (opt of predefinedCodes; track opt) {
+      <option [ngValue]="opt.code">
+        {{ opt.label }}
+      </option>
+    }
     <option [ngValue]="customSentinel">Eigenen EPSG-Code eingeben …</option>
   </select>
 
-  <div *ngIf="isCustomMode" class="custom-input-wrapper">
-    <div class="input-group" [class.has-validation]="customInputValid !== null">
-      <span class="input-group-text">EPSG:</span>
-      <input
-        type="number"
-        class="form-control"
-        [class.is-valid]="customInputValid === true"
-        [class.is-invalid]="customInputValid === false"
-        placeholder="z. B. 25832"
-        min="1"
-        max="99999"
-        step="1"
-        [(ngModel)]="customInputRaw"
-        (ngModelChange)="onCustomInputChange()"
-        aria-label="EPSG-Code"
-      />
-      <div *ngIf="customInputValid === true" class="valid-feedback">
-        Gültiger EPSG-Code.
+  @if (isCustomMode) {
+    <div class="custom-input-wrapper">
+      <div class="input-group" [class.has-validation]="customInputValid !== null">
+        <span class="input-group-text">EPSG:</span>
+        <input
+          type="number"
+          class="form-control"
+          [class.is-valid]="customInputValid === true"
+          [class.is-invalid]="customInputValid === false"
+          placeholder="z. B. 25832"
+          min="1"
+          max="99999"
+          step="1"
+          [(ngModel)]="customInputRaw"
+          (ngModelChange)="onCustomInputChange()"
+          aria-label="EPSG-Code"
+        />
+        @if (customInputValid === true) {
+          <div class="valid-feedback">Gültiger EPSG-Code.</div>
+        }
+        @if (customInputValid === false) {
+          <div class="invalid-feedback">
+            Bitte geben Sie eine ganze Zahl zwischen 1 und 99999 ein.
+          </div>
+        }
       </div>
-      <div *ngIf="customInputValid === false" class="invalid-feedback">
-        Bitte geben Sie eine ganze Zahl zwischen 1 und 99999 ein.
-      </div>
+      <small class="text-muted mt-1 d-block">
+        Bekannte Codes finden Sie auf
+        <a href="https://epsg.io" target="_blank" rel="noopener noreferrer">epsg.io</a>.
+      </small>
     </div>
-    <small class="text-muted mt-1 d-block">
-      Bekannte Codes finden Sie auf
-      <a href="https://epsg.io" target="_blank" rel="noopener noreferrer"
-        >epsg.io</a
-      >.
-    </small>
-  </div>
+  }
 
-  <div *ngIf="!isCustomMode && currentCode !== null" class="current-code mt-1">
-    <small class="text-muted">Gewählter Code: <strong>EPSG:{{ currentCode }}</strong></small>
-  </div>
+  @if (!isCustomMode && currentCode !== null) {
+    <div class="current-code mt-1">
+      <small class="text-muted"
+        >Gewählter Code: <strong>EPSG:{{ currentCode }}</strong></small
+      >
+    </div>
+  }
 </div>

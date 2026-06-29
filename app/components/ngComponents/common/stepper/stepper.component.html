@@ -1,7 +1,7 @@
 <div class="stepper mb-4" #stepperRoot>
   <!-- continuous progress overlay (width controlled by component) -->
   <div class="stepper-progress"></div>
-  <ng-container *ngFor="let step of steps; let i = index">
+  @for (step of steps; track step; let i = $index) {
     <!-- Step bubble + label -->
     <div
       class="stepper-step"
@@ -11,15 +11,12 @@
       [class.disabled]="!isClickable(i + 1)"
       (click)="onStepClick(i + 1)"
     >
-        <div class="stepper-circle" #circle>{{ i + 1 }}</div>
+      <div class="stepper-circle" #circle>{{ i + 1 }}</div>
       <div class="stepper-label">{{ step.label }}</div>
     </div>
-
     <!-- Connector line between steps -->
-    <div
-      *ngIf="i < steps.length - 1"
-      class="stepper-line"
-      [class.completed]="currentStep > i + 1"
-    ></div>
-  </ng-container>
+    @if (i < steps.length - 1) {
+      <div class="stepper-line" [class.completed]="currentStep > i + 1"></div>
+    }
+  }
 </div>

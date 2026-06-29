@@ -1,88 +1,83 @@
 <ng-template #TopicTree let-topics="topics" let-level="level">
-  <div *ngFor="let topic of topics">
-    <div
-      class="list-group-item list-group-item-default list-group-item-grid-layout"
-      [ngClass]="
-        'hierarchy-topic-level-' +
-        styleLevel(level) +
-        (checkHierarchyPoiSelected(topic)
-          ? ' style-hierarchy-selected-poi-' + styleLevel(level)
-          : '') +
-        (level >= 2 ? ' list-group-grid-item' : '')
-      "
-    >
-      <i
-        class="fa-solid"
-        (click)="onTopicClick(topic.topicId)"
-        [ngClass]="{
-          'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
-          'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
-        }"
-      ></i>
-      <p
-        id="{{ topic.topicId }}"
-        class="collapseTrigger"
-        title="{{ topic.topicDescription }}"
-        (click)="onTopicClick(topic.topicId)"
-      >
-        {{ topic.topicName }} ({{ topic.totalCount }})
-      </p>
-      <input
-        type="checkbox"
-        [(ngModel)]="topic.isSelected"
-        id="showAllForTopic_{{ topic.topicId }}"
-        (change)="showAllOnTopic.emit(topic)"
-      />
-      <i
-        *ngIf="showFavSelection"
-        class="fav-star fa-star"
-        [ngClass]="{
-          'fa-solid': isTopicFav(topic.topicId),
-          'fa-regular': !isTopicFav(topic.topicId),
-        }"
-        (click)="topicFavToggled.emit(topic.topicId)"
-      ></i>
-    </div>
-
-    <div
-      class="list-group collapse"
-      [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
-    >
-      <ng-container
-        *ngTemplateOutlet="
-          TopicTree;
-          context: { topics: topic.subTopics, level: level + 1 }
+  @for (topic of topics; track topic) {
+    <div>
+      <div
+        class="list-group-item list-group-item-default list-group-item-grid-layout"
+        [ngClass]="
+          'hierarchy-topic-level-' +
+          styleLevel(level) +
+          (checkHierarchyPoiSelected(topic)
+            ? ' style-hierarchy-selected-poi-' + styleLevel(level)
+            : '') +
+          (level >= 2 ? ' list-group-grid-item' : '')
         "
-      ></ng-container>
-
-      <div class="list-group">
-        <div
-          class="list-group-item list-group-item-default georesourceInputForm"
-          *ngIf="topic.ownCount > 0"
+      >
+        <i
+          class="fa-solid"
+          (click)="onTopicClick(topic.topicId)"
+          [ngClass]="{
+            'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
+            'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
+          }"
+        ></i>
+        <p
+          id="{{ topic.topicId }}"
+          class="collapseTrigger"
+          title="{{ topic.topicDescription }}"
+          (click)="onTopicClick(topic.topicId)"
         >
-          <app-georesource-dataset-table
-            [datasets]="topic"
-            [showFavSelection]="showFavSelection"
-            [showPerDatasetDateColumn]="showPerDatasetDateColumn"
-            [poiFavItems]="poiFavItems"
-            [wmsFavItems]="wmsFavItems"
-            (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
-            (toggleWmsOnMap)="toggleWmsOnMap.emit($event)"
-            (toggleWfsOnMap)="toggleWfsOnMap.emit($event)"
-            (selectedDateChange)="selectedDateChange.emit($event)"
-            (zoomToLayer)="zoomToLayer.emit($event)"
-            (exportGeoresource)="exportGeoresource.emit($event)"
-            (poiFavClick)="poiFavToggled.emit($event)"
-            (wmsFavClick)="wmsFavToggled.emit($event)"
-            (wfsColorChange)="wfsColorChange.emit($event)"
-          >
-          </app-georesource-dataset-table>
+          {{ topic.topicName }} ({{ topic.totalCount }})
+        </p>
+        <input
+          type="checkbox"
+          [(ngModel)]="topic.isSelected"
+          id="showAllForTopic_{{ topic.topicId }}"
+          (change)="showAllOnTopic.emit(topic)"
+        />
+        @if (showFavSelection) {
+          <i
+            class="fav-star fa-star"
+            [ngClass]="{
+              'fa-solid': isTopicFav(topic.topicId),
+              'fa-regular': !isTopicFav(topic.topicId),
+            }"
+            (click)="topicFavToggled.emit(topic.topicId)"
+          ></i>
+        }
+      </div>
+      <div
+        class="list-group collapse"
+        [ngClass]="{ in: !collapsedTopicIds.includes(topic.topicId) }"
+      >
+        <ng-container
+          *ngTemplateOutlet="TopicTree; context: { topics: topic.subTopics, level: level + 1 }"
+        ></ng-container>
+        <div class="list-group">
+          @if (topic.ownCount > 0) {
+            <div class="list-group-item list-group-item-default georesourceInputForm">
+              <app-georesource-dataset-table
+                [datasets]="topic"
+                [showFavSelection]="showFavSelection"
+                [showPerDatasetDateColumn]="showPerDatasetDateColumn"
+                [poiFavItems]="poiFavItems"
+                [wmsFavItems]="wmsFavItems"
+                (toggleGeoresourceOnMap)="toggleGeoresourceOnMap.emit($event)"
+                (toggleWmsOnMap)="toggleWmsOnMap.emit($event)"
+                (toggleWfsOnMap)="toggleWfsOnMap.emit($event)"
+                (selectedDateChange)="selectedDateChange.emit($event)"
+                (zoomToLayer)="zoomToLayer.emit($event)"
+                (exportGeoresource)="exportGeoresource.emit($event)"
+                (poiFavClick)="poiFavToggled.emit($event)"
+                (wmsFavClick)="wmsFavToggled.emit($event)"
+                (wfsColorChange)="wfsColorChange.emit($event)"
+              >
+              </app-georesource-dataset-table>
+            </div>
+          }
         </div>
       </div>
     </div>
-  </div>
+  }
 </ng-template>
 
-<ng-container
-  *ngTemplateOutlet="TopicTree; context: { topics: topics, level: 0 }"
-></ng-container>
+<ng-container *ngTemplateOutlet="TopicTree; context: { topics: topics, level: 0 }"></ng-container>

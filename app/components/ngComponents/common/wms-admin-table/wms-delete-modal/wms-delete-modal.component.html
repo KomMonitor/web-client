@@ -7,51 +7,73 @@
 
 <div class="modal-body">
   <div align="center">
-    <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
+    @if (loadingData) {
+      <div class="loading-overlay-admin-panel" [class.ng-hide]="!loadingData">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
   </div>
 
   <!-- MultiStep Form -->
   <div class="row">
     <div class="col-md-12">
-
       <h4><b>Sollen die folgenden Georessourcen wirklich gelöscht werden?</b></h4>
 
-      <div *ngIf="!datasetToDelete">
-        <pre>kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
-      </div>
+      @if (!datasetToDelete) {
+        <div>
+          <pre>
+kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert werden.</pre
+          >
+        </div>
+      }
 
-      <div *ngIf="datasetToDelete">
-        <h4>WMS</h4>
-        <span>{{datasetToDelete.title}}</span>
-      </div>
+      @if (datasetToDelete) {
+        <div>
+          <h4>WMS</h4>
+          <span>{{ datasetToDelete.title }}</span>
+        </div>
+      }
     </div>
   </div>
 </div>
 
 <div class="modal-footer">
   <button type="button" class="btn btn-default pull-left" (click)="close()">Schließen</button>
-  <button type="button" class="btn btn-danger" (click)="deleteGeoresources()" [disabled]="!datasetToDelete">
+  <button
+    type="button"
+    class="btn btn-danger"
+    (click)="deleteGeoresources()"
+    [disabled]="!datasetToDelete"
+  >
     WMS unwiderruflich löschen
   </button>
-</div> 
+</div>
 
 <!-- Success Alert -->
-<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" 
-  [hidden]="!showSuccessAlert" class="alert alert-success alert-dismissable">
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">&times;</button>
+<div
+  id="georesourceAddSuccessAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!showSuccessAlert"
+  class="alert alert-success alert-dismissable"
+>
+  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
+    &times;
+  </button>
   <h4><i class="icon fa fa-check"></i>Georessource erfolgreich entfernt</h4>
 </div>
 
 <!-- Error Alert -->
-<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" 
-  [hidden]="!showErrorAlert" class="alert alert-danger alert-dismissable">
+<div
+  id="georesourceAddErrorAlert"
+  style="position: absolute; bottom: 0px; width: 100%"
+  [hidden]="!showErrorAlert"
+  class="alert alert-danger alert-dismissable"
+>
   <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
   <h4><i class="icon fa fa-ban"></i>Entfernen gescheitert</h4>
   Bei der Entfernung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
   <br />
-  <pre style="overflow:auto; max-height:500px;" [innerHTML]="errorMessage"></pre>
-  <br/>
-  <br/>
-</div> 
+  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessage"></pre>
+  <br />
+  <br />
+</div>

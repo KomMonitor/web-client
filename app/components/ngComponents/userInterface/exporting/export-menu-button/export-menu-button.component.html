@@ -7,9 +7,7 @@
   title="Downloadbereich öffnen"
 >
   <i class="fas fa-file-download"></i>
-  <span
-    *ngIf="exportItemCount() > 0"
-    class="badge badge-pill export-item-badge"
-    >{{ exportItemCount() }}</span
-  >
+  @if (exportItemCount() > 0) {
+    <span class="badge badge-pill export-item-badge">{{ exportItemCount() }}</span>
+  }
 </button>

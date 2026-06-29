@@ -1,26 +1,62 @@
-import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output, ViewChild, ElementRef, Injectable, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormControl, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ReactiveFormsModule, ValidationErrors, Validator } from '@angular/forms';
-import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  Component,
+  EventEmitter,
+  forwardRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  ElementRef,
+  Injectable,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+
+import {
+  FormControl,
+  FormsModule,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validator,
+} from '@angular/forms';
+import {
+  NgbDateAdapter,
+  NgbDateParserFormatter,
+  NgbDateStruct,
+  NgbDatepickerModule,
+} from '@ng-bootstrap/ng-bootstrap';
 
 // ISO parser/formatter as in spatial unit component
 @Injectable()
 export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
   parse(value: string | null): NgbDateStruct | null {
-    if (!value) { return null; }
+    if (!value) {
+      return null;
+    }
     const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) { return null; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return null;
+    }
     const [yStr, mStr, dStr] = trimmed.split('-');
     const year = Number(yStr);
     const month = Number(mStr);
     const day = Number(dStr);
-    if (!year || month < 1 || month > 12 || day < 1 || day > 31) { return null; }
+    if (!year || month < 1 || month > 12 || day < 1 || day > 31) {
+      return null;
+    }
     const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
+      return null;
+    }
     return { year, month, day };
   }
   format(date: NgbDateStruct | null): string {
-    if (!date) { return ''; }
+    if (!date) {
+      return '';
+    }
     const y = String(date.year).padStart(4, '0');
     const m = String(date.month).padStart(2, '0');
     const d = String(date.day).padStart(2, '0');
@@ -31,19 +67,27 @@ export class NgbDateISOParserFormatter extends NgbDateParserFormatter {
 @Injectable()
 export class NgbDateStringAdapter extends NgbDateAdapter<string> {
   fromModel(value: string | null): NgbDateStruct | null {
-    if (!value) { return null; }
+    if (!value) {
+      return null;
+    }
     const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) { return null; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return null;
+    }
     const [yStr, mStr, dStr] = trimmed.split('-');
     const year = Number(yStr);
     const month = Number(mStr);
     const day = Number(dStr);
     const dt = new Date(year, month - 1, day);
-    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) { return null; }
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) {
+      return null;
+    }
     return { year, month, day };
   }
   toModel(date: NgbDateStruct | null): string | null {
-    if (!date) { return null; }
+    if (!date) {
+      return null;
+    }
     const y = String(date.year).padStart(4, '0');
     const m = String(date.month).padStart(2, '0');
     const d = String(date.day).padStart(2, '0');
@@ -51,17 +95,23 @@ export class NgbDateStringAdapter extends NgbDateAdapter<string> {
   }
 
   static isValidIso(value: string): boolean {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { return false; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return false;
+    }
     const [yStr, mStr, dStr] = value.split('-');
-    const y = Number(yStr), m = Number(mStr), d = Number(dStr);
-    if (m < 1 || m > 12 || d < 1 || d > 31) { return false; }
+    const y = Number(yStr),
+      m = Number(mStr),
+      d = Number(dStr);
+    if (m < 1 || m > 12 || d < 1 || d > 31) {
+      return false;
+    }
     const dt = new Date(y, m - 1, d);
     return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
   }
 
   static compare(a: string, b: string): number {
     // returns -1 if a<b, 0 if equal, 1 if a>b
-    return a === b ? 0 : (a < b ? -1 : 1);
+    return a === b ? 0 : a < b ? -1 : 1;
   }
 
   static todayIso(): string {
@@ -76,15 +126,19 @@ export class NgbDateStringAdapter extends NgbDateAdapter<string> {
 @Component({
   selector: 'km-date-picker',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgbDatepickerModule],
+  imports: [FormsModule, ReactiveFormsModule, NgbDatepickerModule],
   templateUrl: './km-date-picker.component.html',
   styleUrls: ['./km-date-picker.component.scss'],
   providers: [
-    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => KmDatePickerComponent), multi: true },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => KmDatePickerComponent),
+      multi: true,
+    },
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => KmDatePickerComponent), multi: true },
     { provide: NgbDateParserFormatter, useClass: NgbDateISOParserFormatter },
-    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter }
-  ]
+    { provide: NgbDateAdapter, useClass: NgbDateStringAdapter },
+  ],
 })
 export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Validator {
   @Input() placeholder: string = 'YYYY-MM-DD';
@@ -115,7 +169,7 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
   private onTouched: () => void = () => {};
 
   ngOnInit(): void {
-    this.control.valueChanges.subscribe(value => {
+    this.control.valueChanges.subscribe((value) => {
       if (this.disabled) {
         return;
       }
@@ -201,17 +255,22 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
   }
 
   clear(): void {
-    if (this.disabled) { return; }
+    if (this.disabled) {
+      return;
+    }
     this.control.setValue(null);
   }
 
   setToday(): void {
-    if (this.disabled) { return; }
+    if (this.disabled) {
+      return;
+    }
     this.control.setValue(NgbDateStringAdapter.todayIso());
   }
 
   get inputClasses(): string {
-    const sizeClass = this.size === 'sm' ? 'form-control-sm' : this.size === 'lg' ? 'form-control-lg' : '';
+    const sizeClass =
+      this.size === 'sm' ? 'form-control-sm' : this.size === 'lg' ? 'form-control-lg' : '';
     const invalidClass = this.shouldShowInvalid ? 'is-invalid' : '';
     return ['form-control', sizeClass, invalidClass].filter(Boolean).join(' ');
   }
@@ -231,7 +290,7 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
 
   hasError(code: 'required' | 'dateFormat' | 'minDate' | 'maxDate'): boolean {
     const errors = this.validate();
-    return !!errors && !!(errors[code]);
+    return !!errors && !!errors[code];
   }
 
   private ensureValidOnBlur(): void {
@@ -242,12 +301,16 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
       }
 
       // Prefer inspecting the raw input value for robustness
-      const rawVal = (this.inputEl && this.inputEl.nativeElement) ? this.inputEl.nativeElement.value : (this.control.value ?? '');
+      const rawVal =
+        this.inputEl && this.inputEl.nativeElement
+          ? this.inputEl.nativeElement.value
+          : (this.control.value ?? '');
       const raw = (rawVal ?? '').toString();
       const trimmed = raw.trim();
 
       const controlValue = this.control.value;
-      const controlEmpty = controlValue == null || (typeof controlValue === 'string' && controlValue.trim() === '');
+      const controlEmpty =
+        controlValue == null || (typeof controlValue === 'string' && controlValue.trim() === '');
       const rawEmpty = trimmed === '';
 
       if (rawEmpty || controlEmpty) {
@@ -261,11 +324,11 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
 
       // If user typed an invalid date string, coerce to today when enabled
       const invalidRaw = !NgbDateStringAdapter.isValidIso(trimmed);
-      const invalidControl = typeof controlValue === 'string' && !NgbDateStringAdapter.isValidIso(controlValue);
+      const invalidControl =
+        typeof controlValue === 'string' && !NgbDateStringAdapter.isValidIso(controlValue);
       if ((invalidRaw || invalidControl) && this.coerceInvalidToToday) {
         this.control.setValue(NgbDateStringAdapter.todayIso());
       }
     }, 0);
   }
 }
-

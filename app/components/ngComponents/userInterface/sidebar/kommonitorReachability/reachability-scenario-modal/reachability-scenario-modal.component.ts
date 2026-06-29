@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, inject, OnChanges, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -21,25 +20,24 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
   templateUrl: './reachability-scenario-modal.component.html',
   styleUrls: ['./reachability-scenario-modal.component.scss'],
   imports: [
-    CommonModule, 
-    FormsModule, 
-    ReachabilityScenarioConfigurationComponent, 
+    FormsModule,
+    ReachabilityScenarioConfigurationComponent,
     ReachabilityPoiInIsoComponent,
     ReachbilityScenarioSetupComponent,
     SingleFeatureEditComponent,
-    ReachabilityIndicatorStatisticsComponent
-  ]
+    ReachabilityIndicatorStatisticsComponent,
+  ],
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  emptyDatasetName = "-- leerer neuer Datensatz --";
+  emptyDatasetName = '-- leerer neuer Datensatz --';
 
-  filteredDisplayableGeoresources:any[] = [];
-  selectedPoiResource:any;
+  filteredDisplayableGeoresources: any[] = [];
+  selectedPoiResource: any;
 
-  filteredAvailablePeriodsOfValidity:any;
+  filteredAvailablePeriodsOfValidity: any;
 
-  activeScenarioDataset:any;
+  activeScenarioDataset: any;
 
   constructor(
     protected reachabilityHelperService: ReachabilityHelperService,
@@ -48,29 +46,34 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
     private reachabilityCombinerService: ReachabilityCombinerService,
     private cdr: ChangeDetectorRef
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.multiStepHelperService.registerClickHandler("reachabilityScenarioForm");
+    this.multiStepHelperService.registerClickHandler('reachabilityScenarioForm');
 
-    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
-      const values:any = broadcastMsg.values;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.GeoresourceGeoJSONUpdated: {
-          if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
-            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability = values[0];
-            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = values[0];
+        case BroadcastMessage.GeoresourceGeoJSONUpdated:
+          {
+            if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+              this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability =
+                values[0];
+              this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = values[0];
+            }
           }
-        } break;
+          break;
       }
     });
   }
 
   onEditFeaturesClick() {
-    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitSingleFeatureEdit),250);
+    setTimeout(
+      () => this.broadcastService.broadcast(BroadcastMessage.ReinitSingleFeatureEdit),
+      250
+    );
   }
 
   onClickAddScenario() {
@@ -79,19 +82,28 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   }
 
   onReachbilityConfigurationClick() {
-    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitReachabilityConfiguration),250);
+    setTimeout(
+      () => this.broadcastService.broadcast(BroadcastMessage.ReinitReachabilityConfiguration),
+      250
+    );
   }
 
   onPoisInReachabilityClick() {
-    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitPoisInReachabilityMap),250);
+    setTimeout(
+      () => this.broadcastService.broadcast(BroadcastMessage.ReinitPoisInReachabilityMap),
+      250
+    );
   }
 
   onIndicatorStatisticsClick() {
-    setTimeout(() => this.broadcastService.broadcast(BroadcastMessage.ReinitIndicatorStatisticsConfiguration),250);
+    setTimeout(
+      () =>
+        this.broadcastService.broadcast(BroadcastMessage.ReinitIndicatorStatisticsConfiguration),
+      250
+    );
   }
-  
 
-		/* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {
+  /* 	$('#modal-manage-reachability-scenario').on('show.bs.modal', function (event) {
 				if (event.target.id === "modal-manage-reachability-scenario") {
 					$scope.initEmptyDataset();
 				}
@@ -148,57 +160,61 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 
 
   */
-    resetReachabilityScenarioForm(){
+  resetReachabilityScenarioForm() {
+    this.reachabilityCombinerService.reset();
 
-      this.reachabilityCombinerService.reset();
+    this.reachabilityHelperService.settings.selectedStartPointLayer = undefined;
+    this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
+    this.reachabilityHelperService.original_nonDissolved_isochrones = undefined;
+    this.reachabilityScenarioHelperService.resetTmpActiveScenario();
+    this.reachabilityHelperService.resetSettings();
+  }
 
-      this.reachabilityHelperService.settings.selectedStartPointLayer = undefined;
-      this.reachabilityHelperService.currentIsochronesGeoJSON = undefined;
-      this.reachabilityHelperService.original_nonDissolved_isochrones = undefined;
-      this.reachabilityScenarioHelperService.resetTmpActiveScenario();
-      this.reachabilityHelperService.resetSettings();
+  onManageReachabilityScenario(scenarioDataset) {
+    if (scenarioDataset) {
+      if (
+        this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName &&
+        this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName ==
+          scenarioDataset.scenarioName
+      ) {
+        return;
+      } else {
+        this.reachabilityScenarioHelperService.loadActiveScenario(scenarioDataset);
+        this.initPoiResourceEditFeaturesMenu();
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  async initPoiResourceEditFeaturesMenu() {
+    // check if empty dataset for a new POI dataset has been selected
+    // if so, no features can be fetched from KomMonitor Database as thex do not exist
+    // then we must init feature edit component with empty dataset!
+    let isReachabilityDatasetOnly = false;
+
+    if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
+      if (
+        this.reachabilityHelperService.settings.selectedStartPointLayer
+          .isNewReachabilityDataSource ||
+        this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer
+      ) {
+        isReachabilityDatasetOnly = true;
+        // check if geoJSON is available
+        // is required by editFeature component
+        if (!this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON) {
+          this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON =
+            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability;
+        }
+      }
     }
 
-		onManageReachabilityScenario(scenarioDataset) {
+    this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceFeatures, [
+      this.reachabilityHelperService.settings.selectedStartPointLayer,
+      isReachabilityDatasetOnly,
+    ]);
+  }
 
-      if (scenarioDataset) {						
-
-        if (this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName && this.reachabilityScenarioHelperService.tmpActiveScenario.scenarioName == scenarioDataset.scenarioName) {
-          return;
-        }
-        else {					
-          this.reachabilityScenarioHelperService.loadActiveScenario(scenarioDataset);	
-          this.initPoiResourceEditFeaturesMenu();
-          this.cdr.detectChanges();
-        }
-      }
-
-    };
-
-    async initPoiResourceEditFeaturesMenu() {
-      // check if empty dataset for a new POI dataset has been selected
-      // if so, no features can be fetched from KomMonitor Database as thex do not exist
-      // then we must init feature edit component with empty dataset!
-      let isReachabilityDatasetOnly = false;
-
-      if (this.reachabilityHelperService.settings.selectedStartPointLayer) {
-        if (this.reachabilityHelperService.settings.selectedStartPointLayer.isNewReachabilityDataSource || 
-            this.reachabilityHelperService.settings.selectedStartPointLayer.isTmpDataLayer) {
-          isReachabilityDatasetOnly = true;
-          // check if geoJSON is available
-          // is required by editFeature component
-          if(!this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON){
-            this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON = this.reachabilityHelperService.settings.selectedStartPointLayer.geoJSON_reachability
-          }
-        }
-      }
-
-      this.broadcastService.broadcast(BroadcastMessage.OnEditGeoresourceFeatures, [this.reachabilityHelperService.settings.selectedStartPointLayer, isReachabilityDatasetOnly]);
-
-    };
-
-
-      /* prepAvailablePeriods() {
+  /* prepAvailablePeriods() {
 
         let tempDates:any[] = [];
         this.filteredAvailablePeriodsOfValidity = this.reachabilityHelperService.settings.selectedStartPointLayer.availablePeriodsOfValidity.filter(e => {
@@ -217,7 +233,7 @@ export class ReachabilityScenarioModalComponent implements OnInit {
         });
       } */
 
-/*
+  /*
 			$scope.initFeatureSchema = async function () {
 				kommonitorReachabilityHelperService.settings.selectedStartPointLayer.featureSchemaProperties = [];
 
@@ -249,8 +265,8 @@ export class ReachabilityScenarioModalComponent implements OnInit {
 				});
 			};
  */
-			
-/* 
+
+  /* 
 			// react on events from single feature edit menu
 			$scope.$on("georesourceGeoJSONUpdated", function(event, geoJSON){
 				// simply update geoJSON of reachability layer

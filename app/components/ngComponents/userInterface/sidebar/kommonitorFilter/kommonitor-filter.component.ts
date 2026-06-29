@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { DualListBoxComponent, dualListInput, item } from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
+import {
+  DualListBoxComponent,
+  dualListInput,
+  item,
+} from 'components/ngComponents/customElements/dual-list-box/dual-list-box.component';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { RangeFilterStateService } from 'services/range-filter-state-service/range-filter-state.service';
@@ -16,26 +20,19 @@ import * as noUiSlider from 'nouislider';
 import { GlobalFilterHelperService } from 'services/global-filter-helper-service/global-filter-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
 
 @Component({
   selector: 'app-kommonitor-filter',
   templateUrl: './kommonitor-filter.component.html',
   styleUrls: ['./kommonitor-filter.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule,
-    ReactiveFormsModule,
-    DualListBoxComponent,
-    ExpandableBoxComponent]
+  imports: [FormsModule, ReactiveFormsModule, DualListBoxComponent, ExpandableBoxComponent],
 })
 export class KommonitorFilterComponent implements OnInit, AfterViewInit {
-  
   private readonly destroyRef = inject(DestroyRef);
 
   spatialLevel;
@@ -47,7 +44,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   private numberOfDecimals = this.envConfigService.numberOfDecimals;
 
   // initialize any adminLTE box widgets
-  // todo 
+  // todo
   // $('.box').boxWidget();
 
   private kommonitorFilterModes = this.envConfigService.filterModes;
@@ -65,15 +62,15 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   indicatorMetadataAndGeoJSON;
 
   showManualSelectionSpatialFilter;
-  showSelectionByFeatureSpatialFilter; 
+  showSelectionByFeatureSpatialFilter;
 
-  previouslySelectedIndicator:any;
-  previouslySelectedSpatialUnit:any;
+  previouslySelectedIndicator: any;
+  previouslySelectedSpatialUnit: any;
 
   inputLowerFilterValue;
   inputHigherFilterValue;
 
-  defaultRangeSliderSetup:any;
+  defaultRangeSliderSetup: any;
 
   //measureOfValue stuff
   movMinValue;
@@ -84,38 +81,38 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   slider;
   measureSlider;
-  sliderNormalConfig: any  = {
+  sliderNormalConfig: any = {
     behaviour: 'drag',
     connect: true,
     range: {
-        'min': 0,
-        'max': 100
+      min: 0,
+      max: 100,
     },
-    start: [0,100],
-    keyboard: true, 
+    start: [0, 100],
+    keyboard: true,
     pips: {
       mode: 'range',
       density: 2,
       values: 4,
-      stepped: true
-    }
+      stepped: true,
+    },
   };
-  
-  sliderSingleConfig: any  = {
+
+  sliderSingleConfig: any = {
     behaviour: 'drag',
     connect: true,
     range: {
-        'min': 0,
-        'max': 100
+      min: 0,
+      max: 100,
     },
     start: [50],
-    keyboard: true, 
+    keyboard: true,
     pips: {
       mode: 'range',
       density: 2,
       values: 4,
-      stepped: true
-    }
+      stepped: true,
+    },
   };
 
   // SPATIAL FILTER STUFF
@@ -125,23 +122,22 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   higherSpatialUnitFilterFeatureGeoJSON;
   reappliedFilter = false;
 
-  selectionByFeatureSpatialFilterDuallistOptions:dualListInput = {
+  selectionByFeatureSpatialFilterDuallistOptions: dualListInput = {
     items: [],
-    selectedItems: []
+    selectedItems: [],
   };
   reloadList = false;
   reloadManualList = false;
 
-  manualSelectionSpatialFilterDuallistOptions:dualListInput = {
+  manualSelectionSpatialFilterDuallistOptions: dualListInput = {
     items: [],
-    selectedItems: []
-  };              
-  
+    selectedItems: [],
+  };
+
   // Global filter
-  globalFilters:any = undefined;
+  globalFilters: any = undefined;
 
   inputNotValid = false;
-
 
   constructor(
     protected rangeFilterState: RangeFilterStateService,
@@ -156,10 +152,9 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     private broadcastService: BroadcastService,
     private http: HttpClient,
     private globalFilterHelperService: GlobalFilterHelperService,
-    private configStorageService:ConfigStorageService,
+    private configStorageService: ConfigStorageService,
     private envConfigService: EnvConfigService
-  ) { }
-
+  ) {}
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
@@ -170,67 +165,74 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-
     this.mapService.mapRefreshState$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
-        if(this.mapService.readyForRefresh())
+      .subscribe((value) => {
+        if (this.mapService.readyForRefresh())
           this.updateMeasureOfValueBar([value.values.date, value.values.indicator]);
       });
 
-      this.broadcastService.currentBroadcastMsg.subscribe(result => {
-        const msg = result.msg;
-        const val:any = result.values;
+    this.broadcastService.currentBroadcastMsg.subscribe((result) => {
+      const msg = result.msg;
+      const val: any = result.values;
 
-        switch (msg) {
-          case BroadcastMessage.OnChangeSelectedIndicator: {
+      switch (msg) {
+        case BroadcastMessage.OnChangeSelectedIndicator:
+          {
             this.onOnChangeSelectedIndicator();
-          } break;
-          case BroadcastMessage.ReplaceIndicatorAsGeoJSON: {
+          }
+          break;
+        case BroadcastMessage.ReplaceIndicatorAsGeoJSON:
+          {
             this.replaceIndicatorAsGeoJSON(val);
-          } break;
-          case BroadcastMessage.UpdateMeasureOfValueBar: {
+          }
+          break;
+        case BroadcastMessage.UpdateMeasureOfValueBar:
+          {
             this.updateMeasureOfValueBar(val);
-          } break;
-          case BroadcastMessage.UpdateIndicatorValueRangeFilter: {
+          }
+          break;
+        case BroadcastMessage.UpdateIndicatorValueRangeFilter:
+          {
             this.updateIndicatorValueRangeFilter(val);
-          } break;
-          case BroadcastMessage.RemoveRangeFilter: {
+          }
+          break;
+        case BroadcastMessage.RemoveRangeFilter:
+          {
             this.removeRangeFilter();
-          } break;
-        }
-      });
-  }
-
-  ngAfterViewInit(): void {
-      
-
-    this.slider = document.getElementById('filterRangeSlider');
-    noUiSlider.create(this.slider, this.sliderNormalConfig);
-    
-    this.measureSlider = document.getElementById('measureOfValueSlider');
-    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
-    
-    if(!this.globalFilters)
-      this.loadGlobalFilters();
-  }
-
-  loadGlobalFilters() {
-     this.configStorageService.getFilterConfig().subscribe({
-      next: response => {
-        console.log('Filter config loaded')
-        this.globalFilters = response;
-      },
-      error: error => {
-        console.error(error, "Error while getting filter config from config storage service.");
+          }
+          break;
       }
     });
   }
 
-  onChangeFilterSelection() {
+  ngAfterViewInit(): void {
+    this.slider = document.getElementById('filterRangeSlider');
+    noUiSlider.create(this.slider, this.sliderNormalConfig);
 
+    this.measureSlider = document.getElementById('measureOfValueSlider');
+    noUiSlider.create(this.measureSlider, this.sliderSingleConfig);
+
+    if (!this.globalFilters) this.loadGlobalFilters();
+  }
+
+  loadGlobalFilters() {
+    this.configStorageService.getFilterConfig().subscribe({
+      next: (response) => {
+        console.log('Filter config loaded');
+        this.globalFilters = response;
+      },
+      error: (error) => {
+        console.error(error, 'Error while getting filter config from config storage service.');
+      },
+    });
+  }
+
+  onChangeFilterSelection() {
     this.loadingData = true;
-    this.globalFilterHelperService.applyFilterSelection(this.globalFilters.filter(e => e.checked===true));
+    this.globalFilterHelperService.applyFilterSelection(
+      this.globalFilters.filter((e) => e.checked === true)
+    );
 
     const reload = this.globalFilterHelperService.applicationFilter
       ? this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter)
@@ -247,18 +249,17 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   }
 
   globalFiltersActive() {
-    if(this.globalFilters && !this.globalFilterHelperService.isFilterParamSet())
-      return true;
+    if (this.globalFilters && !this.globalFilterHelperService.isFilterParamSet()) return true;
 
     return false;
   }
 
-  onUpdatedSelectedItems(items:any) {
-    this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = items;  
+  onUpdatedSelectedItems(items: any) {
+    this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = items;
   }
 
-  onUpdatedManualSelectedItems(items:any) {
-    this.manualSelectionSpatialFilterDuallistOptions.selectedItems = items;  
+  onUpdatedManualSelectedItems(items: any) {
+    this.manualSelectionSpatialFilterDuallistOptions.selectedItems = items;
   }
 
   isFilterModeActive(id) {
@@ -267,36 +268,40 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     return true;
   }
 
-
-  setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date){
-    
+  setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date) {
     this.loadingData = true;
-    
-    const allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
-      return spatialUnitEntry.spatialUnitId;									
-    });
-    
-    this.higherSpatialUnits = JSON.parse(JSON.stringify(this.spatialUnitStore.availableSpatialUnits));
-    
+
+    const allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(
+      (spatialUnitEntry) => {
+        return spatialUnitEntry.spatialUnitId;
+      }
+    );
+
+    this.higherSpatialUnits = JSON.parse(
+      JSON.stringify(this.spatialUnitStore.availableSpatialUnits)
+    );
+
     // only show those spatial units that are actually visible according to keycloak role
     // and associated to the current indicator as well
     for (let index = 0; index < this.higherSpatialUnits.length; index++) {
       const spatialUnitMetadata = this.higherSpatialUnits[index];
-      
+
       // remove if it is not applicable for current indicator OR
       // remove if it is the currently displayed spatial unit to show only hierarchically higher spatial units
-      if(this.considerAllowedSpatialUnitsOfCurrentIndicator && ! allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)){	
-        
+      if (
+        this.considerAllowedSpatialUnitsOfCurrentIndicator &&
+        !allowedSpatialUnitIds.includes(spatialUnitMetadata.spatialUnitId)
+      ) {
         // only remove the current element
-        // which represents a spatial unit that is 
-        // not supported by the current indicator 
+        // which represents a spatial unit that is
+        // not supported by the current indicator
         this.higherSpatialUnits.splice(index, 1);
       }
 
       // since we query through a hierarchically sorted array of ALL spatial units
       // we have to stop when we identify the currently displayed spatial unit
-      // in that case we have to remove that from the list of upper  
-      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel){
+      // in that case we have to remove that from the list of upper
+      if (spatialUnitName == spatialUnitMetadata.spatialUnitLevel) {
         // remove current all all remaining elements from array
         // (which are lower hierarchy spatial units)
         this.higherSpatialUnits.splice(index);
@@ -306,8 +311,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     // this.higherSpatialUnits.splice(targetIndex);
     this.selectedSpatialUnitForFilter = this.higherSpatialUnits[this.higherSpatialUnits.length - 1];
-   
-    if(this.higherSpatialUnits.lenght)
+
+    if (this.higherSpatialUnits.lenght)
       this.spatialLevel = new FormControl(this.selectedSpatialUnitForFilter!.spatialUnitId);
 
     this.loadingData = false;
@@ -316,7 +321,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   onOnChangeSelectedIndicator() {
     this.reappliedFilter = false;
   }
-/* 
+  /* 
 
   this.$on("indicatortMapDisplayFinished", function(){
     // trigger the continous display of current filter									
@@ -331,54 +336,55 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     }	
   });
 */
-  replaceIndicatorAsGeoJSON([indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation]) {
-
+  replaceIndicatorAsGeoJSON([
+    indicatorMetadataAndGeoJSON,
+    spatialUnitName,
+    date,
+    justRestyling,
+    isCustomComputation,
+  ]) {
     this.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
 
-    if(! this.previouslySelectedIndicator){
+    if (!this.previouslySelectedIndicator) {
       this.previouslySelectedIndicator = this.selectionState.selectedIndicator;
     }
-    if(! this.previouslySelectedSpatialUnit){
+    if (!this.previouslySelectedSpatialUnit) {
       this.previouslySelectedSpatialUnit = this.selectionState.selectedSpatialUnit;
     }
 
     // if(this.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
-    if(this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+    if (this.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName) {
       // reset filter component
-      if (this.showSelectionByFeatureSpatialFilter)
-        this.updateSelectableAreas("byFeature");
-        this.filterHelperService.clearFilteredFeatures();
-        this.filterHelperService.clearSelectedFeatures();
-      if (this.showManualSelectionSpatialFilter)
-        this.updateSelectableAreas("manual");
-        this.filterHelperService.clearFilteredFeatures();
-        this.filterHelperService.clearSelectedFeatures();
+      if (this.showSelectionByFeatureSpatialFilter) this.updateSelectableAreas('byFeature');
+      this.filterHelperService.clearFilteredFeatures();
+      this.filterHelperService.clearSelectedFeatures();
+      if (this.showManualSelectionSpatialFilter) this.updateSelectableAreas('manual');
+      this.filterHelperService.clearFilteredFeatures();
+      this.filterHelperService.clearSelectedFeatures();
     }
 
     this.previouslySelectedIndicator = this.selectionState.selectedIndicator;
     this.previouslySelectedSpatialUnit = this.selectionState.selectedSpatialUnit;
-    
   }
 
   updateIndicatorValueRangeFilter([date, indicatorMetadataAndGeoJSON]) {
-
-    this.defaultRangeSliderSetup = { date: date, geoJson: indicatorMetadataAndGeoJSON};
+    this.defaultRangeSliderSetup = { date: date, geoJson: indicatorMetadataAndGeoJSON };
 
     this.rangeFilterState.rangeFilterIsApplied = false;
     this.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
   }
 
-  setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON){
+  setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON) {
     // hier
     date = this.INDICATOR_DATE_PREFIX + date;
 
-    if(this.rangeSliderForFilter){
+    if (this.rangeSliderForFilter) {
       this.rangeFilterState.rangeFilterData = undefined;
       this.rangeSliderForFilter.destroy();
 
-      const domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
+      const domNode: HTMLElement | null = document.getElementById('rangeSliderForFiltering');
 
-      if(domNode && domNode.lastChild) {
+      if (domNode && domNode.lastChild) {
         while (domNode.hasChildNodes()) {
           domNode.removeChild(domNode.lastChild);
         }
@@ -387,27 +393,31 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
-    const values:any[] = [];
+    const values: any[] = [];
 
-    this.indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature:any) => {
+    this.indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature: any) => {
       // if (feature.properties[date] > movMaxValue)
       // 	movMaxValue = feature.properties[date];
       //
       // else if (feature.properties[date] < movMinValue)
       // 	movMinValue = feature.properties[date];
 
-      if(! this.indicatorValueService.indicatorValueIsNoData(feature.properties[date])){
-          values.push(feature.properties[date]);
+      if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[date])) {
+        values.push(feature.properties[date]);
       }
     });
 
-    if(values.length === 0){
-      console.warn("Filter range slider cannot be created, as there is no valid indicator value on the selected dataset for the selected date.");
-      return ;
+    if (values.length === 0) {
+      console.warn(
+        'Filter range slider cannot be created, as there is no valid indicator value on the selected dataset for the selected date.'
+      );
+      return;
     }
 
     //sort ascending order
-    values.sort(function(a, b){return a-b});
+    values.sort(function (a, b) {
+      return a - b;
+    });
 
     // initialize and fill in loop
     this.valueRangeMinValue = values[0];
@@ -424,84 +434,85 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.slider.noUiSlider.updateOptions({
       range: {
-          'min': this.valueRangeMinValue,
-          'max': this.valueRangeMaxValue
+        min: this.valueRangeMinValue,
+        max: this.valueRangeMaxValue,
       },
       start: [this.valueRangeMinValue, this.valueRangeMaxValue],
       step: 0.01,
       tooltips: true,
       pips: {
         mode: 'range',
-        density: 25
-      }
+        density: 25,
+      },
     });
-  
+
     this.slider.noUiSlider.on('set', () => {
       this.onChangeRangeFilter(this.getFormatedSliderReturn());
     });
-
-  };
+  }
 
   getFormatedSliderReturn() {
-
     const data = this.slider.noUiSlider.get(true);
-    
+
     return {
       from: data[0],
-      to: data[1]
+      to: data[1],
     };
   }
 
-  onChangeLowerFilterValue(value){
-
+  onChangeLowerFilterValue(value) {
     this.inputLowerFilterValue = value;
 
     this.updateFilterRangeSlideronInputChange();
 
-    if((this.inputLowerFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.valueRangeMaxValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){	
+    if (
+      this.inputLowerFilterValue >= this.valueRangeMinValue &&
+      this.inputLowerFilterValue <= this.valueRangeMaxValue &&
+      this.inputLowerFilterValue <= this.inputHigherFilterValue
+    ) {
       this.currentLowerFilterValue = this.inputLowerFilterValue;
       this.lowerFilterInputNotValid = false;
       this.rangeSliderForFilter.update({
-          from: this.currentLowerFilterValue,
-          to: this.currentHigherFilterValue
+        from: this.currentLowerFilterValue,
+        to: this.currentHigherFilterValue,
       });
 
       this.applyRangeFilter();
-    }
-    else{
+    } else {
       this.lowerFilterInputNotValid = true;
     }
-  };
+  }
 
   updateFilterRangeSlideronInputChange() {
-
     this.slider.noUiSlider.updateOptions({
-      start: [this.inputLowerFilterValue, this.inputHigherFilterValue]
+      start: [this.inputLowerFilterValue, this.inputHigherFilterValue],
     });
   }
 
-  onChangeHigherFilterValue(value){
-
+  onChangeHigherFilterValue(value) {
     this.inputHigherFilterValue = value;
 
     this.updateFilterRangeSlideronInputChange();
 
-    if((this.inputHigherFilterValue <= this.valueRangeMaxValue) && (this.inputHigherFilterValue >= this.valueRangeMinValue) && (this.inputLowerFilterValue <= this.inputHigherFilterValue)){
+    if (
+      this.inputHigherFilterValue <= this.valueRangeMaxValue &&
+      this.inputHigherFilterValue >= this.valueRangeMinValue &&
+      this.inputLowerFilterValue <= this.inputHigherFilterValue
+    ) {
       this.currentHigherFilterValue = this.inputHigherFilterValue;
       this.higherFilterInputNotValid = false;
       this.rangeSliderForFilter.update({
-          from: this.currentLowerFilterValue,
-          to: this.currentHigherFilterValue
+        from: this.currentLowerFilterValue,
+        to: this.currentHigherFilterValue,
       });
 
       this.applyRangeFilter();
-    }
-    else{
+    } else {
       this.higherFilterInputNotValid = true;
     }
-  };
+  }
 
-  onChangeRangeFilter (data) {
+  onChangeRangeFilter(data) {
     // Called every time handle position is changed
     this.rangeFilterState.rangeFilterData = data;
 
@@ -511,36 +522,45 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     this.currentLowerFilterValue = data.from;
     this.inputLowerFilterValue = data.from;
 
-    (<HTMLInputElement>document.getElementById('inputLowerValue')).value = this.inputLowerFilterValue;
+    (<HTMLInputElement>document.getElementById('inputLowerValue')).value =
+      this.inputLowerFilterValue;
 
     this.currentHigherFilterValue = data.to;
     this.inputHigherFilterValue = data.to;
 
-    (<HTMLInputElement>document.getElementById('inputHigherValue')).value = this.inputHigherFilterValue;
+    (<HTMLInputElement>document.getElementById('inputHigherValue')).value =
+      this.inputHigherFilterValue;
 
     this.applyRangeFilter();
-  };
+  }
 
-  applyRangeFilter(){
-
+  applyRangeFilter() {
     this.rangeFilterState.rangeFilterIsApplied = false;
-    if(this.inputHigherFilterValue < this.valueRangeMaxValue || this.inputLowerFilterValue > this.valueRangeMinValue) {
+    if (
+      this.inputHigherFilterValue < this.valueRangeMaxValue ||
+      this.inputLowerFilterValue > this.valueRangeMinValue
+    ) {
       this.rangeFilterState.rangeFilterIsApplied = true;
     }
 
     const dateProperty = this.INDICATOR_DATE_PREFIX + this.selectionState.selectedDate;
 
-    this.filterHelperService.applyRangeFilter(this.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, this.currentLowerFilterValue, this.currentHigherFilterValue);
+    this.filterHelperService.applyRangeFilter(
+      this.indicatorMetadataAndGeoJSON.geoJSON.features,
+      dateProperty,
+      this.currentLowerFilterValue,
+      this.currentHigherFilterValue
+    );
   }
 
-  onChangeUseMeasureOfValue(){
-
-    const middle = this.valueRangeMinValue + ((this.valueRangeMaxValue-this.valueRangeMinValue)/2);
+  onChangeUseMeasureOfValue() {
+    const middle =
+      this.valueRangeMinValue + (this.valueRangeMaxValue - this.valueRangeMinValue) / 2;
 
     this.measureSlider.noUiSlider.updateOptions({
       range: {
-          'min': this.valueRangeMinValue,
-          'max': this.valueRangeMaxValue
+        min: this.valueRangeMinValue,
+        max: this.valueRangeMaxValue,
       },
       start: [middle],
       connect: [true, false],
@@ -548,10 +568,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       tooltips: true,
       pips: {
         mode: 'range',
-        density: 25
-      }
+        density: 25,
+      },
     });
-  
+
     this.measureSlider.noUiSlider.on('set', () => {
       const data = this.measureSlider.noUiSlider.get(true);
 
@@ -559,51 +579,51 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.onMeasureOfValueChangeByText();
     });
 
-    if(this.chartDisplayState.isBalanceChecked){
-
+    if (this.chartDisplayState.isBalanceChecked) {
       // todo
-    /* 	$rootScope.$broadcast("DisableBalance");
+      /* 	$rootScope.$broadcast("DisableBalance");
       $rootScope.$broadcast("updateIndicatorValueRangeFilter", this.selectionState.selectedDate, this.selectionState.selectedIndicator); */
       //replace displayed indicator on map
       this.filterHelperService.filterAndReplaceDataset();
       // kommonitorMapService.replaceIndicatorGeoJSON(this.selectionState.selectedIndicator, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedDate, true);
-    }
-    else{
+    } else {
       this.mapService.restyleCurrentLayer();
     }
-
-  };
+  }
 
   // hier
-  updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]){
-
+  updateMeasureOfValueBar([date, indicatorMetadataAndGeoJSON]) {
     //append date prefix to access correct property!
     date = this.INDICATOR_DATE_PREFIX + date;
     const geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
 
     // var measureOfValueInput = document.getElementById("measureOfValueInput");
 
-    const values:any[] = [];
+    const values: any[] = [];
 
-    geoJSON.features.forEach((feature:any) => {
+    geoJSON.features.forEach((feature: any) => {
       // if (feature.properties[date] > movMaxValue)
       // 	movMaxValue = feature.properties[date];
       //
       // else if (feature.properties[date] < movMinValue)
       // 	movMinValue = feature.properties[date];
 
-      if(! this.indicatorValueService.indicatorValueIsNoData(feature.properties[date])){
-          values.push(feature.properties[date]);
+      if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[date])) {
+        values.push(feature.properties[date]);
       }
     });
 
     //sort ascending order
-    values.sort(function(a, b){return a-b});
+    values.sort(function (a, b) {
+      return a - b;
+    });
 
     this.movMinValue = +Number(values[0]).toFixed(this.numberOfDecimals);
     this.movMaxValue = +Number(values[values.length - 1]).toFixed(this.numberOfDecimals);
 
-    this.movMiddleValue = +((this.movMaxValue + this.movMinValue) / 2).toFixed(this.numberOfDecimals);
+    this.movMiddleValue = +((this.movMaxValue + this.movMinValue) / 2).toFixed(
+      this.numberOfDecimals
+    );
     // this.movStep = +((this.movMaxValue - this.movMinValue)/35).toFixed(numberOfDecimals);
     this.movStep = 0.01;
 
@@ -614,30 +634,32 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.chartDisplayState.measureOfValue = this.movMiddleValue;
 
-    const measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
-    measureOfValueTextInput.setAttribute("min", this.movMinValue);
-    measureOfValueTextInput.setAttribute("max", this.movMaxValue);
-    measureOfValueTextInput.setAttribute("value", this.movMiddleValue);
-    measureOfValueTextInput.setAttribute("step", this.movStep);
+    const measureOfValueTextInput = <HTMLInputElement>(
+      document.getElementById('measureOfValueTextInput')
+    );
+    measureOfValueTextInput.setAttribute('min', this.movMinValue);
+    measureOfValueTextInput.setAttribute('max', this.movMaxValue);
+    measureOfValueTextInput.setAttribute('value', this.movMiddleValue);
+    measureOfValueTextInput.setAttribute('step', this.movStep);
 
-    if(this.movRangeSlider){
+    if (this.movRangeSlider) {
       this.movRangeSlider.destroy();
 
-      const domNode = <HTMLInputElement>document.getElementById("measureOfValueInput");
+      const domNode = <HTMLInputElement>document.getElementById('measureOfValueInput');
 
-      if(domNode && domNode.lastChild) {
+      if (domNode && domNode.lastChild) {
         while (domNode.hasChildNodes()) {
           domNode.removeChild(domNode.lastChild);
         }
       }
     }
-    
-    const middle = this.movMinValue + ((this.movMaxValue-this.movMinValue)/2);
+
+    const middle = this.movMinValue + (this.movMaxValue - this.movMinValue) / 2;
 
     this.measureSlider.noUiSlider.updateOptions({
       range: {
-          'min': this.movMinValue,
-          'max': this.movMaxValue
+        min: this.movMinValue,
+        max: this.movMaxValue,
       },
       start: [middle],
       connect: [true, false],
@@ -645,56 +667,56 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       tooltips: true,
       pips: {
         mode: 'range',
-        density: 25
-      }
+        density: 25,
+      },
     });
 
     this.inputNotValid = false;
+  }
 
-  };
-
-  onMeasureOfValueChange(data){
-
+  onMeasureOfValueChange(data) {
     this.chartDisplayState.measureOfValue = +Number(data.from).toFixed(this.numberOfDecimals);
 
     // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
 
-    if(this.chartDisplayState.measureOfValue >= this.movMinValue && this.chartDisplayState.measureOfValue <= this.movMaxValue){
+    if (
+      this.chartDisplayState.measureOfValue >= this.movMinValue &&
+      this.chartDisplayState.measureOfValue <= this.movMaxValue
+    ) {
       this.inputNotValid = false;
-      // todo 
+      // todo
       // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
       this.mapService.restyleCurrentLayer();
-    }
-    else{
+    } else {
       this.inputNotValid = true;
     }
+  }
 
-  };
-
-  onMeasureOfValueChangeByText(){
-
-    this.chartDisplayState.measureOfValue = +Number(this.chartDisplayState.measureOfValue).toFixed(this.numberOfDecimals);
+  onMeasureOfValueChangeByText() {
+    this.chartDisplayState.measureOfValue = +Number(this.chartDisplayState.measureOfValue).toFixed(
+      this.numberOfDecimals
+    );
 
     // this.exchangeData.measureOfValue = +Number(this.exchangeData.measureOfValue).toFixed(numberOfDecimals);
 
-    if(this.chartDisplayState.measureOfValue >= this.movMinValue && this.chartDisplayState.measureOfValue <= this.movMaxValue){
+    if (
+      this.chartDisplayState.measureOfValue >= this.movMinValue &&
+      this.chartDisplayState.measureOfValue <= this.movMaxValue
+    ) {
       this.inputNotValid = false;
-      
-      // todo 
-    /* 	this.movRangeSlider.update({
+
+      // todo
+      /* 	this.movRangeSlider.update({
           from: this.exchangeData.measureOfValue
       }); */
       // $rootScope.$broadcast("changeMOV", this.exchangeData.measureOfValue);
       this.mapService.restyleCurrentLayer();
-    }
-    else{
+    } else {
       this.inputNotValid = true;
     }
+  }
 
-  };
-
-  updateSelectableAreas(selectionType, showHideToggle=true) {
-
+  updateSelectableAreas(selectionType, showHideToggle = true) {
     this.loadingData = true;
     //send request to datamanagement API
     const selectedSpatialUnit = this.selectionState.selectedSpatialUnit;
@@ -702,176 +724,218 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     let upperSpatialUnitId = undefined;
 
     // spatial filter not applicable since no upper spatial unit is available or selected
-  /*   if(! this.selectedSpatialUnitForFilter){
+    /*   if(! this.selectedSpatialUnitForFilter){
       this.loadingData = false;
       return;
     } */
 
-    if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
-      upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
+    if (selectionType === 'byFeature' && this.selectedSpatialUnitForFilter) {
+      upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;
     }
     const selectedIndicatorId = this.selectionState.selectedIndicator.indicatorId;
 
     // example: 2020-12-31
-    const selectedDateComponents = this.selectionState.selectedDate.split("-");
+    const selectedDateComponents = this.selectionState.selectedDate.split('-');
 
     //build request
-    let datePath = "";
-    if(selectedDateComponents && selectedDateComponents.length && selectedDateComponents.length == 3){
-      datePath = selectedDateComponents[0] + "/" + selectedDateComponents[1] + "/" + selectedDateComponents[2];
-    }
-    else{
+    let datePath = '';
+    if (
+      selectedDateComponents &&
+      selectedDateComponents.length &&
+      selectedDateComponents.length == 3
+    ) {
+      datePath =
+        selectedDateComponents[0] +
+        '/' +
+        selectedDateComponents[1] +
+        '/' +
+        selectedDateComponents[2];
+    } else {
       // fallback option, if no valid date could be used
-      datePath = "allFeatures";
+      datePath = 'allFeatures';
     }
-    let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-      "/spatial-units/" + selectedSpatialUnitId + "/" + datePath;
-    
-    if (selectionType === "byFeature" && upperSpatialUnitId)
-      url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-      "/spatial-units/" + upperSpatialUnitId + "/" + datePath;
+    let url =
+      this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+      '/spatial-units/' +
+      selectedSpatialUnitId +
+      '/' +
+      datePath;
 
-    
+    if (selectionType === 'byFeature' && upperSpatialUnitId)
+      url =
+        this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+        '/spatial-units/' +
+        upperSpatialUnitId +
+        '/' +
+        datePath;
+
     //send request
     this.http.get(url).subscribe({
-      next: response => {
-        const areaNames:any[] = [];
-        response['features'].forEach( (obj, id) => {
-          areaNames.push({name: obj.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]});
+      next: (response) => {
+        const areaNames: any[] = [];
+        response['features'].forEach((obj, id) => {
+          areaNames.push({
+            name: obj.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME],
+            id: obj.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME],
+          });
         });
 
-        if (selectionType === "manual") {
-          const dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
-          const data = {items: dataArray, selectedItems: []};
+        if (selectionType === 'manual') {
+          const dataArray = this.indicatorValueService.createDualListInputArray(
+            areaNames,
+            'name',
+            'id'
+          );
+          const data = { items: dataArray, selectedItems: [] };
           this.manualSelectionSpatialFilterDuallistOptions = data;
 
-          if(showHideToggle)
+          if (showHideToggle)
             this.showManualSelectionSpatialFilter = !this.showManualSelectionSpatialFilter;
         }
 
-        if (selectionType === "byFeature") {
+        if (selectionType === 'byFeature') {
           this.higherSpatialUnitFilterFeatureGeoJSON = response;
           this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-          const dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
+          const dataArray = this.indicatorValueService.createDualListInputArray(
+            areaNames,
+            'name',
+            'id'
+          );
           this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
         }
 
         this.loadingData = false;
         this.reloadList = !this.reloadList;
-      }, 
-      error: error => {
-
-      }
-    })
-    
-  };
+      },
+      error: (error) => {},
+    });
+  }
 
   onChangeShowManualSelection() {
-
-    this.onManualSelectionSpatialFilterActiveBtnPressed();	
+    this.onManualSelectionSpatialFilterActiveBtnPressed();
 
     // return if toggle was deactivated
-    if(this.showManualSelectionSpatialFilter)		
-      this.showSelectionByFeatureSpatialFilter = false;					
-  };
+    if (this.showManualSelectionSpatialFilter) this.showSelectionByFeatureSpatialFilter = false;
+  }
 
   onChangeShowSelectionByFeature(checked) {
-
     this.showSelectionByFeatureSpatialFilter = checked;
 
     // return if toggle was deactivated
-    if(!this.showSelectionByFeatureSpatialFilter)
+    if (!this.showSelectionByFeatureSpatialFilter)
       this.onSelectionByFeatureSpatialFilterResetBtnPressed();
     else {
       this.showManualSelectionSpatialFilter = false;
-      this.onSelectionByFeatureSpatialFilterResetBtnPressed();								
+      this.onSelectionByFeatureSpatialFilterResetBtnPressed();
     }
-  };
+  }
 
-  onChangeSelectedSpatialUnitForFilter(){
+  onChangeSelectedSpatialUnitForFilter() {
+    this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(
+      (e) => e.spatialUnitId == this.spatialLevel.value
+    )[0];
 
-    this.selectedSpatialUnitForFilter = this.higherSpatialUnits.filter(e => e.spatialUnitId==this.spatialLevel.value)[0];
+    if (this.showSelectionByFeatureSpatialFilter) this.updateSelectableAreas('byFeature');
 
-    if (this.showSelectionByFeatureSpatialFilter) 
-      this.updateSelectableAreas("byFeature");
-
-    if(this.showManualSelectionSpatialFilter){
-      this.updateSelectableAreas("manual");
+    if (this.showManualSelectionSpatialFilter) {
+      this.updateSelectableAreas('manual');
     }
-  };
+  }
 
-  onSelectionByFeatureSpatialFilterSelectBtnPressed(){
-    if(this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems && this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length > 0){
-      
-      // objects like {category: category, name:name}									
+  onSelectionByFeatureSpatialFilterSelectBtnPressed() {
+    if (
+      this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems &&
+      this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length > 0
+    ) {
+      // objects like {category: category, name:name}
       //this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems
-      const targetFeatureNames = this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
-      console.log(this.higherSpatialUnitFilterFeatureGeoJSON,targetFeatureNames)
-      this.filterHelperService.applySpatialFilter_higherSpatialUnitFeatures(this.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
+      const targetFeatureNames =
+        this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map(
+          (object: any) => object.name
+        );
+      console.log(this.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
+      this.filterHelperService.applySpatialFilter_higherSpatialUnitFeatures(
+        this.higherSpatialUnitFilterFeatureGeoJSON,
+        targetFeatureNames
+      );
     }
-  };
+  }
 
-  onSelectionByFeatureSpatialFilterResetBtnPressed(){
-    this.updateSelectableAreas("byFeature");
+  onSelectionByFeatureSpatialFilterResetBtnPressed() {
+    this.updateSelectableAreas('byFeature');
 
     this.filterHelperService.clearFilteredFeatures();
     this.filterHelperService.filterAndReplaceDataset();
-    if(this.envConfigService.useNoDataToggle) {
-      // todo $rootScope.$broadcast('applyNoDataDisplay')	
+    if (this.envConfigService.useNoDataToggle) {
+      // todo $rootScope.$broadcast('applyNoDataDisplay')
     }
-  };
+  }
 
-  onManualSelectionSpatialFilterSelectBtnPressed(){
-    if(this.manualSelectionSpatialFilterDuallistOptions.selectedItems && this.manualSelectionSpatialFilterDuallistOptions.selectedItems.length > 0){
-      // objects like {category: category, name:name}									
+  onManualSelectionSpatialFilterSelectBtnPressed() {
+    if (
+      this.manualSelectionSpatialFilterDuallistOptions.selectedItems &&
+      this.manualSelectionSpatialFilterDuallistOptions.selectedItems.length > 0
+    ) {
+      // objects like {category: category, name:name}
       //this.manualSelectionSpatialFilterDuallistOptions.selectedItems
-      const targetFeatureNames = this.manualSelectionSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
+      const targetFeatureNames = this.manualSelectionSpatialFilterDuallistOptions.selectedItems.map(
+        (object: any) => object.name
+      );
 
       this.filterHelperService.applySpatialFilter_currentSpatialUnitFeatures(targetFeatureNames);
     }
-  };
+  }
 
-  onManualSelectionSpatialFilterActiveBtnPressed(){
-
-    this.updateSelectableAreas("manual");
-
-    this.filterHelperService.clearFilteredFeatures();
-    this.filterHelperService.filterAndReplaceDataset();
-    if(this.envConfigService.useNoDataToggle) {
-      // todo $rootScope.$broadcast('applyNoDataDisplay')	
-    }
-  };
-
-  onManualSelectionSpatialFilterResetBtnPressed(){
-
-    this.updateSelectableAreas("manual", false);
+  onManualSelectionSpatialFilterActiveBtnPressed() {
+    this.updateSelectableAreas('manual');
 
     this.filterHelperService.clearFilteredFeatures();
     this.filterHelperService.filterAndReplaceDataset();
-    if(this.envConfigService.useNoDataToggle) {
-      // todo $rootScope.$broadcast('applyNoDataDisplay')	
+    if (this.envConfigService.useNoDataToggle) {
+      // todo $rootScope.$broadcast('applyNoDataDisplay')
     }
-  };
+  }
 
-  onManualSelectionBySelectedMapFeaturesBtnPressed(){
+  onManualSelectionSpatialFilterResetBtnPressed() {
+    this.updateSelectableAreas('manual', false);
+
+    this.filterHelperService.clearFilteredFeatures();
+    this.filterHelperService.filterAndReplaceDataset();
+    if (this.envConfigService.useNoDataToggle) {
+      // todo $rootScope.$broadcast('applyNoDataDisplay')
+    }
+  }
+
+  onManualSelectionBySelectedMapFeaturesBtnPressed() {
     // manage duallist items display
     this.manageManualDualList_fromMapSelection();
-    
+
     // apply spatial filter from selected map features
     this.onManualSelectionSpatialFilterSelectBtnPressed();
-  };
+  }
 
-  manageManualDualList_fromMapSelection(){
-    this.manualSelectionSpatialFilterDuallistOptions.items = this.manualSelectionSpatialFilterDuallistOptions.items.concat(this.manualSelectionSpatialFilterDuallistOptions.selectedItems);
+  manageManualDualList_fromMapSelection() {
+    this.manualSelectionSpatialFilterDuallistOptions.items =
+      this.manualSelectionSpatialFilterDuallistOptions.items.concat(
+        this.manualSelectionSpatialFilterDuallistOptions.selectedItems
+      );
     this.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
 
-    this.manualSelectionSpatialFilterDuallistOptions.selectedItems = this.manualSelectionSpatialFilterDuallistOptions.items.filter((item:any) => this.filterHelperService.featureIsCurrentlySelected(item.id));								
-    this.manualSelectionSpatialFilterDuallistOptions.items = this.manualSelectionSpatialFilterDuallistOptions.items.filter((item:any) => ! this.filterHelperService.featureIsCurrentlySelected(item.id));								
-  };
+    this.manualSelectionSpatialFilterDuallistOptions.selectedItems =
+      this.manualSelectionSpatialFilterDuallistOptions.items.filter((item: any) =>
+        this.filterHelperService.featureIsCurrentlySelected(item.id)
+      );
+    this.manualSelectionSpatialFilterDuallistOptions.items =
+      this.manualSelectionSpatialFilterDuallistOptions.items.filter(
+        (item: any) => !this.filterHelperService.featureIsCurrentlySelected(item.id)
+      );
+  }
 
   removeRangeFilter() {
-    this.setupRangeSliderForFilter(this.defaultRangeSliderSetup.date,this.defaultRangeSliderSetup.geoJson);
-
+    this.setupRangeSliderForFilter(
+      this.defaultRangeSliderSetup.date,
+      this.defaultRangeSliderSetup.geoJson
+    );
   }
 
   // $rootScope.$on("changeSpatialUnit", function() {

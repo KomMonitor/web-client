@@ -1,8 +1,10 @@
 <div id="indicatorSetup">
   <div style="text-align: center">
-    <div class="loading-overlay-sidebar-small" *ngIf="loadingData">
-      <span class="glyphicon glyphicon-refresh icon-spin"></span>
-    </div>
+    @if (loadingData) {
+      <div class="loading-overlay-sidebar-small">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
   </div>
 
   <expandable-box [title]="'Indikatorenauswahl'" [collapsed]="false">
@@ -19,10 +21,7 @@
 
     <br />
 
-    <div
-      class="export-mode-switch"
-      style="display: flex; align-items: center; gap: 8px"
-    >
+    <div class="export-mode-switch" style="display: flex; align-items: center; gap: 8px">
       <label class="switch">
         <input
           type="checkbox"
@@ -53,21 +52,20 @@
         >
       </li>
 
-      <li
-        class="nav-item"
-        *ngIf="topicHierarchyStore.headlineIndicatorHierarchy.length"
-      >
-        <a
-          class="nav-link"
-          id="dataCatalogueTab2"
-          data-bs-toggle="tab"
-          data-bs-target="#dataCatalogueTab2Content"
-          role="tab"
-          aria-controls="dataCatalogueTab2Content"
-          aria-selected="false"
-          >Leitindikatoren-Hierarchie</a
-        >
-      </li>
+      @if (topicHierarchyStore.headlineIndicatorHierarchy.length) {
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            id="dataCatalogueTab2"
+            data-bs-toggle="tab"
+            data-bs-target="#dataCatalogueTab2Content"
+            role="tab"
+            aria-controls="dataCatalogueTab2Content"
+            aria-selected="false"
+            >Leitindikatoren-Hierarchie</a
+          >
+        </li>
+      }
       <li class="nav-item">
         <a
           class="nav-link"
@@ -80,18 +78,20 @@
           >Alphabetische Liste</a
         >
       </li>
-      <li class="nav-item" *ngIf="favStateService.showFavSelection">
-        <a
-          class="nav-link"
-          id="dataCatalogueTab4"
-          data-bs-toggle="tab"
-          data-bs-target="#dataCatalogueTab4Content"
-          role="tab"
-          aria-controls="dataCatalogueTab4Content"
-          aria-selected="false"
-          >Favoriten</a
-        >
-      </li>
+      @if (favStateService.showFavSelection) {
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            id="dataCatalogueTab4"
+            data-bs-toggle="tab"
+            data-bs-target="#dataCatalogueTab4Content"
+            role="tab"
+            aria-controls="dataCatalogueTab4Content"
+            aria-selected="false"
+            >Favoriten</a
+          >
+        </li>
+      }
     </ul>
 
     <div class="tab-content">
@@ -103,44 +103,36 @@
         aria-labelledby="dataCatalogueTab1"
       >
         <div class="just-padding">
-          <div
-            id="indicatorHierarchySelection"
-            class="list-group list-group-root well"
-          >
-            <div
-              id="indicator-symbol-explanation"
-              *ngIf="topicHierarchyStore.headlineIndicatorHierarchy.length"
-            >
-              <label>Erläuterungen zur Symbolik</label>
-              <div
-                class="list-group-item list-group-item-default style-simple-indicator"
-              >
-                <p style="cursor: pointer">
-                  <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b
-                    >Standardindikator (numerische Wertverteilung)</b
-                  >
-                  [Einheitsbezeichnung]
-                </p>
+          <div id="indicatorHierarchySelection" class="list-group list-group-root well">
+            @if (topicHierarchyStore.headlineIndicatorHierarchy.length) {
+              <div id="indicator-symbol-explanation">
+                <label>Erläuterungen zur Symbolik</label>
+                <div class="list-group-item list-group-item-default style-simple-indicator">
+                  <p style="cursor: pointer">
+                    <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b
+                      >Standardindikator (numerische Wertverteilung)</b
+                    >
+                    [Einheitsbezeichnung]
+                  </p>
+                </div>
+                <div class="list-group-item list-group-item-default style-headline-indicator">
+                  <p style="cursor: pointer">
+                    <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;<b
+                      >Leitindikator (bewertende Aussage)</b
+                    >
+                    [Einheitsbezeichnung]
+                  </p>
+                </div>
+                <div
+                  class="list-group-item list-group-item-default list-group-item-grid-layout style-hierarchy-selected-indicator-0"
+                >
+                  <i class="fa-solid fa-chevron-right"></i>
+                  <p style="cursor: pointer">
+                    <b>Thema mit selektiertem Indikator</b>
+                  </p>
+                </div>
               </div>
-              <div
-                class="list-group-item list-group-item-default style-headline-indicator"
-              >
-                <p style="cursor: pointer">
-                  <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;<b
-                    >Leitindikator (bewertende Aussage)</b
-                  >
-                  [Einheitsbezeichnung]
-                </p>
-              </div>
-              <div
-                class="list-group-item list-group-item-default list-group-item-grid-layout style-hierarchy-selected-indicator-0"
-              >
-                <i class="fa-solid fa-chevron-right"></i>
-                <p style="cursor: pointer">
-                  <b>Thema mit selektiertem Indikator</b>
-                </p>
-              </div>
-            </div>
+            }
 
             <br />
 
@@ -154,12 +146,8 @@
               [wmsFavItems]="favStateService.wmsFavItems"
               (indicatorClicked)="onClickHierarchyIndicator($event)"
               (wmsToggled)="handleWmsOnMap($event)"
-              (indicatorTopicFavToggled)="
-                favStateService.onIndicatorTopicFavClick($event)
-              "
-              (indicatorFavToggled)="
-                favStateService.onIndicatorFavClick($event)
-              "
+              (indicatorTopicFavToggled)="favStateService.onIndicatorTopicFavClick($event)"
+              (indicatorFavToggled)="favStateService.onIndicatorFavClick($event)"
               (wmsFavToggled)="favStateService.onWmsFavClick($event)"
             ></app-topic-tree>
           </div>
@@ -167,208 +155,181 @@
       </div>
 
       <!-- Tab 2: Leitindikatoren-Hierarchie -->
-      <div
-        class="tab-pane"
-        id="dataCatalogueTab2Content"
-        role="tabpanel"
-        aria-labelledby="dataCatalogueTab2"
-        *ngIf="topicHierarchyStore.headlineIndicatorHierarchy.length"
-      >
-        <div class="just-padding">
-          <div
-            id="headlineIndicatorHierarchySelection"
-            class="list-group list-group-root well"
-          >
-            <label>Erl&auml;uterungen zur Symbolik</label>
-
-            <div
-              class="list-group-item list-group-item-default style-headline-indicator"
-            >
-              <p style="cursor: pointer; color: white">
-                <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;
-                <b>Leitindikator (bewertende Aussage)</b> [Einheitsbezeichnung]
-              </p>
-            </div>
-            <div
-              class="list-group-item list-group-item-default style-simple-indicator"
-            >
-              <p style="cursor: pointer; color: black">
-                <i class="fas fa-sitemap"></i>&nbsp;&nbsp;
-                <b
-                  >Basis-Indikator als Berechnungsgrundlage des
-                  Leitindikators</b
-                >
-                [Einheitsbezeichnung]
-              </p>
-            </div>
-
-            <br />
-
-            <label>Leitindikatoren und ihre Basis-Indikatoren</label>
-
-            <div
-              *ngFor="
-                let item of topicHierarchyStore.headlineIndicatorHierarchy
-              "
-            >
-              <div
-                class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0"
-              >
-                <i
-                  class="fa-solid"
-                  [ngClass]="{
-                    'fa-chevron-right': headlineTopicsCollapsed.includes(
-                      item.headlineIndicator.indicatorId
-                    ),
-                    'fa-chevron-down': !headlineTopicsCollapsed.includes(
-                      item.headlineIndicator.indicatorId
-                    ),
-                  }"
-                ></i>
-                <p
-                  [title]="item.headlineIndicator.metadata.description"
-                  class="collapseTrigger"
-                  (click)="
-                    onHeadlineTopicClick(item.headlineIndicator.indicatorId)
-                  "
-                >
-                  {{ item.headlineIndicator.indicatorName }}
+      @if (topicHierarchyStore.headlineIndicatorHierarchy.length) {
+        <div
+          class="tab-pane"
+          id="dataCatalogueTab2Content"
+          role="tabpanel"
+          aria-labelledby="dataCatalogueTab2"
+        >
+          <div class="just-padding">
+            <div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
+              <label>Erl&auml;uterungen zur Symbolik</label>
+              <div class="list-group-item list-group-item-default style-headline-indicator">
+                <p style="cursor: pointer; color: white">
+                  <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;
+                  <b>Leitindikator (bewertende Aussage)</b> [Einheitsbezeichnung]
                 </p>
-                <i
-                  *ngIf="favStateService.showFavSelection"
-                  class="fav-star fa-star"
-                  [ngClass]="{
-                    'fa-solid': favStateService.isIndicatorFavSelected(
-                      item.headlineIndicator.indicatorId
-                    ),
-                    'fa-regular': !favStateService.isIndicatorFavSelected(
-                      item.headlineIndicator.indicatorId
-                    ),
-                  }"
-                  (click)="
-                    favStateService.onHeadlineIndicatorFavClick(
-                      item.headlineIndicator.indicatorId
-                    )
-                  "
-                ></i>
               </div>
-
-              <div
-                class="list-group collapse"
-                [ngClass]="{
-                  in: !headlineTopicsCollapsed.includes(
-                    item.headlineIndicator.indicatorId
-                  ),
-                }"
-              >
-                <div
-                  class="list-group-item list-group-item-default style-headline-indicator"
-                >
-                  <div class="list-group-item-entry-grid-layout">
-                    <div>
-                      <p
-                        style="cursor: pointer; color: white"
-                        title="{{ item.headlineIndicator.indicatorName }} [{{
-                          item.headlineIndicator.unit
-                        }}]"
+              <div class="list-group-item list-group-item-default style-simple-indicator">
+                <p style="cursor: pointer; color: black">
+                  <i class="fas fa-sitemap"></i>&nbsp;&nbsp;
+                  <b>Basis-Indikator als Berechnungsgrundlage des Leitindikators</b>
+                  [Einheitsbezeichnung]
+                </p>
+              </div>
+              <br />
+              <label>Leitindikatoren und ihre Basis-Indikatoren</label>
+              @for (item of topicHierarchyStore.headlineIndicatorHierarchy; track item) {
+                <div>
+                  <div
+                    class="list-group-item list-group-item-default list-group-item-grid-layout hierarchy-topic-level-0"
+                  >
+                    <i
+                      class="fa-solid"
+                      [ngClass]="{
+                        'fa-chevron-right': headlineTopicsCollapsed.includes(
+                          item.headlineIndicator.indicatorId
+                        ),
+                        'fa-chevron-down': !headlineTopicsCollapsed.includes(
+                          item.headlineIndicator.indicatorId
+                        ),
+                      }"
+                    ></i>
+                    <p
+                      [title]="item.headlineIndicator.metadata.description"
+                      class="collapseTrigger"
+                      (click)="onHeadlineTopicClick(item.headlineIndicator.indicatorId)"
+                    >
+                      {{ item.headlineIndicator.indicatorName }}
+                    </p>
+                    @if (favStateService.showFavSelection) {
+                      <i
+                        class="fav-star fa-star"
+                        [ngClass]="{
+                          'fa-solid': favStateService.isIndicatorFavSelected(
+                            item.headlineIndicator.indicatorId
+                          ),
+                          'fa-regular': !favStateService.isIndicatorFavSelected(
+                            item.headlineIndicator.indicatorId
+                          ),
+                        }"
                         (click)="
-                          onClickHierarchyIndicator(item.headlineIndicator)
+                          favStateService.onHeadlineIndicatorFavClick(
+                            item.headlineIndicator.indicatorId
+                          )
                         "
-                      >
-                        <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;
-                        <b>{{ item.headlineIndicator.indicatorName }}</b> [{{
-                          item.headlineIndicator.unit
-                        }}]
-                      </p>
-                      <app-indicator-metadata-tooltip
-                        [indicatorData]="{
-                          data: item.headlineIndicator,
-                          prefix: 'headline',
-                        }"
-                      >
-                      </app-indicator-metadata-tooltip>
-                      <app-export-item-checkbox
-                        *ngIf="exportModeService.exportMode()"
-                        kind="indicator"
-                        [dataset]="toExportIndicator(item.headlineIndicator)"
-                      ></app-export-item-checkbox>
+                      ></i>
+                    }
+                  </div>
+                  <div
+                    class="list-group collapse"
+                    [ngClass]="{
+                      in: !headlineTopicsCollapsed.includes(item.headlineIndicator.indicatorId),
+                    }"
+                  >
+                    <div class="list-group-item list-group-item-default style-headline-indicator">
+                      <div class="list-group-item-entry-grid-layout">
+                        <div>
+                          <p
+                            style="cursor: pointer; color: white"
+                            title="{{ item.headlineIndicator.indicatorName }} [{{
+                              item.headlineIndicator.unit
+                            }}]"
+                            (click)="onClickHierarchyIndicator(item.headlineIndicator)"
+                          >
+                            <i class="fas fa-tachometer-alt"></i>&nbsp;&nbsp;
+                            <b>{{ item.headlineIndicator.indicatorName }}</b> [{{
+                              item.headlineIndicator.unit
+                            }}]
+                          </p>
+                          <app-indicator-metadata-tooltip
+                            [indicatorData]="{
+                              data: item.headlineIndicator,
+                              prefix: 'headline',
+                            }"
+                          >
+                          </app-indicator-metadata-tooltip>
+                          @if (exportModeService.exportMode()) {
+                            <app-export-item-checkbox
+                              kind="indicator"
+                              [dataset]="toExportIndicator(item.headlineIndicator)"
+                            ></app-export-item-checkbox>
+                          }
+                        </div>
+                        @if (favStateService.showFavSelection) {
+                          <i
+                            class="fav-star fa-star"
+                            [ngClass]="{
+                              'fa-solid': favStateService.isIndicatorFavSelected(
+                                item.headlineIndicator.indicatorId
+                              ),
+                              'fa-regular': !favStateService.isIndicatorFavSelected(
+                                item.headlineIndicator.indicatorId
+                              ),
+                            }"
+                            (click)="
+                              favStateService.onHeadlineIndicatorFavClick(
+                                item.headlineIndicator.indicatorId
+                              )
+                            "
+                          ></i>
+                        }
+                      </div>
                     </div>
-                    <i
-                      *ngIf="favStateService.showFavSelection"
-                      class="fav-star fa-star"
-                      [ngClass]="{
-                        'fa-solid': favStateService.isIndicatorFavSelected(
-                          item.headlineIndicator.indicatorId
-                        ),
-                        'fa-regular': !favStateService.isIndicatorFavSelected(
-                          item.headlineIndicator.indicatorId
-                        ),
-                      }"
-                      (click)="
-                        favStateService.onHeadlineIndicatorFavClick(
-                          item.headlineIndicator.indicatorId
-                        )
-                      "
-                    ></i>
+                    @for (baseIndicator of item.baseIndicators; track baseIndicator) {
+                      <div class="list-group-item list-group-item-default style-simple-indicator">
+                        <div class="list-group-item-entry-grid-layout">
+                          <div>
+                            <p
+                              style="cursor: pointer; color: black"
+                              title="{{ baseIndicator.indicatorName }} [{{ baseIndicator.unit }}]"
+                              (click)="onClickHierarchyIndicator(baseIndicator)"
+                            >
+                              <i class="fas fa-sitemap"></i>&nbsp;&nbsp;
+                              <b>{{ baseIndicator.indicatorName }}</b> [{{ baseIndicator.unit }}]
+                            </p>
+                            <app-indicator-metadata-tooltip
+                              [indicatorData]="{
+                                data: baseIndicator,
+                                prefix: 'headline',
+                              }"
+                            >
+                            </app-indicator-metadata-tooltip>
+                            @if (exportModeService.exportMode()) {
+                              <app-export-item-checkbox
+                                kind="indicator"
+                                [dataset]="toExportIndicator(baseIndicator)"
+                              ></app-export-item-checkbox>
+                            }
+                          </div>
+                          @if (favStateService.showFavSelection) {
+                            <i
+                              class="fav-star fa-star"
+                              [ngClass]="{
+                                'fa-solid': favStateService.isIndicatorFavSelected(
+                                  baseIndicator.indicatorId
+                                ),
+                                'fa-regular': !favStateService.isIndicatorFavSelected(
+                                  baseIndicator.indicatorId
+                                ),
+                              }"
+                              (click)="
+                                favStateService.onBaseIndicatorFavClick(baseIndicator.indicatorId)
+                              "
+                              style="color: black"
+                            ></i>
+                          }
+                        </div>
+                      </div>
+                    }
                   </div>
                 </div>
-
-                <div
-                  class="list-group-item list-group-item-default style-simple-indicator"
-                  *ngFor="let baseIndicator of item.baseIndicators"
-                >
-                  <div class="list-group-item-entry-grid-layout">
-                    <div>
-                      <p
-                        style="cursor: pointer; color: black"
-                        title="{{ baseIndicator.indicatorName }} [{{
-                          baseIndicator.unit
-                        }}]"
-                        (click)="onClickHierarchyIndicator(baseIndicator)"
-                      >
-                        <i class="fas fa-sitemap"></i>&nbsp;&nbsp;
-                        <b>{{ baseIndicator.indicatorName }}</b> [{{
-                          baseIndicator.unit
-                        }}]
-                      </p>
-                      <app-indicator-metadata-tooltip
-                        [indicatorData]="{
-                          data: baseIndicator,
-                          prefix: 'headline',
-                        }"
-                      >
-                      </app-indicator-metadata-tooltip>
-                      <app-export-item-checkbox
-                        *ngIf="exportModeService.exportMode()"
-                        kind="indicator"
-                        [dataset]="toExportIndicator(baseIndicator)"
-                      ></app-export-item-checkbox>
-                    </div>
-                    <i
-                      *ngIf="favStateService.showFavSelection"
-                      class="fav-star fa-star"
-                      [ngClass]="{
-                        'fa-solid': favStateService.isIndicatorFavSelected(
-                          baseIndicator.indicatorId
-                        ),
-                        'fa-regular': !favStateService.isIndicatorFavSelected(
-                          baseIndicator.indicatorId
-                        ),
-                      }"
-                      (click)="
-                        favStateService.onBaseIndicatorFavClick(
-                          baseIndicator.indicatorId
-                        )
-                      "
-                      style="color: black"
-                    ></i>
-                  </div>
-                </div>
-              </div>
+              }
             </div>
           </div>
         </div>
-      </div>
+      }
 
       <!-- Tab 3: Alphabetische Liste -->
       <div
@@ -378,66 +339,60 @@
         aria-labelledby="dataCatalogueTab3"
       >
         <div class="just-padding">
-          <select
-            style="font-size: 12px"
-            size="30"
-            class="form-control"
-            required
-          >
+          <select style="font-size: 12px" size="30" class="form-control" required>
             <option disabled selected value>-- Indikator w&auml;hlen --</option>
-            <option
-              *ngFor="let entry of preppedKeywordList"
-              (click)="onChangeSelectedIndicator_fromAlphabeticalList(entry)"
-            >
-              {{
-                entry.listType === "indicator"
-                  ? entry.indicatorName + " [" + entry.unit + "]"
-                  : entry.title + " [WMS]"
-              }}
-            </option>
+            @for (entry of preppedKeywordList; track entry) {
+              <option (click)="onChangeSelectedIndicator_fromAlphabeticalList(entry)">
+                {{
+                  entry.listType === 'indicator'
+                    ? entry.indicatorName + ' [' + entry.unit + ']'
+                    : entry.title + ' [WMS]'
+                }}
+              </option>
+            }
           </select>
         </div>
       </div>
 
       <!-- Tab 4: Favoriten -->
-      <div
-        *ngIf="favStateService.showFavSelection"
-        class="tab-pane"
-        id="dataCatalogueTab4Content"
-        role="tabpanel"
-        aria-labelledby="dataCatalogueTab4"
-      >
-        <div class="just-padding">
-          <app-favorites-tab
-            [indicatorFavTopicsTree]="favStateService.indicatorFavTopicsTree"
-            [indicatorTopicFavItems]="favStateService.indicatorTopicFavItems"
-            [indicatorFavItems]="favStateService.indicatorFavItems"
-            [wmsFavItems]="favStateService.wmsFavItems"
-            [showFavSelection]="favStateService.showFavSelection"
-            (indicatorTopicFavToggled)="
-              favStateService.onIndicatorTopicFavClick($event)
-            "
-            (indicatorFavToggled)="favStateService.onIndicatorFavClick($event)"
-            (wmsFavToggled)="favStateService.onWmsFavClick($event)"
-            (indicatorSelected)="onClickHierarchyIndicator($event)"
-            (wmsToggled)="handleWmsOnMap($event)"
-          ></app-favorites-tab>
+      @if (favStateService.showFavSelection) {
+        <div
+          class="tab-pane"
+          id="dataCatalogueTab4Content"
+          role="tabpanel"
+          aria-labelledby="dataCatalogueTab4"
+        >
+          <div class="just-padding">
+            <app-favorites-tab
+              [indicatorFavTopicsTree]="favStateService.indicatorFavTopicsTree"
+              [indicatorTopicFavItems]="favStateService.indicatorTopicFavItems"
+              [indicatorFavItems]="favStateService.indicatorFavItems"
+              [wmsFavItems]="favStateService.wmsFavItems"
+              [showFavSelection]="favStateService.showFavSelection"
+              (indicatorTopicFavToggled)="favStateService.onIndicatorTopicFavClick($event)"
+              (indicatorFavToggled)="favStateService.onIndicatorFavClick($event)"
+              (wmsFavToggled)="favStateService.onWmsFavClick($event)"
+              (indicatorSelected)="onClickHierarchyIndicator($event)"
+              (wmsToggled)="handleWmsOnMap($event)"
+            ></app-favorites-tab>
+          </div>
         </div>
-      </div>
+      }
     </div>
 
-    <div
-      class="favoritesToast"
-      id="favoritesToast"
-      (click)="favStateService.saveFavSelection(true)"
-      [ngClass]="{
-        disabled: favStateService.toastStatus == 0,
-        notSaved: favStateService.toastStatus == 1,
-        saved: favStateService.toastStatus == 2,
-      }"
-      *ngIf="favStateService.showFavSelection"
-    >
-      {{ favStateService.toastText[favStateService.toastStatus] }}
-    </div>
+    @if (favStateService.showFavSelection) {
+      <div
+        class="favoritesToast"
+        id="favoritesToast"
+        (click)="favStateService.saveFavSelection(true)"
+        [ngClass]="{
+          disabled: favStateService.toastStatus == 0,
+          notSaved: favStateService.toastStatus == 1,
+          saved: favStateService.toastStatus == 2,
+        }"
+      >
+        {{ favStateService.toastText[favStateService.toastStatus] }}
+      </div>
+    }
   </expandable-box>
 </div>

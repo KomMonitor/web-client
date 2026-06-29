@@ -1,13 +1,20 @@
-import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { ColorSketchModule } from 'ngx-color/sketch';
 
 @Component({
   selector: 'km-color-picker',
   standalone: true,
-  imports: [CommonModule, ColorSketchModule],
+  imports: [ColorSketchModule],
   templateUrl: './km-color-picker.component.html',
-  styleUrls: ['./km-color-picker.component.scss']
+  styleUrls: ['./km-color-picker.component.scss'],
 })
 export class KmColorPickerComponent {
   @Input() color: string = '#000000';
@@ -27,7 +34,9 @@ export class KmColorPickerComponent {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (this.disabled) { return; }
+    if (this.disabled) {
+      return;
+    }
     this.isOpen = !this.isOpen;
   }
 
@@ -77,5 +86,3 @@ export class KmColorPickerComponent {
     }
   }
 }
-
-

@@ -1,20 +1,23 @@
 <div id="classificationMethodSelect">
-  <div 
-    id="method-select-selected" 
+  <div
+    id="method-select-selected"
     class="form-control"
-    (click)="showMethodSelection = !showMethodSelection">
-    {{selectedMethod!.name}}
+    (click)="showMethodSelection = !showMethodSelection"
+  >
+    {{ selectedMethod!.name }}
   </div>
-  <div [hidden]="!showMethodSelection" id="method-select-selection" class="select-border"> 
-    <div id="method-select-method"
-      (click)="methodSelected(method)" 
-      *ngFor="let method of preppedMethods">
-      <div class="method-select-method-symbol" style="background-image: url('{{ preloadImgs[method.name] }}')">
+  <div [hidden]="!showMethodSelection" id="method-select-selection" class="select-border">
+    @for (method of preppedMethods; track method) {
+      <div id="method-select-method" (click)="methodSelected(method)">
+        <div
+          class="method-select-method-symbol"
+          style="background-image: url('{{ preloadImgs[method.name] }}')"
+        ></div>
+        <div class="method-select-method-text">
+          <div class="method-select-method-name">{{ method.name }}</div>
+          <div class="method-select-method-description">{{ method.description }}</div>
+        </div>
       </div>
-      <div class="method-select-method-text">
-        <div class="method-select-method-name">{{method.name}}</div>
-        <div class="method-select-method-description">{{method.description}}</div>
-      </div>
-    </div>
+    }
   </div>
 </div>

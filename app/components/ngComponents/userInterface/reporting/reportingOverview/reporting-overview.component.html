@@ -1,246 +1,462 @@
 <div class="container-fluid">
-  <div class="loading-overlay-reporting" style="width:100%; height:100%; top: 0; left: 0" *ngIf="showReportLoading()">
-    <span class="glyphicon glyphicon-refresh icon-spin"></span>
-  </div>
+  @if (showReportLoading()) {
+    <div class="loading-overlay-reporting" style="width: 100%; height: 100%; top: 0; left: 0">
+      <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  }
   <div class="row row-no-gutters">
-      <div class="col-sm-12 text-center">
-          <h2 class="fs-title">Übersicht</h2>
-      </div>
+    <div class="col-sm-12 text-center">
+      <h2 class="fs-title">Übersicht</h2>
+    </div>
   </div>
   <div class="reporting-content-wrapper">
-      <div class="row">
-          <div class="col-sm-3" id="reporting-overview-sidebar">
-              <div id="reporting-overwiew-indicators-wrapper">
-                  <button *ngIf="!reportingService.workingTemplate.name.includes('-reachability')" id="reporting-configureIndicatorBtn"
-                       class="btn btn-success" (click)='onConfigureNewIndicatorClicked()'
-                        (disabled)="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)">
-                      <i class="fa fa-plus"></i>
-                      <span >&nbsp;&nbsp;Indikator konfigurieren</span>
-                  </button>
-                  <button *ngIf="reportingService.workingTemplate.name.includes('-reachability')" id="reporting-configurePoiLayerrBtn"
-                      class="btn btn-success" (click)='onConfigureNewPoiLayerClicked()'
-                        (disabled)="loadingData || (! lastPageOfAddedSectionPrepared && pagePreparationSize > 0) || (! leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0)">
-                      <i class="fa fa-plus"></i>
-                      <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
-                  </button>
-                  <h3 [hidden]="reportingService.workingTemplate.name.includes('-reachability')">Hinzugefügte Indikatoren</h3>
-                  <h3 [hidden]="!reportingService.workingTemplate.name.includes('-reachability')">Hinzugefügte POI-Layer</h3>
-                  <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
-                  <div class="list-group" ng-sortable="sortableConfig">
-
-                      <div *ngFor="let section of reportingService.templateSections.indicators; let i = index">
-                          <hr class="reporting-hr-divider">
-                          <div class="row row-no-gutters reporting-added-templateSections-row">
-                              <div class="col-sm-11">
-                                  <b>{{section.indicatorName}}</b>
-                              </div>
-                              <div class="col-sm-1 text-right" style="cursor: pointer;">
-                                  <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
-                                    (click)="reportingService.removeIndicatorSection(section.indicatorId)"></i>
-                              </div>
-                          </div>
-                      </div>
-                      <div *ngFor="let section of reportingService.templateSections.georesources; let i = index">
-                          <hr class="reporting-hr-divider">
-                          <div class="row row-no-gutters reporting-added-templateSections-row">
-                              <div class="col-sm-11">
-                                  <b>{{section.poiLayerName}}</b>
-                              </div>
-                              <div class="col-sm-1 text-right" style="cursor: pointer;">
-                                  <i class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
-                                    (click)="reportingService.removeGeoresourcesSection(section.georesourceId)"></i>
-                              </div>
-                          </div>
-                      </div>
+    <div class="row">
+      <div class="col-sm-3" id="reporting-overview-sidebar">
+        <div id="reporting-overwiew-indicators-wrapper">
+          @if (!reportingService.workingTemplate.name.includes('-reachability')) {
+            <button
+              id="reporting-configureIndicatorBtn"
+              class="btn btn-success"
+              (click)="onConfigureNewIndicatorClicked()"
+              (disabled)="
+                (loadingData ||
+                  (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) ||
+                  (!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
+                    leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0))
+              "
+            >
+              <i class="fa fa-plus"></i>
+              <span>&nbsp;&nbsp;Indikator konfigurieren</span>
+            </button>
+          }
+          @if (reportingService.workingTemplate.name.includes('-reachability')) {
+            <button
+              id="reporting-configurePoiLayerrBtn"
+              class="btn btn-success"
+              (click)="onConfigureNewPoiLayerClicked()"
+              (disabled)="
+                (loadingData ||
+                  (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) ||
+                  (!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
+                    leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0))
+              "
+            >
+              <i class="fa fa-plus"></i>
+              <span>&nbsp;&nbsp;POI-Layer konfigurieren</span>
+            </button>
+          }
+          <h3 [hidden]="reportingService.workingTemplate.name.includes('-reachability')">
+            Hinzugefügte Indikatoren
+          </h3>
+          <h3 [hidden]="!reportingService.workingTemplate.name.includes('-reachability')">
+            Hinzugefügte POI-Layer
+          </h3>
+          <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
+          <div class="list-group" ng-sortable="sortableConfig">
+            @for (
+              section of reportingService.templateSections.indicators;
+              track section;
+              let i = $index
+            ) {
+              <div>
+                <hr class="reporting-hr-divider" />
+                <div class="row row-no-gutters reporting-added-templateSections-row">
+                  <div class="col-sm-11">
+                    <b>{{ section.indicatorName }}</b>
                   </div>
-                  
-              </div>
-          </div>
-          <div class="col-sm-9">
-              <!-- defining width and height like this is probably not the best solution, but it works as a first approach -->
-              <div class="loading-overlay-reporting" style="width: calc(100% - 30px); height: calc(100% - 15px)" [hidden]="!loadingData">
-                  <span class="glyphicon glyphicon-refresh icon-spin"></span>
-              </div>
-
-              <div class="alert alert-info" *ngIf="reportingService.workingTemplate.pages.length > 10">
-                  <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Die Vorschau zeigt nur die ersten raumeinheitsspezifischen Seiten und Datentabellenseiten exemplarisch an. Der vollständige Report wird im Hintergrund vorbereitet und wird alle Seiten enthalten.
-              </div>
-
-              <div class="row" style="margin:0">
-                  <div id="reporting-overview-preview-area">
-                      <ng-container *ngFor="let page of reportingService.workingTemplate.pages; index as iPage">
-                      <div *ngIf="isPageInPreview(page, iPage)"
-                          [ngClass]="{'hiddenPage': !showThisPage(page)}"
-                          class="reporting-page reporting-page-{{page.orientation}}"
-                          id="reporting-overview-page-{{iPage}}">
-                          <button class="orientationChangeBtn"
-                              [hidden]="pageContainsDatatable(iPage) && reportingService.workingTemplate.name.includes('-reachability')"
-                              (click)="onPageTurnClicked(page.orientation, iPage)">
-                              <img src="icons/swap.png" width="100%" height="100%">
-                          </button>
-                          <div *ngFor="let pageElement of page.pageElements; let iElement = index">
-
-                            <div *ngIf="checkVisibility(pageElement, page)"
-                              class="type-{{pageElement.type}}"
-                              id="reporting-overview-page-{{iPage}}-{{pageElement.type}}-{{iElement}}"
-                              [ngStyle]="{position: 'absolute',
-                                  top: pageElement.dimensions.top,
-                                  left: pageElement.dimensions.left,
-                                  width: pageElement.dimensions.width,
-                                  height: pageElement.dimensions.height,
-                                  border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
-                                  'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px',
-                                  'z-index': pageElement.type === 'map' ? 20 : 1}">
-                              
-                              <span [hidden]="pageElement.isPlaceholder == false"
-                                  [style]="pageElement.css ? pageElement.css : ''"
-                                  [innerHTML]="(pageElement.placeholderText ? pageElement.placeholderText : '') | safeHtml">
-                              </span>
-                              <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
-                              <span [hidden]="!reportingService.config.headerFooterControl.showPageNumber || !(pageElement.type.includes('pageNumber-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  Seite {{getPageNumber(iPage)}}
-                              </span>
-
-                              <span [hidden]="!reportingService.config.headerFooterControl.showFooterCreationInfo || !(pageElement.type.includes('footerCreationInfo-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{pageElement.text}}
-                              </span>
-
-                              <span [hidden]="!reportingService.config.sectionContentControl.showFreeText || !(pageElement.type === 'textInput' && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{pageElement.text}}
-                              </span>
-
-                              <img [hidden]="!reportingService.config.headerFooterControl.showLogo || !(pageElement.type.includes('communeLogo-') && pageElement.isPlaceholder == false)"
-                                  src="{{pageElement.src}}">
-
-                              <span [hidden]="!reportingService.config.headerFooterControl.showTitle || !(pageElement.type.includes('indicatorTitle-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{pageElement.text}}
-                              </span>
-
-                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('dataTimestamp-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{pageElement.text}}
-                              </span>
-
-                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('dataTimeseries-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{pageElement.text}}
-                              </span>
-
-                              <span [hidden]="!reportingService.config.headerFooterControl.showSubtitle || !(pageElement.type.includes('reachability-subtitle-') && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  {{pageElement.text}}
-                              </span>
-                              <!-- 
-                                 /*
-                                    June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-                                */
-                                -->
-                              <!-- <span [hidden]="!(pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  <span style="display: block; text-align:left">
-                                      Durchschnitt Gesamtstadt:<br />
-                                      {{pageElement.text}}
-                                  </span>
-                              </span>
-
-                              <span [hidden]="!(pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  <span style="display: block; text-align:left">
-                                      Durchschnitt Selektion:<br />
-                                      {{pageElement.text}}
-                                  </span>
-                              </span>
-
-                              <span [hidden]="!(pageElement.type == 'overallChange' && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  <span style="display: block; text-align:left">
-                                      Durchschnittliche Veränderung Gesamtstadt:<br />
-                                      {{pageElement.text}}
-                                  </span>
-                              </span>
-
-                              <span [hidden]="!(pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false)"
-                                  [style]="pageElement.css ? pageElement.css : ''">
-                                  <span style="display: block; text-align:left">
-                                      Durchschnittliche Veränderung Selektion:<br />
-                                      {{pageElement.text}}
-                                  </span>
-                              </span> -->
-                            </div>
-                          </div>
-
-                          <!-- Visual Placeholder for background processed pages -->
-                          <div *ngIf="isLastPreviewPage(page) && countBackgroundPages(page) > 0"
-                               class="reporting-page-placeholder"
-                               style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 60%; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; padding: 20px; color: #666; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                              <!-- Loading State -->
-                              <div *ngIf="!lastPageOfAddedSectionPrepared" style="width: 100%;">
-                                  <i class="fa fa-clone" style="font-size: 4em; margin-bottom: 20px; color: #337ab7;"></i>
-                                  <h3 style="margin-top: 0;">{{countBackgroundPages(page)}} weitere Seiten</h3>
-                                  <p *ngIf="page.type === 'area_specific'">Für jede Raumeinheit werden <b>weitere Report-Seiten</b> im Hintergrund aufbereitet.</p>
-                                  <p *ngIf="page.type === 'datatable'">Die <b>restlichen Seiten der Datentabelle</b> werden im Hintergrund aufbereitet.</p>
-                                  <p>Diese Optimierung hält die Anwendung performant. Ihr fertiger Report wird alle Seiten im gewählten Format enthalten.</p>
-                                  <div class="progress" style="width: 100%; margin-top: 20px; height: 25px;">
-                                      <div class="progress-bar progress-bar-striped active" role="progressbar"
-                                           [ngStyle]="{'width': ((pagePreparationIndex / pagePreparationSize) * 100) + '%'}"
-                                           style="line-height: 25px; font-size: 1.2em; font-weight: bold;">
-                                      </div>
-                                  </div>
-                              </div>
-                              <!-- Success State -->
-                              <div *ngIf="lastPageOfAddedSectionPrepared" style="width: 100%; animation: fadeIn 0.5s;">
-                                  <i class="fa fa-check-circle" style="font-size: 5em; margin-bottom: 20px; color: #5cb85c;"></i>
-                                  <h3 style="margin-top: 0; color: #5cb85c;">Aufbereitung abgeschlossen</h3>
-                                  <p>Alle <b>{{countBackgroundPages(page)}} Hintergrundseiten</b> wurden erfolgreich erstellt und sind bereit für den Report.</p>
-                                  <p>Sie können den fertigen Report nun über die Buttons am rechten Rand herunterladen.</p>
-                              </div>
-                          </div>
-                      </div>
-                      </ng-container>
+                  <div class="col-sm-1 text-right" style="cursor: pointer">
+                    <i
+                      class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
+                      (click)="reportingService.removeIndicatorSection(section.indicatorId)"
+                    ></i>
                   </div>
+                </div>
               </div>
-              <!-- <div id="reporting-overview-bot-btn-row-1" class="clearfix">
-                  <button class="btn btn-danger pull-right" ng-click='resetTemplate()'>
-                      <i class="fas fa-exclamation-triangle"></i>
-                      &nbsp;&nbsp;Template zurücksetzen
-                  </button>
-              </div> -->
-  
-              <hr>
+            }
+            @for (
+              section of reportingService.templateSections.georesources;
+              track section;
+              let i = $index
+            ) {
+              <div>
+                <hr class="reporting-hr-divider" />
+                <div class="row row-no-gutters reporting-added-templateSections-row">
+                  <div class="col-sm-11">
+                    <b>{{ section.poiLayerName }}</b>
+                  </div>
+                  <div class="col-sm-1 text-right" style="cursor: pointer">
+                    <i
+                      class="reporting-templateSection-delete-symbol align-middle fa fa-trash-alt"
+                      (click)="reportingService.removeGeoresourcesSection(section.georesourceId)"
+                    ></i>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
-      </div>
-      <div class="modal-custom-footer">
-        <div>
-          <button class="btn btn-warning" (click)='onBackToTemplateSelectionClicked()'>
-              <i class="fa fa-arrow-left"></i>
-              &nbsp;&nbsp;Zurück zur Templateauswahl
-          </button>
-          <button type="button" class="btn btn-primary" (click)="exportConfig()">
-              <i class="fa fa-save"></i>
-              &nbsp;&nbsp;Einstellungen exportieren
-          </button><!--  -->
-
-          
-          <button [disabled]="true" type="button" class="btn btn-info pull-right" *ngIf="!leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate && leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
-              <span>Kartenbildaufbereitung: {{leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size}} von {{leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures}}</span>
-          </button>
-
-          <button [disabled]="true" style="margin-right: 15px;" *ngIf="! lastPageOfAddedSectionPrepared && pagePreparationSize > 0" type="button" class="btn btn-warning pull-right">
-              <span class="glyphicon glyphicon-refresh icon-spin"></span>
-              <span>Reportaufbereitung: {{pagePreparationIndex + 1}} von {{pagePreparationSize}}</span>
-          </button>
-        </div>          
-        <div>
-          <button [disabled]="reportingService.templateSections.indicators.length==0 || loadingData || !lastPageOfAddedSectionPrepared || !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate" style="margin-right: 15px;" type="button" class="btn btn-success pull-right" data-toggle="modal" (click)="generateReport()" >
-              <i class="fa fa-copy"></i>
-              &nbsp;&nbsp;Report erzeugen
-          </button> 
         </div>
       </div>
+      <div class="col-sm-9">
+        <!-- defining width and height like this is probably not the best solution, but it works as a first approach -->
+        <div
+          class="loading-overlay-reporting"
+          style="width: calc(100% - 30px); height: calc(100% - 15px)"
+          [hidden]="!loadingData"
+        >
+          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+        </div>
+
+        @if (reportingService.workingTemplate.pages.length > 10) {
+          <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Die Vorschau zeigt nur die ersten
+            raumeinheitsspezifischen Seiten und Datentabellenseiten exemplarisch an. Der
+            vollständige Report wird im Hintergrund vorbereitet und wird alle Seiten enthalten.
+          </div>
+        }
+
+        <div class="row" style="margin: 0">
+          <div id="reporting-overview-preview-area">
+            @for (page of reportingService.workingTemplate.pages; track page; let iPage = $index) {
+              @if (isPageInPreview(page, iPage)) {
+                <div
+                  [ngClass]="{ hiddenPage: !showThisPage(page) }"
+                  class="reporting-page reporting-page-{{ page.orientation }}"
+                  id="reporting-overview-page-{{ iPage }}"
+                >
+                  <button
+                    class="orientationChangeBtn"
+                    [hidden]="
+                      pageContainsDatatable(iPage) &&
+                      reportingService.workingTemplate.name.includes('-reachability')
+                    "
+                    (click)="onPageTurnClicked(page.orientation, iPage)"
+                  >
+                    <img src="icons/swap.png" width="100%" height="100%" />
+                  </button>
+                  @for (
+                    pageElement of page.pageElements;
+                    track pageElement;
+                    let iElement = $index
+                  ) {
+                    <div>
+                      @if (checkVisibility(pageElement, page)) {
+                        <div
+                          class="type-{{ pageElement.type }}"
+                          id="reporting-overview-page-{{ iPage }}-{{ pageElement.type }}-{{
+                            iElement
+                          }}"
+                          [ngStyle]="{
+                            position: 'absolute',
+                            top: pageElement.dimensions.top,
+                            left: pageElement.dimensions.left,
+                            width: pageElement.dimensions.width,
+                            height: pageElement.dimensions.height,
+                            border: !pageElement.type.includes('footerHorizontalSpacer-')
+                              ? 'dashed gray 1px'
+                              : '',
+                            'border-top': pageElement.type.includes('footerHorizontalSpacer-')
+                              ? 'solid rgb(148, 148, 148) 1px'
+                              : 'dashed gray 1px',
+                            'z-index': pageElement.type === 'map' ? 20 : 1,
+                          }"
+                        >
+                          <span
+                            [hidden]="pageElement.isPlaceholder == false"
+                            [style]="pageElement.css ? pageElement.css : ''"
+                            [innerHTML]="
+                              (pageElement.placeholderText ? pageElement.placeholderText : '')
+                                | safeHtml
+                            "
+                          >
+                          </span>
+                          <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
+                          <span
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showPageNumber ||
+                              !(
+                                pageElement.type.includes('pageNumber-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            Seite {{ getPageNumber(iPage) }}
+                          </span>
+                          <span
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showFooterCreationInfo ||
+                              !(
+                                pageElement.type.includes('footerCreationInfo-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            {{ pageElement.text }}
+                          </span>
+                          <span
+                            [hidden]="
+                              !reportingService.config.sectionContentControl.showFreeText ||
+                              !(
+                                pageElement.type === 'textInput' &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            {{ pageElement.text }}
+                          </span>
+                          <img
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showLogo ||
+                              !(
+                                pageElement.type.includes('communeLogo-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            src="{{ pageElement.src }}"
+                          />
+                          <span
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showTitle ||
+                              !(
+                                pageElement.type.includes('indicatorTitle-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            {{ pageElement.text }}
+                          </span>
+                          <span
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showSubtitle ||
+                              !(
+                                pageElement.type.includes('dataTimestamp-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            {{ pageElement.text }}
+                          </span>
+                          <span
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showSubtitle ||
+                              !(
+                                pageElement.type.includes('dataTimeseries-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            {{ pageElement.text }}
+                          </span>
+                          <span
+                            [hidden]="
+                              !reportingService.config.headerFooterControl.showSubtitle ||
+                              !(
+                                pageElement.type.includes('reachability-subtitle-') &&
+                                pageElement.isPlaceholder == false
+                              )
+                            "
+                            [style]="pageElement.css ? pageElement.css : ''"
+                          >
+                            {{ pageElement.text }}
+                          </span>
+                          <!--
+                          /*
+                          June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+                          */
+                          -->
+                          <!-- <span [hidden]="!(pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false)"
+                          [style]="pageElement.css ? pageElement.css : ''">
+                          <span style="display: block; text-align:left">
+                            Durchschnitt Gesamtstadt:<br />
+                            {{pageElement.text}}
+                          </span>
+                        </span>
+                        <span [hidden]="!(pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false)"
+                          [style]="pageElement.css ? pageElement.css : ''">
+                          <span style="display: block; text-align:left">
+                            Durchschnitt Selektion:<br />
+                            {{pageElement.text}}
+                          </span>
+                        </span>
+                        <span [hidden]="!(pageElement.type == 'overallChange' && pageElement.isPlaceholder == false)"
+                          [style]="pageElement.css ? pageElement.css : ''">
+                          <span style="display: block; text-align:left">
+                            Durchschnittliche Veränderung Gesamtstadt:<br />
+                            {{pageElement.text}}
+                          </span>
+                        </span>
+                        <span [hidden]="!(pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false)"
+                          [style]="pageElement.css ? pageElement.css : ''">
+                          <span style="display: block; text-align:left">
+                            Durchschnittliche Veränderung Selektion:<br />
+                            {{pageElement.text}}
+                          </span>
+                        </span> -->
+                        </div>
+                      }
+                    </div>
+                  }
+                  <!-- Visual Placeholder for background processed pages -->
+                  @if (isLastPreviewPage(page) && countBackgroundPages(page) > 0) {
+                    <div
+                      class="reporting-page-placeholder"
+                      style="
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 80%;
+                        height: 60%;
+                        background: #f8f9fa;
+                        border: 2px dashed #ccc;
+                        border-radius: 15px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 1000;
+                        text-align: center;
+                        padding: 20px;
+                        color: #666;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                      "
+                    >
+                      <!-- Loading State -->
+                      @if (!lastPageOfAddedSectionPrepared) {
+                        <div style="width: 100%">
+                          <i
+                            class="fa fa-clone"
+                            style="font-size: 4em; margin-bottom: 20px; color: #337ab7"
+                          ></i>
+                          <h3 style="margin-top: 0">
+                            {{ countBackgroundPages(page) }} weitere Seiten
+                          </h3>
+                          @if (page.type === 'area_specific') {
+                            <p>
+                              Für jede Raumeinheit werden <b>weitere Report-Seiten</b> im
+                              Hintergrund aufbereitet.
+                            </p>
+                          }
+                          @if (page.type === 'datatable') {
+                            <p>
+                              Die <b>restlichen Seiten der Datentabelle</b> werden im Hintergrund
+                              aufbereitet.
+                            </p>
+                          }
+                          <p>
+                            Diese Optimierung hält die Anwendung performant. Ihr fertiger Report
+                            wird alle Seiten im gewählten Format enthalten.
+                          </p>
+                          <div class="progress" style="width: 100%; margin-top: 20px; height: 25px">
+                            <div
+                              class="progress-bar progress-bar-striped active"
+                              role="progressbar"
+                              [ngStyle]="{
+                                width: (pagePreparationIndex / pagePreparationSize) * 100 + '%',
+                              }"
+                              style="line-height: 25px; font-size: 1.2em; font-weight: bold"
+                            ></div>
+                          </div>
+                        </div>
+                      }
+                      <!-- Success State -->
+                      @if (lastPageOfAddedSectionPrepared) {
+                        <div style="width: 100%; animation: fadeIn 0.5s">
+                          <i
+                            class="fa fa-check-circle"
+                            style="font-size: 5em; margin-bottom: 20px; color: #5cb85c"
+                          ></i>
+                          <h3 style="margin-top: 0; color: #5cb85c">Aufbereitung abgeschlossen</h3>
+                          <p>
+                            Alle <b>{{ countBackgroundPages(page) }} Hintergrundseiten</b> wurden
+                            erfolgreich erstellt und sind bereit für den Report.
+                          </p>
+                          <p>
+                            Sie können den fertigen Report nun über die Buttons am rechten Rand
+                            herunterladen.
+                          </p>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+        <!-- <div id="reporting-overview-bot-btn-row-1" class="clearfix">
+      <button class="btn btn-danger pull-right" ng-click='resetTemplate()'>
+        <i class="fas fa-exclamation-triangle"></i>
+        &nbsp;&nbsp;Template zurücksetzen
+      </button>
+    </div> -->
+
+        <hr />
+      </div>
+    </div>
+    <div class="modal-custom-footer">
+      <div>
+        <button class="btn btn-warning" (click)="onBackToTemplateSelectionClicked()">
+          <i class="fa fa-arrow-left"></i>
+          &nbsp;&nbsp;Zurück zur Templateauswahl
+        </button>
+        <button type="button" class="btn btn-primary" (click)="exportConfig()">
+          <i class="fa fa-save"></i>
+          &nbsp;&nbsp;Einstellungen exportieren</button
+        ><!--  -->
+
+        @if (
+          !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate &&
+          leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures > 0
+        ) {
+          <button [disabled]="true" type="button" class="btn btn-info pull-right">
+            <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            <span
+              >Kartenbildaufbereitung:
+              {{ leafletScreenshotCacheHelperService.executedScreenshotMapKeys.size }} von
+              {{ leafletScreenshotCacheHelperService.targetNumberOfSpatialUnitFeatures }}</span
+            >
+          </button>
+        }
+
+        @if (!lastPageOfAddedSectionPrepared && pagePreparationSize > 0) {
+          <button
+            [disabled]="true"
+            style="margin-right: 15px"
+            type="button"
+            class="btn btn-warning pull-right"
+          >
+            <span class="glyphicon glyphicon-refresh icon-spin"></span>
+            <span
+              >Reportaufbereitung: {{ pagePreparationIndex + 1 }} von
+              {{ pagePreparationSize }}</span
+            >
+          </button>
+        }
+      </div>
+      <div>
+        <button
+          [disabled]="
+            reportingService.templateSections.indicators.length == 0 ||
+            loadingData ||
+            !lastPageOfAddedSectionPrepared ||
+            !leafletScreenshotCacheHelperService.screenshotsForCurrentSpatialUnitUpdate
+          "
+          style="margin-right: 15px"
+          type="button"
+          class="btn btn-success pull-right"
+          data-toggle="modal"
+          (click)="generateReport()"
+        >
+          <i class="fa fa-copy"></i>
+          &nbsp;&nbsp;Report erzeugen
+        </button>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,12 +1,13 @@
 <div class="km-date-picker">
   <div class="input-group date-input-group">
     <div class="input-group-btn">
-      <button 
-        class="btn btn-default date-toggle-btn" 
-        type="button" 
-        [disabled]="disabled" 
-        (click)="dp.toggle()" 
-        title="Kalender öffnen">
+      <button
+        class="btn btn-default date-toggle-btn"
+        type="button"
+        [disabled]="disabled"
+        (click)="dp.toggle()"
+        title="Kalender öffnen"
+      >
         <i class="far fa-calendar-alt"></i>
       </button>
     </div>
@@ -31,12 +32,20 @@
     </div>
   </div>
 
-  <div *ngIf="shouldShowInvalid" class="invalid-feedback d-block mt-1">
-    <span *ngIf="hasError('required')">Dieses Feld ist erforderlich.</span>
-    <span *ngIf="hasError('dateFormat')">Ungültiges Datum. Format: JJJJ-MM-TT.</span>
-    <span *ngIf="hasError('minDate')">Datum ist vor dem Minimum ({{ min }}).</span>
-    <span *ngIf="hasError('maxDate')">Datum ist nach dem Maximum ({{ max }}).</span>
-  </div>
+  @if (shouldShowInvalid) {
+    <div class="invalid-feedback d-block mt-1">
+      @if (hasError('required')) {
+        <span>Dieses Feld ist erforderlich.</span>
+      }
+      @if (hasError('dateFormat')) {
+        <span>Ungültiges Datum. Format: JJJJ-MM-TT.</span>
+      }
+      @if (hasError('minDate')) {
+        <span>Datum ist vor dem Minimum ({{ min }}).</span>
+      }
+      @if (hasError('maxDate')) {
+        <span>Datum ist nach dem Maximum ({{ max }}).</span>
+      }
+    </div>
+  }
 </div>
-
-

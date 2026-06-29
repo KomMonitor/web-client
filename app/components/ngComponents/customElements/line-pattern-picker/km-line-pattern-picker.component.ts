@@ -1,5 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export interface LinePatternOption {
@@ -11,9 +19,9 @@ export interface LinePatternOption {
 @Component({
   selector: 'km-line-pattern-picker',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './km-line-pattern-picker.component.html',
-  styleUrls: ['./km-line-pattern-picker.component.scss']
+  styleUrls: ['./km-line-pattern-picker.component.scss'],
 })
 export class KmLinePatternPickerComponent implements OnInit {
   @Input() selectedPattern: LinePatternOption | null = null;
@@ -23,7 +31,7 @@ export class KmLinePatternPickerComponent implements OnInit {
   @Input() disabled: boolean = false;
   @Input() closeOnOutsideClick: boolean = true;
   @Input() width: string = '200px';
-  
+
   @Output() patternChange = new EventEmitter<LinePatternOption | null>();
   @Output() selectionChange = new EventEmitter<LinePatternOption | null>();
 
@@ -46,8 +54,8 @@ export class KmLinePatternPickerComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (this.disabled) { 
-      return; 
+    if (this.disabled) {
+      return;
     }
     this.isOpen = !this.isOpen;
   }
@@ -70,7 +78,7 @@ export class KmLinePatternPickerComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
     }
-    
+
     if (this.disabled) {
       return;
     }
@@ -86,7 +94,7 @@ export class KmLinePatternPickerComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
     }
-    
+
     if (this.disabled) {
       return;
     }
@@ -101,12 +109,12 @@ export class KmLinePatternPickerComponent implements OnInit {
     if (!svgString) {
       return '' as unknown as SafeHtml;
     }
-    
+
     const cached = this.svgSanitizeCache.get(svgString);
     if (cached) {
       return cached;
     }
-    
+
     const trusted = this.sanitizer.bypassSecurityTrustHtml(svgString);
     this.svgSanitizeCache.set(svgString, trusted);
     return trusted;
@@ -128,7 +136,7 @@ export class KmLinePatternPickerComponent implements OnInit {
       this.isOpen = false;
       return;
     }
-    
+
     if (!hostEl.contains(targetNode)) {
       this.isOpen = false;
     }

@@ -1,5 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 
 export interface dualListInput {
   items: item[];
@@ -16,13 +23,12 @@ export interface item {
   templateUrl: './dual-list-box.component.html',
   styleUrls: ['./dual-list-box.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [],
 })
 export class DualListBoxComponent implements OnInit, OnChanges {
+  @Input() data!: dualListInput;
+  @Input() reload: boolean = false;
 
-  @Input() data!:dualListInput;
-  @Input() reload:boolean = false;
-  
   @Output() selectedItems = new EventEmitter<any>();
 
   selectSize: number = 5;
@@ -47,42 +53,45 @@ export class DualListBoxComponent implements OnInit, OnChanges {
   }
 
   prepAvailableItemsOnSetup(): item[] {
+    const selectedItemNames = this.data.selectedItems.map((e) => e.name);
 
-    const selectedItemNames = this.data.selectedItems.map(e => e.name);
-
-    return this.data.items.filter(elem => !selectedItemNames.includes(elem.name));
+    return this.data.items.filter((elem) => !selectedItemNames.includes(elem.name));
   }
 
-  onAvailableElementClick(elem:item) {
+  onAvailableElementClick(elem: item) {
     this.selectedElements.push(elem);
     this.displayedSelectedElements = this.selectedElements;
 
-    this.availableElements = this.availableElements.filter(e => e.id!=elem.id);
+    this.availableElements = this.availableElements.filter((e) => e.id != elem.id);
     this.displayedAvailableElements = this.availableElements;
 
     this.updateSelectedElements();
-  } 
+  }
 
-  onSelectedElementClick(elem:item) {
+  onSelectedElementClick(elem: item) {
     this.availableElements.push(elem);
     this.displayedAvailableElements = this.availableElements;
 
-    this.selectedElements = this.selectedElements.filter(e => e.id!=elem.id);
+    this.selectedElements = this.selectedElements.filter((e) => e.id != elem.id);
     this.displayedSelectedElements = this.selectedElements;
-    
+
     this.updateSelectedElements();
   }
 
-  onAvailableSearchChange(event:any) {
+  onAvailableSearchChange(event: any) {
     const value = event.target.value.toUpperCase();
-    
-    this.displayedAvailableElements = this.availableElements.filter(e => e.name.toUpperCase().includes(value));
+
+    this.displayedAvailableElements = this.availableElements.filter((e) =>
+      e.name.toUpperCase().includes(value)
+    );
   }
 
-  onSelectedSearchChange(event:any) {
+  onSelectedSearchChange(event: any) {
     const value = event.target.value.toUpperCase();
 
-    this.displayedSelectedElements = this.selectedElements.filter(e => e.name.toUpperCase().includes(value));
+    this.displayedSelectedElements = this.selectedElements.filter((e) =>
+      e.name.toUpperCase().includes(value)
+    );
   }
 
   updateSelectedElements() {

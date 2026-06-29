@@ -1,62 +1,84 @@
 <div style="text-align: center" id="indicatorDiagrams">
-	<!-- DIAGRAMS which will be automatically updated on changed indicator -->
-	<!-- preparing a DOM with width and height for ECharts -->
-	<div style="text-align: center">
-		<div class="loading-overlay-sidebar-small ng-hide" *ngIf="loadingData">
-					<span class="glyphicon glyphicon-refresh icon-spin"></span>
-		</div>
-	</div>
+  <!-- DIAGRAMS which will be automatically updated on changed indicator -->
+  <!-- preparing a DOM with width and height for ECharts -->
+  <div style="text-align: center">
+    @if (loadingData) {
+      <div class="loading-overlay-sidebar-small ng-hide">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+      </div>
+    }
+  </div>
 
-	<div *ngIf="isTooManyFeatures">
-		<br/>
-		<br/>
-		<br/>
-		<h4>gew&auml;hlte Raumebene enth&auml;lt zu viele Raumeinheiten. Balkendiagramm kann nicht dargestellt werden.</h4>
-		<br/>
-		<br/>
-		<br/>
-	</div>
-
-  <expandable-box *ngIf="!isTooManyFeatures" [title]="title" [borderColor]="'green'" [collapsed]="false">
-    <div class="chart">
-      <div class="row">
-        <div class="col-md-6" style="text-align: left;">
-          <div *ngIf="selectionState.allFeaturesRegionalSum()">
-            <b>{{labelService.labelSum_regional}}</b> {{selectionState.allFeaturesRegionalSum()}}								
-          </div>
-          <div *ngIf="selectionState.allFeaturesRegionalSpatiallyUnassignable()">
-            <b>{{labelService.labelSpatiallyUnassignable_regional}}</b> {{selectionState.allFeaturesRegionalSpatiallyUnassignable() || 0}}								
-          </div>
-        </div>
-        <div class="col-md-6" style="text-align: right;">
-          <b title="Checkbox zur Wahl, ob Label der Raumebene im Diagramm angezeigt werden sollen">Namen der Raumebene darstellen?</b>
-          &nbsp;
-          <label class="switch">
-            <input type="checkbox" [(ngModel)]="showBarChartLabel" (change)="updateBarChart()"
-              checked>
-            <span class="switchslider round"></span>
-          </label>
-
-          <br/>
-
-          <b title="Checkbox zur Wahl, ob Durchschnittslinie im Diagramm angezeigt werden sollen">Durchschnittslinie darstellen?</b>
-          &nbsp;
-          <label class="switch">
-            <input type="checkbox" [(ngModel)]="showBarChartAverageLine" (change)="updateBarChart()">
-            <span class="switchslider round"></span>
-          </label>
-        </div>
-      </div>				
-                                  
-      <div  id="barDiagram" style="width:100%; min-height:30vh;"></div>
+  @if (isTooManyFeatures) {
+    <div>
+      <br />
+      <br />
+      <br />
+      <h4>
+        gew&auml;hlte Raumebene enth&auml;lt zu viele Raumeinheiten. Balkendiagramm kann nicht
+        dargestellt werden.
+      </h4>
+      <br />
+      <br />
+      <br />
     </div>
-  </expandable-box>
+  }
 
+  @if (!isTooManyFeatures) {
+    <expandable-box [title]="title" [borderColor]="'green'" [collapsed]="false">
+      <div class="chart">
+        <div class="row">
+          <div class="col-md-6" style="text-align: left">
+            @if (selectionState.allFeaturesRegionalSum()) {
+              <div>
+                <b>{{ labelService.labelSum_regional }}</b>
+                {{ selectionState.allFeaturesRegionalSum() }}
+              </div>
+            }
+            @if (selectionState.allFeaturesRegionalSpatiallyUnassignable()) {
+              <div>
+                <b>{{ labelService.labelSpatiallyUnassignable_regional }}</b>
+                {{ selectionState.allFeaturesRegionalSpatiallyUnassignable() || 0 }}
+              </div>
+            }
+          </div>
+          <div class="col-md-6" style="text-align: right">
+            <b title="Checkbox zur Wahl, ob Label der Raumebene im Diagramm angezeigt werden sollen"
+              >Namen der Raumebene darstellen?</b
+            >
+            &nbsp;
+            <label class="switch">
+              <input
+                type="checkbox"
+                [(ngModel)]="showBarChartLabel"
+                (change)="updateBarChart()"
+                checked
+              />
+              <span class="switchslider round"></span>
+            </label>
+            <br />
+            <b title="Checkbox zur Wahl, ob Durchschnittslinie im Diagramm angezeigt werden sollen"
+              >Durchschnittslinie darstellen?</b
+            >
+            &nbsp;
+            <label class="switch">
+              <input
+                type="checkbox"
+                [(ngModel)]="showBarChartAverageLine"
+                (change)="updateBarChart()"
+              />
+              <span class="switchslider round"></span>
+            </label>
+          </div>
+        </div>
+        <div id="barDiagram" style="width: 100%; min-height: 30vh"></div>
+      </div>
+    </expandable-box>
+  }
 
   <expandable-box [title]="lineTitle" [collapsed]="false" [borderColor]="'green'">
     <div class="chart">
-      <div id="lineDiagram" style="width:100%; min-height:40vh;"></div>
-    </div>  
+      <div id="lineDiagram" style="width: 100%; min-height: 40vh"></div>
+    </div>
   </expandable-box>
-	
 </div>

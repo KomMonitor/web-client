@@ -1,24 +1,23 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { ExportingStateService, ExportType } from "../exporting-state.service";
+import { Component } from '@angular/core';
+import { ExportingStateService, ExportType } from '../exporting-state.service';
 
 @Component({
-  selector: "app-export-typ-selection",
-  templateUrl: "./export-typ-selection.component.html",
-  styleUrls: ["./export-typ-selection.component.scss"],
-  imports: [CommonModule],
+  selector: 'app-export-typ-selection',
+  templateUrl: './export-typ-selection.component.html',
+  styleUrls: ['./export-typ-selection.component.scss'],
+  imports: [],
   standalone: true,
 })
 export class ExportTypSelectionComponent {
   options: { val: ExportType; label: string }[] = [
-    { val: "single", label: "Einzel-Export (Standard)" },
+    { val: 'single', label: 'Einzel-Export (Standard)' },
     {
-      val: "spatialUnit",
-      label: "Mehrere Indikatoren für eine Raumebene",
+      val: 'spatialUnit',
+      label: 'Mehrere Indikatoren für eine Raumebene',
     },
     {
-      val: "multiple",
-      label: "Ein Indikator für mehrere Raumebenen",
+      val: 'multiple',
+      label: 'Ein Indikator für mehrere Raumebenen',
     },
   ];
 

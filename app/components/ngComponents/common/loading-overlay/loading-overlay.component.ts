@@ -1,11 +1,10 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
-  selector: "app-loading-overlay",
-  templateUrl: "./loading-overlay.component.html",
-  styleUrls: ["./loading-overlay.component.scss"],
-  imports: [CommonModule],
+  selector: 'app-loading-overlay',
+  templateUrl: './loading-overlay.component.html',
+  styleUrls: ['./loading-overlay.component.scss'],
+  imports: [],
   standalone: true,
 })
 export class LoadingOverlayComponent {

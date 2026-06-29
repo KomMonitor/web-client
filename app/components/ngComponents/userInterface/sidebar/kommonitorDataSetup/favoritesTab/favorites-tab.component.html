@@ -1,122 +1,121 @@
 <div class="list-group list-group-root well" style="text-align: left">
   <ng-template #FavsRecursive let-list="list">
-    <div
-      *ngFor="
-        let topic of list
-          | indicatorFavFilter
-            : indicatorFavTopicsTree
-            : indicatorTopicFavItems
-            : indicatorFavItems
-            : wmsFavItems
-      "
-    >
-      <div
-        [ngClass]="[
-          'list-group-item',
-          'list-group-item-default',
-          'list-group-item-grid-centered',
-          'list-group-item-level-' + topic.level,
-          checkHierarchyIndicatorSelected(topic)
-            ? 'style-fav-selected-indicator-' + topic.level
-            : 'style-fav-normal-indicator-' + topic.level,
-        ]"
-      >
-        <p
-          *ngIf="topic.subTopics.length > 0 || topic.indicatorData.length > 0"
-          [title]="topic.topicDescription"
-          class="indicatorFavCollapseTrigger"
-          (click)="onTopicClick(topic.topicId)"
-        >
-          <i
-            class="fa-solid"
-            [ngClass]="{
-              'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
-              'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
-            }"
-          ></i>
-          {{ topic.topicName }}
-        </p>
-        <p
-          *ngIf="topic.subTopics.length == 0 && topic.indicatorData.length == 0"
-        >
-          {{ topic.topicName }}
-        </p>
-        <i
-          [hidden]="!showFavSelection"
-          class="fav-star fa-star"
-          [ngClass]="{
-            'fa-solid': indicatorTopicFavItems.includes(topic.topicId),
-            'fa-regular': !indicatorTopicFavItems.includes(topic.topicId),
-          }"
-          (click)="indicatorTopicFavToggled.emit(topic.topicId)"
-        ></i>
-      </div>
-
-      <div
-        class="subTopic-block"
-        [ngClass]="'sub-topic-wrapper-level-' + topic.level"
-        [hidden]="collapsedTopicIds.includes(topic.topicId)"
-      >
-        <div *ngIf="topic.subTopics">
-          <ng-container
-            *ngTemplateOutlet="
-              FavsRecursive;
-              context: { list: topic.subTopics }
-            "
-          ></ng-container>
-        </div>
-
-        <!-- Indikatoren -->
+    @for (
+      topic of list
+        | indicatorFavFilter
+          : indicatorFavTopicsTree
+          : indicatorTopicFavItems
+          : indicatorFavItems
+          : wmsFavItems;
+      track topic
+    ) {
+      <div>
         <div
-          *ngFor="let data of topic.indicatorData"
-          class="indicator-element list-group-item-grid-layout favs"
-          [ngClass]="{
-            'style-headline-indicator': data.isHeadlineIndicator,
-            selectedIndicator:
-              selectionState.selectedIndicator.indicatorId ==
-              data.indicatorId,
-          }"
+          [ngClass]="[
+            'list-group-item',
+            'list-group-item-default',
+            'list-group-item-grid-centered',
+            'list-group-item-level-' + topic.level,
+            checkHierarchyIndicatorSelected(topic)
+              ? 'style-fav-selected-indicator-' + topic.level
+              : 'style-fav-normal-indicator-' + topic.level,
+          ]"
         >
-          <div class="fav-indicator-row">
-            <div (click)="indicatorSelected.emit(data)">
-              <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b>{{
-                data.indicatorName
-              }}</b>
-              [{{ data.unit }}]
-            </div>
-            <app-indicator-metadata-tooltip
-              [indicatorData]="{ data: data, prefix: 'fav' }"
-            ></app-indicator-metadata-tooltip>
-            <i
-              [hidden]="!showFavSelection"
-              class="fav-star fa-star"
-              [ngClass]="{
-                'fa-solid': indicatorFavItems.includes(data.indicatorId),
-                'fa-regular': !indicatorFavItems.includes(data.indicatorId),
-              }"
-              (click)="indicatorFavToggled.emit(data.indicatorId)"
-            ></i>
-          </div>
-          <app-export-item-checkbox
-            *ngIf="exportModeService.exportMode()"
-            class="fav-export-checkbox"
-            kind="indicator"
-            [dataset]="toExportIndicator(data)"
-          ></app-export-item-checkbox>
+          @if (topic.subTopics.length > 0 || topic.indicatorData.length > 0) {
+            <p
+              [title]="topic.topicDescription"
+              class="indicatorFavCollapseTrigger"
+              (click)="onTopicClick(topic.topicId)"
+            >
+              <i
+                class="fa-solid"
+                [ngClass]="{
+                  'fa-chevron-right': collapsedTopicIds.includes(topic.topicId),
+                  'fa-chevron-down': !collapsedTopicIds.includes(topic.topicId),
+                }"
+              ></i>
+              {{ topic.topicName }}
+            </p>
+          }
+          @if (topic.subTopics.length == 0 && topic.indicatorData.length == 0) {
+            <p>
+              {{ topic.topicName }}
+            </p>
+          }
+          <i
+            [hidden]="!showFavSelection"
+            class="fav-star fa-star"
+            [ngClass]="{
+              'fa-solid': indicatorTopicFavItems.includes(topic.topicId),
+              'fa-regular': !indicatorTopicFavItems.includes(topic.topicId),
+            }"
+            (click)="indicatorTopicFavToggled.emit(topic.topicId)"
+          ></i>
         </div>
-
-        <!-- WMS -->
-        <div *ngIf="topic.wmsData.length" class="indicator-element favs">
-          <app-wms-table
-            [wmsDataList]="topic.wmsData"
-            [showFavSelection]="showFavSelection"
-            [wmsFavItems]="wmsFavItems"
-            (wmsToggled)="wmsToggled.emit($event)"
-            (wmsFavToggled)="wmsFavToggled.emit($event)"
-          ></app-wms-table>
+        <div
+          class="subTopic-block"
+          [ngClass]="'sub-topic-wrapper-level-' + topic.level"
+          [hidden]="collapsedTopicIds.includes(topic.topicId)"
+        >
+          @if (topic.subTopics) {
+            <div>
+              <ng-container
+                *ngTemplateOutlet="FavsRecursive; context: { list: topic.subTopics }"
+              ></ng-container>
+            </div>
+          }
+          <!-- Indikatoren -->
+          @for (data of topic.indicatorData; track data) {
+            <div
+              class="indicator-element list-group-item-grid-layout favs"
+              [ngClass]="{
+                'style-headline-indicator': data.isHeadlineIndicator,
+                selectedIndicator: selectionState.selectedIndicator.indicatorId == data.indicatorId,
+              }"
+            >
+              <div class="fav-indicator-row">
+                <div (click)="indicatorSelected.emit(data)">
+                  <i class="fas fa-sitemap"></i>&nbsp;&nbsp;<b>{{ data.indicatorName }}</b> [{{
+                    data.unit
+                  }}]
+                </div>
+                <app-indicator-metadata-tooltip
+                  [indicatorData]="{ data: data, prefix: 'fav' }"
+                ></app-indicator-metadata-tooltip>
+                <i
+                  [hidden]="!showFavSelection"
+                  class="fav-star fa-star"
+                  [ngClass]="{
+                    'fa-solid': indicatorFavItems.includes(data.indicatorId),
+                    'fa-regular': !indicatorFavItems.includes(data.indicatorId),
+                  }"
+                  (click)="indicatorFavToggled.emit(data.indicatorId)"
+                ></i>
+              </div>
+              @if (exportModeService.exportMode()) {
+                <app-export-item-checkbox
+                  class="fav-export-checkbox"
+                  kind="indicator"
+                  [dataset]="toExportIndicator(data)"
+                ></app-export-item-checkbox>
+              }
+            </div>
+          }
+          <!-- WMS -->
+          @if (topic.wmsData.length) {
+            <div class="indicator-element favs">
+              <app-wms-table
+                [wmsDataList]="topic.wmsData"
+                [showFavSelection]="showFavSelection"
+                [wmsFavItems]="wmsFavItems"
+                (wmsToggled)="wmsToggled.emit($event)"
+                (wmsFavToggled)="wmsFavToggled.emit($event)"
+              ></app-wms-table>
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
   </ng-template>
 
   <ng-container

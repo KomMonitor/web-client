@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReportingService } from 'services/reporting-service/reporting.service';
 
@@ -6,7 +5,7 @@ import { ReportingService } from 'services/reporting-service/reporting.service';
   selector: 'app-reporting-background-processor',
   standalone: true,
   templateUrl: './reporting-background-processor.component.html',
-  imports: [CommonModule],
+  imports: [],
 })
 export class ReportingBackgroundProcessorComponent {
   constructor(protected reportingService: ReportingService) {}

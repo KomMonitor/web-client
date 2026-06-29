@@ -2,34 +2,36 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
-import jsPDF from "jspdf";
+import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as docx from 'docx';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
-import pptxgen  from 'pptxgenjs';
+import pptxgen from 'pptxgenjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { reportingData } from '../reporting-modal.component';
-import { ConfigData, ReportingService, WorkflowState } from 'services/reporting-service/reporting.service';
-import { CommonModule } from '@angular/common';
+import {
+  ConfigData,
+  ReportingService,
+  WorkflowState,
+} from 'services/reporting-service/reporting.service';
 
 @Component({
   selector: 'app-generate-report',
   standalone: true,
   templateUrl: './generate-report.component.html',
   styleUrls: ['./generate-report.component.scss'],
-  imports: [CommonModule]
+  imports: [],
 })
 export class GenerateReportComponent implements OnInit {
-
   activeModal = inject(NgbActiveModal);
-  
-  @Input() data!:reportingData;
+
+  @Input() data!: reportingData;
 
   loadingData = false;
-  
+
   deviceScreenDpi;
   echartsImgPixelRatio = 2;
   pxPerMilli;
@@ -45,47 +47,42 @@ export class GenerateReportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.deviceScreenDpi = this.calculateScreenDpi();
-    this.pxPerMilli = this.deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
+    this.pxPerMilli = this.deviceScreenDpi / 25.4; // /2.54 --> cm, /10 --> mm
 
     this.reportingService.changeWorkflowState(this.workflowState.formatSelect);
   }
 
-  
   calculateScreenDpi() {
     // create a hidden div that is one inch high
-    const div = document.createElement("div")
-    div.style.height = "1in";
-    div.style.position = "absolute";
-    div.style.left = "-100%";
-    div.style.top = "-100%";
-    document.getElementsByTagName("body")[0].append(div);
-    const dpi = div.offsetHeight
-    div.style.display = "none";
-    return dpi
+    const div = document.createElement('div');
+    div.style.height = '1in';
+    div.style.position = 'absolute';
+    div.style.left = '-100%';
+    div.style.top = '-100%';
+    document.getElementsByTagName('body')[0].append(div);
+    const dpi = div.offsetHeight;
+    div.style.display = 'none';
+    return dpi;
   }
 
   //async
   async generateReport(format) {
-
     this.reportingService.changeWorkflowState(this.workflowState.reportGeneration);
 
     try {
-
       this.loadingData = true;
 
-      format === "pdf" && await this.generatePdfReport();
-      format === "docx" && await this.generateWordReport();
-      format === "zip" && await this.generateZipFolder();
-      format === "pptx" && await this.generatePptxReport();
-      
+      format === 'pdf' && (await this.generatePdfReport());
+      format === 'docx' && (await this.generateWordReport());
+      format === 'zip' && (await this.generateZipFolder());
+      format === 'pptx' && (await this.generatePptxReport());
+
       this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
-      
+
       this.loadingData = false;
       this.activeModal.close();
-
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(error);
       this.mapErrorNotificationService.displayMapApplicationError(error.message);
       this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
@@ -95,16 +92,15 @@ export class GenerateReportComponent implements OnInit {
   }
 
   async generatePptxReport() {
+    const doc: any = new pptxgen();
 
-    const doc:any = new pptxgen();
+    doc.defineLayout({ name: 'A4-landscape', width: 29.7, height: 21 });
+    doc.defineLayout({ name: 'A4-portrait', width: 21, height: 29.7 });
 
-    doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
-    doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
-
-    doc.layout = 'A4-'+this.reportingService.workingTemplate.pages[0].orientation;
+    doc.layout = 'A4-' + this.reportingService.workingTemplate.pages[0].orientation;
 
     const fontSize = 42;
-    const fontFace = "Source Sans Pro";
+    const fontFace = 'Source Sans Pro';
 
     // Font setting
     doc.theme = { headFontFace: fontFace };
@@ -112,267 +108,389 @@ export class GenerateReportComponent implements OnInit {
 
     // Master slide def
     doc.defineSlideMaster({
-      title: "TEMPLATE_SLIDE",
-      background: { color: "FFFFFF" },
+      title: 'TEMPLATE_SLIDE',
+      background: { color: 'FFFFFF' },
       objects: [
-        { // title
+        {
+          // title
           placeholder: {
-            options: { 
-              name: "slide_title", 
-              type: "title", 
-              w: "80%", 
-              h: 1, 
-              bold: true, 
-              align: "left",
+            options: {
+              name: 'slide_title',
+              type: 'title',
+              w: '80%',
+              h: 1,
+              bold: true,
+              align: 'left',
               fontSize: fontSize,
-              fontFace: fontFace
+              fontFace: fontFace,
             },
-            text: "(page_title)",
+            text: '(page_title)',
           },
         },
-        { // subtitle
+        {
+          // subtitle
           placeholder: {
-            options: { 
-              name: "slide_subtitle", 
-              type: "title", 
-              w: "80%", 
-              h: 1, 
-              align: "left",
+            options: {
+              name: 'slide_subtitle',
+              type: 'title',
+              w: '80%',
+              h: 1,
+              align: 'left',
               fontSize: fontSize,
-              fontFace: fontFace
+              fontFace: fontFace,
             },
-            text: "(page_subtitle)",
+            text: '(page_subtitle)',
           },
         },
-        { // footer
+        {
+          // footer
           placeholder: {
-            options: { 
-              name: "slide_footer", 
-              type: "title", 
-              w: "80%", 
-              h: 1, 
-              align: "left",
+            options: {
+              name: 'slide_footer',
+              type: 'title',
+              w: '80%',
+              h: 1,
+              align: 'left',
               fontSize: fontSize,
-              fontFace: fontFace
+              fontFace: fontFace,
             },
-            text: "(page_subtitle)",
+            text: '(page_subtitle)',
           },
         },
-        { // "Seite" - text
+        {
+          // "Seite" - text
           placeholder: {
-            options: { 
-              name: "slide_pageNumber", 
-              type: "title", 
-              w: 3, 
-              h: 1, 
-              align: "left",
+            options: {
+              name: 'slide_pageNumber',
+              type: 'title',
+              w: 3,
+              h: 1,
+              align: 'left',
               fontSize: fontSize,
-              fontFace: fontFace
+              fontFace: fontFace,
             },
-            text: "(page_pageNumber)",
-          }
+            text: '(page_pageNumber)',
+          },
         },
-      ] 
+      ],
     });
 
-
     // 2. Add a Slide to the presentation
-    const slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+    const slide = doc.addSlide({ masterName: 'TEMPLATE_SLIDE' });
     // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
-    slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
-    slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
-    slide.addText("Erstellt am 2022-12-31 von M.Mustermann, Testkommune", { placeholder: "slide_footer" });
-
+    slide.addText('Einwohner [Anzahl]', { placeholder: 'slide_title' });
+    slide.addText('2022-12-31', { placeholder: 'slide_subtitle' });
+    slide.addText('Erstellt am 2022-12-31 von M.Mustermann, Testkommune', {
+      placeholder: 'slide_footer',
+    });
 
     // Pages
 
-    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-
-      if(!this.showThisPage(page)) {
+    for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (!this.showThisPage(page)) {
         continue;
       }
 
       // 2. Add a Slide to the presentation
-      const slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+      const slide = doc.addSlide({ masterName: 'TEMPLATE_SLIDE' });
 
       const formatFactor = 3.4;
 
-      const pageConfig:ConfigData = page.templateSection.pageConfig;
+      const pageConfig: ConfigData = page.templateSection.pageConfig;
 
-      const pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(const pageElement of page.pageElements) {
-
+      const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
+      for (const pageElement of page.pageElements) {
         let pElementDom;
-        if(pageElement.type === "linechart") {
-          const arr = pageDom.querySelectorAll(".type-linechart");
-          if(pageElement.showPercentageChangeToPrevTimestamp) {
+        if (pageElement.type === 'linechart') {
+          const arr = pageDom.querySelectorAll('.type-linechart');
+          if (pageElement.showPercentageChangeToPrevTimestamp) {
             pElementDom = arr[1];
           } else {
             pElementDom = arr[0];
           }
         } else {
-          pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+          pElementDom = pageDom.querySelector(
+            '#reporting-overview-page-' + idx + '-' + pageElement.type
+          );
         }
 
-        const pageElementDimensions:any = {}
-        pageElementDimensions.top = pageElement.dimensions.top && this.pxToInch(pageElement.dimensions.top)*formatFactor;
-        pageElementDimensions.bottom = pageElement.dimensions.bottom && this.pxToInch(pageElement.dimensions.bottom)*formatFactor;
-        pageElementDimensions.left = pageElement.dimensions.left && this.pxToInch(pageElement.dimensions.left)*formatFactor;
-        pageElementDimensions.right = pageElement.dimensions.right && this.pxToInch(pageElement.dimensions.right)*formatFactor;
-        pageElementDimensions.width = pageElement.dimensions.width && this.pxToInch(pageElement.dimensions.width)*formatFactor;
-        pageElementDimensions.height = pageElement.dimensions.height && this.pxToInch(pageElement.dimensions.height)*formatFactor;
+        const pageElementDimensions: any = {};
+        pageElementDimensions.top =
+          pageElement.dimensions.top && this.pxToInch(pageElement.dimensions.top) * formatFactor;
+        pageElementDimensions.bottom =
+          pageElement.dimensions.bottom &&
+          this.pxToInch(pageElement.dimensions.bottom) * formatFactor;
+        pageElementDimensions.left =
+          pageElement.dimensions.left && this.pxToInch(pageElement.dimensions.left) * formatFactor;
+        pageElementDimensions.right =
+          pageElement.dimensions.right &&
+          this.pxToInch(pageElement.dimensions.right) * formatFactor;
+        pageElementDimensions.width =
+          pageElement.dimensions.width &&
+          this.pxToInch(pageElement.dimensions.width) * formatFactor;
+        pageElementDimensions.height =
+          pageElement.dimensions.height &&
+          this.pxToInch(pageElement.dimensions.height) * formatFactor;
 
-        switch(pageElement.type) {
-          case "indicatorTitle-landscape":
-          case "indicatorTitle-portrait": {
-            if (! pageConfig.headerFooterControl.showTitle){
+        switch (pageElement.type) {
+          case 'indicatorTitle-landscape':
+          case 'indicatorTitle-portrait': {
+            if (!pageConfig.headerFooterControl.showTitle) {
               // skip
               continue;
             }
-                    slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_title" });
+            slide.addText(pageElement.text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              placeholder: 'slide_title',
+            });
             break;
           }
 
-          case "communeLogo-landscape":
-          case "communeLogo-portrait": {
-            if (! pageConfig.headerFooterControl.showLogo){
+          case 'communeLogo-landscape':
+          case 'communeLogo-portrait': {
+            if (!pageConfig.headerFooterControl.showLogo) {
               // skip
               continue;
             }
-            if(pageElement.src && pageElement.src.length) {
-
+            if (pageElement.src && pageElement.src.length) {
               const img = new Image();
               img.src = pageElement.src;
               const imageWidth = img.width;
               const imageHeight = img.height;
 
               // create an image in width/size of the uploaded one (img object). Then shrink it down to pageElementDimensions, while containing imgRatio
-              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: imageWidth, h: imageHeight, path: pageElement.src, sizing: { type: "contain", w: pageElementDimensions.width, h: pageElementDimensions.height}});
+              slide.addImage({
+                x: pageElementDimensions.left,
+                y: pageElementDimensions.top,
+                w: imageWidth,
+                h: imageHeight,
+                path: pageElement.src,
+                sizing: {
+                  type: 'contain',
+                  w: pageElementDimensions.width,
+                  h: pageElementDimensions.height,
+                },
+              });
             }
             break;
           }
-          case "dataTimestamp-landscape":
-          case "dataTimestamp-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'dataTimestamp-landscape':
+          case 'dataTimestamp-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
-            slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_subtitle" });
+            slide.addText(pageElement.text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              placeholder: 'slide_subtitle',
+            });
             break;
           }
-          case "dataTimeseries-landscape":
-          case "dataTimeseries-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'dataTimeseries-landscape':
+          case 'dataTimeseries-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
-            slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, fontSize: fontSize-3, fontFace: fontFace });
+            slide.addText(pageElement.text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              fontSize: fontSize - 3,
+              fontFace: fontFace,
+            });
             break;
           }
-          case "reachability-subtitle-landscape":
-          case "reachability-subtitle-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'reachability-subtitle-landscape':
+          case 'reachability-subtitle-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
-            slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, fontSize: fontSize-3, fontFace: fontFace });
+            slide.addText(pageElement.text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              fontSize: fontSize - 3,
+              fontFace: fontFace,
+            });
             break;
           }
-          case "footerHorizontalSpacer-landscape":
-          case "footerHorizontalSpacer-portrait": {
-            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
+          case 'footerHorizontalSpacer-landscape':
+          case 'footerHorizontalSpacer-portrait': {
+            if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
             }
-            slide.addShape(doc.shapes.LINE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: 0.0, line: { color: '#000000', width: 1 } });
+            slide.addShape(doc.shapes.LINE, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              w: pageElementDimensions.width,
+              h: 0.0,
+              line: { color: '#000000', width: 1 },
+            });
             break;
           }
-          case "footerCreationInfo-landscape":
-          case "footerCreationInfo-portrait": {  
-            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
-              // skip
-              continue;								
-            }
-            slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_footer" });
-            break;
-          } 
-          case "pageNumber-landscape":
-          case "pageNumber-portrait": {
-            if (! pageConfig.headerFooterControl.showPageNumber){
+          case 'footerCreationInfo-landscape':
+          case 'footerCreationInfo-portrait': {
+            if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
             }
-            const text = "Seite " + this.getPageNumber(idx);
-            slide.addText(text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_pageNumber" });
+            slide.addText(pageElement.text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              placeholder: 'slide_footer',
+            });
+            break;
+          }
+          case 'pageNumber-landscape':
+          case 'pageNumber-portrait': {
+            if (!pageConfig.headerFooterControl.showPageNumber) {
+              // skip
+              continue;
+            }
+            const text = 'Seite ' + this.getPageNumber(idx);
+            slide.addText(text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              placeholder: 'slide_pageNumber',
+            });
             break;
           }
           // template-specific elements
-          case "map": {
+          case 'map': {
             let imageDataUrl = page.generatedData?.echarts?.[pageElement.type];
             if (!imageDataUrl) {
               const instance: any = echarts.getInstanceByDom(pElementDom);
-              if (instance) imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (imageDataUrl) {
-              imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
-              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl });
+              imageDataUrl = await this.createLeafletEChartsMapImage(
+                page,
+                undefined,
+                pageElement,
+                imageDataUrl
+              );
+              slide.addImage({
+                x: pageElementDimensions.left,
+                y: pageElementDimensions.top,
+                w: pageElementDimensions.width,
+                h: pageElementDimensions.height,
+                data: imageDataUrl,
+              });
             }
             break;
           }
           // case "mapLegend" can be ignored since it is included in the map if needed
-          case "barchart": {
-            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
+          case 'barchart': {
+            if (
+              page.type == 'area_specific' &&
+              !pageConfig.sectionContentControl.showRankingChartPerArea
+            ) {
               continue;
             }
             let base64String = page.generatedData?.echarts?.[pageElement.type];
             if (!base64String) {
               const instance: any = echarts.getInstanceByDom(pElementDom);
-              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
-            if (base64String) slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String });
+            if (base64String)
+              slide.addImage({
+                x: pageElementDimensions.left,
+                y: pageElementDimensions.top,
+                w: pageElementDimensions.width,
+                h: pageElementDimensions.height,
+                data: base64String,
+              });
             break;
           }
-          case "linechart": {
-            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
+          case 'linechart': {
+            if (
+              page.type == 'area_specific' &&
+              !pageConfig.sectionContentControl.showLineChartPerArea
+            ) {
               continue;
             }
-            const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            const key =
+              pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
             let base64String = page.generatedData?.echarts?.[key];
             if (!base64String) {
               const instance: any = echarts.getInstanceByDom(pElementDom);
-              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
-            if (base64String) slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String });
+            if (base64String)
+              slide.addImage({
+                x: pageElementDimensions.left,
+                y: pageElementDimensions.top,
+                w: pageElementDimensions.width,
+                h: pageElementDimensions.height,
+                data: base64String,
+              });
             break;
           }
-          case "textInput": {
-            if (! pageConfig.sectionContentControl.showFreeText){
+          case 'textInput': {
+            if (!pageConfig.sectionContentControl.showFreeText) {
               // skip
               continue;
             }
-            slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, fontSize: fontSize-3, fontFace: fontFace });
+            slide.addText(pageElement.text, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              w: pageElementDimensions.width,
+              fontSize: fontSize - 3,
+              fontFace: fontFace,
+            });
             break;
           }
-          case "datatable": {
+          case 'datatable': {
             const tableData = page.generatedData?.tableData || pageElement.tableData;
             const columnNames = pageElement.columnNames;
             const data: any = [];
             if (tableData && tableData.length > 0) {
               const headerRow: any[] = [];
               for (const colName of columnNames) {
-                headerRow.push({ text: colName, options: { align: 'center', fontFace: fontFace, fontSize: fontSize - 3, bold: true, fill: '#dedede' } });
+                headerRow.push({
+                  text: colName,
+                  options: {
+                    align: 'center',
+                    fontFace: fontFace,
+                    fontSize: fontSize - 3,
+                    bold: true,
+                    fill: '#dedede',
+                  },
+                });
               }
               data.push(headerRow);
               tableData.forEach((row, rowIndex) => {
                 const singleRowData: any[] = [];
                 row.forEach((cell, cellIndex) => {
-                  const fillColour = (rowIndex % 2 === 0) ? '#ffffff' : '#f9f9f9';
-                  singleRowData.push({ text: cell.toString(), options: { align: (columnNames[cellIndex] === 'Wert' ? 'right' : 'left'), fontFace: fontFace, fontSize: fontSize - 3, bold: false, fill: fillColour } });
+                  const fillColour = rowIndex % 2 === 0 ? '#ffffff' : '#f9f9f9';
+                  singleRowData.push({
+                    text: cell.toString(),
+                    options: {
+                      align: columnNames[cellIndex] === 'Wert' ? 'right' : 'left',
+                      fontFace: fontFace,
+                      fontSize: fontSize - 3,
+                      bold: false,
+                      fill: fillColour,
+                    },
+                  });
                 });
                 data.push(singleRowData);
               });
             }
-            slide.addTable(data, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, rowH: 1, align: "left", border: { pt: "1", color: "#d6d6d6" } });
+            slide.addTable(data, {
+              x: pageElementDimensions.left,
+              y: pageElementDimensions.top,
+              w: pageElementDimensions.width,
+              rowH: 1,
+              align: 'left',
+              border: { pt: '1', color: '#d6d6d6' },
+            });
             break;
           }
         }
@@ -382,26 +500,24 @@ export class GenerateReportComponent implements OnInit {
 
     // 4. Save the Presentation
 
-    const now:any = this.getCurrentDateAndTime();
-    doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
+    const now: any = this.getCurrentDateAndTime();
+    doc.writeFile({ fileName: now + '_KomMonitor-Report.pptx' });
     this.loadingData = false;
   }
 
   filterPagesToShow() {
-    const pagesToShow:any[] = [];
+    const pagesToShow: any[] = [];
     let skipNextPage = false;
-    for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i ++) {
+    for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i++) {
       const page = this.reportingService.workingTemplate.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
-      }
-      else {
-        if(skipNextPage == false) {
+      } else {
+        if (skipNextPage == false) {
           pagesToShow.push(page);
           skipNextPage = true;
-        }
-        else {
+        } else {
           skipNextPage = false;
         }
       }
@@ -412,8 +528,8 @@ export class GenerateReportComponent implements OnInit {
   pageContainsDatatable(pageID) {
     const page = this.reportingService.workingTemplate.pages[pageID];
     let pageContainsDatatable = false;
-    for(const pageElement of page.pageElements) {
-      if(pageElement.type == "datatable") {
+    for (const pageElement of page.pageElements) {
+      if (pageElement.type == 'datatable') {
         pageContainsDatatable = true;
       }
     }
@@ -421,13 +537,12 @@ export class GenerateReportComponent implements OnInit {
   }
 
   showThisPage(page) {
-    
-    if (page.hidden){
+    if (page.hidden) {
       return false;
     }
     let pageWillBeShown = false;
-    for(const visiblePage of this.filterPagesToShow()){
-      if(visiblePage == page) {
+    for (const visiblePage of this.filterPagesToShow()) {
+      if (visiblePage == page) {
         pageWillBeShown = true;
       }
     }
@@ -435,120 +550,141 @@ export class GenerateReportComponent implements OnInit {
   }
 
   async generatePdfReport() {
-   
-		// create pdf document
-    const doc:any = new jsPDF({
+    // create pdf document
+    const doc: any = new jsPDF({
       unit: 'mm',
       format: 'a4',
-      orientation: this.reportingService.workingTemplate.pages[0].orientation
+      orientation: this.reportingService.workingTemplate.pages[0].orientation,
     });
- 
-    const fontName = "Helvetica"; // standard
+
+    const fontName = 'Helvetica'; // standard
 
     // todo
-   /*  if(this.customFontFile) {
+    /*  if(this.customFontFile) {
       fontName = 'CustomInternal';
       doc.addFont(this.customFontFile, fontName, 'normal');
     } */
 
-    // external working as well, but unable to check for validity beforehand. Thus resulting in an critical error if invalid at rendering 
+    // external working as well, but unable to check for validity beforehand. Thus resulting in an critical error if invalid at rendering
 
-    
     doc.setDrawColor(148, 148, 148);
-    doc.setFont(fontName, "normal", "normal"); 
-    
-    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+    doc.setFont(fontName, 'normal', 'normal');
 
-      if(!this.showThisPage(page)) {
+    for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (!this.showThisPage(page)) {
         continue;
       }
 
-      if(idx > 0) {
+      if (idx > 0) {
         doc.addPage(null, page.orientation);
       }
 
-      const pageConfig:ConfigData = page.templateSection.pageConfig;
-      
-      const pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(const pageElement of page.pageElements) {
+      const pageConfig: ConfigData = page.templateSection.pageConfig;
+
+      const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
+      for (const pageElement of page.pageElements) {
         let pElementDom;
-        if(pageElement.type === "linechart") {
-          const arr = pageDom.querySelectorAll(".type-linechart");
-          if(pageElement.showPercentageChangeToPrevTimestamp) {
+        if (pageElement.type === 'linechart') {
+          const arr = pageDom.querySelectorAll('.type-linechart');
+          if (pageElement.showPercentageChangeToPrevTimestamp) {
             pElementDom = arr[1];
           } else {
             pElementDom = arr[0];
           }
         } else {
-          pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+          pElementDom = pageDom.querySelector(
+            '#reporting-overview-page-' + idx + '-' + pageElement.type
+          );
         }
         // convert dimensions to millimeters here
         // that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
-        const pageElementDimensions:any = {}
-        pageElementDimensions.top = pageElement.dimensions.top && this.pxToMilli(pageElement.dimensions.top);
-        pageElementDimensions.bottom = pageElement.dimensions.bottom && this.pxToMilli(pageElement.dimensions.bottom);
-        pageElementDimensions.left = pageElement.dimensions.left && this.pxToMilli(pageElement.dimensions.left);
-        pageElementDimensions.right = pageElement.dimensions.right && this.pxToMilli(pageElement.dimensions.right);
-        pageElementDimensions.width = pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
-        pageElementDimensions.height = pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
+        const pageElementDimensions: any = {};
+        pageElementDimensions.top =
+          pageElement.dimensions.top && this.pxToMilli(pageElement.dimensions.top);
+        pageElementDimensions.bottom =
+          pageElement.dimensions.bottom && this.pxToMilli(pageElement.dimensions.bottom);
+        pageElementDimensions.left =
+          pageElement.dimensions.left && this.pxToMilli(pageElement.dimensions.left);
+        pageElementDimensions.right =
+          pageElement.dimensions.right && this.pxToMilli(pageElement.dimensions.right);
+        pageElementDimensions.width =
+          pageElement.dimensions.width && this.pxToMilli(pageElement.dimensions.width);
+        pageElementDimensions.height =
+          pageElement.dimensions.height && this.pxToMilli(pageElement.dimensions.height);
         // TODO some cases could be merged, but it's better to do that later when stuff works
-        switch(pageElement.type) {
-          case "indicatorTitle-landscape":
-          case "indicatorTitle-portrait": {
-            if (! pageConfig.headerFooterControl.showTitle){
+        switch (pageElement.type) {
+          case 'indicatorTitle-landscape':
+          case 'indicatorTitle-portrait': {
+            if (!pageConfig.headerFooterControl.showTitle) {
               // skip
               continue;
             }
             // Css takes the top-left edge of the element by default.
             // doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
-            doc.setFont(fontName, "normal", "normal")
-            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
-            doc.setFont(fontName, "normal", "normal")
+            doc.setFont(fontName, 'normal', 'normal');
+            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+              baseline: 'top',
+            });
+            doc.setFont(fontName, 'normal', 'normal');
             break;
           }
-          case "communeLogo-landscape":
-          case "communeLogo-portrait": {
-            if (! pageConfig.headerFooterControl.showLogo){
+          case 'communeLogo-landscape':
+          case 'communeLogo-portrait': {
+            if (!pageConfig.headerFooterControl.showLogo) {
               // skip
               continue;
             }
             // only add logo if one was selected
-            if(pageElement.src && pageElement.src.length) {
-              doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left, pageElementDimensions.top,
-                pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+            if (pageElement.src && pageElement.src.length) {
+              doc.addImage(
+                pageElement.src,
+                'JPEG',
+                pageElementDimensions.left,
+                pageElementDimensions.top,
+                pageElementDimensions.width,
+                pageElementDimensions.height,
+                '',
+                'MEDIUM'
+              );
             }
             break;
           }
-          case "dataTimestamp-landscape":
-          case "dataTimestamp-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'dataTimestamp-landscape':
+          case 'dataTimestamp-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
-            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+              baseline: 'top',
+            });
             break;
           }
-          case "dataTimeseries-landscape":
-          case "dataTimeseries-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'dataTimeseries-landscape':
+          case 'dataTimeseries-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
-            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+              baseline: 'top',
+            });
             break;
           }
-          case "reachability-subtitle-landscape":
-          case "reachability-subtitle-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'reachability-subtitle-landscape':
+          case 'reachability-subtitle-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
-            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+              baseline: 'top',
+            });
             break;
           }
-          case "footerHorizontalSpacer-landscape":
-          case "footerHorizontalSpacer-portrait": {
-            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
+          case 'footerHorizontalSpacer-landscape':
+          case 'footerHorizontalSpacer-portrait': {
+            if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
             }
@@ -560,81 +696,131 @@ export class GenerateReportComponent implements OnInit {
             doc.line(x1, y1, x2, y2);
             break;
           }
-          case "footerCreationInfo-landscape":
-          case "footerCreationInfo-portrait": {
-            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
+          case 'footerCreationInfo-landscape':
+          case 'footerCreationInfo-portrait': {
+            if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
             }
-            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+            doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+              baseline: 'top',
+            });
             break;
           }
-          case "pageNumber-landscape":
-          case "pageNumber-portrait": {
-            if (! pageConfig.headerFooterControl.showPageNumber){
+          case 'pageNumber-landscape':
+          case 'pageNumber-portrait': {
+            if (!pageConfig.headerFooterControl.showPageNumber) {
               // skip
               continue;
             }
-            const text = "Seite " + this.getPageNumber(idx);
-            doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+            const text = 'Seite ' + this.getPageNumber(idx);
+            doc.text(text, pageElementDimensions.left, pageElementDimensions.top, {
+              baseline: 'top',
+            });
             break;
           }
           // template-specific elements
-          case "map": {
+          case 'map': {
             let imageDataUrl = page.generatedData?.echarts?.[pageElement.type];
             if (!imageDataUrl) {
               const instance: any = echarts.getInstanceByDom(pElementDom);
-              if (instance) imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (imageDataUrl) {
-              imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
-              doc.addImage(imageDataUrl, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
+              imageDataUrl = await this.createLeafletEChartsMapImage(
+                page,
+                undefined,
+                pageElement,
+                imageDataUrl
+              );
+              doc.addImage(
+                imageDataUrl,
+                'PNG',
+                pageElementDimensions.left,
+                pageElementDimensions.top,
+                pageElementDimensions.width,
+                pageElementDimensions.height,
+                '',
+                'MEDIUM'
+              );
             }
             break;
           }
           // case "mapLegend" can be ignored since it is included in the map if needed
-          case "barchart": {
-            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
+          case 'barchart': {
+            if (
+              page.type == 'area_specific' &&
+              !pageConfig.sectionContentControl.showRankingChartPerArea
+            ) {
               continue;
             }
             let base64String = page.generatedData?.echarts?.[pageElement.type];
             if (!base64String) {
               const instance: any = echarts.getInstanceByDom(pElementDom);
-              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
-            if (base64String) doc.addImage(base64String, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
+            if (base64String)
+              doc.addImage(
+                base64String,
+                'PNG',
+                pageElementDimensions.left,
+                pageElementDimensions.top,
+                pageElementDimensions.width,
+                pageElementDimensions.height,
+                '',
+                'MEDIUM'
+              );
             break;
           }
-          case "linechart": {
-            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
+          case 'linechart': {
+            if (
+              page.type == 'area_specific' &&
+              !pageConfig.sectionContentControl.showLineChartPerArea
+            ) {
               continue;
             }
-            const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            const key =
+              pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
             let base64String = page.generatedData?.echarts?.[key];
             if (!base64String) {
               const instance: any = echarts.getInstanceByDom(pElementDom);
-              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
-            if (base64String) doc.addImage(base64String, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
+            if (base64String)
+              doc.addImage(
+                base64String,
+                'PNG',
+                pageElementDimensions.left,
+                pageElementDimensions.top,
+                pageElementDimensions.width,
+                pageElementDimensions.height,
+                '',
+                'MEDIUM'
+              );
             break;
           }
-          case "textInput": {
-            if (! pageConfig.sectionContentControl.showFreeText){
+          case 'textInput': {
+            if (!pageConfig.sectionContentControl.showFreeText) {
               // skip
               continue;
             }
             doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
-              baseline: "top",
-              maxWidth: pageElementDimensions.width
-            })
+              baseline: 'top',
+              maxWidth: pageElementDimensions.width,
+            });
             break;
           }
-          case "datatable": {
+          case 'datatable': {
             const tableData = page.generatedData?.tableData || pageElement.tableData;
             if (tableData && tableData.length > 0) {
               autoTable(doc, {
                 head: [pageElement.columnNames || []],
-                body: tableData.map(row => row.map(cell => cell != null ? cell.toString() : '')),
+                body: tableData.map((row) =>
+                  row.map((cell) => (cell != null ? cell.toString() : ''))
+                ),
                 startY: pageElementDimensions.top,
                 tableWidth: 'wrap',
                 margin: { left: pageElementDimensions.left },
@@ -649,15 +835,19 @@ export class GenerateReportComponent implements OnInit {
 
     //doc.output("dataurlnewwindow")
     const now = this.getCurrentDateAndTime();
-    doc.save(now + "_KomMonitor-Report.pdf");
+    doc.save(now + '_KomMonitor-Report.pdf');
     this.loadingData = false;
   }
 
   async createLeafletEChartsMapImage(page, pageDom, pageElement, echartsImgSrc) {
-    const leafletMapScreenshot = page.generatedData?.mapImage ||
+    const leafletMapScreenshot =
+      page.generatedData?.mapImage ||
       this.leafletScreenshotHelperService.getResourceFromCache(
-        pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId,
-        page.spatialUnitFeatureId, page.orientation, this.reportingService.workingTemplate.name
+        pageElement.selectedBaseMap.layerConfig.name,
+        page.spatialUnitId,
+        page.spatialUnitFeatureId,
+        page.orientation,
+        this.reportingService.workingTemplate.name
       );
 
     if (!leafletMapScreenshot) {
@@ -675,7 +865,10 @@ export class GenerateReportComponent implements OnInit {
     leafletMapImg.width = canvas.width;
     leafletMapImg.height = canvas.height;
     const leafletMapImgDrawn = new Promise<void>((resolve) => {
-      leafletMapImg.onload = () => { ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height); resolve(); };
+      leafletMapImg.onload = () => {
+        ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
+        resolve();
+      };
       leafletMapImg.onerror = () => resolve();
     });
     leafletMapImg.src = leafletMapScreenshot;
@@ -683,13 +876,17 @@ export class GenerateReportComponent implements OnInit {
 
     const echartsImg = new Image();
     const echartsImgDrawn = new Promise<void>((resolve) => {
-      echartsImg.onload = () => { ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height); resolve(); };
+      echartsImg.onload = () => {
+        ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
+        resolve();
+      };
       echartsImg.onerror = () => resolve();
     });
     echartsImg.src = echartsImgSrc;
     await echartsImgDrawn;
 
-    const attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution() as HTMLImageElement;
+    const attrImg =
+      (await this.diagramHelperService.createReportingReachabilityMapAttribution()) as HTMLImageElement;
     ctx.fillStyle = 'white';
     ctx.fillRect(0, canvas.height - attrImg.height, attrImg.width, attrImg.height);
     ctx.drawImage(attrImg, 0, canvas.height - attrImg.height);
@@ -698,10 +895,18 @@ export class GenerateReportComponent implements OnInit {
       const legendImg = page.templateSection?.legendImg;
       if (legendImg) {
         if (!legendImg.complete) {
-          await new Promise(resolve => { legendImg.onload = resolve; legendImg.onerror = resolve; });
+          await new Promise((resolve) => {
+            legendImg.onload = resolve;
+            legendImg.onerror = resolve;
+          });
         }
         ctx.fillStyle = 'white';
-        ctx.fillRect(canvas.width - legendImg.width, canvas.height - legendImg.height, legendImg.width, legendImg.height);
+        ctx.fillRect(
+          canvas.width - legendImg.width,
+          canvas.height - legendImg.height,
+          legendImg.width,
+          legendImg.height
+        );
         ctx.drawImage(legendImg, canvas.width - legendImg.width, canvas.height - legendImg.height);
       }
     }
@@ -710,22 +915,22 @@ export class GenerateReportComponent implements OnInit {
   }
 
   getCurrentDateAndTime() {
-    const date:any = new Date();
+    const date: any = new Date();
     const year = date.getFullYear().toString();
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const time = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
-    const now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
+    const now = ''.concat(year, '-', month, '-', day, '_', time, '-', minutes, '-', seconds);
     return now;
   }
 
   getPageNumber(index) {
     let pageNumber = 1;
-    for(let i = 0; i < index; i ++) {
+    for (let i = 0; i < index; i++) {
       if (this.showThisPage(this.reportingService.workingTemplate.pages[i])) {
-        pageNumber ++;
+        pageNumber++;
       }
     }
     return pageNumber;
@@ -737,16 +942,16 @@ export class GenerateReportComponent implements OnInit {
     // This is the short version of:
     // px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
     // pxPerMillimeter cancels out there, so it doesn't matter.
-    let result = parseInt(px, 10) / 830 * 297;
+    let result = (parseInt(px, 10) / 830) * 297;
     result = Math.round(result * 100) / 100;
     return result;
   }
 
   calculateDimensions(dimensions, unit) {
-    const result:any = {};
-    if(unit === "px") {
+    const result: any = {};
+    if (unit === 'px') {
       // also scale our 830px preview up to A4 here
-      const scalefactor = this.pxPerMilli*297 / 830
+      const scalefactor = (this.pxPerMilli * 297) / 830;
       result.top = dimensions.top && parseInt(dimensions.top, 10) * scalefactor;
       result.bottom = dimensions.bottom && parseInt(dimensions.bottom, 10) * scalefactor;
       result.left = dimensions.left && parseInt(dimensions.left, 10) * scalefactor;
@@ -754,7 +959,7 @@ export class GenerateReportComponent implements OnInit {
       result.width = dimensions.width && parseInt(dimensions.width, 10) * scalefactor;
       result.height = dimensions.height && parseInt(dimensions.height, 10) * scalefactor;
     }
-    if(unit === "milli") {
+    if (unit === 'milli') {
       result.top = dimensions.top && this.pxToMilli(dimensions.top);
       result.bottom = dimensions.bottom && this.pxToMilli(dimensions.bottom);
       result.left = dimensions.left && this.pxToMilli(dimensions.left);
@@ -762,21 +967,38 @@ export class GenerateReportComponent implements OnInit {
       result.width = dimensions.width && this.pxToMilli(dimensions.width);
       result.height = dimensions.height && this.pxToMilli(dimensions.height);
     }
-    if(unit === "twip") {
+    if (unit === 'twip') {
       result.top = dimensions.top && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.top));
-      result.bottom = dimensions.bottom && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.bottom));
-      result.left = dimensions.left && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.left));
-      result.right = dimensions.right && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.right));
-      result.width = dimensions.width && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.width));
-      result.height = dimensions.height && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.height));
+      result.bottom =
+        dimensions.bottom && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.bottom));
+      result.left =
+        dimensions.left && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.left));
+      result.right =
+        dimensions.right && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.right));
+      result.width =
+        dimensions.width && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.width));
+      result.height =
+        dimensions.height && docx.convertMillimetersToTwip(this.pxToMilli(dimensions.height));
     }
-    if(unit === "emu") {
-      result.top = dimensions.top && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.top)));
-      result.bottom = dimensions.bottom && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.bottom)));
-      result.left = dimensions.left && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.left)));
-      result.right = dimensions.right && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.right)));
-      result.width = dimensions.width && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.width)));
-      result.height = dimensions.height && this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.height)));
+    if (unit === 'emu') {
+      result.top =
+        dimensions.top &&
+        this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.top)));
+      result.bottom =
+        dimensions.bottom &&
+        this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.bottom)));
+      result.left =
+        dimensions.left &&
+        this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.left)));
+      result.right =
+        dimensions.right &&
+        this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.right)));
+      result.width =
+        dimensions.width &&
+        this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.width)));
+      result.height =
+        dimensions.height &&
+        this.twipToEmus(docx.convertMillimetersToTwip(this.pxToMilli(dimensions.height)));
     }
     return result;
   }
@@ -785,33 +1007,49 @@ export class GenerateReportComponent implements OnInit {
     // see: https://startbigthinksmall.wordpress.com/2010/01/04/points-inches-and-emus-measuring-units-in-office-open-xml/
     return value * 635;
   }
-  
+
   async generateZipFolder() {
-  	// creates a zip folder containing all echarts files
+    // creates a zip folder containing all echarts files
     const zip = new JSZip();
-    
+
     // screenshot map attribution and legend only once per section
-    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-    
-      if(!this.showThisPage(page)) {
+    for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (!this.showThisPage(page)) {
         continue;
       }
 
       for (const pageElement of page.pageElements) {
-        if (pageElement.type === 'map' || pageElement.type === 'barchart' || pageElement.type === 'linechart') {
-          const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
-          let imageDataUrl = page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
+        if (
+          pageElement.type === 'map' ||
+          pageElement.type === 'barchart' ||
+          pageElement.type === 'linechart'
+        ) {
+          const key =
+            pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+          let imageDataUrl =
+            page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
           if (!imageDataUrl) {
             const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
             if (pageDom) {
-              const pElementDom = pageDom.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
+              const pElementDom = pageDom.querySelector(
+                '#reporting-overview-page-' + idx + '-' + pageElement.type
+              );
               const instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
-              if (instance) imageDataUrl = instance.getDataURL({ type: 'png', pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                imageDataUrl = instance.getDataURL({
+                  type: 'png',
+                  pixelRatio: this.echartsImgPixelRatio,
+                });
             }
           }
           if (!imageDataUrl) continue;
           if (pageElement.type === 'map') {
-            imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
+            imageDataUrl = await this.createLeafletEChartsMapImage(
+              page,
+              undefined,
+              pageElement,
+              imageDataUrl
+            );
           }
           let filename = 'Seite_' + (idx + 1) + '_' + pageElement.type + '.png';
           if (pageElement.type === 'linechart' && pageElement.showPercentageChangeToPrevTimestamp) {
@@ -822,9 +1060,9 @@ export class GenerateReportComponent implements OnInit {
       }
     }
 
-    const zipFileName = this.getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
-    zip.generateAsync({type:"blob"}).then((content) => {
-      saveAs(content, zipFileName + ".zip");
+    const zipFileName = this.getCurrentDateAndTime() + '_Kommonitor-Report-Grafiken';
+    zip.generateAsync({ type: 'blob' }).then((content) => {
+      saveAs(content, zipFileName + '.zip');
       this.loadingData = false;
       /* setTimeout(function(){
         this.$digest();
@@ -836,33 +1074,31 @@ export class GenerateReportComponent implements OnInit {
     // see docx documentation for more info about the format:
     // https://docx.js.org/#/?id=basic-usage
 
-    const sections:any[] = [];
+    const sections: any[] = [];
 
-    const font = "Calibri";
+    const font = 'Calibri';
     // todo
     /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
     } */
-    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
-
-      if(!this.showThisPage(page)) {
+    for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      if (!this.showThisPage(page)) {
         continue;
       }
- 
-      const pageConfig:ConfigData = page.templateSection.pageConfig;
 
-      const paragraphs:any = [];
-      const pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(const pageElement of page.pageElements) {
+      const pageConfig: ConfigData = page.templateSection.pageConfig;
 
-        const pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, "px");
-        const pageElementDimensionsTwip = this.calculateDimensions(pageElement.dimensions, "twip");
-        const pageElementDimensionsEmu = this.calculateDimensions(pageElement.dimensions, "emu");
+      const paragraphs: any = [];
+      const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
+      for (const pageElement of page.pageElements) {
+        const pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, 'px');
+        const pageElementDimensionsTwip = this.calculateDimensions(pageElement.dimensions, 'twip');
+        const pageElementDimensionsEmu = this.calculateDimensions(pageElement.dimensions, 'emu');
 
-        switch(pageElement.type) {
-          case "indicatorTitle-landscape":
-          case "indicatorTitle-portrait": {
-            if (! pageConfig.headerFooterControl.showTitle){
+        switch (pageElement.type) {
+          case 'indicatorTitle-landscape':
+          case 'indicatorTitle-portrait': {
+            if (!pageConfig.headerFooterControl.showTitle) {
               // skip
               continue;
             }
@@ -872,8 +1108,8 @@ export class GenerateReportComponent implements OnInit {
                   text: pageElement.text,
                   bold: true,
                   font: font,
-                  size: 32 // 16pt
-                })
+                  size: 32, // 16pt
+                }),
               ],
               frame: {
                 position: {
@@ -889,28 +1125,28 @@ export class GenerateReportComponent implements OnInit {
                 alignment: {
                   x: docx.HorizontalPositionAlign.LEFT,
                   y: docx.VerticalPositionAlign.TOP,
-                }
-              }
+                },
+              },
             });
-            
+
             paragraphs.push(paragraph);
             break;
           }
-          case "communeLogo-landscape":
-          case "communeLogo-portrait": {
-            if (! pageConfig.headerFooterControl.showLogo){
+          case 'communeLogo-landscape':
+          case 'communeLogo-portrait': {
+            if (!pageConfig.headerFooterControl.showLogo) {
               // skip
               continue;
             }
             // only add logo if one was selected
-            if(pageElement.src && pageElement.src.length) {
+            if (pageElement.src && pageElement.src.length) {
               const paragraph = new docx.Paragraph({
                 children: [
                   new docx.ImageRun({
                     data: this.dataURItoBlob(pageElement.src),
                     transformation: {
                       width: pageElementDimensionsPx.width,
-                      height: pageElementDimensionsPx.height
+                      height: pageElementDimensionsPx.height,
                     },
                     floating: {
                       horizontalPosition: {
@@ -918,22 +1154,22 @@ export class GenerateReportComponent implements OnInit {
                       },
                       verticalPosition: {
                         offset: pageElementDimensionsEmu.top,
-                      }
+                      },
                     },
-                  })
-                ]
+                  }),
+                ],
               });
               paragraphs.push(paragraph);
             }
             break;
           }
-          case "dataTimestamp-landscape":
-          case "dataTimeseries-landscape":
-          case "reachability-subtitle-landscape":
-          case "dataTimestamp-portrait":
-          case "dataTimeseries-portrait":
-          case "reachability-subtitle-portrait": {
-            if (! pageConfig.headerFooterControl.showSubtitle){
+          case 'dataTimestamp-landscape':
+          case 'dataTimeseries-landscape':
+          case 'reachability-subtitle-landscape':
+          case 'dataTimestamp-portrait':
+          case 'dataTimeseries-portrait':
+          case 'reachability-subtitle-portrait': {
+            if (!pageConfig.headerFooterControl.showSubtitle) {
               // skip
               continue;
             }
@@ -942,8 +1178,8 @@ export class GenerateReportComponent implements OnInit {
                 new docx.TextRun({
                   text: pageElement.text,
                   font: font,
-                  size: 32  // 16pt
-                })
+                  size: 32, // 16pt
+                }),
               ],
               frame: {
                 position: {
@@ -959,21 +1195,21 @@ export class GenerateReportComponent implements OnInit {
                 alignment: {
                   x: docx.HorizontalPositionAlign.LEFT,
                   y: docx.VerticalPositionAlign.TOP,
-                }
-              }
+                },
+              },
             });
-            
+
             paragraphs.push(paragraph);
             break;
           }
-          
-          case "footerHorizontalSpacer-landscape":
-          case "footerHorizontalSpacer-portrait":
-            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
+
+          case 'footerHorizontalSpacer-landscape':
+          case 'footerHorizontalSpacer-portrait':
+            if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
             }
-              // empty paragraph with border top
+            // empty paragraph with border top
             const paragraph = new docx.Paragraph({
               children: [],
               frame: {
@@ -990,22 +1226,22 @@ export class GenerateReportComponent implements OnInit {
                 alignment: {
                   x: docx.HorizontalPositionAlign.LEFT,
                   y: docx.VerticalPositionAlign.TOP,
-                }
+                },
               },
               border: {
                 top: {
-                  color: "#949494", // gray
+                  color: '#949494', // gray
                   space: 1,
                   style: docx.BorderStyle.SINGLE,
-                  size: 6 
-                }
-              }
+                  size: 6,
+                },
+              },
             });
             paragraphs.push(paragraph);
             break;
-          case "footerCreationInfo-landscape":
-          case "footerCreationInfo-portrait": {
-            if (! pageConfig.headerFooterControl.showFooterCreationInfo){
+          case 'footerCreationInfo-landscape':
+          case 'footerCreationInfo-portrait': {
+            if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
             }
@@ -1015,8 +1251,8 @@ export class GenerateReportComponent implements OnInit {
                 new docx.TextRun({
                   text: pageElement.text,
                   font: font,
-                  size: 32  // 16pt
-                })
+                  size: 32, // 16pt
+                }),
               ],
               frame: {
                 position: {
@@ -1032,25 +1268,25 @@ export class GenerateReportComponent implements OnInit {
                 alignment: {
                   x: docx.HorizontalPositionAlign.LEFT,
                   y: docx.VerticalPositionAlign.TOP,
-                }
-              }
+                },
+              },
             });
-            
+
             paragraphs.push(paragraph);
             break;
           }
-          case "pageNumber-landscape":
-          case "pageNumber-portrait": {
-            if (! pageConfig.headerFooterControl.showPageNumber){
+          case 'pageNumber-landscape':
+          case 'pageNumber-portrait': {
+            if (!pageConfig.headerFooterControl.showPageNumber) {
               // skip
               continue;
             }
             const paragraph = new docx.Paragraph({
               children: [
                 new docx.TextRun({
-                  text: "Seite " + this.getPageNumber(idx),
+                  text: 'Seite ' + this.getPageNumber(idx),
                   font: font,
-                  size: 32  // 16pt
+                  size: 32, // 16pt
                 }),
                 new docx.TextRun({
                   break: 1, // Seitenumbruch
@@ -1070,32 +1306,53 @@ export class GenerateReportComponent implements OnInit {
                 alignment: {
                   x: docx.HorizontalPositionAlign.LEFT,
                   y: docx.VerticalPositionAlign.TOP,
-                }
-              }
+                },
+              },
             });
             paragraphs.push(paragraph);
             break;
           }
-          case "map":
-          case "barchart":
-          case "linechart": {
-            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea && pageElement.type === "linechart" ){
+          case 'map':
+          case 'barchart':
+          case 'linechart': {
+            if (
+              page.type == 'area_specific' &&
+              !pageConfig.sectionContentControl.showLineChartPerArea &&
+              pageElement.type === 'linechart'
+            ) {
               continue;
             }
-            if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea && pageElement.type === "barchart" ){
+            if (
+              page.type == 'area_specific' &&
+              !pageConfig.sectionContentControl.showRankingChartPerArea &&
+              pageElement.type === 'barchart'
+            ) {
               continue;
             }
-            const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
-            let imageDataUrl = page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
+            const key =
+              pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            let imageDataUrl =
+              page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
             if (!imageDataUrl) {
-              const pElementDom = pageDom?.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
+              const pElementDom = pageDom?.querySelector(
+                '#reporting-overview-page-' + idx + '-' + pageElement.type
+              );
               const instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
-              if (instance) imageDataUrl = instance.getDataURL({ type: 'png', pixelRatio: this.echartsImgPixelRatio });
+              if (instance)
+                imageDataUrl = instance.getDataURL({
+                  type: 'png',
+                  pixelRatio: this.echartsImgPixelRatio,
+                });
             }
             if (!imageDataUrl) break;
 
             if (pageElement.type === 'map') {
-              imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
+              imageDataUrl = await this.createLeafletEChartsMapImage(
+                page,
+                undefined,
+                pageElement,
+                imageDataUrl
+              );
             }
 
             const blob = this.dataURItoBlob(imageDataUrl);
@@ -1106,7 +1363,7 @@ export class GenerateReportComponent implements OnInit {
                   data: blob,
                   transformation: {
                     width: pageElementDimensionsPx.width,
-                    height: pageElementDimensionsPx.height
+                    height: pageElementDimensionsPx.height,
                   },
                   floating: {
                     horizontalPosition: {
@@ -1115,17 +1372,17 @@ export class GenerateReportComponent implements OnInit {
                     verticalPosition: {
                       offset: pageElementDimensionsEmu.top,
                     },
-                    behindDocument: true
+                    behindDocument: true,
                   },
-                })
-              ]
+                }),
+              ],
             });
             paragraphs.push(paragraph);
             break;
           }
-            
-            //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-          
+
+          //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
+
           // case "overallAverage":
           // case "selectionAverage": {
           // 	let paragraph = new docx.Paragraph({
@@ -1169,29 +1426,29 @@ export class GenerateReportComponent implements OnInit {
           // 				color: "#949494", // gray
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 			right: {
           // 				color: "#949494",
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 			bottom: {
           // 				color: "#949494",
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 			left: {
           // 				color: "#949494",
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 		}
           // 	});
-            
+
           // 	paragraphs.push(paragraph);
           // 	break;
           // }
@@ -1221,7 +1478,7 @@ export class GenerateReportComponent implements OnInit {
           // 				break: 1,
           // 				font: font,
           // 				size: 28  // 14pt
-                
+
           // 			})
           // 		],
           // 		frame: {
@@ -1245,34 +1502,34 @@ export class GenerateReportComponent implements OnInit {
           // 				color: "#949494", // gray
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 			right: {
           // 				color: "#949494",
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 			bottom: {
           // 				color: "#949494",
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 			left: {
           // 				color: "#949494",
           // 				space: 1,
           // 				style: docx.BorderStyle.SINGLE,
-          // 				size: 6 
+          // 				size: 6
           // 			},
           // 		}
           // 	});
-            
+
           // 	paragraphs.push(paragraph);
           // 	break;
           // }
-          case "textInput": {
-            if (! pageConfig.sectionContentControl.showFreeText){
+          case 'textInput': {
+            if (!pageConfig.sectionContentControl.showFreeText) {
               // skip
               continue;
             }
@@ -1281,8 +1538,8 @@ export class GenerateReportComponent implements OnInit {
                 new docx.TextRun({
                   text: pageElement.text,
                   font: font,
-                  size: 24 // 12pt
-                })
+                  size: 24, // 12pt
+                }),
               ],
               frame: {
                 position: {
@@ -1298,91 +1555,98 @@ export class GenerateReportComponent implements OnInit {
                 alignment: {
                   x: docx.HorizontalPositionAlign.LEFT,
                   y: docx.VerticalPositionAlign.TOP,
-                }
-              }
+                },
+              },
             });
-            
+
             paragraphs.push(paragraph);
             break;
           }
-          case "datatable": {
-              const tableDom:any = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
-              const headerFieldsDom = tableDom.querySelectorAll("thead th")
-              const tableRowsDom = tableDom.querySelectorAll("tbody tr");
-              
-              // table to create
-              const table:any = {
-                columnWidths: [],
-                rows: [],
-                float: {
-                  absoluteHorizontalPosition: pageElementDimensionsTwip.left,
-                  absoluteVerticalPosition: pageElementDimensionsTwip.top,
-                  overlap: docx.OverlapType.NEVER,
+          case 'datatable': {
+            const tableDom: any = document.querySelector(
+              '#reporting-overview-page-' + idx + '-' + pageElement.type + ' table'
+            );
+            const headerFieldsDom = tableDom.querySelectorAll('thead th');
+            const tableRowsDom = tableDom.querySelectorAll('tbody tr');
+
+            // table to create
+            const table: any = {
+              columnWidths: [],
+              rows: [],
+              float: {
+                absoluteHorizontalPosition: pageElementDimensionsTwip.left,
+                absoluteVerticalPosition: pageElementDimensionsTwip.top,
+                overlap: docx.OverlapType.NEVER,
+              },
+            };
+            const headerFields: any = [];
+            const headerFieldNames: any = [];
+            for (const fieldDom of headerFieldsDom) {
+              const widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
+              const fieldContent = fieldDom.innerText;
+              headerFieldNames.push(fieldContent);
+              const field: any = new docx.TableCell({
+                width: {
+                  size: widthInTwip,
+                  type: docx.WidthType.DXA,
                 },
-              };
-              const headerFields:any = [];
-              const headerFieldNames:any = [];
-              for(const fieldDom of headerFieldsDom) {
-                const widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
+                verticalAlign: docx.VerticalAlign.CENTER,
+                children: [
+                  new docx.Paragraph({
+                    alignment: docx.AlignmentType.CENTER,
+                    children: [
+                      new docx.TextRun({
+                        text: fieldContent,
+                        font: font,
+                        bold: true,
+                      }),
+                    ],
+                  }),
+                ],
+              });
+              headerFields.push(field);
+              table.columnWidths.push(widthInTwip);
+            }
+
+            const headerRow = new docx.TableRow({
+              children: headerFields,
+            });
+
+            table.rows.push(headerRow);
+
+            for (const rowDom of tableRowsDom) {
+              // excluding header
+              const fieldsDom = rowDom.querySelectorAll('td');
+              const fields: any = [];
+              for (const [idx, fieldDom] of fieldsDom.entries()) {
                 const fieldContent = fieldDom.innerText;
-                headerFieldNames.push(fieldContent)
-                const field:any = new docx.TableCell({
+                const paragraph = new docx.Paragraph({
+                  text: fieldContent,
+                  alignment:
+                    headerFieldNames[idx] === 'Wert'
+                      ? docx.AlignmentType.RIGHT
+                      : headerFieldNames[idx] === 'Zeitpunkt'
+                        ? docx.AlignmentType.CENTER
+                        : docx.AlignmentType.LEFT, // "Bereich"
+                });
+                const field = new docx.TableCell({
                   width: {
-                    size: widthInTwip,
+                    size: table.columnWidths[idx],
                     type: docx.WidthType.DXA,
                   },
                   verticalAlign: docx.VerticalAlign.CENTER,
-                  children: [new docx.Paragraph({
-                    alignment: docx.AlignmentType.CENTER,
-                    children: [new docx.TextRun({
-                      text: fieldContent,
-                      font: font,
-                      bold: true
-                    })]
-                  })],
-                })
-                headerFields.push(field);
-                table.columnWidths.push(widthInTwip)
-              }
-
-              const headerRow = new docx.TableRow({
-                children: headerFields,
-              });
-
-              table.rows.push(headerRow);
-              
-              for(const rowDom of tableRowsDom) { // excluding header
-                const fieldsDom = rowDom.querySelectorAll("td");
-                const fields:any = [];
-                for(const [idx, fieldDom] of fieldsDom.entries()) {
-                  const fieldContent = fieldDom.innerText;
-                  const paragraph = new docx.Paragraph({
-                    text: fieldContent,
-                    alignment:
-                      headerFieldNames[idx] === "Wert" ?
-                      docx.AlignmentType.RIGHT :
-                      headerFieldNames[idx] === "Zeitpunkt" ?
-                      docx.AlignmentType.CENTER :
-                      docx.AlignmentType.LEFT, // "Bereich"
-                  });
-                  const field = new docx.TableCell({
-                    width: {
-                      size: table.columnWidths[idx],
-                      type: docx.WidthType.DXA,
-                    },
-                    verticalAlign: docx.VerticalAlign.CENTER,
-                    children: [paragraph],
-                  })
-                  fields.push(field)
-                }
-                const row = new docx.TableRow({
-                  children: fields,
+                  children: [paragraph],
                 });
-                table.rows.push(row);
+                fields.push(field);
               }
+              const row = new docx.TableRow({
+                children: fields,
+              });
+              table.rows.push(row);
+            }
 
-              paragraphs.push(new docx.Table(table)) // technically this is not a paragraph, but we only add it as a child of section below
-              break;
+            paragraphs.push(new docx.Table(table)); // technically this is not a paragraph, but we only add it as a child of section below
+            break;
           }
         }
       }
@@ -1407,23 +1671,23 @@ export class GenerateReportComponent implements OnInit {
           },
         },
         children: [...paragraphs],
-      }
+      };
 
-      sections.push(section)
+      sections.push(section);
     }
 
     const docxConfig = {
-      sections: [...sections]
-    }
+      sections: [...sections],
+    };
 
     const doc = new docx.Document(docxConfig);
-  
-    const filename = this.getCurrentDateAndTime() + "_KomMonitor-Report"
+
+    const filename = this.getCurrentDateAndTime() + '_KomMonitor-Report';
     // Used to export the file into a .docx file
     docx.Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, filename + ".docx");
+      saveAs(blob, filename + '.docx');
       this.loadingData = false;
-     /*  setTimeout(function(){
+      /*  setTimeout(function(){
         this.$digest();
       }); */
     });
@@ -1433,21 +1697,21 @@ export class GenerateReportComponent implements OnInit {
     // convert base64 to raw binary data held in a string
     // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
     const byteString = atob(dataURI.split(',')[1]);
-  
+
     // separate out the mime component
-    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
-  
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
     // write the bytes of the string to an ArrayBuffer
     const ab = new ArrayBuffer(byteString.length);
-  
+
     // create a view into the buffer
     const ia = new Uint8Array(ab);
-  
+
     // set the bytes of the buffer to the correct values
     for (let i = 0; i < byteString.length; i++) {
       ia[i] = byteString.charCodeAt(i);
     }
-  
+
     // write the ArrayBuffer to a blob, and you're done
     //var blob = new Blob([ab], {type: mimeString});
     return ia;
@@ -1468,7 +1732,7 @@ export class GenerateReportComponent implements OnInit {
 
   pxToTwip(px) {
     const result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
-    return result * this.pxPerMilli*297 / 830 // scale from 830px to A4 page
+    return (result * this.pxPerMilli * 297) / 830; // scale from 830px to A4 page
   }
 
   pxToInch(px) {
@@ -1478,7 +1742,7 @@ export class GenerateReportComponent implements OnInit {
     // px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
     // pxPerMillimeter cancels out there, so it doesn't matter.
     let result = parseInt(px, 10);
-    result = Math.round((result/this.deviceScreenDpi) * 100) / 100;
+    result = Math.round((result / this.deviceScreenDpi) * 100) / 100;
     return result;
   }
 }

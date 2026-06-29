@@ -2,10 +2,16 @@
   <div class="selectBox">
     <div class="header">verf&uuml;gbar:</div>
     <div class="search">
-      <input name="availableSearch" placeholder="Suche..." (keyup)="onAvailableSearchChange($event)">
+      <input
+        name="availableSearch"
+        placeholder="Suche..."
+        (keyup)="onAvailableSearchChange($event)"
+      />
     </div>
-    <select style="font-size: 12px;" size="{{selectSize}}" class="form-control">
-      <option *ngFor="let elem of displayedAvailableElements" (click)="onAvailableElementClick(elem)">{{elem.name}} &rArr;</option>
+    <select style="font-size: 12px" size="{{ selectSize }}" class="form-control">
+      @for (elem of displayedAvailableElements; track elem) {
+        <option (click)="onAvailableElementClick(elem)">{{ elem.name }} &rArr;</option>
+      }
     </select>
     <div class="selectAll">
       <button (click)="onSelectAll()">Alle ausw&auml;hlen &rArr;</button>
@@ -14,10 +20,16 @@
   <div class="selectBox">
     <div class="header">ausgew&auml;hlt:</div>
     <div class="search">
-      <input name="selectedSearch" placeholder="Suche..." (keyup)="onSelectedSearchChange($event)">
+      <input
+        name="selectedSearch"
+        placeholder="Suche..."
+        (keyup)="onSelectedSearchChange($event)"
+      />
     </div>
-    <select style="font-size: 12px;" size="{{selectSize}}" class="form-control">
-      <option *ngFor="let elem of displayedSelectedElements" (click)="onSelectedElementClick(elem)">&lArr; {{elem.name}}</option>
+    <select style="font-size: 12px" size="{{ selectSize }}" class="form-control">
+      @for (elem of displayedSelectedElements; track elem) {
+        <option (click)="onSelectedElementClick(elem)">&lArr; {{ elem.name }}</option>
+      }
     </select>
     <div class="selectAll">
       <button (click)="onDeselectAll()">&lArr; Alle entfernen</button>
