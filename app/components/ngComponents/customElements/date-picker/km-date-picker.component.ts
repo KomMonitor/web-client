@@ -3,7 +3,6 @@ import {
   EventEmitter,
   forwardRef,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
@@ -140,7 +139,7 @@ export class NgbDateStringAdapter extends NgbDateAdapter<string> {
     { provide: NgbDateAdapter, useClass: NgbDateStringAdapter },
   ],
 })
-export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Validator {
+export class KmDatePickerComponent implements OnInit, OnChanges, Validator {
   @Input() placeholder: string = 'YYYY-MM-DD';
   @Input() name: string = '';
   @Input() id: string = '';
@@ -165,8 +164,8 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
 
   @ViewChild('inputEl', { static: true }) inputEl!: ElementRef<HTMLInputElement>;
 
-  private onChange: (value: string | null) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: string | null) => void = () => { /* set via registerOnChange */ };
+  private onTouched: () => void = () => { /* set via registerOnTouched */ };
 
   ngOnInit(): void {
     this.control.valueChanges.subscribe((value) => {
@@ -184,8 +183,6 @@ export class KmDatePickerComponent implements OnInit, OnDestroy, OnChanges, Vali
       this.setDisabledState(!!this.disabled);
     }
   }
-
-  ngOnDestroy(): void {}
 
   // ControlValueAccessor
   writeValue(value: string | null): void {

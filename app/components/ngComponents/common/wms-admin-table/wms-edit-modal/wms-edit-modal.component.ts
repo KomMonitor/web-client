@@ -187,7 +187,9 @@ export class WmsEditModalComponent {
     });
   }
 
-  checkDatasetName() {}
+  checkDatasetName() {
+    // no-op: WMS datasets require no name-uniqueness check
+  }
 
   resetWmsAddForm() {
     this.metadataForm.reset();

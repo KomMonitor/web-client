@@ -805,7 +805,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         this.loadingData = false;
         this.reloadList = !this.reloadList;
       },
-      error: (error) => {},
+      error: (_error) => { /* ignore */ },
     });
   }
 

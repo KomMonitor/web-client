@@ -103,8 +103,6 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
     this.mapParts = this.reachabilityMapHelperService.initReachabilityGeoMap(this.domId);
   }
 
-  importScenarioFromQuickSetup() {}
-
   /* 
 			$('#manualDateDatepicker_reachabilityConfig').datepicker(kommonitorDataExchangeService.datePickerOptions);
  

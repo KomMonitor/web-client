@@ -163,7 +163,9 @@ export class WmsAddModalComponent implements OnInit {
     });
   }
 
-  checkDatasetName() {}
+  checkDatasetName() {
+    // no-op: WMS datasets require no name-uniqueness check
+  }
 
   onChangeOwner(orgUnitId: string): void {
     this.ownerOrganization = orgUnitId;

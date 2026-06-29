@@ -9,9 +9,6 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainComponent implements OnInit {
 
-  constructor(
-  ) {}
-
   async ngOnInit() {
     this.checkBrowser();
   }

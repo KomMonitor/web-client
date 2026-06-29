@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ExportItem, sortTimestamps } from '../models';
 
@@ -9,15 +9,11 @@ import { ExportItem, sortTimestamps } from '../models';
   imports: [NgbNavModule],
   standalone: true,
 })
-export class ExportItemTimeSelectionComponent implements OnInit {
+export class ExportItemTimeSelectionComponent {
   @Input({ required: true })
   public exportItem!: ExportItem;
 
   active = 1;
-
-  constructor() {}
-
-  ngOnInit() {}
 
   onTabChange(tabId: number) {
     this.exportItem.selectedTargetTime = undefined;

@@ -413,7 +413,9 @@ export class AdminIndicatorsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFirstDataRendered(): void {}
+  onFirstDataRendered(): void {
+    // no-op: no action required on first data render
+  }
 
   onColumnResized(): void {
     // Column resized

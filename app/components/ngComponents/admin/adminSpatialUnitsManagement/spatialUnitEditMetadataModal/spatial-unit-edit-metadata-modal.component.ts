@@ -128,17 +128,9 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     }
   }
 
-  // Remove manual SVG injection - now handled by Angular templates
-  private injectSvgContentSimple() {}
-
-  // Remove the complex injection methods - not needed
-  private injectSvgContent() {}
-
   private checkElementsExist(): boolean {
     return true;
   }
-
-  private performSvgInjection() {}
 
   // Color picker logic removed; handled by km-color-picker
 

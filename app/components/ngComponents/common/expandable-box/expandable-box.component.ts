@@ -16,8 +16,6 @@ export class ExpandableBoxComponent implements OnInit {
   @Input() borderColor: ExpanableBoxBorderColor = 'primary';
   @Input() isCollapsible: boolean = true;
 
-  constructor() {}
-
   ngOnInit() {
     if (this.isCollapsible === false) {
       this.collapsed = false;

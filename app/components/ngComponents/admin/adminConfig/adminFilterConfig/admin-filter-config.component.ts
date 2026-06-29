@@ -254,13 +254,17 @@ export class AdminFilterConfigComponent implements OnInit {
     }
   }
 
-  onFirstDataRendered(): void {}
+  onFirstDataRendered(): void {
+    // no-op: no action required on first data render
+  }
 
   onColumnResized(): void {
     // Column resized
   }
 
-  onModelUpdated(_globalFilterArray: GlobalFilterEntry[]): void {}
+  onModelUpdated(_globalFilterArray: GlobalFilterEntry[]): void {
+    // no-op: model updates need no handling here
+  }
 
   onViewportChanged(_globalFilterArray: GlobalFilterEntry[]): void {
     /* setTimeout(() => {

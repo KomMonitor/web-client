@@ -151,7 +151,9 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
       ];
   }
 
-  onChangeSelectedSpatialUnit() {}
+  onChangeSelectedSpatialUnit() {
+    // no-op: selection handled elsewhere
+  }
 
   queryJobStatus(jobId) {
     let jobCompletedOrFailed = false;

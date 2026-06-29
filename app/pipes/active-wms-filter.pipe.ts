@@ -8,9 +8,6 @@ import { WmsDataset } from 'components/ngComponents/models/services.models';
 })
 export class ActiveWmsFilter implements PipeTransform {
 
-  constructor(
-  ) {}
-
   transform(items: WmsDataset[]): any {
 
     if (!items) {
