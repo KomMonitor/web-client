@@ -388,15 +388,10 @@ export class RegressionDiagramComponent implements OnInit {
   }
 
   getAllIndicatorPropertiesSortedBySpatialUnitFeatureName() {
-    for (
-      let i = 0;
-      i < this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length;
-      i++
-    ) {
+    for (const indicatorProperty of this.diagramHelperService
+      .indicatorPropertiesForCurrentSpatialUnitAndTime) {
       // make object to hold indicatorName, max value and average value
-      this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[
-        i
-      ].indicatorProperties.sort((a, b) => {
+      indicatorProperty.indicatorProperties.sort((a, b) => {
         // a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
         const nameA = a[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
         const nameB = b[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
@@ -429,8 +424,7 @@ export class RegressionDiagramComponent implements OnInit {
   getColor(featureName) {
     let color;
 
-    for (let index = 0; index < this.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++) {
-      const feature = this.indicatorMetadataAndGeoJSON.geoJSON.features[index];
+    for (const feature of this.indicatorMetadataAndGeoJSON.geoJSON.features) {
       if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureName) {
         color = this.diagramHelperService.getColorForFeature(
           feature,
@@ -907,21 +901,21 @@ export class RegressionDiagramComponent implements OnInit {
 
                   htmlString += '<tbody>';
 
-                  for (var j = 0; j < scatterSeries.length; j++) {
+                  for (const scatterSeriesEntry of scatterSeries) {
                     htmlString += '<tr>';
-                    htmlString += '<td>' + scatterSeries[j].name + '</td>';
+                    htmlString += '<td>' + scatterSeriesEntry.name + '</td>';
 
                     htmlString +=
                       '<td>' +
                       this.getIndicatorValue_asNumber(
-                        scatterSeries[j].value[0],
+                        scatterSeriesEntry.value[0],
                         this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
                       ) +
                       '</td>';
                     htmlString +=
                       '<td>' +
                       this.getIndicatorValue_asNumber(
-                        scatterSeries[j].value[1],
+                        scatterSeriesEntry.value[1],
                         this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
                       ) +
                       '</td>';
@@ -956,19 +950,19 @@ export class RegressionDiagramComponent implements OnInit {
 
                     htmlString += '<tbody>';
 
-                    for (var j = 0; j < lineSeries.length; j++) {
+                    for (const lineSeriesEntry of lineSeries) {
                       htmlString += '<tr>';
                       htmlString +=
                         '<td>' +
                         this.getIndicatorValue_asNumber(
-                          lineSeries[j][0],
+                          lineSeriesEntry[0],
                           this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
                         ) +
                         '</td>';
                       htmlString +=
                         '<td>' +
                         this.getIndicatorValue_asNumber(
-                          lineSeries[j][1],
+                          lineSeriesEntry[1],
                           this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
                         ) +
                         '</td>';

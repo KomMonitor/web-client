@@ -159,8 +159,8 @@ export class GeoresourceBatchUpdateModalComponent implements OnInit, OnDestroy {
   private onBatchListParsed(newBatchList: any[]): void {
     setTimeout(() => {
       // Remove all rows
-      for (let i = 0; i < this.batchList.length; i++) {
-        this.batchList[i].isSelected = true;
+      for (const row of this.batchList) {
+        row.isSelected = true;
       }
       this.kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList(
         this.batchList,

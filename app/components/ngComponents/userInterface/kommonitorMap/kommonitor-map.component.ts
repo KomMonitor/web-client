@@ -3216,12 +3216,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.currentGeoJSONOfCurrentLayer = this.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
-    for (let i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
+    for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
       let containsZero = false;
       let containsNoData = false;
       if (
         this.getIndicatorValue_asNumber(
-          indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]
+          feature.properties[this.indicatorPropertyName]
         ) == 0
       ) {
         this.currentIndicatorContainsZeroValues = true;
@@ -3230,7 +3230,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       if (
         this.indicatorValueService.indicatorValueIsNoData(
-          indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[this.indicatorPropertyName]
+          feature.properties[this.indicatorPropertyName]
         )
       ) {
         this.currentIndicatorContainsNoDataValues = true;
@@ -3571,8 +3571,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   containsNegativeValues(geoJSON) {
     let containsNegativeValues = false;
     this.datasetContainsNegativeValues = false;
-    for (let i = 0; i < geoJSON.features.length; i++) {
-      if (geoJSON.features[i].properties[this.indicatorPropertyName] < 0) {
+    for (const feature of geoJSON.features) {
+      if (feature.properties[this.indicatorPropertyName] < 0) {
         containsNegativeValues = true;
         break;
       }
@@ -3617,14 +3617,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
       this.currentIndicatorContainsZeroValues = false;
 
-      for (let i = 0; i < this.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
+      for (const feature of this.currentIndicatorMetadataAndGeoJSON.geoJSON.features) {
         let containsZero = false;
         let containsNoData = false;
         if (
           this.getIndicatorValue_asNumber(
-            this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[
-              this.indicatorPropertyName
-            ]
+            feature.properties[this.indicatorPropertyName]
           ) == 0
         ) {
           this.currentIndicatorContainsZeroValues = true;
@@ -3633,9 +3631,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
         if (
           this.indicatorValueService.indicatorValueIsNoData(
-            this.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[
-              this.indicatorPropertyName
-            ]
+            feature.properties[this.indicatorPropertyName]
           )
         ) {
           this.currentIndicatorContainsNoDataValues = true;

@@ -138,8 +138,8 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
                 break;
               case ("Contains"):
                 computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
-                for (let i = 0; i < computationFilterPropertyValueArray.length; i++) {
-                  const trimmedElement = computationFilterPropertyValueArray[i].trim();
+                for (const filterValue of computationFilterPropertyValueArray) {
+                  const trimmedElement = filterValue.trim();
                   if (line.properties[computationFilterProperty] === trimmedElement) {
                     filteredLineFeatures.push(line);
                   }
@@ -253,8 +253,7 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
   KmHelper.log('Target Date with prefix: ' + targetDate);
 
   // first replace indicatorFeature geoimetry by their pointOnSurface
-  for (let index = 0; index < indicatorFeatures.length; index++){
-    const indicatorFeature = indicatorFeatures[index];
+  for (const indicatorFeature of indicatorFeatures){
     const centerPoint = KmHelper.pointOnFeature(indicatorFeature);
 
     indicatorFeature.geometry = centerPoint.geometry;
@@ -336,8 +335,7 @@ function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON)
   let totalAggregatedIndicatorFeatures = 0;
 
   // first replace indicatorFeature geoimetry by their pointOnSurface
-  for (let index = 0; index < indicatorFeatures.length; index++){
-    const indicatorFeature = indicatorFeatures[index];
+  for (const indicatorFeature of indicatorFeatures){
     const centerPoint = KmHelper.pointOnFeature(indicatorFeature);
 
     indicatorFeature.geometry = centerPoint.geometry;

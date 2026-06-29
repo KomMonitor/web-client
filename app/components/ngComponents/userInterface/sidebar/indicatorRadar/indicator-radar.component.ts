@@ -283,10 +283,10 @@ export class IndicatorRadarComponent implements OnInit {
       const defaultSeriesValueArray: any[] = [];
       let sampleProperties = null;
 
-      for (let i = 0; i < indicatorsForRadar.length; i++) {
-        if (indicatorsForRadar[i].isSelected) {
+      for (const indicatorForRadar of indicatorsForRadar) {
+        if (indicatorForRadar.isSelected) {
           // make object to hold indicatorName, max value and average value
-          let indicatorProperties = indicatorsForRadar[i].indicatorProperties;
+          let indicatorProperties = indicatorForRadar.indicatorProperties;
           if (
             this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay &&
             this.filterHelperService.filteredIndicatorFeatureIds.size > 0
@@ -298,24 +298,24 @@ export class IndicatorRadarComponent implements OnInit {
                 )
             );
           }
-          sampleProperties = indicatorsForRadar[i].indicatorProperties;
-          // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], this.date);
-          // indicatorsForRadar[i].closestTimestamp = closestApplicableTimestamp;
+          sampleProperties = indicatorForRadar.indicatorProperties;
+          // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorForRadar, this.date);
+          // indicatorForRadar.closestTimestamp = closestApplicableTimestamp;
           const sample: any[] = indicatorProperties[0];
-          let maxValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
-          let minValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
+          let maxValue = sample[this.DATE_PREFIX + indicatorForRadar.selectedDate];
+          let minValue = sample[this.DATE_PREFIX + indicatorForRadar.selectedDate];
           let valueSum = 0;
           for (const indicatorPropertyInstance of indicatorProperties) {
             // for average only apply real numeric values
             if (
               !this.indicatorValueService.indicatorValueIsNoData(
-                indicatorPropertyInstance[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate]
+                indicatorPropertyInstance[this.DATE_PREFIX + indicatorForRadar.selectedDate]
               )
             ) {
               const value = this.getIndicatorValueFromArray_asNumber(
                 indicatorPropertyInstance,
-                indicatorsForRadar[i].selectedDate,
-                indicatorsForRadar[i].indicatorMetadata.precision
+                indicatorForRadar.selectedDate,
+                indicatorForRadar.indicatorMetadata.precision
               );
               valueSum += value;
               if (value > maxValue) maxValue = value;
@@ -332,26 +332,26 @@ export class IndicatorRadarComponent implements OnInit {
           // HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
           // if(valueSum != null){
 
-          let name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
+          let name = indicatorForRadar.indicatorMetadata.indicatorName;
           if (
             this.indicatorNames_shortVersion &&
-            indicatorsForRadar[i].indicatorMetadata.abbreviation != '' &&
-            indicatorsForRadar[i].indicatorMetadata.abbreviation != null &&
-            indicatorsForRadar[i].indicatorMetadata.abbreviation != undefined
+            indicatorForRadar.indicatorMetadata.abbreviation != '' &&
+            indicatorForRadar.indicatorMetadata.abbreviation != null &&
+            indicatorForRadar.indicatorMetadata.abbreviation != undefined
           )
-            name = indicatorsForRadar[i].indicatorMetadata.abbreviation;
+            name = indicatorForRadar.indicatorMetadata.abbreviation;
 
           indicatorArrayForRadarChart.push({
-            name: name + ' - ' + indicatorsForRadar[i].selectedDate,
-            unit: indicatorsForRadar[i].indicatorMetadata.unit,
-            precision: indicatorsForRadar[i].indicatorMetadata.precision,
+            name: name + ' - ' + indicatorForRadar.selectedDate,
+            unit: indicatorForRadar.indicatorMetadata.unit,
+            precision: indicatorForRadar.indicatorMetadata.precision,
             max: maxValue,
             min: minValue,
           });
           defaultSeriesValueArray.push(
             this.getIndicatorValue_asNumber(
               Number(valueSum / indicatorProperties.length),
-              indicatorsForRadar[i].indicatorMetadata.precision
+              indicatorForRadar.indicatorMetadata.precision
             )
           );
           // }
@@ -448,25 +448,25 @@ export class IndicatorRadarComponent implements OnInit {
                   htmlString += '<thead>';
                   htmlString += '<tr>';
                   htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
-                  for (let i = 0; i < indicators.length; i++) {
+                  for (const indicator of indicators) {
                     htmlString +=
                       "<th style='text-align:center;'>" +
-                      indicators[i].name +
+                      indicator.name +
                       ' [' +
-                      indicators[i].unit +
+                      indicator.unit +
                       ']</th>';
                   }
                   htmlString += '</tr>';
                   htmlString += '</thead>';
                   htmlString += '<tbody>';
-                  for (let j = 0; j < radarSeries.length; j++) {
+                  for (const radarSeriesEntry of radarSeries) {
                     htmlString += '<tr>';
-                    htmlString += '<td>' + radarSeries[j].name + '</td>';
+                    htmlString += '<td>' + radarSeriesEntry.name + '</td>';
                     for (let k = 0; k < indicators.length; k++) {
                       htmlString +=
                         '<td>' +
                         this.getIndicatorValue_asFormattedText(
-                          radarSeries[j].value[k],
+                          radarSeriesEntry.value[k],
                           this.radarOption.radar.indicator[k].precision
                         ) +
                         '</td>';
@@ -716,18 +716,12 @@ export class IndicatorRadarComponent implements OnInit {
       borderWidth: 2,
     };
     // for each indicator create series data entry for feature
-    for (
-      let i = 0;
-      i < this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length;
-      i++
-    ) {
-      if (this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].isSelected) {
+    for (const indicatorProperty of this.diagramHelperService
+      .indicatorPropertiesForCurrentSpatialUnitAndTime) {
+      if (indicatorProperty.isSelected) {
         // make object to hold indicatorName, max value and average value
-        const indicatorProperties =
-          this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i]
-            .indicatorProperties;
-        const date =
-          this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
+        const indicatorProperties = indicatorProperty.indicatorProperties;
+        const date = indicatorProperty.selectedDate;
         for (const indicatorPropertyInstance of indicatorProperties) {
           if (
             indicatorPropertyInstance[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] ==
@@ -742,8 +736,7 @@ export class IndicatorRadarComponent implements OnInit {
                 this.getIndicatorValueFromArray_asNumber(
                   indicatorPropertyInstance,
                   date,
-                  this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i]
-                    .indicatorMetadata.precision
+                  indicatorProperty.indicatorMetadata.precision
                 )
               );
             } else {

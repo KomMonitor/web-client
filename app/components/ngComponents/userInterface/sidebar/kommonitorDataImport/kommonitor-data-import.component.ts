@@ -167,8 +167,8 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   fileWithSameNameAlreadyImported(clone) {
-    for (let i = 0; i < this.fileDatasets.length; i++) {
-      if (this.fileDatasets[i].datasetName == clone.datasetName) {
+    for (const fileDataset of this.fileDatasets) {
+      if (fileDataset.datasetName == clone.datasetName) {
         return true;
       }
     }
@@ -454,8 +454,7 @@ export class KommonitorDataImportComponent implements OnInit {
     const input = event.target as HTMLInputElement;
 
     if (input.files?.length) {
-      for (let i = 0; i < input.files.length; i++) {
-        const file = input.files[i];
+      for (const file of Array.from(input.files)) {
         this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(
           file,
           this.customFileInputColor,
@@ -474,10 +473,10 @@ export class KommonitorDataImportComponent implements OnInit {
 
       if (ev.dataTransfer.items) {
         // Use DataTransferItemList interface to access the file(s)
-        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+        for (const item of ev.dataTransfer.items) {
           // If dropped items aren't files, reject them
-          if (ev.dataTransfer.items[i].kind === 'file') {
-            var file = ev.dataTransfer.items[i].getAsFile();
+          if (item.kind === 'file') {
+            const file = item.getAsFile();
             this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(
               file,
               this.customFileInputColor,
@@ -487,8 +486,7 @@ export class KommonitorDataImportComponent implements OnInit {
         }
       } else {
         // Use DataTransfer interface to access the file(s)
-        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-          var file = ev.dataTransfer.files[i];
+        for (const file of ev.dataTransfer.files) {
           this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(
             file,
             this.customFileInputColor,

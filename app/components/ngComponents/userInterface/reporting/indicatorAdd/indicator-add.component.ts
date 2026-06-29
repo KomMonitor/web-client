@@ -1924,15 +1924,15 @@ export class IndicatorAddComponent implements OnInit {
 
   calculateOverallBoundingBoxFromGeoJSON(features) {
     const result: any[] = [];
-    for (let i = 0; i < features.length; i++) {
+    for (const feature of features) {
       // check if we have to modify our overall bbox (result)
       if (result.length === 0) {
         // for first feature
-        result.push(...features[i].properties.bbox);
+        result.push(...feature.properties.bbox);
         continue;
       } else {
         // all other features
-        const bbox = features[i].properties.bbox;
+        const bbox = feature.properties.bbox;
         result[0] = bbox[0] < result[0] ? bbox[0] : result[0];
         result[1] = bbox[1] < result[1] ? bbox[1] : result[1];
         result[2] = bbox[2] > result[2] ? bbox[2] : result[2];
@@ -3731,9 +3731,9 @@ export class IndicatorAddComponent implements OnInit {
 
     let noDataCounter = 0;
     let sum = 0;
-    for (let i = 0; i < data.length; i++) {
-      if (typeof data[i] === 'number' && !isNaN(data[i])) {
-        sum += data[i];
+    for (const value of data) {
+      if (typeof value === 'number' && !isNaN(value)) {
+        sum += value;
       } else {
         noDataCounter++;
       }
@@ -3754,9 +3754,9 @@ export class IndicatorAddComponent implements OnInit {
     data = data.map((obj) => obj.value);
     let noDataCounter = 0;
     let sum = 0;
-    for (let i = 0; i < data.length; i++) {
-      if (typeof data[i] === 'number' && !isNaN(data[i])) {
-        sum += data[i];
+    for (const value of data) {
+      if (typeof value === 'number' && !isNaN(value)) {
+        sum += value;
       } else {
         noDataCounter++;
       }
@@ -4511,9 +4511,9 @@ export class IndicatorAddComponent implements OnInit {
 
   createDatesFromIndicatorDates(indicatorDates) {
     const datesAsMs: any[] = [];
-    for (let i = 0; i < indicatorDates.length; i++) {
+    for (const indicatorDate of indicatorDates) {
       // year-month-day
-      const dateComponents = indicatorDates[i].split('-');
+      const dateComponents = indicatorDate.split('-');
       datesAsMs.push(
         this.metadataExportService.dateToTS(
           new Date(

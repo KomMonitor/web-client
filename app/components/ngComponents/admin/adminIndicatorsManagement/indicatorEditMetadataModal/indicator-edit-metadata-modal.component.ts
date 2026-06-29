@@ -411,8 +411,7 @@ export class IndicatorEditMetadataModalComponent implements OnInit, OnDestroy {
 
     this.indicatorLowestSpatialUnitMetadataObjectForComputation = null;
 
-    for (let i = 0; i < this.spatialUnitStore.availableSpatialUnits.length; i++) {
-      const spatialUnitMetadata = this.spatialUnitStore.availableSpatialUnits[i];
+    for (const spatialUnitMetadata of this.spatialUnitStore.availableSpatialUnits) {
       if (
         spatialUnitMetadata.spatialUnitLevel ===
         this.currentIndicatorDataset.lowestSpatialUnitForComputation

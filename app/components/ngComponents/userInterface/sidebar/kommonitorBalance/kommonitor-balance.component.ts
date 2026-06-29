@@ -387,9 +387,9 @@ export class KommonitorBalanceComponent implements OnInit {
   createDatesFromIndicatorDates(indicatorDates) {
     this.datesAsMs = [];
 
-    for (let index = 0; index < indicatorDates.length; index++) {
+    for (const indicatorDate of indicatorDates) {
       // year-month-day
-      const dateComponents = indicatorDates[index].split('-');
+      const dateComponents = indicatorDate.split('-');
       this.datesAsMs.push(
         this.dateToTS(
           new Date(

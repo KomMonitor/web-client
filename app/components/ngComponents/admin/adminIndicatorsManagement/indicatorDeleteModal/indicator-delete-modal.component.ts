@@ -190,8 +190,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     this.angularJsDataExchangeService.availableProcessScripts.forEach((script) => {
       const requiredIndicatorIds = script.requiredIndicatorIds;
 
-      for (let i = 0; i < requiredIndicatorIds.length; i++) {
-        const indicatorId = requiredIndicatorIds[i];
+      for (const indicatorId of requiredIndicatorIds) {
         if (indicatorId === this.selectedIndicatorDataset.indicatorId) {
           affectedScripts.push(script);
           break;
@@ -207,9 +206,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
 
     const georesourceReferences = this.selectedIndicatorDataset.referencedGeoresources;
 
-    for (let i = 0; i < georesourceReferences.length; i++) {
-      const georesourceReference = georesourceReferences[i];
-
+    for (const georesourceReference of georesourceReferences) {
       affectedGeoresourceReferences.push({
         indicatorMetadata: this.selectedIndicatorDataset,
         georesourceReference: georesourceReference,
@@ -226,9 +223,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     const indicatorReferences_selectedIndicator =
       this.selectedIndicatorDataset.referencedIndicators;
 
-    for (let i = 0; i < indicatorReferences_selectedIndicator.length; i++) {
-      const indicatorReference_selectedIndicator = indicatorReferences_selectedIndicator[i];
-
+    for (const indicatorReference_selectedIndicator of indicatorReferences_selectedIndicator) {
       affectedIndicatorReferences.push({
         indicatorMetadata: this.selectedIndicatorDataset,
         indicatorReference: indicatorReference_selectedIndicator,
@@ -239,8 +234,7 @@ export class IndicatorDeleteModalComponent implements OnInit, OnDestroy {
     this.angularJsDataExchangeService.availableIndicators.forEach((indicator) => {
       const indicatorReferences = indicator.referencedIndicators;
 
-      for (let i = 0; i < indicatorReferences.length; i++) {
-        const indicatorReference = indicatorReferences[i];
+      for (const indicatorReference of indicatorReferences) {
         if (
           indicatorReference.referencedIndicatorId === this.selectedIndicatorDataset.indicatorId
         ) {

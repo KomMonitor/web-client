@@ -1485,14 +1485,14 @@ export class IndicatorAddModalComponent implements OnInit {
     // Validate breaks for manual classification
     if (this.classificationMethod === 'manual') {
       let lastValidBreak = null;
-      for (let i = 0; i < breaks.length; i++) {
-        if (breaks[i] !== null && breaks[i] !== undefined) {
-          if (lastValidBreak !== null && breaks[i] <= lastValidBreak) {
+      for (const classBreak of breaks) {
+        if (classBreak !== null && classBreak !== undefined) {
+          if (lastValidBreak !== null && classBreak <= lastValidBreak) {
             cssClass = 'tab-error';
             this.classBreaksInvalid = true;
             break;
           }
-          lastValidBreak = breaks[i];
+          lastValidBreak = classBreak;
         }
       }
     } else {
