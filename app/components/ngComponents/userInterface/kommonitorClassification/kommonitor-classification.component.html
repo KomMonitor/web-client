@@ -61,7 +61,7 @@
     </form>
 
     <!-- manual breaks -->
-    <div *ngIf="visualStyleHelperService.classifyMethod=='manual'">
+    <div *ngIf="visualStyleHelperService.classifyMethod==='manual'">
       <div *ngIf="(selectionState.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! chartDisplayState.isMeasureOfValueChecked && ! chartDisplayState.isBalanceChecked" 
             class="histogramTabWrapper editableHistogram"
             (mouseover)="toggleAddBtn($event, 0)">

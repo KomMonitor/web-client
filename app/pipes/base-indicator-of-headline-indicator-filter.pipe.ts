@@ -19,12 +19,12 @@ export class BaseIndicatorOfHeadlineIndicatorFilter implements PipeTransform {
       return items;
     } 
     
-    var headlineIndicatorEntry = this.topicHierarchyStore.headlineIndicatorHierarchy.filter(element => element.computationIndicator?.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
+    const headlineIndicatorEntry = this.topicHierarchyStore.headlineIndicatorHierarchy.filter(element => element.computationIndicator?.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
 
     return items.filter(item => {
         
       if(headlineIndicatorEntry){
-        var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
+        const baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
         if (baseIndicators_filtered.length > 0){
           return true;
         }

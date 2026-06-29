@@ -71,18 +71,18 @@
     <expandable-box [title]="'Experten-Optionen'" [collapsed]="true">
       <b>Verkehrsmittel</b>
       <div class="modeWrapper">
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'foot-walking'}"
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode === 'foot-walking'}"
           (click)="reachabilityCombinerService.setTransitMode('foot-walking')">
           <i class="fa-solid fa-person-walking"></i>
           Fussgänger
         </div>
         <div class="modeItem"
-          [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'cycling-regular'}"
+          [ngClass]="{'active': reachabilityCombinerService.settings.transitMode === 'cycling-regular'}"
           (click)="reachabilityCombinerService.setTransitMode('cycling-regular')">
           <i class="fa-solid fa-bicycle"></i>
           Fahrrad
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode == 'driving-car'}"
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.transitMode === 'driving-car'}"
           (click)="reachabilityCombinerService.setTransitMode('driving-car')">
           <i class="fa-solid fa-car-side"></i>
           PKW
@@ -90,12 +90,12 @@
       </div>
       <b>Basis der Erreichbarkeit</b>
       <div class="focusWrapper">
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus == 'time'}"
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus === 'time'}"
           (click)="reachabilityCombinerService.setFocusMode('time'); onFocusModeChange()">
           <i class="fa-solid fa-stopwatch"></i>
           Zeit (Min)
         </div>
-        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus == 'distance'}"
+        <div class="modeItem" [ngClass]="{'active': reachabilityCombinerService.settings.focus === 'distance'}"
           (click)="reachabilityCombinerService.setFocusMode('distance'); onFocusModeChange()">
           <i class="fa-solid fa-ruler-horizontal"></i>
           Distanz (m)

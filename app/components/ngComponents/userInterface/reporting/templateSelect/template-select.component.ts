@@ -44,7 +44,7 @@ export class TemplateSelectComponent implements OnInit {
   }
 
   onTemplateElementClicked($event, templateId) {
-    let el = $event.target;
+    const el = $event.target;
     el.style.backgroundColor = "#0078D7";
     el.style.color = "white";
     document.querySelectorAll(".reporting-selectable-template").forEach( (element:any) => {
@@ -65,8 +65,8 @@ export class TemplateSelectComponent implements OnInit {
       return false;
     }
 
-    for(let page of this.reportingService.workingTemplate.pages) {
-      for(let pageElement of page.pageElements) {
+    for(const page of this.reportingService.workingTemplate.pages) {
+      for(const pageElement of page.pageElements) {
         if (pageElement.type === "textInput") {
           return true;
         }

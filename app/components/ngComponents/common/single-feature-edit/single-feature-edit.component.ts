@@ -58,8 +58,8 @@ export class SingleFeatureEditComponent implements OnInit {
 
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.OnEditGeoresourceFeatures: {
@@ -139,7 +139,7 @@ export class SingleFeatureEditComponent implements OnInit {
     this.featureStartDateValue = feature.properties[this.envConfigService.VALID_START_DATE_PROPERTY_NAME];
     this.featureEndDateValue = feature.properties[this.envConfigService.VALID_END_DATE_PROPERTY_NAME];;
     // [{property: name, value: value}]
-    let newFeatureSchemaProperties:any[] = [];
+    const newFeatureSchemaProperties:any[] = [];
     for (const featureSchemaEntry of this.featureSchemaProperties) {
       featureSchemaEntry.value = feature.properties[featureSchemaEntry.property];
       newFeatureSchemaProperties.push(featureSchemaEntry);
@@ -160,7 +160,7 @@ export class SingleFeatureEditComponent implements OnInit {
   }
  
   initDefaultSchema() {
-    let schemaObject = {};
+    const schemaObject = {};
     schemaObject[this.envConfigService.FEATURE_ID_PROPERTY_NAME] = "number";
     schemaObject[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] = "string";
     schemaObject[this.envConfigService.VALID_START_DATE_PROPERTY_NAME] = "date";
@@ -177,13 +177,13 @@ export class SingleFeatureEditComponent implements OnInit {
     // only fetch more details if possible - that is - if data is actually stored in database
     if (!this.isReachabilityDatasetOnly) {
 
-      let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/schema";
+      const url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/schema";
 
       this.http.get(url).subscribe({
         next: response => {
           this.schemaObject = response;
 
-          for (var property in this.schemaObject) {
+          for (const property in this.schemaObject) {
             if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME) {
               this.featureSchemaProperties.push(
                 {
@@ -207,7 +207,7 @@ export class SingleFeatureEditComponent implements OnInit {
       if (this.currentGeoresourceDataset && this.currentGeoresourceDataset.geoJSON &&
         this.currentGeoresourceDataset.geoJSON.features && this.currentGeoresourceDataset.geoJSON.features[0] &&
         this.currentGeoresourceDataset.geoJSON.features[0].properties ){
-        for (var property in this.currentGeoresourceDataset.geoJSON.features[0].properties) {
+        for (const property in this.currentGeoresourceDataset.geoJSON.features[0].properties) {
           if (property != this.envConfigService.FEATURE_ID_PROPERTY_NAME && property != this.envConfigService.FEATURE_NAME_PROPERTY_NAME && property != this.envConfigService.VALID_START_DATE_PROPERTY_NAME && property != this.envConfigService.VALID_END_DATE_PROPERTY_NAME
             && property != "individualIsochrones" && property != "individualIsochronePruneResults") {
             this.featureSchemaProperties.push(
@@ -248,7 +248,7 @@ export class SingleFeatureEditComponent implements OnInit {
     // only fetch data from db if it is not reachability dataset and if it has not been fetched before!				
     if (!this.isReachabilityDatasetOnly && !this.georesourceFeaturesGeoJSON) {
       // add data layer to singleFeatureMap
-      let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/allFeatures";
+      const url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + this.currentGeoresourceDataset.georesourceId + "/allFeatures";
       
       this.http.get(url).subscribe({
         next: response => {
@@ -290,10 +290,10 @@ export class SingleFeatureEditComponent implements OnInit {
       return 0;
     }
     // String or Integer
-    let idDataType = this.schemaObject[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
+    const idDataType = this.schemaObject[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
 
     // array of id values
-    let existingFeatureIds = this.georesourceFeaturesGeoJSON.features.map(feature => {
+    const existingFeatureIds = this.georesourceFeaturesGeoJSON.features.map(feature => {
       if (feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]) {
         return feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
       }
@@ -302,7 +302,7 @@ export class SingleFeatureEditComponent implements OnInit {
       }
     });
 
-    let length = existingFeatureIds.length;
+    const length = existingFeatureIds.length;
     this.featureIdExampleString = "" + existingFeatureIds[0] + "; " + existingFeatureIds[Math.round(length / 2)] + "; " + existingFeatureIds[length - 1];
 
     if (idDataType == "Integer" || idDataType == "Double" || idDataType == "number") {
@@ -317,7 +317,7 @@ export class SingleFeatureEditComponent implements OnInit {
   generateIdProposalFromExistingFeatures_numeric(existingFeatureIds) {
 
     // determine max value
-    let maxValue = Math.max(...existingFeatureIds);
+    const maxValue = Math.max(...existingFeatureIds);
 
     // return increment
     return maxValue + 1;
@@ -342,7 +342,7 @@ export class SingleFeatureEditComponent implements OnInit {
 
     this.featureIdIsUnique = true;
     if (this.georesourceFeaturesGeoJSON && this.featureIdValue) {
-      let filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
+      const filteredFeatures = this.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME] == this.featureIdValue);
 
       if (filteredFeatures.length == 0) {
         this.featureIdIsUnique = true;
@@ -367,7 +367,7 @@ export class SingleFeatureEditComponent implements OnInit {
 
   addExampleValuesToSchemaProperties() {
     if (this.georesourceFeaturesGeoJSON && this.featureSchemaProperties && this.georesourceFeaturesGeoJSON.features && this.georesourceFeaturesGeoJSON.features[0]) {
-      let exampleFeature = this.georesourceFeaturesGeoJSON.features[0];
+      const exampleFeature = this.georesourceFeaturesGeoJSON.features[0];
       for (const element of this.featureSchemaProperties) {
         element.exampleValue = exampleFeature.properties[element.property];
       }
@@ -479,17 +479,17 @@ export class SingleFeatureEditComponent implements OnInit {
   }
 
   exportCurrentDataset(){
-    let geoJSON = JSON
+    const geoJSON = JSON
           .stringify(this.georesourceFeaturesGeoJSON);
 
-        var fileName = this.currentGeoresourceDataset.datasetName + '_export.json';
+        const fileName = this.currentGeoresourceDataset.datasetName + '_export.json';
 
-        var blob = new Blob([geoJSON], {
+        const blob = new Blob([geoJSON], {
           type: 'application/json'
         });
-        var data = URL.createObjectURL(blob);
+        const data = URL.createObjectURL(blob);
 
-        var a = document.createElement('a');
+        const a = document.createElement('a');
         a.download = fileName;
         a.href = data;
         a.textContent = "JSON";

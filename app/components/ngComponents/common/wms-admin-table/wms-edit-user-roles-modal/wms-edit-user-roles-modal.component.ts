@@ -119,11 +119,11 @@ export class WmsEditUserRolesModalComponent {
 
   editData() {
 
-    let ownershipData = {
+    const ownershipData = {
       ownerId: this.ownerOrganization
     } 
     
-    let permissionData = {
+    const permissionData = {
       isPublic: this.isPublic,
       permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(this.roleManagementGridOptions)
     };

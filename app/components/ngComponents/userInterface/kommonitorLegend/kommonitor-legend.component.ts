@@ -107,7 +107,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   ngOnChanges(changes: any): void {
 
     if(changes.onupdatelegenddisplaydata) {
-      let data = changes.onupdatelegenddisplaydata.currentValue;
+      const data = changes.onupdatelegenddisplaydata.currentValue;
 
       this.dateAsDate = data.dateAsDate;
 
@@ -120,7 +120,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       this.containsNoData = data.containsNoData;
 
       if(data.selectedDate) {
-        var dateComponents = data.selectedDate.split("-");
+        const dateComponents = data.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
       }
     }
@@ -136,20 +136,20 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       });
 
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-        let title = broadcastMsg.msg;
+        const title = broadcastMsg.msg;
       });
 
       
       // todo del timeout
       setTimeout(()=> {
-        var dateComponents = this.selectionState.selectedDate.split("-");
+        const dateComponents = this.selectionState.selectedDate.split("-");
         this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
         this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
       },2500);
 
       this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-        let title = broadcastMsg.msg;
-        let values:any = broadcastMsg.values;
+        const title = broadcastMsg.msg;
+        const values:any = broadcastMsg.values;
   
         switch (title) {
           case BroadcastMessage.UpdateLegendDisplay: {
@@ -193,7 +193,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     this.outliers_high = outliers_high;
     this.outliers_low = outliers_low;
     this.containsNoData = containsNoData;
-    var dateComponents = selectedDate.split("-");
+    const dateComponents = selectedDate.split("-");
     this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
     
     this.broadcastService.broadcast(BroadcastMessage.UpdateClassificationComponent, [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
@@ -204,7 +204,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeIndicatorDatepickerDate() {
-    let dateString = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
+    const dateString = `${this.datePickerDate.year}-${this.datePickerDate.month}-${this.datePickerDate.day}`;
     this.selectionState.setSelectedDate(dateString);
   }
 
@@ -229,7 +229,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
         if(this.envConfigService.enableSpatialUnitNotificationSelection) {
           if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
-            let selectedSpatialUnitName = this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+            const selectedSpatialUnitName = this.selectionState.selectedSpatialUnit.spatialUnitLevel;
             if(this.envConfigService.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
               this.openSpatialunitModal()
             }
@@ -271,17 +271,17 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   async onClickDownloadMetadata() {
     // create PDF from currently selected/displayed indicator!
-    var indicatorMetadata = this.selectionState.selectedIndicator;
-    var pdfName = indicatorMetadata.indicatorName + ".pdf";
-    let jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
+    const indicatorMetadata = this.selectionState.selectedIndicator;
+    const pdfName = indicatorMetadata.indicatorName + ".pdf";
+    const jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
     jspdf.save();
   }
   
   downloadIndicatorAsGeoJSON() {
-    var fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    let fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 				  
-    var geoJSON_string;
-    var geoJSON;
+    let geoJSON_string;
+    let geoJSON;
 
     if(this.chartDisplayState.isBalanceChecked){
       geoJSON = jQuery.extend(true, {}, this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
@@ -299,10 +299,10 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   
   downloadIndicatorAsShape() {
     
-    var fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-    var polygonName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    let fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    const polygonName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
-    var options:any = {
+    const options:any = {
       folder: "shape",
       types: {
       point: 'points',
@@ -311,7 +311,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       }
     };
 
-    var geoJSON;
+    let geoJSON;
 
     if( this.chartDisplayState.isBalanceChecked){
       geoJSON = jQuery.extend(true, {},  this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
@@ -323,13 +323,13 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_" +  this.selectionState.selectedDate;
     }
 
-    for (var feature of geoJSON.features) {
-      var properties = feature.properties;
+    for (const feature of geoJSON.features) {
+      const properties = feature.properties;
 
       // rename all properties due to char limit in shaoefiles
-      var keys = Object.keys(properties);
+      const keys = Object.keys(properties);
 
-      for (var key of keys) {
+      for (const key of keys) {
       var newKey;
       if (key.toLowerCase().includes("featureid")) {
         newKey = "ID";
@@ -360,15 +360,15 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     }
 
     // shpwrite.download(geoJSON, options);
-    var arrayBuffer = shpwrite.zip(geoJSON, options);							
+    const arrayBuffer = shpwrite.zip(geoJSON, options);							
     this.metadataExportService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
   }
   
   downloadIndicatorAsCSV() {
     //todo
-    var fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    let fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
-    var geoJSON;
+    let geoJSON;
 
     if(this.chartDisplayState.isBalanceChecked){
       geoJSON = jQuery.extend(true, {}, this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
@@ -380,15 +380,15 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       fileName += "_" + this.selectionState.selectedDate;
     }
 
-    var items:any[] = [];
+    const items:any[] = [];
 
-    for (var feature of geoJSON.features) {
-      var properties = feature.properties;
+    for (const feature of geoJSON.features) {
+      const properties = feature.properties;
 
       // rename all properties due to char limit in shaoefiles
-      var keys = Object.keys(properties);
+      const keys = Object.keys(properties);
 
-      for (var key of keys) {
+      for (const key of keys) {
       var newKey;
       if (key.toLowerCase().includes("featureid")) {
         newKey = "ID";
@@ -431,7 +431,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     // 	}
     // }
 
-    let csv = Papa.unparse(items, {
+    const csv = Papa.unparse(items, {
       quotes: false, //or array of booleans
       quoteChar: '"',
       escapeChar: '"',
@@ -456,7 +456,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       navigator.clipboard.writeText(this.shareHelperService.currentShareLink);
 
       // Get the snackbar DIV
-      var x = document.getElementById("snackbar");
+      const x = document.getElementById("snackbar");
 
       // Add the "show" class to DIV
       x!.className = "show";
@@ -471,20 +471,20 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
-    var fromDate = indicatorMetadataAsBalance["fromDate"];
-    var toDate = indicatorMetadataAsBalance["toDate"];
-    var targetDate = this.selectionState.selectedDate;
+    const fromDate = indicatorMetadataAsBalance["fromDate"];
+    const toDate = indicatorMetadataAsBalance["toDate"];
+    const targetDate = this.selectionState.selectedDate;
 
-    for (var feature of geoJSON.features) {
-      var properties = feature.properties;
+    for (const feature of geoJSON.features) {
+      const properties = feature.properties;
 
-      var targetValue = properties[this.envConfigService.indicatorDatePrefix + targetDate];
+      const targetValue = properties[this.envConfigService.indicatorDatePrefix + targetDate];
       properties["balance"] = targetValue;
 
       // rename all properties due to char limit in shaoefiles
-      var keys = Object.keys(properties);
+      const keys = Object.keys(properties);
 
-      for (var key of keys) {
+      for (const key of keys) {
         if (key.toLowerCase().includes("date_")) {
         // from DATE_2018-01-01
         // to 20180101

@@ -55,7 +55,7 @@ export class GenerateReportComponent implements OnInit {
   
   calculateScreenDpi() {
     // create a hidden div that is one inch high
-    let div = document.createElement("div")
+    const div = document.createElement("div")
     div.style.height = "1in";
     div.style.position = "absolute";
     div.style.left = "-100%";
@@ -96,15 +96,15 @@ export class GenerateReportComponent implements OnInit {
 
   async generatePptxReport() {
 
-    let doc:any = new pptxgen();
+    const doc:any = new pptxgen();
 
     doc.defineLayout({ name:'A4-landscape', width:29.7, height:21 });
     doc.defineLayout({ name:'A4-portrait', width:21, height:29.7 });
 
     doc.layout = 'A4-'+this.reportingService.workingTemplate.pages[0].orientation;
 
-    var fontSize = 42;
-    var fontFace = "Source Sans Pro";
+    const fontSize = 42;
+    const fontFace = "Source Sans Pro";
 
     // Font setting
     doc.theme = { headFontFace: fontFace };
@@ -177,7 +177,7 @@ export class GenerateReportComponent implements OnInit {
 
 
     // 2. Add a Slide to the presentation
-    let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+    const slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
     // 3. Add 1+ objects (Tables, Shapes, etc.) to the Slide
     slide.addText("Einwohner [Anzahl]", { placeholder: "slide_title" });
     slide.addText("2022-12-31", { placeholder: "slide_subtitle" });
@@ -186,25 +186,25 @@ export class GenerateReportComponent implements OnInit {
 
     // Pages
 
-    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
       }
 
       // 2. Add a Slide to the presentation
-      let slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
+      const slide = doc.addSlide({ masterName: "TEMPLATE_SLIDE" });
 
-      let formatFactor = 3.4;
+      const formatFactor = 3.4;
 
-      let pageConfig:ConfigData = page.templateSection.pageConfig;
+      const pageConfig:ConfigData = page.templateSection.pageConfig;
 
-      let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(let pageElement of page.pageElements) {
+      const pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
+      for(const pageElement of page.pageElements) {
 
         let pElementDom;
         if(pageElement.type === "linechart") {
-          let arr = pageDom.querySelectorAll(".type-linechart");
+          const arr = pageDom.querySelectorAll(".type-linechart");
           if(pageElement.showPercentageChangeToPrevTimestamp) {
             pElementDom = arr[1];
           } else {
@@ -214,7 +214,7 @@ export class GenerateReportComponent implements OnInit {
           pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
         }
 
-        let pageElementDimensions:any = {}
+        const pageElementDimensions:any = {}
         pageElementDimensions.top = pageElement.dimensions.top && this.pxToInch(pageElement.dimensions.top)*formatFactor;
         pageElementDimensions.bottom = pageElement.dimensions.bottom && this.pxToInch(pageElement.dimensions.bottom)*formatFactor;
         pageElementDimensions.left = pageElement.dimensions.left && this.pxToInch(pageElement.dimensions.left)*formatFactor;
@@ -241,10 +241,10 @@ export class GenerateReportComponent implements OnInit {
             }
             if(pageElement.src && pageElement.src.length) {
 
-              let img = new Image();
+              const img = new Image();
               img.src = pageElement.src;
-              let imageWidth = img.width;
-              let imageHeight = img.height;
+              const imageWidth = img.width;
+              const imageHeight = img.height;
 
               // create an image in width/size of the uploaded one (img object). Then shrink it down to pageElementDimensions, while containing imgRatio
               slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: imageWidth, h: imageHeight, path: pageElement.src, sizing: { type: "contain", w: pageElementDimensions.width, h: pageElementDimensions.height}});
@@ -302,7 +302,7 @@ export class GenerateReportComponent implements OnInit {
               // skip
               continue;
             }
-            let text = "Seite " + this.getPageNumber(idx);
+            const text = "Seite " + this.getPageNumber(idx);
             slide.addText(text, { x: pageElementDimensions.left, y: pageElementDimensions.top, placeholder: "slide_pageNumber" });
             break;
           }
@@ -310,7 +310,7 @@ export class GenerateReportComponent implements OnInit {
           case "map": {
             let imageDataUrl = page.generatedData?.echarts?.[pageElement.type];
             if (!imageDataUrl) {
-              let instance: any = echarts.getInstanceByDom(pElementDom);
+              const instance: any = echarts.getInstanceByDom(pElementDom);
               if (instance) imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (imageDataUrl) {
@@ -326,7 +326,7 @@ export class GenerateReportComponent implements OnInit {
             }
             let base64String = page.generatedData?.echarts?.[pageElement.type];
             if (!base64String) {
-              let instance: any = echarts.getInstanceByDom(pElementDom);
+              const instance: any = echarts.getInstanceByDom(pElementDom);
               if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (base64String) slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String });
@@ -336,10 +336,10 @@ export class GenerateReportComponent implements OnInit {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
-            let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
             let base64String = page.generatedData?.echarts?.[key];
             if (!base64String) {
-              let instance: any = echarts.getInstanceByDom(pElementDom);
+              const instance: any = echarts.getInstanceByDom(pElementDom);
               if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (base64String) slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String });
@@ -354,19 +354,19 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "datatable": {
-            let tableData = page.generatedData?.tableData || pageElement.tableData;
-            let columnNames = pageElement.columnNames;
-            let data: any = [];
+            const tableData = page.generatedData?.tableData || pageElement.tableData;
+            const columnNames = pageElement.columnNames;
+            const data: any = [];
             if (tableData && tableData.length > 0) {
-              let headerRow: any[] = [];
-              for (let colName of columnNames) {
+              const headerRow: any[] = [];
+              for (const colName of columnNames) {
                 headerRow.push({ text: colName, options: { align: 'center', fontFace: fontFace, fontSize: fontSize - 3, bold: true, fill: '#dedede' } });
               }
               data.push(headerRow);
               tableData.forEach((row, rowIndex) => {
-                let singleRowData: any[] = [];
+                const singleRowData: any[] = [];
                 row.forEach((cell, cellIndex) => {
-                  let fillColour = (rowIndex % 2 === 0) ? '#ffffff' : '#f9f9f9';
+                  const fillColour = (rowIndex % 2 === 0) ? '#ffffff' : '#f9f9f9';
                   singleRowData.push({ text: cell.toString(), options: { align: (columnNames[cellIndex] === 'Wert' ? 'right' : 'left'), fontFace: fontFace, fontSize: fontSize - 3, bold: false, fill: fillColour } });
                 });
                 data.push(singleRowData);
@@ -382,16 +382,16 @@ export class GenerateReportComponent implements OnInit {
 
     // 4. Save the Presentation
 
-    let now:any = this.getCurrentDateAndTime();
+    const now:any = this.getCurrentDateAndTime();
     doc.writeFile({ fileName: now + "_KomMonitor-Report.pptx" });
     this.loadingData = false;
   }
 
   filterPagesToShow() {
-    let pagesToShow:any[] = [];
+    const pagesToShow:any[] = [];
     let skipNextPage = false;
     for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i ++) {
-      let page = this.reportingService.workingTemplate.pages[i];
+      const page = this.reportingService.workingTemplate.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
@@ -410,9 +410,9 @@ export class GenerateReportComponent implements OnInit {
   }
 
   pageContainsDatatable(pageID) {
-    let page = this.reportingService.workingTemplate.pages[pageID];
+    const page = this.reportingService.workingTemplate.pages[pageID];
     let pageContainsDatatable = false;
-    for(let pageElement of page.pageElements) {
+    for(const pageElement of page.pageElements) {
       if(pageElement.type == "datatable") {
         pageContainsDatatable = true;
       }
@@ -426,7 +426,7 @@ export class GenerateReportComponent implements OnInit {
       return false;
     }
     let pageWillBeShown = false;
-    for(let visiblePage of this.filterPagesToShow()){
+    for(const visiblePage of this.filterPagesToShow()){
       if(visiblePage == page) {
         pageWillBeShown = true;
       }
@@ -437,13 +437,13 @@ export class GenerateReportComponent implements OnInit {
   async generatePdfReport() {
    
 		// create pdf document
-    let doc:any = new jsPDF({
+    const doc:any = new jsPDF({
       unit: 'mm',
       format: 'a4',
       orientation: this.reportingService.workingTemplate.pages[0].orientation
     });
  
-    let fontName = "Helvetica"; // standard
+    const fontName = "Helvetica"; // standard
 
     // todo
    /*  if(this.customFontFile) {
@@ -457,7 +457,7 @@ export class GenerateReportComponent implements OnInit {
     doc.setDrawColor(148, 148, 148);
     doc.setFont(fontName, "normal", "normal"); 
     
-    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
@@ -467,13 +467,13 @@ export class GenerateReportComponent implements OnInit {
         doc.addPage(null, page.orientation);
       }
 
-      let pageConfig:ConfigData = page.templateSection.pageConfig;
+      const pageConfig:ConfigData = page.templateSection.pageConfig;
       
-      let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(let pageElement of page.pageElements) {
+      const pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
+      for(const pageElement of page.pageElements) {
         let pElementDom;
         if(pageElement.type === "linechart") {
-          let arr = pageDom.querySelectorAll(".type-linechart");
+          const arr = pageDom.querySelectorAll(".type-linechart");
           if(pageElement.showPercentageChangeToPrevTimestamp) {
             pElementDom = arr[1];
           } else {
@@ -484,7 +484,7 @@ export class GenerateReportComponent implements OnInit {
         }
         // convert dimensions to millimeters here
         // that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
-        let pageElementDimensions:any = {}
+        const pageElementDimensions:any = {}
         pageElementDimensions.top = pageElement.dimensions.top && this.pxToMilli(pageElement.dimensions.top);
         pageElementDimensions.bottom = pageElement.dimensions.bottom && this.pxToMilli(pageElement.dimensions.bottom);
         pageElementDimensions.left = pageElement.dimensions.left && this.pxToMilli(pageElement.dimensions.left);
@@ -575,7 +575,7 @@ export class GenerateReportComponent implements OnInit {
               // skip
               continue;
             }
-            let text = "Seite " + this.getPageNumber(idx);
+            const text = "Seite " + this.getPageNumber(idx);
             doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
             break;
           }
@@ -583,7 +583,7 @@ export class GenerateReportComponent implements OnInit {
           case "map": {
             let imageDataUrl = page.generatedData?.echarts?.[pageElement.type];
             if (!imageDataUrl) {
-              let instance: any = echarts.getInstanceByDom(pElementDom);
+              const instance: any = echarts.getInstanceByDom(pElementDom);
               if (instance) imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (imageDataUrl) {
@@ -599,7 +599,7 @@ export class GenerateReportComponent implements OnInit {
             }
             let base64String = page.generatedData?.echarts?.[pageElement.type];
             if (!base64String) {
-              let instance: any = echarts.getInstanceByDom(pElementDom);
+              const instance: any = echarts.getInstanceByDom(pElementDom);
               if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (base64String) doc.addImage(base64String, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
@@ -609,10 +609,10 @@ export class GenerateReportComponent implements OnInit {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
-            let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
             let base64String = page.generatedData?.echarts?.[key];
             if (!base64String) {
-              let instance: any = echarts.getInstanceByDom(pElementDom);
+              const instance: any = echarts.getInstanceByDom(pElementDom);
               if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
             }
             if (base64String) doc.addImage(base64String, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
@@ -630,7 +630,7 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "datatable": {
-            let tableData = page.generatedData?.tableData || pageElement.tableData;
+            const tableData = page.generatedData?.tableData || pageElement.tableData;
             if (tableData && tableData.length > 0) {
               autoTable(doc, {
                 head: [pageElement.columnNames || []],
@@ -648,13 +648,13 @@ export class GenerateReportComponent implements OnInit {
     }
 
     //doc.output("dataurlnewwindow")
-    let now = this.getCurrentDateAndTime();
+    const now = this.getCurrentDateAndTime();
     doc.save(now + "_KomMonitor-Report.pdf");
     this.loadingData = false;
   }
 
   async createLeafletEChartsMapImage(page, pageDom, pageElement, echartsImgSrc) {
-    let leafletMapScreenshot = page.generatedData?.mapImage ||
+    const leafletMapScreenshot = page.generatedData?.mapImage ||
       this.leafletScreenshotHelperService.getResourceFromCache(
         pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId,
         page.spatialUnitFeatureId, page.orientation, this.reportingService.workingTemplate.name
@@ -665,37 +665,37 @@ export class GenerateReportComponent implements OnInit {
       return echartsImgSrc;
     }
 
-    let canvas = document.createElement('canvas');
-    let ctx: any = canvas.getContext('2d', { willReadFrequently: true });
-    let pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, 'px');
+    const canvas = document.createElement('canvas');
+    const ctx: any = canvas.getContext('2d', { willReadFrequently: true });
+    const pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, 'px');
     canvas.width = pageElementDimensionsPx.width;
     canvas.height = pageElementDimensionsPx.height;
 
-    let leafletMapImg = new Image();
+    const leafletMapImg = new Image();
     leafletMapImg.width = canvas.width;
     leafletMapImg.height = canvas.height;
-    let leafletMapImgDrawn = new Promise<void>((resolve) => {
+    const leafletMapImgDrawn = new Promise<void>((resolve) => {
       leafletMapImg.onload = () => { ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height); resolve(); };
       leafletMapImg.onerror = () => resolve();
     });
     leafletMapImg.src = leafletMapScreenshot;
     await leafletMapImgDrawn;
 
-    let echartsImg = new Image();
-    let echartsImgDrawn = new Promise<void>((resolve) => {
+    const echartsImg = new Image();
+    const echartsImgDrawn = new Promise<void>((resolve) => {
       echartsImg.onload = () => { ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height); resolve(); };
       echartsImg.onerror = () => resolve();
     });
     echartsImg.src = echartsImgSrc;
     await echartsImgDrawn;
 
-    let attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution() as HTMLImageElement;
+    const attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution() as HTMLImageElement;
     ctx.fillStyle = 'white';
     ctx.fillRect(0, canvas.height - attrImg.height, attrImg.width, attrImg.height);
     ctx.drawImage(attrImg, 0, canvas.height - attrImg.height);
 
     if (this.reportingService.workingTemplate.name.includes('reachability')) {
-      let legendImg = page.templateSection?.legendImg;
+      const legendImg = page.templateSection?.legendImg;
       if (legendImg) {
         if (!legendImg.complete) {
           await new Promise(resolve => { legendImg.onload = resolve; legendImg.onerror = resolve; });
@@ -710,14 +710,14 @@ export class GenerateReportComponent implements OnInit {
   }
 
   getCurrentDateAndTime() {
-    let date:any = new Date();
-    let year = date.getFullYear().toString();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let time = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
-    let now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
+    const date:any = new Date();
+    const year = date.getFullYear().toString();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const time = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
     return now;
   }
 
@@ -743,10 +743,10 @@ export class GenerateReportComponent implements OnInit {
   }
 
   calculateDimensions(dimensions, unit) {
-    let result:any = {};
+    const result:any = {};
     if(unit === "px") {
       // also scale our 830px preview up to A4 here
-      let scalefactor = this.pxPerMilli*297 / 830
+      const scalefactor = this.pxPerMilli*297 / 830
       result.top = dimensions.top && parseInt(dimensions.top, 10) * scalefactor;
       result.bottom = dimensions.bottom && parseInt(dimensions.bottom, 10) * scalefactor;
       result.left = dimensions.left && parseInt(dimensions.left, 10) * scalefactor;
@@ -788,24 +788,24 @@ export class GenerateReportComponent implements OnInit {
   
   async generateZipFolder() {
   	// creates a zip folder containing all echarts files
-    let zip = new JSZip();
+    const zip = new JSZip();
     
     // screenshot map attribution and legend only once per section
-    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
     
       if(!this.showThisPage(page)) {
         continue;
       }
 
-      for (let pageElement of page.pageElements) {
+      for (const pageElement of page.pageElements) {
         if (pageElement.type === 'map' || pageElement.type === 'barchart' || pageElement.type === 'linechart') {
-          let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+          const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
           let imageDataUrl = page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
           if (!imageDataUrl) {
-            let pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
+            const pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
             if (pageDom) {
-              let pElementDom = pageDom.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
-              let instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
+              const pElementDom = pageDom.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
+              const instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
               if (instance) imageDataUrl = instance.getDataURL({ type: 'png', pixelRatio: this.echartsImgPixelRatio });
             }
           }
@@ -822,7 +822,7 @@ export class GenerateReportComponent implements OnInit {
       }
     }
 
-    let zipFileName = this.getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
+    const zipFileName = this.getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
     zip.generateAsync({type:"blob"}).then((content) => {
       saveAs(content, zipFileName + ".zip");
       this.loadingData = false;
@@ -836,28 +836,28 @@ export class GenerateReportComponent implements OnInit {
     // see docx documentation for more info about the format:
     // https://docx.js.org/#/?id=basic-usage
 
-    let sections:any[] = [];
+    const sections:any[] = [];
 
-    let font = "Calibri";
+    const font = "Calibri";
     // todo
     /* if(this.customFontFamily!=undefined) {
       font = this.customFontFamily.replace(/['"]+/g,'');
     } */
-    for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+    for(const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
       if(!this.showThisPage(page)) {
         continue;
       }
  
-      let pageConfig:ConfigData = page.templateSection.pageConfig;
+      const pageConfig:ConfigData = page.templateSection.pageConfig;
 
-      let paragraphs:any = [];
-      let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(let pageElement of page.pageElements) {
+      const paragraphs:any = [];
+      const pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
+      for(const pageElement of page.pageElements) {
 
-        let pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, "px");
-        let pageElementDimensionsTwip = this.calculateDimensions(pageElement.dimensions, "twip");
-        let pageElementDimensionsEmu = this.calculateDimensions(pageElement.dimensions, "emu");
+        const pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, "px");
+        const pageElementDimensionsTwip = this.calculateDimensions(pageElement.dimensions, "twip");
+        const pageElementDimensionsEmu = this.calculateDimensions(pageElement.dimensions, "emu");
 
         switch(pageElement.type) {
           case "indicatorTitle-landscape":
@@ -866,7 +866,7 @@ export class GenerateReportComponent implements OnInit {
               // skip
               continue;
             }
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [
                 new docx.TextRun({
                   text: pageElement.text,
@@ -904,7 +904,7 @@ export class GenerateReportComponent implements OnInit {
             }
             // only add logo if one was selected
             if(pageElement.src && pageElement.src.length) {
-              let paragraph = new docx.Paragraph({
+              const paragraph = new docx.Paragraph({
                 children: [
                   new docx.ImageRun({
                     data: this.dataURItoBlob(pageElement.src),
@@ -937,7 +937,7 @@ export class GenerateReportComponent implements OnInit {
               // skip
               continue;
             }
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [
                 new docx.TextRun({
                   text: pageElement.text,
@@ -974,7 +974,7 @@ export class GenerateReportComponent implements OnInit {
               continue;
             }
               // empty paragraph with border top
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [],
               frame: {
                 position: {
@@ -1010,7 +1010,7 @@ export class GenerateReportComponent implements OnInit {
               continue;
             }
 
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [
                 new docx.TextRun({
                   text: pageElement.text,
@@ -1045,7 +1045,7 @@ export class GenerateReportComponent implements OnInit {
               // skip
               continue;
             }
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [
                 new docx.TextRun({
                   text: "Seite " + this.getPageNumber(idx),
@@ -1085,11 +1085,11 @@ export class GenerateReportComponent implements OnInit {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea && pageElement.type === "barchart" ){
               continue;
             }
-            let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            const key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
             let imageDataUrl = page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
             if (!imageDataUrl) {
-              let pElementDom = pageDom?.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
-              let instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
+              const pElementDom = pageDom?.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
+              const instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
               if (instance) imageDataUrl = instance.getDataURL({ type: 'png', pixelRatio: this.echartsImgPixelRatio });
             }
             if (!imageDataUrl) break;
@@ -1098,9 +1098,9 @@ export class GenerateReportComponent implements OnInit {
               imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
             }
 
-            let blob = this.dataURItoBlob(imageDataUrl);
+            const blob = this.dataURItoBlob(imageDataUrl);
 
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [
                 new docx.ImageRun({
                   data: blob,
@@ -1276,7 +1276,7 @@ export class GenerateReportComponent implements OnInit {
               // skip
               continue;
             }
-            let paragraph = new docx.Paragraph({
+            const paragraph = new docx.Paragraph({
               children: [
                 new docx.TextRun({
                   text: pageElement.text,
@@ -1306,12 +1306,12 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "datatable": {
-              let tableDom:any = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
-              let headerFieldsDom = tableDom.querySelectorAll("thead th")
-              let tableRowsDom = tableDom.querySelectorAll("tbody tr");
+              const tableDom:any = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
+              const headerFieldsDom = tableDom.querySelectorAll("thead th")
+              const tableRowsDom = tableDom.querySelectorAll("tbody tr");
               
               // table to create
-              let table:any = {
+              const table:any = {
                 columnWidths: [],
                 rows: [],
                 float: {
@@ -1320,13 +1320,13 @@ export class GenerateReportComponent implements OnInit {
                   overlap: docx.OverlapType.NEVER,
                 },
               };
-              let headerFields:any = [];
-              let headerFieldNames:any = [];
-              for(let fieldDom of headerFieldsDom) {
-                let widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
-                let fieldContent = fieldDom.innerText;
+              const headerFields:any = [];
+              const headerFieldNames:any = [];
+              for(const fieldDom of headerFieldsDom) {
+                const widthInTwip = this.pxToTwip(fieldDom.offsetWidth);
+                const fieldContent = fieldDom.innerText;
                 headerFieldNames.push(fieldContent)
-                let field:any = new docx.TableCell({
+                const field:any = new docx.TableCell({
                   width: {
                     size: widthInTwip,
                     type: docx.WidthType.DXA,
@@ -1345,18 +1345,18 @@ export class GenerateReportComponent implements OnInit {
                 table.columnWidths.push(widthInTwip)
               }
 
-              let headerRow = new docx.TableRow({
+              const headerRow = new docx.TableRow({
                 children: headerFields,
               });
 
               table.rows.push(headerRow);
               
-              for(let rowDom of tableRowsDom) { // excluding header
-                let fieldsDom = rowDom.querySelectorAll("td");
-                let fields:any = [];
-                for(let [idx, fieldDom] of fieldsDom.entries()) {
-                  let fieldContent = fieldDom.innerText;
-                  let paragraph = new docx.Paragraph({
+              for(const rowDom of tableRowsDom) { // excluding header
+                const fieldsDom = rowDom.querySelectorAll("td");
+                const fields:any = [];
+                for(const [idx, fieldDom] of fieldsDom.entries()) {
+                  const fieldContent = fieldDom.innerText;
+                  const paragraph = new docx.Paragraph({
                     text: fieldContent,
                     alignment:
                       headerFieldNames[idx] === "Wert" ?
@@ -1365,7 +1365,7 @@ export class GenerateReportComponent implements OnInit {
                       docx.AlignmentType.CENTER :
                       docx.AlignmentType.LEFT, // "Bereich"
                   });
-                  let field = new docx.TableCell({
+                  const field = new docx.TableCell({
                     width: {
                       size: table.columnWidths[idx],
                       type: docx.WidthType.DXA,
@@ -1375,7 +1375,7 @@ export class GenerateReportComponent implements OnInit {
                   })
                   fields.push(field)
                 }
-                let row = new docx.TableRow({
+                const row = new docx.TableRow({
                   children: fields,
                 });
                 table.rows.push(row);
@@ -1387,7 +1387,7 @@ export class GenerateReportComponent implements OnInit {
         }
       }
 
-      let section = {
+      const section = {
         properties: {
           type: docx.SectionType.NEXT_PAGE,
           page: {
@@ -1412,13 +1412,13 @@ export class GenerateReportComponent implements OnInit {
       sections.push(section)
     }
 
-    let docxConfig = {
+    const docxConfig = {
       sections: [...sections]
     }
 
-    let doc = new docx.Document(docxConfig);
+    const doc = new docx.Document(docxConfig);
   
-    let filename = this.getCurrentDateAndTime() + "_KomMonitor-Report"
+    const filename = this.getCurrentDateAndTime() + "_KomMonitor-Report"
     // Used to export the file into a .docx file
     docx.Packer.toBlob(doc).then((blob) => {
       saveAs(blob, filename + ".docx");
@@ -1432,19 +1432,19 @@ export class GenerateReportComponent implements OnInit {
   dataURItoBlob(dataURI) {
     // convert base64 to raw binary data held in a string
     // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-    var byteString = atob(dataURI.split(',')[1]);
+    const byteString = atob(dataURI.split(',')[1]);
   
     // separate out the mime component
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
   
     // write the bytes of the string to an ArrayBuffer
-    var ab = new ArrayBuffer(byteString.length);
+    const ab = new ArrayBuffer(byteString.length);
   
     // create a view into the buffer
-    var ia = new Uint8Array(ab);
+    const ia = new Uint8Array(ab);
   
     // set the bytes of the buffer to the correct values
-    for (var i = 0; i < byteString.length; i++) {
+    for (let i = 0; i < byteString.length; i++) {
       ia[i] = byteString.charCodeAt(i);
     }
   
@@ -1467,7 +1467,7 @@ export class GenerateReportComponent implements OnInit {
   }
 
   pxToTwip(px) {
-    let result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
+    const result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
     return result * this.pxPerMilli*297 / 830 // scale from 830px to A4 page
   }
 

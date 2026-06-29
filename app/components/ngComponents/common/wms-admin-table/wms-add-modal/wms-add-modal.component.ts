@@ -127,7 +127,7 @@ export class WmsAddModalComponent implements OnInit {
     if(this.georesourceTopic_subsubsubTopic)
       topicRef = this.georesourceTopic_subsubsubTopic;
 
-    let data = {
+    const data = {
       title: this.metadataForm.controls.title.value,
       description: this.metadataForm.controls.description.value,
       databasis: this.metadataForm.controls.databasis.value,
@@ -257,8 +257,8 @@ export class WmsAddModalComponent implements OnInit {
     this.testErrorMessage = false;
     this.testSuccessMessage = false;
 
-    let url = this.connectForm.controls.url.value;
-    let layer = this.connectForm.controls.layer.value;
+    const url = this.connectForm.controls.url.value;
+    const layer = this.connectForm.controls.layer.value;
 
     if(url && layer) {
 

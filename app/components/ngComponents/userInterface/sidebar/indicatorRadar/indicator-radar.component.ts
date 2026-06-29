@@ -97,10 +97,10 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       this.propertiesForCurrentlySelectedIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => e.indicatorMetadata.indicatorId === this.selectionState.selectedIndicator.indicatorId);
       this.propertiesForBaseIndicatorsOfCurrentHeadlineIndicator = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.filter(e => {
 
-        var headlineIndicatorEntry = this.topicHierarchyStore.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
+        const headlineIndicatorEntry = this.topicHierarchyStore.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
 
         if(headlineIndicatorEntry){
-          var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);
+          const baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == e.indicatorMetadata.indicatorId);
           if (baseIndicators_filtered.length > 0){
             return true;
           }
@@ -112,8 +112,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     },2000);
 
     this.broadcastService.currentBroadcastMsg.subscribe(result => {
-      let msg = result.msg;
-      let val:any = result.values;
+      const msg = result.msg;
+      const val:any = result.values;
 
       switch (msg) {
         case 'resizeDiagrams': {
@@ -151,7 +151,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 */
 
   filterAvailableIndicators(event:any) {
-    let value = event.target.value;
+    const value = event.target.value;
     this.indicatorNameFilter = value;
   }
 
@@ -195,7 +195,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           // explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
           this.radarChart.dispose();
           this.radarChart = echarts.init(document.getElementById('radarDiagram'));
-          this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = new Array();
+          this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
       }
       this.radarChart.showLoading();
       this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
@@ -241,8 +241,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
     setTimeout(() => {
 
-      let indicatorArrayForRadarChart = new Array();
-      let defaultSeriesValueArray = new Array();
+      const indicatorArrayForRadarChart: any[] = [];
+      const defaultSeriesValueArray: any[] = [];
       let sampleProperties = null;
       
       for (let i = 0; i < indicatorsForRadar.length; i++) {
@@ -257,14 +257,14 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               sampleProperties = indicatorsForRadar[i].indicatorProperties;
               // var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], this.date);
               // indicatorsForRadar[i].closestTimestamp = closestApplicableTimestamp;
-              let sample:any[] = indicatorProperties[0];
+              const sample:any[] = indicatorProperties[0];
               let maxValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
               let minValue = sample[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate];
               let valueSum = 0;
-              for (let indicatorPropertyInstance of indicatorProperties) {
+              for (const indicatorPropertyInstance of indicatorProperties) {
                   // for average only apply real numeric values
                   if (!this.indicatorValueService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + indicatorsForRadar[i].selectedDate])) {
-                    let value = this.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate, indicatorsForRadar[i].indicatorMetadata.precision);
+                    const value = this.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, indicatorsForRadar[i].selectedDate, indicatorsForRadar[i].indicatorMetadata.precision);
                       valueSum += value;
                       if (value > maxValue)
                           maxValue = value;
@@ -282,7 +282,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               // HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
               // if(valueSum != null){
 
-              var name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
+              let name = indicatorsForRadar[i].indicatorMetadata.indicatorName;
               if(this.indicatorNames_shortVersion && (indicatorsForRadar[i].indicatorMetadata.abbreviation!='' && indicatorsForRadar[i].indicatorMetadata.abbreviation!=null && indicatorsForRadar[i].indicatorMetadata.abbreviation!=undefined))
                 name = indicatorsForRadar[i].indicatorMetadata.abbreviation
 
@@ -314,8 +314,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
 
           //get custom fontFamilyAdd 
-          var elem:any = document.querySelector('#fontFamily-reference');
-          var style = getComputedStyle(elem);
+          const elem:any = document.querySelector('#fontFamily-reference');
+          const style = getComputedStyle(elem);
 
           this.radarOption = {
               textStyle: {
@@ -337,8 +337,8 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
               tooltip: {
                   confine: 'true',
                   formatter: (params) => {
-                      var string = "" + params.name + "<br/>";
-                      for (var index = 0; index < params.value.length; index++) {
+                      let string = "" + params.name + "<br/>";
+                      for (let index = 0; index < params.value.length; index++) {
                           string += this.radarOption.radar.indicator[index].name + ": " + this.getIndicatorValue_asFormattedText(params.value[index], this.radarOption.radar.indicator[index].precision) + " [" + this.radarOption.radar.indicator[index].unit + "]<br/>";
                       }
                       ;
@@ -367,15 +367,15 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
                               // 		</tr>
                               // 	</tbody>
                               // </table>
-                              var radarSeries = opt.series[0].data;
-                              var indicators = opt.radar[0].indicator;
-                              var dataTableId = "radarDataTable";
-                              var tableExportName = opt.title[0].text;
-                              var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                              const radarSeries = opt.series[0].data;
+                              const indicators = opt.radar[0].indicator;
+                              const dataTableId = "radarDataTable";
+                              const tableExportName = opt.title[0].text;
+                              let htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
                               htmlString += "<thead>";
                               htmlString += "<tr>";
                               htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
-                              for (var i = 0; i < indicators.length; i++) {
+                              for (let i = 0; i < indicators.length; i++) {
                                   htmlString += "<th style='text-align:center;'>" + indicators[i].name + " [" + indicators[i].unit + "]</th>";
                               }
                               htmlString += "</tr>";
@@ -489,7 +489,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   };
 
   appendSelectedFeaturesIfNecessary(sampleProperties) {
-      for (var propertiesInstance of sampleProperties) {
+      for (const propertiesInstance of sampleProperties) {
           if (this.filterHelperService.featureIsCurrentlySelected(propertiesInstance[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
               this.appendSeriesToRadarChart(propertiesInstance);
           }
@@ -501,7 +501,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           // when hovering over elements of the chart then highlight them in the map.
           this.radarChart.on('mouseOver', (params) => {
               // this.userHoveresOverItem = true;
-              var spatialFeatureName = params.data.name;
+              const spatialFeatureName = params.data.name;
               // console.log(spatialFeatureName);
               if (spatialFeatureName) {
                   this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
@@ -509,7 +509,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           });
           this.radarChart.on('mouseOut', (params) => {
               // this.userHoveresOverItem = false;
-              var spatialFeatureName = params.data.name;
+              const spatialFeatureName = params.data.name;
               // console.log(spatialFeatureName);
               if (spatialFeatureName) {
                   this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
@@ -532,7 +532,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           return;
       }
 
-      var legendIndex = this.radarOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+      const legendIndex = this.radarOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       if (legendIndex === -1) {
         if (!this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
             console.log("Feature append");
@@ -565,17 +565,17 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
     // only adjust if printLayout (e.g. legend fully visible)
     if(this.printLayout) {
 
-      var strLengthTotal = this.radarOption.legend.data.reduce(function (sum, str) {
+      const strLengthTotal = this.radarOption.legend.data.reduce(function (sum, str) {
                                                                     return sum + str.length;
                                                                   }, 0);
 
                                               // 6 pixel for each letter                      35 for each coloured rect
-      var legendLengthTotal = (strLengthTotal * 6) + (this.radarOption.legend.data.length * 40);
-      let elem = document.getElementById('radarDiagram');
+      const legendLengthTotal = (strLengthTotal * 6) + (this.radarOption.legend.data.length * 40);
+      const elem = document.getElementById('radarDiagram');
 
       if(elem) {
-        var boxWidthTotal = elem.clientWidth;
-        var numLines = Math.ceil( legendLengthTotal / boxWidthTotal );
+        const boxWidthTotal = elem.clientWidth;
+        const numLines = Math.ceil( legendLengthTotal / boxWidthTotal );
 
                                           // 5 vh for each line, rough estimate
         this.radarHeight = (55 + (numLines * 8)) + 'vh';
@@ -592,9 +592,9 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
       this.checkResizeRadarChart();
 
       // create feature data series
-      var featureSeries:any = {};
+      const featureSeries:any = {};
       featureSeries.name = featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
-      featureSeries.value = new Array();
+      featureSeries.value = [];
       featureSeries.emphasis = {
           lineStyle: {
               width: 4,
@@ -609,12 +609,12 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
           borderWidth: 2
       };
       // for each indicator create series data entry for feature
-      for (var i = 0; i < this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++) {
+      for (let i = 0; i < this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++) {
           if (this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].isSelected) {
               // make object to hold indicatorName, max value and average value
-              var indicatorProperties = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
-              var date = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
-              for (var indicatorPropertyInstance of indicatorProperties) {
+              const indicatorProperties = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
+              const date = this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
+              for (const indicatorPropertyInstance of indicatorProperties) {
                   if (indicatorPropertyInstance[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
                       if (!this.indicatorValueService.indicatorValueIsNoData(indicatorPropertyInstance[this.DATE_PREFIX + date])) {
                           featureSeries.value.push(this.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date, this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorMetadata.precision));
@@ -638,7 +638,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   highlightFeatureInRadarChart(featureProperties) {
     // highlight the corresponding bar diagram item
     // get series index of series
-    var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    const dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     if (dataIndex > -1) {
         this.radarChart.dispatchAction({
             type: 'highlight',
@@ -659,7 +659,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   }
 
   getSeriesDataIndexByFeatureName(featureName) {
-    for (var index = 0; index < this.radarOption.series[0].data.length; index++) {
+    for (let index = 0; index < this.radarOption.series[0].data.length; index++) {
         if (this.radarOption.series[0].data[index].name == featureName)
             return index;
     }
@@ -669,7 +669,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
 
   removeSeriesFromRadarChart(featureProperties) {
       // remove feature from legend
-      var targetIndices: number[] = [];  
+      const targetIndices: number[] = [];  
       this.radarOption.legend.data.forEach((val: any, index: number) => {
         if (val === featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]) {
             targetIndices.push(index);
@@ -684,7 +684,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
             this.radarOption.legend.data.splice(legendIndex, 1);
         }
         // remove feature data series
-        var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+        const dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
         if (dataIndex > -1) {
             this.radarOption.series[0].data.splice(dataIndex, 1);
         }
@@ -701,7 +701,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   unhighlightFeatureInRadarChart(featureProperties) {
       // highlight the corresponding bar diagram item
       // get series index of series
-      var dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+      const dataIndex = this.getSeriesDataIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
       if (dataIndex > -1) {
           this.radarChart.dispatchAction({
               type: 'downplay',
@@ -717,14 +717,14 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   }
 
   selectAllIndicatorsForRadar() {
-      for (var indicator of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime) {
+      for (const indicator of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime) {
           indicator.isSelected = true;
       }
       this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
   }
 
   deselectAllIndicatorsForRadar() {
-      for (var indicator of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime) {
+      for (const indicator of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime) {
           indicator.isSelected = false;
       }
       this.modifyRadarContent(this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);

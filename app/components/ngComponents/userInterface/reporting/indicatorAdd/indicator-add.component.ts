@@ -232,8 +232,8 @@ export class IndicatorAddComponent implements OnInit {
     //this.baseMapSelect = new FormControl(this.mapOverlayState.baseLayerDefinitionsArray[0]);
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case 'reportingConfigureNewIndicatorShown': {
@@ -265,7 +265,7 @@ export class IndicatorAddComponent implements OnInit {
     this.setAreaSpecificPagesVisibility();
     
     // give each page a unique id to track it by in ng-repeat
-    for(let page of this.reportingService.clonedTemplate.pages) {
+    for(const page of this.reportingService.clonedTemplate.pages) {
       page.id = this.templatePageIdCounter++;
     }
 
@@ -471,7 +471,7 @@ export class IndicatorAddComponent implements OnInit {
       if (options.series[0].select) {
         options.series[0].select.label.show = this.pageConfig.sectionContentControl.showMapLabels;
       }
-      for(let item of options.series[0].data) {
+      for(const item of options.series[0].data) {
         if(typeof item.label === 'undefined') item.label = {};
         item.label.show = this.pageConfig.sectionContentControl.showMapLabels;
       }
@@ -524,13 +524,13 @@ export class IndicatorAddComponent implements OnInit {
 
   onPOINameFilterChange(event:any) {
 
-    let value = event.target.value;
+    const value = event.target.value;
     this.filteredAvailablePoiLayers = this.availablePoiLayers.filter((e:any) => e.datasetName.toLowerCase().includes(value)).sort(this.sortByDatasetName);
   }
 
   onIndicatorNameFilterChange(event:any) {
 
-    let value = event.target.value;
+    const value = event.target.value;
     this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
     this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
@@ -548,7 +548,7 @@ export class IndicatorAddComponent implements OnInit {
 
   initSelectedDualListOption() {
    
-    let updateDiagramsInterval = setInterval(() => {
+    const updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -559,9 +559,9 @@ export class IndicatorAddComponent implements OnInit {
         try {
           // indicator selection is optional in reachability template only
           if(this.selectedIndicator) {
-            for(let timestamp of this.selectedTimestamps) {
-              let classifyUsingWholeTimeseries = false;
-              let isTimeseries = false;
+            for(const timestamp of this.selectedTimestamps) {
+              const classifyUsingWholeTimeseries = false;
+              const isTimeseries = false;
               this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
             }
           } else {
@@ -655,8 +655,8 @@ export class IndicatorAddComponent implements OnInit {
   }
   
   copy(obj) {
-    var cp = {};
-    for (var o in obj) {
+    const cp = {};
+    for (const o in obj) {
         cp[o] = obj[o];
     }
     return cp;
@@ -665,7 +665,7 @@ export class IndicatorAddComponent implements OnInit {
   updateAreasForTimestampTemplates(newVal) {
    
     let pagesToInsertPerTimestamp:any[] = [];
-    for(let area of newVal) {
+    for(const area of newVal) {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
@@ -679,8 +679,8 @@ export class IndicatorAddComponent implements OnInit {
 
     // sort alphabetically by area name
     pagesToInsertPerTimestamp.sort( (a, b) => {
-      let textA = a.area.toLowerCase();
-      let textB = b.area.toLowerCase();
+      const textA = a.area.toLowerCase();
+      const textB = b.area.toLowerCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     })
 
@@ -689,11 +689,11 @@ export class IndicatorAddComponent implements OnInit {
     // get pages per timestamp -> insert new ones starting at indexOfFirstAreaSpecificPage -> replace per timestamp in this.reportingService.clonedTemplate.pages
     if(this.selectedTimestamps.length) {
       let idx = 0
-      for(let timestamp of this.selectedTimestamps) {
+      for(const timestamp of this.selectedTimestamps) {
 
         // pagesForTimestamp is the template-section for that timestamp
         let pagesForTimestamp = this.reportingService.clonedTemplate.pages.filter( page => {
-          let dateEl = page.pageElements.find( el => {
+          const dateEl = page.pageElements.find( el => {
             return el.type.includes("dataTimestamp-")
           });
           
@@ -709,7 +709,7 @@ export class IndicatorAddComponent implements OnInit {
         pagesForTimestamp = JSON.parse(JSON.stringify(pagesForTimestamp));
         
         // setup pages before inserting
-        for(let pageToInsert of pagesToInsertPerTimestamp) {
+        for(const pageToInsert of pagesToInsertPerTimestamp) {
 
           pageToInsert.pageElements.forEach(el => {
             
@@ -732,21 +732,21 @@ export class IndicatorAddComponent implements OnInit {
           // diagrams have to be inserted later because the div element does not yet exist
         }
 
-        let numberOfPagesToReplace = pagesForTimestamp.length;
+        const numberOfPagesToReplace = pagesForTimestamp.length;
         // insert area-specific pages
         pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
-        for(let page of pagesToInsertPerTimestamp)
+        for(const page of pagesToInsertPerTimestamp)
           page.id = this.templatePageIdCounter++;
         pagesForTimestamp.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
         // assign new ids
-        for(let page of pagesForTimestamp)
+        for(const page of pagesForTimestamp)
           page.id = this.templatePageIdCounter++;
         // then replace the whole timstamp-section with the new pages
         this.reportingService.clonedTemplate.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
       }
     } else {
       pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
-      for(let page of pagesToInsertPerTimestamp)
+      for(const page of pagesToInsertPerTimestamp)
         page.id = this.templatePageIdCounter++;
       // no timestamp selected, which makes inserting easier
       this.reportingService.clonedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
@@ -755,7 +755,7 @@ export class IndicatorAddComponent implements OnInit {
 
   updateAreasForTimeseriesTemplates(newVal) {
     let pagesToInsert:any[] = [];
-    for(let area of newVal) {
+    for(const area of newVal) {
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
       landscapePageToInsert.id = this.templatePageIdCounter++;
@@ -769,8 +769,8 @@ export class IndicatorAddComponent implements OnInit {
 
     // sort alphabetically by area name
     pagesToInsert.sort( (a, b) => {
-      let textA = a.area.toLowerCase();
-      let textB = b.area.toLowerCase();
+      const textA = a.area.toLowerCase();
+      const textB = b.area.toLowerCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
 
@@ -778,9 +778,9 @@ export class IndicatorAddComponent implements OnInit {
     // we do it only once
 
     // setup pages before inserting
-    for(let pageToInsert of pagesToInsert) {
+    for(const pageToInsert of pagesToInsert) {
 
-      let titleEl = pageToInsert.pageElements.find( el => {
+      const titleEl = pageToInsert.pageElements.find( el => {
         return el.type.includes("indicatorTitle-")
       });
       titleEl.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
@@ -789,11 +789,11 @@ export class IndicatorAddComponent implements OnInit {
       }
       titleEl.isPlaceholder = false;
 
-      let dateEl = pageToInsert.pageElements.find( el => {
+      const dateEl = pageToInsert.pageElements.find( el => {
         return el.type.includes("dataTimeseries-")
       });
-      let includeInBetweenValues = false
-      let dsValues:any = this.getFormattedDateSliderValues(includeInBetweenValues);
+      const includeInBetweenValues = false
+      const dsValues:any = this.getFormattedDateSliderValues(includeInBetweenValues);
       dateEl.text = dsValues.from + " - " + dsValues.to;
       dateEl.isPlaceholder = false;
 
@@ -802,15 +802,15 @@ export class IndicatorAddComponent implements OnInit {
 
     // insert area-specific pages
     pagesToInsert= JSON.parse(JSON.stringify(pagesToInsert));
-    for(let page of pagesToInsert)
+    for(const page of pagesToInsert)
       page.id = this.templatePageIdCounter++;
     this.reportingService.clonedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
   }
 
   updateAreasForReachabilityTemplates(newVal) {
     // we only have one timestamp here (the most recent one)
-    let pagesToInsert:any[] = [];
-    for(let area of newVal) {
+    const pagesToInsert:any[] = [];
+    for(const area of newVal) {
       // get pages to insert from untouched template
       const landscapePageToInsert:any = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
       landscapePageToInsert.area = area.name;
@@ -825,8 +825,8 @@ export class IndicatorAddComponent implements OnInit {
 
     // sort alphabetically by area name
     pagesToInsert.sort( (a, b) => {
-      let textA = a.area.toLowerCase();
-      let textB = b.area.toLowerCase();
+      const textA = a.area.toLowerCase();
+      const textB = b.area.toLowerCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
 
@@ -834,9 +834,9 @@ export class IndicatorAddComponent implements OnInit {
     if(this.selectedTimestamps.length === 1) {
 
       // setup pages before inserting
-      for(let pageToInsert of pagesToInsert) {
+      for(const pageToInsert of pagesToInsert) {
 
-        let titleEl = pageToInsert.pageElements.find( el => {
+        const titleEl = pageToInsert.pageElements.find( el => {
           return el.type.includes("indicatorTitle-")
         });
         titleEl.text = "Entfernungen für " + this.selectedPoiLayer.datasetName;
@@ -845,7 +845,7 @@ export class IndicatorAddComponent implements OnInit {
         }
         titleEl.isPlaceholder = false;
 
-        let subtitleEl = pageToInsert.pageElements.find( el => {
+        const subtitleEl = pageToInsert.pageElements.find( el => {
           return el.type.includes("reachability-subtitle-")
         });
         subtitleEl.text = this.selectedTimestamps[0].name;
@@ -860,9 +860,9 @@ export class IndicatorAddComponent implements OnInit {
 
       // create a deep copy so we can assign new ids
       //pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
-      let numberOfPagesToReplace = this.reportingService.clonedTemplate.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
+      const numberOfPagesToReplace = this.reportingService.clonedTemplate.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
       // insert area-specific pages
-      for(let page of pagesToInsert)
+      for(const page of pagesToInsert)
         page.id = this.templatePageIdCounter++;
 
       this.reportingService.clonedTemplate.pages.splice(this.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
@@ -891,14 +891,14 @@ export class IndicatorAddComponent implements OnInit {
   // internal array changes do not work with ng-change
   async onSelectedTimestampsChanged(newVal, oldVal) {
 
-    let mappedNewVal = newVal.map(e => e.name);
-    let mappedOldVal = oldVal.map(e => e.name);
+    const mappedNewVal = newVal.map(e => e.name);
+    const mappedOldVal = oldVal.map(e => e.name);
 
     if( typeof(this.reportingService.clonedTemplate) === "undefined") return;
     this.loadingData = true;
 
     // get difference between old and new value (the timestamps selected / deselected)
-    let difference = oldVal
+    const difference = oldVal
       .filter(x => !mappedNewVal.includes(x.name))
       .concat(newVal.filter(x => !mappedOldVal.includes(x.name)));
 
@@ -909,8 +909,8 @@ export class IndicatorAddComponent implements OnInit {
       // if this was the first timestamp
       if(newVal.length === 1) {
         // no need to insert pages, we just replace the placeholder timestamp
-        for(let page of this.reportingService.clonedTemplate.pages) {
-          for(let pageElement of page.pageElements) {
+        for(const page of this.reportingService.clonedTemplate.pages) {
+          for(const pageElement of page.pageElements) {
             if(pageElement.type.includes("dataTimestamp-")) {
               pageElement.text = difference[0].name;
               pageElement.isPlaceholder = false;
@@ -921,26 +921,26 @@ export class IndicatorAddComponent implements OnInit {
       
       if(newVal.length > 1) {
 
-        for(let timestampToInsert of difference) {
+        for(const timestampToInsert of difference) {
 
           // setup pages to insert first
-          let pagesToInsert = this.reportingService.getTemplatePagesForReinsert();
-          for(let page of pagesToInsert) {
+          const pagesToInsert = this.reportingService.getTemplatePagesForReinsert();
+          for(const page of pagesToInsert) {
             page.id = this.templatePageIdCounter++;
           }
           // insert additional page for each selected area, replace the placeholder page
-          let areaSpecificPages:any[] = [];
+          const areaSpecificPages:any[] = [];
           // copy placeholder page for each selected area
-          for(let area of this.selectedAreas) {
+          for(const area of this.selectedAreas) {
             
-            let tempArea:any = area;
-            let page = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
+            const tempArea:any = area;
+            const page = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage);
             page.area = tempArea.name;
             page.id = this.templatePageIdCounter++;
             areaSpecificPages.push(page);
             
             // repeat for the same area page with other orientation
-            let page_otherOrientation = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage + 1);
+            const page_otherOrientation = this.reportingService.getAreaSpecificPageClone(this.indexOfFirstAreaSpecificPage + 1);
             page_otherOrientation.area = area.name;
             page_otherOrientation.id = this.templatePageIdCounter++;
             areaSpecificPages.push(page_otherOrientation);
@@ -948,8 +948,8 @@ export class IndicatorAddComponent implements OnInit {
 
           // sort alphabetically by area name
           areaSpecificPages.sort( (a, b) => {
-            let textA = a.area.toLowerCase();
-            let textB = b.area.toLowerCase();
+            const textA = a.area.toLowerCase();
+            const textB = b.area.toLowerCase();
             return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
           })
 
@@ -957,8 +957,8 @@ export class IndicatorAddComponent implements OnInit {
           pagesToInsert.splice(this.indexOfFirstAreaSpecificPage, 2, ...areaSpecificPages)
 
           // setup pages before inserting them
-          for(let pageToInsert of pagesToInsert) {
-            for(let pageElement of pageToInsert.pageElements) {
+          for(const pageToInsert of pagesToInsert) {
+            for(const pageElement of pageToInsert.pageElements) {
 
               if(pageElement.type.includes("indicatorTitle-")) {
                 pageElement.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]";
@@ -979,15 +979,15 @@ export class IndicatorAddComponent implements OnInit {
           // iterate pages and check timestamp for each one
           let pagesInserted = false;
           for(let i=this.reportingService.clonedTemplate.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
-            let page = this.reportingService.clonedTemplate.pages[i];
+            const page = this.reportingService.clonedTemplate.pages[i];
 
-            for(let pElement of page.pageElements) {
+            for(const pElement of page.pageElements) {
               if(pElement.type.includes("dataTimestamp-")) {
                 // compare timestamps
-                let date1 = timestampToInsert.name;
-                let date2 = pElement.text;
-                let date1Updated = new Date(date1.replace(/-/g,'/'));  
-                let date2Updated = new Date(date2.replace(/-/g,'/'));
+                const date1 = timestampToInsert.name;
+                const date2 = pElement.text;
+                const date1Updated = new Date(date1.replace(/-/g,'/'));  
+                const date2Updated = new Date(date2.replace(/-/g,'/'));
                 
                 // if page timestamp is newer than difference timestamp
                 if(date1Updated > date2Updated) {
@@ -1014,8 +1014,8 @@ export class IndicatorAddComponent implements OnInit {
         // all other pages got prepended since we compared against an invalid date.
         // remove those pages
         for(let i=this.reportingService.clonedTemplate.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
-          let page = this.reportingService.clonedTemplate.pages[i];
-          for(let pElement of page.pageElements) {
+          const page = this.reportingService.clonedTemplate.pages[i];
+          for(const pElement of page.pageElements) {
             if(pElement.type.includes("dataTimestamp-")) {
               if(pElement.isPlaceholder) {
                 this.reportingService.clonedTemplate.pages.splice(i, 1);
@@ -1030,16 +1030,16 @@ export class IndicatorAddComponent implements OnInit {
     if(newVal.length < oldVal.length) {
       // if it was the last one
       if(newVal.length === 0) {
-        let cleanTemplate = JSON.parse(this.untouchedTemplateAsString);
-        for(let page of cleanTemplate.pages) {
+        const cleanTemplate = JSON.parse(this.untouchedTemplateAsString);
+        for(const page of cleanTemplate.pages) {
           page.id = this.templatePageIdCounter++;
         }
         //this.reportingService.clonedTemplate = cleanTemplate;
       } else {
         // remove all pages that belong to removed timestamps
-        for(let timestampToRemove of difference) {
+        for(const timestampToRemove of difference) {
           this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter( page => {
-            let timestampEl = page.pageElements.find( el => {
+            const timestampEl = page.pageElements.find( el => {
               return el.type.includes("dataTimestamp-")
             })
 
@@ -1053,8 +1053,8 @@ export class IndicatorAddComponent implements OnInit {
     // but that one might change if we change the spatial unit
     if(newVal.length === oldVal.length && newVal.length === 1 && newVal[0].name != oldVal[0].name) {
       // simply update the timestamp on all pages
-      for(let page of this.reportingService.clonedTemplate.pages) {
-        for(let pageElement of page.pageElements) {
+      for(const page of this.reportingService.clonedTemplate.pages) {
+        for(const pageElement of page.pageElements) {
           if(pageElement.type.includes("reachability-subtitle-")) {
             pageElement.text = newVal[0].name;
             if(this.isochrones)
@@ -1067,7 +1067,7 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
 
-    let updateDiagramsInterval = setInterval(() => {
+    const updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -1083,9 +1083,9 @@ export class IndicatorAddComponent implements OnInit {
           try {
             // indicator selection is optional in reachability template only
             if(this.selectedIndicator) {
-              for(let timestamp of this.selectedTimestamps) {
-                let classifyUsingWholeTimeseries = false;
-                let isTimeseries = false;
+              for(const timestamp of this.selectedTimestamps) {
+                const classifyUsingWholeTimeseries = false;
+                const isTimeseries = false;
                 this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
               }
             } else {
@@ -1150,11 +1150,11 @@ export class IndicatorAddComponent implements OnInit {
     // Most likely this is only a temporary method
     // It checks the availablePeriodsOfValidity and takes the most recent one to query features.
 
-    let timestamp = georesource.availablePeriodsOfValidity.at(-1).startDate;
-    let timestampSplit = timestamp.split("-")
-    let year = timestampSplit[0];
-    let month = timestampSplit[1];
-    let day = timestampSplit[2];
+    const timestamp = georesource.availablePeriodsOfValidity.at(-1).startDate;
+    const timestampSplit = timestamp.split("-")
+    const year = timestampSplit[0];
+    const month = timestampSplit[1];
+    const day = timestampSplit[2];
 
     let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()
     url += "/georesources/" + georesource.georesourceId + "/" + year + "/" + month + "/" + day
@@ -1196,7 +1196,7 @@ export class IndicatorAddComponent implements OnInit {
       
         // Check if the currently selected timestamps are also available for the new spatial unit.
         // If one is not, deselect is and show an info to user
-        let selectedTimestamps_old = [...this.selectedTimestamps];
+        const selectedTimestamps_old = [...this.selectedTimestamps];
         this.selectedTimestamps = this.selectedTimestamps.filter( (el:any) => {
           return validTimestamps.includes(el.name);
         });
@@ -1207,23 +1207,23 @@ export class IndicatorAddComponent implements OnInit {
         }
       } else {
         // without selected indicator we have to fall back to the last update of the new spatial unit
-        let mostRecentTimestampName = this.selectedSpatialUnit.metadata.lastUpdate;
+        const mostRecentTimestampName = this.selectedSpatialUnit.metadata.lastUpdate;
         validTimestamps.push(mostRecentTimestampName)
       }
       
       if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
         // Similar procedure as with timestamps
-        let oldTimeseries = this.getFormattedDateSliderValues(true);
+        const oldTimeseries = this.getFormattedDateSliderValues(true);
         
-        let from = new Date();
-        let to = new Date();
-        let filteredTimeseries = validTimestamps.filter( el => {
-          let date = new Date(el);
+        const from = new Date();
+        const to = new Date();
+        const filteredTimeseries = validTimestamps.filter( el => {
+          const date = new Date(el);
           date.setHours(0); // remove time-offset...TODO is there a better way?
           return from <= date && date <= to;
         });
 
-        let isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
+        const isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
           return element === filteredTimeseries[index];
         });
         
@@ -1252,7 +1252,7 @@ export class IndicatorAddComponent implements OnInit {
           }
         }
       });
-      let timestampsToSelect = this.selectedTimestamps.map( el => {
+      const timestampsToSelect = this.selectedTimestamps.map( el => {
         return {
           properties: {
             NAME: el.name
@@ -1282,7 +1282,7 @@ export class IndicatorAddComponent implements OnInit {
       } else {
         features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ];
         features = this.createLowerCaseNameProperty(features);
-        let geoJSON = { features: features }
+        const geoJSON = { features: features }
         this.selectedIndicator.geoJSON = geoJSON;
       }
       
@@ -1297,7 +1297,7 @@ export class IndicatorAddComponent implements OnInit {
           if(this.reportingService.clonedTemplate.name.includes("reachability")) {
             this.reachabilityTemplateGeoMapOptions = this.prepareReachabilityEchartsMap();
           } else if (this.reportingService.clonedTemplate.name.includes("timeseries")) {
-            let values = this.getFormattedDateSliderValues(true);
+            const values = this.getFormattedDateSliderValues(true);
             let classifyUsingWholeTimeseries = false;
             let isTimeseries = true;
             this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
@@ -1306,9 +1306,9 @@ export class IndicatorAddComponent implements OnInit {
             isTimeseries = false;
             this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
           } else {
-            for(let timestamp of this.selectedTimestamps) {
-              let classifyUsingWholeTimeseries = false;
-              let isTimeseries = false;
+            for(const timestamp of this.selectedTimestamps) {
+              const classifyUsingWholeTimeseries = false;
+              const isTimeseries = false;
               this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
             }	
           }
@@ -1329,21 +1329,21 @@ export class IndicatorAddComponent implements OnInit {
   async updateAreasInDualList(selectAll = true) {
     // this happens for the reachability template on poi selection
     if(typeof(this.selectedIndicator) === "undefined") {
-      let spatialUnit = this.selectedSpatialUnit ?
+      const spatialUnit = this.selectedSpatialUnit ?
       this.selectedSpatialUnit :
       this.selectedIndicator!.applicableSpatialUnits[0];
 
       const response: any = await firstValueFrom(this.queryFeatures(undefined, spatialUnit));
       this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel] = response.features;
-      let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel];
+      const allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitLevel];
       this.updateAreasDualList(allAreas, selectAll ? allAreas : undefined);
     } else {
-      let indicator = this.selectedIndicator;
+      const indicator = this.selectedIndicator;
 
-      let spatialUnit = this.selectedSpatialUnit ?
+      const spatialUnit = this.selectedSpatialUnit ?
         this.selectedSpatialUnit :
         this.selectedIndicator.applicableSpatialUnits[0]
-      let indicatorId = indicator.indicatorId;
+      const indicatorId = indicator.indicatorId;
 
       // on indicator change
       if(this.availableFeaturesBySpatialUnit.indicatorId != indicator.indicatorId) {
@@ -1355,7 +1355,7 @@ export class IndicatorAddComponent implements OnInit {
       const response: any = await firstValueFrom(this.queryFeatures(indicatorId, spatialUnit));
       // save response to scope to avoid further requests
       this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = response.features;
-      let allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
+      const allAreas = this.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName];
       // items loaded; full selection (select-all) is applied by the caller after this returns
       this.updateAreasDualList(allAreas, undefined);
     }
@@ -1366,10 +1366,10 @@ export class IndicatorAddComponent implements OnInit {
     // query different endpoints depending on if we have an indicator or not
     let url;
     if(!indicatorId) {
-      let date = spatialUnit.metadata.lastUpdate.split("-")
-      let year = date[0]
-      let month = date[1]
-      let day = date[2]
+      const date = spatialUnit.metadata.lastUpdate.split("-")
+      const year = date[0]
+      const month = date[1]
+      const day = date[2]
       url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
         "/spatial-units/" + spatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day; 
     } else {
@@ -1399,15 +1399,15 @@ export class IndicatorAddComponent implements OnInit {
     // if there are items to select
     if(selectedItems && selectedItems.length > 0) {
       if(data.length === selectedItems.length) {
-        let dualListSelected = selectedItems.map( (el, i) => {
+        const dualListSelected = selectedItems.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i}
         });
         newSelectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');
       } else {
 
-        let items:any[] = [];
+        const items:any[] = [];
         let index:number = 0;
-        for(let item of selectedItems) {
+        for(const item of selectedItems) {
           if(item.hasOwnProperty("properties")) {
             if(item.properties.hasOwnProperty("NAME")) {
               items.push({'name':item.properties.NAME, 'id':index});
@@ -1433,14 +1433,14 @@ export class IndicatorAddComponent implements OnInit {
     let newSelectedItems: any[] = [];
     if(selectedItems && selectedItems.length > 0) {
       if(data.length === selectedItems.length) {
-        let dualListSelected = selectedItems.map( (el, i) => {
+        const dualListSelected = selectedItems.map( (el, i) => {
           return {"name": el.properties.NAME, 'id': i}
         });
         newSelectedItems = this.indicatorValueService.createDualListInputArray(dualListSelected, "name",'id');
       } else {
-        let items:any[] = [];
+        const items:any[] = [];
         let index:number = 0;
-        for(let item of selectedItems) {
+        for(const item of selectedItems) {
           if(item.hasOwnProperty("properties")) {
             if(item.properties.hasOwnProperty("NAME")) {
               items.push({'name':item.properties.NAME, 'id':index});
@@ -1463,21 +1463,21 @@ export class IndicatorAddComponent implements OnInit {
   // Also it is only called in situations where an indicator is selected.
   getValidTimestampsForSpatialUnit(spatialUnit) {
 
-    let validTimestamps:any = []; // result
+    const validTimestamps:any = []; // result
     // Iterate all features and add all properties that start with "DATE_" to 'validTimestamps'
-    let features = this.availableFeaturesBySpatialUnit[ spatialUnit.spatialUnitName ];
+    const features = this.availableFeaturesBySpatialUnit[ spatialUnit.spatialUnitName ];
     if(!features) {
-      let error = new Error("Tried to get valid timestamps but no features were cached.")
+      const error = new Error("Tried to get valid timestamps but no features were cached.")
       this.mapErrorNotificationService.displayMapApplicationError(error.message)
     }
-    for(let feature of features) {
+    for(const feature of features) {
       let props = Object.keys(feature.properties)
       props = props.filter( prop => {
         return prop.startsWith("DATE_");
       })
 
-      for(let prop of props) {
-        let timestamp = prop.replace("DATE_", "")
+      for(const prop of props) {
+        const timestamp = prop.replace("DATE_", "")
         if( !validTimestamps.includes(timestamp) ) {
           validTimestamps.push(timestamp)
         }
@@ -1491,9 +1491,9 @@ export class IndicatorAddComponent implements OnInit {
     // Calculates and adds a bbox property for each feature and for overall layer
     // These do not exist if the type of movement is "buffer" ( = isochrones not generated by ors)
 
-    let overallBbox:any[] = [];
-    let features = this.isochrones.features;
-    for(var i=0; i<this.isochrones.features.length; i++) {
+    const overallBbox:any[] = [];
+    const features = this.isochrones.features;
+    for(let i=0; i<this.isochrones.features.length; i++) {
       
       // calculate bbox for feature
       if(!features[i].bbox || !features[i].bbox.length) {
@@ -1504,7 +1504,7 @@ export class IndicatorAddComponent implements OnInit {
       if(overallBbox.length === 0) {
         overallBbox.push(...features[i].properties.bbox)
       } else {
-        let bbox = features[i].properties.bbox;
+        const bbox = features[i].properties.bbox;
         overallBbox[0] = (bbox[0] < overallBbox[0]) ? bbox[0] : overallBbox[0];
         overallBbox[1] = (bbox[1] < overallBbox[1]) ? bbox[1] : overallBbox[1];
         overallBbox[2] = (bbox[2] > overallBbox[2]) ? bbox[2] : overallBbox[2];
@@ -1519,17 +1519,17 @@ export class IndicatorAddComponent implements OnInit {
     this.isochrones.centerLocations = [];
     // We probably have multiple isochrones with the same center.
     // Keep track of the value property and only calculate center coords once per isochrones group.
-    let firstIsochroneRangeValue = this.isochrones.features[0].properties.value;
-    for(let feature of this.isochrones.features) {
+    const firstIsochroneRangeValue = this.isochrones.features[0].properties.value;
+    for(const feature of this.isochrones.features) {
       if(feature.properties.value === firstIsochroneRangeValue) {
         // bbox format: [lower left lon, lower left lat, upper right lon, upper right lat]
         if(! feature.properties.bbox){
-          let bbox = turf.bbox(feature); // calculate bbox for each feature
+          const bbox = turf.bbox(feature); // calculate bbox for each feature
           feature.properties.bbox = bbox;
         }
-        let bbox = feature.properties.bbox;
-        let centerLon = bbox[0] + ((bbox[2] - bbox[0]) / 2);
-        let centerLat = bbox[1] + ((bbox[3] - bbox[1]) / 2);
+        const bbox = feature.properties.bbox;
+        const centerLon = bbox[0] + ((bbox[2] - bbox[0]) / 2);
+        const centerLat = bbox[1] + ((bbox[3] - bbox[1]) / 2);
         this.isochrones.centerLocations.push([centerLon, centerLat])
       }
       
@@ -1564,11 +1564,11 @@ export class IndicatorAddComponent implements OnInit {
     // Add a new property that is used as a unique id and can be used by echarts
     // For buffer there is no group_index, so we use the ID
     if(this.typeOfMovement === "buffer") {
-      for(let feature of this.isochrones.features) {
+      for(const feature of this.isochrones.features) {
         feature.properties.echartsId = feature.properties.ID + "-" + feature.properties.value
       }
     } else {
-      for(let feature of this.isochrones.features) {
+      for(const feature of this.isochrones.features) {
         feature.properties.echartsId = feature.properties.group_index + "-" + feature.properties.value
       }
     }
@@ -1634,9 +1634,9 @@ export class IndicatorAddComponent implements OnInit {
       // Indicator might not be selected at this point
       // We get information about all available spatial units (instead of applicable ones)
       // Then we select the highest one by default
-      let spatialUnits:any = this.spatialUnitStore.availableSpatialUnits;
+      const spatialUnits:any = this.spatialUnitStore.availableSpatialUnits;
       this.allSpatialUnitsForReachability = spatialUnits; // needed for spatial unit selection in 3rd tab
-      let highestSpatialUnit = spatialUnits.filter( unit => {
+      const highestSpatialUnit = spatialUnits.filter( unit => {
         return unit.nextUpperHierarchyLevel === null;
       });
       if(!this.selectedSpatialUnit) {
@@ -1662,8 +1662,8 @@ export class IndicatorAddComponent implements OnInit {
         }];
 
         // update information in preview
-        for(let page of this.reportingService.clonedTemplate.pages) {
-          for(let el of page.pageElements) {
+        for(const page of this.reportingService.clonedTemplate.pages) {
+          for(const el of page.pageElements) {
             if(el.type.includes("indicatorTitle-")) {
               el.text = "Entfernungen für " + this.selectedPoiLayer.datasetName;
               el.isPlaceholder = false;
@@ -1717,8 +1717,8 @@ export class IndicatorAddComponent implements OnInit {
   
         this.initReachabilityTemplate();    
 
-        let allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
-        for(let tab of allTabs) {
+        const allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+        for(const tab of allTabs) {
           this.enableTab(tab);
         }
       },1000);
@@ -1751,7 +1751,7 @@ export class IndicatorAddComponent implements OnInit {
     if(this.reportingService.clonedTemplate.name.includes("reachability"))
       this.updateAreasForReachabilityTemplates(this.selectedAreas)
     
-    let updateDiagramsInterval = setInterval(() => {
+    const updateDiagramsInterval = setInterval(() => {
       if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -1770,15 +1770,15 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   calculateOverallBoundingBoxFromGeoJSON(features) {
-    let result:any[] = [];
-    for(var i=0; i<features.length; i++) {
+    const result:any[] = [];
+    for(let i=0; i<features.length; i++) {
        // check if we have to modify our overall bbox (result)
        if(result.length === 0) { // for first feature
       result.push(...features[i].properties.bbox);
       continue;
       } else {
       // all other features
-      let bbox = features[i].properties.bbox;
+      const bbox = features[i].properties.bbox;
       result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
       result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
       result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
@@ -1793,15 +1793,15 @@ export class IndicatorAddComponent implements OnInit {
 
 
   setMostRecentIndicatorDataToReachabilityMap(seriesOptions) {
-    let mostRecentTimestampName = this.selectedIndicator.applicableDates.at(-1);
+    const mostRecentTimestampName = this.selectedIndicator.applicableDates.at(-1);
     let features;
     if(this.selectedSpatialUnit.spatialUnitName) {
       features = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName]
     } else {
       features = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel]
     }
-    let newSeriesData = features.map( feature => {
-      let name = feature.properties.NAME
+    const newSeriesData = features.map( feature => {
+      const name = feature.properties.NAME
       let value = feature.properties["DATE_" + mostRecentTimestampName]
       value = Math.round(value * 100) / 100;
       return {
@@ -1833,7 +1833,7 @@ export class IndicatorAddComponent implements OnInit {
 
     for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
       const page = this.reportingService.clonedTemplate.pages[i];
-      for(let pageElement of page.pageElements) {
+      for(const pageElement of page.pageElements) {
         if(pageElement.type === "map") {
           const domNode: any = document.querySelector("#reporting-addIndicator-page-" + i + "-map");
           if (domNode) {
@@ -1869,16 +1869,16 @@ export class IndicatorAddComponent implements OnInit {
 
   async handleIndicatorSelectForReachability(indicator) {
     this.selectedIndicator = indicator;
-    let indicatorId = this.selectedIndicator.indicatorId;
-    let featureCollection:any = await firstValueFrom(this.queryFeatures(indicatorId, this.selectedSpatialUnit));
+    const indicatorId = this.selectedIndicator.indicatorId;
+    const featureCollection:any = await firstValueFrom(this.queryFeatures(indicatorId, this.selectedSpatialUnit));
    
     this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel] = featureCollection.features;
-    let allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
+    const allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitLevel];
     this.updateAreasDualList(allAreas, allAreas ) // don't select any areas
     
     if(!this.selectedSpatialUnit.spatialUnitName) {
       // set the applicable spatial unit from the indicator as selected spatial unit
-      let filter = this.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
+      const filter = this.selectedIndicator.applicableSpatialUnits.filter( spatialUnit => {
         return spatialUnit.spatialUnitName === this.selectedSpatialUnit.spatialUnitLevel;
       })
       if(filter && filter.length) {
@@ -1890,15 +1890,15 @@ export class IndicatorAddComponent implements OnInit {
     this.selectedIndicator.geoJSON = featureCollection;
     this.selectedIndicator.geoJSON.features = this.createLowerCaseNameProperty(this.selectedIndicator.geoJSON.features);
     if(this.selectedIndicator.geoJSON.features[0] && !this.selectedIndicator.geoJSON.features[0].properties.bbox){
-      for(let feature of this.selectedIndicator.geoJSON.features) {
-        let bbox = turf.bbox(feature); // calculate bbox for each feature
+      for(const feature of this.selectedIndicator.geoJSON.features) {
+        const bbox = turf.bbox(feature); // calculate bbox for each feature
         feature.properties.bbox = bbox;
       }
     }
     
     for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
       const page = this.reportingService.clonedTemplate.pages[i];
-      for(let pageElement of page.pageElements) {
+      for(const pageElement of page.pageElements) {
         if(pageElement.type === "map") {
           const domNode: any = document.querySelector("#reporting-addIndicator-page-" + i + "-map");
           if (domNode) {
@@ -1940,7 +1940,7 @@ export class IndicatorAddComponent implements OnInit {
 
   async onIndicatorSelected() {
 
-    let indicator = this.indicatorSelect.value;
+    const indicator = this.indicatorSelect.value;
 
     try {
       this.loadingData = true;
@@ -1970,11 +1970,11 @@ export class IndicatorAddComponent implements OnInit {
       this.reportingService.clonedTemplate.pageConfig = this.pageConfig;
       
       // set spatial unit to highest available one
-      let spatialUnits = this.spatialUnitStore.availableSpatialUnits;
+      const spatialUnits = this.spatialUnitStore.availableSpatialUnits;
 
       // go from highest to lowest spatial unit and check if it is available.
-      for(let spatialUnit of spatialUnits) {
-        let applicableSpatialUnitsFiltered = this.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
+      for(const spatialUnit of spatialUnits) {
+        const applicableSpatialUnitsFiltered = this.selectedIndicator.applicableSpatialUnits.filter( (unit) => {
           return unit.spatialUnitId === spatialUnit.spatialUnitId;
         })
 
@@ -1993,27 +1993,27 @@ export class IndicatorAddComponent implements OnInit {
 
       setTimeout( async () => {
         // select most recent timestamp that is valid for the largest spatial unit
-        let dates = this.selectedIndicator.applicableDates;
-        let timestampsForSelectedSpatialUnit = this.getValidTimestampsForSpatialUnit( this.selectedSpatialUnit);
+        const dates = this.selectedIndicator.applicableDates;
+        const timestampsForSelectedSpatialUnit = this.getValidTimestampsForSpatialUnit( this.selectedSpatialUnit);
         timestampsForSelectedSpatialUnit.sort();
         
-        let availableTimestamps = dates
+        const availableTimestamps = dates
           .filter( name => { // filter dates to only show the ones valid for selected spatial unit 
             return timestampsForSelectedSpatialUnit.includes( name )
           }).map( name => { // then convert all timestamps to required format ("feature")
             return { "properties": { "NAME": name } }
         })
 
-        let mostRecentTimestampName = timestampsForSelectedSpatialUnit.at(-1);
-        let mostRecentTimestamp = availableTimestamps.filter( el => {
+        const mostRecentTimestampName = timestampsForSelectedSpatialUnit.at(-1);
+        const mostRecentTimestamp = availableTimestamps.filter( el => {
           return el.properties.NAME === mostRecentTimestampName;
         })
         if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
           this.initializeDateRangeSlider( timestampsForSelectedSpatialUnit,0,1 );
         }
         // update information in preview
-        for(let page of this.reportingService.clonedTemplate.pages) {
-          for(let el of page.pageElements) {
+        for(const page of this.reportingService.clonedTemplate.pages) {
+          for(const el of page.pageElements) {
             if(el.type.includes("indicatorTitle-")) {
               el.text = indicator.indicatorName + " [" + indicator.unit + "]";
               el.isPlaceholder = false;
@@ -2027,7 +2027,7 @@ export class IndicatorAddComponent implements OnInit {
             }
 
             if(el.type.includes("dataTimeseries-")) {
-              let dsValues:any = this.getFormattedDateSliderValues(1)
+              const dsValues:any = this.getFormattedDateSliderValues(1)
               el.text = dsValues.from + " - " + dsValues.to
               el.isPlaceholder = false
             }
@@ -2037,7 +2037,7 @@ export class IndicatorAddComponent implements OnInit {
         // get all features of largest spatial unit
         let features = this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName ]
         features = this.createLowerCaseNameProperty(features);
-        let geoJson = {
+        const geoJson = {
           features: features
         }
 
@@ -2045,7 +2045,7 @@ export class IndicatorAddComponent implements OnInit {
         // used in prepareDiagrams
         this.selectedIndicator.geoJSON = geoJson;
         let classifyUsingWholeTimeseries = false;
-        let isTimeseries = false;
+        const isTimeseries = false;
         this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
         // We have to update time and areas. Usually both of these would result in a diagram update.
         // We want to skip the first one and only update diagrams once everything is ready for better performance.
@@ -2055,8 +2055,8 @@ export class IndicatorAddComponent implements OnInit {
           // This is an exception from the process above
           this.isFirstUpdateOnIndicatorOrPoiLayerSelection = false;
           classifyUsingWholeTimeseries = false;
-          let values:any = this.getFormattedDateSliderValues(1);
-          let isTimeseries = true;
+          const values:any = this.getFormattedDateSliderValues(1);
+          const isTimeseries = true;
           this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries, isTimeseries, values.from, values.to);
         } else {
           //this.updateDualList(this.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
@@ -2064,11 +2064,11 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         // select all areas by default
-        let allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
+        const allAreas = this.availableFeaturesBySpatialUnit[this.selectedSpatialUnit.spatialUnitName];
         this.updateAreasDualList(allAreas, allAreas);
 
-        let allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
-        for(let tab of allTabs) {
+        const allTabs:any = document.querySelectorAll("#reporting-add-indicator-tab-list li")
+        for(const tab of allTabs) {
           this.enableTab(tab);
         }
       
@@ -2124,8 +2124,8 @@ export class IndicatorAddComponent implements OnInit {
   }
 
   getCleanTemplate() {
-    let result = JSON.parse(this.untouchedTemplateAsString);
-    for(let page of result.pages) {
+    const result = JSON.parse(this.untouchedTemplateAsString);
+    for(const page of result.pages) {
       page.id = this.templatePageIdCounter++;
     }
     return result;
@@ -2154,14 +2154,14 @@ export class IndicatorAddComponent implements OnInit {
     this.echartsRegisteredMapNames = [];
 
     for(let i=2;i<7;i++) {
-      let tab = document.querySelector("#reporting-add-indicator-tab" + i);
+      const tab = document.querySelector("#reporting-add-indicator-tab" + i);
       this.disableTab(tab);
     }
   }
 
   onAddBtnClicked() {
     
-    let templateSection = {
+    const templateSection = {
       indicatorName: this.selectedIndicator ? this.selectedIndicator.indicatorName : "",
       indicatorId: this.selectedIndicator ? this.selectedIndicator.indicatorId : "",
       poiLayerName: this.selectedPoiLayer ? this.selectedPoiLayer.datasetName : "",
@@ -2179,14 +2179,14 @@ export class IndicatorAddComponent implements OnInit {
     this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter(e => e.hidden!==true);
 
     // for each page: add echarts configuration objects to the template
-    for(let [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
-      let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + idx);
+    for(const [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
+      const pageDom:any = document.querySelector("#reporting-addIndicator-page-" + idx);
       
-      for(let pageElement of page.pageElements) {
+      for(const pageElement of page.pageElements) {
 
         let pElementDom;
         if(pageElement.type === "linechart") {
-          let arr = pageDom.querySelectorAll(".type-linechart");
+          const arr = pageDom.querySelectorAll(".type-linechart");
           if(pageElement.showPercentageChangeToPrevTimestamp) {
             pElementDom = arr[1];
           } else {
@@ -2197,8 +2197,8 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-          let instance:any = echarts.getInstanceByDom( pElementDom );
-          let options = JSON.parse(JSON.stringify( instance.getOption() ));
+          const instance:any = echarts.getInstanceByDom( pElementDom );
+          const options = JSON.parse(JSON.stringify( instance.getOption() ));
           pageElement.echartsOptions = options;
 
           // for reachability we also have the leaflet bbox stored already
@@ -2207,18 +2207,18 @@ export class IndicatorAddComponent implements OnInit {
 
         if(pageElement.type === "datatable") {
           // add some properties so we can recreate the table later
-          let columnHeaders = pageDom.querySelectorAll("th");
-          let columnNames:any[] = [];
-          for(let header of columnHeaders) {
+          const columnHeaders = pageDom.querySelectorAll("th");
+          const columnNames:any[] = [];
+          for(const header of columnHeaders) {
             columnNames.push(header.innerText);
           }
           pageElement.columnNames = columnNames;
-          let tableData:any[] = [];
-          let rows = pageDom.querySelectorAll("tbody tr");
-          for(let row of rows) {
-            let rowData:any[] = [];
-            let fields = row.querySelectorAll("td");
-            for(let field of fields) {
+          const tableData:any[] = [];
+          const rows = pageDom.querySelectorAll("tbody tr");
+          for(const row of rows) {
+            const rowData:any[] = [];
+            const fields = row.querySelectorAll("td");
+            for(const field of fields) {
               rowData.push(field.innerText);
             }
             tableData.push(rowData);
@@ -2267,12 +2267,12 @@ export class IndicatorAddComponent implements OnInit {
 
   // creates and returns a series data array for each range threshold
   convertIsochronesToSeriesData(isochrones) {
-    let result:any[] = [] // array of series data config objects
+    const result:any[] = [] // array of series data config objects
     let ranges:any[] = []
     if( this.checkNestedPropExists(isochrones, "info", "query", "profile") ) {
       ranges = isochrones.info.query.ranges.split(",")
     } else if( isochrones.hasOwnProperty("features")) { // for buffer
-      for(let feature of isochrones.features) {
+      for(const feature of isochrones.features) {
         if(this.checkNestedPropExists(feature, "properties", "value")) {
           ranges.push(Number(feature.properties.value))
         }
@@ -2282,8 +2282,8 @@ export class IndicatorAddComponent implements OnInit {
     if(!ranges || ranges.length === 0) {
       throw new Error("Could not determine ranges from isochrones. Is the format correct?")
     }
-    let rangesInt = ranges.map( e => parseInt(e)); // assuming we only get integer values as input here
-    let colorArr:any[] = [];
+    const rangesInt = ranges.map( e => parseInt(e)); // assuming we only get integer values as input here
+    const colorArr:any[] = [];
     if(ranges.length === 1) colorArr.push("green");
     if(ranges.length === 2) colorArr.push( ...["green", "yellow"] )
     if(ranges.length === 3) colorArr.push( ...["green", "yellow", "red"] )
@@ -2294,8 +2294,8 @@ export class IndicatorAddComponent implements OnInit {
     // one series per range value, so we can control the z value and legend display more easily.
     for(let [idx, range] of rangesInt.entries()) {
       if(idx >= colorArr.length) idx = colorArr.length-1;
-      let seriesData:any[] = [];
-      let data = isochrones.features.filter( feature => {
+      const seriesData:any[] = [];
+      const data = isochrones.features.filter( feature => {
         return Number(feature.properties.value) == Number(range); // get features for this range threshold
       }).map( feature => {
         
@@ -2351,15 +2351,15 @@ export class IndicatorAddComponent implements OnInit {
     // But we need the isochrones in different series to control their z-indexes (show smaller isochrones above larger ones)
     // That's why we need to register one map per range threshold, that only contains a subset of isochrones.
     if(this.isochrones) {
-      for(let seriesData of this.isochronesSeriesData) {
-        let range = seriesData[0].value;
-        let registeredMap = echarts.getMap(this.selectedPoiLayer.datasetName + "_isochrones-" + range)
+      for(const seriesData of this.isochronesSeriesData) {
+        const range = seriesData[0].value;
+        const registeredMap = echarts.getMap(this.selectedPoiLayer.datasetName + "_isochrones-" + range)
         if( !registeredMap ) {
-          let isochrones = this.isochrones.features.filter( feature => {
+          const isochrones = this.isochrones.features.filter( feature => {
             // only weak comparison to allow string == number comparison
             return feature.properties.value == range;
           })
-          let featureCollection:any = {
+          const featureCollection:any = {
             features: isochrones
           }
           echarts.registerMap(this.selectedPoiLayer.datasetName + "_isochrones-" + range, featureCollection)
@@ -2367,12 +2367,12 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
       
-      let bbox = this.isochrones.bbox; // [left, bottom, right, top]
-      let isochronesBboxForEcharts = [[bbox[0], bbox[3]], [bbox[2], bbox[1]]] // [left, top], [right, bottom]
+      const bbox = this.isochrones.bbox; // [left, bottom, right, top]
+      const isochronesBboxForEcharts = [[bbox[0], bbox[3]], [bbox[2], bbox[1]]] // [left, top], [right, bottom]
       
 
-      for(let [idx, seriesData] of this.isochronesSeriesData.entries()) {
-        let series = {
+      for(const [idx, seriesData] of this.isochronesSeriesData.entries()) {
+        const series = {
           name: "isochrones-" + seriesData[0].value,
           type: 'map',
           roam: false,
@@ -2392,11 +2392,11 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     // Add poi markers as additional series
-    let centerPointSeriesData = this.selectedPoiLayer.geoJSON.features.map( feature => {
+    const centerPointSeriesData = this.selectedPoiLayer.geoJSON.features.map( feature => {
       return feature.geometry.coordinates;
     });
 
-    let centerPointSeries =  {
+    const centerPointSeries =  {
       name: 'centerPoints',
       type: 'scatter',
       coordinateSystem: 'geo',				
@@ -2418,7 +2418,7 @@ export class IndicatorAddComponent implements OnInit {
     }
     options.series.push(centerPointSeries)
 
-    let map = echarts.init( wrapper )
+    const map = echarts.init( wrapper )
 
     // label positioning
     options = this.enableManualLabelPositioningAcrossPages(page, options, map)
@@ -2434,7 +2434,7 @@ export class IndicatorAddComponent implements OnInit {
   
   async initLeafletMapBeneathEchartsMap(page, pageElement, elementIdx: number, map, isPreview?: boolean): Promise<string | undefined> {
       const id = 'reporting-addIndicator-background-leaflet-map-container-' + elementIdx;
-      let pageIdx: any = this.reportingService.clonedTemplate.pages.indexOf(page);
+      const pageIdx: any = this.reportingService.clonedTemplate.pages.indexOf(page);
 
       // For preview pages use the visible page DOM so Leaflet can load tiles reliably.
       // For background-only pages use the off-screen background processor.
@@ -2472,9 +2472,9 @@ export class IndicatorAddComponent implements OnInit {
       div.style.zIndex = 10;
       div.style.backgroundColor = 'white';
       pageDom.appendChild(div);
-      let echartsOptions = map.getOption();
+      const echartsOptions = map.getOption();
 
-      let leafletMap = L.map(div.id, {
+      const leafletMap = L.map(div.id, {
         zoomControl: false,
         dragging: false,
         doubleClickZoom: false,
@@ -2489,29 +2489,29 @@ export class IndicatorAddComponent implements OnInit {
               zoomAnimation: false,
       });
       // manually create a field for attribution so we can control the z-index.
-      let prevAttributionDiv = pageDom.querySelector(".map-attribution")
+      const prevAttributionDiv = pageDom.querySelector(".map-attribution")
       if(prevAttributionDiv) prevAttributionDiv.remove();
-      let attrDiv:any = document.createElement("div")
+      const attrDiv:any = document.createElement("div")
       attrDiv.classList.add("map-attribution")
       attrDiv.style.position = "absolute";
       attrDiv.style.bottom = 0;
       attrDiv.style.left = 0;
       attrDiv.style.zIndex = 800;
-      let attrImg = await this.getReportingRechabilityMapAttribution();
+      const attrImg = await this.getReportingRechabilityMapAttribution();
       attrDiv.appendChild(attrImg);
       pageElementDom.appendChild(attrDiv);
 
       if(this.reportingService.clonedTemplate.name.includes("reachability")){
         // also create the reachability specific legend manually
-        let prevLegendDiv = pageDom.querySelector(".map-legend")
+        const prevLegendDiv = pageDom.querySelector(".map-legend")
         if(prevLegendDiv) prevLegendDiv.remove();
-        let legendDiv:any = document.createElement("div")
+        const legendDiv:any = document.createElement("div")
         legendDiv.classList.add("map-legend")
         legendDiv.style.position = "absolute";
         legendDiv.style.bottom = 0;
         legendDiv.style.right = 0;
         legendDiv.style.zIndex = 800;
-        let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, this.selectedSpatialUnit, this.isochronesRangeType, this.isochronesRangeUnits);
+        const legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, this.selectedSpatialUnit, this.isochronesRangeType, this.isochronesRangeUnits);
         legendDiv.appendChild(legendImg);
         pageElementDom.appendChild(legendDiv)
       }
@@ -2519,18 +2519,18 @@ export class IndicatorAddComponent implements OnInit {
 
       // echarts uses [lon, lat], leaflet uses [lat, lon]
       let boundingCoords = echartsOptions.series[0].boundingCoords;
-      let westLon = boundingCoords[0][0];
-      let southLat = boundingCoords[1][1];
-      let eastLon = boundingCoords[1][0];
-      let northLat = boundingCoords[0][1];
+      const westLon = boundingCoords[0][0];
+      const southLat = boundingCoords[1][1];
+      const eastLon = boundingCoords[1][0];
+      const northLat = boundingCoords[0][1];
 
       if(page.area && page.area.length){
-        let feature = this.geoJsonForReachability_byFeatureName.get(page.area);
+        const feature = this.geoJsonForReachability_byFeatureName.get(page.area);
         page.spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
       }
 
       leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
-      let bounds = leafletMap.getBounds()
+      const bounds = leafletMap.getBounds()
 
       /*
       as we might have landscape and portrait versions of the same content
@@ -2551,7 +2551,7 @@ export class IndicatorAddComponent implements OnInit {
         boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
       }
 
-      for(let series of echartsOptions.series) {
+      for(const series of echartsOptions.series) {
         series.left = 0;
         series.top = 0;
         series.right = 0;
@@ -2647,7 +2647,7 @@ export class IndicatorAddComponent implements OnInit {
   async createPageElement_Map(wrapper, page, pageElement) {
 
     if(this.reportingService.clonedTemplate.name.includes("reachability")) {
-      let map = await this.createMapForReachability(wrapper, page, pageElement);
+      const map = await this.createMapForReachability(wrapper, page, pageElement);
       return map;
     }
     
@@ -2696,7 +2696,7 @@ export class IndicatorAddComponent implements OnInit {
     }
     
 
-    let map = echarts.init( wrapper );
+    const map = echarts.init( wrapper );
     if(pageElement.isTimeseries) {
       timestamp += "_relative"
     }
@@ -2709,11 +2709,11 @@ export class IndicatorAddComponent implements OnInit {
     options.visualMap.axisLabel = { "fontSize": 10 };
     options.toolbox.show = false;
     options.visualMap.left = "right";
-    let series = options.series[0];
+    const series = options.series[0];
     series.roam = false;
     series.selectedMode = false;
     
-    let overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.selectedIndicator.geoJSON.features)
+    const overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.selectedIndicator.geoJSON.features)
 
     // hier
     options.geo = {
@@ -2727,15 +2727,15 @@ export class IndicatorAddComponent implements OnInit {
     };
 
     if(pageElement.isTimeseries) {
-      let includeInBetweenDates = true;
-      let timeseries = this.getFormattedDateSliderValues(includeInBetweenDates)
+      const includeInBetweenDates = true;
+      const timeseries = this.getFormattedDateSliderValues(includeInBetweenDates)
       series.data = this.calculateSeriesDataForTimeseries(this.selectedIndicator.geoJSON.features, timeseries)
     }
     
     series.map = mapName; // update the map with the one registered above
     series.name = mapName;
 
-    let areaNames = this.selectedAreas.map( (el:any) => {
+    const areaNames = this.selectedAreas.map( (el:any) => {
       return el.name;
     });
 
@@ -2782,7 +2782,7 @@ export class IndicatorAddComponent implements OnInit {
           // get color from visual map to overwrite yellow color
           let color = "rgba(0, 0, 0, 0.5)"; 
           let opacity = 1;
-          for(let [idx, piece] of options.visualMap.pieces.entries()) {
+          for(const [idx, piece] of options.visualMap.pieces.entries()) {
             // for the last index (highest value) value can equal the upper boundary
             if(idx === (options.visualMap.pieces.length-1)) {
               if(piece.min <= el.value && el.value <= piece.max) {
@@ -2836,10 +2836,10 @@ export class IndicatorAddComponent implements OnInit {
         }
         // Set fixed position for labels that were previously dragged by user
         // For all other labels try to avoid overlaps
-        let names = this.absoluteLabelPositions.map(el=>el.name)
-        let text = feature.text.split("\n")[0] // area name is the first line
+        const names = this.absoluteLabelPositions.map(el=>el.name)
+        const text = feature.text.split("\n")[0] // area name is the first line
         if(names.includes(text)) {
-          let idx = names.indexOf(text)
+          const idx = names.indexOf(text)
           return {
             x: this.absoluteLabelPositions[idx].x,
             y: this.absoluteLabelPositions[idx].y,
@@ -2866,15 +2866,15 @@ export class IndicatorAddComponent implements OnInit {
       map.getZr().on('mousedown', (event) => {
         // on label drag
         if(event.target) {
-          let target = event.target;
+          const target = event.target;
           if(target.parent && target.parent.type === "text") {
             // get the feature which this label belongs to
             // When user clicks on the label, one of the child elements is clicked
             // Child elements can be something like: first line of text, second line of text, (white) label background
             // These elements all have the same parent, which we can use to navigate to the parent and then find the correct child (area name)
-            let parent = target.parent;
+            const parent = target.parent;
             let areaNameChild;
-            for(let child of parent._children) {
+            for(const child of parent._children) {
               // we assume that the area name is the first child with text ("the first line")
               if(child.style.text && child.style.text.length > 0) {
                 areaNameChild = child;
@@ -2888,14 +2888,14 @@ export class IndicatorAddComponent implements OnInit {
 
       map.getZr().on('mouseup', (event) => {
         if(event.target) {
-          let target = event.target;
+          const target = event.target;
           if(target.parent && target.parent.type === "text") {
             // for all other maps, that are not area-specific, do the exact same label drag
-            let newX = target.parent.x;
-            let newY = target.parent.y;
-            let names = this.absoluteLabelPositions.map((el:any)=>el.name)
+            const newX = target.parent.x;
+            const newY = target.parent.y;
+            const names = this.absoluteLabelPositions.map((el:any)=>el.name)
             if(names.includes(this.draggingLabelForFeature)) {
-              let idx = names.indexOf(this.draggingLabelForFeature);
+              const idx = names.indexOf(this.draggingLabelForFeature);
               this.absoluteLabelPositions[idx].x = newX;
               this.absoluteLabelPositions[idx].y = newY;
             } else {
@@ -2906,11 +2906,11 @@ export class IndicatorAddComponent implements OnInit {
               })
             }
 
-            for(let [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
-              for(let pageElement of page.pageElements) {
+            for(const [idx, page] of this.reportingService.clonedTemplate.pages.entries()) {
+              for(const pageElement of page.pageElements) {
                 if(pageElement.type === "map" && !page.area) {
-                  let domNode:any = document.getElementById("reporting-addIndicator-page-" + idx + "-map");
-                  let map:any = echarts.getInstanceByDom(domNode);
+                  const domNode:any = document.getElementById("reporting-addIndicator-page-" + idx + "-map");
+                  const map:any = echarts.getInstanceByDom(domNode);
                   map.setOption(map.getOption()); // this calls the labelLayout function defined above
                 }
               }
@@ -2925,12 +2925,12 @@ export class IndicatorAddComponent implements OnInit {
   createPageElement_Average(page, pageElement, calcForSelection) {
     // get the timestamp from pageElement, not from dom because dom might not be up to date yet
     // no timeseries possible for this type of element
-    let dateElement = page.pageElements.find( el => {
+    const dateElement = page.pageElements.find( el => {
       return el.type.includes("dataTimestamp-");
     });
-    let timestamp = dateElement.text;
+    const timestamp = dateElement.text;
 
-    let avg = this.calculateAvg( this.selectedIndicator, timestamp, calcForSelection );
+    const avg = this.calculateAvg( this.selectedIndicator, timestamp, calcForSelection );
     pageElement.text = avg;
     pageElement.css = "border: solid 1px lightgray; padding: 2px;"
     pageElement.isPlaceholder = false;
@@ -2939,9 +2939,9 @@ export class IndicatorAddComponent implements OnInit {
 
   createPageElement_Change(page, pageElement, calcForSelection) {
     // get the timeseries from slider, not from dom because dom might not be up to date yet
-    let timeseries = this.getFormattedDateSliderValues(true);
+    const timeseries = this.getFormattedDateSliderValues(true);
 
-    let change = this.calculateChange( this.selectedIndicator, timeseries, calcForSelection );
+    const change = this.calculateChange( this.selectedIndicator, timeseries, calcForSelection );
     pageElement.text = change;
     pageElement.css = "border: solid 1px lightgray; padding: 2px;";
     pageElement.isPlaceholder = false;
@@ -2951,13 +2951,13 @@ export class IndicatorAddComponent implements OnInit {
     
     // get timestamp from pageElement, not from dom because dom might not be up to date yet
     // barcharts are only used in timestamp templates so we don't have to check for timeseries for now
-    let dateElement = page.pageElements.find( el => {
+    const dateElement = page.pageElements.find( el => {
       return el.type.includes("dataTimestamp-");
     });
-    let timestamp = dateElement.text;
+    const timestamp = dateElement.text;
 
-    let barChart = echarts.init( wrapper );                         
-    let options = JSON.parse(JSON.stringify( this.echartsOptions.bar[timestamp] ));
+    const barChart = echarts.init( wrapper );                         
+    const options = JSON.parse(JSON.stringify( this.echartsOptions.bar[timestamp] ));
 
     // default changes
     options.xAxis.name = "";
@@ -2983,7 +2983,7 @@ export class IndicatorAddComponent implements OnInit {
       options.series[0].data = options.series[0].data.filter( el => {
         return el.name === page.area;
       });
-      let areaNames = options.series[0].data.map( obj => obj.name)
+      const areaNames = options.series[0].data.map( obj => obj.name)
       options.xAxis.data = areaNames;
     } else {
       // only show selected areas in the "overview" diagram
@@ -3004,16 +3004,16 @@ export class IndicatorAddComponent implements OnInit {
     });
 
     // add data element for the overall average
-    let overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
-    let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
-    let dataObjOverallAvg:any = {
+    const overallAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, false);
+    const overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
+    const dataObjOverallAvg:any = {
       name: overallAvgElementName,
       value: overallAvgValue,
       opacity: 1
     }
     // get color for avg from visual map and disable opacity
     let colorOverallAvg = "";
-    for(let piece of options.visualMap[0].pieces) {
+    for(const piece of options.visualMap[0].pieces) {
       if(piece.min <= dataObjOverallAvg.value && dataObjOverallAvg.value < piece.max) {
         colorOverallAvg = piece.color;
       }
@@ -3025,16 +3025,16 @@ export class IndicatorAddComponent implements OnInit {
 
     // same for selection average
     // add more data elements for the overall and selection average
-    let selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
-    let selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
-    let dataObjSelectionAvg:any = {
+    const selectionAvgValue = this.calculateAvg(this.selectedIndicator, timestamp, true);
+    const selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
+    const dataObjSelectionAvg:any = {
       name: selectionAvgElementName,
       value: selectionAvgValue,
       opacity: 1
     }
     // get color for avg from visual map and disable opacity
     let colorSelectionAvg = "";
-    for(let piece of options.visualMap[0].pieces) {
+    for(const piece of options.visualMap[0].pieces) {
       if(piece.min <= dataObjSelectionAvg.value && dataObjSelectionAvg.value < piece.max) {
         colorSelectionAvg = piece.color;
       }
@@ -3055,12 +3055,12 @@ export class IndicatorAddComponent implements OnInit {
   createPageElement_TimelineDiagram(wrapper, page, pageElement) {
     // no need to get a timestamp here
 
-    let lineChart = echarts.init( wrapper );
+    const lineChart = echarts.init( wrapper );
     
-    let vals:any = this.getFormattedDateSliderValues(true);
-    let timeline = vals.dates;
+    const vals:any = this.getFormattedDateSliderValues(true);
+    const timeline = vals.dates;
     // get standard options, create a copy of the options to not change anything in the service
-    let options = JSON.parse(JSON.stringify( this.echartsOptions.line ));
+    const options = JSON.parse(JSON.stringify( this.echartsOptions.line ));
     options.title.textStyle.fontSize = 12;
     options.title.text = "Zeitreihe";
     options.yAxis.axisLabel = { "fontSize": 10 };
@@ -3078,8 +3078,8 @@ export class IndicatorAddComponent implements OnInit {
     // future dates (compared to max slider value) were already filtered in prepareDiagrams
     // we have to remove dates older than min slider value here
     // we also have to filter xAxis labels accordingly
-    let timeseries:any = this.getFormattedDateSliderValues(true);
-    let oldestSelectedTimestamp = timeseries.from;
+    const timeseries:any = this.getFormattedDateSliderValues(true);
+    const oldestSelectedTimestamp = timeseries.from;
     let timestampsToRemoveCounter = 0;
     // use the axis labels to find out how many data points have to be removed later
     let timestampReached = false;
@@ -3118,18 +3118,18 @@ export class IndicatorAddComponent implements OnInit {
         });
       }
 
-      for(let areaName of areaNames) {
-        let data:any[] = [];
-        let filtered = this.selectedIndicator.geoJSON.features.filter( feature => {
+      for(const areaName of areaNames) {
+        const data:any[] = [];
+        const filtered = this.selectedIndicator.geoJSON.features.filter( feature => {
           return feature.properties.NAME === areaName;
         });
       
-        for(let timestamp of timeline) {
-          let value = filtered[0].properties["DATE_" + timestamp];
+        for(const timestamp of timeline) {
+          const value = filtered[0].properties["DATE_" + timestamp];
           data.push(value)
         }
       
-        let series:any = {};
+        const series:any = {};
         series.name = areaName;
         series.type = "line";
         series.data = data;
@@ -3150,7 +3150,7 @@ export class IndicatorAddComponent implements OnInit {
     }
 
     if(pageElement.showPercentageChangeToPrevTimestamp) {
-      for(let series of options.series) {
+      for(const series of options.series) {
         series.data = this.transformSeriesDataToPercentageChange(series.data)
           
         
@@ -3168,23 +3168,23 @@ export class IndicatorAddComponent implements OnInit {
       });
 
       // create a nested array with each inner array containing all area-values for one timestamp
-      let datasetSource:any[] = [];
-      for(let timestamp of timeline) {
-        let valuesForTimestamp:any[] = [];
+      const datasetSource:any[] = [];
+      for(const timestamp of timeline) {
+        const valuesForTimestamp:any[] = [];
         // filter features to selected areas
-        let selectedAreasFeatures = this.selectedIndicator.geoJSON.features.filter( feature => {
+        const selectedAreasFeatures = this.selectedIndicator.geoJSON.features.filter( feature => {
           return areaNames.includes( feature.properties.NAME );
         });
         // get values for each feature
-        for(let feature of selectedAreasFeatures) {
-          let value = feature.properties["DATE_" + timestamp]
+        for(const feature of selectedAreasFeatures) {
+          const value = feature.properties["DATE_" + timestamp]
           valuesForTimestamp.push(value);
         }
 
         datasetSource.push(valuesForTimestamp)
       }
       
-      let xAxisLabels = options.xAxis.data;
+      const xAxisLabels = options.xAxis.data;
       options.dataset = [
         {
           source: datasetSource
@@ -3231,32 +3231,32 @@ export class IndicatorAddComponent implements OnInit {
     // our wrapper is 440px high.
     // 440 - 25 (header) = 415
     // we set each row to be 25px high, so we can fit 415 / 25 --> 16 rows on one page.
-    let wrapperHeight = parseInt(wrapper.style.height, 10);
-    let maxRows = Math.floor( (wrapperHeight - 25) / 25);
-    let rowsData:any[] = [];
+    const wrapperHeight = parseInt(wrapper.style.height, 10);
+    const maxRows = Math.floor( (wrapperHeight - 25) / 25);
+    const rowsData:any[] = [];
     let timestamp = undefined;
     let timeseries:any = undefined;
 
     if(this.reportingService.clonedTemplate.name.includes("timestamp")) {
       // get the timestamp from pageElement, not from dom because dom might not be up to date yet
-      let dateElement = page.pageElements.find( el => {
+      const dateElement = page.pageElements.find( el => {
         return el.type.includes("dataTimestamp-");
       });
       timestamp = dateElement.text;
     }
 
     if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
-      let inBetweenValues = true;
+      const inBetweenValues = true;
       timeseries = this.getFormattedDateSliderValues(inBetweenValues);
     }
 
     // see how many pages need to be added. Rows are added later
-    for(let feature of this.selectedIndicator.geoJSON.features) {
+    for(const feature of this.selectedIndicator.geoJSON.features) {
       // don't add row if feature not selected
       let isSelected = false;
-      for(let tEarea of this.selectedAreas) {
+      for(const tEarea of this.selectedAreas) {
 
-        let area:any = tEarea;
+        const area:any = tEarea;
 
         if(area.name === feature.properties.NAME) {
           isSelected = true;
@@ -3267,10 +3267,10 @@ export class IndicatorAddComponent implements OnInit {
 
       if(this.reportingService.clonedTemplate.name.includes("timestamp")) {
         // get the timestamp from pageElement, not from dom because dom might not be up to date yet
-        let dateElement = page.pageElements.find( el => {
+        const dateElement = page.pageElements.find( el => {
           return el.type.includes("dataTimestamp-");
         });
-        let timestamp = dateElement.text;
+        const timestamp = dateElement.text;
         // prepare data to insert later
         let value = feature.properties["DATE_" + timestamp];
         if(typeof(value) == 'number')
@@ -3283,7 +3283,7 @@ export class IndicatorAddComponent implements OnInit {
       }
 
       if(this.reportingService.clonedTemplate.name.includes("timeseries")) {
-        for(let timestamp of timeseries.dates) {
+        for(const timestamp of timeseries.dates) {
           let value = feature.properties["DATE_" + timestamp];
           if(typeof(value) == 'number')
             value = Math.round( value * 100) / 100;
@@ -3318,11 +3318,11 @@ export class IndicatorAddComponent implements OnInit {
       // at this point we are not actually adding any rows to the table
       if(i > 0 && i % maxRows == 0) {
         // add a new page
-        let newPage = this.reportingService.getDatatablePageClone();
+        const newPage = this.reportingService.getDatatablePageClone();
 
         newPage.id = this.templatePageIdCounter++;
         // setup new page
-        for(let pageElement of newPage.pageElements) {
+        for(const pageElement of newPage.pageElements) {
 
           if(pageElement.type.includes("indicatorTitle-")) {
             pageElement.text = this.selectedIndicator.indicatorName + " [" + this.selectedIndicator.unit + "]"
@@ -3346,7 +3346,7 @@ export class IndicatorAddComponent implements OnInit {
         }
 
         // insert after current one
-        let currentPageIndex = this.reportingService.clonedTemplate.pages.indexOf(page)
+        const currentPageIndex = this.reportingService.clonedTemplate.pages.indexOf(page)
         this.reportingService.clonedTemplate.pages.splice(currentPageIndex + 1, 0, newPage);
       }
     }
@@ -3378,7 +3378,7 @@ export class IndicatorAddComponent implements OnInit {
       let table = this.createDatatableSkeleton(columnNames);
 
       wrapper.appendChild(table);
-      let tbody = table.querySelector("tbody");
+      const tbody = table.querySelector("tbody");
       let pageElement = this.reportingService.clonedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
       pageElement.isPlaceholder = false;
 
@@ -3399,7 +3399,7 @@ export class IndicatorAddComponent implements OnInit {
           wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
           table = this.createDatatableSkeleton(columnNames);
           wrapper.appendChild(table);
-          let tbody:any = table.querySelector("tbody");
+          const tbody:any = table.querySelector("tbody");
           pageElement = this.reportingService.clonedTemplate.pages[idx].pageElements.find( el => el.type === "datatable");
           pageElement.isPlaceholder = false;
 
@@ -3407,11 +3407,11 @@ export class IndicatorAddComponent implements OnInit {
             if(!rowsData[j])
               break; // on last page
 
-            let row = document.createElement("tr");
+            const row = document.createElement("tr");
             row.style.height = "25px";
 
-            for(let colName of columnNames) {
-              let td = document.createElement("td");
+            for(const colName of columnNames) {
+              const td = document.createElement("td");
               if(colName === "Bereich") {
                 td.innerText = rowsData[j].name;
                 td.classList.add("text-left");
@@ -3439,10 +3439,10 @@ export class IndicatorAddComponent implements OnInit {
 
 
   filterMapByAreaName(echartsInstance, areaName, targetFeature) {
-    let options = echartsInstance.getOption();
-    let mapName = options.series[0].map;
+    const options = echartsInstance.getOption();
+    const mapName = options.series[0].map;
 
-    let features:any = {
+    const features:any = {
       features: [targetFeature]
     };
 
@@ -3452,9 +3452,9 @@ export class IndicatorAddComponent implements OnInit {
     if(!targetFeature.properties.bbox){
       targetFeature.properties.bbox = turf.bbox(targetFeature);
     }
-    let bbox = targetFeature.properties.bbox; // [east, south, west, north]
+    const bbox = targetFeature.properties.bbox; // [east, south, west, north]
     
-    let newBounds = [[bbox[2], bbox[3]], [bbox[0], bbox[1]]] // [[west, north], [east, south]]
+    const newBounds = [[bbox[2], bbox[3]], [bbox[0], bbox[1]]] // [[west, north], [east, south]]
     options.series[0].boundingCoords = newBounds;
     echartsInstance.setOption(options, {
       replaceMerge: ['series']
@@ -3470,7 +3470,7 @@ export class IndicatorAddComponent implements OnInit {
       });
     }
 
-    let data = features.map( feature => {
+    const data = features.map( feature => {
       return feature.properties["DATE_" + timestamp];
     })
 
@@ -3526,10 +3526,10 @@ export class IndicatorAddComponent implements OnInit {
     console.log('prepare diagrams called');
     // if is  timeseries we must modify the indicator type of the given indicator, since it should display changes over time and hence 
     // must be treated as dynamic indicator
-    let indicator = JSON.parse(JSON.stringify(selectedIndicator));
-    let targetTimestamp = timestampName;
+    const indicator = JSON.parse(JSON.stringify(selectedIndicator));
+    const targetTimestamp = timestampName;
     if (isTimeseries) {
-      var indicatorType = indicator.indicatorType;
+      const indicatorType = indicator.indicatorType;
       if (indicatorType.includes("ABSOLUTE")) {
         indicator.indicatorType = "DYNAMIC_ABSOLUTE";
       }
@@ -3555,19 +3555,19 @@ export class IndicatorAddComponent implements OnInit {
       this.envConfigService.classifyUsingWholeTimeseries = true;
     }
     
-    let timestampPrefix = this.envConfigService.indicatorDatePrefix + timestampName;
-    let numClasses = indicator.defaultClassificationMapping.numClasses ? indicator.defaultClassificationMapping.numClasses : 5;
-    let colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
-    let colorCodePositiveValues = this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
-    let colorCodeNegativeValues = this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
-    let classifyMethod = this.envConfigService.defaultClassifyMethod;
+    const timestampPrefix = this.envConfigService.indicatorDatePrefix + timestampName;
+    const numClasses = indicator.defaultClassificationMapping.numClasses ? indicator.defaultClassificationMapping.numClasses : 5;
+    const colorCodeStandard = indicator.defaultClassificationMapping.colorBrewerSchemeName;
+    const colorCodePositiveValues = this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues;
+    const colorCodeNegativeValues = this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues;
+    const classifyMethod = this.envConfigService.defaultClassifyMethod;
 
     // setup brew 
-    let defaultBrew = this.visualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
+    const defaultBrew = this.visualStyleHelperService.setupDefaultBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
     //let manualBrew = kommonitorVisualStyleHelperService.setupManualBrew(indicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
-    let dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod, numClasses,'');
-    let dynamicIncreaseBrew = dynamicBrewsArray[0];
-    let dynamicDecreaseBrew = dynamicBrewsArray[1];
+    const dynamicBrewsArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(indicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod, numClasses,'');
+    const dynamicIncreaseBrew = dynamicBrewsArray[0];
+    const dynamicDecreaseBrew = dynamicBrewsArray[1];
 
     // setup diagram resources
     this.diagramHelperService.prepareAllDiagramResources_forReportingIndicator(indicator, selectedSpatialUnit.spatialUnitName, timestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
@@ -3593,7 +3593,7 @@ export class IndicatorAddComponent implements OnInit {
     if(isTimeseries){
       // series[0] is average line
       // replace the value for same index same toDate
-      let originalFeatures = selectedIndicator.geoJSON.features;
+      const originalFeatures = selectedIndicator.geoJSON.features;
       let sumToDate = 0;
       let counter = 0;
 
@@ -3604,7 +3604,7 @@ export class IndicatorAddComponent implements OnInit {
         }
       }
 
-      let toDateIndex = selectedIndicator.applicableDates.indexOf(targetTimestamp);	
+      const toDateIndex = selectedIndicator.applicableDates.indexOf(targetTimestamp);	
             
       this.echartsOptions.line.series[0].data[toDateIndex] = this.getIndicatorValue_asNumber(sumToDate / counter);
     }
@@ -3615,22 +3615,22 @@ export class IndicatorAddComponent implements OnInit {
  
   prepareReachabilityEchartsMap() {
     if(this.geoJsonForReachability.features[0] && !this.geoJsonForReachability.features[0].properties.bbox){
-      for(let feature of this.geoJsonForReachability.features) {
-        let bbox = turf.bbox(feature); // calculate bbox for each feature
+      for(const feature of this.geoJsonForReachability.features) {
+        const bbox = turf.bbox(feature); // calculate bbox for each feature
         feature.properties.bbox = bbox;
       }
     }
-    let overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.geoJsonForReachability.features)
+    const overallBbox = this.calculateOverallBoundingBoxFromGeoJSON(this.geoJsonForReachability.features)
     // change format of bbox to match the format needed for echarts
     /* overallBbox = [
       [overallBbox[0], overallBbox[3]], // north-west lon lat
       [overallBbox[2], overallBbox[1]] // south-east lon lat
     ] */
 
-    let mapName = "reachabilityMap"; // gets overwritten later anyway
+    const mapName = "reachabilityMap"; // gets overwritten later anyway
     echarts.registerMap(mapName, this.geoJsonForReachability)
 
-    let geoMapOptions = {
+    const geoMapOptions = {
       // geo component is only needed for isochrone center markers to work
       geo: {
         map: mapName,
@@ -3748,7 +3748,7 @@ console.log('init all diagrams')
 			// prepare O(1) access to geoJSON features used within each page
 			if(this.selectedIndicator) {
 				this.geoJsonForSelectedIndicator_byFeatureName = new Map();
-				for(let feature of this.selectedIndicator.geoJSON.features) {
+				for(const feature of this.selectedIndicator.geoJSON.features) {
 					if(!feature.properties.bbox)
 						feature.properties.bbox = turf.bbox(feature);
 
@@ -3758,7 +3758,7 @@ console.log('init all diagrams')
 			} else {
 				this.geoJsonForReachability_byFeatureName = new Map();
 
-				for(let feature of this.geoJsonForReachability.features) {
+				for(const feature of this.geoJsonForReachability.features) {
 					if(!feature.properties.bbox)
 						feature.properties.bbox = turf.bbox(feature);
 					this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
@@ -3971,7 +3971,7 @@ console.log('init all diagrams')
     }
 
     let pageWillBeShown = false;
-    for(let visiblePage of this.filterPagesToShow()){
+    for(const visiblePage of this.filterPagesToShow()){
       if(visiblePage.id == page.id) {
         pageWillBeShown = true;
       }
@@ -3980,10 +3980,10 @@ console.log('init all diagrams')
   }
 
   filterPagesToShow() {
-    let pagesToShow:any[] = [];
+    const pagesToShow:any[] = [];
     let skipNextPage = false;
     for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i ++) {
-      let page = this.reportingService.clonedTemplate.pages[i];
+      const page = this.reportingService.clonedTemplate.pages[i];
       if (this.pageContainsDatatable(i)) {
         pagesToShow.push(page);
         skipNextPage = false;
@@ -4002,9 +4002,9 @@ console.log('init all diagrams')
   }
 
   pageContainsDatatable(pageID) {
-    let page = this.reportingService.clonedTemplate.pages[pageID];
+    const page = this.reportingService.clonedTemplate.pages[pageID];
     let pageContainsDatatable = false;
-    for(let pageElement of page.pageElements) {
+    for(const pageElement of page.pageElements) {
       if(pageElement.type == "datatable") {
         pageContainsDatatable = true;
       }
@@ -4059,7 +4059,7 @@ console.log('init all diagrams')
 
   calculateAndSetSeriesDataForTimeseries(features, fromDate, toDate){
 
-    for(let feature of features) {
+    for(const feature of features) {
       let value = feature.properties["DATE_" + toDate] - feature.properties["DATE_" + fromDate];
       if(typeof(value) == 'number') {
         value = Math.round( value * 100) / 100;
@@ -4071,12 +4071,12 @@ console.log('init all diagrams')
   }
 
   calculateSeriesDataForTimeseries(features, timeseries) {
-    let result:any[] = [];
-    let mostRecentDate = timeseries.to;
-    let oldestDate = timeseries.from
+    const result:any[] = [];
+    const mostRecentDate = timeseries.to;
+    const oldestDate = timeseries.from
 
-    for(let feature of features) {
-      let obj:any = {};
+    for(const feature of features) {
+      const obj:any = {};
       obj.name = feature.properties.name;
       let value = feature.properties["DATE_" + mostRecentDate] - feature.properties["DATE_" + oldestDate];
       if(typeof(value) == 'number') {
@@ -4091,10 +4091,10 @@ console.log('init all diagrams')
 
   
   createLowerCaseNameProperty(features) {
-    for(let feature of features) {
+    for(const feature of features) {
       if(feature.hasOwnProperty("properties")) {
         if(!feature.properties.hasOwnProperty("name")) {
-          let featureName = feature.properties.NAME;
+          const featureName = feature.properties.NAME;
           feature.properties.name = featureName;
         }
       }
@@ -4105,19 +4105,19 @@ console.log('init all diagrams')
 
   createDatatableSkeleton(colNamesArr) {
 
-    let table = document.createElement("table");
+    const table = document.createElement("table");
     table.classList.add("table-striped")
     table.classList.add("table-bordered")
     
-    let thead = document.createElement("thead");
-    let tbody = document.createElement("tbody");
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
     table.appendChild(thead);
     table.appendChild(tbody);
     
-    let headerRow = document.createElement("tr");
+    const headerRow = document.createElement("tr");
     
-    for(let colName of colNamesArr) {
-      let col = document.createElement("th");
+    for(const colName of colNamesArr) {
+      const col = document.createElement("th");
       col.classList.add("text-center");
       col.innerText = colName;
       headerRow.appendChild(col);
@@ -4130,10 +4130,10 @@ console.log('init all diagrams')
   }
 
   createDatesFromIndicatorDates(indicatorDates) {
-    let datesAsMs:any[] = [];
+    const datesAsMs:any[] = [];
     for (let i=0; i < indicatorDates.length; i++){
       // year-month-day
-      var dateComponents = indicatorDates[i].split("-");
+      const dateComponents = indicatorDates[i].split("-");
       datesAsMs.push(this.metadataExportService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
     }
     return datesAsMs;
@@ -4141,7 +4141,7 @@ console.log('init all diagrams')
 
   getFormatedSliderReturn() {
 
-    let data:any | undefined = this._slider?.getSliderValues();
+    const data:any | undefined = this._slider?.getSliderValues();
     
     if(data) {
 
@@ -4165,16 +4165,16 @@ console.log('init all diagrams')
 
   dateStringToMs(dateStr) {
 
-    let parts = dateStr.split(' ');
+    const parts = dateStr.split(' ');
     // get timezoneOffset w/o daylight saving time by referencing a specific date
-    let offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
+    const offset = new Date('November 1, 2000 00:00:00').getTimezoneOffset()*60*1000;
    
-    let tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
+    const tms = new Date(parts[2]+'-'+(this.months.indexOf(parts[1])+1)+'-'+parts[0].replace('.','')+'T00:00:00Z').getTime();
     return tms+offset;
   }
 
   tsToDateString (dateAsMs) {
-    var date = new Date(dateAsMs);
+    const date = new Date(dateAsMs);
     return date.getFullYear();
 
     /* return date.toLocaleDateString("de-DE", {
@@ -4195,7 +4195,7 @@ console.log('init all diagrams')
     // needed to tell angular something has changed
 
     // setup all pages with the new timeseries
-    let values = this.getFormattedDateSliderValues(true);
+    const values = this.getFormattedDateSliderValues(true);
     // prepare diagrams again for most recent timestamp of slider and for whole timeseries (changes).
     let classifyUsingWholeTimeseries = false;
     let isTimeseries = true;			
@@ -4205,8 +4205,8 @@ console.log('init all diagrams')
     this.prepareDiagrams(this.selectedIndicator, this.selectedSpatialUnit, values.to, classifyUsingWholeTimeseries, isTimeseries, undefined, undefined);
     
     // set dates on all pages according to new slider values
-    for(let page of this.reportingService.clonedTemplate.pages) {
-      let dateEl = page.pageElements.find( el => {
+    for(const page of this.reportingService.clonedTemplate.pages) {
+      const dateEl = page.pageElements.find( el => {
         return el.type.includes("dataTimestamp-") || el.type.includes("dataTimeseries-")
       });
 
@@ -4218,7 +4218,7 @@ console.log('init all diagrams')
       }
     }
 
-    let updateDiagramsInterval = setInterval(() => {
+    const updateDiagramsInterval = setInterval(() => {
        if(this.diagramsPrepared) {
         clearInterval(updateDiagramsInterval); // code below still executes once
       } else {
@@ -4235,7 +4235,7 @@ console.log('init all diagrams')
 
   getFormattedDateSliderValues(includeInBetweenValues) {
 
-    let dateSliderDate = this.getFormatedSliderReturn();
+    const dateSliderDate = this.getFormatedSliderReturn();
 
     /* if(!this.dateSlider)
 				throw new Error("Tried to get dateslider values but dateslider was not defined."); */
@@ -4246,9 +4246,9 @@ console.log('init all diagrams')
     let inBetweenDates;
     if(includeInBetweenValues) {
       // get all valid timestamps for this spatial unit that lie in between from and to
-      let validTimestamps = this.getValidTimestampsForSpatialUnit( this.selectedSpatialUnit );
+      const validTimestamps = this.getValidTimestampsForSpatialUnit( this.selectedSpatialUnit );
       inBetweenDates = validTimestamps.filter( el => {
-        let date = new Date(el);
+        const date = new Date(el);
         date.setHours(0); // remove time-offset...TODO is there a better way?
 
         return from < date && date < to;
@@ -4271,7 +4271,7 @@ console.log('init all diagrams')
     if( day < 10) to += "0";
     to += day;
     
-    let result = {
+    const result = {
       from: from,
       to: to,
       dates: includeInBetweenValues ? [from, ...inBetweenDates, to] : [] // all dates in the interval, including "from" and "to"
@@ -4328,7 +4328,7 @@ console.log('init all diagrams')
       if( !this.availableFeaturesBySpatialUnit[ this.selectedSpatialUnit.spatialUnitName]) {
         return false;
       }
-      let timeseries = this.getFormattedDateSliderValues(true).dates;
+      const timeseries = this.getFormattedDateSliderValues(true).dates;
       if(timeseries.length >= 1) {
         isTimestampSelected = true; // reuse variable here
       }
@@ -4345,13 +4345,13 @@ console.log('init all diagrams')
   transformSeriesDataToPercentageChange(dataArr) {
     // we need at least two timestamps
     if(dataArr.length <= 1) {
-      let error = new Error("Can not calculate percentage change from a single timestamp.")
+      const error = new Error("Can not calculate percentage change from a single timestamp.")
       this.mapErrorNotificationService.displayMapApplicationError(error.message);
     }
-    let result:any[] = [];
+    const result:any[] = [];
     for(let i=1; i<dataArr.length;i++) {
-      let datapoint = dataArr[i];
-      let prevDatapoint = dataArr[i-1];
+      const datapoint = dataArr[i];
+      const prevDatapoint = dataArr[i-1];
       let value:any = (datapoint - prevDatapoint) / prevDatapoint;
       value *= 100;
       value =  Math.round( value * 100) / 100;

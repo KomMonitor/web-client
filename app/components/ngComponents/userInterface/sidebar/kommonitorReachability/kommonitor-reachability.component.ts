@@ -76,8 +76,8 @@ export class KommonitorReachabilityComponent implements OnInit {
   ngOnInit(): void {
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values: any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
         case 'switchReportingMode': {
@@ -162,10 +162,10 @@ export class KommonitorReachabilityComponent implements OnInit {
       this.reachabilityCombinerService.scenarioTitle = `Erreichbarkeitsszenario`;
 
       // Find empty/new dataset template in filteredDisplayableGeoresources
-      let emptyDataset = this.reachabilityCombinerService.filteredDisplayableGeoresources.find(e => e.isNewReachabilityDataSource);
+      const emptyDataset = this.reachabilityCombinerService.filteredDisplayableGeoresources.find(e => e.isNewReachabilityDataSource);
       if (emptyDataset) {
         // Clone the template dataset so we don't mutate the shared template reference
-        let clonedDataset = JSON.parse(JSON.stringify(emptyDataset));
+        const clonedDataset = JSON.parse(JSON.stringify(emptyDataset));
         clonedDataset.georesourceId = uuidv4(); // Generate a unique ID for this instance
         clonedDataset.datasetName = "manuelle Punkte";
         clonedDataset.geoJSON_reachability = {

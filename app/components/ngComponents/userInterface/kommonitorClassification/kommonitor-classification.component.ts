@@ -68,8 +68,8 @@ export class KommonitorClassificationComponent implements OnInit {
 
      // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.OnChangeSelectedIndicator: {
@@ -96,7 +96,7 @@ export class KommonitorClassificationComponent implements OnInit {
       if (colorbrewer.hasOwnProperty(key)) {
         const colorPalettes = colorbrewer[key];
         
-        var paletteEntry = {
+        const paletteEntry = {
           "paletteName": key,
           "paletteArrayObject": colorPalettes
         };
@@ -185,8 +185,8 @@ export class KommonitorClassificationComponent implements OnInit {
      this.showAddBtn[site] = true;
     }
 
-    var rect = e.currentTarget.getBoundingClientRect();
-    var y = Math.floor(e.clientY - rect.top);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = Math.floor(e.clientY - rect.top);
     if (y > 0 && y < rect.height) {
      this.addBtnHeight[site] = y;
     }
@@ -208,11 +208,11 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  addNewBreak() {
-    let histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
+    const histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
     if(this.visualStyleHelperService.manualBrew.breaks.length <  10) {
       if(this.addBtnHeight[0] >= 0 &&this.addBtnHeight[0] < histogram.offsetHeight) {
-        let breaks = this.visualStyleHelperService.manualBrew.breaks;
-        let newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
+        const breaks = this.visualStyleHelperService.manualBrew.breaks;
+        const newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
         if(!this.visualStyleHelperService.manualBrew.breaks.includes(newBreak)) {
           this.visualStyleHelperService.manualBrew.breaks.push(newBreak);
           this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
@@ -233,22 +233,22 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  addNewBreakDynamic(site) {
-    let histograms = Array.from(document.querySelectorAll<HTMLElement>(".editableHistogram"));
+    const histograms = Array.from(document.querySelectorAll<HTMLElement>(".editableHistogram"));
     histograms.reverse();
-    let histogram = histograms[site];
+    const histogram = histograms[site];
 
     if(this.visualStyleHelperService.dynamicBrew[site].breaks.length <  5) {
       if(this.addBtnHeight[site] >= 0 &&this.addBtnHeight[site] < histogram.offsetHeight) {
-        let breaks = this.visualStyleHelperService.dynamicBrew[site].breaks;
-        let newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
+        const breaks = this.visualStyleHelperService.dynamicBrew[site].breaks;
+        const newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
         if(!this.visualStyleHelperService.dynamicBrew[site].breaks.includes(newBreak)){
           this.visualStyleHelperService.dynamicBrew[site].breaks.push(newBreak);
           this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function(a, b) {
             return a - b;
           });
 
-          let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
-          let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
+          const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
+          const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
         
           this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
         }
@@ -257,8 +257,8 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
  updateDynamicBreaksFromManualBreaks(){
-    let increaseBreaks:any[] = [];
-    let decreaseBreaks:any[] = [];
+    const increaseBreaks:any[] = [];
+    const decreaseBreaks:any[] = [];
     this.visualStyleHelperService.manualBrew.breaks.forEach((br) => {
       if (br < 0) {
         decreaseBreaks.push(br);
@@ -308,8 +308,8 @@ export class KommonitorClassificationComponent implements OnInit {
       }
       else {
         this.visualStyleHelperService.dynamicBrew[site].breaks.splice(i, 1);
-        let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
-        let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
+        const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
+        const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
         
         this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]])
       }
@@ -325,7 +325,7 @@ export class KommonitorClassificationComponent implements OnInit {
  onBreaksChanged(e, i, site) {
     e.currentTarget.disabled = true;
     
-    let breaks = [...this.visualStyleHelperService.manualBrew.breaks];
+    const breaks = [...this.visualStyleHelperService.manualBrew.breaks];
     if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
       e.currentTarget.value = breaks[i];
 
@@ -356,7 +356,7 @@ export class KommonitorClassificationComponent implements OnInit {
  onBreaksChangedDynamic(e, i, site) {
     e.currentTarget.disabled = true;
     
-    let breaks = [...this.visualStyleHelperService.dynamicBrew[site].breaks];
+    const breaks = [...this.visualStyleHelperService.dynamicBrew[site].breaks];
     if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
       e.currentTarget.value = breaks[i];
 
@@ -392,7 +392,7 @@ export class KommonitorClassificationComponent implements OnInit {
         return;
       }
     }
-    let input = e.currentTarget.children[0].children[0];
+    const input = e.currentTarget.children[0].children[0];
     input.disabled = false;
     input.focus();
 
@@ -408,53 +408,53 @@ export class KommonitorClassificationComponent implements OnInit {
   }
  
  getWidthForHistogramBar(i) {
-    let colors = this.visualStyleHelperService.manualBrew.colors ? this.visualStyleHelperService.manualBrew.colors : [];
-    let countArray:any[] = [];
+    const colors = this.visualStyleHelperService.manualBrew.colors ? this.visualStyleHelperService.manualBrew.colors : [];
+    const countArray:any[] = [];
     colors.forEach( (color:any) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     });
     return (countArray[i] / Math.max(...countArray)) * 100 || 0;
   };
  getWidthForHistogramBarMOV(side, i) {
-    let colors:any[] = [];
+    const colors:any[] = [];
     colors[0] = this.visualStyleHelperService.measureOfValueBrew[0] ? this.visualStyleHelperService.measureOfValueBrew[0].colors : [];
     colors[1] = this.visualStyleHelperService.measureOfValueBrew[1] ? this.visualStyleHelperService.measureOfValueBrew[1].colors : [];
 
-    let countArray:any[] = [];
+    const countArray:any[] = [];
     colors[0].forEach( (color) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     });
     colors[1].forEach( (color) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     })
-    let color = this.visualStyleHelperService.measureOfValueBrew[side].colors[i];
-    let count = this.visualStyleHelperService.featuresPerColorMap.get(color);
+    const color = this.visualStyleHelperService.measureOfValueBrew[side].colors[i];
+    const count = this.visualStyleHelperService.featuresPerColorMap.get(color);
     return (count / Math.max(...countArray)) * 100 || 0;
   };
   
  getWidthForHistogramBarDynamic(side, i) {
-    let colors = [...this.visualStyleHelperService.dynamicBrew[0].colors, ...this.visualStyleHelperService.dynamicBrew[1].colors];
-    let countArray:any[] = [];
+    const colors = [...this.visualStyleHelperService.dynamicBrew[0].colors, ...this.visualStyleHelperService.dynamicBrew[1].colors];
+    const countArray:any[] = [];
     colors.forEach( (color) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     })
-    let color = this.visualStyleHelperService.dynamicBrew[side].colors[i];
-    let count = this.visualStyleHelperService.featuresPerColorMap.get(color);
+    const color = this.visualStyleHelperService.dynamicBrew[side].colors[i];
+    const count = this.visualStyleHelperService.featuresPerColorMap.get(color);
     return (count / Math.max(...countArray)) * 100 || 0;
   };
 
  getHeightForBar(i) {
-    let size = this.visualStyleHelperService.manualBrew.breaks[i+1] - this.visualStyleHelperService.manualBrew.breaks[i];
+    const size = this.visualStyleHelperService.manualBrew.breaks[i+1] - this.visualStyleHelperService.manualBrew.breaks[i];
     return (size / (this.getMaxValue(0) -this.getMinValue(0))) * 100;
   };
 
  getHeightForBarMOV(site, i) {
-    let size = this.visualStyleHelperService.measureOfValueBrew[site].breaks[i+1] - this.visualStyleHelperService.measureOfValueBrew[site].breaks[i];
+    const size = this.visualStyleHelperService.measureOfValueBrew[site].breaks[i+1] - this.visualStyleHelperService.measureOfValueBrew[site].breaks[i];
     return (size / (this.getMaxValue(0) -this.getMinValue(1))) * 100;
   };
 
  getHeightForBarDynamic(site, i) {
-    let size = this.visualStyleHelperService.dynamicBrew[site].breaks[i+1] - this.visualStyleHelperService.dynamicBrew[site].breaks[i];
+    const size = this.visualStyleHelperService.dynamicBrew[site].breaks[i+1] - this.visualStyleHelperService.dynamicBrew[site].breaks[i];
     return (size / (this.getMaxValue(site) -this.getMinValue(site))) * 100;
   }; 
 
@@ -539,15 +539,15 @@ export class KommonitorClassificationComponent implements OnInit {
      this.showAddBtn[0] = false;
 
       if(e.buttons === 1 &&this.isDraggingBreak) {
-        let histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
-        let newHeight = this.addBtnHeight[0] / histogram.offsetHeight * 100;
+        const histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
+        const newHeight = this.addBtnHeight[0] / histogram.offsetHeight * 100;
         if(newHeight > 0 && newHeight < 100) {
           this.draggingBreak.style.top = newHeight + "%";
         }
 
         (async () => {
-          let breaks = this.visualStyleHelperService.manualBrew.breaks;
-          let newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
+          const breaks = this.visualStyleHelperService.manualBrew.breaks;
+          const newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
           if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1]) {
            this.draggingBreak.children[0].children[0].value = newBreak;
             if(this.nrOfDraggingBreak)
@@ -574,18 +574,18 @@ export class KommonitorClassificationComponent implements OnInit {
      this.showAddBtn[site] = false;
 
       if(e.buttons === 1 &&this.isDraggingBreak) {
-        let histograms = Array.from(document.querySelectorAll<HTMLElement>(".editableHistogram"));
+        const histograms = Array.from(document.querySelectorAll<HTMLElement>(".editableHistogram"));
         histograms.reverse();
-        let histogram = histograms[this.dynamicDraggingSite];
+        const histogram = histograms[this.dynamicDraggingSite];
 
-        let newHeight = this.addBtnHeight[site] / histogram.offsetHeight * 100;
+        const newHeight = this.addBtnHeight[site] / histogram.offsetHeight * 100;
         if(newHeight > 0 && newHeight < 100) {
          this.draggingBreak.style.top = newHeight + "%";
         }
 
         (async () => {
-          let breaks = this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks;
-          let newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
+          const breaks = this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks;
+          const newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
           if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1] && !breaks.includes(newBreak)) {
            this.draggingBreak.children[0].children[0].value = newBreak;
             if(this.nrOfDraggingBreak)
@@ -593,8 +593,8 @@ export class KommonitorClassificationComponent implements OnInit {
             this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.sort(function(a, b) {
               return a - b;
             });
-            let increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
-            let decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
+            const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
+            const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
             
             this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
           }

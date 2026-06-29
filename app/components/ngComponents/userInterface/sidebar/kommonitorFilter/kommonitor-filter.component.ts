@@ -179,8 +179,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       });
 
       this.broadcastService.currentBroadcastMsg.subscribe(result => {
-        let msg = result.msg;
-        let val:any = result.values;
+        const msg = result.msg;
+        const val:any = result.values;
 
         switch (msg) {
           case BroadcastMessage.OnChangeSelectedIndicator: {
@@ -272,7 +272,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     
     this.loadingData = true;
     
-    let allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
+    const allowedSpatialUnitIds = indicatorMetadataAndGeoJSON.applicableSpatialUnits.map(spatialUnitEntry => {									
       return spatialUnitEntry.spatialUnitId;									
     });
     
@@ -376,7 +376,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.rangeFilterState.rangeFilterData = undefined;
       this.rangeSliderForFilter.destroy();
 
-      var domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
+      const domNode: HTMLElement | null = document.getElementById("rangeSliderForFiltering");
 
       if(domNode && domNode.lastChild) {
         while (domNode.hasChildNodes()) {
@@ -387,7 +387,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
-    var values:any[] = [];
+    const values:any[] = [];
 
     this.indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature:any) => {
       // if (feature.properties[date] > movMaxValue)
@@ -444,7 +444,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
   getFormatedSliderReturn() {
 
-    let data = this.slider.noUiSlider.get(true);
+    const data = this.slider.noUiSlider.get(true);
     
     return {
       from: data[0],
@@ -528,14 +528,14 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       this.rangeFilterState.rangeFilterIsApplied = true;
     }
 
-    var dateProperty = this.INDICATOR_DATE_PREFIX + this.selectionState.selectedDate;
+    const dateProperty = this.INDICATOR_DATE_PREFIX + this.selectionState.selectedDate;
 
     this.filterHelperService.applyRangeFilter(this.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, this.currentLowerFilterValue, this.currentHigherFilterValue);
   }
 
   onChangeUseMeasureOfValue(){
 
-    let middle = this.valueRangeMinValue + ((this.valueRangeMaxValue-this.valueRangeMinValue)/2);
+    const middle = this.valueRangeMinValue + ((this.valueRangeMaxValue-this.valueRangeMinValue)/2);
 
     this.measureSlider.noUiSlider.updateOptions({
       range: {
@@ -553,7 +553,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     });
   
     this.measureSlider.noUiSlider.on('set', () => {
-      let data = this.measureSlider.noUiSlider.get(true);
+      const data = this.measureSlider.noUiSlider.get(true);
 
       this.chartDisplayState.measureOfValue = data;
       this.onMeasureOfValueChangeByText();
@@ -579,11 +579,11 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     //append date prefix to access correct property!
     date = this.INDICATOR_DATE_PREFIX + date;
-    var geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
+    const geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
 
     // var measureOfValueInput = document.getElementById("measureOfValueInput");
 
-    var values:any[] = [];
+    const values:any[] = [];
 
     geoJSON.features.forEach((feature:any) => {
       // if (feature.properties[date] > movMaxValue)
@@ -614,7 +614,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.chartDisplayState.measureOfValue = this.movMiddleValue;
 
-    var measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
+    const measureOfValueTextInput = <HTMLInputElement>document.getElementById("measureOfValueTextInput");
     measureOfValueTextInput.setAttribute("min", this.movMinValue);
     measureOfValueTextInput.setAttribute("max", this.movMaxValue);
     measureOfValueTextInput.setAttribute("value", this.movMiddleValue);
@@ -623,7 +623,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     if(this.movRangeSlider){
       this.movRangeSlider.destroy();
 
-      var domNode = <HTMLInputElement>document.getElementById("measureOfValueInput");
+      const domNode = <HTMLInputElement>document.getElementById("measureOfValueInput");
 
       if(domNode && domNode.lastChild) {
         while (domNode.hasChildNodes()) {
@@ -632,7 +632,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       }
     }
     
-    let middle = this.movMinValue + ((this.movMaxValue-this.movMinValue)/2);
+    const middle = this.movMinValue + ((this.movMaxValue-this.movMinValue)/2);
 
     this.measureSlider.noUiSlider.updateOptions({
       range: {
@@ -697,8 +697,8 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
 
     this.loadingData = true;
     //send request to datamanagement API
-    let selectedSpatialUnit = this.selectionState.selectedSpatialUnit;
-    let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
+    const selectedSpatialUnit = this.selectionState.selectedSpatialUnit;
+    const selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
     let upperSpatialUnitId = undefined;
 
     // spatial filter not applicable since no upper spatial unit is available or selected
@@ -710,10 +710,10 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     if (selectionType === "byFeature" && this.selectedSpatialUnitForFilter) {	
       upperSpatialUnitId = this.selectedSpatialUnitForFilter.spatialUnitId;				
     }
-    let selectedIndicatorId = this.selectionState.selectedIndicator.indicatorId;
+    const selectedIndicatorId = this.selectionState.selectedIndicator.indicatorId;
 
     // example: 2020-12-31
-    let selectedDateComponents = this.selectionState.selectedDate.split("-");
+    const selectedDateComponents = this.selectionState.selectedDate.split("-");
 
     //build request
     let datePath = "";
@@ -735,14 +735,14 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     //send request
     this.http.get(url).subscribe({
       next: response => {
-        let areaNames:any[] = [];
+        const areaNames:any[] = [];
         response['features'].forEach( (obj, id) => {
           areaNames.push({name: obj.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]});
         });
 
         if (selectionType === "manual") {
-          let dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
-          let data = {items: dataArray, selectedItems: []};
+          const dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
+          const data = {items: dataArray, selectedItems: []};
           this.manualSelectionSpatialFilterDuallistOptions = data;
 
           if(showHideToggle)
@@ -752,7 +752,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
         if (selectionType === "byFeature") {
           this.higherSpatialUnitFilterFeatureGeoJSON = response;
           this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-          let dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
+          const dataArray = this.indicatorValueService.createDualListInputArray(areaNames, "name", "id");
           this.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
         }
 
@@ -805,7 +805,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
       
       // objects like {category: category, name:name}									
       //this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems
-      let targetFeatureNames = this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
+      const targetFeatureNames = this.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
       console.log(this.higherSpatialUnitFilterFeatureGeoJSON,targetFeatureNames)
       this.filterHelperService.applySpatialFilter_higherSpatialUnitFeatures(this.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
     }
@@ -825,7 +825,7 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
     if(this.manualSelectionSpatialFilterDuallistOptions.selectedItems && this.manualSelectionSpatialFilterDuallistOptions.selectedItems.length > 0){
       // objects like {category: category, name:name}									
       //this.manualSelectionSpatialFilterDuallistOptions.selectedItems
-      let targetFeatureNames = this.manualSelectionSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
+      const targetFeatureNames = this.manualSelectionSpatialFilterDuallistOptions.selectedItems.map((object:any) => object.name);
 
       this.filterHelperService.applySpatialFilter_currentSpatialUnitFeatures(targetFeatureNames);
     }

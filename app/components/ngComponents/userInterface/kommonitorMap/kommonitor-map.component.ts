@@ -146,8 +146,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   showInfoControl = true;
   showLegendControl = true;
   showLegend = true;
-  overlays = new Array();
-  baseMaps = new Array();
+  overlays: any[] = [];
+  baseMaps: any[] = [];
   spatialUnitLayerGroupName = "Raumebenen";
   georesourceLayerGroupName = "Georessourcen";
   poiLayerGroupName = "Points of Interest";
@@ -228,7 +228,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       },
 
       _createTile: function () {
-        let tile = L.TileLayer.prototype._createTile.call(this);
+        const tile = L.TileLayer.prototype._createTile.call(this);
         tile.crossOrigin = "Anonymous";
         return tile;
       },
@@ -238,14 +238,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           return;
 
         img.crossOrigin = '';
-        let canvas = document.createElement("canvas");
+        const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
-        let ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx!.drawImage(img, 0, 0);
 
-        let imgd = ctx!.getImageData(0, 0, canvas.width, canvas.height);
-        let pix = imgd.data;
+        const imgd = ctx!.getImageData(0, 0, canvas.width, canvas.height);
+        const pix = imgd.data;
         for (let i = 0, n = pix.length; i < n; i += 4) {
           pix[i] = pix[i + 1] = pix[i + 2] = (this.options.quotaRed * pix[i] + this.options.quotaGreen * pix[i + 1] + this.options.quotaBlue * pix[i + 2]) / this.options.quotaDivider();
         }
@@ -302,8 +302,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values: any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.ChangeClassifyMethod: {
@@ -483,7 +483,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   initMeasurement() {
-    let measureOptions = {
+    const measureOptions = {
       position: 'topleft',
       primaryLengthUnit: 'meters',
       secondaryLengthUnit: 'kilometers',
@@ -494,7 +494,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       thousandsSep: '.'
     };
 
-    let measureControl = new L.Control.Measure(measureOptions);
+    const measureControl = new L.Control.Measure(measureOptions);
     measureControl.addTo(this.map);
 
     // blendet den button erstmalig aus
@@ -525,7 +525,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     this.loadingData = true;
 
-    let baseLayerDefinitionsMap = new Map();
+    const baseLayerDefinitionsMap = new Map();
     this.mapOverlayState.baseLayerDefinitionsArray = [{
       "layerConfig": {
         name: "leere Karte",
@@ -538,24 +538,24 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
     }];
 
-    for (let baseMapEntry of this.envConfigService.baseLayers) {
+    for (const baseMapEntry of this.envConfigService.baseLayers) {
 
       if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE") {
-        let grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
+        const grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
         baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
         this.mapOverlayState.baseLayerDefinitionsArray.push({
           "layerConfig": baseMapEntry
         });
       }
       else if (baseMapEntry.layerType === "TILE_LAYER") {
-        let tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
+        const tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
         baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
         this.mapOverlayState.baseLayerDefinitionsArray.push({
           "layerConfig": baseMapEntry
         });
       }
       else if (baseMapEntry.layerType === "WMS") {
-        let wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
+        const wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
         baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
         this.mapOverlayState.baseLayerDefinitionsArray.push({
           "layerConfig": baseMapEntry
@@ -585,13 +585,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
     // update zoom and extent
     this.map.on('zoomend', (eo) => {
-      let latLng = this.map.getCenter();
+      const latLng = this.map.getCenter();
       this.envConfigService.currentLatitude = latLng.lat;
       this.envConfigService.currentLongitude = latLng.lng;
       this.envConfigService.currentZoomLevel = this.map.getZoom();
     });
     this.map.on('moveend', (eo) => {
-      let latLng = this.map.getCenter();
+      const latLng = this.map.getCenter();
       this.envConfigService.currentLatitude = latLng.lat;
       this.envConfigService.currentLongitude = latLng.lng;
       this.envConfigService.currentZoomLevel = this.map.getZoom();
@@ -603,7 +603,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.baseMaps[key] = value;
     });
 
-    let groupedOverlays = {
+    const groupedOverlays = {
       indicatorLayerGroupName: {
 
       },
@@ -815,16 +815,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   initSpatialUnitOutlineLayer() {
 
-    for (let spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
+    for (const spatialUnit of this.spatialUnitStore.availableSpatialUnits) {
       if (spatialUnit.isOutlineLayer) {
 
-        let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+        const url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
           "/spatial-units/" + spatialUnit.spatialUnitId + "/allFeatures";
 
         this.http.get(url).subscribe((response: any) => {
-          let geoJSON = response;
+          const geoJSON = response;
 
-          let layer = L.geoJSON(geoJSON, {
+          const layer = L.geoJSON(geoJSON, {
             style: function (feature) {
               return {
                 color: spatialUnit.outlineColor,
@@ -858,7 +858,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   exportMap() {
 
-    let node = document.getElementById("ngMap");
+    const node = document.getElementById("ngMap");
 
     return domtoimage
       .toBlob(node, {
@@ -907,8 +907,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     },
 
     _searchInLayer: function (layer, retRecords, propName) {
-      var self = this, loc;
-      var key_withUniqueID;
+      let self = this, loc;
+      let key_withUniqueID;
 
       if (layer instanceof L.Control.Search.Marker) return;
 
@@ -984,7 +984,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.collapse();
     },
     _handleAutoresize: function () {
-      var maxWidth;
+      let maxWidth;
 
       if (!this._map) {
         this._map = this.map;
@@ -1041,9 +1041,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       }
 
       // build L.featureGroup of available POI layers
-      let featureLayers: any[] = [];
+      const featureLayers: any[] = [];
 
-      for (let layerEntry of this.layerControl._layers) {
+      for (const layerEntry of this.layerControl._layers) {
         if (layerEntry) {
           if (layerEntry.overlay) {
             if (this.map.hasLayer(layerEntry.layer)) {
@@ -1109,14 +1109,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
             regSearch = new RegExp(I + text, icase);
 
-            for (let key in records) {
+            for (const key in records) {
 
               // make a searchable string from all relevant feature properties
               let recordString = "";
-              let record = records[key];
-              let recordProperties = record.layer.feature.properties;
+              const record = records[key];
+              const recordProperties = record.layer.feature.properties;
 
-              for (let propertyKey in recordProperties) {
+              for (const propertyKey in recordProperties) {
                 if (recordProperties[propertyKey] && !isKomMonitorSpecificProperty(propertyKey)) {
                   recordString += recordProperties[propertyKey];
                 }
@@ -1232,7 +1232,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + this.selectionState.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
     innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
-    for (let option of this.spatialUnitStore.availableSpatialUnits) {
+    for (const option of this.spatialUnitStore.availableSpatialUnits) {
 
       if (this.selectionState.isAllowedSpatialUnitForCurrentIndicator(option)) {
         innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
@@ -1583,7 +1583,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         // propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
         let popupContent = '<div class="spatialUnitInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (let p in feature.properties) {
+        for (const p in feature.properties) {
           popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
         }
         popupContent += '</table></div>';
@@ -1606,7 +1606,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       click: () => {
 
         let popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (let p in feature.properties) {
+        for (const p in feature.properties) {
           popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
         }
         popupContent += '</table></div>';
@@ -1628,9 +1628,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   onEachFeatureIndicator(feature, layer) {
 
-    let indicatorValueText = feature.tempData.indicatorValueText;
+    const indicatorValueText = feature.tempData.indicatorValueText;
 
-    let tooltipHtml = "<b>" + feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + feature.tempData.unitText + "]";
+    const tooltipHtml = "<b>" + feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + feature.tempData.unitText + "]";
     layer.bindTooltip(tooltipHtml, {
       sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
     });
@@ -1771,7 +1771,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
         // index 0 should be longitude and index 1 should be latitude
         //.bindPopup( poiFeature.properties.name )
-        let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
+        const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
 
         markers.addLayer(this.genericMapHelperService.addPoiMarker(markers, newMarker));
       });
@@ -1781,7 +1781,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       georesourceMetadataAndGeoJSON.geoJSON.features.forEach((poiFeature) => {
         // index 0 should be longitude and index 1 should be latitude
         //.bindPopup( poiFeature.properties.name )
-        let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
+        const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiMarkerStyle, georesourceMetadataAndGeoJSON.poiMarkerText, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);
 
         markers = this.genericMapHelperService.addPoiMarker(markers, newMarker);
       });
@@ -1806,7 +1806,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   removePoiGeoresource([georesourceMetadataAndGeoJSON]) {
 
-    let layerName = georesourceMetadataAndGeoJSON.datasetName;
+    const layerName = georesourceMetadataAndGeoJSON.datasetName;
 
     this.layerControl._layers.forEach((layer) => {
       //if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
@@ -1822,9 +1822,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   addAoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date]) {
 
-    let color = georesourceMetadataAndGeoJSON.aoiColor;
+    const color = georesourceMetadataAndGeoJSON.aoiColor;
 
-    let layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
+    const layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
       style: (feature) => {
         return {
           fillColor: color,
@@ -1853,7 +1853,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   removeAoiGeoresource([georesourceMetadataAndGeoJSON]) {
 
-    let layerName = georesourceMetadataAndGeoJSON.datasetName;
+    const layerName = georesourceMetadataAndGeoJSON.datasetName;
 
     this.layerControl._layers.forEach((layer) => {
       // todo
@@ -1870,11 +1870,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   addLoiGeoresourceAsGeoJSON([georesourceMetadataAndGeoJSON, date]) {
 
-    let color = georesourceMetadataAndGeoJSON.aoiColor;
+    const color = georesourceMetadataAndGeoJSON.aoiColor;
 
-    let featureGroup = L.featureGroup();
+    const featureGroup = L.featureGroup();
 
-    let style = {
+    const style = {
       color: georesourceMetadataAndGeoJSON.loiColor,
       dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
       weight: georesourceMetadataAndGeoJSON.loiWidth || 3,
@@ -1882,10 +1882,10 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     };
 
     georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item, i) => {
-      let type = item.geometry.type;
+      const type = item.geometry.type;
 
       if (type === "Polygon" || type === "MultiPolygon") {
-        let lines = turf.polygonToLine(item);
+        const lines = turf.polygonToLine(item);
 
         L.geoJSON(lines, {
           style: style,
@@ -1928,7 +1928,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   removeLoiGeoresource(georesourceMetadataAndGeoJSON) {
 
-    let layerName = georesourceMetadataAndGeoJSON.datasetName;
+    const layerName = georesourceMetadataAndGeoJSON.datasetName;
 
     this.layerControl._layers.forEach((layer) => {
       if (layer.name.includes(layerName + "_")) {
@@ -1943,7 +1943,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   addWmsLayerToMap([dataset, opacity]: [WmsDataset, number]) {
 
-    let wmsLayer = L.tileLayer.wms(dataset.connectionDetails.baseUrl, {
+    const wmsLayer = L.tileLayer.wms(dataset.connectionDetails.baseUrl, {
       layers: dataset.connectionDetails.layerName,
       transparent: true,
       format: 'image/png',
@@ -2020,7 +2020,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     */
   removeWmsLayerFromMap([dataset]) {
 
-    let layerName = dataset.title;
+    const layerName = dataset.title;
 
     this.layerControl._layers.forEach((layer) => {
 
@@ -2072,7 +2072,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   getFilterEncoding(dataset) {
 
-    let filterExpressions: any[] = [];
+    const filterExpressions: any[] = [];
 
     if (dataset.filterEncoding.PropertyIsEqualTo && dataset.filterEncoding.PropertyIsEqualTo.propertyName && dataset.filterEncoding.PropertyIsEqualTo.propertyValue) {
       filterExpressions.push(new L.Filter.EQ(dataset.filterEncoding.PropertyIsEqualTo.propertyName, dataset.filterEncoding.PropertyIsEqualTo.propertyValue));
@@ -2103,7 +2103,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   };
 
   addWfsLayerToMap([dataset, opacity, useCluster]) {
-    let wfsLayerOptions = {
+    const wfsLayerOptions = {
       url: dataset.url,
       typeNS: dataset.featureTypeNamespace,
       namespaceUri: "http://mapserver.gis.umn.edu/mapserver",
@@ -2114,7 +2114,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       filter: undefined
     };
 
-    let filterEncoding = this.getFilterEncoding(dataset);
+    const filterEncoding = this.getFilterEncoding(dataset);
     if (filterEncoding) {
       wfsLayerOptions.filter = filterEncoding;
     }
@@ -2128,7 +2128,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (useCluster) {
         poiMarkerLayer = L.markerClusterGroup({
           iconCreateFunction: function (cluster) {
-            let childCount = cluster.getChildCount();
+            const childCount = cluster.getChildCount();
 
             let c = 'cluster-';
             if (childCount < 10) {
@@ -2139,7 +2139,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
               c += 'large';
             }
 
-            let className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
+            const className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
 
             //'marker-cluster' + c + ' ' +
             return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + dataset.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
@@ -2176,12 +2176,12 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         // propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
         let popupContent = '<div class="wfsInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-        for (let p in event.layer.feature.properties) {
+        for (const p in event.layer.feature.properties) {
           popupContent += '<tr><td>' + p + '</td><td>' + event.layer.feature.properties[p] + '</td></tr>';
         }
         popupContent += '</table></div>';
 
-        let popup: any = L.popup();
+        const popup: any = L.popup();
         popup
           .setLatLng(event.latlng)
           .setContent(popupContent)
@@ -2256,7 +2256,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   */
   removeWfsLayerFromMap(dataset) {
 
-    let layerName = dataset.title;
+    const layerName = dataset.title;
 
     this.layerControl._layers.forEach((layer) => {
       //if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
@@ -2278,13 +2278,13 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         dataset.geoJSON.features.forEach((poiFeature) => {
           // index 0 should be longitude and index 1 should be latitude
           //.bindPopup( poiFeature.properties.name )
-          let newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, dataset.poiMarkerStyle, dataset.poiMarkerText, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+          const newMarker = this.genericMapHelperService.createCustomMarker(poiFeature, dataset.poiMarkerStyle, dataset.poiMarkerText, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
 
           fileLayer = this.genericMapHelperService.addPoiMarker(fileLayer, newMarker);
         });
       }
       else {
-        let style = {
+        const style = {
           weight: 1,
           opacity: opacity,
           color: this.envConfigService.defaultBorderColor,
@@ -2302,7 +2302,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
                 // propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
                 let popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-                for (let p in feature.properties) {
+                for (const p in feature.properties) {
                   popupContent += '<tr><td>' + p + '</td><td>' + feature.properties[p] + '</td></tr>';
                 }
                 popupContent += '</table></div>';
@@ -2340,11 +2340,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   };
 
   adjustOpacityForFileLayer([dataset, opacity]) {
-    let layerName = dataset.datasetName;
+    const layerName = dataset.datasetName;
 
     this.layerControl._layers.forEach((layer) => {
       if (layer.group.name === this.fileLayerGroupName && layer.name.includes(layerName)) {
-        let newStyle = {
+        const newStyle = {
           weight: 1,
           opacity: opacity,
           color: this.envConfigService.defaultBorderColor,
@@ -2360,11 +2360,11 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   adjustColorForFileLayer(dataset) {
-    let layerName = dataset.datasetName;
+    const layerName = dataset.datasetName;
     this.layerControl._layers.forEach((layer) => {
       if (layer.group.name === this.fileLayerGroupName && layer.name.includes(layerName)) {
 
-        let newStyle = {
+        const newStyle = {
           weight: 1,
           color: this.envConfigService.defaultBorderColor,
           dashArray: '',
@@ -2379,7 +2379,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   removeFileLayerFromMap(dataset) {
 
-    let layerName = dataset.datasetName;
+    const layerName = dataset.datasetName;
 
     this.layerControl._layers.forEach((layer) => {
       if (layer.group.name === this.fileLayerGroupName && layer.name.includes(layerName)) {
@@ -2391,7 +2391,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   highlightFeature(e) {
 
-    let layer = e.target;
+    const layer = e.target;
     this.visualStyleHelperService.setOpacity(layer.options.fillOpacity);
 
     this.highlightFeatureForLayer(layer);
@@ -2484,7 +2484,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
 
   resetHighlight(e) {
-    let layer = e.target;
+    const layer = e.target;
     this.resetHighlightForLayer(layer);
 
     if (!this.filterHelperService.featureIsCurrentlySelected(layer.feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])) {
@@ -2594,7 +2594,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.outliers_high = [];
     this.outliers_low = [];
 
-    let valueArray = new Array();
+    const valueArray: any[] = [];
 
     indicatorMetadataAndGeoJSON.geoJSON.features.forEach((feature) => {
       if (!this.indicatorValueService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])) {
@@ -2605,19 +2605,19 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     });
 
     // https://jstat.github.io/all.html#quartiles
-    let quartiles = jStat.quartiles(valueArray);
-    let quartile_25 = quartiles[0];
-    let quartile_75 = quartiles[2];
+    const quartiles = jStat.quartiles(valueArray);
+    const quartile_25 = quartiles[0];
+    const quartile_75 = quartiles[2];
 
-    let diff = quartile_75 - quartile_25;
-    let whiskerRange_outliers_soft = diff * 1.5;
-    let whiskerRange_outliers_extreme = diff * 3;
+    const diff = quartile_75 - quartile_25;
+    const whiskerRange_outliers_soft = diff * 1.5;
+    const whiskerRange_outliers_extreme = diff * 3;
 
-    let whisker_low_soft = quartile_25 - whiskerRange_outliers_soft;
-    let whisker_high_soft = quartile_75 + whiskerRange_outliers_soft;
+    const whisker_low_soft = quartile_25 - whiskerRange_outliers_soft;
+    const whisker_high_soft = quartile_75 + whiskerRange_outliers_soft;
 
-    let whisker_low_extreme = quartile_25 - whiskerRange_outliers_extreme;
-    let whisker_high_extreme = quartile_75 + whiskerRange_outliers_extreme;
+    const whisker_low_extreme = quartile_25 - whiskerRange_outliers_extreme;
+    const whisker_high_extreme = quartile_75 + whiskerRange_outliers_extreme;
 
     // for now only mark extreme outliers!
 
@@ -2684,7 +2684,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   }
 
   calcMOVBreaks(breaks, measureOfValue) {
-    let movBreaks: any[] = [[], []];
+    const movBreaks: any[] = [[], []];
     breaks.forEach((br) => {
       if (br < measureOfValue) {
         movBreaks[1].push(br);
@@ -2715,9 +2715,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       lastBreak = this.dynamicIncreaseBrew.breaks[this.dynamicIncreaseBrew.breaks.length - 1];
     }
 
-    for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
+    for (const item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
       if (item.spatialUnitId == this.selectionState.selectedSpatialUnit.spatialUnitId) {
-        let regionalDefaultBreaks = [...item.breaks];
+        const regionalDefaultBreaks = [...item.breaks];
         if (firstBreak < regionalDefaultBreaks[0]) {
           regionalDefaultBreaks.unshift(firstBreak);
         }
@@ -2725,7 +2725,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           regionalDefaultBreaks.push(lastBreak);
         }
         if (this.defaultBrew && this.defaultBrew.breaks) {
-          let brew: any = this.visualStyleHelperService.setupManualBrew(
+          const brew: any = this.visualStyleHelperService.setupManualBrew(
             indicatorMetadataAndGeoJSON.defaultClassificationMapping.numClasses,
             indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName,
             regionalDefaultBreaks);
@@ -2734,20 +2734,20 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.visualStyleHelperService.regionalDefaultBreaks = regionalDefaultBreaks;
         }
         else {
-          let decreaseBreaks = regionalDefaultBreaks.filter(n => n < 0);
+          const decreaseBreaks = regionalDefaultBreaks.filter(n => n < 0);
           if (this.dynamicDecreaseBrew.breaks[this.dynamicDecreaseBrew.breaks.length - 1] > decreaseBreaks[decreaseBreaks.length - 1]) {
             decreaseBreaks.push(this.dynamicDecreaseBrew.breaks[this.dynamicDecreaseBrew.breaks.length - 1]);
           }
-          let increaseBreaks = regionalDefaultBreaks.filter(n => n > 0);
+          const increaseBreaks = regionalDefaultBreaks.filter(n => n > 0);
           if (this.dynamicIncreaseBrew.breaks[0] < increaseBreaks[0]) {
             increaseBreaks.unshift(this.dynamicIncreaseBrew.breaks[0]);
           }
 
-          let decreaseBrew: any = this.visualStyleHelperService.setupManualBrew(
+          const decreaseBrew: any = this.visualStyleHelperService.setupManualBrew(
             decreaseBreaks.length - 1,
             this.envConfigService.defaultColorBrewerPaletteForBalanceDecreasingValues,
             decreaseBreaks);
-          let increaseBrew: any = this.visualStyleHelperService.setupManualBrew(
+          const increaseBrew: any = this.visualStyleHelperService.setupManualBrew(
             increaseBreaks.length - 1,
             this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
             increaseBreaks);
@@ -2764,7 +2764,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   checkAvailabilityOfRegionalDefault(indicatorMetadataAndGeoJSON) {
     let breaksAvailableForSelectedSpatialUnit = false;
-    for (let item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
+    for (const item of indicatorMetadataAndGeoJSON.defaultClassificationMapping.items) {
       if (item.spatialUnitId == this.selectionState.selectedSpatialUnit.spatialUnitId) {
         breaksAvailableForSelectedSpatialUnit = true;
       }
@@ -2909,7 +2909,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     this.setClassifyZeroForClassifyMethod();
 
     if (this.chartDisplayState.isMeasureOfValueChecked) {
-      let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
+      const measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
         this.currentGeoJSONOfCurrentLayer,
         this.indicatorPropertyName,
         this.envConfigService.defaultColorBrewerPaletteForGtMovValues,
@@ -2946,7 +2946,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       // this.makeMeasureOfValueLegend(isCustomComputation);
 
       if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")) {
-        let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+        const dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
           indicatorMetadataAndGeoJSON.geoJSON,
           this.indicatorPropertyName,
           this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
@@ -2967,7 +2967,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       if (indicatorMetadataAndGeoJSON.indicatorType.includes("STATUS")) {
         this.datasetContainsNegativeValues = this.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
         if (this.datasetContainsNegativeValues) {
-          let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+          const dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
             indicatorMetadataAndGeoJSON.geoJSON,
             this.indicatorPropertyName,
             this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
@@ -3004,7 +3004,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         // this.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, this.datasetContainsNegativeValues, isCustomComputation);
       }
       else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")) {
-        let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+        const dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
           indicatorMetadataAndGeoJSON.geoJSON,
           this.indicatorPropertyName,
           this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
@@ -3042,7 +3042,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         this.visualStyleHelperService.regionalDefaultBreaks,
         this.chartDisplayState.measureOfValue
       )
-      let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
+      const measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
         this.currentGeoJSONOfCurrentLayer,
         this.indicatorPropertyName,
         this.envConfigService.defaultColorBrewerPaletteForGtMovValues,
@@ -3113,7 +3113,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
   prepFeatureModelForMapUse(feature) {
     feature.tempData = {};
-    let indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + this.date];
+    const indicatorValue = feature.properties[this.envConfigService.indicatorDatePrefix + this.date];
     if (this.indicatorValueService.indicatorValueIsNoData(indicatorValue)) {
       feature.tempData.indicatorValueText = "NoData";
     } else {
@@ -3194,7 +3194,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.checkAvailabilityOfRegionalDefault(this.currentIndicatorMetadataAndGeoJSON);
 
       if (this.chartDisplayState.isMeasureOfValueChecked) {
-        let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
+        const measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
           this.currentGeoJSONOfCurrentLayer,
           this.indicatorPropertyName,
           this.envConfigService.defaultColorBrewerPaletteForGtMovValues,
@@ -3229,7 +3229,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       else {
 
         if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || this.datasetContainsNegativeValues) {
-          let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+          const dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
             this.currentIndicatorMetadataAndGeoJSON.geoJSON,
             this.indicatorPropertyName,
             this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
@@ -3260,7 +3260,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         else {
           this.datasetContainsNegativeValues = this.containsNegativeValues(this.currentGeoJSONOfCurrentLayer);
           if (this.datasetContainsNegativeValues) {
-            let dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
+            const dynamicIndicatorBrewArray = this.visualStyleHelperService.setupDynamicIndicatorBrew(
               this.currentIndicatorMetadataAndGeoJSON.geoJSON,
               this.indicatorPropertyName,
               this.envConfigService.defaultColorBrewerPaletteForBalanceIncreasingValues,
@@ -3329,7 +3329,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           this.visualStyleHelperService.regionalDefaultBreaks,
           this.chartDisplayState.measureOfValue
         )
-        let measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
+        const measureOfValueBrewArray = this.visualStyleHelperService.setupMeasureOfValueBrew(
           this.currentGeoJSONOfCurrentLayer,
           this.indicatorPropertyName,
           this.envConfigService.defaultColorBrewerPaletteForGtMovValues,
@@ -3359,7 +3359,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.broadcastService.broadcast(BroadcastMessage.UpdateLegendDisplay, [this.currentIndicatorContainsZeroValues, this.datasetContainsNegativeValues, this.currentIndicatorContainsNoDataValues, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
 
       if (!skipDiagramRefresh) {
-        let justRestyling = true;
+        const justRestyling = true;
 
         if (this.visualStyleHelperService.classifyMethod == 'manual') {
           this.broadcastService.broadcast(BroadcastMessage.UpdateDiagrams, [this.currentIndicatorMetadataAndGeoJSON, this.selectionState.selectedSpatialUnit.spatialUnitLevel, this.selectionState.selectedSpatialUnit.spatialUnitId, this.date, this.manualBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.chartDisplayState.isMeasureOfValueChecked, this.chartDisplayState.measureOfValue, justRestyling]);
@@ -3379,16 +3379,16 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
 
 
   updateDefaultManualBreaksFromMOVManualBreaks() {
-    let ltBreaks = [...this.visualStyleHelperService.manualMOVBreaks[0]];
-    let gtBreaks = [...this.visualStyleHelperService.manualMOVBreaks[1]];
+    const ltBreaks = [...this.visualStyleHelperService.manualMOVBreaks[0]];
+    const gtBreaks = [...this.visualStyleHelperService.manualMOVBreaks[1]];
 
     ltBreaks.shift()
     gtBreaks.pop();
 
     if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC')
       || this.datasetContainsNegativeValues) {
-      let decreaseBreaks: any[] = [];
-      let increaseBreaks: any[] = [];
+      const decreaseBreaks: any[] = [];
+      const increaseBreaks: any[] = [];
       gtBreaks.forEach((br) => {
         if (br < 0) {
           decreaseBreaks.push(br);
@@ -3412,14 +3412,14 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   };
 
   updateManualMOVBreaksFromDefaultManualBreaks() {
-    let gtBreaks: any[] = [];
-    let ltBreaks: any[] = [];
+    const gtBreaks: any[] = [];
+    const ltBreaks: any[] = [];
     let breaks: any[] = [];
 
     if (this.indicatorTypeOfCurrentLayer.includes('DYNAMIC') || this.datasetContainsNegativeValues) {
-      let decreaseBreaks = this.dynamicDecreaseBrew ? this.dynamicDecreaseBrew.breaks : [];
-      let increaseBreaks = this.dynamicIncreaseBrew ? this.dynamicIncreaseBrew.breaks : [];
-      let breaks = [...decreaseBreaks, ...increaseBreaks]
+      const decreaseBreaks = this.dynamicDecreaseBrew ? this.dynamicDecreaseBrew.breaks : [];
+      const increaseBreaks = this.dynamicIncreaseBrew ? this.dynamicIncreaseBrew.breaks : [];
+      const breaks = [...decreaseBreaks, ...increaseBreaks]
     }
     else {
       breaks = this.visualStyleHelperService.manualBrew ? this.visualStyleHelperService.manualBrew.breaks : [];
@@ -3728,8 +3728,8 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
       this.map.removeLayer(this.isochroneLayer);
     }
 
-    let poiDataset = reachabilityScenario.reachabilitySettings.selectedStartPointLayer;
-    let locationsArray: any[] = [];
+    const poiDataset = reachabilityScenario.reachabilitySettings.selectedStartPointLayer;
+    const locationsArray: any[] = [];
 
     poiDataset.geoJSON.features.forEach((feature: any) => {
       locationsArray.push(feature.geometry.coordinates);

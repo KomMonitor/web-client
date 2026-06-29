@@ -9,7 +9,7 @@ import {
   ViewChildren,
   ElementRef,
   QueryList,
-  HostListener,
+  HostListener, AfterViewInit, OnChanges, OnDestroy,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
@@ -25,7 +25,7 @@ export interface StepperStep {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
 })
-export class StepperComponent {
+export class StepperComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) steps!: StepperStep[];
   @Input() currentStep: number = 1;
   @Output() currentStepChange = new EventEmitter<number>();

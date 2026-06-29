@@ -57,12 +57,12 @@ const parameterName_computationIndicatorId = "COMPUTATION_ID";
 */
 async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndicatorsMap, georesourcesMap, processParameters){
       
-	  var referenceIndicatorId = KmHelper.getProcessParameterByName_asString(parameterName_referenceIndicatorId, processParameters);
-	  var referenceGeoJSON = KmHelper.getBaseIndicatorById(referenceIndicatorId, baseIndicatorsMap);
+	  const referenceIndicatorId = KmHelper.getProcessParameterByName_asString(parameterName_referenceIndicatorId, processParameters);
+	  const referenceGeoJSON = KmHelper.getBaseIndicatorById(referenceIndicatorId, baseIndicatorsMap);
 	  
-      var computationIndicatorIds = KmHelper.getProcessParameterByName_asString(parameterName_computationIndicatorId, processParameters);
-	  var computationIndicatorIds_array = computationIndicatorIds.split(',');	
-	  var computationGeoJSON_array = [];
+      const computationIndicatorIds = KmHelper.getProcessParameterByName_asString(parameterName_computationIndicatorId, processParameters);
+	  const computationIndicatorIds_array = computationIndicatorIds.split(',');	
+	  const computationGeoJSON_array = [];
 	  for (const indicatorID of computationIndicatorIds_array){
 		computationGeoJSON_array.push(KmHelper.getBaseIndicatorById(indicatorID, baseIndicatorsMap))};
 
@@ -76,7 +76,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
       * by using such a map object, we can ensure, that we only iterate ONCE over each bease indicator
       * and also can only iterate ONCE over each target spatial unit feature at the end to compute the indicator
       */
-      var map = new Map();
+      const map = new Map();
 
       KmHelper.log("Process reference indicator '" + referenceIndicatorId + "'");
 
@@ -86,9 +86,9 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
       */
       referenceGeoJSON.features.forEach(function(feature) {
         // get the unique featureID of the spatial unit feature as String
-        var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
+        const featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
         // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
-        var referenceValue = KmHelper.getIndicatorValue(feature, targetDate);
+        let referenceValue = KmHelper.getIndicatorValue(feature, targetDate);
 
         if(referenceValue === undefined || referenceValue === null){
           KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
@@ -98,7 +98,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 		// modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
         if (! map.has(featureId)){
-            var mapObject = {
+            const mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
                 refValue: 0,
@@ -107,7 +107,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
  
             map.set(featureId, mapObject);    
         }
-		var mapEntry = map.get(featureId);
+		const mapEntry = map.get(featureId);
 		mapEntry.refValue = referenceValue;
         map.set(featureId, mapEntry);
         });		
@@ -122,9 +122,9 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 		
 		  geoJSON.features.forEach(function(feature) {
 			  // get the unique featureID of the spatial unit feature as String
-			  var featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
+			  const featureId = KmHelper.getSpatialUnitFeatureIdValue(feature);
 			  // get the time series value of the base indicator feature for the requested target date (with its required prefix!)
-			  var partValue = KmHelper.getIndicatorValue(feature, targetDate);
+			  let partValue = KmHelper.getIndicatorValue(feature, targetDate);
 			  if(partValue === undefined || partValue === null){
 				  KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
 				  KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
@@ -135,7 +135,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
           
           if (! map.has(featureId)){
             KmHelper.log("Computation Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set ref value to null.");				  
-            var mapObject = {
+            const mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
                 refValue: null,
@@ -145,29 +145,29 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
             map.set(featureId, mapObject);    
         }  
 
-				  var mapEntry = map.get(featureId);  
+				  const mapEntry = map.get(featureId);  
 				  mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
 				  map.set(featureId, mapEntry);
 				  });				 
 				  });
       	
-      var numFeatures = targetSpatialUnit_geoJSON.features.length;
+      const numFeatures = targetSpatialUnit_geoJSON.features.length;
 
       // now we compute the new indicator
       KmHelper.log("Compute indicator for a total amount of " + numFeatures + " features");
 
       // iterate once over target spatial unit features and compute indicator utilizing map entries
-      var spatialUnitIndex = 0;
+      let spatialUnitIndex = 0;
       // create progress log after each 10th percent of features
-      var logProgressIndexSeparator = Math.round(numFeatures / 100 * 10);
+      const logProgressIndexSeparator = Math.round(numFeatures / 100 * 10);
       targetSpatialUnit_geoJSON.features.forEach(function(spatialUnitFeature) {
 
         // get spatialUnit feature id as string --> use it to get associated map entry
-        var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
+        const spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
 
         if (! map.has(spatialUnitFeatureId)){
           KmHelper.log("Target spatial unit feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set indicator value to null.");
-				  var mapObject = {
+				  const mapObject = {
               featureId: spatialUnitFeatureId,
               indicatorValue: undefined,
               refValue: null,
@@ -177,9 +177,9 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
           map.set(spatialUnitFeatureId, mapObject);    
       } 
 
-        var mapEntry = map.get(spatialUnitFeatureId);
+        const mapEntry = map.get(spatialUnitFeatureId);
 		
-		var indicatorValue = null;
+		let indicatorValue = null;
         if(mapEntry.refValue === undefined || mapEntry.refValue === null || mapEntry.refValue === undefined || mapEntry.intermediateValue === null){
           KmHelper.log("WARNING: the feature with featureID '" + spatialUnitFeatureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
           KmHelper.log("INFO: indicator value is set to null");
@@ -274,7 +274,7 @@ function disaggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_
 function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
   // aggregate indicator
 
-  var indicatorFeatures = indicator_geoJSON.features;
+  const indicatorFeatures = indicator_geoJSON.features;
 
   KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing AVERAGE values.");
   KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
@@ -284,9 +284,9 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
   KmHelper.log('Target Date with prefix: ' + targetDate);
 
   // first replace indicatorFeature geoimetry by their pointOnSurface
-  for (var index = 0; index < indicatorFeatures.length; index++){
-    var indicatorFeature = indicatorFeatures[index];
-    var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
+  for (let index = 0; index < indicatorFeatures.length; index++){
+    const indicatorFeature = indicatorFeatures[index];
+    const centerPoint = KmHelper.pointOnFeature(indicatorFeature);
 
     indicatorFeature.geometry = centerPoint.geometry;
   }
@@ -295,11 +295,11 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
   targetSpatialUnit_geoJSON.features.forEach(function(targetFeature){
 
   	targetFeature.properties[targetDate] = 0;
-  	var baseIndicatorTotalWeight = 0;
-    var featureCounter = 0;
+  	let baseIndicatorTotalWeight = 0;
+    let featureCounter = 0;
 
-  	for (var index = 0; index < indicatorFeatures.length; index++){
-  		var indicatorFeature = indicatorFeatures[index];
+  	for (let index = 0; index < indicatorFeatures.length; index++){
+  		const indicatorFeature = indicatorFeatures[index];
       if(KmHelper.within(indicatorFeature, targetFeature)){
   			// remove from array and decrement index
   			indicatorFeatures.splice(index, 1);
@@ -310,7 +310,7 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
           if(! Number.isNaN(indicatorFeature.properties[targetDate]) && indicatorFeature.properties[targetDate] !== null && indicatorFeature.properties[targetDate] !== undefined){
             // aggregationWeight is either 1 or a custom user-set weight value set within computeIndicator()-method
             // it "survives" until this aggregation logic within processing engine
-            var weight = KmHelper.getAggregationWeight(indicatorFeature);
+            const weight = KmHelper.getAggregationWeight(indicatorFeature);
 
             // use weight as weight for indicator value
             baseIndicatorTotalWeight += weight;
@@ -355,7 +355,7 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
 function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
   // aggregate indicator
 
-  var indicatorFeatures = indicator_geoJSON.features;
+  const indicatorFeatures = indicator_geoJSON.features;
 
   KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing SUM values.");
   KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
@@ -364,12 +364,12 @@ function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON)
   targetDate = KmHelper.getTargetDateWithPropertyPrefix(targetDate);
   KmHelper.log('Target Date with prefix: ' + targetDate);
 
-  var totalAggregatedIndicatorFeatures = 0;
+  let totalAggregatedIndicatorFeatures = 0;
 
   // first replace indicatorFeature geoimetry by their pointOnSurface
-  for (var index = 0; index < indicatorFeatures.length; index++){
-    var indicatorFeature = indicatorFeatures[index];
-    var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
+  for (let index = 0; index < indicatorFeatures.length; index++){
+    const indicatorFeature = indicatorFeatures[index];
+    const centerPoint = KmHelper.pointOnFeature(indicatorFeature);
 
     indicatorFeature.geometry = centerPoint.geometry;
   }
@@ -378,10 +378,10 @@ function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON)
   targetSpatialUnit_geoJSON.features.forEach(function(targetFeature){
 
   	targetFeature.properties[targetDate] = 0;
-  	var numberOfIndicatorFeaturesWithinTargetFeature = 0;
+  	let numberOfIndicatorFeaturesWithinTargetFeature = 0;
 
-  	for (var index = 0; index < indicatorFeatures.length; index++){
-  		var indicatorFeature = indicatorFeatures[index];
+  	for (let index = 0; index < indicatorFeatures.length; index++){
+  		const indicatorFeature = indicatorFeatures[index];
       if(KmHelper.within(indicatorFeature, targetFeature)){
   			// remove from array and decrement index
   			indicatorFeatures.splice(index, 1);

@@ -55,8 +55,8 @@ export class ReachabilityScenarioModalComponent implements OnInit {
     this.multiStepHelperService.registerClickHandler("reachabilityScenarioForm");
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.GeoresourceGeoJSONUpdated: {

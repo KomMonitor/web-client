@@ -492,7 +492,7 @@
                                 left: pageElement.dimensions.left,
                                 width: pageElement.dimensions.width,
                                 height: pageElement.dimensions.height,
-                                'z-index': pageElement.type == 'map' ? 20 : 1,
+                                'z-index': pageElement.type === 'map' ? 20 : 1,
                                 border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
                                 'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px'}">
                               <!--   z-index:  show echarts map above leaflet container, leaflet container gets created dynamically -->
@@ -532,7 +532,7 @@
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!(pageElement.type === 'textInput' && pageElement.isPlaceholder == false)"
                                 [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>

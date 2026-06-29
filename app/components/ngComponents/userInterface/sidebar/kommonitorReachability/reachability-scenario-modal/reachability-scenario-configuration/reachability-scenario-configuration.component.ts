@@ -63,8 +63,8 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
   ngOnInit(): void {
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case 'switchReportingMode' : {
@@ -170,23 +170,23 @@ export class ReachabilityScenarioConfigurationComponent implements OnInit {
 
 
   downloadIsochrones(){
-    var geoJSON_string = JSON
+    const geoJSON_string = JSON
       .stringify(this.reachabilityHelperService.currentIsochronesGeoJSON);
 
-    var fileName = 'Erreichbarkeitsisochronen_via-' +
+    const fileName = 'Erreichbarkeitsisochronen_via-' +
       this.reachabilityHelperService.settings.transitMode +
       '_Abbruchkriterium-' +
       this.reachabilityHelperService.settings.focus + '.geojson';
 
-    var blob = new Blob([geoJSON_string], {
+    const blob = new Blob([geoJSON_string], {
       type: 'application/json'
     });
-    var data = URL.createObjectURL(blob);
+    const data = URL.createObjectURL(blob);
 
     console.log('create new Download button and append it to DOM');
-    let label = document.createElement("label");
+    const label = document.createElement("label");
 
-    var a = document.createElement('a');
+    const a = document.createElement('a');
     a.download = fileName;
     a.href = data;
     a.textContent = "JSON";

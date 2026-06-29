@@ -92,7 +92,7 @@
 
     <br />
 
-    <div *ngIf="tmpKommonitorGeoresource_table?.type == 'CSV'">
+    <div *ngIf="tmpKommonitorGeoresource_table?.type === 'CSV'">
 
       <hr>
       <h4>CSV Datenquelle als Layer laden: <i>{{tmpKommonitorGeoresource_table.datasetName}}</i></h4>
@@ -104,7 +104,7 @@
             <option *ngFor="let elem of tableProcessTypes" [ngValue]="elem.apiName">{{elem.displayName}}</option>
           </select>
         </div>
-        <div *ngIf="tableProcessType == 'latLon'">
+        <div *ngIf="tableProcessType === 'latLon'">
 
           <label>Spaltenname Longitude</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.LON_ATTRIBUTE"
@@ -112,7 +112,7 @@
             <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div *ngIf="tableProcessType == 'latLon'">
+        <div *ngIf="tableProcessType === 'latLon'">
 
           <label>Spaltenname Latitude</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.LAT_ATTRIBUTE"
@@ -120,14 +120,14 @@
             <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div *ngIf="tableProcessType == 'latLon'">
+        <div *ngIf="tableProcessType === 'latLon'">
 
           <button type="button" class="btn btn-success" (click)="loadCSV_latLon()"><i
               class="fa-solid fa-plus"></i>&nbsp;&nbsp;laden
           </button>
 
         </div>
-        <div *ngIf="tableProcessType == 'address'">
+        <div *ngIf="tableProcessType === 'address'">
 
           <label>Spaltenname Stadt</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.CITY_ATTRIBUTE"
@@ -135,7 +135,7 @@
             <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div *ngIf="tableProcessType == 'address'">
+        <div *ngIf="tableProcessType === 'address'">
 
           <label>Spaltenname Postleitzahl</label>
           <select style="font-size: 11px; "
@@ -144,7 +144,7 @@
             <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div *ngIf="tableProcessType == 'address'">
+        <div *ngIf="tableProcessType === 'address'">
 
           <label>Spaltenname Strasse</label>
           <select style="font-size: 11px; " [(ngModel)]="tmpKommonitorGeoresource_table.STREET_ATTRIBUTE"
@@ -152,7 +152,7 @@
             <option *ngFor="let property of tmpKommonitorGeoresource_table.featureSchema">{{property}}</option>
           </select>
         </div>
-        <div *ngIf="tableProcessType == 'address'">
+        <div *ngIf="tableProcessType === 'address'">
 
           <button type="button" class="btn btn-success"
             (click)="loadCSV_address_city_postcode_street()" ng-disabled="loadingData">

@@ -114,7 +114,7 @@
 								<tr *ngFor="let indicatorStatisticsEntry of reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics">
 									<td>
 										<b>{{indicatorStatisticsEntry.indicator.indicatorName}}</b>
-										<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
+										<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="indicatorStatisticsEntry.progress !== 'finished' && indicatorStatisticsEntry.progress !== 'failed'"></span>
 										<br>
 										<!-- <div>
 											<a href=""><i class="fa-solid fa-map-location-dot" title="Auf Karte darstellen" (click)="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"></i></a>
@@ -124,11 +124,11 @@
 											<i>(sichtbar in Karte)</i>
 										</div>
 										<div style="text-align: left;">
-											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" [disabled]="indicatorStatisticsEntry.progress == 'failed' || indicatorStatisticsEntry.active" (click)="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
+											<button class="btn btn-info btn-sm" title="Auf Karte darstellen" [disabled]="indicatorStatisticsEntry.progress === 'failed' || indicatorStatisticsEntry.active" (click)="displayIndicatorStatisticOnMap(indicatorStatisticsEntry)"><i class="fa-solid fa-map-location-dot" ></i></button>
 											<button class="btn btn-danger btn-sm" title="Statistik-Eintrag entfernen" (click)="removeIndicatorStatistic(indicatorStatisticsEntry)"><i class="fa-solid fa-trash-can"></i></button>
 											<br>											
 											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Gesamtregion" 
-											[disabled]="indicatorStatisticsEntry.progress == 'failed' || reachabilityCoverageReportsHelperService.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											[disabled]="indicatorStatisticsEntry.progress === 'failed' || reachabilityCoverageReportsHelperService.reportInProgress_totalCoverage || (indicatorStatisticsEntry.progress !== 'finished' && indicatorStatisticsEntry.progress !== 'failed')" 
 											(click)="reachabilityCoverageReportsHelperService.generateTotalCoverageReport_focusPoiCoverage(reachabilityScenarioHelperService.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map"></i>
@@ -137,7 +137,7 @@
 											<span style="font-size:9px;">&nbsp;(~ 2 Sekunden)</span>
 											<br>										
 											<button class="btn btn-warning" style="margin-top: 5px;" title="PDF-Report - Einzelpunkte mit Karte" 
-											[disabled]="indicatorStatisticsEntry.progress == 'failed' || reachabilityCoverageReportsHelperService.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed')" 
+											[disabled]="indicatorStatisticsEntry.progress === 'failed' || reachabilityCoverageReportsHelperService.reportInProgress_poiCoverage || (indicatorStatisticsEntry.progress !== 'finished' && indicatorStatisticsEntry.progress !== 'failed')" 
 											(click)="reachabilityCoverageReportsHelperService.generateFeatureCoverageReport_focusPoiCoverage(reachabilityScenarioHelperService.tmpActiveScenario, indicatorStatisticsEntry)">
 												<i class="fa-solid fa-file-pdf"></i>
 												<i class="fa-solid fa-map-location-dot"></i>
@@ -175,15 +175,15 @@
 										{{indicatorStatisticsEntry.weightStrategy.displayName}}
 									</td>
 									<td>
-										<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="indicatorStatisticsEntry.progress != 'finished' && indicatorStatisticsEntry.progress != 'failed'"></span>
-										<div *ngIf="indicatorStatisticsEntry.progress == 'failed'">Berechnung fehlgeschlagen</div>
+										<span class="glyphicon glyphicon-refresh icon-spin" *ngIf="indicatorStatisticsEntry.progress !== 'finished' && indicatorStatisticsEntry.progress !== 'failed'"></span>
+										<div *ngIf="indicatorStatisticsEntry.progress === 'failed'">Berechnung fehlgeschlagen</div>
                     <div *ngIf="indicatorStatisticsEntry.coverageResult"> 
                   <div *ngFor="let overallCoverageEntry of indicatorStatisticsEntry.coverageResult.overallCoverage">
-                        <div *ngIf="reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus == 'time'">
+                        <div *ngIf="reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus === 'time'">
 
                           <b>{{overallCoverageEntry.range / 60}} [Minuten]</b>
                         </div>	
-                        <div *ngIf="reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus == 'distance'">
+                        <div *ngIf="reachabilityScenarioHelperService.tmpActiveScenario.reachabilitySettings.focus === 'distance'">
                           <b>{{overallCoverageEntry.range}} [Meter]</b>
                         </div>											
                         <!-- <br/> -->

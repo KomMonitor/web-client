@@ -66,7 +66,7 @@ export class GeoresourceLayerService {
   }
 
   isNoValidDate(dateCandidate) {
-    var dateComps = dateCandidate.split("-");
+    const dateComps = dateCandidate.split("-");
 
     if (dateComps.length < 3) {
       return true;
@@ -96,7 +96,7 @@ export class GeoresourceLayerService {
 
     // Make a new timeout set to go off in 1000ms (1 second)
     this.timeout_manualdate = setTimeout(() => {
-      var dateCandidate = this.selectedDate_manual;
+      const dateCandidate = this.selectedDate_manual;
 
       if (this.isNoValidDate(dateCandidate)) {
         return;
@@ -285,7 +285,7 @@ export class GeoresourceLayerService {
 
     if (dataset.isSelected) {
       //display on Map
-      var opacity = 1 - dataset.transparency;
+      const opacity = 1 - dataset.transparency;
       this.mapService.addWmsLayerToMap(dataset, opacity);
     } else {
       //remove WMS layer from map
@@ -298,7 +298,7 @@ export class GeoresourceLayerService {
 
     if (dataset.isSelected) {
       //display on Map
-      var opacity = 1 - dataset.transparency;
+      const opacity = 1 - dataset.transparency;
       this.mapService.addWfsLayerToMap(dataset, opacity, this.useCluster);
     } else {
       //remove WMS layer from map
@@ -307,7 +307,7 @@ export class GeoresourceLayerService {
   }
 
   adjustWfsLayerColor(dataset) {
-    var opacity = 1 - dataset.transparency;
+    const opacity = 1 - dataset.transparency;
 
     this.mapService.adjustColorForWfsLayer(dataset, opacity);
   }

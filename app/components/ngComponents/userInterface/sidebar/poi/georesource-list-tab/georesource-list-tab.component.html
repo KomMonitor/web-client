@@ -67,7 +67,7 @@
                 >
                   <span
                     *ngIf="
-                      !poi.poiMarkerStyle || poi.poiMarkerStyle == 'symbol';
+                      !poi.poiMarkerStyle || poi.poiMarkerStyle === 'symbol';
                       else poiMarkerText
                     "
                     style="

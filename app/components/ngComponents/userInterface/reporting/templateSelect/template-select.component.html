@@ -127,7 +127,7 @@
                                   Seite {{ reportingService.getPageNumber(iPage) }}
                               </span>
 
-                              <span [hidden]="!(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!(pageElement.type === 'textInput' && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{reportingService.generalSettings.freeText}}
                               </span>

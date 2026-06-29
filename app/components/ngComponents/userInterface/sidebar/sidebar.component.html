@@ -1,14 +1,14 @@
   <!--  [ngClass]="{'disabled': (element===undefined || element=='')}" -->
-<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element==''), 'expWidth':expandedWidthElements.includes(element)}">
+<div id="sidebarContentWrapper" [ngClass]="{'disabled': (element===undefined || element===''), 'expWidth':expandedWidthElements.includes(element)}">
   <div class="close" (click)="closeSidebar()"><i class="fas fa-xmark"></i></div>
-  <app-kommonitor-data-setup [hidden]="element!='sidebarIndicatorConfigCollapse'"></app-kommonitor-data-setup>
-  <app-poi [hidden]="element!='sidebarPoiCollapse'"></app-poi>
-  <app-kommonitor-data-import [hidden]="element!='sidebarDataImportCollapse'"></app-kommonitor-data-import>
-  <app-kommonitor-filter [hidden]="element!='sidebarFilterCollapse'"></app-kommonitor-filter>
-  <app-kommonitor-balance [hidden]="element!='sidebarBalanceCollapse'"></app-kommonitor-balance>
-  <app-kommonitor-diagrams [hidden]="element!='sidebarDiagramsCollapse'"></app-kommonitor-diagrams>
-  <app-indicator-radar [hidden]="element!='sidebarRadarDiagramCollapse'"></app-indicator-radar>
-  <app-regression-diagram [hidden]="element!='sidebarRegressionDiagramCollapse'"></app-regression-diagram>
-  <app-kommonitor-reachability [hidden]="element!='sidebarReachabilityCollapse'"></app-kommonitor-reachability>
+  <app-kommonitor-data-setup [hidden]="element!=='sidebarIndicatorConfigCollapse'"></app-kommonitor-data-setup>
+  <app-poi [hidden]="element!=='sidebarPoiCollapse'"></app-poi>
+  <app-kommonitor-data-import [hidden]="element!=='sidebarDataImportCollapse'"></app-kommonitor-data-import>
+  <app-kommonitor-filter [hidden]="element!=='sidebarFilterCollapse'"></app-kommonitor-filter>
+  <app-kommonitor-balance [hidden]="element!=='sidebarBalanceCollapse'"></app-kommonitor-balance>
+  <app-kommonitor-diagrams [hidden]="element!=='sidebarDiagramsCollapse'"></app-kommonitor-diagrams>
+  <app-indicator-radar [hidden]="element!=='sidebarRadarDiagramCollapse'"></app-indicator-radar>
+  <app-regression-diagram [hidden]="element!=='sidebarRegressionDiagramCollapse'"></app-regression-diagram>
+  <app-kommonitor-reachability [hidden]="element!=='sidebarReachabilityCollapse'"></app-kommonitor-reachability>
   <!--  [hidden]="element!='sidebarReachabilityCollapse'" -->
 </div>

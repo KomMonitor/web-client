@@ -90,7 +90,7 @@
                                   height: pageElement.dimensions.height,
                                   border: !pageElement.type.includes('footerHorizontalSpacer-') ? 'dashed gray 1px' : '',
                                   'border-top': pageElement.type.includes('footerHorizontalSpacer-') ? 'solid rgb(148, 148, 148) 1px' : 'dashed gray 1px',
-                                  'z-index': pageElement.type == 'map' ? 20 : 1}">
+                                  'z-index': pageElement.type === 'map' ? 20 : 1}">
                               
                               <span [hidden]="pageElement.isPlaceholder == false"
                                   [style]="pageElement.css ? pageElement.css : ''"
@@ -107,7 +107,7 @@
                                   {{pageElement.text}}
                               </span>
 
-                              <span [hidden]="!reportingService.config.sectionContentControl.showFreeText || !(pageElement.type == 'textInput' && pageElement.isPlaceholder == false)"
+                              <span [hidden]="!reportingService.config.sectionContentControl.showFreeText || !(pageElement.type === 'textInput' && pageElement.isPlaceholder == false)"
                                   [style]="pageElement.css ? pageElement.css : ''">
                                   {{pageElement.text}}
                               </span>

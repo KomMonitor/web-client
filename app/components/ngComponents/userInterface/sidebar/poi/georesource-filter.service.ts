@@ -60,7 +60,7 @@ export class GeoresourceFilterService {
   }
 
   prepareTopicGeoresourceHierarchyRecursive(tree: any[]) {
-    let retTree: any[] = tree.filter((e) => e.totalCount > 0);
+    const retTree: any[] = tree.filter((e) => e.totalCount > 0);
 
     retTree.forEach((elem: any) => {
       if (elem.poiData.length > 0) {

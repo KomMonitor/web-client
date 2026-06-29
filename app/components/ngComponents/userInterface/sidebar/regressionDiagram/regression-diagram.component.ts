@@ -121,8 +121,8 @@ export class RegressionDiagramComponent implements OnInit {
 
     // catch broadcast msgs
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.UpdateDiagrams: {
@@ -162,12 +162,12 @@ export class RegressionDiagramComponent implements OnInit {
 */
 
   filterAvailableIndicatorsXAxis(event:any) {
-    let value = event.target.value;
+    const value = event.target.value;
     this.selection.indicatorNameFilterForXAxis = value;
   }
 
   filterAvailableIndicatorsYAxis(event:any) {
-    let value = event.target.value;
+    const value = event.target.value;
     this.selection.indicatorNameFilterForYAxis = value;
   }
 
@@ -308,8 +308,8 @@ export class RegressionDiagramComponent implements OnInit {
     // 	return;
     // }
 
-    var index = -1;
-    for(var i=0; i<this.regressionOption.series[0].data.length; i++){
+    let index = -1;
+    for(let i=0; i<this.regressionOption.series[0].data.length; i++){
       if(this.regressionOption.series[0].data[i].name == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]){
         index = i;
         break;
@@ -339,8 +339,8 @@ export class RegressionDiagramComponent implements OnInit {
 
     if(! this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])){
       // highlight the corresponding bar diagram item
-      var index = -1;
-      for(var i=0; i<this.regressionOption.series[0].data.length; i++){
+      let index = -1;
+      for(let i=0; i<this.regressionOption.series[0].data.length; i++){
         if(this.regressionOption.series[0].data[i].name == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]){
           index = i;
           break;
@@ -366,12 +366,12 @@ export class RegressionDiagramComponent implements OnInit {
 
 
   getAllIndicatorPropertiesSortedBySpatialUnitFeatureName(){
-    for(var i=0; i<this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
+    for(let i=0; i<this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
         // make object to hold indicatorName, max value and average value
         this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort((a, b) => {
           // a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
-            var nameA = a[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
-            var nameB = b[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+            const nameA = a[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+            const nameB = b[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
             if (nameA < nameB) {
               return -1;
             }
@@ -388,7 +388,7 @@ export class RegressionDiagramComponent implements OnInit {
   };
  
   getPropertiesForIndicatorName(indicatorName){
-    for (var [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
+    for (const [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
       if(indicator.indicatorMetadata.indicatorName == indicatorName){
         
         return indicator.indicatorProperties;
@@ -398,10 +398,10 @@ export class RegressionDiagramComponent implements OnInit {
 
   getColor(featureName){
 
-    var color;
+    let color;
 
     for (let index=0; index<this.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
-      let feature = this.indicatorMetadataAndGeoJSON.geoJSON.features[index];
+      const feature = this.indicatorMetadataAndGeoJSON.geoJSON.features[index];
       if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureName){
         color = this.diagramHelperService.getColorForFeature(feature, this.indicatorMetadataAndGeoJSON, this.indicatorPropertyName, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.isMeasureOfValueChecked, this.measureOfValue);
         break;
@@ -414,7 +414,7 @@ export class RegressionDiagramComponent implements OnInit {
   mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName, axisPrecision){
 
     for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
-      let featureName = indicatorPropertiesEntry[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
+      const featureName = indicatorPropertiesEntry[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       let indicatorValue;
 
       if (this.indicatorValueService.indicatorValueIsNoData(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp])){
@@ -425,13 +425,13 @@ export class RegressionDiagramComponent implements OnInit {
       }
 
       if(map.has(featureName)){
-        let oldObject = map.get(featureName);
+        const oldObject = map.get(featureName);
         oldObject[axisValueName] = indicatorValue;
         map.set(featureName, oldObject);
       }
       else{
-        let color = this.getColor(featureName);
-        let regressionObject = {
+        const color = this.getColor(featureName);
+        const regressionObject = {
           name: featureName,											
           itemStyle: {
             color: color
@@ -448,10 +448,10 @@ export class RegressionDiagramComponent implements OnInit {
   }
   
   buildDataArrayForSelectedIndicators(){
-    this.data = new Array();
-    this.dataWithLabels = new Array();
+    this.data = [];
+    this.dataWithLabels = [];
 
-    for (var [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
+    for (const [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
       if(indicator.indicatorMetadata.indicatorName == this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName){
         this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
       }
@@ -463,8 +463,8 @@ export class RegressionDiagramComponent implements OnInit {
 
     // both await
     setTimeout(() => {
-      var indicatorPropertiesArrayForXAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
-      var indicatorPropertiesArrayForYAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
+      let indicatorPropertiesArrayForXAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
+      let indicatorPropertiesArrayForYAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
 
       // hier indicatorPropertiesArrayForXAxis and ...YAxis undefined, look getPropertiesForIndicatorName
 
@@ -473,8 +473,8 @@ export class RegressionDiagramComponent implements OnInit {
         indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));						
       }
 
-      var timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;
-      var timestamp_yAxis = this.selection.selectedIndicatorForYAxis.selectedDate;
+      const timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;
+      const timestamp_yAxis = this.selection.selectedIndicatorForYAxis.selectedDate;
 
       // store data in a map to check above prerequesits
       // key = ID, 
@@ -486,10 +486,10 @@ export class RegressionDiagramComponent implements OnInit {
       //  xAxisName: indicatorValue_x,
       //  yAxisName: indicatorValue_y
       //}
-      let xAxisName = "xValue";
-      let yAxisName = "yValue";
-      let xAxisPrecision = this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision;
-      let yAxisPrecision = this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision;
+      const xAxisName = "xValue";
+      const yAxisName = "yValue";
+      const xAxisPrecision = this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision;
+      const yAxisPrecision = this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision;
 
       let dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName, xAxisPrecision);
       dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName, yAxisPrecision);
@@ -516,7 +516,7 @@ export class RegressionDiagramComponent implements OnInit {
   //Source: http://stevegardner.net/2012/06/11/javascript-code-to-calculate-the-pearson-correlation-coefficient/
   
   getPearsonCorrelation(x, y) {
-    var shortestArrayLength = 0;
+    let shortestArrayLength = 0;
 
     if(x.length == y.length) {
         shortestArrayLength = x.length;
@@ -528,11 +528,11 @@ export class RegressionDiagramComponent implements OnInit {
         console.error('y has more items in it, the last ' + (y.length - shortestArrayLength) + ' item(s) will be ignored');
     }
 
-    var x_numeric:any[] = [];
-    var y_numeric:any[] = [];
-    var xy:any[] = [];
-    var x2:any[] = [];
-    var y2:any[] = [];
+    const x_numeric:any[] = [];
+    const y_numeric:any[] = [];
+    const xy:any[] = [];
+    const x2:any[] = [];
+    const y2:any[] = [];
 
     for(var i=0; i<shortestArrayLength; i++) {
 
@@ -545,11 +545,11 @@ export class RegressionDiagramComponent implements OnInit {
       }
     }
 
-    var sum_x = 0;
-    var sum_y = 0;
-    var sum_xy = 0;
-    var sum_x2 = 0;
-    var sum_y2 = 0;
+    let sum_x = 0;
+    let sum_y = 0;
+    let sum_xy = 0;
+    let sum_x2 = 0;
+    let sum_y2 = 0;
 
     for(var i=0; i< x_numeric.length; i++) {
         sum_x += x_numeric[i];
@@ -559,11 +559,11 @@ export class RegressionDiagramComponent implements OnInit {
         sum_y2 += y2[i];
     }
 
-    var step1 = (shortestArrayLength * sum_xy) - (sum_x * sum_y);
-    var step2 = (shortestArrayLength * sum_x2) - (sum_x * sum_x);
-    var step3 = (shortestArrayLength * sum_y2) - (sum_y * sum_y);
-    var step4 = Math.sqrt(step2 * step3);
-    var answer = step1 / step4;
+    const step1 = (shortestArrayLength * sum_xy) - (sum_x * sum_y);
+    const step2 = (shortestArrayLength * sum_x2) - (sum_x * sum_x);
+    const step3 = (shortestArrayLength * sum_y2) - (sum_y * sum_y);
+    const step4 = Math.sqrt(step2 * step3);
+    const answer = step1 / step4;
 
     return Number(+answer.toFixed(2));
   }
@@ -571,8 +571,8 @@ export class RegressionDiagramComponent implements OnInit {
   calculatePearsonCorrelation(data){
     // data is an array of arrays containing the pairs of [x, y]
 
-    var xArray = new Array();
-    var yArray = new Array();
+    const xArray: any[] = [];
+    const yArray: any[] = [];
 
     data.forEach(function(xyPair) {
       xArray.push(xyPair[0]);
@@ -622,7 +622,7 @@ export class RegressionDiagramComponent implements OnInit {
 
       setTimeout(() => {
 
-        let data = this.data;
+        const data = this.data;
 
         data.sort(function(a, b) {
             return a[0] - b[0];
@@ -632,12 +632,12 @@ export class RegressionDiagramComponent implements OnInit {
 
         this.linearRegression = ecStat.regression('linear', data,1);
 
-        let titlePrefix = this.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
-        let dataViewTitle =  this.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
+        const titlePrefix = this.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
+        const dataViewTitle =  this.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
         
         //get custom fontFamily
-        var elem:any = document.querySelector('#fontFamily-reference');
-        var style = getComputedStyle(elem);
+        const elem:any = document.querySelector('#fontFamily-reference');
+        const style = getComputedStyle(elem);
 
         this.regressionOption = { 
           textStyle: {
@@ -680,7 +680,7 @@ export class RegressionDiagramComponent implements OnInit {
                           if(!(params && params.value && params.value[0] && params.value[1])){
                             return "";
                           }
-                            var string = "" + params.name + "<br/>";
+                            let string = "" + params.name + "<br/>";
 
                             string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.getIndicatorValue_asFormattedText(params.value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
                             string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.getIndicatorValue_asFormattedText(params.value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
@@ -744,17 +744,17 @@ export class RegressionDiagramComponent implements OnInit {
 
                     // has properties "name" and "value"
                     // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
-                    var scatterSeries = opt.series[0].data;
-                    var lineSeries;
+                    const scatterSeries = opt.series[0].data;
+                    let lineSeries;
                     
                     if (this.enableScatterPlotRegression) {
                       lineSeries = opt.series[1].data;
                     }
 
-                    var dataTableId = "regressionDataTable";
-                    var tableExportName = opt.title[0].text + " - Scatter Table";
+                    const dataTableId = "regressionDataTable";
+                    const tableExportName = opt.title[0].text + " - Scatter Table";
 
-                    var htmlString = this.enableScatterPlotRegression
+                    let htmlString = this.enableScatterPlotRegression
                             ? 
                             "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
                             :
@@ -908,7 +908,7 @@ export class RegressionDiagramComponent implements OnInit {
       // when hovering over elements of the chart then highlight them in the map.
       this.regressionChart.on('mouseOver', (params) => {
         // this.userHoveresOverItem = true;
-        var spatialFeatureName = params.data.name;
+        const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
           this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
@@ -919,7 +919,7 @@ export class RegressionDiagramComponent implements OnInit {
       this.regressionChart.on('mouseOut', (params) => {
         // this.userHoveresOverItem = false;
 
-        var spatialFeatureName = params.data.name;
+        const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
           this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
@@ -927,7 +927,7 @@ export class RegressionDiagramComponent implements OnInit {
       });
 
       this.regressionChart.on('click', (params) => {
-        var spatialFeatureName = params.data.name;
+        const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
           this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [spatialFeatureName]);

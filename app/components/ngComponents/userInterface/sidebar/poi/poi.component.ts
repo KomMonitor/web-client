@@ -76,7 +76,7 @@ export class PoiComponent implements OnInit {
     this.broadcastService.currentBroadcastMsg
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((broadcastMsg) => {
-        let title = broadcastMsg.msg;
+        const title = broadcastMsg.msg;
 
         switch (title) {
           case BroadcastMessage.SelectedIndicatorDateHasChanged:
@@ -147,17 +147,17 @@ export class PoiComponent implements OnInit {
         type,
       );
 
-    for (let poi of topic.poiData) {
+    for (const poi of topic.poiData) {
       poi.isSelected = topic.isSelected;
     }
-    for (let loi of topic.loiData) {
+    for (const loi of topic.loiData) {
       loi.isSelected = topic.isSelected;
     }
-    for (let aoi of topic.aoiData) {
+    for (const aoi of topic.aoiData) {
       aoi.isSelected = topic.isSelected;
     }
 
-    var relevantDatasets = this.georesourceStore.getGeoresourceDatasets(
+    const relevantDatasets = this.georesourceStore.getGeoresourceDatasets(
       topic,
       this.filterService.georesourceNameFilter.value,
       this.filterService.showPOI,
@@ -217,13 +217,13 @@ export class PoiComponent implements OnInit {
     let match = false;
 
     tree.forEach((topic) => {
-      let poiMatch = topic.poiData.filter(
+      const poiMatch = topic.poiData.filter(
         (e) => e.georesourceId == georesource.georesourceId,
       );
-      let aoiMatch = topic.aoiData.filter(
+      const aoiMatch = topic.aoiData.filter(
         (e) => e.georesourceId == georesource.georesourceId,
       );
-      let loiMatch = topic.loiData.filter(
+      const loiMatch = topic.loiData.filter(
         (e) => e.georesourceId == georesource.georesourceId,
       );
 

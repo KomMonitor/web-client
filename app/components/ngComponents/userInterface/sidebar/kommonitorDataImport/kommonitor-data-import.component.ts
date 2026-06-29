@@ -144,7 +144,7 @@ export class KommonitorDataImportComponent implements OnInit {
   addUniqueFileToMap(dataset) {
     console.log("Toggle File Layer: " + dataset.datasetName);
 
-    let clone = JSON.parse(JSON.stringify(dataset));	
+    const clone = JSON.parse(JSON.stringify(dataset));	
     if(dataset.type == "CSV"){
       clone.datasetName = clone.datasetName + "_" + this.tableProcessType;
     }
@@ -178,7 +178,7 @@ export class KommonitorDataImportComponent implements OnInit {
     
     if (dataset.isSelected) {
       //display on Map
-      var opacity = 1 - dataset.transparency;
+      const opacity = 1 - dataset.transparency;
       this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
     }
     else {
@@ -191,7 +191,7 @@ export class KommonitorDataImportComponent implements OnInit {
     if (dataset.isSelected) {
       this.kommonitorMapService.removeFileLayerFromMap(dataset);
       //display on Map
-      var opacity = 1 - dataset.transparency;
+      const opacity = 1 - dataset.transparency;
       this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
     }
   }
@@ -215,7 +215,7 @@ export class KommonitorDataImportComponent implements OnInit {
 
   initSpecialFields(dataset:GeoresourcesDataset):GeoresourcesImportDataset {
 
-    let tmpKommonitorGeoresource = dataset as GeoresourcesImportDataset;
+    const tmpKommonitorGeoresource = dataset as GeoresourcesImportDataset;
 
     // init feature NAME and ID fields
     tmpKommonitorGeoresource.ID_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
@@ -270,7 +270,7 @@ export class KommonitorDataImportComponent implements OnInit {
 
   loadCSV_latLon() {
     try {
-      let geoJSON = this.makeGeoJSONFromCSVRows_latLon(this.tmpKommonitorGeoresource_table);
+      const geoJSON = this.makeGeoJSONFromCSVRows_latLon(this.tmpKommonitorGeoresource_table);
 
       this.tmpKommonitorGeoresource_table.geoJSON = geoJSON;
 
@@ -289,10 +289,10 @@ export class KommonitorDataImportComponent implements OnInit {
     try {
       this.loadingData = true;
    
-      let cityProperty = this.tmpKommonitorGeoresource_table.CITY_ATTRIBUTE;
-      let postcodeProperty = this.tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE;
-      let streetProperty = this.tmpKommonitorGeoresource_table.STREET_ATTRIBUTE;
-      let resultFeaturesArray = await this.kommonitorGeocoderHelperService.geocodeCSVRows(this.tmpKommonitorGeoresource_table.dataRows, cityProperty, postcodeProperty, streetProperty);
+      const cityProperty = this.tmpKommonitorGeoresource_table.CITY_ATTRIBUTE;
+      const postcodeProperty = this.tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE;
+      const streetProperty = this.tmpKommonitorGeoresource_table.STREET_ATTRIBUTE;
+      const resultFeaturesArray = await this.kommonitorGeocoderHelperService.geocodeCSVRows(this.tmpKommonitorGeoresource_table.dataRows, cityProperty, postcodeProperty, streetProperty);
 
       this.tmpKommonitorGeoresource_table.geoJSON = this.makeFeatureCollection(this.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
       this.tmpKommonitorGeoresource_table.dataRows_notGeocoded = this.identifyNonGeocodedDataRows(this.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
@@ -323,14 +323,14 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   makeFeatureCollection(dataRows, resultFeaturesArray) {
-    let featureCollection:any = {
+    const featureCollection:any = {
       "type": "FeatureCollection",
       "features": []
     }
 
     for (let index = 0; index < resultFeaturesArray.length; index++) {
       const singleFeatureArray = resultFeaturesArray[index];
-      let row = dataRows[index];
+      const row = dataRows[index];
 
       if (singleFeatureArray[0]) {
 
@@ -361,7 +361,7 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   identifyNonGeocodedDataRows(dataRows, resultFeaturesArray) {
-    let nonGeocodedDataRows:any = [];
+    const nonGeocodedDataRows:any = [];
 
     for (let index = 0; index < resultFeaturesArray.length; index++) {
       const singleFeatureArray = resultFeaturesArray[index];
@@ -375,14 +375,14 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   makeGeoJSONFromCSVRows_latLon(kommonitorGeoresource) {
-    let geoJSON:any = {
+    const geoJSON:any = {
       "type": "FeatureCollection",
       "features": []
     };
 
     for (const row of kommonitorGeoresource.dataRows) {
       if (row[kommonitorGeoresource.LON_ATTRIBUTE] && row[kommonitorGeoresource.LAT_ATTRIBUTE]) {
-        let feature = {
+        const feature = {
           "type": "Feature",
           "geometry": {
             "type": "Point",
@@ -422,8 +422,8 @@ export class KommonitorDataImportComponent implements OnInit {
 
     if (input.files?.length) {
 
-      for (var i = 0; i < input.files.length; i++) {
-        var file = input.files[i];
+      for (let i = 0; i < input.files.length; i++) {
+        const file = input.files[i];
         this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, this.customFileInputColor, this.customFileInputMarkerColor);
       }
     }
@@ -465,7 +465,7 @@ export class KommonitorDataImportComponent implements OnInit {
 
   adjustFileLayerTransparency(dataset) {
 
-    var opacity = 1 - dataset.transparency;
+    const opacity = 1 - dataset.transparency;
 
     this.kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
   };
@@ -493,7 +493,7 @@ export class KommonitorDataImportComponent implements OnInit {
     //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", this.fileLayerError);
 
     // remove element from fileDatasets
-    for (var i = 0; i < this.fileDatasets.length; i++) {
+    for (let i = 0; i < this.fileDatasets.length; i++) {
       if (this.fileDatasets[i] === dataset) {
         this.fileDatasets.splice(i, 1);
         break;
@@ -562,17 +562,17 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   downloadDataLayer(dataset) {
-    let geoJSON = JSON
+    const geoJSON = JSON
       .stringify(dataset.geoJSON);
 
-    var fileName = dataset.datasetName + '_export.json';
+    const fileName = dataset.datasetName + '_export.json';
 
-    var blob = new Blob([geoJSON], {
+    const blob = new Blob([geoJSON], {
       type: 'application/json'
     });
-    var data = URL.createObjectURL(blob);
+    const data = URL.createObjectURL(blob);
 
-    var a = document.createElement('a');
+    const a = document.createElement('a');
     a.download = fileName;
     a.href = data;
     a.textContent = "JSON";
@@ -583,19 +583,19 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   downloadGeocodedDataRowsAsGeoJSON_highAccuracy = function(dataset){
-    let filteredGeoJSON = JSON.parse(JSON.stringify(dataset.geoJSON));
+    const filteredGeoJSON = JSON.parse(JSON.stringify(dataset.geoJSON));
     filteredGeoJSON.features = filteredGeoJSON.features.filter(feature => feature.properties["geocoder_geocoderank"] == 2);
-    let geoJSON = JSON
+    const geoJSON = JSON
       .stringify(filteredGeoJSON);
 
-    var fileName = dataset.datasetName + '_export.json';
+    const fileName = dataset.datasetName + '_export.json';
 
-    var blob = new Blob([geoJSON], {
+    const blob = new Blob([geoJSON], {
       type: 'application/json'
     });
-    var data = URL.createObjectURL(blob);
+    const data = URL.createObjectURL(blob);
 
-    var a = document.createElement('a');
+    const a = document.createElement('a');
     a.download = fileName;
     a.href = data;
     a.textContent = "JSON";

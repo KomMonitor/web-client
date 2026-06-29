@@ -61,17 +61,17 @@ const parameterName_aggregationMethod = "AGGREGATION_METHOD";
 */
 async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndicatorsMap, georesourcesMap, processParameters){
         
-    var computationIndicatorIds = KmHelper.getProcessParameterByName_asString(parameterName_computationIndicatorIds, processParameters);
-    var computationPolarity = KmHelper.getProcessParameterByName_asString(parameterName_computationPolarity, processParameters);
-    var aggregationMethod = KmHelper.getProcessParameterByName_asString(parameterName_aggregationMethod, processParameters);
+    const computationIndicatorIds = KmHelper.getProcessParameterByName_asString(parameterName_computationIndicatorIds, processParameters);
+    const computationPolarity = KmHelper.getProcessParameterByName_asString(parameterName_computationPolarity, processParameters);
+    const aggregationMethod = KmHelper.getProcessParameterByName_asString(parameterName_aggregationMethod, processParameters);
 
     // get an array of the indicator ids 
-    var computationIndicatorIds_array = computationIndicatorIds.split(',');	
+    const computationIndicatorIds_array = computationIndicatorIds.split(',');	
     // get an array of the same length including the polarity of each indicator, 'regular' or 'inverted'
-    var computationPolarity_array = computationPolarity.split(',');	
+    const computationPolarity_array = computationPolarity.split(',');	
     
     // get an array of indicators using the indicator ids 
-    var geoJSON_array = [];
+    const geoJSON_array = [];
     for (const indicatorId of computationIndicatorIds_array) {
       geoJSON_array.push(KmHelper.getBaseIndicatorById(indicatorId, baseIndicatorsMap));
       }
@@ -79,7 +79,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 
     // get an array of map objects with id-value pairs for each featureCollection in the array
     KmHelper.log("Iterate over array of baseIndicators and create an array of map objects with id-value pairs for each featureCollection");
-    var indicator_idValueMap_array = [];
+    const indicator_idValueMap_array = [];
     geoJSON_array.forEach(function(geoJSON) {      
       indicator_idValueMap_array.push(KmHelper.getIndicatorIdValueMap(geoJSON, targetDate));
       });
@@ -87,7 +87,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     
     // get an array of ranked map objects with id-value pairs for each baseIndicator map in the array
     KmHelper.log("Iterate over array of baseIndicator maps and create an array of ranked map objects");
-    var rankedIndicator_idValueMap_array = [];
+    const rankedIndicator_idValueMap_array = [];
     indicator_idValueMap_array.forEach(function(idValueMap) {      
       rankedIndicator_idValueMap_array.push(KmHelper.rank_fromIdValueMap(idValueMap));
       });
@@ -95,10 +95,10 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     
     // get an array of min-max normalized map objects with id-value pairs for each ranked indicator in the array considering the polarity of the indicator
     KmHelper.log("Iterate over array ranked map objects and create an array of min-max normalized map objects");
-    var index;
-    var minMaxNormalizedIndicator_idValueMap_array = [];
+    let index;
+    const minMaxNormalizedIndicator_idValueMap_array = [];
     for (index = 0;  index < rankedIndicator_idValueMap_array.length; index++) {
-      var polarity = computationPolarity_array[index];
+      const polarity = computationPolarity_array[index];
       if (polarity === "regular") {
         minMaxNormalizedIndicator_idValueMap_array.push(KmHelper.minMaxNormalization_fromIdValueMap(rankedIndicator_idValueMap_array[index]));
       }
@@ -109,7 +109,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     KmHelper.log("Retrieved min-max-normalized map objects successfully");
 
     // now we compute the new indicator by applying the method chosen by the user 
-    var resultMap;
+    let resultMap;
     if (aggregationMethod === "geomean") {
       // apply geometric mean to an array of min-max-normalized map objects
       KmHelper.log("Calculate geometric mean");
@@ -125,7 +125,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
       KmHelper.log("Calculate min");
       resultMap = KmHelper.min_fromIdValueMap(minMaxNormalizedIndicator_idValueMap_array);
     }
-    var numFeatures = targetSpatialUnit_geoJSON.features.length;
+    const numFeatures = targetSpatialUnit_geoJSON.features.length;
     KmHelper.log("Computed headline indicator for a total amount of " + numFeatures + " features");
     targetSpatialUnit_geoJSON = KmHelper.setIndicatorValues_fromIdValueMap(targetSpatialUnit_geoJSON, targetDate, resultMap);
     KmHelper.log("Computation of headline indicator finished");
@@ -195,7 +195,7 @@ function disaggregateIndicator(targetDate, targetSpatialUnit_geoJSON, indicator_
 function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
   // aggregate indicator
 
-  var indicatorFeatures = indicator_geoJSON.features;
+  const indicatorFeatures = indicator_geoJSON.features;
 
   KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing AVERAGE values.");
   KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
@@ -205,9 +205,9 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
   KmHelper.log('Target Date with prefix: ' + targetDate);
 
   // first replace indicatorFeature geoimetry by their pointOnSurface
-  for (var index = 0; index < indicatorFeatures.length; index++){
-    var indicatorFeature = indicatorFeatures[index];
-    var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
+  for (let index = 0; index < indicatorFeatures.length; index++){
+    const indicatorFeature = indicatorFeatures[index];
+    const centerPoint = KmHelper.pointOnFeature(indicatorFeature);
 
     indicatorFeature.geometry = centerPoint.geometry;
   }
@@ -216,11 +216,11 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
   targetSpatialUnit_geoJSON.features.forEach(function(targetFeature){
 
   	targetFeature.properties[targetDate] = 0;
-  	var baseIndicatorTotalWeight = 0;
-    var featureCounter = 0;
+  	let baseIndicatorTotalWeight = 0;
+    let featureCounter = 0;
 
-  	for (var index = 0; index < indicatorFeatures.length; index++){
-  		var indicatorFeature = indicatorFeatures[index];
+  	for (let index = 0; index < indicatorFeatures.length; index++){
+  		const indicatorFeature = indicatorFeatures[index];
       if(KmHelper.within(indicatorFeature, targetFeature)){
   			// remove from array and decrement index
   			indicatorFeatures.splice(index, 1);
@@ -231,7 +231,7 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
           if(! Number.isNaN(indicatorFeature.properties[targetDate]) && indicatorFeature.properties[targetDate] !== null && indicatorFeature.properties[targetDate] !== undefined){
             // aggregationWeight is either 1 or a custom user-set weight value set within computeIndicator()-method
             // it "survives" until this aggregation logic within processing engine
-            var weight = KmHelper.getAggregationWeight(indicatorFeature);
+            const weight = KmHelper.getAggregationWeight(indicatorFeature);
 
             // use weight as weight for indicator value
             baseIndicatorTotalWeight += weight;
@@ -276,7 +276,7 @@ function aggregate_average(targetDate, targetSpatialUnit_geoJSON, indicator_geoJ
 function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON){
   // aggregate indicator
 
-  var indicatorFeatures = indicator_geoJSON.features;
+  const indicatorFeatures = indicator_geoJSON.features;
 
   KmHelper.log("Aggregate indicator for targetDate " + targetDate + " for a total amount of " + targetSpatialUnit_geoJSON.features.length + " target features. Computing SUM values.");
   KmHelper.log("Aggregate from a total number of " + indicator_geoJSON.features.length + " baseFeatures");
@@ -285,12 +285,12 @@ function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON)
   targetDate = KmHelper.getTargetDateWithPropertyPrefix(targetDate);
   KmHelper.log('Target Date with prefix: ' + targetDate);
 
-  var totalAggregatedIndicatorFeatures = 0;
+  let totalAggregatedIndicatorFeatures = 0;
 
   // first replace indicatorFeature geoimetry by their pointOnSurface
-  for (var index = 0; index < indicatorFeatures.length; index++){
-    var indicatorFeature = indicatorFeatures[index];
-    var centerPoint = KmHelper.pointOnFeature(indicatorFeature);
+  for (let index = 0; index < indicatorFeatures.length; index++){
+    const indicatorFeature = indicatorFeatures[index];
+    const centerPoint = KmHelper.pointOnFeature(indicatorFeature);
 
     indicatorFeature.geometry = centerPoint.geometry;
   }
@@ -299,10 +299,10 @@ function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON)
   targetSpatialUnit_geoJSON.features.forEach(function(targetFeature){
 
   	targetFeature.properties[targetDate] = 0;
-  	var numberOfIndicatorFeaturesWithinTargetFeature = 0;
+  	let numberOfIndicatorFeaturesWithinTargetFeature = 0;
 
-  	for (var index = 0; index < indicatorFeatures.length; index++){
-  		var indicatorFeature = indicatorFeatures[index];
+  	for (let index = 0; index < indicatorFeatures.length; index++){
+  		const indicatorFeature = indicatorFeatures[index];
       if(KmHelper.within(indicatorFeature, targetFeature)){
   			// remove from array and decrement index
   			indicatorFeatures.splice(index, 1);

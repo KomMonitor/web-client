@@ -70,7 +70,7 @@ export class GeoresourceFavoritesService {
       entry.parent = parent;
 
       if (entry.subTopics.length > 0) {
-        let newLevel = level + 1;
+        const newLevel = level + 1;
         entry.subTopics = this.prepTopicsTree(
           entry.subTopics,
           newLevel,
@@ -184,7 +184,7 @@ export class GeoresourceFavoritesService {
 
         ret = true;
       } else {
-        let itemFound = this.searchGeoresourceTopicFavItemsRecursive(
+        const itemFound = this.searchGeoresourceTopicFavItemsRecursive(
           entry.subTopics,
           id,
           selected,
@@ -197,7 +197,7 @@ export class GeoresourceFavoritesService {
   }
 
   checkGeoresourceDataFavItems(entry, selected) {
-    let types = [
+    const types = [
       {
         typeName: "poiData",
         typeFav: "poiFavItems",
@@ -258,8 +258,8 @@ export class GeoresourceFavoritesService {
   }
 
   topicInFavTopBottom(topic) {
-    var parentNext = topic.parent;
-    var ret = false;
+    let parentNext = topic.parent;
+    let ret = false;
 
     if (this.FavTabGeoresourceTopicFavItems.includes(topic.topicId)) ret = true;
 
@@ -279,7 +279,7 @@ export class GeoresourceFavoritesService {
   }
 
   parentInFavRecursive(tree, parentId) {
-    var ret = false;
+    let ret = false;
     tree.forEach((elem) => {
       if (
         elem.topicId == parentId &&
@@ -295,7 +295,7 @@ export class GeoresourceFavoritesService {
   }
 
   findParentNextRecursive(tree, parent) {
-    var parentNext = undefined;
+    let parentNext = undefined;
     tree.forEach((elem) => {
       if (elem.topicId == parent) {
         parentNext = elem.parent;

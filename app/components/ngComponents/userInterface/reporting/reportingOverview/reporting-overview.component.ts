@@ -208,8 +208,8 @@ export class ReportingOverviewComponent implements OnInit {
 		}) */
 
 		onPageTurnClicked(orientation, index) {
-			let old_page = this.reportingService.workingTemplate.pages[index];
-			let new_page = this.reportingService.workingTemplate.pages[index + 1];
+			const old_page = this.reportingService.workingTemplate.pages[index];
+			const new_page = this.reportingService.workingTemplate.pages[index + 1];
 			this.reportingService.workingTemplate.pages[index] = new_page;
 			this.reportingService.workingTemplate.pages[index + 1] = old_page;
 
@@ -221,9 +221,9 @@ export class ReportingOverviewComponent implements OnInit {
 				for (const [elementIdx, mapElement] of new_page.pageElements.entries()) {
 					if (mapElement.type !== 'map') continue;
 					if (mapElement && mapElement.leafletMap) {
-						let pageDom: any = document.querySelector('#reporting-overview-page-' + index);
-						let pElementDom = pageDom.querySelector('#reporting-overview-page-' + index + '-map-' + elementIdx);
-						let instance = echarts.getInstanceByDom(pElementDom);
+						const pageDom: any = document.querySelector('#reporting-overview-page-' + index);
+						const pElementDom = pageDom.querySelector('#reporting-overview-page-' + index + '-map-' + elementIdx);
+						const instance = echarts.getInstanceByDom(pElementDom);
 						await this.initializeLeafletMap(new_page, mapElement, elementIdx, instance, this.currentSpatialUnit, true, true);
 					}
 				}
@@ -289,7 +289,7 @@ export class ReportingOverviewComponent implements OnInit {
       this.templateBlank = templateBlank;
 
       // add indicator to 'added indicators'
-      let templateSection = {
+      const templateSection = {
         indicatorName: indicator ? indicator.indicatorName : "",
         indicatorId: indicator ? indicator.indicatorId : "",
         poiLayerName: poiLayer.datasetName,
@@ -301,7 +301,7 @@ export class ReportingOverviewComponent implements OnInit {
         isochronesRangeUnits: template.isochronesRangeUnits,
         pageConfig: jQuery.extend(true, {}, template.pageConfig) // deep copy to preserve section specific settings
       }
-      for(let page of template.pages) {
+      for(const page of template.pages) {
         page.templateSection = templateSection;
       }
       // remove all pages without property poiLayerName (clean template)
@@ -328,11 +328,11 @@ export class ReportingOverviewComponent implements OnInit {
 			
 			if(newVal.length < oldVal.length) { // removed
 				// find removed section
-				let difference = oldVal
+				const difference = oldVal
 					.filter(x => !newVal.includes(x))
 					.concat(newVal.filter(x => !oldVal.includes(x)));
 
-				let removedSection = difference[0];
+				const removedSection = difference[0];
 				// remove all pages for that section
 				this.reportingService.workingTemplate.pages = this.reportingService.workingTemplate.pages.filter( page => {
 					if(!page.hasOwnProperty("templateSection")) return true; // for placeholder
@@ -344,9 +344,9 @@ export class ReportingOverviewComponent implements OnInit {
 			}
 			if(newVal.length === oldVal.length) { // order changed
 				// sort pages according to newVal
-				let sorted:any = [];
-				for(let section of newVal) {
-					for(let page of this.reportingService.workingTemplate.pages) {
+				const sorted:any = [];
+				for(const section of newVal) {
+					for(const page of this.reportingService.workingTemplate.pages) {
 						if(page.templateSection.indicatorId === section.indicatorId &&
 							page.templateSection.spatialUnitId === section.spatialUnitId &&
 							page.templateSection.poiLayerName === section.poiLayerName) {
@@ -360,7 +360,7 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
     getNumberOfMapElements(config){
-      let firstSection = config.templateSections[0];
+      const firstSection = config.templateSections[0];
 
       if (firstSection){
         let numberOfMapItems = firstSection.echartsRegisteredMapNames.length;
@@ -380,17 +380,17 @@ export class ReportingOverviewComponent implements OnInit {
 
       try {
 
-        let config = this.reportingService.importConfig;
+        const config = this.reportingService.importConfig;
 
         if(config) {
-          let numberOfMapElements = this.getNumberOfMapElements(config);		
+          const numberOfMapElements = this.getNumberOfMapElements(config);		
           // reset leaflet screenshot helper service according to new  number of selected areas
           //this.leafletScreenshotCacheHelperService.resetCounter(numberOfMapElements, false);	
 
           // restore commune logo for every page, starting at the second
           let communeLogoSrc = ""; // base64 string
-          for(let [idx, page] of config.pages.entries()) {
-            for(let pageElement of page.pageElements) {
+          for(const [idx, page] of config.pages.entries()) {
+            for(const pageElement of page.pageElements) {
               if(pageElement.type.includes("communeLogo-") && idx === 0) {
                 if(pageElement.src && pageElement.src.length) {
                   communeLogoSrc = pageElement.src;
@@ -410,32 +410,32 @@ export class ReportingOverviewComponent implements OnInit {
           this.reportingService.setTemplateSectionsFromConfig(config);
 
           // register echarts maps
-          for(let section of this.reportingService.getSectionsAsArray()) {
-            for(let mapName of section.echartsRegisteredMapNames) {
+          for(const section of this.reportingService.getSectionsAsArray()) {
+            for(const mapName of section.echartsRegisteredMapNames) {
               if(this.reportingService.workingTemplate.name.includes("reachability")) {
                 if(!mapName.includes(section.spatialUnitName)) {
                   continue;
                 }
                 if(!mapName.includes("_isochrones")) {
-                  let geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
+                  const geoJson = section.echartsMaps.filter( map => map.name === section.poiLayerName)[0].geoJson
                   echarts.registerMap(mapName, geoJson)
                 } else {
-                  let geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
+                  const geoJson = section.echartsMaps.filter( map => map.name === mapName)[0].geoJson
                   echarts.registerMap(mapName, geoJson)
                 }
               } else {
                 if(!mapName.includes(section.spatialUnitName)) {
                   continue;
                 }
-                let geoJson = section.echartsMaps[0].geoJson
+                const geoJson = section.echartsMaps[0].geoJson
                 echarts.registerMap(mapName, geoJson)
               }
             }
           }
-          for(let page of this.reportingService.workingTemplate.pages) {
-            for(let pageElement of page.pageElements) {
+          for(const page of this.reportingService.workingTemplate.pages) {
+            for(const pageElement of page.pageElements) {
               if(pageElement.type === "map" && pageElement.hasOwnProperty("echartsMaps")) {
-                for(let map of pageElement.echartsMaps) {
+                for(const map of pageElement.echartsMaps) {
                   echarts.registerMap(map.name, map.geoJson)
                 }
               }
@@ -443,7 +443,7 @@ export class ReportingOverviewComponent implements OnInit {
           }
         
 
-          for(let section of this.reportingService.getSectionsAsArray()) {
+          for(const section of this.reportingService.getSectionsAsArray()) {
             this.setupPages();
           }
         }
@@ -480,13 +480,13 @@ export class ReportingOverviewComponent implements OnInit {
         return true;
       }
       if (page.type === 'area_specific') {
-        let areaSpecificPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'area_specific');
-        let areaIdx = areaSpecificPages.indexOf(page);
+        const areaSpecificPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'area_specific');
+        const areaIdx = areaSpecificPages.indexOf(page);
         return areaIdx < this.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
       }
       if (page.type === 'datatable') {
-        let datatablePages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'datatable');
-        let datatableIdx = datatablePages.indexOf(page);
+        const datatablePages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'datatable');
+        const datatableIdx = datatablePages.indexOf(page);
         return datatableIdx < this.MAX_PREVIEW_DATATABLE_PAGES;
       }
       return true;
@@ -518,7 +518,7 @@ export class ReportingOverviewComponent implements OnInit {
     }
 
     async preparePage(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON) {
-      let isPreview = this.isPageInPreview(page, idx);
+      const isPreview = this.isPageInPreview(page, idx);
       page.indexInConfigPages = idx;
 
       if (!page.generatedData) {
@@ -534,21 +534,21 @@ export class ReportingOverviewComponent implements OnInit {
       this.reportingService.reportingBackgroundState.pageToProcess_overview = page;
       this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
 
-      let pageDom = document.getElementById('reporting-background-page');
+      const pageDom = document.getElementById('reporting-background-page');
       if (!pageDom) {
         console.error('Could not find background DOM for page ' + idx);
         return;
       }
 
-      for (let [elementIdx, pageElement] of page.pageElements.entries()) {
-        let pElementDom: any = pageDom.querySelector('#reporting-background-page-' + pageElement.type + '-' + elementIdx);
+      for (const [elementIdx, pageElement] of page.pageElements.entries()) {
+        const pElementDom: any = pageDom.querySelector('#reporting-background-page-' + pageElement.type + '-' + elementIdx);
 
         if (!pElementDom) {
           continue;
         }
 
         if (pageElement.type === 'linechart' && pageElement.showBoxplots) {
-          let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+          const xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
           pageElement.echartsOptions.dataset[1].transform.config = {
             itemNameFormatter: function (params) {
               return xAxisLabels[params.value];
@@ -562,10 +562,10 @@ export class ReportingOverviewComponent implements OnInit {
             continue;
           }
 
-          let instance = echarts.init(pElementDom);
+          const instance = echarts.init(pElementDom);
 
           if (pageElement.type === 'map') {
-            for (let series of pageElement.echartsOptions.series) {
+            for (const series of pageElement.echartsOptions.series) {
               series.left = 0;
               series.top = 0;
               series.right = 0;
@@ -590,10 +590,10 @@ export class ReportingOverviewComponent implements OnInit {
               this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features);
             } else {
               pageElement.echartsOptions.labelLayout = function(feature) {
-                let names = page.templateSection.absoluteLabelPositions.map(el => el.name);
-                let text = feature.text.split('\n')[0];
+                const names = page.templateSection.absoluteLabelPositions.map(el => el.name);
+                const text = feature.text.split('\n')[0];
                 if (names.includes(text)) {
-                  let i = names.indexOf(text);
+                  const i = names.indexOf(text);
                   return {
                     x: page.templateSection.absoluteLabelPositions[i].x,
                     y: page.templateSection.absoluteLabelPositions[i].y,
@@ -617,7 +617,7 @@ export class ReportingOverviewComponent implements OnInit {
             page.generatedData.mapImage = await this.initializeLeafletMap(page, pageElement, elementIdx, instance, spatialUnit, false, false);
 
             if (isPreview) {
-              let previewPElementDom: any = document.querySelector(
+              const previewPElementDom: any = document.querySelector(
                 '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
               );
               if (previewPElementDom && page.generatedData.mapImage) {
@@ -628,7 +628,7 @@ export class ReportingOverviewComponent implements OnInit {
             }
           } else {
             await new Promise(resolve => {
-              let timeout = setTimeout(resolve, 500);
+              const timeout = setTimeout(resolve, 500);
               instance.on('finished', () => {
                 clearTimeout(timeout);
                 resolve(null);
@@ -639,7 +639,7 @@ export class ReportingOverviewComponent implements OnInit {
               instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
 
             if (isPreview) {
-              let previewPElementDom: any = document.querySelector(
+              const previewPElementDom: any = document.querySelector(
                 '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
               );
               if (previewPElementDom) {
@@ -659,9 +659,9 @@ export class ReportingOverviewComponent implements OnInit {
         if (pageElement.type === 'mapLegend') {
           pageElement.isPlaceholder = false;
           if (isPreview) {
-            let previewPageDom = document.getElementById('reporting-overview-page-' + idx);
+            const previewPageDom = document.getElementById('reporting-overview-page-' + idx);
             if (previewPageDom) {
-              let legendNode: any = previewPageDom.querySelector('.type-mapLegend');
+              const legendNode: any = previewPageDom.querySelector('.type-mapLegend');
               if (legendNode) legendNode.style.display = 'none';
             }
           }
@@ -679,15 +679,15 @@ export class ReportingOverviewComponent implements OnInit {
     }
 
     filterMapByArea(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
-      let mapName = echartsInstanceOptions.series[0].map;
-      let features = allFeatures.filter(el => el.properties.name === areaName);
+      const mapName = echartsInstanceOptions.series[0].map;
+      const features = allFeatures.filter(el => el.properties.name === areaName);
       echarts.registerMap(mapName, { type: 'FeatureCollection', features: features } as any);
       echartsInstance.setOption(echartsInstanceOptions);
     }
 
     async setupIndicatorPages(indicator) {
 
-      let indicatorId = indicator.indicatorId;
+      const indicatorId = indicator.indicatorId;
       let spatialUnit, featureCollection, features, geoJSON;
 
       spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, indicator.spatialUnitName);
@@ -697,30 +697,30 @@ export class ReportingOverviewComponent implements OnInit {
       features = this.createLowerCaseNameProperty(featureCollection.features);
       this.geoJsonForReachability_byFeatureName = new Map();
 
-      for (let feature of features) {
+      for (const feature of features) {
         this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature);
       }
       this.geoJsonForReachability_byFeatureName.set('undefined', features);
       geoJSON = { features: features };
 
-      let cacheKey = this.getFeatureLookupKey(indicator);
+      const cacheKey = this.getFeatureLookupKey(indicator);
       this.featureLookupCache.set(cacheKey, this.geoJsonForReachability_byFeatureName);
 
       this.lastPageOfAddedSectionPrepared = false;
       this.pagePreparationIndex = 0;
       this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
 
-      let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
+      const logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
 
       await new Promise(resolve => setTimeout(resolve, 150));
 
-      for (let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
         if (page.templateSection.indicatorId !== indicatorId) {
           continue;
         }
 
-        let isPreview = this.isPageInPreview(page, idx);
+        const isPreview = this.isPageInPreview(page, idx);
         if (page.generatedData && page.generatedData.isComplete && !isPreview) {
           continue;
         }
@@ -735,7 +735,7 @@ export class ReportingOverviewComponent implements OnInit {
     }
 
     async setupPagesForReachability(templateSection) {
-      let poiLayerName = templateSection.poiLayerName;
+      const poiLayerName = templateSection.poiLayerName;
       let spatialUnit, featureCollection, features, geoJSON, indicatorId;
       if (templateSection.indicatorId) {
         indicatorId = templateSection.indicatorId;
@@ -753,12 +753,12 @@ export class ReportingOverviewComponent implements OnInit {
       geoJSON = { features: features };
 
       this.geoJsonForReachability_byFeatureName = new Map();
-      for (let feature of features) {
+      for (const feature of features) {
         this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature);
       }
       this.geoJsonForReachability_byFeatureName.set('undefined', features);
 
-      let cacheKey = this.getFeatureLookupKey(templateSection);
+      const cacheKey = this.getFeatureLookupKey(templateSection);
       this.featureLookupCache.set(cacheKey, this.geoJsonForReachability_byFeatureName);
 
       this.lastPageOfAddedSectionPrepared = false;
@@ -767,13 +767,13 @@ export class ReportingOverviewComponent implements OnInit {
 
       await new Promise(resolve => setTimeout(resolve, 150));
 
-      for (let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      for (const [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
         if (page.templateSection.poiLayerName !== poiLayerName) {
           continue;
         }
 
-        let isPreview = this.isPageInPreview(page, idx);
+        const isPreview = this.isPageInPreview(page, idx);
         if (page.generatedData && page.generatedData.isComplete && !isPreview) {
           continue;
         }
@@ -798,22 +798,22 @@ export class ReportingOverviewComponent implements OnInit {
 
 		async initializeLeafletMap(page, pageElement, elementIdx: number, echartsMap, spatialUnit, forceScreenshot, isVisible) {
 			try {
-					let pageIdx = this.reportingService.workingTemplate.pages.indexOf(page);
+					const pageIdx = this.reportingService.workingTemplate.pages.indexOf(page);
 
 					// store spatial unit and feature id before cache check
 					page.spatialUnitId = spatialUnit.spatialUnitId;
 					if (page.area) {
-						let cacheKey = this.getFeatureLookupKey(page.templateSection);
+						const cacheKey = this.getFeatureLookupKey(page.templateSection);
 						let featureMap = this.featureLookupCache.get(cacheKey);
 						if (!featureMap) featureMap = this.geoJsonForReachability_byFeatureName;
-						let feature = featureMap.get(page.area);
+						const feature = featureMap.get(page.area);
 						if (feature) {
 							page.spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
 						}
 					}
 
 					// check cache before creating leaflet map
-					let cachedScreenshot = this.leafletScreenshotCacheHelperService.getResourceFromCache(
+					const cachedScreenshot = this.leafletScreenshotCacheHelperService.getResourceFromCache(
 						pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId,
 						page.spatialUnitFeatureId, page.orientation, this.reportingService.workingTemplate.name
 					);
@@ -824,15 +824,15 @@ export class ReportingOverviewComponent implements OnInit {
 						);
 					}
 
-					let id = 'reporting-background-leaflet-map-container-' + elementIdx;
-					let pageDom: any = document.getElementById('reporting-background-page');
-					let pageElementDomId = 'reporting-background-page-map-' + elementIdx;
-					let pageElementDom: any = document.getElementById(pageElementDomId);
-					let oldMapNode = document.getElementById(id);
+					const id = 'reporting-background-leaflet-map-container-' + elementIdx;
+					const pageDom: any = document.getElementById('reporting-background-page');
+					const pageElementDomId = 'reporting-background-page-map-' + elementIdx;
+					const pageElementDom: any = document.getElementById(pageElementDomId);
+					const oldMapNode = document.getElementById(id);
 					if (oldMapNode) {
 						oldMapNode.remove();
 					}
-					let div: any = document.createElement('div');
+					const div: any = document.createElement('div');
 					div.id = id;
 					div.style.position = 'absolute';
 					div.style.left = pageElement.dimensions.left;
@@ -841,9 +841,9 @@ export class ReportingOverviewComponent implements OnInit {
 					div.style.height = pageElement.dimensions.height;
 					div.style.zIndex = 10;
 					pageDom.appendChild(div);
-					let echartsOptions = echartsMap.getOption();
+					const echartsOptions = echartsMap.getOption();
 
-					let leafletMap = L.map(div.id, {
+					const leafletMap = L.map(div.id, {
 						zoomControl: false,
 						dragging: false,
 						doubleClickZoom: false,
@@ -856,30 +856,30 @@ export class ReportingOverviewComponent implements OnInit {
 					});
 
 					// manually create attribution overlay with controlled z-index
-					let prevAttributionDiv = pageDom.querySelector('.map-attribution');
+					const prevAttributionDiv = pageDom.querySelector('.map-attribution');
 					if (prevAttributionDiv) prevAttributionDiv.remove();
-					let attrDiv: any = document.createElement('div');
+					const attrDiv: any = document.createElement('div');
 					attrDiv.classList.add('map-attribution');
 					attrDiv.style.position = 'absolute';
 					attrDiv.style.bottom = 0;
 					attrDiv.style.left = 0;
 					attrDiv.style.zIndex = 800;
-					let attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution();
+					const attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution();
 					attrDiv.appendChild(attrImg);
 					if (pageElementDom) pageElementDom.appendChild(attrDiv);
 
 					if (this.reportingService.workingTemplate.name.includes('reachability')) {
-						let prevLegendDiv = pageDom.querySelector('.map-legend');
+						const prevLegendDiv = pageDom.querySelector('.map-legend');
 						if (prevLegendDiv) prevLegendDiv.remove();
-						let legendDiv: any = document.createElement('div');
+						const legendDiv: any = document.createElement('div');
 						legendDiv.classList.add('map-legend');
 						legendDiv.style.position = 'absolute';
 						legendDiv.style.bottom = 0;
 						legendDiv.style.right = 0;
 						legendDiv.style.zIndex = 800;
-						let isochronesRangeType = page.templateSection.isochronesRangeType;
-						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-						let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						const isochronesRangeType = page.templateSection.isochronesRangeType;
+						const isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
+						const legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
 						page.templateSection.legendImg = legendImg;
 						legendDiv.appendChild(legendImg);
 						if (pageElementDom) pageElementDom.appendChild(legendDiv);
@@ -890,19 +890,19 @@ export class ReportingOverviewComponent implements OnInit {
 					}
 
 					let boundingCoords = echartsOptions.series[0].boundingCoords;
-					let westLon = boundingCoords[0][0];
-					let southLat = boundingCoords[1][1];
-					let eastLon = boundingCoords[1][0];
-					let northLat = boundingCoords[0][1];
+					const westLon = boundingCoords[0][0];
+					const southLat = boundingCoords[1][1];
+					const eastLon = boundingCoords[1][0];
+					const northLat = boundingCoords[0][1];
 
 					leafletMap.fitBounds([[southLat, westLon], [northLat, eastLon]]);
-					let bounds = leafletMap.getBounds();
+					const bounds = leafletMap.getBounds();
 
 					if (!(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth())) {
 						boundingCoords = [[bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]];
 					}
 
-					for (let series of echartsOptions.series) {
+					for (const series of echartsOptions.series) {
 						series.left = 0;
 						series.top = 0;
 						series.right = 0;
@@ -937,10 +937,10 @@ export class ReportingOverviewComponent implements OnInit {
 						leafletLayer = new L.tileLayer('');
 					}
 
-					let screenshotPromise = new Promise<string>((resolve) => {
+					const screenshotPromise = new Promise<string>((resolve) => {
 						leafletLayer.on('load', async () => {
 							await new Promise(r => setTimeout(r, 500));
-							let dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
+							const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
 								pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId,
 								page.spatialUnitFeatureId, page.orientation, leafletMap['_container'],
 								this.reportingService.workingTemplate.name
@@ -956,7 +956,7 @@ export class ReportingOverviewComponent implements OnInit {
 					pageElement.leafletBbox = bounds;
 					pageElement.echartsOptions = echartsOptions;
 
-					let dataUrl = await screenshotPromise;
+					const dataUrl = await screenshotPromise;
 
 					if (!dataUrl || (!dataUrl.startsWith('data:image') && !dataUrl.startsWith('blob:')) || dataUrl.length < 10) {
 						console.warn('Invalid leaflet map screenshot generated for page ' + pageIdx);
@@ -989,7 +989,7 @@ export class ReportingOverviewComponent implements OnInit {
       return new Promise(resolve => {
         this.http.get(url).subscribe({
           next: (response:any) => {
-            let spatialUnit = response.filter( el => {
+            const spatialUnit = response.filter( el => {
               return el.spatialUnitLevel === spatialUnitName;
             })
 
@@ -1015,7 +1015,7 @@ export class ReportingOverviewComponent implements OnInit {
       return new Promise(resolve => {
         this.http.get(url).subscribe({
           next: (response:any) => {
-            let spatialUnit = response.applicableSpatialUnits.filter( el => {
+            const spatialUnit = response.applicableSpatialUnits.filter( el => {
               return el.spatialUnitName === spatialUnitName;
             })
             if(spatialUnit.length === 1) 
@@ -1038,19 +1038,19 @@ export class ReportingOverviewComponent implements OnInit {
 
 		createDatatableSkeleton(colNamesArr) {
 
-			let table = document.createElement("table");
+			const table = document.createElement("table");
 			table.classList.add("table-striped")
 			table.classList.add("table-bordered")
 			
-			let thead = document.createElement("thead");
-			let tbody = document.createElement("tbody");
+			const thead = document.createElement("thead");
+			const tbody = document.createElement("tbody");
 			table.appendChild(thead);
 			table.appendChild(tbody);
 			
-			let headerRow = document.createElement("tr");
+			const headerRow = document.createElement("tr");
 			
-			for(let colName of colNamesArr) {
-				let col = document.createElement("th");
+			for(const colName of colNamesArr) {
+				const col = document.createElement("th");
 				col.classList.add("text-center");
 				col.innerText = colName;
 				headerRow.appendChild(col);
@@ -1068,17 +1068,17 @@ export class ReportingOverviewComponent implements OnInit {
 			pElementDom.style.border = "none"; // hide dotted border from outer dom element
 			pElementDom.style.justifyContent = "flex-start"; // align table at top instead of center
 			// add data
-			let table = this.createDatatableSkeleton(pageElement.columnNames);
-			let tbody:any = table.querySelector("tbody")
+			const table = this.createDatatableSkeleton(pageElement.columnNames);
+			const tbody:any = table.querySelector("tbody")
 			// tabledata is a nested array with one sub-array per row
-			for(let row of pageElement.tableData) {
-				let tr = document.createElement("tr");
+			for(const row of pageElement.tableData) {
+				const tr = document.createElement("tr");
 				tr.style.height = "25px";
 				for(let i=0; i<row.length; i++) {
-					let td = document.createElement("td");
+					const td = document.createElement("td");
 					td.innerText = row[i];
 					// get corresponding column name for styling
-					let colName = pageElement.columnNames[i];
+					const colName = pageElement.columnNames[i];
 					if(colName === "Bereich") {
 						td.classList.add("text-left");
 					}
@@ -1100,7 +1100,7 @@ export class ReportingOverviewComponent implements OnInit {
 			} */
 
 			let pageWillBeShown = false;
-			for(let visiblePage of this.filterPagesToShow()){
+			for(const visiblePage of this.filterPagesToShow()){
 				if(visiblePage == page) {
 					pageWillBeShown = true;
 				}
@@ -1119,10 +1119,10 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		filterPagesToShow() {
-			let pagesToShow:any[] = [];
+			const pagesToShow:any[] = [];
 			let skipNextPage = false;
 			for (let i = 0; i < this.reportingService.workingTemplate.pages.length; i ++) {
-				let page = this.reportingService.workingTemplate.pages[i];
+				const page = this.reportingService.workingTemplate.pages[i];
 				if (this.pageContainsDatatable(i)) {
 					pagesToShow.push(page);
 					skipNextPage = false;
@@ -1142,9 +1142,9 @@ export class ReportingOverviewComponent implements OnInit {
 
 		pageContainsDatatable(pageID) {
 
-			let page = this.reportingService.workingTemplate.pages[pageID];
+			const page = this.reportingService.workingTemplate.pages[pageID];
 			let pageContainsDatatable = false;
-			for(let pageElement of page.pageElements) {
+			for(const pageElement of page.pageElements) {
 				if(pageElement.type == "datatable") {
 					pageContainsDatatable = true;
 				}
@@ -1155,10 +1155,10 @@ export class ReportingOverviewComponent implements OnInit {
 
 		exportConfig() {
 			try {
-				let jsonToExport:any = {};
+				const jsonToExport:any = {};
 
 				this.reportingService.workingTemplate.pages = this.removeCircularReferences(this.reportingService.workingTemplate.pages);
-				let temp = JSON.stringify( this.reportingService.workingTemplate.pages, function(key, value) {
+				const temp = JSON.stringify( this.reportingService.workingTemplate.pages, function(key, value) {
 					// Leaflet map contains cyclic object references so we have to remove it.
 					// We have to initialize the map again on import based on the stored boundingbox
 					if(key === "leafletMap") {
@@ -1174,25 +1174,25 @@ export class ReportingOverviewComponent implements OnInit {
 
 				// Only store commune logo once (in first page)
 				// It is base64 encoded and adds quite a bit to the file size
-				for(let [idx, page] of jsonToExport.pages.entries()) {
-					for(let pageElement of page.pageElements) {
+				for(const [idx, page] of jsonToExport.pages.entries()) {
+					for(const pageElement of page.pageElements) {
 						if(pageElement.type.includes("communeLogo-") && idx > 0) {
 							pageElement.src = "";
 						}
 					}
 				}
 				
-				for(let section of jsonToExport.templateSections) {
-					let mapNames:any = [...new Set(section.echartsRegisteredMapNames)]
+				for(const section of jsonToExport.templateSections) {
+					const mapNames:any = [...new Set(section.echartsRegisteredMapNames)]
 					if(this.reportingService.workingTemplate.name.includes("reachability")) {
 						let mapAdded = false;
-						for(let [idx, name] of mapNames.entries()) {
+						for(const [idx, name] of mapNames.entries()) {
 							if(!name.includes(section.spatialUnitName)) {
 								continue;
 							}
 							// store all isochrones
 							if(name.includes("_isochrones")) {
-								let map = echarts.getMap(name)
+								const map = echarts.getMap(name)
 								section.echartsMaps.push({
 									name: name,
 									geoJson: map.geoJson
@@ -1201,7 +1201,7 @@ export class ReportingOverviewComponent implements OnInit {
 							// First map with the correct spatial unit
 							// All other maps have the same geojson, so we only store them once
 							if(!mapAdded && name.includes(section.poiLayerName)) {
-								let map = echarts.getMap(mapNames[idx])
+								const map = echarts.getMap(mapNames[idx])
 								section.echartsMaps.push({
 									name: section.poiLayerName,
 									geoJson: map.geoJson
@@ -1211,12 +1211,12 @@ export class ReportingOverviewComponent implements OnInit {
 
 						}
 					} else {
-						for(let [idx, name] of mapNames.entries()) {
+						for(const [idx, name] of mapNames.entries()) {
 							if(!name.includes(section.spatialUnitName)) {
 								continue;
 							} else {
 								// First map with the correct spatial unit
-								let map = echarts.getMap(mapNames[idx])
+								const map = echarts.getMap(mapNames[idx])
 								section.echartsMaps.push({
 									name: mapNames[idx],
 									geoJson: map.geoJson
@@ -1226,9 +1226,9 @@ export class ReportingOverviewComponent implements OnInit {
 					}
 				}
 
-				let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( JSON.stringify(jsonToExport) );
+				const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( JSON.stringify(jsonToExport) );
 				// to download json, a DOM element is created, clicked and removed
-				let downloadAnchorNode = document.createElement('a');
+				const downloadAnchorNode = document.createElement('a');
 				downloadAnchorNode.setAttribute("href", jsonString);
 				downloadAnchorNode.setAttribute("download", this.getCurrentDateAndTime() + "_KomMonitor-Reporting-Konfiguration.json");
 				document.body.appendChild(downloadAnchorNode); // required for firefox
@@ -1242,21 +1242,21 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		getCurrentDateAndTime() {
-			let date = new Date();
-			let year = date.getFullYear().toString();
-			let month:any = date.getMonth() + 1;
-			let day:any = date.getDate();
-			let time:any = date.getHours();
-			let minutes:any = date.getMinutes();
-			let seconds:any = date.getSeconds();
-			let now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
+			const date = new Date();
+			const year = date.getFullYear().toString();
+			const month:any = date.getMonth() + 1;
+			const day:any = date.getDate();
+			const time:any = date.getHours();
+			const minutes:any = date.getMinutes();
+			const seconds:any = date.getSeconds();
+			const now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
 			return now;
 		}
 
 
 		getIndicatorByName(indicatorName) {
 			let result;
-			for(let indicator of this.indicatorStore.availableIndicators) {
+			for(const indicator of this.indicatorStore.availableIndicators) {
 				if(indicator.indicatorName === indicatorName) {
 					result = indicator;
 					break;
@@ -1275,10 +1275,10 @@ export class ReportingOverviewComponent implements OnInit {
 			// query different endpoints depending on if we have an indicator or not
 			let url;
 			if(!indicatorId) {
-				let date = spatialUnit.metadata.lastUpdate.split("-")
-				let year = date[0]
-				let month = date[1]
-				let day = date[2]
+				const date = spatialUnit.metadata.lastUpdate.split("-")
+				const year = date[0]
+				const month = date[1]
+				const day = date[2]
 				url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 					"/spatial-units/" + spatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day; 
 			} else {
@@ -1307,10 +1307,10 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		createLowerCaseNameProperty(features) {
-			for(let feature of features) {
+			for(const feature of features) {
 				if(feature.hasOwnProperty("properties")) {
 					if(!feature.properties.hasOwnProperty("name")) {
-						let featureName = feature.properties.NAME;
+						const featureName = feature.properties.NAME;
 						feature.properties.name = featureName;
 					}
 				}
@@ -1346,7 +1346,7 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		pxToTwip(px) {
-			let result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
+			const result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
 			return result * this.pxPerMilli*297 / 830 // scale from 830px to A4 page
 		}
 
@@ -1359,32 +1359,32 @@ export class ReportingOverviewComponent implements OnInit {
 		dataURItoBlob(dataURI) {
 			// convert base64 to raw binary data held in a string
 			// doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-			var byteString = atob(dataURI.split(',')[1]);
+			const byteString = atob(dataURI.split(',')[1]);
 		
 			// separate out the mime component
-			var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+			const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 		
 			// write the bytes of the string to an ArrayBuffer
-			var ab = new ArrayBuffer(byteString.length);
+			const ab = new ArrayBuffer(byteString.length);
 		
 			// create a view into the buffer
-			var ia = new Uint8Array(ab);
+			const ia = new Uint8Array(ab);
 		
 			// set the bytes of the buffer to the correct values
-			for (var i = 0; i < byteString.length; i++) {
+			for (let i = 0; i < byteString.length; i++) {
 				ia[i] = byteString.charCodeAt(i);
 			}
 		
 			// write the ArrayBuffer to a blob, and you're done
-			var blob = new Blob([ab], {type: mimeString});
+			const blob = new Blob([ab], {type: mimeString});
 			return blob;
 		}
 
 		calculateDimensions(dimensions, unit) {
-			let result:any = {};
+			const result:any = {};
 			if(unit === "px") {
 				// also scale our 830px preview up to A4 here
-				let scalefactor = this.pxPerMilli*297 / 830
+				const scalefactor = this.pxPerMilli*297 / 830
 				result.top = dimensions.top && parseInt(dimensions.top, 10) * scalefactor;
 				result.bottom = dimensions.bottom && parseInt(dimensions.bottom, 10) * scalefactor;
 				result.left = dimensions.left && parseInt(dimensions.left, 10) * scalefactor;
@@ -1422,7 +1422,7 @@ export class ReportingOverviewComponent implements OnInit {
 
 		calculateScreenDpi() {
 			// create a hidden div that is one inch high
-			let div = document.createElement("div")
+			const div = document.createElement("div")
 			div.style.height = "1in";
 			div.style.position = "absolute";
 			div.style.left = "-100%";

@@ -21,7 +21,7 @@
           role="tab" aria-controls="regressionDiagramTab1Content" aria-selected="true">Alphabetische Liste</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [ngClass]="{'disabled': (selectionState.selectedIndicator?.creationType != 'COMPUTATION')}" id="regressionDiagramTab2" data-bs-toggle="tab" data-bs-target="#regressionDiagramTab2Content" role="tab"
+        <a class="nav-link" [ngClass]="{'disabled': (selectionState.selectedIndicator?.creationType !== 'COMPUTATION')}" id="regressionDiagramTab2" data-bs-toggle="tab" data-bs-target="#regressionDiagramTab2Content" role="tab"
           aria-controls="regressionDiagramTab2Content" aria-selected="false">Auswahl aktueller Indikator</a>
       </li>
       <li class="nav-item">

@@ -43,22 +43,22 @@
   <div id="mapWrapper">
     <div id="sideBarButtons">
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse" *ngIf="visibilityHelperService.elementVisibility.indicatorConfig"
-        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement==='sidebarIndicatorConfigCollapse')}" data-toggle="tooltip" title="Indikatorenauswahl">
           <i class="fas fa-sitemap"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse" *ngIf="visibilityHelperService.elementVisibility.poi"
-        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement==='sidebarPoiCollapse')}" data-toggle="tooltip" title="Infrastrukturdaten">
           <i class="fas fa-map-marker-alt"></i>
       </button>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDataImportCollapse" *ngIf="visibilityHelperService.elementVisibility.dataImport"
-        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement==='sidebarDataImportCollapse')}"  data-toggle="tooltip" title="Datenimport">
           <i class="fas fa-file-import"></i>
       </button> 
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse" *ngIf="visibilityHelperService.elementVisibility.filter"
-        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarFilterCollapse'), 'filterActive':filterModusActive()}" data-toggle="tooltip" title="Darstellungsfilter">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement==='sidebarFilterCollapse'), 'filterActive':filterModusActive()}" data-toggle="tooltip" title="Darstellungsfilter">
           <i class="fas fa-filter"></i>
       </button>
 
@@ -117,7 +117,7 @@
       </div>
 
       <button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse" *ngIf="visibilityHelperService.elementVisibility.reachability"
-        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement=='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+        (click)="onSidebarButtonClick($event)" (mouseover)="closeDiagramSubmenu()" class="btn btn-custom btn-circle" [ngClass]="{'btn-docked btn-custom-docked':(sidebarElement==='sidebarReachabilityCollapse')}" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
         <i class="fas fa-route"></i>
       </button>
 

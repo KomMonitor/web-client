@@ -70,8 +70,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       });
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values: any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.ResetPoisInIsochrone: {
@@ -104,7 +104,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   }
 
   onNameFilterChange(name: any) {
-    let value = name.target.value.toLowerCase();
+    const value = name.target.value.toLowerCase();
 
     this.filteredDisplayableGeoresources = this.georesourceStore.displayableGeoresources.filter(e => e.datasetName.toLowerCase().includes(value));
   }
@@ -144,7 +144,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   resetPoisInIsochrone() {
     this.echartsInstances_reachabilityAnalysis = new Map();
     document.getElementById("reachability_diagrams_section")!.innerHTML = "";
-    for (var poi of this.georesourceStore.displayableGeoresources) {
+    for (const poi of this.georesourceStore.displayableGeoresources) {
       if (poi.isSelected_reachabilityAnalysis) {
         poi.isSelected_reachabilityAnalysis = false;
         //remove POI layer from map
@@ -211,24 +211,24 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       return poiGeoresource;
     }
 
-    var id = poiGeoresource.georesourceId;
+    const id = poiGeoresource.georesourceId;
 
-    var date = this.getQueryDate(poiGeoresource);
+    const date = this.getQueryDate(poiGeoresource);
 
-    var dateComps = date.split("-");
+    const dateComps = date.split("-");
 
-    var year = dateComps[0];
-    var month = dateComps[1];
-    var day = dateComps[2];
+    const year = dateComps[0];
+    const month = dateComps[1];
+    const day = dateComps[2];
 
-    let url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
+    const url = this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day;
 
     return new Promise((resolve, reject) => {
       this.http.get(url).subscribe({
         next: response => {
           // this callback will be called asynchronously
           // when the response is available
-          var geoJSON = response;
+          const geoJSON = response;
 
           poiGeoresource.geoJSON_poiInIsochrones = geoJSON;
           resolve(poiGeoresource);
@@ -248,7 +248,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   async handlePoiOnDiagram(poi) {
     if (poi.isSelected_reachabilityAnalysis) {
       // maps range value to result GeoJSON
-      var pointsPerIsochroneRangeMap = await this.computePoisWithinIsochrones(poi);
+      const pointsPerIsochroneRangeMap = await this.computePoisWithinIsochrones(poi);
       this.addOrReplaceWithinDiagrams(poi, pointsPerIsochroneRangeMap);
       // now filter the geoJSON to only include those datasets that are actually inside any isochrone
       poi = this.filterGeoJSONPointsInsideLargestIsochrone(poi, pointsPerIsochroneRangeMap);
@@ -262,14 +262,14 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   };
 
   filterGeoJSONPointsInsideLargestIsochrone(poi, pointsPerIsochroneRangeMap) {
-    var keyIter = pointsPerIsochroneRangeMap.keys();
+    const keyIter = pointsPerIsochroneRangeMap.keys();
 
-    var nextKey = keyIter.next();
+    let nextKey = keyIter.next();
 
-    var largestRange;
+    let largestRange;
 
     while (nextKey.value) {
-      var nextRange = nextKey.value;
+      const nextRange = nextKey.value;
       if (!largestRange) {
         largestRange = Number(nextRange);
       }
@@ -288,21 +288,21 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   // async
   async computePoisWithinIsochrones(poi) {
-    var pointsPerIsochroneRangeMap = this.initializeMapWithRangeKeys();
+    const pointsPerIsochroneRangeMap = this.initializeMapWithRangeKeys();
     if (!poi.geoJSON_poiInIsochrones) {
       poi = await this.fetchGeoJSONForDate(poi);
     }
 
     // as there might be mutliple isochrone ranges
     // we must perform point in polygon for each range
-    var keyIter = pointsPerIsochroneRangeMap.keys();
+    const keyIter = pointsPerIsochroneRangeMap.keys();
 
-    var nextKey = keyIter.next();
+    let nextKey = keyIter.next();
 
     while (nextKey.value) {
-      var nextKeyValue = nextKey.value;
+      const nextKeyValue = nextKey.value;
 
-      var geoJSON_featureCollection = this.computePoisWithinIsochrone(nextKeyValue, poi);
+      const geoJSON_featureCollection = this.computePoisWithinIsochrone(nextKeyValue, poi);
       pointsPerIsochroneRangeMap.set(nextKeyValue, geoJSON_featureCollection);
       nextKey = keyIter.next();
     }
@@ -312,8 +312,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   computePoisWithinIsochrone(rangeValue, poi) {
     // create clones of poi geoJSON and isochrone geoJSON
-    var isochrones_geoJSON_clone = JSON.parse(JSON.stringify(this.reachabilityHelperService.currentIsochronesGeoJSON));
-    var poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON_poiInIsochrones));
+    const isochrones_geoJSON_clone = JSON.parse(JSON.stringify(this.reachabilityHelperService.currentIsochronesGeoJSON));
+    const poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON_poiInIsochrones));
 
     // filter isochrone geoJSON clone by range value
     isochrones_geoJSON_clone.features = isochrones_geoJSON_clone.features.filter(feature => {
@@ -321,14 +321,14 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
     });
 
     // filter poi geoJSON clone by spatial within isochrone
-    var pointsWithinIsochrones = turf.pointsWithinPolygon(poi_geoJSON_clone, isochrones_geoJSON_clone);
+    const pointsWithinIsochrones = turf.pointsWithinPolygon(poi_geoJSON_clone, isochrones_geoJSON_clone);
 
     return pointsWithinIsochrones;
   };
 
 
   initializeMapWithRangeKeys() {
-    var map = new Map();
+    const map = new Map();
 
     for (const feature of this.reachabilityHelperService.currentIsochronesGeoJSON.features) {
       map.set("" + feature.properties.value, null);
@@ -340,16 +340,16 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
 
   addOrReplaceWithinDiagrams(poi, pointsPerIsochroneRangeMap) {
-    var mapEntries = pointsPerIsochroneRangeMap.entries();
+    const mapEntries = pointsPerIsochroneRangeMap.entries();
 
-    var nextEntry = mapEntries.next();
+    let nextEntry = mapEntries.next();
     while (nextEntry.value) {
 
-      var nextEntry_keyRange = nextEntry.value[0];
-      var nextEntry_valueGeoJSON = nextEntry.value[1];
-      var numberOfFeatures = 0;
+      const nextEntry_keyRange = nextEntry.value[0];
+      const nextEntry_valueGeoJSON = nextEntry.value[1];
+      let numberOfFeatures = 0;
 
-      var nextEntry_keyRange_label = nextEntry_keyRange;
+      let nextEntry_keyRange_label = nextEntry_keyRange;
       if (this.reachabilityHelperService.settings.focus == 'time') {
         // compute seconds to minutes for display
         nextEntry_keyRange_label = nextEntry_keyRange_label / 60;
@@ -358,7 +358,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       if (nextEntry_valueGeoJSON) {
         numberOfFeatures = nextEntry_valueGeoJSON.features.length;
       }
-      var date = this.getQueryDate(poi);
+      const date = this.getQueryDate(poi);
 
       if (this.echartsInstances_reachabilityAnalysis && this.echartsInstances_reachabilityAnalysis.has(nextEntry_keyRange)) {
         // append to diagram
@@ -370,8 +370,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         this.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
       }
       else {
-        var reachabilityDiagramsSectionNode: any = document.getElementById("reachability_diagrams_section");
-        var newChartNode = document.createElement("div");
+        const reachabilityDiagramsSectionNode: any = document.getElementById("reachability_diagrams_section");
+        const newChartNode = document.createElement("div");
         newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + this.mapOverlayState.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
         reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
@@ -395,13 +395,13 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   };
 
   removePoiFromDiagram(poiGeoresource) {
-    var chart_entries = this.echartsInstances_reachabilityAnalysis.entries();
+    const chart_entries = this.echartsInstances_reachabilityAnalysis.entries();
 
-    var nextChartInstanceEntry = chart_entries.next();
+    let nextChartInstanceEntry = chart_entries.next();
     while (nextChartInstanceEntry.value) {
 
-      var nextChartInstance = nextChartInstanceEntry.value[1];
-      var nextChartOptions = nextChartInstance.getOption();
+      const nextChartInstance = nextChartInstanceEntry.value[1];
+      let nextChartOptions = nextChartInstance.getOption();
 
       nextChartOptions = this.diagramHelperService.removePoiFromReachabilityAnalysisOption(nextChartOptions, poiGeoresource);
       nextChartInstance.setOption(nextChartOptions);
@@ -448,7 +448,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   //async
   async refreshPoiLayers() {
-    for (var poi of this.georesourceStore.displayableGeoresources) {
+    for (let poi of this.georesourceStore.displayableGeoresources) {
       if (poi.isSelected_reachabilityAnalysis) {
         //remove POI layer from map
         this.removePoiLayerFromMap(poi);
@@ -468,7 +468,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
   };
 
   isNoValidDate(dateCandidate) {
-    var dateComps = dateCandidate.split("-");
+    const dateComps = dateCandidate.split("-");
 
     if (dateComps.length < 3) {
       return true;
@@ -497,7 +497,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
     // Make a new timeout set to go off in 1000ms (1 second)
     this.timeout_manualdate = setTimeout(() => {
-      var dateCandidate = this.reachabilityHelperService.settings.selectedDate_manual;
+      const dateCandidate = this.reachabilityHelperService.settings.selectedDate_manual;
 
       if (this.isNoValidDate(dateCandidate)) {
         return;
@@ -528,7 +528,7 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
     // Make a new timeout set to go off in 1000ms (1 second)
     this.timeout_manualdate = setTimeout(() => {
-      var dateCandidate = this.reachabilityHelperService.settings.isochroneConfig.selectedDate_manual;
+      const dateCandidate = this.reachabilityHelperService.settings.isochroneConfig.selectedDate_manual;
 
       if (this.isNoValidDate(dateCandidate)) {
         return;

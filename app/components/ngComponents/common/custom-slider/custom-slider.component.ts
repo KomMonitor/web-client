@@ -79,7 +79,7 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
   }
 
   private initSlider() {
-    var pips = this.data.map((_, index) => index);   
+    const pips = this.data.map((_, index) => index);   
 
     this.sliderInstance = noUiSlider.create(this.sliderContainer.nativeElement, {
       behaviour: 'drag',
@@ -186,14 +186,14 @@ export class CustomSliderComponent implements AfterViewInit, OnChanges {
 
     value = Math.round(value);
 
-    let displayHours = this.hasMultipleValuesPerDay();
+    const displayHours = this.hasMultipleValuesPerDay();
     
     if(this.displayMode == DisplayType.YEAR) 
       return new Date(this.data[value]).getFullYear();
 
     if(this.displayMode == DisplayType.DATE) {
       
-      var date = new Date(this.data[value]);
+      const date = new Date(this.data[value]);
       if(!displayHours) {
         return date.toLocaleDateString('de-DE');
       }

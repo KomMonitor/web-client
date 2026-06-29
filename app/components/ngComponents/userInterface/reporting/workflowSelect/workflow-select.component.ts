@@ -21,14 +21,14 @@ export class WorkflowSelectComponent {
   onConfigSelect(event:any) {
 
     let content = "";
-    let file = event.target.files[0];
+    const file = event.target.files[0];
     if (!file)
       return;
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = (e:any) => {
       content = e.target.result;
       try {
-        let config:ImportData = JSON.parse(content);
+        const config:ImportData = JSON.parse(content);
         this.reportingService.triggerConfigImport(config);
       }
       catch (e) {

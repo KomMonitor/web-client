@@ -8,7 +8,7 @@
                 
   <br />
         
-  <div *ngIf="indicatorData.data.interpretation && indicatorData.data.interpretation != ''">
+  <div *ngIf="indicatorData.data.interpretation && indicatorData.data.interpretation !== ''">
     <label>Interpretationshilfe:</label>
     <p [innerHTML]="indicatorData.data.interpretation"></p>	
   </div>

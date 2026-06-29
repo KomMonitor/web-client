@@ -8,19 +8,19 @@
 
 			<br />
 			<div class="reachability-feature-btn-wrapper">
-				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'buffer'}" (click)="changeType('buffer')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode === 'buffer'}" (click)="changeType('buffer')">
           <i class="far fa-dot-circle"></i>
         </button>
-				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'foot-walking'}" (click)="changeType('foot-walking')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode === 'foot-walking'}" (click)="changeType('foot-walking')">
           <i class="fas fa-walking"></i>
         </button>
-				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'cycling-regular'}" (click)="changeType('cycling-regular')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode === 'cycling-regular'}" (click)="changeType('cycling-regular')">
           <i class="fas fa-biking"></i> 
         </button>
-				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'driving-car'}" (click)="changeType('driving-car')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode === 'driving-car'}" (click)="changeType('driving-car')">
           <i class="fas fa-car"></i> 
         </button>
-				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode == 'wheelchair'}" (click)="changeType('wheelchair')">
+				<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.transitMode === 'wheelchair'}" (click)="changeType('wheelchair')">
           <i class="fab fa-accessible-icon"></i>
         </button>
 			</div>
@@ -34,10 +34,10 @@
 					<br />
 
 					<div class="reachability-feature-btn-wrapper">
-            <button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.focus == 'distance'}" (click)="changeFocus('distance')">
+            <button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.focus === 'distance'}" (click)="changeFocus('distance')">
               <i class="fas fa-ruler"></i> Distanz
 						</button>
-						<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.focus == 'time'}" (click)="changeFocus('time')" [disabled]="reachabilityHelperService.settings.transitMode=='buffer'">
+						<button class="feature-btn" [ngClass]="{'active': reachabilityHelperService.settings.focus === 'time'}" (click)="changeFocus('time')" [disabled]="reachabilityHelperService.settings.transitMode==='buffer'">
 							<i class="far fa-clock"></i> Zeit
             </button>
 					</div>

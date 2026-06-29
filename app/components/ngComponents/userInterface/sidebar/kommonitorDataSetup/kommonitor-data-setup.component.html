@@ -390,7 +390,7 @@
               (click)="onChangeSelectedIndicator_fromAlphabeticalList(entry)"
             >
               {{
-                entry.listType == "indicator"
+                entry.listType === "indicator"
                   ? entry.indicatorName + " [" + entry.unit + "]"
                   : entry.title + " [WMS]"
               }}

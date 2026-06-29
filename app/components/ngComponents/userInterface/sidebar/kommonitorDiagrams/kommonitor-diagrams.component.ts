@@ -62,8 +62,8 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   ngOnInit(): void {
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.UpdateDiagrams: {
@@ -255,8 +255,8 @@ export class KommonitorDiagramsComponent implements OnInit {
       // when hovering over elements of the chart then highlight them in the map.
       this.barChart.on('mouseOver', (params) => {
         // this.userHoveresOverBarItem = true;
-        let seriesIndex = params.seriesIndex;
-        let dataIndex = params.dataIndex;
+        const seriesIndex = params.seriesIndex;
+        const dataIndex = params.dataIndex;
 
         // console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
         //
@@ -264,7 +264,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         //
         // console.log(barElement);
 
-        let spatialFeatureName = this.barOption.xAxis.data[dataIndex];
+        const spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         if(spatialFeatureName){
           // console.log(spatialFeatureName);
           this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
@@ -274,8 +274,8 @@ export class KommonitorDiagramsComponent implements OnInit {
 
       this.barChart.on('mouseOut', (params) => {
         // this.userHoveresOverBarItem = false;
-        let seriesIndex = params.seriesIndex;
-        let dataIndex = params.dataIndex;
+        const seriesIndex = params.seriesIndex;
+        const dataIndex = params.dataIndex;
 
         // console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
         //
@@ -283,7 +283,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         //
         // console.log(barElement);
 
-        let spatialFeatureName = this.barOption.xAxis.data[dataIndex];
+        const spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
           this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
@@ -292,8 +292,8 @@ export class KommonitorDiagramsComponent implements OnInit {
       });
 
       this.barChart.on('click', (params) => {
-        let seriesIndex = params.seriesIndex;
-        let dataIndex = params.dataIndex;
+        const seriesIndex = params.seriesIndex;
+        const dataIndex = params.dataIndex;
 
         // console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
         //
@@ -301,7 +301,7 @@ export class KommonitorDiagramsComponent implements OnInit {
         //
         // console.log(barElement);
 
-        let spatialFeatureName = this.barOption.xAxis.data[dataIndex];
+        const spatialFeatureName = this.barOption.xAxis.data[dataIndex];
         // console.log(spatialFeatureName);
         if(spatialFeatureName){
           this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [spatialFeatureName]);
@@ -359,13 +359,13 @@ export class KommonitorDiagramsComponent implements OnInit {
     this.lineOption.legend.data.push(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
 
     // create feature data series
-    let featureSeries:any = {};
+    const featureSeries:any = {};
     featureSeries.name = featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
     featureSeries.type = 'line';
-    featureSeries.data = new Array();
+    featureSeries.data = [];
 
     // for each date create series data entry for feature
-    for (let date of this.lineOption.xAxis.data) {
+    for (const date of this.lineOption.xAxis.data) {
       let value;
       if (this.indicatorValueService.indicatorValueIsNoData(featureProperties[this.INDICATOR_DATE_PREFIX + date])) {
         value = null;
@@ -385,7 +385,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   };
 
   findPropertiesForTimeSeries(spatialUnitFeatureName) {
-    for (let feature of this.selectionState.selectedIndicator.geoJSON.features) {
+    for (const feature of this.selectionState.selectedIndicator.geoJSON.features) {
       if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
         return feature.properties;
       }
@@ -426,7 +426,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   highlightFeatureInLineChart(featureProperties) {
     // highlight the corresponding bar diagram item
     // get series index of series
-    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    const seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
 
     if (seriesIndex > -1) {
       this.lineChart.dispatchAction({
@@ -462,13 +462,13 @@ export class KommonitorDiagramsComponent implements OnInit {
 
   removeSeriesFromLineChart(featureProperties) {
     // remove feature from legend
-    let legendIndex = this.lineOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    const legendIndex = this.lineOption.legend.data.indexOf(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     if (legendIndex > -1) {
       this.lineOption.legend.data.splice(legendIndex, 1);
     }
 
     // remove feature data series
-    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    const seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
     if (seriesIndex > -1) {
       this.lineOption.series.splice(seriesIndex, 1);
     }
@@ -509,7 +509,7 @@ export class KommonitorDiagramsComponent implements OnInit {
   unhighlightFeatureInLineChart(featureProperties) {
     // highlight the corresponding bar diagram item
     // get series index of series
-    let seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
+    const seriesIndex = this.getSeriesIndexByFeatureName(featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]);
 
     if (seriesIndex > -1) {
       this.lineChart.dispatchAction({

@@ -2,15 +2,15 @@
 
 	<div class="col-md-6 col-sm-6 col-xs-12">
 		<div class="reachability-feature-btn-wrapper">
-			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode == 'create'}"
+			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode === 'create'}"
 				(click)="onChangeEditMode('create')">
 				<i class="fa-solid fa-plus"></i>&nbsp;Erstellen
       </button>
-			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode == 'edit'}"
+			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode === 'edit'}"
         (click)="onChangeEditMode('edit')">
 				<i class="fa-solid fa-pencil"></i>&nbsp;Editieren
       </button>
-			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode == 'delete'}"
+			<button class="feature-btn" [ngClass]="{'active': singleFeatureMapHelperService.editMode === 'delete'}"
         (click)="onChangeEditMode('delete')">
 				<i class="fa-solid fa-trash"></i>&nbsp;Entfernen
       </button>
@@ -18,15 +18,15 @@
 
 		<br />
 
-		<div *ngIf="singleFeatureMapHelperService.editMode == 'create'">
+		<div *ngIf="singleFeatureMapHelperService.editMode === 'create'">
 			<i><b>Hinweis:</b> Attribute f&uuml;llen und Geometrie setzen, dann <b>Erstellen</b>-Button
 				bet&auml;tigen</i>
 		</div>
-		<div *ngIf="singleFeatureMapHelperService.editMode == 'edit'">
+		<div *ngIf="singleFeatureMapHelperService.editMode === 'edit'">
 			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, dann Attribute und Geometrie editieren,
 				dann <b>Editieren</b>-Button bet&auml;tigen</i>
 		</div>
-		<div *ngIf="singleFeatureMapHelperService.editMode == 'delete'">
+		<div *ngIf="singleFeatureMapHelperService.editMode === 'delete'">
 			<i><b>Hinweis:</b> Kartenobjekt anklicken, um Objekt zu selektieren, Attribute prüfen, dann
 				<b>L&ouml;schen</b>-Button bet&auml;tigen</i>
 		</div>
@@ -62,7 +62,7 @@
 						<td>
 							<input type="text" class="form-control" [(ngModel)]="featureIdValue"
 								placeholder="{{featureIdValue}}" (change)="validateSingleFeatureId()"
-								[disabled]="singleFeatureMapHelperService.editMode != 'create'"
+								[disabled]="singleFeatureMapHelperService.editMode !== 'create'"
 								required>
 						</td>
 					</tr>
@@ -72,7 +72,7 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" [(ngModel)]="featureNameValue"
-								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
+								[disabled]="singleFeatureMapHelperService.editMode === 'delete'"
 								placeholder="lesbarer Name des Objekts" required>
 						</td>
 					</tr>
@@ -106,7 +106,7 @@
                   ngbDatepicker
                   #d="ngbDatepicker"
                   (click)="d.toggle()"
-                  [disabled]="singleFeatureMapHelperService.editMode == 'delete'"
+                  [disabled]="singleFeatureMapHelperService.editMode === 'delete'"
                   (ngModelChange)="onEndDateChange($event)"
                 />
 						</td>
@@ -119,7 +119,7 @@
 						</td>
 						<td>
 							<input type="text" class="form-control" [(ngModel)]="featureSchemaEntry.value"
-								[disabled]="singleFeatureMapHelperService.editMode == 'delete'"
+								[disabled]="singleFeatureMapHelperService.editMode === 'delete'"
 								placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'"
 								required>
 						</td>
@@ -159,19 +159,19 @@
 
 	<!-- submit button -->
 	<button type="button" class="btn btn-success"
-		*ngIf="singleFeatureMapHelperService.editMode == 'create'"
+		*ngIf="singleFeatureMapHelperService.editMode === 'create'"
 		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureIdIsUnique || !featureStartDateValue"
 		(click)="addSingleGeoresourceFeature()"><i
 		class="fa-solid fa-plus"></i>&nbsp;&nbsp;Einzel-Feature erstellen
 	</button>
 	<button type="button" class="btn btn-warning"
-		*ngIf="singleFeatureMapHelperService.editMode == 'edit'"
+		*ngIf="singleFeatureMapHelperService.editMode === 'edit'"
 		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
 		(click)="editSingleGeoresourceFeature()"><i
 		class="fa-solid fa-pen"></i>&nbsp;&nbsp;Einzel-Feature editieren
 	</button>
 	<button type="button" class="btn btn-danger"
-		*ngIf="singleFeatureMapHelperService.editMode == 'delete'"
+		*ngIf="singleFeatureMapHelperService.editMode === 'delete'"
 		[disabled]="!featureGeometryValue || !featureNameValue || featureIdValue == undefined || featureIdValue == null || !featureStartDateValue"
 		(click)="deleteSingleGeoresourceFeature()"><i
 		class="fa-solid fa-trash"></i>&nbsp;&nbsp;Einzel-Feature entfernen

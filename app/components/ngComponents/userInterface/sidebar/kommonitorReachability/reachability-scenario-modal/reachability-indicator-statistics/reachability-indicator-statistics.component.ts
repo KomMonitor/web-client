@@ -89,8 +89,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
 
 
     this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-      let title = broadcastMsg.msg;
-      let values:any = broadcastMsg.values;
+      const title = broadcastMsg.msg;
+      const values:any = broadcastMsg.values;
 
       switch (title) {
         case BroadcastMessage.IsochronesCalculationFinished: {
@@ -152,7 +152,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
         // finished - Process execution has finished.
         // failed - The job failed due to an error during process execution.
       
-      let jobStatus:any = await this.spatialDataProcessorHelperService.getJobStatus(jobId);
+      const jobStatus:any = await this.spatialDataProcessorHelperService.getJobStatus(jobId);
       if (jobStatus == undefined || jobStatus.status == undefined || jobStatus.status == "failed") {
         jobCompletedOrFailed = true;
         this.modifyJobStatus(jobId, "failed");
@@ -189,7 +189,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   };
 
   async retrieveJobResult(jobId) {
-    let response:any = await this.spatialDataProcessorHelperService.getJobResult(jobId);
+    const response:any = await this.spatialDataProcessorHelperService.getJobResult(jobId);
 
     for (const indicatorStatisticsEntry of this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics) {
       indicatorStatisticsEntry.active = false;
@@ -205,7 +205,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
   }
 
   appendNewIsochroneStatistic(jobId) {
-    let newIsochroneStatisticsEntry = {
+    const newIsochroneStatisticsEntry = {
       indicator: {
         indicatorId: this.selectedIndicatorForStatistics.indicatorId,
         indicatorName: this.selectedIndicatorForStatistics.indicatorName,
@@ -257,8 +257,8 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
       }
     }
 
-    let poiDataset = this.reachabilityHelperService.settings.selectedStartPointLayer;
-    let original_nonDissolved_isochrones = this.reachabilityHelperService.original_nonDissolved_isochrones;
+    const poiDataset = this.reachabilityHelperService.settings.selectedStartPointLayer;
+    const original_nonDissolved_isochrones = this.reachabilityHelperService.original_nonDissolved_isochrones;
     this.reachabilityMapHelperService.replaceReachabilityIndicatorStatisticsOnMap(this.domId, poiDataset, original_nonDissolved_isochrones, indicatorStatisticsCandidate);
   };
 
@@ -269,15 +269,15 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     // recahbility config, we must set the current settings as activeScenario.
     this.reachabilityScenarioHelperService.configureActiveScenario();
 
-    let indicatorIdArray = [this.selectedIndicatorForStatistics.indicatorId];
+    const indicatorIdArray = [this.selectedIndicatorForStatistics.indicatorId];
     // weighting options: residential_areas, simple
-    let weight = this.weightStrategy.apiName;
-    let isochroneGeoJson = this.reachabilityHelperService.original_nonDissolved_isochrones;
-    let targetDate = this.selectedIndicatorDate;
-    let spatialUnitId = this.selectedSpatialUnit.spatialUnitId;
+    const weight = this.weightStrategy.apiName;
+    const isochroneGeoJson = this.reachabilityHelperService.original_nonDissolved_isochrones;
+    const targetDate = this.selectedIndicatorDate;
+    const spatialUnitId = this.selectedSpatialUnit.spatialUnitId;
 
     // postNewIsochroneStatistic = async function (indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weighting) 
-    let jobId = await this.spatialDataProcessorHelperService.postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weight);
+    const jobId = await this.spatialDataProcessorHelperService.postNewIsochroneStatistic(indicatorIdArray, isochroneGeoJson, spatialUnitId, targetDate, weight);
 
     this.appendNewIsochroneStatistic(jobId);
   };
