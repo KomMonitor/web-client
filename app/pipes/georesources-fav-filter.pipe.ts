@@ -1,14 +1,14 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { GeoresourcesTopicsHierarchy } from "components/ngComponents/models/georesources.models";
-import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { GeoresourcesTopicsHierarchy } from 'components/ngComponents/models/georesources.models';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
 
 @Pipe({
-  name: "geoFavFilter",
+  name: 'geoFavFilter',
   pure: false,
   standalone: true,
 })
 export class GeoFavFilter implements PipeTransform {
-  constructor(private favoritesService: GeoresourceFavoritesService) {}
+  private favoritesService = inject(GeoresourceFavoritesService);
 
   transform(topics: GeoresourcesTopicsHierarchy[]): any {
     if (!topics) {

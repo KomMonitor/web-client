@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import {
   GeoressourceExportItem,
   IndicatorExportItem,
@@ -19,6 +19,8 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
   standalone: true,
 })
 export class ExportDatasetListComponent implements OnInit {
+  protected srvc = inject(ExportingStateService);
+
   activeTab: 'indicators' | 'georessources' = 'indicators';
 
   combinedConfig = signal<{ level: string; selectedIndicatorIds: string[] }>({
@@ -32,8 +34,6 @@ export class ExportDatasetListComponent implements OnInit {
 
   sortTimestamps = (timestamps: string[]) => sortTimestamps(timestamps);
   sortTimestampsAsc = (timestamps: string[]) => sortTimestamps(timestamps, 'asc');
-
-  constructor(protected srvc: ExportingStateService) {}
 
   ngOnInit(): void {
     if (this.srvc.indicatorItems().length === 0 && this.srvc.georessourceItems().length > 0) {

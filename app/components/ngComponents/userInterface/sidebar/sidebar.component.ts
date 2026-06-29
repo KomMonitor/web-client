@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { KommonitorDataSetupComponent } from './kommonitorDataSetup/kommonitor-data-setup.component';
 import { PoiComponent } from './poi/poi.component';
@@ -27,9 +36,12 @@ import { KommonitorReachabilityComponent } from './kommonitorReachability/kommon
     IndicatorRadarComponent,
     RegressionDiagramComponent,
     KommonitorDataImportComponent,
-    KommonitorReachabilityComponent]
+    KommonitorReachabilityComponent,
+  ],
 })
 export class SidebarComponent implements OnInit {
+  private broadcastService = inject(BroadcastService);
+  private mapService = inject(MapService);
 
   @Input() element: any = undefined;
   @Output() sidebarClosed = new EventEmitter<any>(undefined);
@@ -37,13 +49,8 @@ export class SidebarComponent implements OnInit {
   expandedWidthElements = [
     'sidebarDiagramsCollapse',
     'sidebarRadarDiagramCollapse',
-    'sidebarRegressionDiagramCollapse'
+    'sidebarRegressionDiagramCollapse',
   ];
-
-  constructor(
-    private broadcastService: BroadcastService,
-    private mapService: MapService
-  ) { }
 
   ngOnInit(): void {
     // default open

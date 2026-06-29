@@ -8,12 +8,11 @@ import { ReportingService, WorkflowState } from 'services/reporting-service/repo
 import { ReportingOverviewComponent } from './reportingOverview/reporting-overview.component';
 import { IndicatorAddComponent } from './indicatorAdd/indicator-add.component';
 
-
-export interface reportingData { 
-  templateSections:any[],
-  pages:any[];
-  template:any;
-  backupTemplate:any;
+export interface reportingData {
+  templateSections: any[];
+  pages: any[];
+  template: any;
+  backupTemplate: any;
 }
 
 @Component({
@@ -22,35 +21,30 @@ export interface reportingData {
   styleUrls: ['./reporting-modal.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule,
     WorkflowSelectComponent,
     TemplateSelectComponent,
     ReportingOverviewComponent,
-    IndicatorAddComponent
-  ]
+    IndicatorAddComponent,
+  ],
 })
 export class ReportingModalComponent implements OnInit {
+  protected reportingService = inject(ReportingService);
 
   activeModal = inject(NgbActiveModal);
 
   workflowState = WorkflowState;
 
-  constructor(
-    protected reportingService: ReportingService
-  ) {}
-
   ngOnInit() {
-    this.reportingService.reportingData$.subscribe(val => {
+    this.reportingService.reportingData$.subscribe((val) => {
       console.log('Wert geändert:', val);
     });
   }
 
-  isWorkflowState(state:WorkflowState | WorkflowState[]) {
+  isWorkflowState(state: WorkflowState | WorkflowState[]) {
+    if (Array.isArray(state)) return state.includes(this.reportingService.currentWorkflowState);
 
-    if(Array.isArray(state))
-      return state.includes(this.reportingService.currentWorkflowState);
-
-    return this.reportingService.currentWorkflowState==state;
+    return this.reportingService.currentWorkflowState == state;
   }
 }

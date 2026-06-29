@@ -1,10 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NgbDropdown,NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDropdown,
+  NgbDropdownToggle,
+  NgbDropdownMenu,
+  NgbDropdownItem,
+} from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
-import { FileHelperService, FileUploadState } from 'services/file-helper-service/file-helper.service';
+import {
+  FileHelperService,
+  FileUploadState,
+} from 'services/file-helper-service/file-helper.service';
 import { GeocoderHelperService } from 'services/geocoder-helper-service/geocoder-helper.service';
 import { MapService } from 'services/map-service/map.service';
 import { ColorPickerModule } from 'ngx-color-picker';
@@ -13,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 export interface GeoresourcesImportDataset extends GeoresourcesDataset {
-   ID_ATTRIBUTE: any;
+  ID_ATTRIBUTE: any;
   NAME_ATTRIBUTE: any;
   LON_ATTRIBUTE: any;
   LAT_ATTRIBUTE: any;
@@ -37,14 +45,19 @@ export interface CSVImportType {
   imports: [
     CommonModule,
     ExpandableBoxComponent,
-    NgbDropdown, 
-    NgbDropdownToggle, 
+    NgbDropdown,
+    NgbDropdownToggle,
     NgbDropdownMenu,
     ColorPickerModule,
-    FormsModule
-  ]
+    FormsModule,
+  ],
 })
 export class KommonitorDataImportComponent implements OnInit {
+  protected poiPresentationService = inject(PoiPresentationService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private kommonitorMapService = inject(MapService);
+  private kommonitorGeocoderHelperService = inject(GeocoderHelperService);
+  private kommonitorFileHelperService = inject(FileHelperService);
 
   @ViewChild('poiColorDropdown') poiColorDropdown!: NgbDropdown;
   private readonly destroyRef = inject(DestroyRef);
@@ -60,14 +73,10 @@ export class KommonitorDataImportComponent implements OnInit {
 
   fileDatasets: GeoresourcesImportDataset[] = [];
 
-  constructor(
-    protected poiPresentationService: PoiPresentationService,
-    private georesourceStore: GeoresourceMetadataStoreService,
-    private kommonitorMapService: MapService,
-    private kommonitorGeocoderHelperService: GeocoderHelperService,
-    private kommonitorFileHelperService: FileHelperService
-  ) {
-    this.filteredPoiMarkerColors = this.poiPresentationService.availablePoiMarkerColors.filter(e => e.colorName!='white');
+  constructor() {
+    this.filteredPoiMarkerColors = this.poiPresentationService.availablePoiMarkerColors.filter(
+      (e) => e.colorName != 'white'
+    );
   }
 
   loadingData = false;
@@ -82,18 +91,18 @@ export class KommonitorDataImportComponent implements OnInit {
 
   tmpKommonitorGeoresource_table;
   tableProcessType = 'latLon';
-  tableProcessTypes:CSVImportType[] = [
+  tableProcessTypes: CSVImportType[] = [
     {
-      displayName: "Latitude und Longitude Spalten",
-      apiName: "latLon"
+      displayName: 'Latitude und Longitude Spalten',
+      apiName: 'latLon',
     },
     {
-      displayName: "Adressen - Ort, PLZ, Strasse",
-      apiName: "address"
-    }
-  ]
+      displayName: 'Adressen - Ort, PLZ, Strasse',
+      apiName: 'address',
+    },
+  ];
 
- /*  $('#customFileInputColorDiv').colorpicker();
+  /*  $('#customFileInputColorDiv').colorpicker();
 
   // initialize colorpicker after some time
   // wait to ensure that elements ar available on DOM
@@ -107,7 +116,6 @@ export class KommonitorDataImportComponent implements OnInit {
     // });
   }, 3000); */
 
-
   // initialize any adminLTE box widgets
   /* $('.box').boxWidget(); */
 
@@ -116,45 +124,39 @@ export class KommonitorDataImportComponent implements OnInit {
   numberOfDecimals = window.__env.numberOfDecimals;
 
   ngOnInit(): void {
-    
     this.kommonitorFileHelperService.fileImport$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
+      .subscribe((value) => {
+        if (value.state == FileUploadState.GEOJSON) this.GeoJSONFromFileFinished(value.value);
 
-        if(value.state==FileUploadState.GEOJSON) 
-          this.GeoJSONFromFileFinished(value.value);
-        
-        if(value.state==FileUploadState.CSV) 
-          this.CSVFromFileFinished(value.value);
-        
-        if(value.state==FileUploadState.SUCCESS)
-          this.FileLayerSuccess(value.value);
-        
-        if(value.state==FileUploadState.ERROR)
-          this.FileLayerError(value.value);
-      })
+        if (value.state == FileUploadState.CSV) this.CSVFromFileFinished(value.value);
+
+        if (value.state == FileUploadState.SUCCESS) this.FileLayerSuccess(value.value);
+
+        if (value.state == FileUploadState.ERROR) this.FileLayerError(value.value);
+      });
   }
 
-  onChangeCustomMarkerColor(markerColor){
+  onChangeCustomMarkerColor(markerColor) {
     this.customFileInputMarkerColor = markerColor;
 
     this.poiColorDropdown.close();
   }
 
   addUniqueFileToMap(dataset) {
-    console.log("Toggle File Layer: " + dataset.datasetName);
+    console.log('Toggle File Layer: ' + dataset.datasetName);
 
-    const clone = JSON.parse(JSON.stringify(dataset));	
-    if(dataset.type == "CSV"){
-      clone.datasetName = clone.datasetName + "_" + this.tableProcessType;
+    const clone = JSON.parse(JSON.stringify(dataset));
+    if (dataset.type == 'CSV') {
+      clone.datasetName = clone.datasetName + '_' + this.tableProcessType;
     }
 
-    if(this.fileWithSameNameAlreadyImported(clone)){
+    if (this.fileWithSameNameAlreadyImported(clone)) {
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Datei mit gleichem Namen bereits vorhanden.", "Import der Datei abgebrochen.");
       return;
     }
 
-    if(dataset.geoJSON.features.length == 0){
+    if (dataset.geoJSON.features.length == 0) {
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Datensatz kann nicht als Layer geladen werden.", "Keine Features im Datensatz.");
       return;
     }
@@ -162,9 +164,9 @@ export class KommonitorDataImportComponent implements OnInit {
     //kommonitorToastHelperService.displaySuccessToast_upperLeft("Datei erfolgreich importiert. Inhalt wird in Karte geladen", clone.title);
 
     this.toggleDataLayer(clone);
-  };
+  }
 
-  fileWithSameNameAlreadyImported(clone){
+  fileWithSameNameAlreadyImported(clone) {
     for (let i = 0; i < this.fileDatasets.length; i++) {
       if (this.fileDatasets[i].datasetName == clone.datasetName) {
         return true;
@@ -175,13 +177,11 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   toggleDataLayer(dataset) {
-    
     if (dataset.isSelected) {
       //display on Map
       const opacity = 1 - dataset.transparency;
       this.kommonitorMapService.addFileLayerToMap(dataset, opacity);
-    }
-    else {
+    } else {
       //remove WMS layer from map
       this.kommonitorMapService.removeFileLayerFromMap(dataset);
     }
@@ -196,8 +196,7 @@ export class KommonitorDataImportComponent implements OnInit {
     }
   }
 
-  GeoJSONFromFileFinished(tmpKommonitorGeoresource:GeoresourcesDataset) {
-
+  GeoJSONFromFileFinished(tmpKommonitorGeoresource: GeoresourcesDataset) {
     try {
       // init feature NAME and ID fields
       tmpKommonitorGeoresource = this.initSpecialFields(tmpKommonitorGeoresource);
@@ -210,11 +209,10 @@ export class KommonitorDataImportComponent implements OnInit {
       console.error(error);
       this.loadingData = false;
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
-    }						
+    }
   }
 
-  initSpecialFields(dataset:GeoresourcesDataset):GeoresourcesImportDataset {
-
+  initSpecialFields(dataset: GeoresourcesDataset): GeoresourcesImportDataset {
     const tmpKommonitorGeoresource = dataset as GeoresourcesImportDataset;
 
     // init feature NAME and ID fields
@@ -227,25 +225,45 @@ export class KommonitorDataImportComponent implements OnInit {
     tmpKommonitorGeoresource.STREET_ATTRIBUTE = tmpKommonitorGeoresource.featureSchema[0];
 
     for (const property of tmpKommonitorGeoresource.featureSchema) {
-      if (property.toLowerCase().includes("id")) {
+      if (property.toLowerCase().includes('id')) {
         tmpKommonitorGeoresource.ID_ATTRIBUTE = property;
       }
-      if (property.toLowerCase().includes("name")) {
+      if (property.toLowerCase().includes('name')) {
         tmpKommonitorGeoresource.NAME_ATTRIBUTE = property;
       }
-      if (property.toLowerCase().includes("lon") || property.toLowerCase().includes("rechts") || property.toLowerCase().includes("x")) {
+      if (
+        property.toLowerCase().includes('lon') ||
+        property.toLowerCase().includes('rechts') ||
+        property.toLowerCase().includes('x')
+      ) {
         tmpKommonitorGeoresource.LON_ATTRIBUTE = property;
       }
-      if (property.toLowerCase().includes("lat") || property.toLowerCase().includes("hoch") || property.toLowerCase().includes("y")) {
+      if (
+        property.toLowerCase().includes('lat') ||
+        property.toLowerCase().includes('hoch') ||
+        property.toLowerCase().includes('y')
+      ) {
         tmpKommonitorGeoresource.LAT_ATTRIBUTE = property;
       }
-      if (property.toLowerCase().includes("stadt") || property.toLowerCase().includes("ort") || property.toLowerCase().includes("gemeinde")) {
+      if (
+        property.toLowerCase().includes('stadt') ||
+        property.toLowerCase().includes('ort') ||
+        property.toLowerCase().includes('gemeinde')
+      ) {
         tmpKommonitorGeoresource.CITY_ATTRIBUTE = property;
       }
-      if (property.toLowerCase().includes("plz") || property.toLowerCase().includes("post") || property.toLowerCase().includes("leit")) {
+      if (
+        property.toLowerCase().includes('plz') ||
+        property.toLowerCase().includes('post') ||
+        property.toLowerCase().includes('leit')
+      ) {
         tmpKommonitorGeoresource.POSTCODE_ATTRIBUTE = property;
       }
-      if (property.toLowerCase().includes("str") || property.toLowerCase().includes("adr") || property.toLowerCase().includes("addr")) {
+      if (
+        property.toLowerCase().includes('str') ||
+        property.toLowerCase().includes('adr') ||
+        property.toLowerCase().includes('addr')
+      ) {
         tmpKommonitorGeoresource.STREET_ATTRIBUTE = property;
       }
     }
@@ -255,17 +273,16 @@ export class KommonitorDataImportComponent implements OnInit {
 
   CSVFromFileFinished(tmpKommonitorGeoresource) {
     try {
-      tmpKommonitorGeoresource = this.initSpecialFields(tmpKommonitorGeoresource)
+      tmpKommonitorGeoresource = this.initSpecialFields(tmpKommonitorGeoresource);
 
       this.tmpKommonitorGeoresource_table = tmpKommonitorGeoresource;
 
       //kommonitorToastHelperService.displayInfoToast_upperLeft("CSV-Datei erkannt", "Weitere Konfiguration erforderlich");
-
     } catch (error) {
       console.error(error);
       this.loadingData = false;
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler beim Laden der CSV-Datei", error);
-    }						
+    }
   }
 
   loadCSV_latLon() {
@@ -288,29 +305,40 @@ export class KommonitorDataImportComponent implements OnInit {
   async loadCSV_address_city_postcode_street() {
     try {
       this.loadingData = true;
-   
+
       const cityProperty = this.tmpKommonitorGeoresource_table.CITY_ATTRIBUTE;
       const postcodeProperty = this.tmpKommonitorGeoresource_table.POSTCODE_ATTRIBUTE;
       const streetProperty = this.tmpKommonitorGeoresource_table.STREET_ATTRIBUTE;
-      const resultFeaturesArray = await this.kommonitorGeocoderHelperService.geocodeCSVRows(this.tmpKommonitorGeoresource_table.dataRows, cityProperty, postcodeProperty, streetProperty);
+      const resultFeaturesArray = await this.kommonitorGeocoderHelperService.geocodeCSVRows(
+        this.tmpKommonitorGeoresource_table.dataRows,
+        cityProperty,
+        postcodeProperty,
+        streetProperty
+      );
 
-      this.tmpKommonitorGeoresource_table.geoJSON = this.makeFeatureCollection(this.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
-      this.tmpKommonitorGeoresource_table.dataRows_notGeocoded = this.identifyNonGeocodedDataRows(this.tmpKommonitorGeoresource_table.dataRows, resultFeaturesArray);
+      this.tmpKommonitorGeoresource_table.geoJSON = this.makeFeatureCollection(
+        this.tmpKommonitorGeoresource_table.dataRows,
+        resultFeaturesArray
+      );
+      this.tmpKommonitorGeoresource_table.dataRows_notGeocoded = this.identifyNonGeocodedDataRows(
+        this.tmpKommonitorGeoresource_table.dataRows,
+        resultFeaturesArray
+      );
 
       this.tmpKommonitorGeoresource_table.isGeocodedDataset = true;
       // set markerColor to orange --> guarantees, that gocode result are split up in two categories
       // green = high accuracy; orange = medium accuracy
-      this.tmpKommonitorGeoresource_table.poiMarkerColor = "orange";
+      this.tmpKommonitorGeoresource_table.poiMarkerColor = 'orange';
 
       //kommonitorToastHelperService.displaySuccessToast_upperLeft(this.tmpKommonitorGeoresource_table.geoJSON.features.length + " von " + this.tmpKommonitorGeoresource_table.dataRows.length + " Adressen geokodiert",
       //  "Objekteigenschaften 'geocoderank' und 'geocodedesc' bewerten Genauigkeit");
 
-      if(this.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length > 0){
+      if (this.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length > 0) {
         //kommonitorToastHelperService.displayWarningToast_upperLeft(this.tmpKommonitorGeoresource_table.dataRows_notGeocoded.length + " von " + this.tmpKommonitorGeoresource_table.dataRows.length + " Adressen nicht geokodiert");
-      }							
+      }
 
       this.loadingData = false;
-      
+
       this.onChangeIdProperty(this.tmpKommonitorGeoresource_table);
       this.onChangeNameProperty(this.tmpKommonitorGeoresource_table);
 
@@ -323,28 +351,30 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   makeFeatureCollection(dataRows, resultFeaturesArray) {
-    const featureCollection:any = {
-      "type": "FeatureCollection",
-      "features": []
-    }
+    const featureCollection: any = {
+      type: 'FeatureCollection',
+      features: [],
+    };
 
     for (let index = 0; index < resultFeaturesArray.length; index++) {
       const singleFeatureArray = resultFeaturesArray[index];
       const row = dataRows[index];
 
       if (singleFeatureArray[0]) {
-
-        singleFeatureArray[0].type = "Feature";
+        singleFeatureArray[0].type = 'Feature';
 
         // add prefix "geocode_" to all properties of geocoding result
         for (const property_old in singleFeatureArray[0].properties) {
-          singleFeatureArray[0].properties["geocoder_" + property_old] = singleFeatureArray[0].properties[property_old]
+          singleFeatureArray[0].properties['geocoder_' + property_old] =
+            singleFeatureArray[0].properties[property_old];
 
           delete singleFeatureArray[0].properties[property_old];
         }
         // add lat and lon coord as properties
-        singleFeatureArray[0].properties["geocoder_lon"] = singleFeatureArray[0].geometry.coordinates[0];
-        singleFeatureArray[0].properties["geocoder_lat"] = singleFeatureArray[0].geometry.coordinates[1];
+        singleFeatureArray[0].properties['geocoder_lon'] =
+          singleFeatureArray[0].geometry.coordinates[0];
+        singleFeatureArray[0].properties['geocoder_lat'] =
+          singleFeatureArray[0].geometry.coordinates[1];
 
         // now add all original properties of dataRow
         for (const key in row) {
@@ -361,7 +391,7 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   identifyNonGeocodedDataRows(dataRows, resultFeaturesArray) {
-    const nonGeocodedDataRows:any = [];
+    const nonGeocodedDataRows: any = [];
 
     for (let index = 0; index < resultFeaturesArray.length; index++) {
       const singleFeatureArray = resultFeaturesArray[index];
@@ -375,20 +405,23 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   makeGeoJSONFromCSVRows_latLon(kommonitorGeoresource) {
-    const geoJSON:any = {
-      "type": "FeatureCollection",
-      "features": []
+    const geoJSON: any = {
+      type: 'FeatureCollection',
+      features: [],
     };
 
     for (const row of kommonitorGeoresource.dataRows) {
       if (row[kommonitorGeoresource.LON_ATTRIBUTE] && row[kommonitorGeoresource.LAT_ATTRIBUTE]) {
         const feature = {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [Number(row[kommonitorGeoresource.LON_ATTRIBUTE]), Number(row[kommonitorGeoresource.LAT_ATTRIBUTE])]
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [
+              Number(row[kommonitorGeoresource.LON_ATTRIBUTE]),
+              Number(row[kommonitorGeoresource.LAT_ATTRIBUTE]),
+            ],
           },
-          "properties": row
+          properties: row,
         };
 
         geoJSON.features.push(feature);
@@ -421,10 +454,13 @@ export class KommonitorDataImportComponent implements OnInit {
     const input = event.target as HTMLInputElement;
 
     if (input.files?.length) {
-
       for (let i = 0; i < input.files.length; i++) {
         const file = input.files[i];
-        this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, this.customFileInputColor, this.customFileInputMarkerColor);
+        this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(
+          file,
+          this.customFileInputColor,
+          this.customFileInputMarkerColor
+        );
       }
     }
   }
@@ -442,14 +478,22 @@ export class KommonitorDataImportComponent implements OnInit {
           // If dropped items aren't files, reject them
           if (ev.dataTransfer.items[i].kind === 'file') {
             var file = ev.dataTransfer.items[i].getAsFile();
-            this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, this.customFileInputColor, this.customFileInputMarkerColor);
+            this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(
+              file,
+              this.customFileInputColor,
+              this.customFileInputMarkerColor
+            );
           }
         }
       } else {
         // Use DataTransfer interface to access the file(s)
         for (var i = 0; i < ev.dataTransfer.files.length; i++) {
           var file = ev.dataTransfer.files[i];
-          this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(file, this.customFileInputColor, this.customFileInputMarkerColor);
+          this.kommonitorFileHelperService.transformFileToKomMonitorGeoressource(
+            file,
+            this.customFileInputColor,
+            this.customFileInputMarkerColor
+          );
         }
       }
     } catch (e) {
@@ -458,33 +502,32 @@ export class KommonitorDataImportComponent implements OnInit {
       console.error(e);
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", this.fileLayerError);
     } finally {
-
     }
-
-  };
+  }
 
   adjustFileLayerTransparency(dataset) {
-
     const opacity = 1 - dataset.transparency;
 
     this.kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
-  };
+  }
 
   adjustFileLayerColor(color, dataset) {
     /* don´t user 2way binding for [colorPicker] as the change event laggs behind the binding. known problem. use $event as it is */
     dataset.displayColor = color;
 
     this.kommonitorMapService.adjustColorForFileLayer(dataset);
-  };
+  }
 
-  adjustFileLayerMarkerColor(dataset, markerColor){
+  adjustFileLayerMarkerColor(dataset, markerColor) {
     dataset.poiMarkerColor = markerColor.colorName;
 
     this.refreshDataLayer(dataset);
   }
 
-  translateColorName(colorName):string | undefined {
-    return this.poiPresentationService.availablePoiMarkerColors.find(e => e.colorName==colorName)?.colorValue;
+  translateColorName(colorName): string | undefined {
+    return this.poiPresentationService.availablePoiMarkerColors.find(
+      (e) => e.colorName == colorName
+    )?.colorValue;
   }
 
   FileLayerError([errorMsg, dataset]) {
@@ -503,16 +546,15 @@ export class KommonitorDataImportComponent implements OnInit {
 
   FileLayerSuccess(dataset) {
     this.fileLayerError = undefined;
-    this.loadingData = false;						
-    
+    this.loadingData = false;
+
     //remove any old entry with the same name to prevent dupes
     this.removeDataLayerFromOverviewTables(dataset);
-    
+
     this.fileDatasets.push(JSON.parse(JSON.stringify(dataset)));
     this.georesourceStore.displayableGeoresources.push(dataset);
 
-    setTimeout( () => {
-
+    setTimeout(() => {
       setTimeout(() => {
         // initialize colorpicker
         //$('.input-group.colorpicker-component').colorpicker();
@@ -521,7 +563,6 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   removeDataLayer(dataset) {
-
     if (dataset.isSelected) {
       this.kommonitorMapService.removeFileLayerFromMap(dataset);
     }
@@ -530,7 +571,6 @@ export class KommonitorDataImportComponent implements OnInit {
   }
 
   removeDataLayerFromOverviewTables(dataset) {
-
     for (let i = 0; i < this.fileDatasets.length; i++) {
       if (this.fileDatasets[i].datasetName == dataset.datasetName) {
         this.fileDatasets.splice(i, 1);
@@ -546,7 +586,8 @@ export class KommonitorDataImportComponent implements OnInit {
   onChangeNameProperty(dataset) {
     // ensure it is a string
     for (const feature of dataset.geoJSON.features) {
-      feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] = "" + feature.properties[dataset.NAME_ATTRIBUTE]
+      feature.properties[window.__env.FEATURE_NAME_PROPERTY_NAME] =
+        '' + feature.properties[dataset.NAME_ATTRIBUTE];
     }
 
     // this.refreshDataLayer(dataset);
@@ -555,55 +596,56 @@ export class KommonitorDataImportComponent implements OnInit {
   onChangeIdProperty(dataset) {
     // ensure it is a string
     for (const feature of dataset.geoJSON.features) {
-      feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] = "" + feature.properties[dataset.ID_ATTRIBUTE]
+      feature.properties[window.__env.FEATURE_ID_PROPERTY_NAME] =
+        '' + feature.properties[dataset.ID_ATTRIBUTE];
     }
 
     // this.refreshDataLayer(dataset);
   }
 
   downloadDataLayer(dataset) {
-    const geoJSON = JSON
-      .stringify(dataset.geoJSON);
+    const geoJSON = JSON.stringify(dataset.geoJSON);
 
     const fileName = dataset.datasetName + '_export.json';
 
     const blob = new Blob([geoJSON], {
-      type: 'application/json'
+      type: 'application/json',
     });
     const data = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.download = fileName;
     a.href = data;
-    a.textContent = "JSON";
-    a.target = "_self";
-    a.rel = "noopener noreferrer";
-    a.click()
+    a.textContent = 'JSON';
+    a.target = '_self';
+    a.rel = 'noopener noreferrer';
+    a.click();
     a.remove();
   }
 
-  downloadGeocodedDataRowsAsGeoJSON_highAccuracy = function(dataset){
+  downloadGeocodedDataRowsAsGeoJSON_highAccuracy = function (dataset) {
     const filteredGeoJSON = JSON.parse(JSON.stringify(dataset.geoJSON));
-    filteredGeoJSON.features = filteredGeoJSON.features.filter(feature => feature.properties["geocoder_geocoderank"] == 2);
-    const geoJSON = JSON
-      .stringify(filteredGeoJSON);
+    filteredGeoJSON.features = filteredGeoJSON.features.filter(
+      (feature) => feature.properties['geocoder_geocoderank'] == 2
+    );
+    const geoJSON = JSON.stringify(filteredGeoJSON);
 
     const fileName = dataset.datasetName + '_export.json';
 
     const blob = new Blob([geoJSON], {
-      type: 'application/json'
+      type: 'application/json',
     });
     const data = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.download = fileName;
     a.href = data;
-    a.textContent = "JSON";
-    a.target = "_self";
-    a.rel = "noopener noreferrer";
-    a.click()
+    a.textContent = 'JSON';
+    a.target = '_self';
+    a.rel = 'noopener noreferrer';
+    a.click();
     a.remove();
-  }
+  };
 
   downloadNonGeocodedDataRowsAsCSV(dataset) {
     // let conf = {
@@ -633,6 +675,5 @@ export class KommonitorDataImportComponent implements OnInit {
     a.rel = "noopener noreferrer";
     a.click()
     a.remove(); */
-
   }
 }

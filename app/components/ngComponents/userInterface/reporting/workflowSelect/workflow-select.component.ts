@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import {
   ImportData,
   ReportingService,
@@ -13,9 +13,9 @@ import {
   imports: [],
 })
 export class WorkflowSelectComponent {
-  workflowState = WorkflowState;
+  protected reportingService = inject(ReportingService);
 
-  constructor(protected reportingService: ReportingService) {}
+  workflowState = WorkflowState;
 
   onConfigSelect(event: any) {
     let content = '';

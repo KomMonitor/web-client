@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import * as echarts from 'echarts';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -24,17 +24,15 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   imports: [FormsModule, ExpandableBoxComponent],
 })
 export class KommonitorBalanceComponent implements OnInit {
-  constructor(
-    protected rangeFilterState: RangeFilterStateService,
-    protected chartDisplayState: ChartDisplayStateService,
-    private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
-    private broadcastService: BroadcastService,
-    private filterHelperService: FilterHelperService,
-    private mapService: MapService,
-    private diagramHelperService: DiagramHelperServiceService,
-    protected envConfigService: EnvConfigService
-  ) {}
+  protected rangeFilterState = inject(RangeFilterStateService);
+  protected chartDisplayState = inject(ChartDisplayStateService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+  private broadcastService = inject(BroadcastService);
+  private filterHelperService = inject(FilterHelperService);
+  private mapService = inject(MapService);
+  private diagramHelperService = inject(DiagramHelperServiceService);
+  protected envConfigService = inject(EnvConfigService);
 
   // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {

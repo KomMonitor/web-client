@@ -1,6 +1,6 @@
 import { reportingData } from './../reporting-modal.component';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ReportingTemplateFilter } from 'pipes/reporting-template-filter.pipe';
 import { FormsModule } from '@angular/forms';
 import { SafeHtmlPipe } from 'pipes/safe-html.pipe';
@@ -12,17 +12,21 @@ import { ReportingService, WorkflowState } from 'services/reporting-service/repo
   standalone: true,
   templateUrl: './template-select.component.html',
   styleUrls: ['./template-select.component.scss'],
-  imports: [CommonModule, ReportingTemplateFilter, FormsModule, SafeHtmlPipe, NgbDatepickerModule, NgbAccordionModule]
+  imports: [
+    CommonModule,
+    ReportingTemplateFilter,
+    FormsModule,
+    SafeHtmlPipe,
+    NgbDatepickerModule,
+    NgbAccordionModule,
+  ],
 })
 export class TemplateSelectComponent implements OnInit {
+  protected reportingService = inject(ReportingService);
 
   datePickerDate!: any;
 
   workflowState = WorkflowState;
-
-  constructor(
-    protected reportingService: ReportingService
-  ) {}
 
   ngOnInit(): void {
     this.reportingService.resetAll();
@@ -34,40 +38,39 @@ export class TemplateSelectComponent implements OnInit {
 
   /**
    * filters templates to only show the ones matching the given category.
-   * @param {*} categoryId 
-   * @returns 
+   * @param {*} categoryId
+   * @returns
    */
   templateFilter(categoryId) {
-    return function(value) {
+    return function (value) {
       return categoryId === value.categoryId;
-    }
+    };
   }
 
   onTemplateElementClicked($event, templateId) {
     const el = $event.target;
-    el.style.backgroundColor = "#0078D7";
-    el.style.color = "white";
-    document.querySelectorAll(".reporting-selectable-template").forEach( (element:any) => {
-      if( el !== element) {
-        element.style.backgroundColor = "white";
-        element.style.color = "black";
+    el.style.backgroundColor = '#0078D7';
+    el.style.color = 'white';
+    document.querySelectorAll('.reporting-selectable-template').forEach((element: any) => {
+      if (el !== element) {
+        element.style.backgroundColor = 'white';
+        element.style.color = 'black';
       }
     });
-    
+
     this.reportingService.changeSelectedTemplate(templateId);
   }
 
   templateSupportsFreeText() {
-    if(!this.reportingService.workingTemplate)
-      return false;
+    if (!this.reportingService.workingTemplate) return false;
 
-    if(!this.reportingService.workingTemplate.pages) {
+    if (!this.reportingService.workingTemplate.pages) {
       return false;
     }
 
-    for(const page of this.reportingService.workingTemplate.pages) {
-      for(const pageElement of page.pageElements) {
-        if (pageElement.type === "textInput") {
+    for (const page of this.reportingService.workingTemplate.pages) {
+      for (const pageElement of page.pageElements) {
+        if (pageElement.type === 'textInput') {
           return true;
         }
       }
@@ -84,5 +87,4 @@ export class TemplateSelectComponent implements OnInit {
     this.reportingService.changeSelectedTemplate(0);
     this.reportingService.changeWorkflowState(this.workflowState.workflowSelect);
   }
-
 }

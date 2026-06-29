@@ -7,6 +7,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -24,6 +25,8 @@ export interface LinePatternOption {
   styleUrls: ['./km-line-pattern-picker.component.scss'],
 })
 export class KmLinePatternPickerComponent implements OnInit {
+  private sanitizer = inject(DomSanitizer);
+
   @Input() selectedPattern: LinePatternOption | null = null;
   @Input() options: LinePatternOption[] = [];
   @Input() label: string = 'Linienmuster wählen';
@@ -39,8 +42,6 @@ export class KmLinePatternPickerComponent implements OnInit {
 
   isOpen: boolean = false;
   private svgSanitizeCache: Map<string, SafeHtml> = new Map();
-
-  constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     // If no pattern is selected and options are available, optionally select the first one

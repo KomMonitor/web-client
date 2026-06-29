@@ -45,20 +45,37 @@ import { FormsModule } from '@angular/forms';
     CustomSliderComponent,
     FormsModule,
     ExportMenuButtonComponent,
-    ReportingBackgroundProcessorComponent
-  ]
+    ReportingBackgroundProcessorComponent,
+  ],
 })
 export class UserInterfaceComponent implements OnInit {
+  protected adminLoginState = inject(AdminLoginStateService);
+  protected rangeFilterState = inject(RangeFilterStateService);
+  protected chartDisplayState = inject(ChartDisplayStateService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private selectionState = inject(SelectionStateService);
+  private accessControlService = inject(AccessControlService);
+  private modalService = inject(NgbModal);
+  private broadcastService = inject(BroadcastService);
+  private configStorageService = inject(ConfigStorageService);
+  protected visibilityHelperService = inject(ElementVisibilityHelperService);
+  private authService = inject(AuthService);
+  private favService = inject(FavService);
+  protected globalFilterHelperService = inject(GlobalFilterHelperService);
+  private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
+  private router = inject(Router);
+  protected envConfigService = inject(EnvConfigService);
+  private mapService = inject(MapService);
 
   private readonly destroyRef = inject(DestroyRef);
 
   userRoleInformation = {};
-  userGroupInformation:any[] = [];
+  userGroupInformation: any[] = [];
 
   sliderDisplayMode = DisplayType;
 
-  sliderData!:Date[];
-  markerPosition!:Date[];
+  sliderData!: Date[];
+  markerPosition!: Date[];
   sliderDisabled: boolean = false;
 
   expertToolbarVisible = false;
@@ -70,49 +87,21 @@ export class UserInterfaceComponent implements OnInit {
 
   userLoggedIn: boolean = false;
 
-  sidebarElement = "";
-
-  constructor(
-    protected adminLoginState: AdminLoginStateService,
-    protected rangeFilterState: RangeFilterStateService,
-    protected chartDisplayState: ChartDisplayStateService,
-    private metadataBootstrap: MetadataBootstrapService,
-    private selectionState: SelectionStateService,
-    private accessControlService: AccessControlService,
-    private modalService: NgbModal,
-    private broadcastService: BroadcastService,
-    private configStorageService: ConfigStorageService,
-    protected visibilityHelperService: ElementVisibilityHelperService,
-    private authService: AuthService,
-    private favService: FavService,
-    protected globalFilterHelperService: GlobalFilterHelperService,
-    private visualStyleHelperService: VisualStyleHelperServiceNew,
-    private router: Router,
-    protected envConfigService: EnvConfigService,
-    private mapService: MapService
-  ) { }
+  sidebarElement = '';
 
   ngOnInit(): void {
+    this.mapService.dateSlider$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      if (value.data) this.sliderData = value.data;
 
-    this.mapService.dateSlider$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
+      if (value.selected) this.markerPosition = [value.selected];
 
-        if(value.data)
-          this.sliderData = value.data;
-
-        if(value.selected)
-          this.markerPosition = [value.selected];
-
-        if(value.disabled)
-          this.sliderDisabled = value.disabled;
-      });
+      if (value.disabled) this.sliderDisabled = value.disabled;
+    });
 
     this.selectionState.selectedDate$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
-        if(value)
-          this.markerPosition = [value];
+      .subscribe((value) => {
+        if (value) this.markerPosition = [value];
       });
 
     // load all app configs
@@ -123,19 +112,19 @@ export class UserInterfaceComponent implements OnInit {
 
     this.globalFilterHelperService.init();
 
-    if(this.authService.isAuthenticated()) {
+    if (this.authService.isAuthenticated()) {
       this.favService.init();
       this.userLoggedIn = true;
-    } 
+    }
 
-    if(this.globalFilterHelperService.applicationFilter) {
+    if (this.globalFilterHelperService.applicationFilter) {
       this.metadataBootstrap.fetchAllMetadata(this.globalFilterHelperService.applicationFilter);
     } else {
       this.metadataBootstrap.fetchAllMetadata();
     }
 
     this.showAdminLogin = this.authService.hasAdminRights();
-    
+
     setTimeout(() => {
       this.prepUserInformation();
     }, 1000);
@@ -147,60 +136,63 @@ export class UserInterfaceComponent implements OnInit {
     //this.openReportingModal()
   }
 
-  onSidebarClose(event:any) {
+  onSidebarClose(event: any) {
     this.sidebarElement = '';
-    this.mapService.setMapRecenterState({recenter: true, resize: true});
+    this.mapService.setMapRecenterState({ recenter: true, resize: true });
   }
 
-  onDateSliderChange(data:any) {
-    this.mapService.setDateSliderValues({selected: data[0]});
+  onDateSliderChange(data: any) {
+    this.mapService.setDateSliderValues({ selected: data[0] });
   }
 
   isDiagramSidebarOpened() {
-    const diagramElements = ['sidebarDiagramsCollapse','sidebarRadarDiagramCollapse','sidebarRegressionDiagramCollapse','sidebarBalanceCollapse'];
+    const diagramElements = [
+      'sidebarDiagramsCollapse',
+      'sidebarRadarDiagramCollapse',
+      'sidebarRegressionDiagramCollapse',
+      'sidebarBalanceCollapse',
+    ];
 
     return diagramElements.includes(this.sidebarElement);
   }
 
   prepUserInformation() {
+    if (this.accessControlService.currentKomMonitorLoginRoleNames.length > 0) {
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles) => {
+        const key = roles.split('.')[0];
+        const role = roles.split('.')[1];
 
-    if(this.accessControlService.currentKomMonitorLoginRoleNames.length>0) {
-      this.accessControlService.currentKomMonitorLoginRoleNames.forEach(roles => {
-      
-      const key = roles.split('.')[0];
-      const role = roles.split('.')[1];
+        if (!this.userRoleInformation.hasOwnProperty(key)) {
+          this.userRoleInformation[key] = [];
+        }
 
-      if(!this.userRoleInformation.hasOwnProperty(key)) {
-        this.userRoleInformation[key] = [];
-      }
-      
-      this.userRoleInformation[key].push(role);
-
+        this.userRoleInformation[key].push(role);
       });
     }
 
-    if(this.accessControlService.currentKeycloakLoginGroups.length>0) {
+    if (this.accessControlService.currentKeycloakLoginGroups.length > 0) {
       this.accessControlService.currentKeycloakLoginGroups.forEach((group, index) => {
+        const parts = group.split('/');
+        this.userGroupInformation[index] = [];
 
-      const parts = group.split('/');
-      this.userGroupInformation[index] = [];
-
-      parts.forEach(part => {
-        if(part.length>0)
-          this.userGroupInformation[index].push(part);
-      });
+        parts.forEach((part) => {
+          if (part.length > 0) this.userGroupInformation[index].push(part);
+        });
       });
     }
   }
 
-  tryLoginUser_withoutKeycloak(){
+  tryLoginUser_withoutKeycloak() {
     // TODO FIXME make generic user login once user/role concept is implemented
 
     // currently only simple ADMIN user login is possible
-    console.log("Check user login");
-    if (this.adminLoginState.adminUserName === this.metadataBootstrap.currentKeycloakUser && this.adminLoginState.adminPassword === this.password){
+    console.log('Check user login');
+    if (
+      this.adminLoginState.adminUserName === this.metadataBootstrap.currentKeycloakUser &&
+      this.adminLoginState.adminPassword === this.password
+    ) {
       // success login --> currently switch to ADMIN page directly
-      console.log("User Login success - redirect to Admin Page");
+      console.log('User Login success - redirect to Admin Page');
       this.adminLoginState.adminIsLoggedIn = true;
       location.href = '/administration';
     }
@@ -208,34 +200,36 @@ export class UserInterfaceComponent implements OnInit {
 
   openAdminUI() {
     this.router.navigate(['/administration']);
-  };
+  }
 
   openInfoModal() {
-    const modalRef = this.modalService.open(InfoModal, {windowClass: 'modal-holder', centered: true});
+    const modalRef = this.modalService.open(InfoModal, {
+      windowClass: 'modal-holder',
+      centered: true,
+    });
   }
 
   openReportingModal() {
-      const reportingModalRef = this.modalService.open(ReportingModalComponent, {windowClass: 'modal-holder', centered: true});
+    const reportingModalRef = this.modalService.open(ReportingModalComponent, {
+      windowClass: 'modal-holder',
+      centered: true,
+    });
   }
 
   onSidebarButtonClick(event) {
     this.closeDiagramSubmenu();
 
-    let ident; 
-    if(event.target.id!="")
-      ident = event.target.id;
-    else
-      ident = event.srcElement.parentElement.id;
+    let ident;
+    if (event.target.id != '') ident = event.target.id;
+    else ident = event.srcElement.parentElement.id;
 
-    if(ident!=this.sidebarElement)
-      this.sidebarElement = ident;
-    else 
-      this.sidebarElement = '';
+    if (ident != this.sidebarElement) this.sidebarElement = ident;
+    else this.sidebarElement = '';
 
-    this.mapService.setMapRecenterState({recenter: true, resize: true});
+    this.mapService.setMapRecenterState({ recenter: true, resize: true });
   }
-    
-/*
+
+  /*
 
 		$scope.checkBalanceButtonAndMenueState = function(){
 			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
@@ -257,23 +251,23 @@ export class UserInterfaceComponent implements OnInit {
 
 
  */
-  onRecenterMapButtonClick(){
-    this.mapService.setMapRecenterState({recenter: true});
+  onRecenterMapButtonClick() {
+    this.mapService.setMapRecenterState({ recenter: true });
   }
 
-  onExportMapButtonClick(){
+  onExportMapButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.ExportMap);
   }
 
-  onUnselectFeaturesButtonClick(){
+  onUnselectFeaturesButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.UnselectAllFeatures);
   }
 
-  onOpenLayerControlButtonClick(){
+  onOpenLayerControlButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.OpenLayerControl);
   }
 
-  onToggleInfoControlButtonClick(){
+  onToggleInfoControlButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.ToggleInfoControl);
   }
 
@@ -283,8 +277,7 @@ export class UserInterfaceComponent implements OnInit {
   }
 
   onDiagramSubMenuOver() {
-    if(!this.diagramSubMenuOpen)
-      this.openDiagramSubmenu();  
+    if (!this.diagramSubMenuOpen) this.openDiagramSubmenu();
   }
 
   openDiagramSubmenu() {
@@ -310,21 +303,24 @@ export class UserInterfaceComponent implements OnInit {
   onSpatialFilterCloseButtonClick() {
     this.globalFilterHelperService.reset();
   }
-  
+
   onMOVCloseButtonClick() {
     this.chartDisplayState.isMeasureOfValueChecked = false;
   }
-        
+
   onRangeFilterCloseButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.RemoveRangeFilter);
   }
-  
+
   onBalanceCloseButtonClick() {
     this.broadcastService.broadcast(BroadcastMessage.DisableBalance);
   }
 
-  filterModusActive():boolean {
-
-    return this.globalFilterHelperService.globalFilterApplied() || this.chartDisplayState.isMeasureOfValueChecked || this.rangeFilterState.rangeFilterIsApplied;
+  filterModusActive(): boolean {
+    return (
+      this.globalFilterHelperService.globalFilterApplied() ||
+      this.chartDisplayState.isMeasureOfValueChecked ||
+      this.rangeFilterState.rangeFilterIsApplied
+    );
   }
 }

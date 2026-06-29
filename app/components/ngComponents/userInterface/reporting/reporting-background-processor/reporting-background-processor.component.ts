@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReportingService } from 'services/reporting-service/reporting.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { ReportingService } from 'services/reporting-service/reporting.service';
   imports: [],
 })
 export class ReportingBackgroundProcessorComponent {
-  constructor(protected reportingService: ReportingService) {}
+  protected reportingService = inject(ReportingService);
 
   getElementStyle(pageElement: any): string {
     const dims = pageElement.dimensions;

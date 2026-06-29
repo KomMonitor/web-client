@@ -1,13 +1,13 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
 
 @Pipe({
-  name: "geoFavItemFilter",
+  name: 'geoFavItemFilter',
   pure: false,
   standalone: true,
 })
 export class GeoFavItemFilter implements PipeTransform {
-  constructor(private favoritesService: GeoresourceFavoritesService) {}
+  private favoritesService = inject(GeoresourceFavoritesService);
 
   transform(items: any, topic: any): any {
     if (!items) {
@@ -15,9 +15,7 @@ export class GeoFavItemFilter implements PipeTransform {
     }
 
     // filter for items in favList
-    items = items.filter((e) =>
-      this.favoritesService.FavTabShowPoi(topic, e.georesourceId),
-    );
+    items = items.filter((e) => this.favoritesService.FavTabShowPoi(topic, e.georesourceId));
 
     return items;
   }

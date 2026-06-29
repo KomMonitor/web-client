@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
@@ -23,7 +23,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy, AfterViewIn
 
   private languageChangeSubscription: Subscription | undefined;
 
-  constructor(public translateService: TranslateService) {}
+  translateService = inject(TranslateService);
 
   ngOnInit(): void {
     // Get current language from service

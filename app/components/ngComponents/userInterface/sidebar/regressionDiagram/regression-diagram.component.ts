@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import * as ecStat from 'echarts-stat';
@@ -24,23 +24,31 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
   styleUrls: ['./regression-diagram.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    ExpandableBoxComponent, 
-    IndicatorNameFilter, 
+    CommonModule,
+    FormsModule,
+    ExpandableBoxComponent,
+    IndicatorNameFilter,
     SelectedIndicatorFilter,
     BaseIndicatorOfComputedIndicatorFilter,
-    BaseIndicatorOfHeadlineIndicatorFilter
-  ]
+    BaseIndicatorOfHeadlineIndicatorFilter,
+  ],
 })
 export class RegressionDiagramComponent implements OnInit {
-  
+  protected diagramHelperService = inject(DiagramHelperServiceService);
+  private exportButtonVisibility = inject(ExportButtonVisibilityService);
+  private metadataFilterService = inject(MetadataFilterService);
+  private indicatorValueService = inject(IndicatorValueService);
+  protected selectionState = inject(SelectionStateService);
+  private broadcastService = inject(BroadcastService);
+  private filterHelperService = inject(FilterHelperService);
+  private envConfigService = inject(EnvConfigService);
+
   activeTab = 0;
 
   isIndicatorSelectCollapsed = false;
-  isRadarCollapsed = false
+  isRadarCollapsed = false;
 
-  selection:any = {
+  selection: any = {
     indicatorNameFilterForXAxis: undefined,
     indicatorNameFilterForYAxis: undefined,
     selectedIndicatorForXAxis: undefined,
@@ -84,18 +92,6 @@ export class RegressionDiagramComponent implements OnInit {
 
   chartTitle!: string;
 
-  constructor(
-    protected diagramHelperService: DiagramHelperServiceService,
-    private exportButtonVisibility: ExportButtonVisibilityService,
-    private metadataFilterService: MetadataFilterService,
-    private indicatorValueService: IndicatorValueService,
-    protected selectionState: SelectionStateService,
-    private broadcastService: BroadcastService,
-    private filterHelperService: FilterHelperService,
-    private envConfigService: EnvConfigService,
-  ) {
-  }
-  
   // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {
     return this.indicatorValueService.getIndicatorValue_asNumber(
@@ -112,44 +108,57 @@ export class RegressionDiagramComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    $(document).ready(function() {
-      $(".nav li.disabled a").click(function() {
+    $(document).ready(function () {
+      $('.nav li.disabled a').click(function () {
         return false;
       });
     });
 
     // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
-      const values:any = broadcastMsg.values;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.UpdateDiagrams: {
-          this.updateDiagrams(values);
-        } break;
-        case BroadcastMessage.UpdateDiagramsForHoveredFeature: {
-          this.updateDiagramsForHoveredFeature(values);
-        } break;
-        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature: {
-          this.updateDiagramsForUnhoveredFeature(values);
-        } break;
-        case 'resizeDiagrams': {
-          this.resizeDiagrams();
-        } break;  
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin: {
-          this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
-        } break;
-        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted: {
-          this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
-        } break;
+        case BroadcastMessage.UpdateDiagrams:
+          {
+            this.updateDiagrams(values);
+          }
+          break;
+        case BroadcastMessage.UpdateDiagramsForHoveredFeature:
+          {
+            this.updateDiagramsForHoveredFeature(values);
+          }
+          break;
+        case BroadcastMessage.UpdateDiagramsForUnhoveredFeature:
+          {
+            this.updateDiagramsForUnhoveredFeature(values);
+          }
+          break;
+        case 'resizeDiagrams':
+          {
+            this.resizeDiagrams();
+          }
+          break;
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupBegin:
+          {
+            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin();
+          }
+          break;
+        case BroadcastMessage.AllIndicatorPropertiesForCurrentSpatialUnitAndTimeSetupCompleted:
+          {
+            this.allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed();
+          }
+          break;
       }
     });
 
-    this.chartTitle = this.enableScatterPlotRegression ? `Lineare Regression - ${this.spatialUnitName}` : `Streudiagramm - ${this.spatialUnitName}`;
+    this.chartTitle = this.enableScatterPlotRegression
+      ? `Lineare Regression - ${this.spatialUnitName}`
+      : `Streudiagramm - ${this.spatialUnitName}`;
   }
 
- /*  
+  /*  
 // initialize any adminLTE box widgets
   $('.box').boxWidget();
 
@@ -161,87 +170,97 @@ export class RegressionDiagramComponent implements OnInit {
   });
 */
 
-  filterAvailableIndicatorsXAxis(event:any) {
+  filterAvailableIndicatorsXAxis(event: any) {
     const value = event.target.value;
     this.selection.indicatorNameFilterForXAxis = value;
   }
 
-  filterAvailableIndicatorsYAxis(event:any) {
+  filterAvailableIndicatorsYAxis(event: any) {
     const value = event.target.value;
     this.selection.indicatorNameFilterForYAxis = value;
   }
 
   resizeDiagrams() {
-
     setTimeout(() => {
-      if(this.regressionChart != null && this.regressionChart != undefined){
-          this.regressionChart.resize();
+      if (this.regressionChart != null && this.regressionChart != undefined) {
+        this.regressionChart.resize();
       }
     }, 350);
   }
 
   filterIndicators() {
-
     return this.metadataFilterService.filterIndicators();
-  };
+  }
 
   filterIndicatorsBySpatialUnitAndDate() {
-    return ( item ) => {
+    return (item) => {
       //
       // await wait(2000);
 
-      if(item.applicableSpatialUnits.some(o => o.spatialUnitName == this.selectionState.selectedSpatialUnit.spatialUnitLevel)){
+      if (
+        item.applicableSpatialUnits.some(
+          (o) => o.spatialUnitName == this.selectionState.selectedSpatialUnit.spatialUnitLevel
+        )
+      ) {
         return item.applicableDates.includes(this.selectionState.selectedDate);
-      }
-      else{
+      } else {
         return false;
       }
-
     };
-  };
+  }
 
-  wait = ms => new Promise((r, j)=>setTimeout(r, ms));
+  wait = (ms) => new Promise((r, j) => setTimeout(r, ms));
 
   allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_begin() {
-
     this.wait(130);
     this.setupCompleted = false;
-    
-/* 
+
+    /* 
     setTimeout(() => {
       this.$digest();
     }, 500); */
-    
   }
 
   allIndicatorPropertiesForCurrentSpatialUnitAndTime_setup_completed() {
-
     this.wait(100);
 
     setTimeout(() => {
       this.setupCompleted = true;
       //this.$digest();
       this.onChangeSelectedIndicators();
-    }, 500);									
-
+    }, 500);
   }
 
   onChangeSelectedDate() {
     this.onChangeSelectedIndicators();
-  };
+  }
 
-  onChangeFilterSameUnitAndSameTime(){
-    if(this.regressionChart){
+  onChangeFilterSameUnitAndSameTime() {
+    if (this.regressionChart) {
       this.regressionChart.dispose();
       this.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
     }
     this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
-    
-    this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(this.diagramHelperService.filterSameUnitAndSameTime);
-  };
 
-  updateDiagrams([indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling]) {
+    this.diagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(
+      this.diagramHelperService.filterSameUnitAndSameTime
+    );
+  }
 
+  updateDiagrams([
+    indicatorMetadataAndGeoJSON,
+    spatialUnitName,
+    spatialUnitId,
+    date,
+    defaultBrew,
+    gtMeasureOfValueBrew,
+    ltMeasureOfValueBrew,
+    dynamicIncreaseBrew,
+    dynamicDecreaseBrew,
+    isMeasureOfValueChecked,
+    measureOfValue,
+    justRestyling,
+  ]) {
     this.correlation = undefined;
     this.linearRegression = undefined;
     this.regressionOption = undefined;
@@ -261,11 +280,10 @@ export class RegressionDiagramComponent implements OnInit {
     this.isMeasureOfValueChecked = isMeasureOfValueChecked;
     this.measureOfValue = measureOfValue;
 
-    if(justRestyling){
+    if (justRestyling) {
       this.onChangeSelectedIndicators();
-    }
-    else{
-      if(this.regressionChart){
+    } else {
+      if (this.regressionChart) {
         this.regressionChart.dispose();
         this.regressionChart = undefined;
       }
@@ -275,32 +293,29 @@ export class RegressionDiagramComponent implements OnInit {
       this.selection.selectedIndicatorForXAxis = undefined;
       this.selection.selectedIndicatorForYAxis = undefined;
 
- /*      $timeout(function () {
+      /*      $timeout(function () {
            $("option").each(function (index, element) {
               var text = $(element).text();
               $(element).attr("title", text);
            });
       }); */
-
     }
 
     this.activeTab = 0;
-    if(this.selectionState.selectedIndicator.creationType == "COMPUTATION"){
+    if (this.selectionState.selectedIndicator.creationType == 'COMPUTATION') {
       this.activeTab = 1;
     }
-    if(this.selectionState.selectedIndicator.isHeadlineIndicator){
+    if (this.selectionState.selectedIndicator.isHeadlineIndicator) {
       this.activeTab = 2;
     }
 
     setTimeout(() => {
       this.onChangeSelectedIndicators();
     }, 500);
-                      
   }
 
   updateDiagramsForHoveredFeature([featureProperties]) {
-
-    if(!this.regressionChart){
+    if (!this.regressionChart) {
       return;
     }
 
@@ -309,234 +324,305 @@ export class RegressionDiagramComponent implements OnInit {
     // }
 
     let index = -1;
-    for(let i=0; i<this.regressionOption.series[0].data.length; i++){
-      if(this.regressionOption.series[0].data[i].name == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]){
+    for (let i = 0; i < this.regressionOption.series[0].data.length; i++) {
+      if (
+        this.regressionOption.series[0].data[i].name ==
+        featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]
+      ) {
         index = i;
         break;
       }
     }
 
-    if(index > -1){
+    if (index > -1) {
       this.regressionChart.dispatchAction({
-          type: 'highlight',
-          seriesIndex: 0,
-          dataIndex: index
+        type: 'highlight',
+        seriesIndex: 0,
+        dataIndex: index,
       });
       // tooltip
       this.regressionChart.dispatchAction({
-          type: 'showTip',
-          seriesIndex: 0,
-          dataIndex: index
+        type: 'showTip',
+        seriesIndex: 0,
+        dataIndex: index,
       });
     }
   }
 
   updateDiagramsForUnhoveredFeature([featureProperties]) {
-
-    if(!this.regressionChart){
+    if (!this.regressionChart) {
       return;
     }
 
-    if(! this.filterHelperService.featureIsCurrentlySelected(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME])){
+    if (
+      !this.filterHelperService.featureIsCurrentlySelected(
+        featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+      )
+    ) {
       // highlight the corresponding bar diagram item
       let index = -1;
-      for(let i=0; i<this.regressionOption.series[0].data.length; i++){
-        if(this.regressionOption.series[0].data[i].name == featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]){
+      for (let i = 0; i < this.regressionOption.series[0].data.length; i++) {
+        if (
+          this.regressionOption.series[0].data[i].name ==
+          featureProperties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME]
+        ) {
           index = i;
           break;
         }
       }
 
-      if(index > -1){
+      if (index > -1) {
         this.regressionChart.dispatchAction({
-            type: 'downplay',
-            seriesIndex: 0,
-            dataIndex: index
+          type: 'downplay',
+          seriesIndex: 0,
+          dataIndex: index,
         });
         // tooltip
         this.regressionChart.dispatchAction({
-            type: 'hideTip',
-            seriesIndex: 0,
-            dataIndex: index
+          type: 'hideTip',
+          seriesIndex: 0,
+          dataIndex: index,
         });
       }
     }
   }
 
+  getAllIndicatorPropertiesSortedBySpatialUnitFeatureName() {
+    for (
+      let i = 0;
+      i < this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length;
+      i++
+    ) {
+      // make object to hold indicatorName, max value and average value
+      this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[
+        i
+      ].indicatorProperties.sort((a, b) => {
+        // a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
+        const nameA = a[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+        const nameB = b[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
 
-
-  getAllIndicatorPropertiesSortedBySpatialUnitFeatureName(){
-    for(let i=0; i<this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
-        // make object to hold indicatorName, max value and average value
-        this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort((a, b) => {
-          // a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
-            const nameA = a[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
-            const nameB = b[this.envConfigService.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
-            if (nameA < nameB) {
-              return -1;
-            }
-            if (nameA > nameB) {
-              return 1;
-            }
-
-            // names are equal
-            return 0;
-        });
+        // names are equal
+        return 0;
+      });
     }
 
     return this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime;
-  };
- 
-  getPropertiesForIndicatorName(indicatorName){
-    for (const [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
-      if(indicator.indicatorMetadata.indicatorName == indicatorName){
-        
+  }
+
+  getPropertiesForIndicatorName(indicatorName) {
+    for (const [
+      index,
+      indicator,
+    ] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()) {
+      if (indicator.indicatorMetadata.indicatorName == indicatorName) {
         return indicator.indicatorProperties;
       }
     }
-  };
+  }
 
-  getColor(featureName){
-
+  getColor(featureName) {
     let color;
 
-    for (let index=0; index<this.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
+    for (let index = 0; index < this.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++) {
       const feature = this.indicatorMetadataAndGeoJSON.geoJSON.features[index];
-      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureName){
-        color = this.diagramHelperService.getColorForFeature(feature, this.indicatorMetadataAndGeoJSON, this.indicatorPropertyName, this.defaultBrew, this.gtMeasureOfValueBrew, this.ltMeasureOfValueBrew, this.dynamicIncreaseBrew, this.dynamicDecreaseBrew, this.isMeasureOfValueChecked, this.measureOfValue);
+      if (feature.properties[this.envConfigService.FEATURE_NAME_PROPERTY_NAME] == featureName) {
+        color = this.diagramHelperService.getColorForFeature(
+          feature,
+          this.indicatorMetadataAndGeoJSON,
+          this.indicatorPropertyName,
+          this.defaultBrew,
+          this.gtMeasureOfValueBrew,
+          this.ltMeasureOfValueBrew,
+          this.dynamicIncreaseBrew,
+          this.dynamicDecreaseBrew,
+          this.isMeasureOfValueChecked,
+          this.measureOfValue
+        );
         break;
       }
     }
 
     return color;
-  };
- 
-  mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName, axisPrecision){
+  }
 
+  mapRegressionData(indicatorPropertiesArray, timestamp, map, axisValueName, axisPrecision) {
     for (const indicatorPropertiesEntry of indicatorPropertiesArray) {
-      const featureName = indicatorPropertiesEntry[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
+      const featureName =
+        indicatorPropertiesEntry[this.envConfigService.FEATURE_NAME_PROPERTY_NAME];
       let indicatorValue;
 
-      if (this.indicatorValueService.indicatorValueIsNoData(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp])){
+      if (
+        this.indicatorValueService.indicatorValueIsNoData(
+          indicatorPropertiesEntry[this.DATE_PREFIX + timestamp]
+        )
+      ) {
         indicatorValue = null;
-      }
-      else{
-        indicatorValue = this.getIndicatorValue_asNumber(indicatorPropertiesEntry[this.DATE_PREFIX + timestamp], axisPrecision);
+      } else {
+        indicatorValue = this.getIndicatorValue_asNumber(
+          indicatorPropertiesEntry[this.DATE_PREFIX + timestamp],
+          axisPrecision
+        );
       }
 
-      if(map.has(featureName)){
+      if (map.has(featureName)) {
         const oldObject = map.get(featureName);
         oldObject[axisValueName] = indicatorValue;
         map.set(featureName, oldObject);
-      }
-      else{
+      } else {
         const color = this.getColor(featureName);
         const regressionObject = {
-          name: featureName,											
+          name: featureName,
           itemStyle: {
-            color: color
-          }
+            color: color,
+          },
         };
 
         regressionObject[axisValueName] = indicatorValue;
         map.set(featureName, regressionObject);
       }
-
     }
 
     return map;
   }
-  
-  buildDataArrayForSelectedIndicators(){
+
+  buildDataArrayForSelectedIndicators() {
     this.data = [];
     this.dataWithLabels = [];
 
-    for (const [index, indicator] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
-      if(indicator.indicatorMetadata.indicatorName == this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName){
+    for (const [
+      index,
+      indicator,
+    ] of this.diagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()) {
+      if (
+        indicator.indicatorMetadata.indicatorName ==
+        this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName
+      ) {
         this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
       }
 
-      if(indicator.indicatorMetadata.indicatorName == this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName){
+      if (
+        indicator.indicatorMetadata.indicatorName ==
+        this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName
+      ) {
         this.diagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
       }
     }
 
     // both await
     setTimeout(() => {
-      let indicatorPropertiesArrayForXAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
-      let indicatorPropertiesArrayForYAxis = this.getPropertiesForIndicatorName(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
+      let indicatorPropertiesArrayForXAxis = this.getPropertiesForIndicatorName(
+        this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName
+      );
+      let indicatorPropertiesArrayForYAxis = this.getPropertiesForIndicatorName(
+        this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName
+      );
 
       // hier indicatorPropertiesArrayForXAxis and ...YAxis undefined, look getPropertiesForIndicatorName
 
-      if(this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay && this.filterHelperService.filteredIndicatorFeatureIds.size > 0){
-        indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));
-        indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! this.filterHelperService.featureIsCurrentlyFiltered(featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]));						
+      if (
+        this.filterHelperService.completelyRemoveFilteredFeaturesFromDisplay &&
+        this.filterHelperService.filteredIndicatorFeatureIds.size > 0
+      ) {
+        indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(
+          (featureProperties) =>
+            !this.filterHelperService.featureIsCurrentlyFiltered(
+              featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+            )
+        );
+        indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(
+          (featureProperties) =>
+            !this.filterHelperService.featureIsCurrentlyFiltered(
+              featureProperties[this.envConfigService.FEATURE_ID_PROPERTY_NAME]
+            )
+        );
       }
 
       const timestamp_xAxis = this.selection.selectedIndicatorForXAxis.selectedDate;
       const timestamp_yAxis = this.selection.selectedIndicatorForYAxis.selectedDate;
 
       // store data in a map to check above prerequesits
-      // key = ID, 
+      // key = ID,
       // value = regressionObject = {
-      // 	name: featureName,											
+      // 	name: featureName,
       // 	itemStyle: {
       // 		color: color
       // 	},
       //  xAxisName: indicatorValue_x,
       //  yAxisName: indicatorValue_y
       //}
-      const xAxisName = "xValue";
-      const yAxisName = "yValue";
+      const xAxisName = 'xValue';
+      const yAxisName = 'yValue';
       const xAxisPrecision = this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision;
       const yAxisPrecision = this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision;
 
-      let dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForXAxis, timestamp_xAxis, new Map(), xAxisName, xAxisPrecision);
-      dataCandidateMap = this.mapRegressionData(indicatorPropertiesArrayForYAxis, timestamp_yAxis, dataCandidateMap, yAxisName, yAxisPrecision);
+      let dataCandidateMap = this.mapRegressionData(
+        indicatorPropertiesArrayForXAxis,
+        timestamp_xAxis,
+        new Map(),
+        xAxisName,
+        xAxisPrecision
+      );
+      dataCandidateMap = this.mapRegressionData(
+        indicatorPropertiesArrayForYAxis,
+        timestamp_yAxis,
+        dataCandidateMap,
+        yAxisName,
+        yAxisPrecision
+      );
 
       // now iterate over map and identify those objects that have both indicator axis values set
-      // put those into resulting lists 
+      // put those into resulting lists
 
       dataCandidateMap.forEach((regressionObject, key, map) => {
         // this.data.push([xAxisDataElement, yAxisDataElement])
-        if (regressionObject[xAxisName] && regressionObject[yAxisName]){
+        if (regressionObject[xAxisName] && regressionObject[yAxisName]) {
           this.data.push([regressionObject[xAxisName], regressionObject[yAxisName]]);
 
           regressionObject.value = [regressionObject[xAxisName], regressionObject[yAxisName]];
 
-          this.dataWithLabels.push(
-            regressionObject
-          );
+          this.dataWithLabels.push(regressionObject);
         }
       });
-    },1000);
-
-  };
+    }, 1000);
+  }
 
   //Source: http://stevegardner.net/2012/06/11/javascript-code-to-calculate-the-pearson-correlation-coefficient/
-  
+
   getPearsonCorrelation(x, y) {
     let shortestArrayLength = 0;
 
-    if(x.length == y.length) {
-        shortestArrayLength = x.length;
-    } else if(x.length > y.length) {
-        shortestArrayLength = y.length;
-        console.error('x has more items in it, the last ' + (x.length - shortestArrayLength) + ' item(s) will be ignored');
+    if (x.length == y.length) {
+      shortestArrayLength = x.length;
+    } else if (x.length > y.length) {
+      shortestArrayLength = y.length;
+      console.error(
+        'x has more items in it, the last ' +
+          (x.length - shortestArrayLength) +
+          ' item(s) will be ignored'
+      );
     } else {
-        shortestArrayLength = x.length;
-        console.error('y has more items in it, the last ' + (y.length - shortestArrayLength) + ' item(s) will be ignored');
+      shortestArrayLength = x.length;
+      console.error(
+        'y has more items in it, the last ' +
+          (y.length - shortestArrayLength) +
+          ' item(s) will be ignored'
+      );
     }
 
-    const x_numeric:any[] = [];
-    const y_numeric:any[] = [];
-    const xy:any[] = [];
-    const x2:any[] = [];
-    const y2:any[] = [];
+    const x_numeric: any[] = [];
+    const y_numeric: any[] = [];
+    const xy: any[] = [];
+    const x2: any[] = [];
+    const y2: any[] = [];
 
-    for(var i=0; i<shortestArrayLength; i++) {
-
-      if(x[i] && y[i]){
+    for (var i = 0; i < shortestArrayLength; i++) {
+      if (x[i] && y[i]) {
         x_numeric.push(x[i]);
         y_numeric.push(y[i]);
         xy.push(x[i] * y[i]);
@@ -551,30 +637,30 @@ export class RegressionDiagramComponent implements OnInit {
     let sum_x2 = 0;
     let sum_y2 = 0;
 
-    for(var i=0; i< x_numeric.length; i++) {
-        sum_x += x_numeric[i];
-        sum_y += y_numeric[i];
-        sum_xy += xy[i];
-        sum_x2 += x2[i];
-        sum_y2 += y2[i];
+    for (var i = 0; i < x_numeric.length; i++) {
+      sum_x += x_numeric[i];
+      sum_y += y_numeric[i];
+      sum_xy += xy[i];
+      sum_x2 += x2[i];
+      sum_y2 += y2[i];
     }
 
-    const step1 = (shortestArrayLength * sum_xy) - (sum_x * sum_y);
-    const step2 = (shortestArrayLength * sum_x2) - (sum_x * sum_x);
-    const step3 = (shortestArrayLength * sum_y2) - (sum_y * sum_y);
+    const step1 = shortestArrayLength * sum_xy - sum_x * sum_y;
+    const step2 = shortestArrayLength * sum_x2 - sum_x * sum_x;
+    const step3 = shortestArrayLength * sum_y2 - sum_y * sum_y;
     const step4 = Math.sqrt(step2 * step3);
     const answer = step1 / step4;
 
     return Number(+answer.toFixed(2));
   }
 
-  calculatePearsonCorrelation(data){
+  calculatePearsonCorrelation(data) {
     // data is an array of arrays containing the pairs of [x, y]
 
     const xArray: any[] = [];
     const yArray: any[] = [];
 
-    data.forEach(function(xyPair) {
+    data.forEach(function (xyPair) {
       xArray.push(xyPair[0]);
       yArray.push(xyPair[1]);
     });
@@ -582,29 +668,25 @@ export class RegressionDiagramComponent implements OnInit {
     return this.getPearsonCorrelation(xArray, yArray);
   }
 
-  onChangeSelectedIndicators(){
-
-    if(this.selection.selectedIndicatorForXAxis){
+  onChangeSelectedIndicators() {
+    if (this.selection.selectedIndicatorForXAxis) {
       this.selection.selectedIndicatorForXAxis_backup = this.selection.selectedIndicatorForXAxis;
-    }
-    else if (this.selection.selectedIndicatorForXAxis_backup){
+    } else if (this.selection.selectedIndicatorForXAxis_backup) {
       this.selection.selectedIndicatorForXAxis = this.selection.selectedIndicatorForXAxis_backup;
     }
 
-    if(this.selection.selectedIndicatorForYAxis){
+    if (this.selection.selectedIndicatorForYAxis) {
       this.selection.selectedIndicatorForYAxis_backup = this.selection.selectedIndicatorForYAxis;
-    }
-    else if (this.selection.selectedIndicatorForYAxis_backup){
+    } else if (this.selection.selectedIndicatorForYAxis_backup) {
       this.selection.selectedIndicatorForYAxis = this.selection.selectedIndicatorForYAxis_backup;
     }
 
-    if(this.selection.selectedIndicatorForXAxis && this.selection.selectedIndicatorForYAxis){
-
+    if (this.selection.selectedIndicatorForXAxis && this.selection.selectedIndicatorForYAxis) {
       this.eventsRegistered = false;
 
-      if(!this.regressionChart)
+      if (!this.regressionChart)
         this.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
-      else{
+      else {
         // explicitly kill and reinstantiate histogram diagram to avoid zombie states on spatial unit change
         this.regressionChart.dispose();
         this.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
@@ -621,270 +703,360 @@ export class RegressionDiagramComponent implements OnInit {
       this.buildDataArrayForSelectedIndicators();
 
       setTimeout(() => {
-
         const data = this.data;
 
-        data.sort(function(a, b) {
-            return a[0] - b[0];
+        data.sort(function (a, b) {
+          return a[0] - b[0];
         });
 
         this.correlation = this.calculatePearsonCorrelation(data);
 
-        this.linearRegression = ecStat.regression('linear', data,1);
+        this.linearRegression = ecStat.regression('linear', data, 1);
 
-        const titlePrefix = this.enableScatterPlotRegression ? 'Lineare Regression - ' : 'Streudiagramm - ';
-        const dataViewTitle =  this.enableScatterPlotRegression ? 'Datenansicht - lineare Regression' : 'Datenansicht - Streudiagramm';
-        
+        const titlePrefix = this.enableScatterPlotRegression
+          ? 'Lineare Regression - '
+          : 'Streudiagramm - ';
+        const dataViewTitle = this.enableScatterPlotRegression
+          ? 'Datenansicht - lineare Regression'
+          : 'Datenansicht - Streudiagramm';
+
         //get custom fontFamily
-        const elem:any = document.querySelector('#fontFamily-reference');
+        const elem: any = document.querySelector('#fontFamily-reference');
         const style = getComputedStyle(elem);
 
-        this.regressionOption = { 
+        this.regressionOption = {
           textStyle: {
-            fontFamily: style.fontFamily
+            fontFamily: style.fontFamily,
           },
           grid: {
             left: '10%',
             top: 10,
             right: '5%',
             bottom: 55,
-            containLabel: true
+            containLabel: true,
           },
-            title: {
-                text: titlePrefix + this.spatialUnitName + ' - ' + this.date,
-                left: 'center',
-                show: false
-            },
-            tooltip: {
-                trigger: 'item',
-                confine: 'true',
-                axisPointer: {
-                    type: 'cross',
-                    label: {
-                      formatter: (params, index) => {
-                        //y-axis
-                        if (params.axisDimension === 'y') {
-                          return this.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
-                        }
-                        //x-axis
-                        else if (params.axisDimension === 'x') {
-                          return this.getIndicatorValue_asFormattedText(params.value,  this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
-                        }
-                        else {
-                          return this.getIndicatorValue_asFormattedText(params.value);
-                        }
-                      }
-                    }
-                },
-                formatter: (params) => {
-                          if(!(params && params.value && params.value[0] && params.value[1])){
-                            return "";
-                          }
-                            let string = "" + params.name + "<br/>";
-
-                            string += this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + this.getIndicatorValue_asFormattedText(params.value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
-                            string += this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + this.getIndicatorValue_asFormattedText(params.value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
-                            return string;
-                          }
-            },
-            xAxis: {
-                name: this.indicatorValueService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForXAxis.selectedDate + " [" + this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
-                nameLocation: 'center',
-                nameGap: 22,
-                scale: true,
-                type: 'value',
-                splitLine: {
-                    lineStyle: {
-                        type: 'dashed'
-                    }
-                },
-                axisLabel: {
-                  formatter: (value, index) => {
-                    return this.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision);
+          title: {
+            text: titlePrefix + this.spatialUnitName + ' - ' + this.date,
+            left: 'center',
+            show: false,
+          },
+          tooltip: {
+            trigger: 'item',
+            confine: 'true',
+            axisPointer: {
+              type: 'cross',
+              label: {
+                formatter: (params, index) => {
+                  //y-axis
+                  if (params.axisDimension === 'y') {
+                    return this.getIndicatorValue_asFormattedText(
+                      params.value,
+                      this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
+                    );
                   }
-                }
-            },
-            yAxis: {
-                name: this.indicatorValueService.formatIndicatorNameForLabel(this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + this.selection.selectedIndicatorForYAxis.selectedDate + " [" + this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
-                nameLocation: 'center',
-                nameGap: 80,
-                    type: 'value',
-                    splitLine: {
-                        lineStyle: {
-                            type: 'dashed'
-                        }	
-                    },
-                    axisLabel: {
-                      formatter: (value, index) => {
-                        return this.getIndicatorValue_asFormattedText(value, this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision);
-                      }
-                    }
+                  //x-axis
+                  else if (params.axisDimension === 'x') {
+                    return this.getIndicatorValue_asFormattedText(
+                      params.value,
+                      this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
+                    );
+                  } else {
+                    return this.getIndicatorValue_asFormattedText(params.value);
+                  }
                 },
-            toolbox: {
-                show : true,
-                right: '15',
-                feature : {
-                    // mark : {show: true},
-                    dataView : {show: this.exportButtonVisibility.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'], optionToContent: (opt) => {
+              },
+            },
+            formatter: (params) => {
+              if (!(params && params.value && params.value[0] && params.value[1])) {
+                return '';
+              }
+              let string = '' + params.name + '<br/>';
 
-                    // 	<table class="table table-condensed table-hover">
-                    // 	<thead>
-                    // 		<tr>
-                    // 			<th>Indikator-Name</th>
-                    // 			<th>Beschreibung der Verkn&uuml;pfung</th>
-                    // 		</tr>
-                    // 	</thead>
-                    // 	<tbody>
-                    // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
-                    // 			<td>{{indicator.referencedIndicatorName}}</td>
-                    // 			<td>{{indicator.referencedIndicatorDescription}}</td>
-                    // 		</tr>
-                    // 	</tbody>
-                    // </table>
+              string +=
+                this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName +
+                ': ' +
+                this.getIndicatorValue_asFormattedText(
+                  params.value[0],
+                  this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
+                ) +
+                ' [' +
+                this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit +
+                ']<br/>';
+              string +=
+                this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName +
+                ': ' +
+                this.getIndicatorValue_asFormattedText(
+                  params.value[1],
+                  this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
+                ) +
+                ' [' +
+                this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit +
+                ']<br/>';
+              return string;
+            },
+          },
+          xAxis: {
+            name: this.indicatorValueService.formatIndicatorNameForLabel(
+              this.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName +
+                ' - ' +
+                this.selection.selectedIndicatorForXAxis.selectedDate +
+                ' [' +
+                this.selection.selectedIndicatorForXAxis.indicatorMetadata.unit +
+                ']',
+              100
+            ),
+            nameLocation: 'center',
+            nameGap: 22,
+            scale: true,
+            type: 'value',
+            splitLine: {
+              lineStyle: {
+                type: 'dashed',
+              },
+            },
+            axisLabel: {
+              formatter: (value, index) => {
+                return this.getIndicatorValue_asFormattedText(
+                  value,
+                  this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
+                );
+              },
+            },
+          },
+          yAxis: {
+            name: this.indicatorValueService.formatIndicatorNameForLabel(
+              this.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName +
+                ' - ' +
+                this.selection.selectedIndicatorForYAxis.selectedDate +
+                ' [' +
+                this.selection.selectedIndicatorForYAxis.indicatorMetadata.unit +
+                ']',
+              75
+            ),
+            nameLocation: 'center',
+            nameGap: 80,
+            type: 'value',
+            splitLine: {
+              lineStyle: {
+                type: 'dashed',
+              },
+            },
+            axisLabel: {
+              formatter: (value, index) => {
+                return this.getIndicatorValue_asFormattedText(
+                  value,
+                  this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
+                );
+              },
+            },
+          },
+          toolbox: {
+            show: true,
+            right: '15',
+            feature: {
+              // mark : {show: true},
+              dataView: {
+                show: this.exportButtonVisibility.showDiagramExportButtons,
+                readOnly: true,
+                title: 'Datenansicht',
+                lang: [dataViewTitle, 'schlie&szlig;en', 'refresh'],
+                optionToContent: (opt) => {
+                  // 	<table class="table table-condensed table-hover">
+                  // 	<thead>
+                  // 		<tr>
+                  // 			<th>Indikator-Name</th>
+                  // 			<th>Beschreibung der Verkn&uuml;pfung</th>
+                  // 		</tr>
+                  // 	</thead>
+                  // 	<tbody>
+                  // 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+                  // 			<td>{{indicator.referencedIndicatorName}}</td>
+                  // 			<td>{{indicator.referencedIndicatorDescription}}</td>
+                  // 		</tr>
+                  // 	</tbody>
+                  // </table>
 
-                    // has properties "name" and "value"
-                    // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
-                    const scatterSeries = opt.series[0].data;
-                    let lineSeries;
-                    
-                    if (this.enableScatterPlotRegression) {
-                      lineSeries = opt.series[1].data;
+                  // has properties "name" and "value"
+                  // value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
+                  const scatterSeries = opt.series[0].data;
+                  let lineSeries;
+
+                  if (this.enableScatterPlotRegression) {
+                    lineSeries = opt.series[1].data;
+                  }
+
+                  const dataTableId = 'regressionDataTable';
+                  const tableExportName = opt.title[0].text + ' - Scatter Table';
+
+                  let htmlString = this.enableScatterPlotRegression
+                    ? '<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>'
+                    : '<p>Data View enth&auml;lt die Tabelle der Datenpunkte des Streudiagramms.</p><br/>';
+                  htmlString += '<h4>Scatter Plot Tabelle</h4>';
+                  htmlString +=
+                    '<table id="' +
+                    dataTableId +
+                    '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                  htmlString += '<thead>';
+                  htmlString += '<tr>';
+                  htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
+                  htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + '</th>';
+                  htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + '</th>';
+
+                  htmlString += '</tr>';
+                  htmlString += '</thead>';
+
+                  htmlString += '<tbody>';
+
+                  for (var j = 0; j < scatterSeries.length; j++) {
+                    htmlString += '<tr>';
+                    htmlString += '<td>' + scatterSeries[j].name + '</td>';
+
+                    htmlString +=
+                      '<td>' +
+                      this.getIndicatorValue_asNumber(
+                        scatterSeries[j].value[0],
+                        this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
+                      ) +
+                      '</td>';
+                    htmlString +=
+                      '<td>' +
+                      this.getIndicatorValue_asNumber(
+                        scatterSeries[j].value[1],
+                        this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
+                      ) +
+                      '</td>';
+                    htmlString += '</tr>';
+                  }
+
+                  htmlString += '</tbody>';
+                  htmlString += '</table>';
+
+                  let lineTableId;
+                  let lineTableExportName;
+
+                  if (this.enableScatterPlotRegression) {
+                    lineTableId = 'lineDataTable';
+                    lineTableExportName = opt.title[0].text + ' - Line Table';
+
+                    htmlString +=
+                      "<br/><h4>Referenzpunkte der Regressionsgraden '" +
+                      this.linearRegression.expression +
+                      "'</h4>";
+
+                    htmlString +=
+                      '<table id="' +
+                      lineTableId +
+                      '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                    htmlString += '<thead>';
+                    htmlString += '<tr>';
+                    htmlString += "<th style='text-align:center;'>X</th>";
+                    htmlString += "<th style='text-align:center;'>Y</th>";
+                    htmlString += '</tr>';
+                    htmlString += '</thead>';
+
+                    htmlString += '<tbody>';
+
+                    for (var j = 0; j < lineSeries.length; j++) {
+                      htmlString += '<tr>';
+                      htmlString +=
+                        '<td>' +
+                        this.getIndicatorValue_asNumber(
+                          lineSeries[j][0],
+                          this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision
+                        ) +
+                        '</td>';
+                      htmlString +=
+                        '<td>' +
+                        this.getIndicatorValue_asNumber(
+                          lineSeries[j][1],
+                          this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision
+                        ) +
+                        '</td>';
+                      htmlString += '</tr>';
                     }
 
-                    const dataTableId = "regressionDataTable";
-                    const tableExportName = opt.title[0].text + " - Scatter Table";
+                    htmlString += '</tbody>';
+                    htmlString += '</table>';
+                  }
 
-                    let htmlString = this.enableScatterPlotRegression
-                            ? 
-                            "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle der Datenpunkte des Streudiagramms und die Tabelle der Punkte der Regressionsgeraden.</p><br/>"
-                            :
-                            "<p>Data View enth&auml;lt die Tabelle der Datenpunkte des Streudiagramms.</p><br/>";
-                    htmlString += '<h4>Scatter Plot Tabelle</h4>';
-                      htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-                      htmlString += "<thead>";
-                      htmlString += "<tr>";
-                      htmlString += "<th style='text-align:center;'>Raumeinheits-Name</th>";
-                      htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
-                      htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
+                  this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [
+                    dataTableId,
+                    tableExportName,
+                  ]);
 
-                      htmlString += "</tr>";
-                      htmlString += "</thead>";
+                  if (this.enableScatterPlotRegression) {
+                    this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [
+                      lineTableId,
+                      lineTableExportName,
+                    ]);
+                  }
 
-                      htmlString += "<tbody>";
-
-                      for (var j=0; j<scatterSeries.length; j++){
-                        htmlString += "<tr>";
-                        htmlString += "<td>" + scatterSeries[j].name + "</td>";
-
-                        htmlString += "<td>" + this.getIndicatorValue_asNumber(scatterSeries[j].value[0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
-                        htmlString += "<td>" + this.getIndicatorValue_asNumber(scatterSeries[j].value[1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
-                        htmlString += "</tr>";
-                      }
-
-                      htmlString += "</tbody>";
-                      htmlString += "</table>";
-
-                      let lineTableId;
-                      let lineTableExportName;
-
-                      if (this.enableScatterPlotRegression) {
-
-                        lineTableId = "lineDataTable";
-                        lineTableExportName = opt.title[0].text + " - Line Table";
-
-                        htmlString += "<br/><h4>Referenzpunkte der Regressionsgraden '" + this.linearRegression.expression + "'</h4>";
-
-                        htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
-                        htmlString += "<thead>";
-                        htmlString += "<tr>";
-                        htmlString += "<th style='text-align:center;'>X</th>";
-                        htmlString += "<th style='text-align:center;'>Y</th>";
-                        htmlString += "</tr>";
-                        htmlString += "</thead>";
-
-                        htmlString += "<tbody>";
-                      
-                        for (var j=0; j<lineSeries.length; j++){
-                          htmlString += "<tr>";
-                          htmlString += "<td>" + this.getIndicatorValue_asNumber(lineSeries[j][0], this.selection.selectedIndicatorForXAxis.indicatorMetadata.precision) + "</td>";
-                          htmlString += "<td>" + this.getIndicatorValue_asNumber(lineSeries[j][1], this.selection.selectedIndicatorForYAxis.indicatorMetadata.precision) + "</td>";
-                          htmlString += "</tr>";
-                        }
-                        
-                        htmlString += "</tbody>";
-                        htmlString += "</table>";
-                      }	
-
-                      this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [dataTableId, tableExportName]);
-
-                      if (this.enableScatterPlotRegression) {
-                        this.broadcastService.broadcast(BroadcastMessage.AppendExportButtonsForTable, [lineTableId, lineTableExportName]);
-                      }
-                      
-                      return htmlString;
-                    }},
-                    restore : {show: false, title: "Erneuern"},
-                    saveAsImage : {show: true, title: "Export", pixelRatio: 4}
-                }
+                  return htmlString;
+                },
+              },
+              restore: { show: false, title: 'Erneuern' },
+              saveAsImage: { show: true, title: 'Export', pixelRatio: 4 },
             },
-            series: [{
-                name: "scatter",
-                type: 'scatter',
-                // label: {
-                //     emphasis: {
-                //         show: false,
-                //         position: 'left',
-                //         textStyle: {
-                //             color: 'blue',
-                //             fontSize: 16
-                //         }
-                //     }
-                // },
+          },
+          series: [
+            {
+              name: 'scatter',
+              type: 'scatter',
+              // label: {
+              //     emphasis: {
+              //         show: false,
+              //         position: 'left',
+              //         textStyle: {
+              //             color: 'blue',
+              //             fontSize: 16
+              //         }
+              //     }
+              // },
+              itemStyle: {
+                borderWidth: 1,
+                borderColor: 'black',
+              },
+              emphasis: {
                 itemStyle: {
-                  borderWidth: 1,
-                  borderColor: 'black'
+                  borderWidth: 4,
+                  borderColor: this.defaultColorForClickedFeatures,
                 },
-                emphasis: {
-                  itemStyle: {
-                    borderWidth: 4,
-                    borderColor: this.defaultColorForClickedFeatures
-                  }
-                },
-                data: this.dataWithLabels
-            }
-        ]
+              },
+              data: this.dataWithLabels,
+            },
+          ],
         };
 
         if (this.enableScatterPlotRegression) {
-          this.regressionOption.series.push(
-            {
-                  name: 'line',
-                  type: 'line',
-                  showSymbol: false,
-                  data: this.linearRegression.points,
-                  markPoint: {
-                      itemStyle: {
-                          normal: {
-                              color: 'transparent'
-                          }
-                      },
-                      label: {
-                          normal: {
-                              show: true,
-                              position: 'left',
-                              formatter: this.linearRegression.expression,
-                              textStyle: {
-                                  color: '#333',
-                                  fontSize: 14
-                              }
-                          }
-                      },
-                      data: [{
-                          coord: this.linearRegression.points[this.linearRegression.points.length - 1]
-                      }]
-                  }
-              }
-          )
+          this.regressionOption.series.push({
+            name: 'line',
+            type: 'line',
+            showSymbol: false,
+            data: this.linearRegression.points,
+            markPoint: {
+              itemStyle: {
+                normal: {
+                  color: 'transparent',
+                },
+              },
+              label: {
+                normal: {
+                  show: true,
+                  position: 'left',
+                  formatter: this.linearRegression.expression,
+                  textStyle: {
+                    color: '#333',
+                    fontSize: 14,
+                  },
+                },
+              },
+              data: [
+                {
+                  coord: this.linearRegression.points[this.linearRegression.points.length - 1],
+                },
+              ],
+            },
+          });
         }
 
         this.regressionChart.setOption(this.regressionOption);
@@ -898,22 +1070,22 @@ export class RegressionDiagramComponent implements OnInit {
         this.registerEventsIfNecessary();
 
         this.broadcastService.broadcast(BroadcastMessage.PreserveHighlightedFeatures);
-        
-      },1500);
+      }, 1500);
     }
-  };
+  }
 
-  registerEventsIfNecessary(){
-    if(!this.eventsRegistered){
+  registerEventsIfNecessary() {
+    if (!this.eventsRegistered) {
       // when hovering over elements of the chart then highlight them in the map.
       this.regressionChart.on('mouseOver', (params) => {
         // this.userHoveresOverItem = true;
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
-        if(spatialFeatureName){
-          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [spatialFeatureName]);
+        if (spatialFeatureName) {
+          this.broadcastService.broadcast(BroadcastMessage.HighlightFeatureOnMap, [
+            spatialFeatureName,
+          ]);
         }
-
       });
 
       this.regressionChart.on('mouseOut', (params) => {
@@ -921,25 +1093,28 @@ export class RegressionDiagramComponent implements OnInit {
 
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
-        if(spatialFeatureName){
-          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [spatialFeatureName]);
-        }										
+        if (spatialFeatureName) {
+          this.broadcastService.broadcast(BroadcastMessage.UnhighlightFeatureOnMap, [
+            spatialFeatureName,
+          ]);
+        }
       });
 
       this.regressionChart.on('click', (params) => {
         const spatialFeatureName = params.data.name;
         // console.log(spatialFeatureName);
-        if(spatialFeatureName){
-          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [spatialFeatureName]);
+        if (spatialFeatureName) {
+          this.broadcastService.broadcast(BroadcastMessage.SwitchHighlightFeatureOnMap, [
+            spatialFeatureName,
+          ]);
         }
-        
       });
 
       this.eventsRegistered = true;
     }
-  };
+  }
 
-  onChangeEnableScatterPlotRegression(){
+  onChangeEnableScatterPlotRegression() {
     this.onChangeSelectedIndicators();
   }
 }

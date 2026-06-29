@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ExportingStateService, ExportType } from '../exporting-state.service';
 
 @Component({
@@ -9,6 +9,8 @@ import { ExportingStateService, ExportType } from '../exporting-state.service';
   standalone: true,
 })
 export class ExportTypSelectionComponent {
+  protected srvc = inject(ExportingStateService);
+
   options: { val: ExportType; label: string }[] = [
     { val: 'single', label: 'Einzel-Export (Standard)' },
     {
@@ -20,8 +22,6 @@ export class ExportTypSelectionComponent {
       label: 'Ein Indikator für mehrere Raumebenen',
     },
   ];
-
-  constructor(protected srvc: ExportingStateService) {}
 
   updateSelectedSpatialUnit(evt: Event): void {
     const value = (evt.target as HTMLSelectElement).value;

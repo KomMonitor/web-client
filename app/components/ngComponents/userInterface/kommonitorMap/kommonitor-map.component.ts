@@ -48,6 +48,25 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
   imports: [],
 })
 export class KommonitorMapComponent implements OnInit, AfterViewInit {
+  private mapOverlayState = inject(MapOverlayStateService);
+  private chartDisplayState = inject(ChartDisplayStateService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
+  private cacheHelperService = inject(CacheHelperServiceService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  private http = inject(HttpClient);
+  private broadcastService = inject(BroadcastService);
+  private visualStyleHelperService = inject(VisualStyleHelperServiceNew);
+  private filterHelperService = inject(FilterHelperService);
+  private genericMapHelperService = inject(GenericMapHelperService);
+  private envConfigService = inject(EnvConfigService);
+  private fileHelperService = inject(FileHelperService);
+  private mapService = inject(MapService);
+  private reachabilityCombinerService = inject(ReachabilityCombinerService);
+  private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
+  private reachabilityHelperService = inject(ReachabilityHelperService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   private map;
@@ -194,27 +213,6 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
   highlightTimeout;
 
   classifyZeroSeparately_backup: any;
-
-  constructor(
-    private mapOverlayState: MapOverlayStateService,
-    private chartDisplayState: ChartDisplayStateService,
-    private mapErrorNotificationService: MapErrorNotificationService,
-    private cacheHelperService: CacheHelperServiceService,
-    private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
-    private spatialUnitStore: SpatialUnitMetadataStoreService,
-    private http: HttpClient,
-    private broadcastService: BroadcastService,
-    private visualStyleHelperService: VisualStyleHelperServiceNew,
-    private filterHelperService: FilterHelperService,
-    private genericMapHelperService: GenericMapHelperService,
-    private envConfigService: EnvConfigService,
-    private fileHelperService: FileHelperService,
-    private mapService: MapService,
-    private reachabilityCombinerService: ReachabilityCombinerService,
-    private reachabilityMapHelperService: ReachabilityMapHelperService,
-    private reachabilityHelperService: ReachabilityHelperService
-  ) {}
 
   // Local precision-resolving wrappers (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {

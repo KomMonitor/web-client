@@ -1,16 +1,16 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
-import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
-import { GeoresourceFilterService } from "components/ngComponents/userInterface/sidebar/poi/georesource-filter.service";
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
+import { GeoresourceFilterService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-filter.service';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
-} from "components/ngComponents/models/georesources.models";
-import { GeoresourceTopicTreeComponent } from "../georesource-topic-tree/georesource-topic-tree.component";
-import { GeoresourceDatasetTableComponent } from "../georesource-dataset-table/georesource-dataset-table.component";
+} from 'components/ngComponents/models/georesources.models';
+import { GeoresourceTopicTreeComponent } from '../georesource-topic-tree/georesource-topic-tree.component';
+import { GeoresourceDatasetTableComponent } from '../georesource-dataset-table/georesource-dataset-table.component';
 
 /**
  * The "Datenkatalog" tab: the per-type filter toggles, the recursive topic tree
@@ -20,9 +20,9 @@ import { GeoresourceDatasetTableComponent } from "../georesource-dataset-table/g
  * host {@link PoiComponent}.
  */
 @Component({
-  selector: "app-georesource-catalogue-tab",
-  templateUrl: "./georesource-catalogue-tab.component.html",
-  styleUrls: ["./georesource-catalogue-tab.component.scss"],
+  selector: 'app-georesource-catalogue-tab',
+  templateUrl: './georesource-catalogue-tab.component.html',
+  styleUrls: ['./georesource-catalogue-tab.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -32,6 +32,11 @@ import { GeoresourceDatasetTableComponent } from "../georesource-dataset-table/g
   ],
 })
 export class GeoresourceCatalogueTabComponent {
+  protected topicHierarchyStore = inject(TopicHierarchyStoreService);
+  protected layerService = inject(GeoresourceLayerService);
+  protected favoritesService = inject(GeoresourceFavoritesService);
+  protected filterService = inject(GeoresourceFilterService);
+
   @Input() showFavSelection = false;
 
   @Output() toggleGeoresourceOnMap = new EventEmitter<GeoresourcesDataset>();
@@ -40,13 +45,6 @@ export class GeoresourceCatalogueTabComponent {
 
   isCollapsed_noTopic = true;
   showAllForTopic_null = false;
-
-  constructor(
-    protected topicHierarchyStore: TopicHierarchyStoreService,
-    protected layerService: GeoresourceLayerService,
-    protected favoritesService: GeoresourceFavoritesService,
-    protected filterService: GeoresourceFilterService,
-  ) {}
 
   toggleNoTopicHierarchy() {
     this.isCollapsed_noTopic = !this.isCollapsed_noTopic;

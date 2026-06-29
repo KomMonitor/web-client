@@ -1,6 +1,6 @@
 import { UserFavourites } from 'components/ngComponents/models/favorites.models';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReachabilityCombinerService } from 'services/reachability-combiner-service/reachability-combiner.service';
 import { ReachabilityHelperService } from 'services/reachbility-helper-service/reachability-helper.service';
@@ -17,12 +17,10 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
   imports: [FormsModule],
 })
 export class ReachbilityScenarioSetupComponent implements OnInit {
-  constructor(
-    protected reachabilityHelperService: ReachabilityHelperService,
-    private reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
-    protected reachabilityCombinerService: ReachabilityCombinerService,
-    private broadcastService: BroadcastService
-  ) {}
+  protected reachabilityHelperService = inject(ReachabilityHelperService);
+  private reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
+  protected reachabilityCombinerService = inject(ReachabilityCombinerService);
+  private broadcastService = inject(BroadcastService);
 
   ngOnInit(): void {
     this.reachabilityCombinerService.reachabilityMapSubject$.subscribe((value) => {

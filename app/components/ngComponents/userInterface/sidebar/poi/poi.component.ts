@@ -1,35 +1,35 @@
-import { Component, DestroyRef, OnInit, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
   MetadataBootstrapService,
   MetadataLoadingState,
-} from "services/metadata-bootstrap-service/metadata-bootstrap.service";
-import { PoiPresentationService } from "services/poi-presentation-service/poi-presentation.service";
-import { TopicHierarchyStoreService } from "services/topic-hierarchy-store-service/topic-hierarchy-store.service";
-import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
-import { ElementVisibilityHelperService } from "services/element-visibility-helper-service/element-visibility-helper.service";
-import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
-import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
-import { GeoresourceFilterService } from "components/ngComponents/userInterface/sidebar/poi/georesource-filter.service";
-import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { PoiPresentationService } from 'services/poi-presentation-service/poi-presentation.service';
+import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { ElementVisibilityHelperService } from 'services/element-visibility-helper-service/element-visibility-helper.service';
+import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
+import { GeoresourceFilterService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-filter.service';
+import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
-} from "../../../models/georesources.models";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { ExpandableBoxComponent } from "components/ngComponents/common/expandable-box/expandable-box.component";
-import { POI_SIZES } from "services/poi-presentation-service/poi-presentation.service";
-import { GeoresourceFavTabComponent } from "./georesource-fav-tab/georesource-fav-tab.component";
-import { GeoresourceListTabComponent } from "./georesource-list-tab/georesource-list-tab.component";
-import { GeoresourceCatalogueTabComponent } from "./georesource-catalogue-tab/georesource-catalogue-tab.component";
+} from '../../../models/georesources.models';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
+import { POI_SIZES } from 'services/poi-presentation-service/poi-presentation.service';
+import { GeoresourceFavTabComponent } from './georesource-fav-tab/georesource-fav-tab.component';
+import { GeoresourceListTabComponent } from './georesource-list-tab/georesource-list-tab.component';
+import { GeoresourceCatalogueTabComponent } from './georesource-catalogue-tab/georesource-catalogue-tab.component';
 
 @Component({
-  selector: "app-poi",
-  templateUrl: "./poi.component.html",
-  styleUrls: ["./poi.component.scss"],
+  selector: 'app-poi',
+  templateUrl: './poi.component.html',
+  styleUrls: ['./poi.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -41,24 +41,22 @@ import { GeoresourceCatalogueTabComponent } from "./georesource-catalogue-tab/ge
   ],
 })
 export class PoiComponent implements OnInit {
+  protected poiPresentationService = inject(PoiPresentationService);
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
+  protected georesourceStore = inject(GeoresourceMetadataStoreService);
+  protected layerService = inject(GeoresourceLayerService);
+  protected favoritesService = inject(GeoresourceFavoritesService);
+  protected filterService = inject(GeoresourceFilterService);
+  protected exportMode = inject(GeoresourceExportModeService);
+  private broadcastService = inject(BroadcastService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private elementVisibilityHelperService = inject(ElementVisibilityHelperService);
+
   showFavSelection = false;
 
   readonly poiSizes = POI_SIZES;
 
   private readonly destroyRef = inject(DestroyRef);
-
-  constructor(
-    protected poiPresentationService: PoiPresentationService,
-    private topicHierarchyStore: TopicHierarchyStoreService,
-    protected georesourceStore: GeoresourceMetadataStoreService,
-    protected layerService: GeoresourceLayerService,
-    protected favoritesService: GeoresourceFavoritesService,
-    protected filterService: GeoresourceFilterService,
-    protected exportMode: GeoresourceExportModeService,
-    private broadcastService: BroadcastService,
-    private metadataBootstrap: MetadataBootstrapService,
-    private elementVisibilityHelperService: ElementVisibilityHelperService,
-  ) {}
 
   ngOnInit(): void {
     // (Re-)initialize whenever metadata loading completes — on the initial load
@@ -97,10 +95,7 @@ export class PoiComponent implements OnInit {
     this.filterService.refreshPreppedHierarchy();
     this.favoritesService.buildFavTopicsTree();
 
-    if (
-      this.elementVisibilityHelperService.elementVisibility.favSelection ===
-      true
-    )
+    if (this.elementVisibilityHelperService.elementVisibility.favSelection === true)
       this.showFavSelection = true;
 
     this.favoritesService.initFromUserInfo();
@@ -109,7 +104,7 @@ export class PoiComponent implements OnInit {
   searchGeoresourcesTopicsRecursive(
     dataset: GeoresourcesTopicsHierarchy,
     tree: GeoresourcesTopicsHierarchy[],
-    type: string,
+    type: string
   ): boolean {
     let match = false;
 
@@ -120,11 +115,7 @@ export class PoiComponent implements OnInit {
         match = true;
       } else {
         if (topic.subTopics.length) {
-          match = this.searchGeoresourcesTopicsRecursive(
-            dataset,
-            topic.subTopics,
-            type,
-          );
+          match = this.searchGeoresourcesTopicsRecursive(dataset, topic.subTopics, type);
         }
       }
     });
@@ -134,17 +125,17 @@ export class PoiComponent implements OnInit {
 
   handleShowAllOnTopic(topic: GeoresourcesTopicsHierarchy, type: string) {
     // check sibling checkbox in favs/data-catalogue dataset
-    if (type == "list")
+    if (type == 'list')
       this.searchGeoresourcesTopicsRecursive(
         topic,
         this.favoritesService.georesourceFavTopicsTree,
-        type,
+        type
       );
     else
       this.searchGeoresourcesTopicsRecursive(
         topic,
         this.filterService.preppedTopicGeoresourceHierarchy,
-        type,
+        type
       );
 
     for (const poi of topic.poiData) {
@@ -164,7 +155,7 @@ export class PoiComponent implements OnInit {
       this.filterService.showLOI,
       this.filterService.showAOI,
       this.filterService.showWMS,
-      this.filterService.showWFS,
+      this.filterService.showWFS
     );
 
     if (topic.isSelected) {
@@ -183,11 +174,10 @@ export class PoiComponent implements OnInit {
   }
 
   private dispatchDatasetToMap(element: any) {
-    if (element.isPOI || element.isLOI || element.isAOI)
-      this.handleGeoresourceOnMap(element);
+    if (element.isPOI || element.isLOI || element.isAOI) this.handleGeoresourceOnMap(element);
     else if (element.layerName) this.layerService.handleWmsOnMap(element);
     else if (element.featureTypeName) this.layerService.handleWfsOnMap(element);
-    else console.error("unknown dataset", element);
+    else console.error('unknown dataset', element);
   }
 
   handleGeoresourceOnMap(resource: GeoresourcesDataset) {
@@ -206,26 +196,20 @@ export class PoiComponent implements OnInit {
   checkGeoresourcesRecursive(georesource: GeoresourcesDataset) {
     this.searchGeoresourcesRecursive(
       georesource,
-      this.filterService.preppedTopicGeoresourceHierarchy,
+      this.filterService.preppedTopicGeoresourceHierarchy
     );
   }
 
   searchGeoresourcesRecursive(
     georesource: GeoresourcesDataset,
-    tree: GeoresourcesTopicsHierarchy[],
+    tree: GeoresourcesTopicsHierarchy[]
   ): boolean {
     let match = false;
 
     tree.forEach((topic) => {
-      const poiMatch = topic.poiData.filter(
-        (e) => e.georesourceId == georesource.georesourceId,
-      );
-      const aoiMatch = topic.aoiData.filter(
-        (e) => e.georesourceId == georesource.georesourceId,
-      );
-      const loiMatch = topic.loiData.filter(
-        (e) => e.georesourceId == georesource.georesourceId,
-      );
+      const poiMatch = topic.poiData.filter((e) => e.georesourceId == georesource.georesourceId);
+      const aoiMatch = topic.aoiData.filter((e) => e.georesourceId == georesource.georesourceId);
+      const loiMatch = topic.loiData.filter((e) => e.georesourceId == georesource.georesourceId);
 
       if (poiMatch.length || aoiMatch.length || loiMatch.length) {
         if (!georesource.isSelected) topic.isSelected = false;
@@ -233,10 +217,7 @@ export class PoiComponent implements OnInit {
         match = true;
       } else {
         if (topic.subTopics.length) {
-          match = this.searchGeoresourcesRecursive(
-            georesource,
-            topic.subTopics,
-          );
+          match = this.searchGeoresourcesRecursive(georesource, topic.subTopics);
 
           if (match && !georesource.isSelected) topic.isSelected = false;
         }

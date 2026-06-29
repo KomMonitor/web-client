@@ -29,6 +29,13 @@ import { ReachabilityIndicatorStatisticsComponent } from './reachability-indicat
   ],
 })
 export class ReachabilityScenarioModalComponent implements OnInit {
+  protected reachabilityHelperService = inject(ReachabilityHelperService);
+  private multiStepHelperService = inject(MultiStepHelperServiceService);
+  private broadcastService = inject(BroadcastService);
+  protected reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
+  private reachabilityCombinerService = inject(ReachabilityCombinerService);
+  private cdr = inject(ChangeDetectorRef);
+
   activeModal = inject(NgbActiveModal);
   emptyDatasetName = '-- leerer neuer Datensatz --';
 
@@ -38,15 +45,6 @@ export class ReachabilityScenarioModalComponent implements OnInit {
   filteredAvailablePeriodsOfValidity: any;
 
   activeScenarioDataset: any;
-
-  constructor(
-    protected reachabilityHelperService: ReachabilityHelperService,
-    private multiStepHelperService: MultiStepHelperServiceService,
-    private broadcastService: BroadcastService,
-    protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
-    private reachabilityCombinerService: ReachabilityCombinerService,
-    private cdr: ChangeDetectorRef
-  ) {}
 
   ngOnInit(): void {
     this.multiStepHelperService.registerClickHandler('reachabilityScenarioForm');

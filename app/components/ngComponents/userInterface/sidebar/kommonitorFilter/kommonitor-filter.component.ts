@@ -33,6 +33,21 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [FormsModule, ReactiveFormsModule, DualListBoxComponent, ExpandableBoxComponent],
 })
 export class KommonitorFilterComponent implements OnInit, AfterViewInit {
+  protected rangeFilterState = inject(RangeFilterStateService);
+  protected chartDisplayState = inject(ChartDisplayStateService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private cacheHelperService = inject(CacheHelperServiceService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+  private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  protected filterHelperService = inject(FilterHelperService);
+  private mapService = inject(MapService);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+  private globalFilterHelperService = inject(GlobalFilterHelperService);
+  private configStorageService = inject(ConfigStorageService);
+  private envConfigService = inject(EnvConfigService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   spatialLevel;
@@ -138,23 +153,6 @@ export class KommonitorFilterComponent implements OnInit, AfterViewInit {
   globalFilters: any = undefined;
 
   inputNotValid = false;
-
-  constructor(
-    protected rangeFilterState: RangeFilterStateService,
-    protected chartDisplayState: ChartDisplayStateService,
-    private metadataBootstrap: MetadataBootstrapService,
-    private cacheHelperService: CacheHelperServiceService,
-    private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
-    private spatialUnitStore: SpatialUnitMetadataStoreService,
-    protected filterHelperService: FilterHelperService,
-    private mapService: MapService,
-    private broadcastService: BroadcastService,
-    private http: HttpClient,
-    private globalFilterHelperService: GlobalFilterHelperService,
-    private configStorageService: ConfigStorageService,
-    private envConfigService: EnvConfigService
-  ) {}
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   private getIndicatorValue_asNumber(indicatorValue, precision = undefined) {

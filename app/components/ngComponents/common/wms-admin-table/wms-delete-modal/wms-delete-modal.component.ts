@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WmsDataset } from 'components/ngComponents/models/services.models';
 import { OgcService } from 'services/ogcServices/ogc.service';
@@ -11,6 +11,9 @@ import { OgcService } from 'services/ogcServices/ogc.service';
   standalone: true,
 })
 export class WmsDeleteModalComponent {
+  activeModal = inject(NgbActiveModal);
+  private ogcService = inject(OgcService);
+
   datasetToDelete: WmsDataset | undefined;
 
   loadingData: boolean = false;
@@ -18,11 +21,6 @@ export class WmsDeleteModalComponent {
   showErrorAlert = false;
 
   errorMessage!: string;
-
-  constructor(
-    public activeModal: NgbActiveModal,
-    private ogcService: OgcService
-  ) {}
 
   close(): void {
     this.activeModal.close(true);

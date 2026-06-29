@@ -1,13 +1,13 @@
-import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { IconTranslate } from "pipes/icon-translate.pipe";
-import { ExportButtonVisibilityService } from "services/export-button-visibility-service/export-button-visibility.service";
-import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
-import { OgcService } from "services/ogcServices/ogc.service";
-import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
-import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
-import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { IconTranslate } from 'pipes/icon-translate.pipe';
+import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { OgcService } from 'services/ogcServices/ogc.service';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
+import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
+import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
 
 /**
  * The set of dataset arrays held by a single node of the georesource topic
@@ -35,13 +35,18 @@ export interface GeoresourceDatasetGroup {
  * shared singleton services directly.
  */
 @Component({
-  selector: "app-georesource-dataset-table",
-  templateUrl: "./georesource-dataset-table.component.html",
-  styleUrls: ["./georesource-dataset-table.component.scss"],
+  selector: 'app-georesource-dataset-table',
+  templateUrl: './georesource-dataset-table.component.html',
+  styleUrls: ['./georesource-dataset-table.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, IconTranslate, ExportItemCheckboxComponent],
 })
 export class GeoresourceDatasetTableComponent {
+  protected exportButtonVisibility = inject(ExportButtonVisibilityService);
+  protected metadataExportService = inject(MetadataExportService);
+  protected ogcService = inject(OgcService);
+  protected exportMode = inject(GeoresourceExportModeService);
+
   @Input({ required: true }) datasets!: GeoresourceDatasetGroup;
   @Input() showFavSelection = false;
   @Input() showPerDatasetDateColumn = true;
@@ -57,13 +62,6 @@ export class GeoresourceDatasetTableComponent {
   @Output() poiFavClick = new EventEmitter<string | null | undefined>();
   @Output() wmsFavClick = new EventEmitter<string | null | undefined>();
   @Output() wfsColorChange = new EventEmitter<any>();
-
-  constructor(
-    protected exportButtonVisibility: ExportButtonVisibilityService,
-    protected metadataExportService: MetadataExportService,
-    protected ogcService: OgcService,
-    protected exportMode: GeoresourceExportModeService,
-  ) {}
 
   isPoiFav(id: string | null | undefined): boolean {
     return !!id && this.poiFavItems.includes(id);

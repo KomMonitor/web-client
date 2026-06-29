@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
@@ -10,18 +10,21 @@ import { FormsModule } from '@angular/forms';
 import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
-
-
 @Component({
   selector: 'kommonitor-classification-component',
   templateUrl: './kommonitor-classification.component.html',
   styleUrls: ['./kommonitor-classification.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ClassificationMethodSelectComponent]
+  imports: [CommonModule, FormsModule, ClassificationMethodSelectComponent],
 })
 export class KommonitorClassificationComponent implements OnInit {
+  protected chartDisplayState = inject(ChartDisplayStateService);
+  protected selectionState = inject(SelectionStateService);
+  protected visualStyleHelperService = inject(VisualStyleHelperServiceNew);
+  private broadcastService = inject(BroadcastService);
+  protected envConfigService = inject(EnvConfigService);
 
-  clrSelectVisible:boolean = false;
+  clrSelectVisible: boolean = false;
 
   methodName = 'Klassifizierungsmethode auswählen';
   showMethodSelection = false;
@@ -29,7 +32,7 @@ export class KommonitorClassificationComponent implements OnInit {
   showAddBtn = [false, false];
 
   isDraggingBreak = false;
-  draggingBreak!:any;
+  draggingBreak!: any;
   nrOfDraggingBreak = null;
   dynamicDraggingSite = 0;
 
@@ -39,88 +42,89 @@ export class KommonitorClassificationComponent implements OnInit {
   containsOutliers_low = false;
   containsNoData;
 
-  hiddenMethodIds:any[] = [];
+  hiddenMethodIds: any[] = [];
 
-  colorbrewerSchemes!:any;
-  colorbrewerPalettes:any[] = [];
+  colorbrewerSchemes!: any;
+  colorbrewerPalettes: any[] = [];
 
-  selectedColorBrewerPaletteEntry!:any;
+  selectedColorBrewerPaletteEntry!: any;
 
   private customColorSchemes = this.envConfigService.customColorSchemes;
 
-  constructor(
-    protected chartDisplayState: ChartDisplayStateService,
-    protected selectionState: SelectionStateService,
-    protected visualStyleHelperService: VisualStyleHelperServiceNew,
-    private broadcastService: BroadcastService,
-    protected envConfigService: EnvConfigService
-  ) {
+  constructor() {
     // Add custom color themes from configuration properties
-    if(this.customColorSchemes) {
+    if (this.customColorSchemes) {
       var colorbrewer = Object.assign(this.customColorSchemes, colorbrewer);
     }
   }
 
   ngOnInit(): void {
-      
-
     this.instantiateColorBrewerPalettes();
 
-     // catch broadcast msgs
-    this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
+    // catch broadcast msgs
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
       const title = broadcastMsg.msg;
-      const values:any = broadcastMsg.values;
+      const values: any = broadcastMsg.values;
 
       switch (title) {
-        case BroadcastMessage.OnChangeSelectedIndicator: {
-          this.onChangeSelectedIndicator();
-        } break;
-        case BroadcastMessage.UpdateClassificationComponent: {
-          this.updateClassificationComponent(values);
-        } break;
-        case 'updateShowRegionalDefaultOption': {
-          this.updateShowRegionalDefaultOption(values);
-        } break;
+        case BroadcastMessage.OnChangeSelectedIndicator:
+          {
+            this.onChangeSelectedIndicator();
+          }
+          break;
+        case BroadcastMessage.UpdateClassificationComponent:
+          {
+            this.updateClassificationComponent(values);
+          }
+          break;
+        case 'updateShowRegionalDefaultOption':
+          {
+            this.updateShowRegionalDefaultOption(values);
+          }
+          break;
       }
     });
 
-    if(this.envConfigService.disableManualClassification) {
+    if (this.envConfigService.disableManualClassification) {
       this.hideManualClassification();
     }
   }
- 
- instantiateColorBrewerPalettes() {
 
-
+  instantiateColorBrewerPalettes() {
     for (const key in colorbrewer) {
       if (colorbrewer.hasOwnProperty(key)) {
         const colorPalettes = colorbrewer[key];
-        
+
         const paletteEntry = {
-          "paletteName": key,
-          "paletteArrayObject": colorPalettes
+          paletteName: key,
+          paletteArrayObject: colorPalettes,
         };
 
-       this.colorbrewerPalettes.push(paletteEntry);
+        this.colorbrewerPalettes.push(paletteEntry);
       }
     }
 
     // instantiate with palette 'Blues'
     this.selectedColorBrewerPaletteEntry = this.colorbrewerPalettes[13];
 
-      for (const colorbrewerPalette of this.colorbrewerPalettes) {
-        if (colorbrewerPalette.paletteName === this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
+    for (const colorbrewerPalette of this.colorbrewerPalettes) {
+      if (
+        colorbrewerPalette.paletteName ===
+        this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName
+      ) {
         this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
-          break;
-        }
+        break;
       }
-
-  };
+    }
+  }
 
   onChangeSelectedIndicator() {
     for (const colorbrewerPalette of this.colorbrewerPalettes) {
-      if (colorbrewerPalette.paletteName === this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName){
-       this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
+      if (
+        colorbrewerPalette.paletteName ===
+        this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName
+      ) {
+        this.selectedColorBrewerPaletteEntry = colorbrewerPalette;
         break;
       }
     }
@@ -129,14 +133,24 @@ export class KommonitorClassificationComponent implements OnInit {
   onClickColorBrewerEntry(colorPaletteEntry) {
     this.selectedColorBrewerPaletteEntry = colorPaletteEntry;
 
-    this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName = this.selectedColorBrewerPaletteEntry.paletteName;
+    this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName =
+      this.selectedColorBrewerPaletteEntry.paletteName;
 
-    this.broadcastService.broadcast(BroadcastMessage.ChangeColorScheme, [this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName]);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeColorScheme, [
+      this.selectionState.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName,
+    ]);
+  }
 
-  };
-
-
-  updateClassificationComponent([containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate]) {
+  updateClassificationComponent([
+    containsZeroValues,
+    containsNegativeValues,
+    containsNoData,
+    containsOutliers_high,
+    containsOutliers_low,
+    outliers_low,
+    outliers_high,
+    selectedDate,
+  ]) {
     this.containsZeroValues = containsZeroValues;
     this.containsNegativeValues = containsNegativeValues;
     this.containsOutliers_high = containsOutliers_high;
@@ -145,21 +159,20 @@ export class KommonitorClassificationComponent implements OnInit {
   }
 
   updateShowRegionalDefaultOption([show]) {
-    if(show){
-      if(this.hiddenMethodIds.includes('regional_default')) {
-       this.hiddenMethodIds.splice(this.hiddenMethodIds.indexOf('regional_default'), 1);
+    if (show) {
+      if (this.hiddenMethodIds.includes('regional_default')) {
+        this.hiddenMethodIds.splice(this.hiddenMethodIds.indexOf('regional_default'), 1);
       }
-    }
-    else {
-      if(!this.hiddenMethodIds.includes('regional_default')) {
-       this.hiddenMethodIds.push('regional_default');
+    } else {
+      if (!this.hiddenMethodIds.includes('regional_default')) {
+        this.hiddenMethodIds.push('regional_default');
       }
     }
   }
 
- hideManualClassification() {
-    if(!this.hiddenMethodIds.includes('manual')) {
-     this.hiddenMethodIds.push('manual');
+  hideManualClassification() {
+    if (!this.hiddenMethodIds.includes('manual')) {
+      this.hiddenMethodIds.push('manual');
     }
   }
 
@@ -167,127 +180,165 @@ export class KommonitorClassificationComponent implements OnInit {
     this.methodName = method.name;
     this.showMethodSelection = false;
     this.visualStyleHelperService.classifyMethod = method.id;
-    console.log(method)
-    this.broadcastService.broadcast(BroadcastMessage.ChangeClassifyMethod, [this.visualStyleHelperService.classifyMethod]);
-  }
-  
-  onChangeSelectedClassifyMethod() {
-    this.broadcastService.broadcast(BroadcastMessage.ChangeClassifyMethod, [this.visualStyleHelperService.classifyMethod]);
-  } 
- 
-  onChangeNumberOfClasses() {
-    this.broadcastService.broadcast(BroadcastMessage.ChangeNumClasses, [this.visualStyleHelperService.numClasses]);
+    console.log(method);
+    this.broadcastService.broadcast(BroadcastMessage.ChangeClassifyMethod, [
+      this.visualStyleHelperService.classifyMethod,
+    ]);
   }
 
- toggleAddBtn(e, site) {
-    if(!this.showAddBtn[site] && e.buttons === 0) {
-     this.showAddBtn = [false, false];
-     this.showAddBtn[site] = true;
+  onChangeSelectedClassifyMethod() {
+    this.broadcastService.broadcast(BroadcastMessage.ChangeClassifyMethod, [
+      this.visualStyleHelperService.classifyMethod,
+    ]);
+  }
+
+  onChangeNumberOfClasses() {
+    this.broadcastService.broadcast(BroadcastMessage.ChangeNumClasses, [
+      this.visualStyleHelperService.numClasses,
+    ]);
+  }
+
+  toggleAddBtn(e, site) {
+    if (!this.showAddBtn[site] && e.buttons === 0) {
+      this.showAddBtn = [false, false];
+      this.showAddBtn[site] = true;
     }
 
     const rect = e.currentTarget.getBoundingClientRect();
     const y = Math.floor(e.clientY - rect.top);
     if (y > 0 && y < rect.height) {
-     this.addBtnHeight[site] = y;
+      this.addBtnHeight[site] = y;
     }
   }
 
- addNewBreaks(site) {
-    if((!this.chartDisplayState.isBalanceChecked 
-      && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      && !this.containsNegativeValues) 
-      || this.chartDisplayState.isMeasureOfValueChecked) {
-     this.addNewBreak();
-    }
-    else {
-     this.addNewBreakDynamic(site);
-      if(this.chartDisplayState.isMeasureOfValueChecked) {
+  addNewBreaks(site) {
+    if (
+      (!this.chartDisplayState.isBalanceChecked &&
+        !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') &&
+        !this.containsNegativeValues) ||
+      this.chartDisplayState.isMeasureOfValueChecked
+    ) {
+      this.addNewBreak();
+    } else {
+      this.addNewBreakDynamic(site);
+      if (this.chartDisplayState.isMeasureOfValueChecked) {
         this.addNewBreak();
       }
     }
   }
 
- addNewBreak() {
-    const histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
-    if(this.visualStyleHelperService.manualBrew.breaks.length <  10) {
-      if(this.addBtnHeight[0] >= 0 &&this.addBtnHeight[0] < histogram.offsetHeight) {
+  addNewBreak() {
+    const histogram = document.querySelectorAll<HTMLElement>('.editableHistogram')[0];
+    if (this.visualStyleHelperService.manualBrew.breaks.length < 10) {
+      if (this.addBtnHeight[0] >= 0 && this.addBtnHeight[0] < histogram.offsetHeight) {
         const breaks = this.visualStyleHelperService.manualBrew.breaks;
-        const newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
-        if(!this.visualStyleHelperService.manualBrew.breaks.includes(newBreak)) {
+        const newBreak = Math.floor(
+          (this.addBtnHeight[0] / histogram.offsetHeight) *
+            (breaks[breaks.length - 1] - breaks[0]) +
+            breaks[0]
+        );
+        if (!this.visualStyleHelperService.manualBrew.breaks.includes(newBreak)) {
           this.visualStyleHelperService.manualBrew.breaks.push(newBreak);
-          this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
+          this.visualStyleHelperService.manualBrew.breaks.sort(function (a, b) {
             return a - b;
           });
 
-          this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
+          this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [
+            this.visualStyleHelperService.manualBrew.breaks,
+          ]);
         }
 
-        if((this.chartDisplayState.isBalanceChecked 
-          || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-          ||this.containsNegativeValues)
-          && this.chartDisplayState.isMeasureOfValueChecked) {
-         this.updateDynamicBreaksFromManualBreaks();
+        if (
+          (this.chartDisplayState.isBalanceChecked ||
+            this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
+            this.containsNegativeValues) &&
+          this.chartDisplayState.isMeasureOfValueChecked
+        ) {
+          this.updateDynamicBreaksFromManualBreaks();
         }
       }
     }
   }
 
- addNewBreakDynamic(site) {
-    const histograms = Array.from(document.querySelectorAll<HTMLElement>(".editableHistogram"));
+  addNewBreakDynamic(site) {
+    const histograms = Array.from(document.querySelectorAll<HTMLElement>('.editableHistogram'));
     histograms.reverse();
     const histogram = histograms[site];
 
-    if(this.visualStyleHelperService.dynamicBrew[site].breaks.length <  5) {
-      if(this.addBtnHeight[site] >= 0 &&this.addBtnHeight[site] < histogram.offsetHeight) {
+    if (this.visualStyleHelperService.dynamicBrew[site].breaks.length < 5) {
+      if (this.addBtnHeight[site] >= 0 && this.addBtnHeight[site] < histogram.offsetHeight) {
         const breaks = this.visualStyleHelperService.dynamicBrew[site].breaks;
-        const newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
-        if(!this.visualStyleHelperService.dynamicBrew[site].breaks.includes(newBreak)){
+        const newBreak = Math.floor(
+          (this.addBtnHeight[site] / histogram.offsetHeight) *
+            (breaks[breaks.length - 1] - breaks[0]) +
+            breaks[0]
+        );
+        if (!this.visualStyleHelperService.dynamicBrew[site].breaks.includes(newBreak)) {
           this.visualStyleHelperService.dynamicBrew[site].breaks.push(newBreak);
-          this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function(a, b) {
+          this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function (a, b) {
             return a - b;
           });
 
-          const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
-          const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
-        
-          this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
+          const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0]
+            ? this.visualStyleHelperService.dynamicBrew[0].breaks
+            : [];
+          const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1]
+            ? this.visualStyleHelperService.dynamicBrew[1].breaks
+            : [];
+
+          this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [
+            [increaseBreaks, decreaseBreaks],
+          ]);
         }
       }
     }
   }
 
- updateDynamicBreaksFromManualBreaks(){
-    const increaseBreaks:any[] = [];
-    const decreaseBreaks:any[] = [];
+  updateDynamicBreaksFromManualBreaks() {
+    const increaseBreaks: any[] = [];
+    const decreaseBreaks: any[] = [];
     this.visualStyleHelperService.manualBrew.breaks.forEach((br) => {
       if (br < 0) {
         decreaseBreaks.push(br);
-      }
-      else {
+      } else {
         increaseBreaks.push(br);
       }
     });
- 
-    this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
+
+    this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [
+      [increaseBreaks, decreaseBreaks],
+    ]);
   }
- 
- breakIsUnalterable(br) {
-    if(this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      ||this.containsNegativeValues){
-      if(this.visualStyleHelperService.dynamicBrewBreaks) {
-        if(this.visualStyleHelperService.dynamicBrewBreaks[1]) {
-          if(br == this.visualStyleHelperService.dynamicBrewBreaks[1][0]){
+
+  breakIsUnalterable(br) {
+    if (
+      this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
+      this.containsNegativeValues
+    ) {
+      if (this.visualStyleHelperService.dynamicBrewBreaks) {
+        if (this.visualStyleHelperService.dynamicBrewBreaks[1]) {
+          if (br == this.visualStyleHelperService.dynamicBrewBreaks[1][0]) {
             return true;
           }
-          if(br == this.visualStyleHelperService.dynamicBrewBreaks[1][this.visualStyleHelperService.dynamicBrewBreaks[1].length-1]){
+          if (
+            br ==
+            this.visualStyleHelperService.dynamicBrewBreaks[1][
+              this.visualStyleHelperService.dynamicBrewBreaks[1].length - 1
+            ]
+          ) {
             return true;
           }
         }
-        if(this.visualStyleHelperService.dynamicBrewBreaks[0]) {
-          if(br == this.visualStyleHelperService.dynamicBrewBreaks[0][0]){
+        if (this.visualStyleHelperService.dynamicBrewBreaks[0]) {
+          if (br == this.visualStyleHelperService.dynamicBrewBreaks[0][0]) {
             return true;
           }
-          if(br == this.visualStyleHelperService.dynamicBrewBreaks[0][this.visualStyleHelperService.dynamicBrewBreaks[0].length-1]){
+          if (
+            br ==
+            this.visualStyleHelperService.dynamicBrewBreaks[0][
+              this.visualStyleHelperService.dynamicBrewBreaks[0].length - 1
+            ]
+          ) {
             return true;
           }
         }
@@ -296,99 +347,131 @@ export class KommonitorClassificationComponent implements OnInit {
     return false;
   }
 
- deleteBreak(i, site) {
-    if((this.chartDisplayState.isBalanceChecked 
-      || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      || this.containsNegativeValues)) {
-      if(this.chartDisplayState.isMeasureOfValueChecked) {
+  deleteBreak(i, site) {
+    if (
+      this.chartDisplayState.isBalanceChecked ||
+      this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
+      this.containsNegativeValues
+    ) {
+      if (this.chartDisplayState.isMeasureOfValueChecked) {
         this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
-        
-        this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
-        this.updateDynamicBreaksFromManualBreaks();
-      }
-      else {
-        this.visualStyleHelperService.dynamicBrew[site].breaks.splice(i, 1);
-        const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
-        const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
-        
-        this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]])
-      }
-    }
 
-    else {
+        this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [
+          this.visualStyleHelperService.manualBrew.breaks,
+        ]);
+        this.updateDynamicBreaksFromManualBreaks();
+      } else {
+        this.visualStyleHelperService.dynamicBrew[site].breaks.splice(i, 1);
+        const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0]
+          ? this.visualStyleHelperService.dynamicBrew[0].breaks
+          : [];
+        const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1]
+          ? this.visualStyleHelperService.dynamicBrew[1].breaks
+          : [];
+
+        this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [
+          [increaseBreaks, decreaseBreaks],
+        ]);
+      }
+    } else {
       this.visualStyleHelperService.manualBrew.breaks.splice(i, 1);
-     
-      this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
+
+      this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [
+        this.visualStyleHelperService.manualBrew.breaks,
+      ]);
     }
   }
 
- onBreaksChanged(e, i, site) {
+  onBreaksChanged(e, i, site) {
     e.currentTarget.disabled = true;
-    
+
     const breaks = [...this.visualStyleHelperService.manualBrew.breaks];
-    if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
+    if (
+      e.currentTarget.value <= breaks[0] ||
+      e.currentTarget.value >= breaks[breaks.length - 1] ||
+      breaks.includes(Number(e.currentTarget.value))
+    ) {
       e.currentTarget.value = breaks[i];
 
       // todo, wrap into timeout if necessary
       //setTimeout(function () {
-          e.currentTarget.value = breaks[i];
-          this.visualStyleHelperService.manualBrew.breaks[i] = breaks[i];
+      e.currentTarget.value = breaks[i];
+      this.visualStyleHelperService.manualBrew.breaks[i] = breaks[i];
       //}, 10);
-    }
-    else {
+    } else {
       this.visualStyleHelperService.manualBrew.breaks[i] = Number(e.currentTarget.value);
-      this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
+      this.visualStyleHelperService.manualBrew.breaks.sort(function (a, b) {
         return a - b;
       });
 
-      
-      this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
-      
-      if((this.chartDisplayState.isBalanceChecked 
-        || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-        || this.containsNegativeValues)
-        && this.chartDisplayState.isMeasureOfValueChecked) {
-       this.updateDynamicBreaksFromManualBreaks();
+      this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [
+        this.visualStyleHelperService.manualBrew.breaks,
+      ]);
+
+      if (
+        (this.chartDisplayState.isBalanceChecked ||
+          this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
+          this.containsNegativeValues) &&
+        this.chartDisplayState.isMeasureOfValueChecked
+      ) {
+        this.updateDynamicBreaksFromManualBreaks();
       }
     }
   }
 
- onBreaksChangedDynamic(e, i, site) {
+  onBreaksChangedDynamic(e, i, site) {
     e.currentTarget.disabled = true;
-    
+
     const breaks = [...this.visualStyleHelperService.dynamicBrew[site].breaks];
-    if(e.currentTarget.value <= breaks[0] || e.currentTarget.value >= breaks[breaks.length - 1] || breaks.includes(Number(e.currentTarget.value))) {
+    if (
+      e.currentTarget.value <= breaks[0] ||
+      e.currentTarget.value >= breaks[breaks.length - 1] ||
+      breaks.includes(Number(e.currentTarget.value))
+    ) {
       e.currentTarget.value = breaks[i];
 
       // todo, wrap in timeout if necessary
       /* setTimeout(function () {
        $apply(function(){ */
-          e.currentTarget.value = breaks[i];
-          this.visualStyleHelperService.dynamicBrew[site].breaks[i] = breaks[i];
-    /*     });
+      e.currentTarget.value = breaks[i];
+      this.visualStyleHelperService.dynamicBrew[site].breaks[i] = breaks[i];
+      /*     });
       }, 10); */
-    }
-    else {
+    } else {
       this.visualStyleHelperService.dynamicBrew[site].breaks[i] = Number(e.currentTarget.value);
-      this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function(a, b) {
+      this.visualStyleHelperService.dynamicBrew[site].breaks.sort(function (a, b) {
         return a - b;
       });
-      
-      this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[this.visualStyleHelperService.dynamicBrew[0].breaks, this.visualStyleHelperService.dynamicBrew[1].breaks]]);
+
+      this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [
+        [
+          this.visualStyleHelperService.dynamicBrew[0].breaks,
+          this.visualStyleHelperService.dynamicBrew[1].breaks,
+        ],
+      ]);
     }
   }
 
- onBreakDblClick(e, i, site) {
-    if((!this.chartDisplayState.isBalanceChecked 
-      && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      && !this.containsNegativeValues)
-      || this.chartDisplayState.isMeasureOfValueChecked) {
-      if (i == 0 || i == this.visualStyleHelperService.manualBrew.breaks.length-1 || this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[i])) {
+  onBreakDblClick(e, i, site) {
+    if (
+      (!this.chartDisplayState.isBalanceChecked &&
+        !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') &&
+        !this.containsNegativeValues) ||
+      this.chartDisplayState.isMeasureOfValueChecked
+    ) {
+      if (
+        i == 0 ||
+        i == this.visualStyleHelperService.manualBrew.breaks.length - 1 ||
+        this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[i])
+      ) {
         return;
       }
-    }
-    else {
-      if (i == 0 || i == this.visualStyleHelperService.dynamicBrew[site].breaks.length-1 || this.breakIsUnalterable(this.visualStyleHelperService.dynamicBrew[site].breaks[i])) {
+    } else {
+      if (
+        i == 0 ||
+        i == this.visualStyleHelperService.dynamicBrew[site].breaks.length - 1 ||
+        this.breakIsUnalterable(this.visualStyleHelperService.dynamicBrew[site].breaks[i])
+      ) {
         return;
       }
     }
@@ -399,118 +482,157 @@ export class KommonitorClassificationComponent implements OnInit {
     if (window.getSelection) {
       window.getSelection()!.removeAllRanges();
     } else if (document.getSelection()) {
-        document.getSelection()!.empty();
+      document.getSelection()!.empty();
     }
   }
-  
- restyleCurrentLayer() {
+
+  restyleCurrentLayer() {
     this.broadcastService.broadcast(BroadcastMessage.RestyleCurrentLayer, [false]);
   }
- 
- getWidthForHistogramBar(i) {
-    const colors = this.visualStyleHelperService.manualBrew.colors ? this.visualStyleHelperService.manualBrew.colors : [];
-    const countArray:any[] = [];
-    colors.forEach( (color:any) => {
+
+  getWidthForHistogramBar(i) {
+    const colors = this.visualStyleHelperService.manualBrew.colors
+      ? this.visualStyleHelperService.manualBrew.colors
+      : [];
+    const countArray: any[] = [];
+    colors.forEach((color: any) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     });
     return (countArray[i] / Math.max(...countArray)) * 100 || 0;
-  };
- getWidthForHistogramBarMOV(side, i) {
-    const colors:any[] = [];
-    colors[0] = this.visualStyleHelperService.measureOfValueBrew[0] ? this.visualStyleHelperService.measureOfValueBrew[0].colors : [];
-    colors[1] = this.visualStyleHelperService.measureOfValueBrew[1] ? this.visualStyleHelperService.measureOfValueBrew[1].colors : [];
+  }
+  getWidthForHistogramBarMOV(side, i) {
+    const colors: any[] = [];
+    colors[0] = this.visualStyleHelperService.measureOfValueBrew[0]
+      ? this.visualStyleHelperService.measureOfValueBrew[0].colors
+      : [];
+    colors[1] = this.visualStyleHelperService.measureOfValueBrew[1]
+      ? this.visualStyleHelperService.measureOfValueBrew[1].colors
+      : [];
 
-    const countArray:any[] = [];
-    colors[0].forEach( (color) => {
+    const countArray: any[] = [];
+    colors[0].forEach((color) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
     });
-    colors[1].forEach( (color) => {
+    colors[1].forEach((color) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
-    })
+    });
     const color = this.visualStyleHelperService.measureOfValueBrew[side].colors[i];
     const count = this.visualStyleHelperService.featuresPerColorMap.get(color);
     return (count / Math.max(...countArray)) * 100 || 0;
-  };
-  
- getWidthForHistogramBarDynamic(side, i) {
-    const colors = [...this.visualStyleHelperService.dynamicBrew[0].colors, ...this.visualStyleHelperService.dynamicBrew[1].colors];
-    const countArray:any[] = [];
-    colors.forEach( (color) => {
+  }
+
+  getWidthForHistogramBarDynamic(side, i) {
+    const colors = [
+      ...this.visualStyleHelperService.dynamicBrew[0].colors,
+      ...this.visualStyleHelperService.dynamicBrew[1].colors,
+    ];
+    const countArray: any[] = [];
+    colors.forEach((color) => {
       countArray.push(this.visualStyleHelperService.featuresPerColorMap.get(color) || 0);
-    })
+    });
     const color = this.visualStyleHelperService.dynamicBrew[side].colors[i];
     const count = this.visualStyleHelperService.featuresPerColorMap.get(color);
     return (count / Math.max(...countArray)) * 100 || 0;
-  };
+  }
 
- getHeightForBar(i) {
-    const size = this.visualStyleHelperService.manualBrew.breaks[i+1] - this.visualStyleHelperService.manualBrew.breaks[i];
-    return (size / (this.getMaxValue(0) -this.getMinValue(0))) * 100;
-  };
+  getHeightForBar(i) {
+    const size =
+      this.visualStyleHelperService.manualBrew.breaks[i + 1] -
+      this.visualStyleHelperService.manualBrew.breaks[i];
+    return (size / (this.getMaxValue(0) - this.getMinValue(0))) * 100;
+  }
 
- getHeightForBarMOV(site, i) {
-    const size = this.visualStyleHelperService.measureOfValueBrew[site].breaks[i+1] - this.visualStyleHelperService.measureOfValueBrew[site].breaks[i];
-    return (size / (this.getMaxValue(0) -this.getMinValue(1))) * 100;
-  };
+  getHeightForBarMOV(site, i) {
+    const size =
+      this.visualStyleHelperService.measureOfValueBrew[site].breaks[i + 1] -
+      this.visualStyleHelperService.measureOfValueBrew[site].breaks[i];
+    return (size / (this.getMaxValue(0) - this.getMinValue(1))) * 100;
+  }
 
- getHeightForBarDynamic(site, i) {
-    const size = this.visualStyleHelperService.dynamicBrew[site].breaks[i+1] - this.visualStyleHelperService.dynamicBrew[site].breaks[i];
-    return (size / (this.getMaxValue(site) -this.getMinValue(site))) * 100;
-  }; 
+  getHeightForBarDynamic(site, i) {
+    const size =
+      this.visualStyleHelperService.dynamicBrew[site].breaks[i + 1] -
+      this.visualStyleHelperService.dynamicBrew[site].breaks[i];
+    return (size / (this.getMaxValue(site) - this.getMinValue(site))) * 100;
+  }
 
- getPercentage(n, site) {
-    return ((n -this.getMinValue(site)) / (this.getMaxValue(site) -this.getMinValue(site))) * 100;
-  };
+  getPercentage(n, site) {
+    return ((n - this.getMinValue(site)) / (this.getMaxValue(site) - this.getMinValue(site))) * 100;
+  }
 
-  
- getMaxValue(site)  {
+  getMaxValue(site) {
     let breaks = [];
-    if((!this.chartDisplayState.isBalanceChecked 
-      && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      && !this.containsNegativeValues)
-      || this.chartDisplayState.isMeasureOfValueChecked) {
+    if (
+      (!this.chartDisplayState.isBalanceChecked &&
+        !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') &&
+        !this.containsNegativeValues) ||
+      this.chartDisplayState.isMeasureOfValueChecked
+    ) {
       breaks = this.visualStyleHelperService.manualBrew.breaks;
-    }
-    else {
+    } else {
       if (!this.visualStyleHelperService.dynamicBrew) {
         return 0;
       }
-      if (!this.visualStyleHelperService.dynamicBrew[0] && !this.visualStyleHelperService.dynamicBrew[1]) {
+      if (
+        !this.visualStyleHelperService.dynamicBrew[0] &&
+        !this.visualStyleHelperService.dynamicBrew[1]
+      ) {
         return 0;
       }
-      if(site == 1 && (!this.visualStyleHelperService.dynamicBrew[1] || this.visualStyleHelperService.dynamicBrew[1].breaks.length < 1)) {
+      if (
+        site == 1 &&
+        (!this.visualStyleHelperService.dynamicBrew[1] ||
+          this.visualStyleHelperService.dynamicBrew[1].breaks.length < 1)
+      ) {
         breaks = this.visualStyleHelperService.dynamicBrew[0].breaks;
       }
-      if(site == 0 && (!this.visualStyleHelperService.dynamicBrew[0] || this.visualStyleHelperService.dynamicBrew[0].breaks.length < 1)) {
+      if (
+        site == 0 &&
+        (!this.visualStyleHelperService.dynamicBrew[0] ||
+          this.visualStyleHelperService.dynamicBrew[0].breaks.length < 1)
+      ) {
         breaks = this.visualStyleHelperService.dynamicBrew[1].breaks;
       }
       breaks = this.visualStyleHelperService.dynamicBrew[site].breaks;
     }
-    return breaks[breaks.length - 1]; 
-  }  
- 
- getMinValue(site) {
-    if((!this.chartDisplayState.isBalanceChecked 
-      && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      && !this.containsNegativeValues)
-      || this.chartDisplayState.isMeasureOfValueChecked) {
+    return breaks[breaks.length - 1];
+  }
+
+  getMinValue(site) {
+    if (
+      (!this.chartDisplayState.isBalanceChecked &&
+        !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') &&
+        !this.containsNegativeValues) ||
+      this.chartDisplayState.isMeasureOfValueChecked
+    ) {
       return this.visualStyleHelperService.manualBrew.breaks[0];
     }
     if (!this.visualStyleHelperService.dynamicBrew) {
       return 0;
     }
-    if (!this.visualStyleHelperService.dynamicBrew[0] && !this.visualStyleHelperService.dynamicBrew[1]) {
+    if (
+      !this.visualStyleHelperService.dynamicBrew[0] &&
+      !this.visualStyleHelperService.dynamicBrew[1]
+    ) {
       return 0;
     }
-    if(site == 1 && (!this.visualStyleHelperService.dynamicBrew[1] || this.visualStyleHelperService.dynamicBrew[1].breaks.length < 1)) {
+    if (
+      site == 1 &&
+      (!this.visualStyleHelperService.dynamicBrew[1] ||
+        this.visualStyleHelperService.dynamicBrew[1].breaks.length < 1)
+    ) {
       return this.visualStyleHelperService.dynamicBrew[0].breaks[0];
     }
-    if(site == 0 && (!this.visualStyleHelperService.dynamicBrew[0] || this.visualStyleHelperService.dynamicBrew[0].breaks.length < 1)) {
+    if (
+      site == 0 &&
+      (!this.visualStyleHelperService.dynamicBrew[0] ||
+        this.visualStyleHelperService.dynamicBrew[0].breaks.length < 1)
+    ) {
       return this.visualStyleHelperService.dynamicBrew[1].breaks[0];
     }
     return this.visualStyleHelperService.dynamicBrew[site].breaks[0];
   }
-   
+
   onBreakMouseDown(e, i, site) {
     this.isDraggingBreak = true;
     this.draggingBreak = e.currentTarget;
@@ -521,85 +643,123 @@ export class KommonitorClassificationComponent implements OnInit {
   onClassificationMouseUp() {
     this.isDraggingBreak = false;
   }
-    
- onBreaksMouseMove(e, site) {
-    if((!this.chartDisplayState.isBalanceChecked 
-      && !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-      && !this.containsNegativeValues)
-      || this.chartDisplayState.isMeasureOfValueChecked) {
-     this.onBreakMouseMove(e);
-    }
-    else {
-     this.onDynamicBreakMouseMove(e, site);
+
+  onBreaksMouseMove(e, site) {
+    if (
+      (!this.chartDisplayState.isBalanceChecked &&
+        !this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') &&
+        !this.containsNegativeValues) ||
+      this.chartDisplayState.isMeasureOfValueChecked
+    ) {
+      this.onBreakMouseMove(e);
+    } else {
+      this.onDynamicBreakMouseMove(e, site);
     }
   }
-  
- onBreakMouseMove(e) {
-    if (this.nrOfDraggingBreak != 0 &&this.nrOfDraggingBreak != this.visualStyleHelperService.manualBrew.breaks.length-1 && this.nrOfDraggingBreak && !this.breakIsUnalterable(this.visualStyleHelperService.manualBrew.breaks[this.nrOfDraggingBreak])) {
-     this.showAddBtn[0] = false;
 
-      if(e.buttons === 1 &&this.isDraggingBreak) {
-        const histogram = document.querySelectorAll<HTMLElement>(".editableHistogram")[0];
-        const newHeight = this.addBtnHeight[0] / histogram.offsetHeight * 100;
-        if(newHeight > 0 && newHeight < 100) {
-          this.draggingBreak.style.top = newHeight + "%";
+  onBreakMouseMove(e) {
+    if (
+      this.nrOfDraggingBreak != 0 &&
+      this.nrOfDraggingBreak != this.visualStyleHelperService.manualBrew.breaks.length - 1 &&
+      this.nrOfDraggingBreak &&
+      !this.breakIsUnalterable(
+        this.visualStyleHelperService.manualBrew.breaks[this.nrOfDraggingBreak]
+      )
+    ) {
+      this.showAddBtn[0] = false;
+
+      if (e.buttons === 1 && this.isDraggingBreak) {
+        const histogram = document.querySelectorAll<HTMLElement>('.editableHistogram')[0];
+        const newHeight = (this.addBtnHeight[0] / histogram.offsetHeight) * 100;
+        if (newHeight > 0 && newHeight < 100) {
+          this.draggingBreak.style.top = newHeight + '%';
         }
 
         (async () => {
           const breaks = this.visualStyleHelperService.manualBrew.breaks;
-          const newBreak = Math.floor((this.addBtnHeight[0] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
-          if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1]) {
-           this.draggingBreak.children[0].children[0].value = newBreak;
-            if(this.nrOfDraggingBreak)
+          const newBreak = Math.floor(
+            (this.addBtnHeight[0] / histogram.offsetHeight) *
+              (breaks[breaks.length - 1] - breaks[0]) +
+              breaks[0]
+          );
+          if (newBreak > breaks[0] && newBreak < breaks[breaks.length - 1]) {
+            this.draggingBreak.children[0].children[0].value = newBreak;
+            if (this.nrOfDraggingBreak)
               this.visualStyleHelperService.manualBrew.breaks[this.nrOfDraggingBreak] = newBreak;
-            this.visualStyleHelperService.manualBrew.breaks.sort(function(a, b) {
+            this.visualStyleHelperService.manualBrew.breaks.sort(function (a, b) {
               return a - b;
             });
-            
-            this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [this.visualStyleHelperService.manualBrew.breaks]);
-            if((this.chartDisplayState.isBalanceChecked 
-              || this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC')
-              ||this.containsNegativeValues) 
-              && this.chartDisplayState.isMeasureOfValueChecked) {
-             this.updateDynamicBreaksFromManualBreaks();
+
+            this.broadcastService.broadcast(BroadcastMessage.ChangeBreaks, [
+              this.visualStyleHelperService.manualBrew.breaks,
+            ]);
+            if (
+              (this.chartDisplayState.isBalanceChecked ||
+                this.selectionState.selectedIndicator.indicatorType.includes('DYNAMIC') ||
+                this.containsNegativeValues) &&
+              this.chartDisplayState.isMeasureOfValueChecked
+            ) {
+              this.updateDynamicBreaksFromManualBreaks();
             }
           }
         })();
       }
     }
-  };
+  }
 
- onDynamicBreakMouseMove(e, site) {
-    if (this.nrOfDraggingBreak != 0 &&this.nrOfDraggingBreak != this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.length-1) {
-     this.showAddBtn[site] = false;
+  onDynamicBreakMouseMove(e, site) {
+    if (
+      this.nrOfDraggingBreak != 0 &&
+      this.nrOfDraggingBreak !=
+        this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.length - 1
+    ) {
+      this.showAddBtn[site] = false;
 
-      if(e.buttons === 1 &&this.isDraggingBreak) {
-        const histograms = Array.from(document.querySelectorAll<HTMLElement>(".editableHistogram"));
+      if (e.buttons === 1 && this.isDraggingBreak) {
+        const histograms = Array.from(document.querySelectorAll<HTMLElement>('.editableHistogram'));
         histograms.reverse();
         const histogram = histograms[this.dynamicDraggingSite];
 
-        const newHeight = this.addBtnHeight[site] / histogram.offsetHeight * 100;
-        if(newHeight > 0 && newHeight < 100) {
-         this.draggingBreak.style.top = newHeight + "%";
+        const newHeight = (this.addBtnHeight[site] / histogram.offsetHeight) * 100;
+        if (newHeight > 0 && newHeight < 100) {
+          this.draggingBreak.style.top = newHeight + '%';
         }
 
         (async () => {
           const breaks = this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks;
-          const newBreak = Math.floor((this.addBtnHeight[site] / histogram.offsetHeight) * (breaks[breaks.length-1] - breaks[0]) + breaks[0]);
-          if (newBreak > breaks[0] && newBreak < breaks[breaks.length-1] && !breaks.includes(newBreak)) {
-           this.draggingBreak.children[0].children[0].value = newBreak;
-            if(this.nrOfDraggingBreak)
-              this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks[this.nrOfDraggingBreak] = newBreak;
-            this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.sort(function(a, b) {
-              return a - b;
-            });
-            const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0] ? this.visualStyleHelperService.dynamicBrew[0].breaks : [];
-            const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1] ? this.visualStyleHelperService.dynamicBrew[1].breaks : [];
-            
-            this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [[increaseBreaks, decreaseBreaks]]);
+          const newBreak = Math.floor(
+            (this.addBtnHeight[site] / histogram.offsetHeight) *
+              (breaks[breaks.length - 1] - breaks[0]) +
+              breaks[0]
+          );
+          if (
+            newBreak > breaks[0] &&
+            newBreak < breaks[breaks.length - 1] &&
+            !breaks.includes(newBreak)
+          ) {
+            this.draggingBreak.children[0].children[0].value = newBreak;
+            if (this.nrOfDraggingBreak)
+              this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks[
+                this.nrOfDraggingBreak
+              ] = newBreak;
+            this.visualStyleHelperService.dynamicBrew[this.dynamicDraggingSite].breaks.sort(
+              function (a, b) {
+                return a - b;
+              }
+            );
+            const increaseBreaks = this.visualStyleHelperService.dynamicBrew[0]
+              ? this.visualStyleHelperService.dynamicBrew[0].breaks
+              : [];
+            const decreaseBreaks = this.visualStyleHelperService.dynamicBrew[1]
+              ? this.visualStyleHelperService.dynamicBrew[1].breaks
+              : [];
+
+            this.broadcastService.broadcast(BroadcastMessage.ChangeDynamicBreaks, [
+              [increaseBreaks, decreaseBreaks],
+            ]);
           }
         })();
       }
     }
-  } 
+  }
 }

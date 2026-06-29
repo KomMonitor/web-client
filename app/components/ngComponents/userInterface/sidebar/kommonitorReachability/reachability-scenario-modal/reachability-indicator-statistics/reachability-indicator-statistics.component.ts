@@ -25,6 +25,20 @@ import { SpatialDataProcessorHelperService } from 'services/spatial-data-process
   imports: [FormsModule],
 })
 export class ReachabilityIndicatorStatisticsComponent implements OnInit {
+  protected mapOverlayState = inject(MapOverlayStateService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private indicatorValueService = inject(IndicatorValueService);
+  private selectionState = inject(SelectionStateService);
+  protected indicatorStore = inject(IndicatorMetadataStoreService);
+  protected reachabilityScenarioHelperService = inject(ReachabilityScenarioHelperService);
+  protected reachabilityHelperService = inject(ReachabilityHelperService);
+  protected reachabilityCoverageReportsHelperService = inject(
+    ReachabilityCoverageReportsHelperService
+  );
+  private reachabilityMapHelperService = inject(ReachabilityMapHelperService);
+  private spatialDataProcessorHelperService = inject(SpatialDataProcessorHelperService);
+  private broadcastService = inject(BroadcastService);
+
   private readonly destroyRef = inject(DestroyRef);
 
   availableIndicators: any;
@@ -59,19 +73,7 @@ export class ReachabilityIndicatorStatisticsComponent implements OnInit {
     );
   }
 
-  constructor(
-    protected mapOverlayState: MapOverlayStateService,
-    private metadataBootstrap: MetadataBootstrapService,
-    private indicatorValueService: IndicatorValueService,
-    private selectionState: SelectionStateService,
-    protected indicatorStore: IndicatorMetadataStoreService,
-    protected reachabilityScenarioHelperService: ReachabilityScenarioHelperService,
-    protected reachabilityHelperService: ReachabilityHelperService,
-    protected reachabilityCoverageReportsHelperService: ReachabilityCoverageReportsHelperService,
-    private reachabilityMapHelperService: ReachabilityMapHelperService,
-    private spatialDataProcessorHelperService: SpatialDataProcessorHelperService,
-    private broadcastService: BroadcastService
-  ) {
+  constructor() {
     this.reachabilityScenarioHelperService.tmpActiveScenario.indicatorStatistics = [];
   }
 

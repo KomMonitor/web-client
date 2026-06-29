@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -28,6 +28,13 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
   standalone: true,
 })
 export class WmsAddModalComponent implements OnInit {
+  activeModal = inject(NgbActiveModal);
+  protected accessControlService = inject(AccessControlService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private ogcService = inject(OgcService);
+  protected roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  protected envConfigService = inject(EnvConfigService);
+
   @Input() resourceType!: any;
 
   totalSteps: number = 4;
@@ -82,15 +89,6 @@ export class WmsAddModalComponent implements OnInit {
 
   successMessagePart = '';
   errorMessagePart = '';
-
-  constructor(
-    public activeModal: NgbActiveModal,
-    protected accessControlService: AccessControlService,
-    private topicStore: TopicMetadataStoreService,
-    private ogcService: OgcService,
-    protected roleManagementHelper: RoleManagementDataGridHelperService,
-    protected envConfigService: EnvConfigService
-  ) {}
 
   ngOnInit(): void {
     this.availableTopics = this.topicStore.availableTopics.filter(

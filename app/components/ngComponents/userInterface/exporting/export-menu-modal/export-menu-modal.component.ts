@@ -71,12 +71,12 @@ function buildTargetTime(
   ],
 })
 export class ExportMenuModalComponent {
+  private http = inject(HttpClient);
+
   activeModal = inject(NgbActiveModal);
   stateSrvc = inject(ExportingStateService);
   exportSrvc = inject(ExportingService);
   isLoading = signal(false);
-
-  constructor(private http: HttpClient) {}
 
   downloadFile(url: string): Observable<Blob> {
     return this.http.get(url, { responseType: 'blob' });

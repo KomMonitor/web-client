@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ExportingStateService } from '../exporting-state.service';
 import { Georessource, Indicator } from '../models';
 
@@ -12,10 +12,10 @@ export type ExportItemKind = 'indicator' | 'georessource';
   standalone: true,
 })
 export class ExportItemCheckboxComponent {
+  protected srvc = inject(ExportingStateService);
+
   @Input({ required: true }) kind!: ExportItemKind;
   @Input({ required: true }) dataset!: Indicator | Georessource;
-
-  constructor(protected srvc: ExportingStateService) {}
 
   isInExport(): boolean {
     if (this.kind === 'indicator') {

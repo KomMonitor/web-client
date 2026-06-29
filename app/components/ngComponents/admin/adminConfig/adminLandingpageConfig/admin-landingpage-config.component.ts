@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import {
   ConfigStorageService,
   LandingpageConfig,
@@ -43,11 +43,9 @@ export class AdminLandingpageConfigComponent implements AfterViewInit {
   appConfigNew: string = '';
   configLoaded = false;
 
-  constructor(
-    private http: HttpClient,
-    private kommonitorConfigStorageService: ConfigStorageService,
-    private notificationService: NotificationService
-  ) {}
+  private http = inject(HttpClient);
+  private kommonitorConfigStorageService = inject(ConfigStorageService);
+  private notificationService = inject(NotificationService);
 
   ngAfterViewInit() {
     this.init();

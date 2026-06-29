@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
@@ -23,6 +23,15 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   imports: [FormsModule, NgbCollapse, ExpandableBoxComponent],
 })
 export class KommonitorDiagramsComponent implements OnInit {
+  protected chartDisplayState = inject(ChartDisplayStateService);
+  private indicatorValueService = inject(IndicatorValueService);
+  protected selectionState = inject(SelectionStateService);
+  protected labelService = inject(LabelService);
+  private diagramHelperService = inject(DiagramHelperServiceService);
+  private broadcastService = inject(BroadcastService);
+  private filterHelperService = inject(FilterHelperService);
+  protected envConfigService = inject(EnvConfigService);
+
   resizeObservable$!: Observable<Event>;
   resizeSubscription$!: Subscription;
 
@@ -35,16 +44,9 @@ export class KommonitorDiagramsComponent implements OnInit {
   showBarChartLabel: boolean = false;
   showBarChartAverageLine: boolean = false;
 
-  constructor(
-    protected chartDisplayState: ChartDisplayStateService,
-    private indicatorValueService: IndicatorValueService,
-    protected selectionState: SelectionStateService,
-    protected labelService: LabelService,
-    private diagramHelperService: DiagramHelperServiceService,
-    private broadcastService: BroadcastService,
-    private filterHelperService: FilterHelperService,
-    protected envConfigService: EnvConfigService
-  ) {
+  constructor() {
+    const envConfigService = this.envConfigService;
+
     this.showBarChartLabel = envConfigService.showBarChartLabel;
     this.showBarChartAverageLine = envConfigService.showBarChartAverageLine;
   }

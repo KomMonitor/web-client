@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -24,6 +24,13 @@ import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-s
   standalone: true,
 })
 export class WmsEditModalComponent {
+  activeModal = inject(NgbActiveModal);
+  protected accessControlService = inject(AccessControlService);
+  private topicStore = inject(TopicMetadataStoreService);
+  private ogcService = inject(OgcService);
+  protected dataGridHelperService = inject(OgcDataGridHelperService);
+  private topicHierarchyService = inject(TopicHierarchyService);
+
   currentGeoresourceDataset!: WmsDataset;
 
   totalSteps: number = 3;
@@ -66,14 +73,7 @@ export class WmsEditModalComponent {
   successMessagePart = '';
   errorMessagePart = '';
 
-  constructor(
-    public activeModal: NgbActiveModal,
-    protected accessControlService: AccessControlService,
-    private topicStore: TopicMetadataStoreService,
-    private ogcService: OgcService,
-    protected dataGridHelperService: OgcDataGridHelperService,
-    private topicHierarchyService: TopicHierarchyService
-  ) {
+  constructor() {
     this.availableTopics = this.topicStore.availableTopics.filter(
       (e) => e.topicResource == 'georesource'
     );

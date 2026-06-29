@@ -1,15 +1,15 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { BroadcastService } from "services/broadcast-service/broadcast.service";
-import { BroadcastMessage } from "services/broadcast-service/broadcast-message";
-import { MapOverlayStateService } from "services/map-overlay-state-service/map-overlay-state.service";
-import { MapErrorNotificationService } from "services/map-error-notification-service/map-error-notification.service";
-import { CacheHelperServiceService } from "services/cache-helper-service/cache-helper.service";
-import { SelectionStateService } from "services/selection-state-service/selection-state.service";
-import { GeoresourceMetadataStoreService } from "services/georesource-metadata-store-service/georesource-metadata-store.service";
-import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
-import { MapService } from "services/map-service/map.service";
-import { GeoresourcesDataset } from "components/ngComponents/models/georesources.models";
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
+import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
+import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
+import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { MapService } from 'services/map-service/map.service';
+import { GeoresourcesDataset } from 'components/ngComponents/models/georesources.models';
 
 /**
  * Encapsulates the side-effecting georesource layer logic that used to live in
@@ -20,16 +20,26 @@ import { GeoresourcesDataset } from "components/ngComponents/models/georesources
  * Tree/selection bookkeeping (which topic is selected, fav handling) remains in
  * the component; this service only performs the actual map interactions.
  */
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class GeoresourceLayerService {
+  private mapOverlayState = inject(MapOverlayStateService);
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
+  private cacheHelperService = inject(CacheHelperServiceService);
+  private selectionState = inject(SelectionStateService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private metadataExportService = inject(MetadataExportService);
+  private mapService = inject(MapService);
+  private broadcastService = inject(BroadcastService);
+  private http = inject(HttpClient);
+
   /** Whether POI layers are clustered on the map. Bound by the settings header. */
   useCluster = true;
   /** Drives the sidebar loading spinner while layers are (re)loaded. */
   loadingData = false;
 
-  readonly dateSelectionType_valueIndicator = "date_indicator";
-  readonly dateSelectionType_valueManual = "date_manual";
-  readonly dateSelectionType_valuePerDataset = "date_perDataset";
+  readonly dateSelectionType_valueIndicator = 'date_indicator';
+  readonly dateSelectionType_valueManual = 'date_manual';
+  readonly dateSelectionType_valuePerDataset = 'date_perDataset';
   dateSelectionType = {
     selectedDateType: this.dateSelectionType_valuePerDataset,
   };
@@ -38,45 +48,25 @@ export class GeoresourceLayerService {
 
   private timeout_manualdate: any;
 
-  constructor(
-    private mapOverlayState: MapOverlayStateService,
-    private mapErrorNotificationService: MapErrorNotificationService,
-    private cacheHelperService: CacheHelperServiceService,
-    private selectionState: SelectionStateService,
-    private georesourceStore: GeoresourceMetadataStoreService,
-    private metadataExportService: MetadataExportService,
-    private mapService: MapService,
-    private broadcastService: BroadcastService,
-    private http: HttpClient,
-  ) {}
-
   /** True when datasets carry their own per-dataset validity date selection. */
   get isPerDatasetDate(): boolean {
-    return (
-      this.dateSelectionType.selectedDateType ===
-      this.dateSelectionType_valuePerDataset
-    );
+    return this.dateSelectionType.selectedDateType === this.dateSelectionType_valuePerDataset;
   }
 
   onClickUseIndicatorTimestamp() {
-    this.dateSelectionType.selectedDateType =
-      this.dateSelectionType_valueIndicator;
+    this.dateSelectionType.selectedDateType = this.dateSelectionType_valueIndicator;
 
     this.refreshSelectedGeoresources();
   }
 
   isNoValidDate(dateCandidate) {
-    const dateComps = dateCandidate.split("-");
+    const dateComps = dateCandidate.split('-');
 
     if (dateComps.length < 3) {
       return true;
     } else if (!dateComps[0] || !dateComps[1] || !dateComps[2]) {
       return true;
-    } else if (
-      isNaN(dateComps[0]) ||
-      isNaN(dateComps[1]) ||
-      isNaN(dateComps[2])
-    ) {
+    } else if (isNaN(dateComps[0]) || isNaN(dateComps[1]) || isNaN(dateComps[2])) {
       return true;
     } else if (Number(dateComps[1]) > 12 || Number(dateComps[2]) > 31) {
       return true;
@@ -111,16 +101,10 @@ export class GeoresourceLayerService {
   }
 
   selectedIndicatorDateHasChanged() {
-    console.log(
-      "refresh selected georesource layers according to new date - poi",
-    );
+    console.log('refresh selected georesource layers according to new date - poi');
 
     // only refresh georesources if sync with indicator timestamp is selected
-    if (
-      !this.dateSelectionType.selectedDateType.includes(
-        this.dateSelectionType_valueIndicator,
-      )
-    ) {
+    if (!this.dateSelectionType.selectedDateType.includes(this.dateSelectionType_valueIndicator)) {
       return;
     }
 
@@ -135,12 +119,8 @@ export class GeoresourceLayerService {
   }
 
   refreshSelectedGeoresources() {
-    for (const georesource of this.georesourceStore
-      .displayableGeoresources_keywordFiltered) {
-      if (
-        georesource.isSelected &&
-        (georesource.isPOI || georesource.isLOI || georesource.isAOI)
-      ) {
+    for (const georesource of this.georesourceStore.displayableGeoresources_keywordFiltered) {
+      if (georesource.isSelected && (georesource.isPOI || georesource.isLOI || georesource.isAOI)) {
         this.removeGeoresourceLayerFromMap(georesource);
         this.addGeoresourceLayerToMap(georesource);
       }
@@ -165,19 +145,12 @@ export class GeoresourceLayerService {
   }
 
   getQueryDate(resource: any) {
-    if (
-      this.dateSelectionType.selectedDateType ===
-      this.dateSelectionType_valueIndicator
-    ) {
+    if (this.dateSelectionType.selectedDateType === this.dateSelectionType_valueIndicator) {
       return this.selectionState.selectedDate;
-    } else if (
-      this.dateSelectionType.selectedDateType ===
-      this.dateSelectionType_valueManual
-    ) {
+    } else if (this.dateSelectionType.selectedDateType === this.dateSelectionType_valueManual) {
       return this.selectedDate_manual;
     } else if (
-      this.dateSelectionType.selectedDateType ===
-        this.dateSelectionType_valuePerDataset &&
+      this.dateSelectionType.selectedDateType === this.dateSelectionType_valuePerDataset &&
       resource.selectedDate
     ) {
       return resource.selectedDate.startDate;
@@ -190,21 +163,15 @@ export class GeoresourceLayerService {
     this.loadingData = true;
     this.broadcastService.broadcast(BroadcastMessage.ShowLoadingIconOnMap);
     const date = this.getQueryDate(resource);
-    const [year, month, day] = date.split("-");
+    const [year, month, day] = date.split('-');
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
     this.http.get(url).subscribe({
       next: (response) => {
         resource.geoJSON = response;
         if (resource.isPOI)
-          this.mapService.addPoiGeoresourceGeoJSON(
-            resource,
-            date,
-            this.useCluster,
-          );
-        else if (resource.isLOI)
-          this.mapService.addLoiGeoresourceGeoJSON(resource, date);
-        else if (resource.isAOI)
-          this.mapService.addAoiGeoresourceGeoJSON(resource, date);
+          this.mapService.addPoiGeoresourceGeoJSON(resource, date, this.useCluster);
+        else if (resource.isLOI) this.mapService.addLoiGeoresourceGeoJSON(resource, date);
+        else if (resource.isAOI) this.mapService.addAoiGeoresourceGeoJSON(resource, date);
         this.loadingData = false;
       },
       error: (error) => {
@@ -224,28 +191,23 @@ export class GeoresourceLayerService {
   }
 
   refreshPoiLayers() {
-    for (const poi of this.georesourceStore
-      .displayableGeoresources_keywordFiltered) {
+    for (const poi of this.georesourceStore.displayableGeoresources_keywordFiltered) {
       if (poi.isSelected) {
         this.removeGeoresourceLayerFromMap(poi);
         this.addGeoresourceLayerToMap(poi);
       }
     }
     for (const wfs of this.georesourceStore.wfsDatasets) {
-      if (wfs.geometryType === "POI" && wfs.isSelected) {
+      if (wfs.geometryType === 'POI' && wfs.isSelected) {
         this.mapService.removeWfsLayerFromMap(wfs);
-        this.mapService.addWfsLayerToMap(
-          wfs,
-          1 - wfs.transparency,
-          this.useCluster,
-        );
+        this.mapService.addWfsLayerToMap(wfs, 1 - wfs.transparency, this.useCluster);
       }
     }
   }
 
   getExportLinkForGeoresource(resource: GeoresourcesDataset) {
     const date = this.getQueryDate(resource);
-    const [year, month, day] = date.split("-");
+    const [year, month, day] = date.split('-');
     const url = `${this.cacheHelperService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/georesources/${resource.georesourceId}/${year}/${month}/${day}`;
     const fileName = `${resource.datasetName}-${year}-${month}-${day}`;
     this.http.get(url).subscribe({
@@ -255,18 +217,17 @@ export class GeoresourceLayerService {
             resource,
             JSON.stringify(response),
             fileName,
-            ".geojson",
-            {},
+            '.geojson',
+            {}
           );
         } else {
-          const a = document.createElement("a");
+          const a = document.createElement('a');
           a.setAttribute(
-            "href",
-            "data:application/json;charset=utf-8," +
-              encodeURIComponent(JSON.stringify(response)),
+            'href',
+            'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(response))
           );
-          a.setAttribute("download", fileName);
-          a.style.display = "none";
+          a.setAttribute('download', fileName);
+          a.style.display = 'none';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -281,7 +242,7 @@ export class GeoresourceLayerService {
 
   handleWmsOnMap(dataset) {
     this.mapOverlayState.wmsLegendImage = undefined;
-    console.log("Toggle WMS: " + dataset.title);
+    console.log('Toggle WMS: ' + dataset.title);
 
     if (dataset.isSelected) {
       //display on Map
@@ -294,7 +255,7 @@ export class GeoresourceLayerService {
   }
 
   handleWfsOnMap(dataset) {
-    console.log("Toggle WFS: " + dataset.title);
+    console.log('Toggle WFS: ' + dataset.title);
 
     if (dataset.isSelected) {
       //display on Map

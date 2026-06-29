@@ -1,32 +1,33 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { TopicHierarchyStoreService } from 'services/topic-hierarchy-store-service/topic-hierarchy-store.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 
 @Pipe({
-    name: 'baseIndicatorOfComputedIndicatorFilter',
-    pure: false,
-    standalone: true
+  name: 'baseIndicatorOfComputedIndicatorFilter',
+  pure: false,
+  standalone: true,
 })
 export class BaseIndicatorOfComputedIndicatorFilter implements PipeTransform {
-
-  constructor(
-    private topicHierarchyStore: TopicHierarchyStoreService,
-    private selectionState: SelectionStateService
-  ) {}
+  private topicHierarchyStore = inject(TopicHierarchyStoreService);
+  private selectionState = inject(SelectionStateService);
 
   transform(items: any[]): any {
-
     if (!items) {
       return items;
-    } 
-    
-    const computationIndicatorEntry = this.topicHierarchyStore.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == this.selectionState.selectedIndicator.indicatorId)[0];
+    }
 
-    return items.filter(item => {
-        
-      if(computationIndicatorEntry){
-        const baseIndicators_filtered = computationIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
-        if (baseIndicators_filtered.length > 0){
+    const computationIndicatorEntry = this.topicHierarchyStore.computationIndicatorHierarchy.filter(
+      (element) =>
+        element.computationIndicator.indicatorId ==
+        this.selectionState.selectedIndicator.indicatorId
+    )[0];
+
+    return items.filter((item) => {
+      if (computationIndicatorEntry) {
+        const baseIndicators_filtered = computationIndicatorEntry.baseIndicators.filter(
+          (element) => element.indicatorId == item.indicatorMetadata.indicatorId
+        );
+        if (baseIndicators_filtered.length > 0) {
           return true;
         }
       }

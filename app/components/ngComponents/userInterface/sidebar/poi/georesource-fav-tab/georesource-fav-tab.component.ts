@@ -1,20 +1,20 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { GeoFavFilter } from "pipes/georesources-fav-filter.pipe";
-import { GeoFavItemFilter } from "pipes/georesources-fav-item-filter.pipe";
-import { IconTranslate } from "pipes/icon-translate.pipe";
-import { ExportButtonVisibilityService } from "services/export-button-visibility-service/export-button-visibility.service";
-import { MetadataExportService } from "services/metadata-export-service/metadata-export.service";
-import { OgcService } from "services/ogcServices/ogc.service";
-import { GeoresourceLayerService } from "components/ngComponents/userInterface/sidebar/poi/georesource-layer.service";
-import { GeoresourceFavoritesService } from "components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service";
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { GeoFavFilter } from 'pipes/georesources-fav-filter.pipe';
+import { GeoFavItemFilter } from 'pipes/georesources-fav-item-filter.pipe';
+import { IconTranslate } from 'pipes/icon-translate.pipe';
+import { ExportButtonVisibilityService } from 'services/export-button-visibility-service/export-button-visibility.service';
+import { MetadataExportService } from 'services/metadata-export-service/metadata-export.service';
+import { OgcService } from 'services/ogcServices/ogc.service';
+import { GeoresourceLayerService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-layer.service';
+import { GeoresourceFavoritesService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-favorites.service';
 import {
   GeoresourcesDataset,
   GeoresourcesTopicsHierarchy,
-} from "components/ngComponents/models/georesources.models";
-import { ExportItemCheckboxComponent } from "components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component";
-import { GeoresourceExportModeService } from "components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service";
+} from 'components/ngComponents/models/georesources.models';
+import { ExportItemCheckboxComponent } from 'components/ngComponents/userInterface/exporting/export-item-checkbox/export-item-checkbox.component';
+import { GeoresourceExportModeService } from 'components/ngComponents/userInterface/sidebar/poi/georesource-export-mode.service';
 
 /**
  * The "Favoriten" tab: a recursive view of the favourite topics/datasets with
@@ -24,9 +24,9 @@ import { GeoresourceExportModeService } from "components/ngComponents/userInterf
  * (toggle/showAll/zoom) are delegated to the host {@link PoiComponent}.
  */
 @Component({
-  selector: "app-georesource-fav-tab",
-  templateUrl: "./georesource-fav-tab.component.html",
-  styleUrls: ["./georesource-fav-tab.component.scss"],
+  selector: 'app-georesource-fav-tab',
+  templateUrl: './georesource-fav-tab.component.html',
+  styleUrls: ['./georesource-fav-tab.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -38,6 +38,13 @@ import { GeoresourceExportModeService } from "components/ngComponents/userInterf
   ],
 })
 export class GeoresourceFavTabComponent {
+  protected favoritesService = inject(GeoresourceFavoritesService);
+  protected layerService = inject(GeoresourceLayerService);
+  protected exportButtonVisibility = inject(ExportButtonVisibilityService);
+  protected metadataExportService = inject(MetadataExportService);
+  protected ogcService = inject(OgcService);
+  protected exportMode = inject(GeoresourceExportModeService);
+
   @Input() showFavSelection = false;
 
   @Output() toggleGeoresourceOnMap = new EventEmitter<GeoresourcesDataset>();
@@ -46,22 +53,12 @@ export class GeoresourceFavTabComponent {
 
   private expandedFavTopics = new Set<string>();
 
-  constructor(
-    protected favoritesService: GeoresourceFavoritesService,
-    protected layerService: GeoresourceLayerService,
-    protected exportButtonVisibility: ExportButtonVisibilityService,
-    protected metadataExportService: MetadataExportService,
-    protected ogcService: OgcService,
-    protected exportMode: GeoresourceExportModeService,
-  ) {}
-
   isFavSubTopicCollapsed(topicId: string) {
     return !this.expandedFavTopics.has(topicId);
   }
 
   toggleFavSubTopic(topicId: string) {
-    if (this.expandedFavTopics.has(topicId))
-      this.expandedFavTopics.delete(topicId);
+    if (this.expandedFavTopics.has(topicId)) this.expandedFavTopics.delete(topicId);
     else this.expandedFavTopics.add(topicId);
   }
 

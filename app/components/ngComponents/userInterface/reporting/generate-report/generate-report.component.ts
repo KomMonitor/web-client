@@ -26,6 +26,12 @@ import {
   imports: [],
 })
 export class GenerateReportComponent implements OnInit {
+  private mapErrorNotificationService = inject(MapErrorNotificationService);
+  private leafletScreenshotHelperService = inject(LeafletScreenshotCacheHelperService);
+  private broadcastService = inject(BroadcastService);
+  protected reportingService = inject(ReportingService);
+  private diagramHelperService = inject(DiagramHelperServiceService);
+
   activeModal = inject(NgbActiveModal);
 
   @Input() data!: reportingData;
@@ -37,14 +43,6 @@ export class GenerateReportComponent implements OnInit {
   pxPerMilli;
 
   workflowState = WorkflowState;
-
-  constructor(
-    private mapErrorNotificationService: MapErrorNotificationService,
-    private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
-    private broadcastService: BroadcastService,
-    protected reportingService: ReportingService,
-    private diagramHelperService: DiagramHelperServiceService
-  ) {}
 
   ngOnInit(): void {
     this.deviceScreenDpi = this.calculateScreenDpi();

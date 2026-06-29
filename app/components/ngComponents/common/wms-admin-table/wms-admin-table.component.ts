@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
 import { WmsDataset, WmsResourceType } from 'components/ngComponents/models/services.models';
@@ -17,7 +17,7 @@ import { WmsEditModalComponent } from './wms-edit-modal/wms-edit-modal.component
 import { WmsEditUserRolesModalComponent } from './wms-edit-user-roles-modal/wms-edit-user-roles-modal.component';
 import { WmsDeleteModalComponent } from './wms-delete-modal/wms-delete-modal.component';
 import { WmsSharedComponentsService } from './wms-admin-tables-shared.service';
-import { ExpandableBoxComponent } from "../expandable-box/expandable-box.component";
+import { ExpandableBoxComponent } from '../expandable-box/expandable-box.component';
 
 @Component({
   selector: 'app-wms-admin-table',
@@ -27,26 +27,25 @@ import { ExpandableBoxComponent } from "../expandable-box/expandable-box.compone
   standalone: true,
 })
 export class WmsAdminTableComponent implements OnInit, AfterViewInit {
+  private ogcDataGridHelperServiceFactory = inject(OgcDataGridHelperServiceFactory);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private accessControlService = inject(AccessControlService);
+  private georesourceStore = inject(GeoresourceMetadataStoreService);
+  private broadcastService = inject(BroadcastService);
+  private modalService = inject(NgbModal);
+  private wmsSharedComponentsService = inject(WmsSharedComponentsService);
 
   @ViewChild('wmsGrid', { static: false }) wmsGrid!: AgGridAngular;
   @Input() resourceType!: WmsResourceType;
-  @Input() tableViewSwitcher:boolean = false;
+  @Input() tableViewSwitcher: boolean = false;
 
   public wmsGridOptions: any = {};
-  
+
   private subscriptions: Subscription[] = [];
 
   ogcDataGridHelperService;
 
-  constructor(
-    private ogcDataGridHelperServiceFactory: OgcDataGridHelperServiceFactory,
-    private metadataBootstrap: MetadataBootstrapService,
-    private accessControlService: AccessControlService,
-    private georesourceStore: GeoresourceMetadataStoreService,
-    private broadcastService: BroadcastService,
-    private modalService: NgbModal,
-    private wmsSharedComponentsService: WmsSharedComponentsService
-  ) {
+  constructor() {
     this.ogcDataGridHelperService = this.ogcDataGridHelperServiceFactory.create();
   }
 
@@ -56,15 +55,13 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     // React to metadata loading state transitions. skip(1) drops the
     // BehaviorSubject's replayed current value so this keeps the original
     // one-shot semantics of the former broadcast event.
-    const loadingSub = this.metadataBootstrap.metadataLoading$
-      .pipe(skip(1))
-      .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) {
-          setTimeout(() => {
-            this.initializeOrRefreshOverviewTable();
-          }, 250);
-        }
-      });
+    const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
+      if (state === MetadataLoadingState.COMPLETE) {
+        setTimeout(() => {
+          this.initializeOrRefreshOverviewTable();
+        }, 250);
+      }
+    });
     this.subscriptions.push(loadingSub);
 
     // Listen for broadcast messages
@@ -77,13 +74,12 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
     this.subscriptions.push(broadcastSub);
 
     // listen to addOpen calls from indicator/georesources overview components (+ erstellen - buttons)
-    this.wmsSharedComponentsService.onOpenAddModal().subscribe((resourceType:WmsResourceType) => {
+    this.wmsSharedComponentsService.onOpenAddModal().subscribe((resourceType: WmsResourceType) => {
       this.openAddModal(resourceType);
-    })
+    });
   }
 
   initializeOrRefreshOverviewTable() {
-
     this.metadataBootstrap.reinitServices().then(() => {
       const wmsDatasets = this.initOgcDatasets();
       this.ogcDataGridHelperService.buildDataGrid_wms(wmsDatasets);
@@ -91,8 +87,7 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   private initOgcDatasets(): WmsDataset[] {
-
-    let filteredReturn:WmsDataset[] = [];
+    let filteredReturn: WmsDataset[] = [];
 
     if (this.tableViewSwitcher) {
       filteredReturn = this.georesourceStore.availableWmsDatasets.filter(
@@ -102,15 +97,12 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
       filteredReturn = this.georesourceStore.availableWmsDatasets;
     }
 
-    return filteredReturn.filter(e => e.serviceResource==this.resourceType);
+    return filteredReturn.filter((e) => e.serviceResource == this.resourceType);
   }
-  
 
   ngAfterViewInit(): void {
-    this.ogcDataGridHelperService.initializeGrids(
-      this.wmsGrid
-    );
-    
+    this.ogcDataGridHelperService.initializeGrids(this.wmsGrid);
+
     this.ogcDataGridHelperService.setComponentRef(this);
   }
 
@@ -127,28 +119,29 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
   }
 
   public openAddModal(resourceType: WmsResourceType) {
-
     // check whether the requested modal type matches the actual component
     // otherwise both add modals (geores. / indi.) will open, as both tables exist
-    if(resourceType==this.resourceType) {
+    if (resourceType == this.resourceType) {
       const modalRef = this.modalService.open(WmsAddModalComponent, {
         backdrop: true,
         keyboard: false,
         container: 'body',
         animation: false,
         modalDialogClass: 'modal-medium',
-        windowClass: 'modal-medium'
+        windowClass: 'modal-medium',
       });
 
       modalRef.componentInstance.resourceType = resourceType;
 
-      modalRef.result.then((result) => {
-        if (result) {
-          this.initializeOrRefreshOverviewTable();
-        }
-      }).catch(() => {
-        // Modal dismissed
-      });
+      modalRef.result
+        .then((result) => {
+          if (result) {
+            this.initializeOrRefreshOverviewTable();
+          }
+        })
+        .catch(() => {
+          // Modal dismissed
+        });
     }
   }
 
@@ -159,19 +152,21 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
       container: 'body',
       animation: false,
       modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
+      windowClass: 'modal-medium',
     });
-    
+
     modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
     modalRef.componentInstance.reInit();
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   onClickEditUserRoles(wmsMetadata: any): void {
@@ -181,19 +176,21 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
       container: 'body',
       animation: false,
       modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
+      windowClass: 'modal-medium',
     });
-    
+
     modalRef.componentInstance.currentGeoresourceDataset = wmsMetadata;
     modalRef.componentInstance.reInit();
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      } 
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 
   onClickDelete(wmsMetadata: any[]): void {
@@ -203,17 +200,19 @@ export class WmsAdminTableComponent implements OnInit, AfterViewInit {
       container: 'body',
       animation: false,
       modalDialogClass: 'modal-medium',
-      windowClass: 'modal-medium'
+      windowClass: 'modal-medium',
     });
-    
+
     modalRef.componentInstance.datasetToDelete = wmsMetadata;
-    
-    modalRef.result.then((result) => {
-      if (result) {
-        this.initializeOrRefreshOverviewTable();
-      }
-    }).catch(() => {
-      // Modal dismissed
-    });
+
+    modalRef.result
+      .then((result) => {
+        if (result) {
+          this.initializeOrRefreshOverviewTable();
+        }
+      })
+      .catch(() => {
+        // Modal dismissed
+      });
   }
 }

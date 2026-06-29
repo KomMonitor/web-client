@@ -1,5 +1,11 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { NgbCollapseModule, NgbDate, NgbDatepickerModule, NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import {
+  NgbCollapseModule,
+  NgbDate,
+  NgbDatepickerModule,
+  NgbDateStruct,
+  NgbModal,
+} from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
@@ -26,22 +32,39 @@ import { ActiveWmsFilter } from 'pipes/active-wms-filter.pipe';
 import { KommonitorClassificationComponent } from '../kommonitorClassification/kommonitor-classification.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
-
 @Component({
   selector: 'app-kommonitor-legend',
   templateUrl: './kommonitor-legend.component.html',
   styleUrls: ['./kommonitor-legend.component.scss'],
   standalone: true,
   imports: [
-    NgbCollapseModule, 
-    CommonModule, 
-    FormsModule, 
+    NgbCollapseModule,
+    CommonModule,
+    FormsModule,
     NgbDatepickerModule,
     ActiveWmsFilter,
     KommonitorClassificationComponent,
-    ExpandableBoxComponent]
+    ExpandableBoxComponent,
+  ],
 })
 export class KommonitorLegendComponent implements OnInit, OnChanges {
+  protected chartDisplayState = inject(ChartDisplayStateService);
+  private indicatorValueService = inject(IndicatorValueService);
+  protected selectionState = inject(SelectionStateService);
+  protected georesourceStore = inject(GeoresourceMetadataStoreService);
+  protected spatialUnitStore = inject(SpatialUnitMetadataStoreService);
+  protected indicatorStore = inject(IndicatorMetadataStoreService);
+  protected metadataExportService = inject(MetadataExportService);
+  protected labelService = inject(LabelService);
+  private elementVisibilityService = inject(ElementVisibilityHelperService);
+  private shareHelperService = inject(ShareHelperService);
+  protected visualStyleService = inject(VisualStyleHelperServiceNew);
+  protected filterHelperService = inject(FilterHelperService);
+  private broadcastService = inject(BroadcastService);
+  private modalService = inject(NgbModal);
+  protected ogcService = inject(OgcService);
+  private mapService = inject(MapService);
+  protected envConfigService = inject(EnvConfigService);
 
   elementVisibilityData: any;
   visualStyleData: any;
@@ -67,34 +90,16 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
   protected defaultColorForZeroValues = this.envConfigService.defaultColorForZeroValues;
   protected defaultColorForFilteredValues = this.envConfigService.defaultColorForFilteredValues;
-  protected defaultBorderColorForFilteredValues = this.envConfigService.defaultBorderColorForFilteredValues;
+  protected defaultBorderColorForFilteredValues =
+    this.envConfigService.defaultBorderColorForFilteredValues;
   protected defaultColorForNoDataValues = this.envConfigService.defaultColorForNoDataValues;
-  protected defaultBorderColorForNoDataValues = this.envConfigService.defaultBorderColorForNoDataValues;
+  protected defaultBorderColorForNoDataValues =
+    this.envConfigService.defaultBorderColorForNoDataValues;
 
   isDisabledDate;
   datePickerDate;
 
-  @Input() onupdatelegenddisplaydata!:any;
-
-  constructor(
-    protected chartDisplayState: ChartDisplayStateService,
-    private indicatorValueService: IndicatorValueService,
-    protected selectionState: SelectionStateService,
-    protected georesourceStore: GeoresourceMetadataStoreService,
-    protected spatialUnitStore: SpatialUnitMetadataStoreService,
-    protected indicatorStore: IndicatorMetadataStoreService,
-    protected metadataExportService: MetadataExportService,
-    protected labelService: LabelService,
-    private elementVisibilityService: ElementVisibilityHelperService,
-    private shareHelperService: ShareHelperService,
-    protected visualStyleService: VisualStyleHelperServiceNew,
-    protected filterHelperService: FilterHelperService,
-    private broadcastService: BroadcastService,
-    private modalService: NgbModal,
-    protected ogcService: OgcService,
-    private mapService: MapService,
-    protected envConfigService: EnvConfigService
-  ) { }
+  @Input() onupdatelegenddisplaydata!: any;
 
   // Local precision-resolving wrapper (formerly the DataExchangeService facade glue, Prio7 B1).
   protected getIndicatorValue_asFormattedText(indicatorValue, precision = undefined) {
@@ -105,8 +110,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: any): void {
-
-    if(changes.onupdatelegenddisplaydata) {
+    if (changes.onupdatelegenddisplaydata) {
       const data = changes.onupdatelegenddisplaydata.currentValue;
 
       this.dateAsDate = data.dateAsDate;
@@ -119,53 +123,70 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       this.outliers_low = data.outliers_low;
       this.containsNoData = data.containsNoData;
 
-      if(data.selectedDate) {
-        const dateComponents = data.selectedDate.split("-");
-        this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+      if (data.selectedDate) {
+        const dateComponents = data.selectedDate.split('-');
+        this.dateAsDate = new Date(
+          Number(dateComponents[0]),
+          Number(dateComponents[1]) - 1,
+          Number(dateComponents[2])
+        );
       }
     }
   }
-  
 
   ngOnInit(): void {
-
-      $(document).ready(function() {
-        $(".nav li.disabled a").click(function() {
-          return false;
-        });
+    $(document).ready(function () {
+      $('.nav li.disabled a').click(function () {
+        return false;
       });
+    });
 
-      this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-        const title = broadcastMsg.msg;
-      });
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+      const title = broadcastMsg.msg;
+    });
 
-      
-      // todo del timeout
-      setTimeout(()=> {
-        const dateComponents = this.selectionState.selectedDate.split("-");
-        this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-        this.datePickerDate = {year: this.dateAsDate.getFullYear(), month: this.dateAsDate.getMonth() + 1, day: this.dateAsDate.getDate()};
-      },2500);
+    // todo del timeout
+    setTimeout(() => {
+      const dateComponents = this.selectionState.selectedDate.split('-');
+      this.dateAsDate = new Date(
+        Number(dateComponents[0]),
+        Number(dateComponents[1]) - 1,
+        Number(dateComponents[2])
+      );
+      this.datePickerDate = {
+        year: this.dateAsDate.getFullYear(),
+        month: this.dateAsDate.getMonth() + 1,
+        day: this.dateAsDate.getDate(),
+      };
+    }, 2500);
 
-      this.broadcastService.currentBroadcastMsg.subscribe(broadcastMsg => {
-        const title = broadcastMsg.msg;
-        const values:any = broadcastMsg.values;
-  
-        switch (title) {
-          case BroadcastMessage.UpdateLegendDisplay: {
-             this.updateLegendDisplay(values);
-          } break;
-          case BroadcastMessage.UpdateDatePickerAvailableDates: {
+    this.broadcastService.currentBroadcastMsg.subscribe((broadcastMsg) => {
+      const title = broadcastMsg.msg;
+      const values: any = broadcastMsg.values;
+
+      switch (title) {
+        case BroadcastMessage.UpdateLegendDisplay:
+          {
+            this.updateLegendDisplay(values);
+          }
+          break;
+        case BroadcastMessage.UpdateDatePickerAvailableDates:
+          {
             this.onUpdateDatePicker(values);
-          } break;
-          case BroadcastMessage.UpdateDatePickerSelectedDate: {
+          }
+          break;
+        case BroadcastMessage.UpdateDatePickerSelectedDate:
+          {
             this.onUpdateDatePickerSelectedDate(values);
-          } break;
-          case BroadcastMessage.OnGlobalFilterChange: {
+          }
+          break;
+        case BroadcastMessage.OnGlobalFilterChange:
+          {
             this.onGlobalFilterChange();
-          } break;
-        }
-      });
+          }
+          break;
+      }
+    });
   }
 
   onGlobalFilterChange() {
@@ -174,18 +195,25 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onUpdateDatePicker([dates]) {
-
-    this.isDisabledDate=(date:NgbDateStruct,current: {month: number,year:number})=> {
-      return dates.find(x=>new NgbDate(x.year,x.month,x.day).equals(date))?
-        false:true;
-    }
+    this.isDisabledDate = (date: NgbDateStruct, current: { month: number; year: number }) => {
+      return dates.find((x) => new NgbDate(x.year, x.month, x.day).equals(date)) ? false : true;
+    };
   }
 
   onUpdateDatePickerSelectedDate([date]) {
-    this.datePickerDate = {year: date.year, month: date.month, day: date.day};
+    this.datePickerDate = { year: date.year, month: date.month, day: date.day };
   }
 
-  updateLegendDisplay([containsZeroValues, containsNegativeValues, containsNoData, containsOutliers_high, containsOutliers_low, outliers_low, outliers_high, selectedDate]) {
+  updateLegendDisplay([
+    containsZeroValues,
+    containsNegativeValues,
+    containsNoData,
+    containsOutliers_high,
+    containsOutliers_low,
+    outliers_low,
+    outliers_high,
+    selectedDate,
+  ]) {
     this.containsZeroValues = containsZeroValues;
     this.containsNegativeValues = containsNegativeValues;
     this.containsOutliers_high = containsOutliers_high;
@@ -193,14 +221,29 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     this.outliers_high = outliers_high;
     this.outliers_low = outliers_low;
     this.containsNoData = containsNoData;
-    const dateComponents = selectedDate.split("-");
-    this.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-    
-    this.broadcastService.broadcast(BroadcastMessage.UpdateClassificationComponent, [this.containsZeroValues, this.containsNegativeValues, this.containsNoData, this.containsOutliers_high, this.containsOutliers_low, this.outliers_low, this.outliers_high, this.selectionState.selectedDate]);
+    const dateComponents = selectedDate.split('-');
+    this.dateAsDate = new Date(
+      Number(dateComponents[0]),
+      Number(dateComponents[1]) - 1,
+      Number(dateComponents[2])
+    );
+
+    this.broadcastService.broadcast(BroadcastMessage.UpdateClassificationComponent, [
+      this.containsZeroValues,
+      this.containsNegativeValues,
+      this.containsNoData,
+      this.containsOutliers_high,
+      this.containsOutliers_low,
+      this.outliers_low,
+      this.outliers_high,
+      this.selectionState.selectedDate,
+    ]);
   }
 
   filteredSpatialUnits() {
-    return this.spatialUnitStore.availableSpatialUnits.filter(e => this.selectionState.isAllowedSpatialUnitForCurrentIndicator(e)!==false);
+    return this.spatialUnitStore.availableSpatialUnits.filter(
+      (e) => this.selectionState.isAllowedSpatialUnitForCurrentIndicator(e) !== false
+    );
   }
 
   onChangeIndicatorDatepickerDate() {
@@ -209,29 +252,34 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   onChangeSelectedSpatialUnit() {
-
     /* 
       onChangeSelectedSpatialUnit changed to be called by on-click iso on-change
       on-change was triggerd as well by selecting a global filter. here in some occations the metadata-loading took longer, resulting in an error following this $broadcast("changeSpatialUnit")
       on-click needed some workaround to cover the actual change of selection iso just the initial click or the change by the global filter
     */
 
-    if(!this.actualSelectedSpatialUnitId && this.globalFilterActivated) {
+    if (!this.actualSelectedSpatialUnitId && this.globalFilterActivated) {
       // initial click, no change yet. Define currently selected spatial unit
       this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
       this.globalFilterActivated = false;
     } else {
-
-      if(this.selectionState.selectedSpatialUnit && this.selectionState.selectedSpatialUnit.spatialUnitId!=this.actualSelectedSpatialUnitId) {
-
+      if (
+        this.selectionState.selectedSpatialUnit &&
+        this.selectionState.selectedSpatialUnit.spatialUnitId != this.actualSelectedSpatialUnitId
+      ) {
         this.actualSelectedSpatialUnitId = this.selectionState.selectedSpatialUnit.spatialUnitId;
         this.broadcastService.broadcast(BroadcastMessage.ChangeSpatialUnit);
 
-        if(this.envConfigService.enableSpatialUnitNotificationSelection) {
-          if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
-            const selectedSpatialUnitName = this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-            if(this.envConfigService.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
-              this.openSpatialunitModal()
+        if (this.envConfigService.enableSpatialUnitNotificationSelection) {
+          if (!(localStorage.getItem('hideKomMonitorSpatialUnitNotification') === 'true')) {
+            const selectedSpatialUnitName =
+              this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+            if (
+              this.envConfigService.spatialUnitNotificationSelection.includes(
+                selectedSpatialUnitName
+              )
+            ) {
+              this.openSpatialunitModal();
             }
           }
         }
@@ -239,7 +287,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     }
 
     // old, prior merge but past migration
-  /*  this.broadcastService.broadcast("changeSpatialUnit");
+    /*  this.broadcastService.broadcast("changeSpatialUnit");
 
     if(this.env.enableSpatialUnitNotificationSelection) {
       if(localStorage.getItem("hideKomMonitorSpatialUnitNotification") && localStorage.getItem("hideKomMonitorSpatialUnitNotification")=== "true") {
@@ -253,74 +301,112 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
   }
 
   spatialUnitNotificationModalEnabled() {
-    if(this.envConfigService.enableSpatialUnitNotificationSelection)
-      return true
-    
+    if (this.envConfigService.enableSpatialUnitNotificationSelection) return true;
+
     return false;
   }
 
   showSpatialUnitNotificationModalIfEnabled() {
-    if(this.envConfigService.enableSpatialUnitNotificationSelection) {
+    if (this.envConfigService.enableSpatialUnitNotificationSelection) {
       this.openSpatialunitModal();
     }
   }
 
   openSpatialunitModal() {
-    const modalRef = this.modalService.open(SpatialUnitNotificationModalComponent, {windowClass: 'modal-holder', centered: true});
+    const modalRef = this.modalService.open(SpatialUnitNotificationModalComponent, {
+      windowClass: 'modal-holder',
+      centered: true,
+    });
   }
 
   async onClickDownloadMetadata() {
     // create PDF from currently selected/displayed indicator!
     const indicatorMetadata = this.selectionState.selectedIndicator;
-    const pdfName = indicatorMetadata.indicatorName + ".pdf";
-    const jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);	
+    const pdfName = indicatorMetadata.indicatorName + '.pdf';
+    const jspdf = await this.metadataExportService.generateIndicatorMetadataPdf(
+      indicatorMetadata,
+      pdfName
+    );
     jspdf.save();
   }
-  
+
   downloadIndicatorAsGeoJSON() {
-    let fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-				  
+    let fileName =
+      this.selectionState.selectedIndicator.indicatorName +
+      '_' +
+      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+
     let geoJSON_string;
     let geoJSON;
 
-    if(this.chartDisplayState.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.chartDisplayState.indicatorAndMetadataAsBalance);							  
+    if (this.chartDisplayState.isBalanceChecked) {
+      geoJSON = jQuery.extend(
+        true,
+        {},
+        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON
+      );
+      geoJSON = this.prepareBalanceGeoJSON(
+        geoJSON,
+        this.chartDisplayState.indicatorAndMetadataAsBalance
+      );
       geoJSON_string = JSON.stringify(geoJSON);
-      fileName += "_Bilanz" + this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
-    }
-    else{
+      fileName +=
+        '_Bilanz' +
+        this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] +
+        ' - ' +
+        this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
+    } else {
       geoJSON_string = JSON.stringify(this.selectionState.selectedIndicator.geoJSON);
-      fileName += "_" + this.selectionState.selectedDate;
-    }			
+      fileName += '_' + this.selectionState.selectedDate;
+    }
 
-    this.metadataExportService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
+    this.metadataExportService.generateAndDownloadIndicatorZIP(
+      geoJSON_string,
+      fileName,
+      '.geojson',
+      {}
+    );
   }
-  
-  downloadIndicatorAsShape() {
-    
-    let fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
-    const polygonName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
-    const options:any = {
-      folder: "shape",
+  downloadIndicatorAsShape() {
+    let fileName =
+      this.selectionState.selectedIndicator.indicatorName +
+      '_' +
+      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    const polygonName =
+      this.selectionState.selectedIndicator.indicatorName +
+      '_' +
+      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+
+    const options: any = {
+      folder: 'shape',
       types: {
-      point: 'points',
-      polygon: polygonName,
-      line: 'lines'
-      }
+        point: 'points',
+        polygon: polygonName,
+        line: 'lines',
+      },
     };
 
     let geoJSON;
 
-    if( this.chartDisplayState.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {},  this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON,  this.chartDisplayState.indicatorAndMetadataAsBalance);
-      fileName += "_Bilanz_" +  this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] + " - " +  this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
-    }
-    else{
-      geoJSON = jQuery.extend(true, {},  this.selectionState.selectedIndicator.geoJSON);
-      fileName += "_" +  this.selectionState.selectedDate;
+    if (this.chartDisplayState.isBalanceChecked) {
+      geoJSON = jQuery.extend(
+        true,
+        {},
+        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON
+      );
+      geoJSON = this.prepareBalanceGeoJSON(
+        geoJSON,
+        this.chartDisplayState.indicatorAndMetadataAsBalance
+      );
+      fileName +=
+        '_Bilanz_' +
+        this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] +
+        ' - ' +
+        this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
+    } else {
+      geoJSON = jQuery.extend(true, {}, this.selectionState.selectedIndicator.geoJSON);
+      fileName += '_' + this.selectionState.selectedDate;
     }
 
     for (const feature of geoJSON.features) {
@@ -330,29 +416,25 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       const keys = Object.keys(properties);
 
       for (const key of keys) {
-      var newKey;
-      if (key.toLowerCase().includes("featureid")) {
-        newKey = "ID";
-      }
-      else if (key.toLowerCase().includes("featurename")) {
-        newKey = "NAME";
-      }
-      else if (key.toLowerCase().includes("date_")) {
-        // from DATE_2018-01-01
-        // to 20180101
-        newKey = key.split("_")[1].replace(/-|\s/g, "");
-      }
-      else if (key.toLowerCase().includes("startdate")) {
-        newKey = "validFrom";
-      }
-      else if (key.toLowerCase().includes("enddate")) {
-        newKey = "validTo";
-      }
+        var newKey;
+        if (key.toLowerCase().includes('featureid')) {
+          newKey = 'ID';
+        } else if (key.toLowerCase().includes('featurename')) {
+          newKey = 'NAME';
+        } else if (key.toLowerCase().includes('date_')) {
+          // from DATE_2018-01-01
+          // to 20180101
+          newKey = key.split('_')[1].replace(/-|\s/g, '');
+        } else if (key.toLowerCase().includes('startdate')) {
+          newKey = 'validFrom';
+        } else if (key.toLowerCase().includes('enddate')) {
+          newKey = 'validTo';
+        }
 
-      if (newKey) {
-        properties[newKey] = properties[key];
-        delete properties[key];
-      }
+        if (newKey) {
+          properties[newKey] = properties[key];
+          delete properties[key];
+        }
       }
 
       // replace properties with the one with new keys
@@ -360,27 +442,45 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
     }
 
     // shpwrite.download(geoJSON, options);
-    const arrayBuffer = shpwrite.zip(geoJSON, options);							
-    this.metadataExportService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
+    const arrayBuffer = shpwrite.zip(geoJSON, options);
+    this.metadataExportService.generateAndDownloadIndicatorZIP(
+      arrayBuffer,
+      fileName,
+      '_shape.zip',
+      { base64: true }
+    );
   }
-  
+
   downloadIndicatorAsCSV() {
     //todo
-    let fileName = this.selectionState.selectedIndicator.indicatorName + "_" + this.selectionState.selectedSpatialUnit.spatialUnitLevel;
+    let fileName =
+      this.selectionState.selectedIndicator.indicatorName +
+      '_' +
+      this.selectionState.selectedSpatialUnit.spatialUnitLevel;
 
     let geoJSON;
 
-    if(this.chartDisplayState.isBalanceChecked){
-      geoJSON = jQuery.extend(true, {}, this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON);
-      geoJSON = this.prepareBalanceGeoJSON(geoJSON, this.chartDisplayState.indicatorAndMetadataAsBalance);
-      fileName += "_Bilanz_" + this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] + " - " + this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
-    }
-    else{
+    if (this.chartDisplayState.isBalanceChecked) {
+      geoJSON = jQuery.extend(
+        true,
+        {},
+        this.chartDisplayState.indicatorAndMetadataAsBalance.geoJSON
+      );
+      geoJSON = this.prepareBalanceGeoJSON(
+        geoJSON,
+        this.chartDisplayState.indicatorAndMetadataAsBalance
+      );
+      fileName +=
+        '_Bilanz_' +
+        this.chartDisplayState.indicatorAndMetadataAsBalance['fromDate'] +
+        ' - ' +
+        this.chartDisplayState.indicatorAndMetadataAsBalance['toDate'];
+    } else {
       geoJSON = jQuery.extend(true, {}, this.selectionState.selectedIndicator.geoJSON);
-      fileName += "_" + this.selectionState.selectedDate;
+      fileName += '_' + this.selectionState.selectedDate;
     }
 
-    const items:any[] = [];
+    const items: any[] = [];
 
     for (const feature of geoJSON.features) {
       const properties = feature.properties;
@@ -389,32 +489,28 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       const keys = Object.keys(properties);
 
       for (const key of keys) {
-      var newKey;
-      if (key.toLowerCase().includes("featureid")) {
-        newKey = "ID";
-      }
-      else if (key.toLowerCase().includes("featurename")) {
-        newKey = "NAME";
-      }
-      else if (key.toLowerCase().includes("date_")) {
-        // from DATE_2018-01-01
-        // to 2018-01-01
-        // indicator values should be replaced.
-        // replace dot as decimal separator 
-        properties[key] = this.getIndicatorValue_asFormattedText(properties[key]);
-        newKey = key.split("_")[1];
-      }
-      else if (key.toLowerCase().includes("startdate")) {
-        newKey = "validFrom";
-      }
-      else if (key.toLowerCase().includes("enddate")) {
-        newKey = "validTo";
-      }
+        var newKey;
+        if (key.toLowerCase().includes('featureid')) {
+          newKey = 'ID';
+        } else if (key.toLowerCase().includes('featurename')) {
+          newKey = 'NAME';
+        } else if (key.toLowerCase().includes('date_')) {
+          // from DATE_2018-01-01
+          // to 2018-01-01
+          // indicator values should be replaced.
+          // replace dot as decimal separator
+          properties[key] = this.getIndicatorValue_asFormattedText(properties[key]);
+          newKey = key.split('_')[1];
+        } else if (key.toLowerCase().includes('startdate')) {
+          newKey = 'validFrom';
+        } else if (key.toLowerCase().includes('enddate')) {
+          newKey = 'validTo';
+        }
 
-      if (newKey) {
-        properties[newKey] = properties[key];
-        delete properties[key];
-      }
+        if (newKey) {
+          properties[newKey] = properties[key];
+          delete properties[key];
+        }
       }
 
       // replace properties with the one with new keys
@@ -427,7 +523,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
 
     // for (const key in items[0]) {
     // 	if (Object.hasOwnProperty.call(items[0], key)) {
-    // 		headers[key] = key;									
+    // 		headers[key] = key;
     // 	}
     // }
 
@@ -435,90 +531,100 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       quotes: false, //or array of booleans
       quoteChar: '"',
       escapeChar: '"',
-      delimiter: ";",
+      delimiter: ';',
       header: true,
-      newline: "\r\n",
+      newline: '\r\n',
       skipEmptyLines: false, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
-      columns: null //or array of strings
+      columns: null, //or array of strings
     });
 
-    this.metadataExportService.generateAndDownloadIndicatorZIP(csv, fileName, ".csv", {});
+    this.metadataExportService.generateAndDownloadIndicatorZIP(csv, fileName, '.csv', {});
 
     // exportCSVFile(headers, items, fileName);
   }
-  
+
   onClickShareLinkButton() {
-    
     this.shareHelperService.generateCurrentShareLink();
-							
+
     /* Copy to clipboard */
-    if(navigator && navigator.clipboard){
+    if (navigator && navigator.clipboard) {
       navigator.clipboard.writeText(this.shareHelperService.currentShareLink);
 
       // Get the snackbar DIV
-      const x = document.getElementById("snackbar");
+      const x = document.getElementById('snackbar');
 
       // Add the "show" class to DIV
-      x!.className = "show";
+      x!.className = 'show';
 
       // After 3 seconds, remove the show class from DIV
-      setTimeout(function(){ x!.className = x!.className.replace("show", ""); }, 3000);
-    }
-    else{
+      setTimeout(function () {
+        x!.className = x!.className.replace('show', '');
+      }, 3000);
+    } else {
       // open in new tab
       window.open(this.shareHelperService.currentShareLink, '_blank');
     }
   }
 
-  prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
-    const fromDate = indicatorMetadataAsBalance["fromDate"];
-    const toDate = indicatorMetadataAsBalance["toDate"];
+  prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance) {
+    const fromDate = indicatorMetadataAsBalance['fromDate'];
+    const toDate = indicatorMetadataAsBalance['toDate'];
     const targetDate = this.selectionState.selectedDate;
 
     for (const feature of geoJSON.features) {
       const properties = feature.properties;
 
       const targetValue = properties[this.envConfigService.indicatorDatePrefix + targetDate];
-      properties["balance"] = targetValue;
+      properties['balance'] = targetValue;
 
       // rename all properties due to char limit in shaoefiles
       const keys = Object.keys(properties);
 
       for (const key of keys) {
-        if (key.toLowerCase().includes("date_")) {
-        // from DATE_2018-01-01
-        // to 20180101
-        delete properties[key];
+        if (key.toLowerCase().includes('date_')) {
+          // from DATE_2018-01-01
+          // to 20180101
+          delete properties[key];
         }
       }
 
       // replace properties with the one with new keys
       feature.properties = properties;
-      }
+    }
 
-      return geoJSON;
+    return geoJSON;
   }
 
   makeOutliersLowLegendString(outliersArray) {
-    if (outliersArray.length > 1) 
-      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + this.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
-    else
-      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
-  };
+    if (outliersArray.length > 1)
+      return (
+        '(' +
+        this.getIndicatorValue_asFormattedText(outliersArray[0]) +
+        ' - ' +
+        this.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) +
+        ')'
+      );
+    else return '(' + this.getIndicatorValue_asFormattedText(outliersArray[0]) + ')';
+  }
 
   makeOutliersHighLegendString(outliersArray) {
     if (outliersArray.length > 1)
-      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + this.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
-    else
-      return "(" + this.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
-  };
-
-  keywordFilteredWmsDataset() {
-    return this.georesourceStore.wmsDatasets_keywordFiltered.filter(e => e.isSelected===true);
+      return (
+        '(' +
+        this.getIndicatorValue_asFormattedText(outliersArray[0]) +
+        ' - ' +
+        this.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) +
+        ')'
+      );
+    else return '(' + this.getIndicatorValue_asFormattedText(outliersArray[0]) + ')';
   }
 
-  hasActiveWMSLayers(){
-    return this.georesourceStore.wmsDatasets.filter(item => item.isSelected).length > 0;
+  keywordFilteredWmsDataset() {
+    return this.georesourceStore.wmsDatasets_keywordFiltered.filter((e) => e.isSelected === true);
+  }
+
+  hasActiveWMSLayers() {
+    return this.georesourceStore.wmsDatasets.filter((item) => item.isSelected).length > 0;
   }
 
   adjustOpacityForWmsLayer(dataset, transparency) {

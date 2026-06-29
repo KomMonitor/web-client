@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ColDef, ColumnApi, GridApi, GridOptions } from 'ag-grid-community';
@@ -20,6 +20,12 @@ import { EnvConfigService } from '../../../../../services/env-config-service/env
   standalone: true,
 })
 export class WmsEditUserRolesModalComponent {
+  activeModal = inject(NgbActiveModal);
+  protected accessControlService = inject(AccessControlService);
+  private ogcService = inject(OgcService);
+  protected roleManagementHelper = inject(RoleManagementDataGridHelperService);
+  protected envConfigService = inject(EnvConfigService);
+
   currentGeoresourceDataset!: WmsDataset;
 
   totalSteps: number = 2;
@@ -45,14 +51,6 @@ export class WmsEditUserRolesModalComponent {
 
   successMessagePart = '';
   errorMessagePart = '';
-
-  constructor(
-    public activeModal: NgbActiveModal,
-    protected accessControlService: AccessControlService,
-    private ogcService: OgcService,
-    protected roleManagementHelper: RoleManagementDataGridHelperService,
-    protected envConfigService: EnvConfigService
-  ) {}
 
   // Multi-step form navigation
   goToStep(step: number): void {

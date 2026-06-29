@@ -1,33 +1,26 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import {
   Component,
-  Inject,
   OnInit,
   OnDestroy,
   Renderer2,
   ViewChild,
   DOCUMENT,
-} from "@angular/core";
-import { Router } from "@angular/router";
-import { AuthService } from "services/auth-service/auth.service";
-import { AdminLoginStateService } from "services/admin-login-state-service/admin-login-state.service";
-import { MetadataBootstrapService, MetadataLoadingState } from "services/metadata-bootstrap-service/metadata-bootstrap.service";
-import { AccessControlService } from "services/access-control-service/access-control.service";
+  inject,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from 'services/auth-service/auth.service';
+import { AdminLoginStateService } from 'services/admin-login-state-service/admin-login-state.service';
 import {
-  NgbCollapseModule,
-  NgbPopover,
-  NgbPopoverModule,
-} from "@ng-bootstrap/ng-bootstrap";
-import { SessionValidityComponent } from "./session-validity/session-validity.component";
-import { BehaviorSubject, Subject, combineLatest, of, timer } from "rxjs";
-import {
-  distinctUntilChanged,
-  map,
-  skip,
-  switchMap,
-  takeUntil,
-} from "rxjs/operators";
-import { EnvConfigService } from "../../../../services/env-config-service/env-config.service";
+  MetadataBootstrapService,
+  MetadataLoadingState,
+} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { AccessControlService } from 'services/access-control-service/access-control.service';
+import { NgbCollapseModule, NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { SessionValidityComponent } from './session-validity/session-validity.component';
+import { BehaviorSubject, Subject, combineLatest, of, timer } from 'rxjs';
+import { distinctUntilChanged, map, skip, switchMap, takeUntil } from 'rxjs/operators';
+import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 
 interface UserRoleInformation {
   [key: string]: string[];
@@ -41,19 +34,23 @@ interface KeycloakUser {
 }
 
 @Component({
-  selector: "app-user-login",
-  templateUrl: "./user-login.component.html",
-  styleUrls: ["./user-login.component.scss"],
-  imports: [
-    CommonModule,
-    NgbCollapseModule,
-    NgbPopoverModule,
-    SessionValidityComponent,
-  ],
+  selector: 'app-user-login',
+  templateUrl: './user-login.component.html',
+  styleUrls: ['./user-login.component.scss'],
+  imports: [CommonModule, NgbCollapseModule, NgbPopoverModule, SessionValidityComponent],
   standalone: true,
 })
 export class UserLoginComponent implements OnInit, OnDestroy {
-  @ViewChild("userLoginPopover") popover!: NgbPopover;
+  private authService = inject(AuthService);
+  private adminLoginState = inject(AdminLoginStateService);
+  private metadataBootstrap = inject(MetadataBootstrapService);
+  private accessControlService = inject(AccessControlService);
+  private router = inject(Router);
+  private renderer = inject(Renderer2);
+  protected envConfigService = inject(EnvConfigService);
+  private document = inject<Document>(DOCUMENT);
+
+  @ViewChild('userLoginPopover') popover!: NgbPopover;
 
   private isOverAnchor$ = new BehaviorSubject<boolean>(false);
   private isOverPopover$ = new BehaviorSubject<boolean>(false);
@@ -65,17 +62,14 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   currentKeycloakUser: KeycloakUser = {};
   userRoleInformation: UserRoleInformation = {};
   userGroupInformation: string[][] = [];
-  password: string = "";
+  password: string = '';
 
   isUserLoginRolesCollapse = true;
   isUserLoginGroupesCollapse = true;
 
   // Check if we're in admin context by looking at the current URL
   get isAdminView(): boolean {
-    return (
-      this.router.url.includes("/administration") ||
-      this.router.url.includes("/admin")
-    );
+    return this.router.url.includes('/administration') || this.router.url.includes('/admin');
   }
 
   // Read directly from the (startup-populated, stable) config rather than caching
@@ -85,17 +79,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   get enableKeycloakSecurity(): boolean {
     return this.envConfigService.enableKeycloakSecurity;
   }
-
-  constructor(
-    private authService: AuthService,
-    private adminLoginState: AdminLoginStateService,
-    private metadataBootstrap: MetadataBootstrapService,
-    private accessControlService: AccessControlService,
-    private router: Router,
-    private renderer: Renderer2,
-    protected envConfigService: EnvConfigService,
-    @Inject(DOCUMENT) private document: Document,
-  ) {}
 
   ngOnInit(): void {
     // React to metadata loading completion. skip(1) drops the BehaviorSubject's
@@ -114,10 +97,8 @@ export class UserLoginComponent implements OnInit, OnDestroy {
       .pipe(
         map(([anchor, pop]) => anchor || pop),
         distinctUntilChanged(),
-        switchMap((isHovered) =>
-          isHovered ? of(true) : timer(200).pipe(map(() => false)),
-        ),
-        takeUntil(this.destroy$),
+        switchMap((isHovered) => (isHovered ? of(true) : timer(200).pipe(map(() => false)))),
+        takeUntil(this.destroy$)
       )
       .subscribe((isHovered) => {
         if (!isHovered && this.popover?.isOpen()) {
@@ -146,26 +127,22 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     this.userRoleInformation = {};
     this.userGroupInformation = [];
     if (this.accessControlService.currentKomMonitorLoginRoleNames?.length > 0) {
-      this.accessControlService.currentKomMonitorLoginRoleNames.forEach(
-        (roles: string) => {
-          const key = roles.split(".")[0];
-          const role = roles.split(".")[1];
+      this.accessControlService.currentKomMonitorLoginRoleNames.forEach((roles: string) => {
+        const key = roles.split('.')[0];
+        const role = roles.split('.')[1];
 
-          if (
-            !Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)
-          ) {
-            this.userRoleInformation[key] = [];
-          }
+        if (!Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)) {
+          this.userRoleInformation[key] = [];
+        }
 
-          this.userRoleInformation[key].push(role);
-        },
-      );
+        this.userRoleInformation[key].push(role);
+      });
     }
 
     if (this.accessControlService.currentKeycloakLoginGroups?.length > 0) {
       this.accessControlService.currentKeycloakLoginGroups.forEach(
         (group: string, index: number) => {
-          const parts = group.split("/");
+          const parts = group.split('/');
           this.userGroupInformation[index] = [];
 
           parts.forEach((part) => {
@@ -173,7 +150,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
               this.userGroupInformation[index].push(part);
             }
           });
-        },
+        }
       );
     }
   }
@@ -189,16 +166,15 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   tryLoginUser_withoutKeycloak(): void {
     // TODO FIXME make generic user login once user/role concept is implemented
     // currently only simple ADMIN user login is possible
-    console.log("Check user login");
+    console.log('Check user login');
     if (
-      this.adminLoginState.adminUserName ===
-        this.metadataBootstrap.currentKeycloakUser &&
+      this.adminLoginState.adminUserName === this.metadataBootstrap.currentKeycloakUser &&
       this.adminLoginState.adminPassword === this.password
     ) {
       // success login --> currently switch to ADMIN page directly
-      console.log("User Login success - redirect to Admin Page");
+      console.log('User Login success - redirect to Admin Page');
       this.adminLoginState.adminIsLoggedIn = true;
-      this.router.navigate(["/administration"]);
+      this.router.navigate(['/administration']);
     }
   }
 
@@ -230,17 +206,13 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   onPopoverShown(): void {
     this.popoverEnterUnlisten?.();
     this.popoverLeaveUnlisten?.();
-    const popoverEl = this.document.querySelector(".user-login-popover");
+    const popoverEl = this.document.querySelector('.user-login-popover');
     if (popoverEl) {
-      this.popoverEnterUnlisten = this.renderer.listen(
-        popoverEl,
-        "mouseenter",
-        () => this.isOverPopover$.next(true),
+      this.popoverEnterUnlisten = this.renderer.listen(popoverEl, 'mouseenter', () =>
+        this.isOverPopover$.next(true)
       );
-      this.popoverLeaveUnlisten = this.renderer.listen(
-        popoverEl,
-        "mouseleave",
-        () => this.isOverPopover$.next(false),
+      this.popoverLeaveUnlisten = this.renderer.listen(popoverEl, 'mouseleave', () =>
+        this.isOverPopover$.next(false)
       );
     }
   }
