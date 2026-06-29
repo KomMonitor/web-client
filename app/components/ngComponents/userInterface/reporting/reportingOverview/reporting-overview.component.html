@@ -61,22 +61,28 @@
               <div class="loading-overlay-reporting" style="width: calc(100% - 30px); height: calc(100% - 15px)" [hidden]="!loadingData">
                   <span class="glyphicon glyphicon-refresh icon-spin"></span>
               </div>
+
+              <div class="alert alert-info" *ngIf="reportingService.workingTemplate.pages.length > 10">
+                  <i class="fa fa-info-circle"></i> <b>Hinweis:</b> Die Vorschau zeigt nur die ersten raumeinheitsspezifischen Seiten und Datentabellenseiten exemplarisch an. Der vollständige Report wird im Hintergrund vorbereitet und wird alle Seiten enthalten.
+              </div>
+
               <div class="row" style="margin:0">
                   <div id="reporting-overview-preview-area">
-                      <div *ngFor="let page of reportingService.workingTemplate.pages; index as iPage"
+                      <ng-container *ngFor="let page of reportingService.workingTemplate.pages; index as iPage">
+                      <div *ngIf="isPageInPreview(page, iPage)"
                           [ngClass]="{'hiddenPage': !showThisPage(page)}"
                           class="reporting-page reporting-page-{{page.orientation}}"
                           id="reporting-overview-page-{{iPage}}">
-                          <button class="orientationChangeBtn" 
+                          <button class="orientationChangeBtn"
                               [hidden]="pageContainsDatatable(iPage) && reportingService.workingTemplate.name.includes('-reachability')"
                               (click)="onPageTurnClicked(page.orientation, iPage)">
                               <img src="icons/swap.png" width="100%" height="100%">
                           </button>
-                          <div *ngFor="let pageElement of page.pageElements">
-                              
+                          <div *ngFor="let pageElement of page.pageElements; let iElement = index">
+
                             <div *ngIf="checkVisibility(pageElement, page)"
                               class="type-{{pageElement.type}}"
-                              id="reporting-overview-page-{{iPage}}-{{pageElement.type}}"
+                              id="reporting-overview-page-{{iPage}}-{{pageElement.type}}-{{iElement}}"
                               [ngStyle]="{position: 'absolute',
                                   top: pageElement.dimensions.top,
                                   left: pageElement.dimensions.left,
@@ -166,7 +172,35 @@
                               </span> -->
                             </div>
                           </div>
+
+                          <!-- Visual Placeholder for background processed pages -->
+                          <div *ngIf="isLastPreviewPage(page) && countBackgroundPages(page) > 0"
+                               class="reporting-page-placeholder"
+                               style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 60%; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; padding: 20px; color: #666; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                              <!-- Loading State -->
+                              <div *ngIf="!lastPageOfAddedSectionPrepared" style="width: 100%;">
+                                  <i class="fa fa-clone" style="font-size: 4em; margin-bottom: 20px; color: #337ab7;"></i>
+                                  <h3 style="margin-top: 0;">{{countBackgroundPages(page)}} weitere Seiten</h3>
+                                  <p *ngIf="page.type === 'area_specific'">Für jede Raumeinheit werden <b>weitere Report-Seiten</b> im Hintergrund aufbereitet.</p>
+                                  <p *ngIf="page.type === 'datatable'">Die <b>restlichen Seiten der Datentabelle</b> werden im Hintergrund aufbereitet.</p>
+                                  <p>Diese Optimierung hält die Anwendung performant. Ihr fertiger Report wird alle Seiten im gewählten Format enthalten.</p>
+                                  <div class="progress" style="width: 100%; margin-top: 20px; height: 25px;">
+                                      <div class="progress-bar progress-bar-striped active" role="progressbar"
+                                           [ngStyle]="{'width': ((pagePreparationIndex / pagePreparationSize) * 100) + '%'}"
+                                           style="line-height: 25px; font-size: 1.2em; font-weight: bold;">
+                                      </div>
+                                  </div>
+                              </div>
+                              <!-- Success State -->
+                              <div *ngIf="lastPageOfAddedSectionPrepared" style="width: 100%; animation: fadeIn 0.5s;">
+                                  <i class="fa fa-check-circle" style="font-size: 5em; margin-bottom: 20px; color: #5cb85c;"></i>
+                                  <h3 style="margin-top: 0; color: #5cb85c;">Aufbereitung abgeschlossen</h3>
+                                  <p>Alle <b>{{countBackgroundPages(page)}} Hintergrundseiten</b> wurden erfolgreich erstellt und sind bereit für den Report.</p>
+                                  <p>Sie können den fertigen Report nun über die Buttons am rechten Rand herunterladen.</p>
+                              </div>
+                          </div>
                       </div>
+                      </ng-container>
                   </div>
               </div>
               <!-- <div id="reporting-overview-bot-btn-row-1" class="clearfix">

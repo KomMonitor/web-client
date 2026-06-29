@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ApplicationRef, Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import * as docx from 'docx';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -33,6 +33,10 @@ export class ReportingOverviewComponent implements OnInit {
   pagePreparationIndex;
 
   geoJsonForReachability_byFeatureName;
+  featureLookupCache = new Map();
+
+  MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
+  MAX_PREVIEW_DATATABLE_PAGES = 3;
 
   mercatorProjection_d3:any = d3.geoMercator();
 
@@ -62,7 +66,8 @@ export class ReportingOverviewComponent implements OnInit {
     protected diagramHelperService: DiagramHelperServiceService,
     private modalService: NgbModal,
     protected reportingService: ReportingService,
-    private envConfigService: EnvConfigService
+    private envConfigService: EnvConfigService,
+    private appRef: ApplicationRef
   ) {}
 
   ngOnInit(): void {
@@ -213,19 +218,14 @@ export class ReportingOverviewComponent implements OnInit {
 				// reinit map component
 
 				// we must generate the new leaflet screenshot!
-				let mapElements = new_page.pageElements.filter(item => item.type == 'map');
-				for (const mapElement of mapElements) {
-					if(mapElement && mapElement.leafletMap){
-
-						//this.leafletScreenshotCacheHelperService.resetCounter(1, false);
-				
-
-						let pageDom:any = document.querySelector("#reporting-overview-page-" + index);
-						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + index + "-map");
+				for (const [elementIdx, mapElement] of new_page.pageElements.entries()) {
+					if (mapElement.type !== 'map') continue;
+					if (mapElement && mapElement.leafletMap) {
+						let pageDom: any = document.querySelector('#reporting-overview-page-' + index);
+						let pElementDom = pageDom.querySelector('#reporting-overview-page-' + index + '-map-' + elementIdx);
 						let instance = echarts.getInstanceByDom(pElementDom);
-						await this.initializeLeafletMap(new_page, mapElement, instance, this.currentSpatialUnit, true)
-
-					}		
+						await this.initializeLeafletMap(new_page, mapElement, elementIdx, instance, this.currentSpatialUnit, true, true);
+					}
 				}
 
 			}, 250)
@@ -469,9 +469,224 @@ export class ReportingOverviewComponent implements OnInit {
       this.loadingData = false;
 		}
 
+    getFeatureLookupKey(templateSection) {
+      return templateSection.indicatorId
+        ? (templateSection.indicatorId + '_' + templateSection.spatialUnitName)
+        : (templateSection.poiLayerName + '_' + templateSection.spatialUnitName);
+    }
+
+    isPageInPreview(page, index) {
+      if (page.type !== 'area_specific' && page.type !== 'datatable') {
+        return true;
+      }
+      if (page.type === 'area_specific') {
+        let areaSpecificPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'area_specific');
+        let areaIdx = areaSpecificPages.indexOf(page);
+        return areaIdx < this.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
+      }
+      if (page.type === 'datatable') {
+        let datatablePages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'datatable');
+        let datatableIdx = datatablePages.indexOf(page);
+        return datatableIdx < this.MAX_PREVIEW_DATATABLE_PAGES;
+      }
+      return true;
+    }
+
+    isLastPreviewPage(page: any): boolean {
+      if (page.type === 'area_specific') {
+        const areaPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'area_specific');
+        return areaPages.indexOf(page) === this.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1;
+      }
+      if (page.type === 'datatable') {
+        const dtPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'datatable');
+        return dtPages.indexOf(page) === this.MAX_PREVIEW_DATATABLE_PAGES - 1;
+      }
+      return false;
+    }
+
+    countBackgroundPages(page: any): number {
+      if (!this.reportingService.workingTemplate || !page) return 0;
+      if (page.type === 'area_specific') {
+        const areaPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'area_specific');
+        return Math.max(0, areaPages.length - this.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
+      }
+      if (page.type === 'datatable') {
+        const dtPages = this.reportingService.workingTemplate.pages.filter((p: any) => p.type === 'datatable');
+        return Math.max(0, dtPages.length - this.MAX_PREVIEW_DATATABLE_PAGES);
+      }
+      return 0;
+    }
+
+    async preparePage(idx, page, indicatorId, poiLayerName, spatialUnit, geoJSON) {
+      let isPreview = this.isPageInPreview(page, idx);
+      page.indexInConfigPages = idx;
+
+      if (!page.generatedData) {
+        page.generatedData = {
+          echarts: {},
+          mapImage: undefined,
+          tableData: undefined,
+          isComplete: false
+        };
+      }
+
+      // route through background processor for stable map capture
+      this.reportingService.reportingBackgroundState.pageToProcess_overview = page;
+      this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
+
+      let pageDom = document.getElementById('reporting-background-page');
+      if (!pageDom) {
+        console.error('Could not find background DOM for page ' + idx);
+        return;
+      }
+
+      for (let [elementIdx, pageElement] of page.pageElements.entries()) {
+        let pElementDom: any = pageDom.querySelector('#reporting-background-page-' + pageElement.type + '-' + elementIdx);
+
+        if (!pElementDom) {
+          continue;
+        }
+
+        if (pageElement.type === 'linechart' && pageElement.showBoxplots) {
+          let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+          pageElement.echartsOptions.dataset[1].transform.config = {
+            itemNameFormatter: function (params) {
+              return xAxisLabels[params.value];
+            }
+          };
+        }
+
+        if (pageElement.type === 'map' || pageElement.type === 'barchart' || pageElement.type === 'linechart') {
+          if (!pageElement.echartsOptions || Object.keys(pageElement.echartsOptions).length === 0) {
+            console.warn('No echarts options found for page element', pageElement, 'on page', idx);
+            continue;
+          }
+
+          let instance = echarts.init(pElementDom);
+
+          if (pageElement.type === 'map') {
+            for (let series of pageElement.echartsOptions.series) {
+              series.left = 0;
+              series.top = 0;
+              series.right = 0;
+              series.bottom = 0;
+              series.projection = {
+                project: (point) => this.mercatorProjection_d3(point),
+                unproject: (point) => this.mercatorProjection_d3.invert(point)
+              };
+            }
+            if (pageElement.echartsOptions.geo) {
+              pageElement.echartsOptions.geo[0].top = 0;
+              pageElement.echartsOptions.geo[0].left = 0;
+              pageElement.echartsOptions.geo[0].right = 0;
+              pageElement.echartsOptions.geo[0].bottom = 0;
+              pageElement.echartsOptions.geo[0].projection = {
+                project: (point) => this.mercatorProjection_d3(point),
+                unproject: (point) => this.mercatorProjection_d3.invert(point)
+              };
+            }
+
+            if (page.area && page.area.length) {
+              this.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features);
+            } else {
+              pageElement.echartsOptions.labelLayout = function(feature) {
+                let names = page.templateSection.absoluteLabelPositions.map(el => el.name);
+                let text = feature.text.split('\n')[0];
+                if (names.includes(text)) {
+                  let i = names.indexOf(text);
+                  return {
+                    x: page.templateSection.absoluteLabelPositions[i].x,
+                    y: page.templateSection.absoluteLabelPositions[i].y,
+                    draggable: false
+                  };
+                } else {
+                  return {
+                    moveOverlap: 'shiftY',
+                    x: feature.rect.x + feature.rect.width / 2,
+                    draggable: false
+                  };
+                }
+              };
+            }
+          }
+
+          pageElement.echartsOptions.animation = false;
+          instance.setOption(pageElement.echartsOptions);
+
+          if (pageElement.type === 'map') {
+            page.generatedData.mapImage = await this.initializeLeafletMap(page, pageElement, elementIdx, instance, spatialUnit, false, false);
+
+            if (isPreview) {
+              let previewPElementDom: any = document.querySelector(
+                '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+              );
+              if (previewPElementDom && page.generatedData.mapImage) {
+                previewPElementDom.style.backgroundImage = 'url(' + page.generatedData.mapImage + ')';
+                previewPElementDom.style.backgroundSize = '100% 100%';
+                previewPElementDom.style.backgroundRepeat = 'no-repeat';
+              }
+            }
+          } else {
+            await new Promise(resolve => {
+              let timeout = setTimeout(resolve, 500);
+              instance.on('finished', () => {
+                clearTimeout(timeout);
+                resolve(null);
+              });
+            });
+
+            page.generatedData.echarts[pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '')] =
+              instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+
+            if (isPreview) {
+              let previewPElementDom: any = document.querySelector(
+                '#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx
+              );
+              if (previewPElementDom) {
+                previewPElementDom.innerHTML = '';
+                while (pElementDom.firstChild) {
+                  previewPElementDom.appendChild(pElementDom.firstChild);
+                }
+              }
+            }
+
+            if (!isPreview) {
+              instance.dispose();
+            }
+          }
+        }
+
+        if (pageElement.type === 'mapLegend') {
+          pageElement.isPlaceholder = false;
+          if (isPreview) {
+            let previewPageDom = document.getElementById('reporting-overview-page-' + idx);
+            if (previewPageDom) {
+              let legendNode: any = previewPageDom.querySelector('.type-mapLegend');
+              if (legendNode) legendNode.style.display = 'none';
+            }
+          }
+        }
+
+        if (pageElement.type === 'datatable') {
+          let targetDom = pElementDom;
+          if (isPreview) {
+            targetDom = document.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type + '-' + elementIdx);
+          }
+          this.createDatatablePage(targetDom, pageElement);
+          page.generatedData.tableData = pageElement.tableData;
+        }
+      }
+    }
+
+    filterMapByArea(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
+      let mapName = echartsInstanceOptions.series[0].map;
+      let features = allFeatures.filter(el => el.properties.name === areaName);
+      echarts.registerMap(mapName, { type: 'FeatureCollection', features: features } as any);
+      echartsInstance.setOption(echartsInstanceOptions);
+    }
+
     async setupIndicatorPages(indicator) {
 
-      // for indicator without poi layer
       let indicatorId = indicator.indicatorId;
       let spatialUnit, featureCollection, features, geoJSON;
 
@@ -483,175 +698,94 @@ export class ReportingOverviewComponent implements OnInit {
       this.geoJsonForReachability_byFeatureName = new Map();
 
       for (let feature of features) {
-        this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
+        this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature);
       }
-
-      this.geoJsonForReachability_byFeatureName.set("undefined", features);
-
+      this.geoJsonForReachability_byFeatureName.set('undefined', features);
       geoJSON = { features: features };
+
+      let cacheKey = this.getFeatureLookupKey(indicator);
+      this.featureLookupCache.set(cacheKey, this.geoJsonForReachability_byFeatureName);
 
       this.lastPageOfAddedSectionPrepared = false;
       this.pagePreparationIndex = 0;
-      // this.pagePreparationSize = this.reportingService.workingTemplate.pages.length; 
-      this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+      this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
 
       let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
 
-      for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      await new Promise(resolve => setTimeout(resolve, 150));
 
-        if(page.templateSection.indicatorId !== indicatorId) {
-            continue; // only do changes to new pages
+      for (let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+
+        if (page.templateSection.indicatorId !== indicatorId) {
+          continue;
         }
 
-        setTimeout(async () => {
-          // Indicator and spatial unit are the same for all added pages								
+        let isPreview = this.isPageInPreview(page, idx);
+        if (page.generatedData && page.generatedData.isComplete && !isPreview) {
+          continue;
+        }
 
-          let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-          for(let pageElement of page.pageElements) {
-            // usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-            // for now we more or less hardcode this, but it might have to change in the future
-            let pElementDom;
-            if(pageElement.type === "linechart") {
-              let arr = pageDom.querySelectorAll(".type-linechart");
-              if(pageElement.showPercentageChangeToPrevTimestamp) {
-                pElementDom = arr[1];
-              } else {
-                pElementDom = arr[0];
-              }
-            } else {
-              pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
-            }
-            
-            // recreate boxplots, itemNameFormatter did not get transferred
-            if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-              let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
-              pageElement.echartsOptions.dataset[1].transform.config = {
-                itemNameFormatter: function (params) {
-                  return xAxisLabels[params.value];
-                }
-              }
-            }
+        await this.preparePage(idx, page, indicatorId, undefined, spatialUnit, geoJSON);
 
-            if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-              let instance = echarts.init( pElementDom );
-
-              instance.setOption(pageElement.echartsOptions)
-
-              if(pageElement.type === "map") {
-                await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-              }
-            }
-
-            // if(pageElement.type === "overallAverage") {
-            // 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-            // }
-
-            // if(pageElement.type === "selectionAverage") {
-            // 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-            // }
-
-            if(pageElement.type === "mapLegend") {
-              pageElement.isPlaceholder = false;
-              pageDom.querySelector(".type-mapLegend").style.display = "none";
-            }
-
-            // if(pageElement.type === "overallChange") {
-            // 	let wrapper = pageDom.querySelector(".type-overallChange")
-            // 	wrapper.style.border = "none";
-            // }
-
-            // if(pageElement.type === "selectionChange") {
-            // 	let wrapper = pageDom.querySelector(".type-selectionChange")
-            // 	wrapper.style.border = "none";
-            // }
-
-            if(pageElement.type === "datatable") {
-              this.createDatatablePage(pElementDom, pageElement);
-            }
-          }
-
-          // if the last page is reached and full prepared we want to show that to the user
-          // wait additionally for 500 ms
-          this.pagePreparationIndex = idx;
-
-          // every 10 percent log progress to user
-          /*  if(this.pagePreparationIndex % logProgressIndexSeparator === 0){
-            this.$digest();	
-          }	
-*/
-          if(idx == this.pagePreparationSize - 1){
-            this.lastPageOfAddedSectionPrepared = true;
-          }
-          
-        });
+        this.pagePreparationIndex = idx;
       }
+
+      this.lastPageOfAddedSectionPrepared = true;
+      this.loadingData = false;
     }
-		
-    // async
-		async setupPagesForReachability(templateSection) {
-			let poiLayerName = templateSection.poiLayerName;
-			let spatialUnit, featureCollection, features, geoJSON, indicatorId;
-			// if indicator was chosen
-			if( templateSection.indicatorId) {
-				indicatorId = templateSection.indicatorId;
-			}
-			
-			if (indicatorId) {
-				spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
-				featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
-			} else {
-				spatialUnit = await this.getSpatialUnitByName(templateSection.spatialUnitName);
-				featureCollection = await this.queryFeatures(undefined, spatialUnit);
-			}
 
-			features = this.createLowerCaseNameProperty(featureCollection.features);
-			geoJSON = { features: features };
+    async setupPagesForReachability(templateSection) {
+      let poiLayerName = templateSection.poiLayerName;
+      let spatialUnit, featureCollection, features, geoJSON, indicatorId;
+      if (templateSection.indicatorId) {
+        indicatorId = templateSection.indicatorId;
+      }
 
-			this.geoJsonForReachability_byFeatureName = new Map();
+      if (indicatorId) {
+        spatialUnit = await this.getSpatialUnitByIndicator(indicatorId, templateSection.spatialUnitName);
+        featureCollection = await this.queryFeatures(indicatorId, spatialUnit);
+      } else {
+        spatialUnit = await this.getSpatialUnitByName(templateSection.spatialUnitName);
+        featureCollection = await this.queryFeatures(undefined, spatialUnit);
+      }
 
-			for (let feature of features) {
-				this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature)
-			}
+      features = this.createLowerCaseNameProperty(featureCollection.features);
+      geoJSON = { features: features };
 
-			this.geoJsonForReachability_byFeatureName.set("undefined", features);		
+      this.geoJsonForReachability_byFeatureName = new Map();
+      for (let feature of features) {
+        this.geoJsonForReachability_byFeatureName.set(feature.properties.NAME, feature);
+      }
+      this.geoJsonForReachability_byFeatureName.set('undefined', features);
 
-			this.lastPageOfAddedSectionPrepared = false;
-			this.pagePreparationIndex = 0;
-			// this.pagePreparationSize = this.reportingService.workingTemplate.pages.length; 
-			this.pagePreparationSize = document.querySelectorAll("[id^='reporting-overview-page-'].reporting-page").length;
+      let cacheKey = this.getFeatureLookupKey(templateSection);
+      this.featureLookupCache.set(cacheKey, this.geoJsonForReachability_byFeatureName);
 
-			for(let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
+      this.lastPageOfAddedSectionPrepared = false;
+      this.pagePreparationIndex = 0;
+      this.pagePreparationSize = this.reportingService.workingTemplate.pages.length;
 
-				if(page.templateSection.poiLayerName !== poiLayerName) {
-					continue; // only do changes to new pages
-				}
+      await new Promise(resolve => setTimeout(resolve, 150));
 
-				setTimeout(async () => {
-					let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-					for(let pageElement of page.pageElements) {
-						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+      for (let [idx, page] of this.reportingService.workingTemplate.pages.entries()) {
 
-						if(pageElement.type === "map") {
-							 let instance = echarts.init( pElementDom );
+        if (page.templateSection.poiLayerName !== poiLayerName) {
+          continue;
+        }
 
-							instance.setOption( pageElement.echartsOptions )
+        let isPreview = this.isPageInPreview(page, idx);
+        if (page.generatedData && page.generatedData.isComplete && !isPreview) {
+          continue;
+        }
 
-							await this.initializeLeafletMap(page, pageElement, instance, spatialUnit, false)
-						}
-					}
+        await this.preparePage(idx, page, undefined, poiLayerName, spatialUnit, geoJSON);
 
-					// if the last page is reached and full prepared we want to show that to the user
-					// wait additionally for 500 ms
-					this.pagePreparationIndex = idx;
+        this.pagePreparationIndex = idx;
+      }
 
-					if (idx == this.pagePreparationSize - 1) {
-						this.lastPageOfAddedSectionPrepared = true;
-					}
-				})
-
-			}
-			this.loadingData = false;
-		}
+      this.lastPageOfAddedSectionPrepared = true;
+      this.loadingData = false;
+    }
 
     /* $rootScope.$on("screenshotsForCurrentSpatialUnitUpdate", function(event){
 			// update ui to enable button
@@ -662,19 +796,45 @@ export class ReportingOverviewComponent implements OnInit {
 
  */
 
-		async initializeLeafletMap(page, pageElement, echartsMap, spatialUnit, forceScreenshot) {
+		async initializeLeafletMap(page, pageElement, elementIdx: number, echartsMap, spatialUnit, forceScreenshot, isVisible) {
 			try {
 					let pageIdx = this.reportingService.workingTemplate.pages.indexOf(page);
-					let id = "reporting-overview-leaflet-map-container-" + pageIdx;
-					let pageDom:any = document.getElementById("reporting-overview-page-" + pageIdx);
-					let pageElementDom:any = document.getElementById("reporting-overview-page-" + pageIdx + "-map");
+
+					// store spatial unit and feature id before cache check
+					page.spatialUnitId = spatialUnit.spatialUnitId;
+					if (page.area) {
+						let cacheKey = this.getFeatureLookupKey(page.templateSection);
+						let featureMap = this.featureLookupCache.get(cacheKey);
+						if (!featureMap) featureMap = this.geoJsonForReachability_byFeatureName;
+						let feature = featureMap.get(page.area);
+						if (feature) {
+							page.spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
+						}
+					}
+
+					// check cache before creating leaflet map
+					let cachedScreenshot = this.leafletScreenshotCacheHelperService.getResourceFromCache(
+						pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId,
+						page.spatialUnitFeatureId, page.orientation, this.reportingService.workingTemplate.name
+					);
+					if (cachedScreenshot) {
+						return await this.leafletScreenshotCacheHelperService.checkForScreenshot(
+							pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId,
+							page.spatialUnitFeatureId, page.orientation, null, this.reportingService.workingTemplate.name
+						);
+					}
+
+					let id = 'reporting-background-leaflet-map-container-' + elementIdx;
+					let pageDom: any = document.getElementById('reporting-background-page');
+					let pageElementDomId = 'reporting-background-page-map-' + elementIdx;
+					let pageElementDom: any = document.getElementById(pageElementDomId);
 					let oldMapNode = document.getElementById(id);
-					if(oldMapNode) {
+					if (oldMapNode) {
 						oldMapNode.remove();
 					}
-					let div:any = document.createElement("div");
+					let div: any = document.createElement('div');
 					div.id = id;
-					div.style.position = "absolute";
+					div.style.position = 'absolute';
 					div.style.left = pageElement.dimensions.left;
 					div.style.top = pageElement.dimensions.top;
 					div.style.width = pageElement.dimensions.width;
@@ -682,7 +842,7 @@ export class ReportingOverviewComponent implements OnInit {
 					div.style.zIndex = 10;
 					pageDom.appendChild(div);
 					let echartsOptions = echartsMap.getOption();
-				
+
 					let leafletMap = L.map(div.id, {
 						zoomControl: false,
 						dragging: false,
@@ -690,94 +850,68 @@ export class ReportingOverviewComponent implements OnInit {
 						boxZoom: false,
 						trackResize: false,
 						attributionControl: false,
-						// prevents leaflet form snapping to closest pre-defined zoom level.
-						// In other words, it allows us to set exact map extend by a (echarts) bounding box
 						zoomSnap: 0,
-						// disable any fade and zoom animation in order to get screenshots directly after layer event load was called
 						fadeAnimation: false,
 						zoomAnimation: false,
-					});			
+					});
 
-					// manually create a field for attribution so we can control the z-index.
-					let prevAttributionDiv = pageDom.querySelector(".map-attribution")
-					if(prevAttributionDiv) prevAttributionDiv.remove();
-					let attrDiv:any = document.createElement("div")
-					attrDiv.classList.add("map-attribution")
-					attrDiv.style.position = "absolute";
+					// manually create attribution overlay with controlled z-index
+					let prevAttributionDiv = pageDom.querySelector('.map-attribution');
+					if (prevAttributionDiv) prevAttributionDiv.remove();
+					let attrDiv: any = document.createElement('div');
+					attrDiv.classList.add('map-attribution');
+					attrDiv.style.position = 'absolute';
 					attrDiv.style.bottom = 0;
 					attrDiv.style.left = 0;
 					attrDiv.style.zIndex = 800;
 					let attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution();
 					attrDiv.appendChild(attrImg);
-					pageElementDom.appendChild(attrDiv);
+					if (pageElementDom) pageElementDom.appendChild(attrDiv);
 
-					if(this.reportingService.workingTemplate.name.includes("reachability")){
-						// also create the legend manually
-						let prevLegendDiv = pageDom.querySelector(".map-legend")
-						if(prevLegendDiv) prevLegendDiv.remove();
-						let legendDiv:any = document.createElement("div")
-						legendDiv.classList.add("map-legend")
-						legendDiv.style.position = "absolute";
+					if (this.reportingService.workingTemplate.name.includes('reachability')) {
+						let prevLegendDiv = pageDom.querySelector('.map-legend');
+						if (prevLegendDiv) prevLegendDiv.remove();
+						let legendDiv: any = document.createElement('div');
+						legendDiv.classList.add('map-legend');
+						legendDiv.style.position = 'absolute';
 						legendDiv.style.bottom = 0;
 						legendDiv.style.right = 0;
 						legendDiv.style.zIndex = 800;
 						let isochronesRangeType = page.templateSection.isochronesRangeType;
 						let isochronesRangeUnits = page.templateSection.isochronesRangeUnits;
-						/* let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						let legendImg = await this.diagramHelperService.createReportingReachabilityMapLegend(echartsOptions, spatialUnit, isochronesRangeType, isochronesRangeUnits);
+						page.templateSection.legendImg = legendImg;
 						legendDiv.appendChild(legendImg);
-						pageElementDom.appendChild(legendDiv) */
+						if (pageElementDom) pageElementDom.appendChild(legendDiv);
+
+						if (!page.spatialUnitFeatureId) {
+							page.spatialUnitFeatureId = 'reachability-page-' + pageIdx;
+						}
 					}
 
-					// we have the bbox stored in config
-					// pageElement.leafletBbox is invalid after export and import. Maybe because the prototype object gets removed...
-					// We create a new bounds object from the stored data
-					// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
+					let boundingCoords = echartsOptions.series[0].boundingCoords;
+					let westLon = boundingCoords[0][0];
+					let southLat = boundingCoords[1][1];
+					let eastLon = boundingCoords[1][0];
+					let northLat = boundingCoords[0][1];
 
-						// let bounds = L.latLngBounds(pageElement.leafletBbox._southWest, pageElement.leafletBbox._northEast);
-						// let boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
-						let boundingCoords = echartsOptions.series[0].boundingCoords;
+					leafletMap.fitBounds([[southLat, westLon], [northLat, eastLon]]);
+					let bounds = leafletMap.getBounds();
 
-						// set bounding box to this feature
-						let westLon = boundingCoords[0][0];
-						let southLat = boundingCoords[1][1];
-						let eastLon = boundingCoords[1][0];
-						let northLat = boundingCoords[0][1];
-
-					// Add 2% space on all sides
-					// let divisor = 50;
-					// let bboxHeight = northLat - southLat;
-					// let bboxWidth = eastLon - westLon;
-					// northLat += bboxHeight/divisor;
-					// southLat -= bboxHeight/divisor;
-					// eastLon += bboxWidth/divisor;
-					// westLon -= bboxWidth/divisor;
-
-					leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
-					// leafletMap.fitBounds( bounds );
-
-					let bounds = leafletMap.getBounds()
-					
-					if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
-						// this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
-						// hence, simply use current echarts extent				
-					}
-					else{
-						// normal case, leaflet has properly rendered and zoomed to the given extent
-						// thus we use the leaflet coords in order to adjust the echarts extent for proper overlay
-						boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+					if (!(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth())) {
+						boundingCoords = [[bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]];
 					}
 
-					for(let series of echartsOptions.series) {
-
+					for (let series of echartsOptions.series) {
 						series.left = 0;
 						series.top = 0;
 						series.right = 0;
 						series.bottom = 0;
-						series.boundingCoords = boundingCoords,
+						series.boundingCoords = boundingCoords;
 						series.projection = {
 							project: (point) => this.mercatorProjection_d3(point),
 							unproject: (point) => this.mercatorProjection_d3.invert(point)
-						}
+						};
 					}
 
 					echartsOptions.geo[0].top = 0;
@@ -787,66 +921,63 @@ export class ReportingOverviewComponent implements OnInit {
 					echartsOptions.geo[0].projection = {
 						project: (point) => this.mercatorProjection_d3(point),
 						unproject: (point) => this.mercatorProjection_d3.invert(point)
-					}				
-					echartsOptions.geo[0].boundingCoords = boundingCoords
-					
-					echartsMap.setOption(echartsOptions, {
-						notMerge: false
-					});	
+					};
+					echartsOptions.geo[0].boundingCoords = boundingCoords;
 
-					// store spatial unit and feature id to page in order to access it later when the screenshot is needed
-					page.spatialUnitId = spatialUnit.spatialUnitId;			
-					if(page.area){
-						let feature = this.geoJsonForReachability_byFeatureName.get(page.area);
-						let spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
-						page.spatialUnitFeatureId = spatialUnitFeatureId;
-					}						
-					
-					// Attribution is handled in a custom element
-					// let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-					let leafletLayer; 
-					if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
-						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-					}
-					else if (pageElement.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
-						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
-					}
-					else if (pageElement.selectedBaseMap.layerConfig.layerType === "WMS"){
-						leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
-					}	
-					else{
-						// i.e. if on import no baseLayer was available
-						// backup: set empty layer
-						leafletLayer = new L.tileLayer("");
-					}			
-					// use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
-					// here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
-					// for all spatial unit features		
-					let domNode = leafletMap["_container"];	
-					leafletLayer.on("load", () => { 
-						// there are pages for two page orientations (landscape and portait)
-						// only trigger the screenshot for those pages, that are actually present
-						if(forceScreenshot || (page.orientation == this.reportingService.workingTemplate.orientation)){
-						/* 	this.leafletScreenshotCacheHelperService.checkForScreenshot(pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId, 
-								page.spatialUnitFeatureId, page.orientation, domNode); */
-						}
-										
-					});					
-					leafletLayer.addTo(leafletMap);		
+					echartsMap.setOption(echartsOptions, { notMerge: false });
 
-					// add leaflet map to pageElement in case we need it again later
+					let leafletLayer: any;
+					if (pageElement.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER_GRAYSCALE') {
+						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
+					} else if (pageElement.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER') {
+						leafletLayer = new L.tileLayer(pageElement.selectedBaseMap.layerConfig.url);
+					} else if (pageElement.selectedBaseMap.layerConfig.layerType === 'WMS') {
+						leafletLayer = new L.tileLayer.wms(pageElement.selectedBaseMap.layerConfig.url, { layers: pageElement.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' });
+					} else {
+						leafletLayer = new L.tileLayer('');
+					}
+
+					let screenshotPromise = new Promise<string>((resolve) => {
+						leafletLayer.on('load', async () => {
+							await new Promise(r => setTimeout(r, 500));
+							let dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
+								pageElement.selectedBaseMap.layerConfig.name, spatialUnit.spatialUnitId,
+								page.spatialUnitFeatureId, page.orientation, leafletMap['_container'],
+								this.reportingService.workingTemplate.name
+							);
+							resolve(dataUrl);
+						});
+					});
+
+					leafletMap.invalidateSize(false);
+					leafletLayer.addTo(leafletMap);
+
 					pageElement.leafletMap = leafletMap;
 					pageElement.leafletBbox = bounds;
 					pageElement.echartsOptions = echartsOptions;
-				
-					// can be used to check if positioning in echarts matches the one from leaflet
-					//let geoJsonLayer = L.geoJSON( this.geoJsonForReachability.features )
-					//geoJsonLayer.addTo(leafletMap)
-					//let isochronesLayer = L.geoJSON( this.isochrones.features )
-					//isochronesLayer.addTo(leafletMap);
+
+					let dataUrl = await screenshotPromise;
+
+					if (!dataUrl || (!dataUrl.startsWith('data:image') && !dataUrl.startsWith('blob:')) || dataUrl.length < 10) {
+						console.warn('Invalid leaflet map screenshot generated for page ' + pageIdx);
+						if (!isVisible) {
+							leafletMap.remove();
+							div.remove();
+						}
+						return undefined;
+					}
+
+					if (!isVisible) {
+						leafletMap.remove();
+						div.remove();
+					}
+
+					return dataUrl;
+
 				} catch (error) {
-					console.error(error)
-				}				
+					console.error(error);
+					return undefined;
+				}
 		}
 
     //async
@@ -903,17 +1034,6 @@ export class ReportingOverviewComponent implements OnInit {
 		}
 
 		
-		filterMapByArea(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
-			let mapName = echartsInstanceOptions.series[0].map;
-			// filter shown areas if we are in the area-specific part of the template
-			let features:any = allFeatures.filter ( el => {
-				return el.properties.name === areaName
-			});
-
-      // todo, ggf falscher "features" transfer
-			echarts.registerMap(mapName, features )
-			echartsInstance.setOption(echartsInstanceOptions) // set same options, but this updates the map
-		}
 
 
 		createDatatableSkeleton(colNamesArr) {

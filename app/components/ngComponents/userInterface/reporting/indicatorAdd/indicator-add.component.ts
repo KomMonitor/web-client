@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ApplicationRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { MapOverlayStateService } from 'services/map-overlay-state-service/map-overlay-state.service';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
@@ -50,7 +50,7 @@ export class IndicatorAddComponent implements OnInit {
   sliderValues!:any[];
   sliderPositions!:any[];
 
-  dateSlider;
+  dateSlider:any;
 
   private _slider?: CustomSliderComponent;
 
@@ -112,6 +112,7 @@ export class IndicatorAddComponent implements OnInit {
   availablePoiLayers:any[] = [];
   displayableIndicatorsByNameTimeseries;
   displayableIndicatorsByName;
+  displayableIndicatorsByNameReachability;
   filteredAvailablePoiLayers;
 
   availableFeaturesBySpatialUnit:any = {};
@@ -185,6 +186,11 @@ export class IndicatorAddComponent implements OnInit {
   pagePreparationIndex;
   pagePreparationSize;
 
+  readonly MAX_PREVIEW_AREA_SPECIFIC_PAGES = 3;
+  readonly MAX_PREVIEW_DATATABLE_PAGES = 3;
+  abortPreparation = false;
+  preparationNeeded = true;
+
   constructor(
     protected mapOverlayState: MapOverlayStateService,
     private mapErrorNotificationService: MapErrorNotificationService,
@@ -205,7 +211,8 @@ export class IndicatorAddComponent implements OnInit {
     protected leafletScreenshotCacheHelperService: LeafletScreenshotCacheHelperService,
     protected reportingService: ReportingService,
     private fb: FormBuilder,
-    private envConfigService: EnvConfigService
+    private envConfigService: EnvConfigService,
+    private appRef: ApplicationRef
   ) {
   }
 
@@ -293,6 +300,10 @@ export class IndicatorAddComponent implements OnInit {
 
     this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => e.applicableDates.length>0).sort(this.sortByindicatorName);
     this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameReachability = this.dataExchangeService.displayableIndicators.filter((e:any) => {
+      if (!this.selectedSpatialUnit) return false;
+      return e.applicableSpatialUnits && e.applicableSpatialUnits.some((su:any) => su.spatialUnitId === this.selectedSpatialUnit.spatialUnitId);
+    }).sort(this.sortByindicatorName);
 
 	  this.selectedBaseMap = this.mapOverlayState.baseLayerDefinitionsArray[1];
 
@@ -451,25 +462,26 @@ export class IndicatorAddComponent implements OnInit {
     this.pageConfig.sectionContentControl.showMapLabels = this.configForm.controls.sectionContentControl.controls.showMapLabels.value;
 
     for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
-      let map:any = document.querySelector("#reporting-addIndicator-page-" + i +"-map")
-     
-      if(!map) {
-        continue; // no map on current page
-      }
+      const page = this.reportingService.clonedTemplate.pages[i];
+      const pageElement = page.pageElements.find((el: any) => el.type === 'map');
+      if (!pageElement || !pageElement.echartsOptions) continue;
 
-      let instance:any = echarts.getInstanceByDom(map);
-      let options = instance.getOption();
+      const options = pageElement.echartsOptions;
       options.series[0].label.show = this.pageConfig.sectionContentControl.showMapLabels;
-      options.series[0].select.label.show = this.pageConfig.sectionContentControl.showMapLabels;
+      if (options.series[0].select) {
+        options.series[0].select.label.show = this.pageConfig.sectionContentControl.showMapLabels;
+      }
       for(let item of options.series[0].data) {
-        if(typeof item.label === "undefined") {
-          item.label = {};
-        }
+        if(typeof item.label === 'undefined') item.label = {};
         item.label.show = this.pageConfig.sectionContentControl.showMapLabels;
       }
-      instance.setOption(options, {
-        replaceMerge: ['series']
-      });
+
+      // also update live instance if in preview DOM
+      const mapDom: any = document.querySelector('#reporting-addIndicator-page-' + i + '-map');
+      if (mapDom) {
+        const instance: any = echarts.getInstanceByDom(mapDom);
+        if (instance) instance.setOption(options, { replaceMerge: ['series'] });
+      }
     }
   }
 
@@ -489,23 +501,24 @@ export class IndicatorAddComponent implements OnInit {
     this.pageConfig.sectionContentControl.showRankingMeanLine = this.configForm.controls.sectionContentControl.controls.showRankingMeanLine.value;
 
     for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
-      let barChart:any = document.querySelector("#reporting-addIndicator-page-" + i +"-barchart")
-      if(!barChart) {
-        continue; // no map on current page
-      }
+      const page = this.reportingService.clonedTemplate.pages[i];
+      const pageElement = page.pageElements.find((el: any) => el.type === 'barchart');
+      if (!pageElement || !pageElement.echartsOptions) continue;
 
-      let instance:any = echarts.getInstanceByDom(barChart);
-      let options = instance.getOption();				
-      if (! this.pageConfig.sectionContentControl.showRankingMeanLine){
+      const options = pageElement.echartsOptions;
+      if (!this.pageConfig.sectionContentControl.showRankingMeanLine) {
         options.series[0].markLine_backup = options.series[0].markLine;
         options.series[0].markLine = {};
+      } else {
+        options.series[0].markLine = options.series[0].markLine_backup || {};
       }
-      else{
-        options.series[0].markLine = options.series[0].markLine_backup;
-      }				
-      instance.setOption(options, {
-        replaceMerge: ['series']
-      });
+
+      // also update live instance if in preview DOM
+      const barChartDom: any = document.querySelector('#reporting-addIndicator-page-' + i + '-barchart');
+      if (barChartDom) {
+        const instance: any = echarts.getInstanceByDom(barChartDom);
+        if (instance) instance.setOption(options, { replaceMerge: ['series'] });
+      }
     }
   }
 
@@ -518,8 +531,8 @@ export class IndicatorAddComponent implements OnInit {
   onIndicatorNameFilterChange(event:any) {
 
     let value = event.target.value;
-    this.displayableIndicatorsByNameTimeseries = this.indicatorStore.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
-    this.displayableIndicatorsByName = this.indicatorStore.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByNameTimeseries = this.dataExchangeService.displayableIndicators.filter((e:any) => (e.indicatorName.toLowerCase().includes(value) && e.applicableDates.length>0)).sort(this.sortByindicatorName);
+    this.displayableIndicatorsByName = this.dataExchangeService.displayableIndicators.filter((e:any) => e.indicatorName.toLowerCase().includes(value)).sort(this.sortByindicatorName);
   }
 
   onBackToOverviewClicked() {
@@ -1149,7 +1162,10 @@ export class IndicatorAddComponent implements OnInit {
   async onSpatialUnitChanged() {
 
     this.selectedSpatialUnit = this.spatialUnitSelect.value;
-    this.loadingData = true;			
+    this.loadingData = true;
+    this.displayableIndicatorsByNameReachability = this.dataExchangeService.displayableIndicators.filter((e:any) =>
+      e.applicableSpatialUnits && e.applicableSpatialUnits.some((su:any) => su.spatialUnitId === this.selectedSpatialUnit.spatialUnitId)
+    ).sort(this.sortByindicatorName);
 
     $("#reporting-spatialUnitChangeWarning").hide();
     this.timeseriesAdjustedOnSpatialUnitChange = false;
@@ -1790,8 +1806,8 @@ export class IndicatorAddComponent implements OnInit {
     return seriesOptions;
   }
   
-  resetOptionalIndicator() {
-    
+  async resetOptionalIndicator() {
+
     if(!this.selectedIndicator) {
       return;
     }
@@ -1808,18 +1824,28 @@ export class IndicatorAddComponent implements OnInit {
     // })
     // this.selectedSpatialUnit = filter[0];
 
-    for(let page of this.reportingService.clonedTemplate.pages) {
+    for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
+      const page = this.reportingService.clonedTemplate.pages[i];
       for(let pageElement of page.pageElements) {
         if(pageElement.type === "map") {
-          let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.clonedTemplate.pages.indexOf(page) + "-map")
-          let map:any = echarts.getInstanceByDom(domNode)
-          let options = map.getOption();
-          // remove indicator data
-          options.series[0].data = [];
-          options.series[0].label.formatter = '{b}';
-          map.setOption(options, {
-            replaceMerge: ['series']
-          });
+          const domNode: any = document.querySelector("#reporting-addIndicator-page-" + i + "-map");
+          if (domNode) {
+            const map: any = echarts.getInstanceByDom(domNode);
+            if (map) {
+              const options = map.getOption();
+              options.series[0].data = [];
+              options.series[0].label.formatter = '{b}';
+              map.setOption(options, { replaceMerge: ['series'] });
+              pageElement.echartsOptions = options;
+              if (page.generatedData) {
+                page.generatedData.echarts[pageElement.type] = map.getDataURL({ pixelRatio: 2 });
+              }
+            }
+          } else {
+            if (page.generatedData && page.generatedData.isComplete) {
+              await this.preparePageForIndicatorAdd(i, page);
+            }
+          }
         }
 
         if(pageElement.type.includes("reachability-subtitle-")) {
@@ -1827,7 +1853,7 @@ export class IndicatorAddComponent implements OnInit {
           if(this.isochrones) {
             pageElement.text += ", " + this.isochronesTypeOfMovementMapping[this.typeOfMovement];
           }
-          
+
           pageElement.isPlaceholder = false
         }
       }
@@ -1863,18 +1889,29 @@ export class IndicatorAddComponent implements OnInit {
       }
     }
     
-    for(let page of this.reportingService.clonedTemplate.pages) {
+    for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
+      const page = this.reportingService.clonedTemplate.pages[i];
       for(let pageElement of page.pageElements) {
         if(pageElement.type === "map") {
-          let domNode:any = document.querySelector("#reporting-addIndicator-page-" + this.reportingService.clonedTemplate.pages.indexOf(page) + "-map")
-          let map:any = echarts.getInstanceByDom(domNode)
-          let options:any = map.getOption();
-          let seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0])
-          options.series[0] = seriesOptions;
-          options.series[0].label.formatter = '{b}\n{c}';
-          map.setOption(options, {
-            replaceMerge: ['series']
-          });
+          const domNode: any = document.querySelector("#reporting-addIndicator-page-" + i + "-map");
+          if (domNode) {
+            const map: any = echarts.getInstanceByDom(domNode);
+            if (map) {
+              const options: any = map.getOption();
+              const seriesOptions = this.setMostRecentIndicatorDataToReachabilityMap(options.series[0]);
+              options.series[0] = seriesOptions;
+              options.series[0].label.formatter = '{b}\n{c}';
+              map.setOption(options, { replaceMerge: ['series'] });
+              pageElement.echartsOptions = options;
+              if (page.generatedData) {
+                page.generatedData.echarts[pageElement.type] = map.getDataURL({ pixelRatio: 2 });
+              }
+            }
+          } else {
+            if (page.generatedData && page.generatedData.isComplete) {
+              await this.preparePageForIndicatorAdd(i, page);
+            }
+          }
         }
 
         if(pageElement.type.includes("reachability-subtitle-")) {
@@ -2384,27 +2421,47 @@ export class IndicatorAddComponent implements OnInit {
     return map;
   }
   
-  async initLeafletMapBeneathEchartsMap(page, pageElement, map){
-    // initialize the leaflet map beneath the transparent-background echarts map
-      let pageIdx:any = this.reportingService.clonedTemplate.pages.indexOf(page);
-      let id = "reporting-addPoiLayer-leaflet-map-container-" + pageIdx;
-      let pageDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx);
-      let pageElementDom:any = document.getElementById("reporting-addIndicator-page-" + pageIdx + "-map");
-      let oldMapNode:any = document.getElementById(id);
-      if(oldMapNode) {
-        oldMapNode.remove();
+  async initLeafletMapBeneathEchartsMap(page, pageElement, elementIdx: number, map, isPreview?: boolean): Promise<string | undefined> {
+      const id = 'reporting-addIndicator-background-leaflet-map-container-' + elementIdx;
+      let pageIdx: any = this.reportingService.clonedTemplate.pages.indexOf(page);
+
+      // For preview pages use the visible page DOM so Leaflet can load tiles reliably.
+      // For background-only pages use the off-screen background processor.
+      const pageDomId = isPreview
+        ? ('reporting-addIndicator-page-' + pageIdx)
+        : 'reporting-addIndicator-background-page';
+      // pageElementDom is always in the background processor — attribution/legend appended here
+      // get moved to previewEl together with the ECharts canvas by preparePageForIndicatorAdd
+      const pageElementDomId = 'reporting-addIndicator-background-page-map-' + elementIdx;
+
+      let pageDom: any = document.getElementById(pageDomId);
+      let pageElementDom: any = document.getElementById(pageElementDomId);
+
+      if (!pageDom) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        pageDom = document.getElementById(pageDomId);
+        pageElementDom = document.getElementById(pageElementDomId);
       }
-      let div:any = document.createElement("div");
+
+      if (!pageDom) {
+        console.error('Could not find background DOM for leaflet map init: ' + pageDomId);
+        return undefined;
+      }
+
+      const oldMapNode: any = document.getElementById(id);
+      if (oldMapNode) oldMapNode.remove();
+
+      const div: any = document.createElement('div');
       div.id = id;
-      div.style.position = "absolute";
+      div.style.position = 'absolute';
       div.style.left = pageElement.dimensions.left;
       div.style.top = pageElement.dimensions.top;
       div.style.width = pageElement.dimensions.width;
       div.style.height = pageElement.dimensions.height;
       div.style.zIndex = 10;
+      div.style.backgroundColor = 'white';
       pageDom.appendChild(div);
-      // let echartsOptions = echartsMap.getOption();
-      let echartsOptions = map.getOption();				
+      let echartsOptions = map.getOption();
 
       let leafletMap = L.map(div.id, {
         zoomControl: false,
@@ -2429,7 +2486,7 @@ export class IndicatorAddComponent implements OnInit {
       attrDiv.style.bottom = 0;
       attrDiv.style.left = 0;
       attrDiv.style.zIndex = 800;
-      let attrImg = await this.getReportingRechabilityMapAttribution(); 
+      let attrImg = await this.getReportingRechabilityMapAttribution();
       attrDiv.appendChild(attrImg);
       pageElementDom.appendChild(attrDiv);
 
@@ -2447,7 +2504,7 @@ export class IndicatorAddComponent implements OnInit {
         legendDiv.appendChild(legendImg);
         pageElementDom.appendChild(legendDiv)
       }
-      
+
 
       // echarts uses [lon, lat], leaflet uses [lat, lon]
       let boundingCoords = echartsOptions.series[0].boundingCoords;
@@ -2461,30 +2518,21 @@ export class IndicatorAddComponent implements OnInit {
         page.spatialUnitFeatureId = feature.properties[this.envConfigService.FEATURE_ID_PROPERTY_NAME];
       }
 
-      // Add 2% space on all sides
-      // let divisor = 50;
-      // let bboxHeight = northLat - southLat;
-      // let bboxWidth = eastLon - westLon;
-      // northLat += bboxHeight/divisor;
-      // southLat -= bboxHeight/divisor;
-      // eastLon += bboxWidth/divisor;
-      // westLon -= bboxWidth/divisor;
-
       leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
       let bounds = leafletMap.getBounds()
 
       /*
       as we might have landscape and portrait versions of the same content
       leaflet fitBounds() will not work properly, if the leaflet map is actually not included in the DOM currently
-      
+
       --> hence we make a workaround. if the leaflet coords of northeast and southwest are exactly the same
-      then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function  
+      then we just ignore it and instead reuse the original echarts coordinates --> they are proper at the beginning of the function
 
       */
 
       if(bounds.getWest() == bounds.getEast() && bounds.getNorth() == bounds.getSouth()){
-        // this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)	
-        // hence, simply use current echarts extent				
+        // this is only the case, if leaflet.fitBounds() results in a single coordinate (due to map HTML element not within DOM)
+        // hence, simply use current echarts extent
       }
       else{
         // normal case, leaflet has properly rendered and zoomed to the given extent
@@ -2492,10 +2540,7 @@ export class IndicatorAddComponent implements OnInit {
         boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
       }
 
-      // // now update every echarts series
-      
       for(let series of echartsOptions.series) {
-
         series.left = 0;
         series.top = 0;
         series.right = 0;
@@ -2514,75 +2559,77 @@ export class IndicatorAddComponent implements OnInit {
       echartsOptions.geo[0].projection = {
         project: (point) => this.mercatorProjection_d3(point),
             unproject: (point) => this.mercatorProjection_d3.invert(point)
-      }				
-      echartsOptions.geo[0].boundingCoords = boundingCoords
-      
+      }
+      echartsOptions.geo[0].boundingCoords = boundingCoords;
 
-      // echartsMap.setOption(echartsOptions, {
-      // 	notMerge: true
-      // });
+      // due to strange leaflet screenshot issues with multiple echarts series, only pass the first series during screenshot
+      // and restore all series after the screenshot is taken
+      const firstSeries_array = [echartsOptions.series[0]];
+      const allSeries_array = echartsOptions.series;
+
+      echartsOptions.series = firstSeries_array;
       map.setOption(echartsOptions, {
         notMerge: false
-      });				
-      
-      // Attribution is handled in a custom element
-      // let leafletLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-      let leafletLayer; 
-      if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER_GRAYSCALE"){
-        leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
-      }
-      else if (this.selectedBaseMap.layerConfig.layerType === "TILE_LAYER"){
-        leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
-      }
-      else if (this.selectedBaseMap.layerConfig.layerType === "WMS"){
-        leafletLayer = new L.tileLayer.wms(this.selectedBaseMap.layerConfig.url, { layers: this.selectedBaseMap.layerConfig.layerName_WMS, format: 'image/jpeg' })
-      }				
-      // use the "load" event of the tile layer to hook a function that is triggered once every visible tile is fully loaded
-      // here we ntend to make a screenshot of the leaflet image as a background task in order to boost up report preview generation 
-      // for all spatial unit features		
-      let domNode = leafletMap["_container"];	
-	
-      leafletLayer.addTo(leafletMap);	
+      });
 
-      leafletMap.whenReady(async () => {
-        if(page.orientation == this.reportingService.clonedTemplate.orientation){
-          await this.leafletScreenshotCacheHelperService.checkForScreenshot(this.selectedBaseMap.layerConfig.name, this.selectedSpatialUnit.spatialUnitId, 
-                      page.spatialUnitFeatureId, page.orientation, domNode, leafletMap);
-        }
-      })	
-      
-      // set selected base map in order to make it available in reporting overview
+      let leafletLayer: any;
+      if (this.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER_GRAYSCALE') {
+        leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
+      } else if (this.selectedBaseMap.layerConfig.layerType === 'TILE_LAYER') {
+        leafletLayer = new L.tileLayer(this.selectedBaseMap.layerConfig.url);
+      } else if (this.selectedBaseMap.layerConfig.layerType === 'WMS') {
+        leafletLayer = new L.tileLayer.wms(this.selectedBaseMap.layerConfig.url, {
+          layers: this.selectedBaseMap.layerConfig.layerName_WMS,
+          format: 'image/jpeg',
+        });
+      }
+
+      const domNode = leafletMap['_container'];
+
       pageElement.selectedBaseMap = this.selectedBaseMap;
-
-      // add leaflet map to pageElement in case we need it again later
       pageElement.leafletMap = leafletMap;
-
-      // can be used to check if positioning in echarts matches the one from leaflet
-      // let geoJsonLayer = L.geoJSON( this.geoJsonForReachability.features )
-      // geoJsonLayer.addTo(leafletMap)
-      // let isochronesLayer = L.geoJSON( this.isochrones.features )
-      // isochronesLayer.addTo(leafletMap);
-      // let poiMarkerLSource = {
-      // 	"type": "FeatureCollection",
-      // 	"features": []
-      // }
-      // for(let lonLatArr of centers) {
-      // 	poiMarkerLSource.features.push({
-      // 		"type": "Feature",
-      // 		"geometry": {
-      // 			"type": "Point",
-      // 			"coordinates": [
-      // 				lonLatArr[0],
-      // 				lonLatArr[1]
-      // 			]
-      // 		}
-      // 	})
-      // }
-      // poiMarkerLayer = L.geoJSON( poiMarkerLSource )
-      // poiMarkerLayer.addTo(leafletMap);
-
       pageElement.leafletBbox = bounds;
       pageElement.echartsOptions = echartsOptions;
+
+      const screenshotPromise = new Promise<string | undefined>(resolve => {
+        const timeoutHandle = setTimeout(() => {
+          console.warn('Leaflet tile load timed out for page ' + pageIdx + ', proceeding without screenshot');
+          resolve(undefined);
+        }, 15000);
+        leafletLayer.on('load', async () => {
+          clearTimeout(timeoutHandle);
+          if (page.orientation === this.reportingService.clonedTemplate.orientation) {
+            await new Promise(r => setTimeout(r, 500));
+            const dataUrl = await this.leafletScreenshotCacheHelperService.checkForScreenshot(
+              this.selectedBaseMap.layerConfig.name,
+              this.selectedSpatialUnit.spatialUnitId,
+              page.spatialUnitFeatureId,
+              page.orientation,
+              domNode,
+              this.reportingService.clonedTemplate.name
+            );
+            resolve(dataUrl);
+          } else {
+            resolve(undefined);
+          }
+        });
+      });
+
+      leafletMap.invalidateSize(false);
+      leafletLayer.addTo(leafletMap);
+
+      const dataUrl = await screenshotPromise;
+
+      if (!isPreview) {
+        leafletMap.remove();
+        div.remove();
+      }
+
+      // restore all series now that screenshot is done
+      echartsOptions.series = allSeries_array;
+      map.setOption(echartsOptions, { notMerge: false });
+
+      return dataUrl;
   }
 
   // async
@@ -3617,6 +3664,57 @@ export class IndicatorAddComponent implements OnInit {
     return geoMapOptions
   }
 
+  isPageInPreview(page: any, index: number): boolean {
+    if (page.type !== 'area_specific' && page.type !== 'datatable') return true;
+    if (page.type === 'area_specific') {
+      const areaPages = this.reportingService.clonedTemplate.pages.filter((p: any) => p.type === 'area_specific');
+      return areaPages.indexOf(page) < this.MAX_PREVIEW_AREA_SPECIFIC_PAGES;
+    }
+    if (page.type === 'datatable') {
+      const dtPages = this.reportingService.clonedTemplate.pages.filter((p: any) => p.type === 'datatable');
+      return dtPages.indexOf(page) < this.MAX_PREVIEW_DATATABLE_PAGES;
+    }
+    return true;
+  }
+
+  isLastPreviewPage(page: any): boolean {
+    if (page.type === 'area_specific') {
+      const areaPages = this.reportingService.clonedTemplate.pages.filter((p: any) => p.type === 'area_specific');
+      return areaPages.indexOf(page) === this.MAX_PREVIEW_AREA_SPECIFIC_PAGES - 1;
+    }
+    if (page.type === 'datatable') {
+      const dtPages = this.reportingService.clonedTemplate.pages.filter((p: any) => p.type === 'datatable');
+      return dtPages.indexOf(page) === this.MAX_PREVIEW_DATATABLE_PAGES - 1;
+    }
+    return false;
+  }
+
+  countBackgroundPages(page: any): number {
+    if (!this.reportingService.clonedTemplate || !page) return 0;
+    if (page.type === 'area_specific') {
+      const areaPages = this.reportingService.clonedTemplate.pages.filter((p: any) => p.type === 'area_specific');
+      return Math.max(0, areaPages.length - this.MAX_PREVIEW_AREA_SPECIFIC_PAGES);
+    }
+    if (page.type === 'datatable') {
+      const dtPages = this.reportingService.clonedTemplate.pages.filter((p: any) => p.type === 'datatable');
+      return Math.max(0, dtPages.length - this.MAX_PREVIEW_DATATABLE_PAGES);
+    }
+    return 0;
+  }
+
+  async onTriggerPreparationClicked() {
+    this.loadingData = true;
+    this.abortPreparation = false;
+    this.preparationNeeded = false;
+    await this.initializeAllDiagrams();
+    this.loadingData = false;
+  }
+
+  onAbortPreparationClicked() {
+    this.abortPreparation = true;
+    this.preparationNeeded = true;
+  }
+
 // async
   async initializeAllDiagrams() {
 console.log('init all diagrams')
@@ -3650,151 +3748,188 @@ console.log('init all diagrams')
 				this.geoJsonForSelectedIndicator_byFeatureName = this.geoJsonForReachability_byFeatureName
 			}	
 
-			// We need a separate counter for page index because we iterate over the pages array.
-			// This array might include additional datatable pages, which are not inserted in the dom
-			// Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
-			let pageIdx = -1;
-
 			this.lastPageOfAddedSectionPrepared = false;
+			this.abortPreparation = false;
 			this.pagePreparationIndex = 0;
-			this.pagePreparationSize = document.querySelectorAll("[id^='reporting-addIndicator-page-'].reporting-page").length; // all starting with that id
+			this.pagePreparationSize = this.reportingService.clonedTemplate.pages.length;
 			let logProgressIndexSeparator = Math.round(this.pagePreparationSize / 100 * 10);
+			if (logProgressIndexSeparator < 1) logProgressIndexSeparator = 1;
 
-			for(let i=0; i<this.reportingService.clonedTemplate.pages.length; i++) {
+			this.loadingData = false;
 
-				setTimeout(async () => {
-				 	pageIdx++;
-					let page = this.reportingService.clonedTemplate.pages[i];
-					let prevPage = i>1 ? this.reportingService.clonedTemplate.pages[i-1] : undefined;
-					let pageIncludesDatatable = page.pageElements.map(el => el.type).includes("datatable")
+			// Wait for Angular to render new pages in DOM before processing
+			await new Promise(resolve => setTimeout(resolve, 150));
 
-					if(prevPage) {
-						let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
-						if(pageIncludesDatatable && prevPageIncludesDatatable) {
-							// get corresponding pages in the dom and check if they are datatable-pages
-							let prevDomPageEl = document.querySelector("#reporting-addIndicator-page-" + (i-1) + "-datatable")
-							let domPageEl =  document.querySelector("#reporting-addIndicator-page-" + i + "-datatable")
-							if(!prevDomPageEl || !domPageEl) { // if this page does not exist in the dom
-								pageIdx--; // don't increase index in this iteration so it stays in sync with the pages that exist in the dom
-							}
-							return; // don't do anything for additional datatable pages. They are added in createPageElement_Datatable
-						}
-					}				
+			// Phase 1: Process preview pages first for fast user feedback
+			const processedPageIds = new Set<any>();
+			let totalPreparedCount = 0;
 
-					let pageDom:any = document.querySelector("#reporting-addIndicator-page-" + i);	
+			for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
+				if (this.abortPreparation) return;
+				if (!this.reportingService.clonedTemplate) return;
 
-					for(let pageElement of page.pageElements) {
-
-						// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
-						// for now we more or less hardcode this, but it might have to change in the future
-						let pElementDom;
-						if(pageElement.type === "linechart") {
-							let arr = pageDom.querySelectorAll(".type-linechart");
-							if(pageElement.showPercentageChangeToPrevTimestamp) {
-								pElementDom = arr[1];
-							} else {
-								pElementDom = arr[0];
-							}
-						} else {
-							pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + i + "-" + pageElement.type)
-						}
-						 
-						switch(pageElement.type) {
-							case "map": {
-
-								// initialize with all areas
-								let map = await this.createPageElement_Map(pElementDom, page, pageElement);
-
-								// filter visible areas if needed
-								if(page.area && page.area.length) {
-									if(this.selectedIndicator) {
-										this.filterMapByAreaName(map, page.area, this.geoJsonForSelectedIndicator_byFeatureName.get(page.area));
-									} else {
-										this.filterMapByAreaName(map, page.area, this.geoJsonForReachability_byFeatureName.get(page.area));
-									}
-								}
-
-                await this.initLeafletMapBeneathEchartsMap(page, pageElement, map);
-
-								pageElement.isPlaceholder = false;
-								break;
-							}
-							case "mapLegend": {
-								pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
-								pageDom.querySelector(".type-mapLegend").style.display = "none";
-								break;
-							}
-								
-							
-								//June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-							
-							// case "overallAverage": {
-							// 	this.createPageElement_Average(page, pageElement, false);
-							// 	pageDom.querySelector(".type-overallAverage").style.border = "none";
-							// 	break;
-							// }
-							// case "selectionAverage": {
-							// 	this.createPageElement_Average(page, pageElement, true);
-							// 	pageDom.querySelector(".type-selectionAverage").style.border = "none";
-							// 	break;
-							// }
-							// case "overallChange": {
-							// 	this.createPageElement_Change(page, pageElement, false);
-							// 	let wrapper = pageDom.querySelector(".type-overallChange")
-							// 	wrapper.style.border = "none";
-							// 	break;
-							// }
-							// case "selectionChange": {
-							// 	this.createPageElement_Change(page, pageElement, true);
-							// 	let wrapper = pageDom.querySelector(".type-selectionChange")
-							// 	wrapper.style.border = "none";
-							// 	break;
-							// }
-							case "barchart": {
-								this.createPageElement_BarChartDiagram(pElementDom, page);
-								pageElement.isPlaceholder = false;
-								break;
-							}
-							case "linechart": {
-								this.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
-								pageElement.isPlaceholder = false;
-								break;
-							}
-							case "datatable": {
-								// remove all following datatable pages first so we don't add too many.
-								// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
-								let nextPage = i<this.reportingService.clonedTemplate.pages.length-1 ? this.reportingService.clonedTemplate.pages[i+1] : undefined;
-								if(nextPage) {
-									let nextPageIncludesDatatable = nextPage.pageElements.map(el => el.type).includes("datatable")
-									while(nextPageIncludesDatatable) {
-										this.reportingService.clonedTemplate.pages.splice(i+1, 1) //remove page
-										//update next page
-										nextPage = i<this.reportingService.clonedTemplate.pages.length-1 ? this.reportingService.clonedTemplate.pages[i+1] : undefined;
-										nextPageIncludesDatatable = nextPage ? nextPage.pageElements.map(el => el.type).includes("datatable") : false;
-									}
-								}
-								this.createPageElement_Datatable(pElementDom, page);
-								break;
-							}
-						}
-					}
-
-					// if the last page is reached and full prepared we want to show that to the user
-					// wait additionally for 500 ms
+				const page = this.reportingService.clonedTemplate.pages[i];
+				if (this.isPageInPreview(page, i)) {
+					await this.preparePageForIndicatorAdd(i, page);
+					processedPageIds.add(page.id);
+					totalPreparedCount++;
 					this.pagePreparationIndex = i;
-					
-					if (i == this.pagePreparationSize - 1) {
-						this.lastPageOfAddedSectionPrepared = true;
-					}
-				}) 
-				
+				}
 			}
 
-			// apply current page configuration as it is performed asynchronously 
-				setTimeout(() => {
-					this.onChangePageConfig();
-					this.onChangeShowPageSection();
-				});
+			// Phase 2: Process remaining background pages
+			for (let i = 0; i < this.reportingService.clonedTemplate.pages.length; i++) {
+				if (this.abortPreparation) return;
+				if (!this.reportingService.clonedTemplate) return;
+				if (!this.selectedIndicator && !this.reportingService.clonedTemplate.name.includes("reachability")) return;
+
+				const page = this.reportingService.clonedTemplate.pages[i];
+				if (!processedPageIds.has(page.id)) {
+					await this.preparePageForIndicatorAdd(i, page);
+					processedPageIds.add(page.id);
+					totalPreparedCount++;
+					this.pagePreparationIndex = i;
+				}
+			}
+
+			this.lastPageOfAddedSectionPrepared = true;
+			this.pagePreparationIndex = this.pagePreparationSize;
+
+			// Enable optional tabs for reachability after preparation is finished
+			if (this.reportingService.clonedTemplate.name.includes('-reachability')) {
+				const allTabs: any = document.querySelectorAll('#reporting-add-indicator-tab-list li');
+				for (const tab of allTabs) {
+					this.enableTab(tab);
+				}
+			}
+
+			setTimeout(() => {
+				this.onChangePageConfig();
+				this.onChangeShowPageSection();
+			});
+  }
+
+  async preparePageForIndicatorAdd(idx: number, page: any) {
+		const isPreview = this.isPageInPreview(page, idx);
+		page.indexInConfigPages = idx;
+
+		if (!page.generatedData) {
+			page.generatedData = {
+				echarts: {},
+				mapImage: undefined,
+				tableData: undefined,
+				isComplete: false,
+			};
+		}
+
+		// Route all rendering through the off-screen background processor for stable captures
+		this.reportingService.reportingBackgroundState.pageToProcess_add = page;
+		this.appRef.tick(); // synchronously run CD so the background page elements are in the DOM
+
+		const pageDom = document.getElementById('reporting-addIndicator-background-page');
+		if (!pageDom) {
+			console.error('Could not find background DOM for page ' + idx);
+			return;
+		}
+
+		for (const [elementIdx, pageElement] of page.pageElements.entries()) {
+			const pElementDom = pageDom.querySelector(
+				'#reporting-addIndicator-background-page-' + pageElement.type + '-' + elementIdx
+			) as HTMLElement;
+			if (!pElementDom) continue;
+
+			switch (pageElement.type) {
+				case 'map': {
+					const map = await this.createPageElement_Map(pElementDom, page, pageElement);
+
+					if (page.area && page.area.length) {
+						if (this.selectedIndicator) {
+							this.filterMapByAreaName(map, page.area, this.geoJsonForSelectedIndicator_byFeatureName.get(page.area));
+						} else {
+							this.filterMapByAreaName(map, page.area, this.geoJsonForReachability_byFeatureName.get(page.area));
+						}
+						await new Promise(resolve => setTimeout(resolve, 250));
+					}
+
+					page.generatedData.mapImage = await this.initLeafletMapBeneathEchartsMap(page, pageElement, elementIdx, map, isPreview);
+					pageElement.isPlaceholder = false;
+					page.generatedData.echarts[pageElement.type] = map.getDataURL({ pixelRatio: 2 });
+
+					if (isPreview) {
+						const previewEl = document.querySelector('#reporting-addIndicator-page-' + idx + '-' + pageElement.type + '-' + elementIdx)
+							|| document.querySelector('#reporting-addIndicator-page-' + idx + '-' + pageElement.type);
+						if (previewEl) {
+							previewEl.innerHTML = '';
+							while (pElementDom.firstChild) previewEl.appendChild(pElementDom.firstChild);
+							if (page.generatedData.mapImage) {
+								(previewEl as HTMLElement).style.backgroundImage = 'url(' + page.generatedData.mapImage + ')';
+								(previewEl as HTMLElement).style.backgroundSize = '100% 100%';
+								(previewEl as HTMLElement).style.backgroundRepeat = 'no-repeat';
+							}
+						}
+					} else {
+						map.dispose();
+					}
+					break;
+				}
+				case 'mapLegend': {
+					pageElement.isPlaceholder = false;
+					if (isPreview) {
+						const previewPageDom = document.getElementById('reporting-addIndicator-page-' + idx);
+						const legendDom = previewPageDom?.querySelector('.type-mapLegend') as HTMLElement | null;
+						if (legendDom) legendDom.style.display = 'none';
+					}
+					break;
+				}
+				case 'barchart': {
+					this.createPageElement_BarChartDiagram(pElementDom, page);
+					pageElement.isPlaceholder = false;
+					page.generatedData.echarts[pageElement.type] = (echarts.getInstanceByDom(pElementDom) as any)?.getDataURL({ pixelRatio: 2 });
+					if (isPreview) {
+						const previewEl = document.querySelector('#reporting-addIndicator-page-' + idx + '-' + pageElement.type);
+						if (previewEl) {
+							previewEl.innerHTML = '';
+							while (pElementDom.firstChild) previewEl.appendChild(pElementDom.firstChild);
+						}
+					}
+					break;
+				}
+				case 'linechart': {
+					this.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
+					pageElement.isPlaceholder = false;
+					const chartKey = pageElement.showPercentageChangeToPrevTimestamp ? 'linechart_perc' : 'linechart';
+					page.generatedData.echarts[chartKey] = (echarts.getInstanceByDom(pElementDom) as any)?.getDataURL({ pixelRatio: 2 });
+					if (isPreview) {
+						const allLinechartEls = document.querySelectorAll('#reporting-addIndicator-page-' + idx + ' .type-linechart');
+						const targetEl = pageElement.showPercentageChangeToPrevTimestamp ? allLinechartEls[1] : allLinechartEls[0];
+						if (targetEl) {
+							targetEl.innerHTML = '';
+							while (pElementDom.firstChild) targetEl.appendChild(pElementDom.firstChild);
+						}
+					}
+					break;
+				}
+				case 'datatable': {
+					// Remove extra datatable pages before recreating them
+					let nextPage = idx < this.reportingService.clonedTemplate.pages.length - 1
+						? this.reportingService.clonedTemplate.pages[idx + 1] : undefined;
+					if (nextPage) {
+						let nextIncludesDT = nextPage.pageElements.map((el: any) => el.type).includes('datatable');
+						while (nextIncludesDT) {
+							this.reportingService.clonedTemplate.pages.splice(idx + 1, 1);
+							nextPage = idx < this.reportingService.clonedTemplate.pages.length - 1
+								? this.reportingService.clonedTemplate.pages[idx + 1] : undefined;
+							nextIncludesDT = nextPage ? nextPage.pageElements.map((el: any) => el.type).includes('datatable') : false;
+						}
+					}
+					this.createPageElement_Datatable(pElementDom, page);
+					break;
+				}
+			}
+		}
+
+		page.generatedData.isComplete = true;
+		this.reportingService.reportingBackgroundState.pageToProcess_add = undefined;
   }
  
   showThisPage(page) {

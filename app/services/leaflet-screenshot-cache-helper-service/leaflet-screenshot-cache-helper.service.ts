@@ -12,6 +12,7 @@ export class LeafletScreenshotCacheHelperService {
   private envConfigService = inject(EnvConfigService);
 
   cacheMap = new Map();
+  pendingPromises = new Map<string, Promise<string>>();
 
   // Initialize IndexedDB
   dbName = 'leafletScreenshotCache';
@@ -49,32 +50,13 @@ export class LeafletScreenshotCacheHelperService {
   }
 
   async init() {
-    // this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
     this.screenshotsForCurrentSpatialUnitUpdate = false;
     this.executedScreenshotMapKeys = new Map();
     this.cacheMap = new Map();
-
-    // create progress log after each 10th percent of features
-    // this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
-
     await this.loadScreenshotsFromIndexedDB();
   }
 
-  // (re)init the whole thing, counter and map of screenshots
-  /*   async init(targetNumberOfSpatialUnitFeatures) {
-    // this.targetNumberOfSpatialUnitFeatures = targetNumberOfSpatialUnitFeatures;
-    this.screenshotsForCurrentSpatialUnitUpdate = false;
-    this.executedScreenshotMapKeys = new Map();
-    this.cacheMap = new Map();
-
-    // create progress log after each 10th percent of features
-    // this.logProgressIndexSeparator = Math.round(targetNumberOfSpatialUnitFeatures / 100 * 10);
-
-    await this.openIndexedDB();   
-    await this.loadScreenshotsFromIndexedDB();         
-  } */
-
-  generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation) {
+  generateUniqueCacheKey(mapName, spatialUnitId, featureId, pageOrientation, templateName?) {
     return (
       this.CacheKey_leafletScreenshotPrefix +
       '_' +
@@ -84,43 +66,39 @@ export class LeafletScreenshotCacheHelperService {
       '_' +
       featureId +
       '_' +
-      pageOrientation
+      pageOrientation +
+      (templateName ? '_' + templateName : '')
     );
   }
 
-  async storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, imageDataUrl) {
-    // let timestampInSeconds = Math.floor(Date.now() / 1000);
-
+  async storeResourceInCache(mapName, spatialUnitId, featureId, pageOrientation, imageDataUrl, templateName?) {
     const CacheKey = this.generateUniqueCacheKey(
       mapName,
       spatialUnitId,
       featureId,
-      pageOrientation
+      pageOrientation,
+      templateName
     );
 
     const item = {
-      // "timestamp": timestampInSeconds,
       imageDataUrl: imageDataUrl,
     };
 
     this.cacheMap.set(CacheKey, item);
     this.executedScreenshotMapKeys.set(CacheKey, CacheKey);
 
-    const img = await fetch(imageDataUrl);
-    if (!img.ok) {
-      throw new Error(`Error loading image: ${img.status}`);
+    try {
+      const img = await fetch(imageDataUrl);
+      if (img.ok) {
+        const imgData = await img.blob();
+        const blob = new Blob([imgData], { type: 'image/png' });
+        const arrayBuffer = await blob.arrayBuffer();
+        const compressed = pako.deflate(new Uint8Array(arrayBuffer));
+        await this.saveScreenshotInIndexedDB(CacheKey, compressed);
+      }
+    } catch (e) {
+      console.warn('Could not persist screenshot to IndexedDB:', e);
     }
-    const imgData = await img.blob();
-    const blob = new Blob([imgData], { type: 'image/png' });
-    const arrayBuffer = await blob.arrayBuffer();
-
-    // Compress with pako (zlib compression)
-    const compressed = pako.deflate(new Uint8Array(arrayBuffer));
-
-    // Save to IndexedDB
-    await this.saveScreenshotInIndexedDB(CacheKey, compressed);
-
-    // send UI update information
 
     this.logProgress();
   }
@@ -136,12 +114,13 @@ export class LeafletScreenshotCacheHelperService {
     }
   }
 
-  getResourceFromCache(mapName, spatialUnitId, featureId, pageOrientation) {
+  getResourceFromCache(mapName, spatialUnitId, featureId, pageOrientation, templateName?) {
     const CacheKey = this.generateUniqueCacheKey(
       mapName,
       spatialUnitId,
       featureId,
-      pageOrientation
+      pageOrientation,
+      templateName
     );
 
     const item = this.cacheMap.get(CacheKey);
@@ -152,50 +131,89 @@ export class LeafletScreenshotCacheHelperService {
     return undefined;
   }
 
-  async checkForScreenshot(
-    mapName,
-    spatialUnitId,
-    featureId,
-    pageOrientation,
-    domElement,
-    mapElem
-  ) {
+  checkForScreenshot(
+    mapName: string,
+    spatialUnitId: string,
+    featureId: string,
+    pageOrientation: string,
+    domElement: HTMLElement | null,
+    templateName: string
+  ): Promise<string> {
     const CacheKey = this.generateUniqueCacheKey(
       mapName,
       spatialUnitId,
       featureId,
-      pageOrientation
+      pageOrientation,
+      templateName
     );
-    if (!this.cacheMap.has(CacheKey)) {
-      // we now trigger a process that will actually set this item after a timeout. However, for each spatial unit, two requests occur
-      // for now we try to only execute one screenshot process for each spatial unit
-      // thus we simply set an empty object for the current key to prevent multiple screenshot taking processes for the same item
-      setTimeout(async () => {
-        domtoimage
-          .toJpeg(domElement, {
-            quality: 1,
-            width: mapElem.getSize().x,
-            height: mapElem.getSize().y,
-          })
-          .then(async (dataUrl) => {
-            await this.storeResourceInCache(
-              mapName,
-              spatialUnitId,
-              featureId,
-              pageOrientation,
-              dataUrl
-            );
-          })
-          .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-          });
-      }, 150);
-    } else {
-      // only increase executedCacheMap due to log progress
+
+    if (this.cacheMap.has(CacheKey)) {
       this.executedScreenshotMapKeys.set(CacheKey, CacheKey);
-      // send UI update information
       this.logProgress();
+      return Promise.resolve(this.cacheMap.get(CacheKey).imageDataUrl);
     }
+
+    if (this.pendingPromises.has(CacheKey)) {
+      return this.pendingPromises.get(CacheKey)!;
+    }
+
+    const promise = new Promise<string>((resolve, reject) => {
+      setTimeout(() => {
+        if (!domElement) {
+          resolve('');
+          return;
+        }
+        const el: HTMLElement = domElement;
+
+        const capture = () => {
+          domtoimage
+            .toPng(el)
+            .then(async (dataUrl: string) => {
+              if (dataUrl.startsWith('blob:')) {
+                try {
+                  const response = await fetch(dataUrl);
+                  const blob = await response.blob();
+                  dataUrl = await new Promise<string>((res, rej) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => res(reader.result as string);
+                    reader.onerror = rej;
+                    reader.readAsDataURL(blob);
+                  });
+                } catch (e) {
+                  console.error('Failed to convert blob URL to data URL:', e);
+                }
+              }
+
+              await this.storeResourceInCache(
+                mapName,
+                spatialUnitId,
+                featureId,
+                pageOrientation,
+                dataUrl,
+                templateName
+              );
+              this.pendingPromises.delete(CacheKey);
+              resolve(dataUrl);
+            })
+            .catch((error: any) => {
+              console.error('Screenshot capture failed:', error);
+              this.pendingPromises.delete(CacheKey);
+              reject(error);
+            });
+        };
+
+        const tiles = el.querySelectorAll('.leaflet-tile');
+        if (tiles.length === 0) {
+          console.warn('No Leaflet tiles found in DOM yet. Retrying after short delay...');
+          setTimeout(() => capture(), 500);
+        } else {
+          capture();
+        }
+      }, 500);
+    });
+
+    this.pendingPromises.set(CacheKey, promise);
+    return promise;
   }
 
   clearScreenshotMap() {
@@ -231,14 +249,6 @@ export class LeafletScreenshotCacheHelperService {
 
   openIndexedDB() {
     return new Promise((resolve, reject) => {
-      // navigator.storage.persist().then(granted => {
-      //   if (granted) {
-      //     console.log("Storage will not be cleared except by the user");
-      //   } else {
-      //     console.log("Storage may be cleared by the browser under storage pressure.");
-      //   }
-      // });
-
       const request = indexedDB.open(this.dbName, 2);
       request.onupgradeneeded = (event: any) => {
         this.indexedDB = event.target.result;
@@ -247,8 +257,6 @@ export class LeafletScreenshotCacheHelperService {
       request.onsuccess = (event: any) => {
         this.indexedDB = event.target.result;
         this.getScreenshotCountFromIndexedDB();
-        // todo
-        //resolve();
         resolve('');
       };
       request.onerror = (event: any) => reject(event.target.error);
@@ -258,12 +266,11 @@ export class LeafletScreenshotCacheHelperService {
   async clearScreenshotCache() {
     const tx = this.indexedDB.transaction([this.storeName], 'readwrite');
     const store = tx.objectStore(this.storeName);
-    const clearRequest = store.clear(); // This is the method to clear the store
+    const clearRequest = store.clear();
 
     clearRequest.onsuccess = (_event) => {
-      this.resetCounter_keepingCurrentTargetFeatures(true); // also delete current cacheMap, as we want to force regeneration of all screenshots
+      this.resetCounter_keepingCurrentTargetFeatures(true);
       this.indexedDbCount = 0;
-      return; // Resolve the promise when clearing is successful
     };
 
     clearRequest.onerror = (event: any) => {
@@ -327,7 +334,6 @@ export class LeafletScreenshotCacheHelperService {
 
           const url = URL.createObjectURL(blob);
           const item = {
-            // "timestamp": timestampInSeconds,
             imageDataUrl: url,
           };
 
@@ -335,7 +341,7 @@ export class LeafletScreenshotCacheHelperService {
           cursor.continue();
         } else {
           this.getScreenshotCountFromIndexedDB();
-          resolve(result); // Done iterating
+          resolve(result);
         }
       };
 

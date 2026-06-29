@@ -1,5 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { MapErrorNotificationService } from 'services/map-error-notification-service/map-error-notification.service';
+import { DiagramHelperServiceService } from 'services/diagram-helper-service/diagram-helper-service.service';
 import * as echarts from 'echarts';
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
@@ -39,7 +40,8 @@ export class GenerateReportComponent implements OnInit {
     private mapErrorNotificationService: MapErrorNotificationService,
     private leafletScreenshotHelperService: LeafletScreenshotCacheHelperService,
     private broadcastService: BroadcastService,
-    protected reportingService: ReportingService
+    protected reportingService: ReportingService,
+    private diagramHelperService: DiagramHelperServiceService
   ) {}
 
   ngOnInit(): void {
@@ -306,53 +308,41 @@ export class GenerateReportComponent implements OnInit {
           }
           // template-specific elements
           case "map": {
-            let instance:any = echarts.getInstanceByDom(pElementDom)
-            let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
-            imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
-
-            slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl});
+            let imageDataUrl = page.generatedData?.echarts?.[pageElement.type];
+            if (!imageDataUrl) {
+              let instance: any = echarts.getInstanceByDom(pElementDom);
+              if (instance) imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+            }
+            if (imageDataUrl) {
+              imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
+              slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: imageDataUrl });
+            }
             break;
           }
           // case "mapLegend" can be ignored since it is included in the map if needed
-            
-            //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-          
-    // 			case "overallAverage":
-    // 			case "selectionAverage": {
-    // 				let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
-    // 				let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString();
-
-        //     slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
-          //   slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1, fontSize: fontSize-3, fontFace: fontFace });
-    // 				break;
-    // 			}
-    // 			case "overallChange":
-    // 			case "selectionChange": {
-    // 				let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
-    // 				let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString();
-
-        //     slide.addShape(doc.shapes.RECTANGLE, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, line: { color: '#000000', width: 1 } });
-          //   slide.addText(text, { x: pageElementDimensions.left+0.1, y: pageElementDimensions.top+1.4, fontSize: fontSize-3, fontFace: fontFace });
-    // 				break;
-    // 			}
           case "barchart": {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
               continue;
             }
-            let instance:any = echarts.getInstanceByDom(pElementDom);
-            let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} );
-
-            slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String});
+            let base64String = page.generatedData?.echarts?.[pageElement.type];
+            if (!base64String) {
+              let instance: any = echarts.getInstanceByDom(pElementDom);
+              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+            }
+            if (base64String) slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String });
             break;
           }
           case "linechart": {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
-            let instance:any = echarts.getInstanceByDom(pElementDom);
-            let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} );
-
-            slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String});
+            let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            let base64String = page.generatedData?.echarts?.[key];
+            if (!base64String) {
+              let instance: any = echarts.getInstanceByDom(pElementDom);
+              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+            }
+            if (base64String) slide.addImage({ x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, h: pageElementDimensions.height, data: base64String });
             break;
           }
           case "textInput": {
@@ -363,44 +353,28 @@ export class GenerateReportComponent implements OnInit {
             slide.addText(pageElement.text, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, fontSize: fontSize-3, fontFace: fontFace });
             break;
           }
-          case "datatable": {							
-
-            let table = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table") as HTMLTableElement;;
-
-            let data:any = [];
-            if(table && table.rows.length>0) {
-              Array.from(table.rows).forEach((row, rowIndex) => {
-
-                let singleRowData:any[] = [];
-                if(row.cells && row.cells.length>0) {
-                  Array.from(row.cells).forEach((cell, cellIndex) => {
-
-                    let fillColour = '#dedede';
-                    if(rowIndex>0) {
-                      if(rowIndex% 2 == 0)
-                        fillColour = '#ffffff';
-                      else
-                        fillColour = '#f9f9f9';
-                    }
-
-                    singleRowData.push({
-                      text: cell.innerHTML,
-                      options: {
-                        align: ((cellIndex==1 && rowIndex>0)?'right':'left'),
-                        fontFace: fontFace,
-                        fontSize: fontSize-3,
-                        bold: ((rowIndex>0)?false:true),
-                        fill: fillColour
-                      }});
-                  });
-                  data.push(singleRowData);
-                }
+          case "datatable": {
+            let tableData = page.generatedData?.tableData || pageElement.tableData;
+            let columnNames = pageElement.columnNames;
+            let data: any = [];
+            if (tableData && tableData.length > 0) {
+              let headerRow: any[] = [];
+              for (let colName of columnNames) {
+                headerRow.push({ text: colName, options: { align: 'center', fontFace: fontFace, fontSize: fontSize - 3, bold: true, fill: '#dedede' } });
+              }
+              data.push(headerRow);
+              tableData.forEach((row, rowIndex) => {
+                let singleRowData: any[] = [];
+                row.forEach((cell, cellIndex) => {
+                  let fillColour = (rowIndex % 2 === 0) ? '#ffffff' : '#f9f9f9';
+                  singleRowData.push({ text: cell.toString(), options: { align: (columnNames[cellIndex] === 'Wert' ? 'right' : 'left'), fontFace: fontFace, fontSize: fontSize - 3, bold: false, fill: fillColour } });
+                });
+                data.push(singleRowData);
               });
             }
-
-            slide.addTable(data, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, rowH: 1, align: "left", border: { pt: "1", color: "#d6d6d6" }});
+            slide.addTable(data, { x: pageElementDimensions.left, y: pageElementDimensions.top, w: pageElementDimensions.width, rowH: 1, align: "left", border: { pt: "1", color: "#d6d6d6" } });
             break;
-          } 
+          }
         }
       }
     }
@@ -607,61 +581,41 @@ export class GenerateReportComponent implements OnInit {
           }
           // template-specific elements
           case "map": {
-            let instance:any = echarts.getInstanceByDom(pElementDom)
-            let imageDataUrl = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
-            imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
-
-            doc.addImage(imageDataUrl, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-              pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+            let imageDataUrl = page.generatedData?.echarts?.[pageElement.type];
+            if (!imageDataUrl) {
+              let instance: any = echarts.getInstanceByDom(pElementDom);
+              if (instance) imageDataUrl = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+            }
+            if (imageDataUrl) {
+              imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
+              doc.addImage(imageDataUrl, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
+            }
             break;
           }
           // case "mapLegend" can be ignored since it is included in the map if needed
-            
-            //June 2025: we remove overallAverage and overallChange, overallAverage and selectionAverage from reporting overview pages.
-          
-          // case "overallAverage":
-          // case "selectionAverage": {
-          // 	let x, y, width, height;
-          // 	x = pageElementDimensions.left;
-          // 	y = pageElementDimensions.top;
-          // 	width = pageElementDimensions.width;
-          // 	height = pageElementDimensions.height;
-          // 	doc.rect(x, y, width, height);
-          // 	let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
-          // 	let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
-          // 	doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
-          // 	break;
-          // }
-          // case "overallChange":
-          // case "selectionChange": {
-          // 	let x = pageElementDimensions.left;
-          // 	let y = pageElementDimensions.top;
-          // 	let width = pageElementDimensions.width;
-          // 	let height = pageElementDimensions.height;
-          // 	doc.rect(x, y, width, height);
-          // 	let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
-          // 	let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()
-          // 	doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
-          // 	break;
-          // }
           case "barchart": {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea){
               continue;
             }
-            let instance:any = echarts.getInstanceByDom(pElementDom)
-            let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
-            doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-                pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+            let base64String = page.generatedData?.echarts?.[pageElement.type];
+            if (!base64String) {
+              let instance: any = echarts.getInstanceByDom(pElementDom);
+              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+            }
+            if (base64String) doc.addImage(base64String, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
             break;
           }
           case "linechart": {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showLineChartPerArea){
               continue;
             }
-            let instance:any = echarts.getInstanceByDom(pElementDom)
-            let base64String = instance.getDataURL( {pixelRatio: this.echartsImgPixelRatio} )
-            doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
-                pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+            let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            let base64String = page.generatedData?.echarts?.[key];
+            if (!base64String) {
+              let instance: any = echarts.getInstanceByDom(pElementDom);
+              if (instance) base64String = instance.getDataURL({ pixelRatio: this.echartsImgPixelRatio });
+            }
+            if (base64String) doc.addImage(base64String, 'PNG', pageElementDimensions.left, pageElementDimensions.top, pageElementDimensions.width, pageElementDimensions.height, '', 'MEDIUM');
             break;
           }
           case "textInput": {
@@ -676,17 +630,17 @@ export class GenerateReportComponent implements OnInit {
             break;
           }
           case "datatable": {
-            autoTable(doc,{
-              html: "#reporting-overview-page-" + idx + "-" + pageElement.type + " table",
-              startY: pageElementDimensions.top,
-              tableWidth: "wrap",
-              margin: {left: pageElementDimensions.left},
-              theme: "grid",
-              //headStyles: {
-              //	fillColor: false, // transparent
-              //	textColor: [0, 0, 0],
-              //}
-            });
+            let tableData = page.generatedData?.tableData || pageElement.tableData;
+            if (tableData && tableData.length > 0) {
+              autoTable(doc, {
+                head: [pageElement.columnNames || []],
+                body: tableData.map(row => row.map(cell => cell != null ? cell.toString() : '')),
+                startY: pageElementDimensions.top,
+                tableWidth: 'wrap',
+                margin: { left: pageElementDimensions.left },
+                theme: 'grid',
+              });
+            }
             break;
           }
         }
@@ -700,79 +654,59 @@ export class GenerateReportComponent implements OnInit {
   }
 
   async createLeafletEChartsMapImage(page, pageDom, pageElement, echartsImgSrc) {
-    let result;
-    // screenshot leaflet map and merge it with echarts image
-    // remove page offset temporarily 
-    pageElement.leafletMap.getContainer().style.top = "0px"
-    pageElement.leafletMap.getContainer().style.left = "0px"
+    let leafletMapScreenshot = page.generatedData?.mapImage ||
+      this.leafletScreenshotHelperService.getResourceFromCache(
+        pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId,
+        page.spatialUnitFeatureId, page.orientation, this.reportingService.workingTemplate.name
+      );
 
-    // wait for print process to finish
-    // var node = document.getElementById(pageDom);
-    var node = pageElement.leafletMap["_container"];
+    if (!leafletMapScreenshot) {
+      console.warn('No leaflet screenshot found for page', page);
+      return echartsImgSrc;
+    }
 
-    
-      //here we must check if the corresponding leaflet image has already been created and stored within cache
-      //if not or it's too old, recreate it
-      //if yes, simply use it to save a lot of time during report generation!
-    
-    let leafletMapScreenshot = this.leafletScreenshotHelperService.getResourceFromCache(pageElement.selectedBaseMap.layerConfig.name, page.spatialUnitId, page.spatialUnitFeatureId, page.orientation);
-    // let leafletMapScreenshot = await domtoimage
-          //   .toJpeg(node, { quality: 1.0 })
-          //   .then(function (dataUrl) {
-          //     return dataUrl;
-          //   })
-          //   .catch(function (error) {
-          //       console.error('oops, something went wrong!', error);
-          //   });
-
-    pageElement.leafletMap.getContainer().style.top = "90px"
-    pageElement.leafletMap.getContainer().style.left = "15px"
-    
-    // combine images
     let canvas = document.createElement('canvas');
-    let ctx:any = canvas.getContext('2d', {
-      willReadFrequently: true
-      });
-    let pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, "px");
+    let ctx: any = canvas.getContext('2d', { willReadFrequently: true });
+    let pageElementDimensionsPx = this.calculateDimensions(pageElement.dimensions, 'px');
     canvas.width = pageElementDimensionsPx.width;
-    canvas.height =  pageElementDimensionsPx.height;
-    // we have to draw layers in order
+    canvas.height = pageElementDimensionsPx.height;
+
     let leafletMapImg = new Image();
-    // leafletMapImg.crossOrigin = "anonymous";
     leafletMapImg.width = canvas.width;
     leafletMapImg.height = canvas.height;
-    let leafletMapImgDrawn = new Promise<void>((resolve, reject) => {
-      leafletMapImg.onload = function() {
-        ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height);
-        resolve();
-      }
+    let leafletMapImgDrawn = new Promise<void>((resolve) => {
+      leafletMapImg.onload = () => { ctx.drawImage(leafletMapImg, 0, 0, canvas.width, canvas.height); resolve(); };
+      leafletMapImg.onerror = () => resolve();
     });
     leafletMapImg.src = leafletMapScreenshot;
-    
     await leafletMapImgDrawn;
 
     let echartsImg = new Image();
-    // echartsImg.crossOrigin = "anonymous";
-    let echartsImgDrawn = new Promise<void>((resolve, reject) => {
-      echartsImg.onload = function() {
-        ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height);
-        resolve();
-      }
+    let echartsImgDrawn = new Promise<void>((resolve) => {
+      echartsImg.onload = () => { ctx.drawImage(echartsImg, 0, 0, canvas.width, canvas.height); resolve(); };
+      echartsImg.onerror = () => resolve();
     });
     echartsImg.src = echartsImgSrc;
-    await echartsImgDrawn
+    await echartsImgDrawn;
 
-    let mapAttributionImg = pageDom.querySelector(".map-attribution > img");
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, canvas.height - mapAttributionImg.height, mapAttributionImg.width, mapAttributionImg.height)
-    ctx.drawImage(mapAttributionImg, 0, canvas.height - mapAttributionImg.height);
-    let mapLegendImg = pageDom.querySelector(".map-legend > img")
-    if(mapLegendImg){
-      ctx.fillRect(canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height, mapLegendImg.width, mapLegendImg.height)
-      ctx.drawImage(mapLegendImg, canvas.width - mapLegendImg.width, canvas.height - mapLegendImg.height);
-    }		
-    result = canvas.toDataURL();
-    return result;
+    let attrImg = await this.diagramHelperService.createReportingReachabilityMapAttribution() as HTMLImageElement;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, canvas.height - attrImg.height, attrImg.width, attrImg.height);
+    ctx.drawImage(attrImg, 0, canvas.height - attrImg.height);
+
+    if (this.reportingService.workingTemplate.name.includes('reachability')) {
+      let legendImg = page.templateSection?.legendImg;
+      if (legendImg) {
+        if (!legendImg.complete) {
+          await new Promise(resolve => { legendImg.onload = resolve; legendImg.onerror = resolve; });
+        }
+        ctx.fillStyle = 'white';
+        ctx.fillRect(canvas.width - legendImg.width, canvas.height - legendImg.height, legendImg.width, legendImg.height);
+        ctx.drawImage(legendImg, canvas.width - legendImg.width, canvas.height - legendImg.height);
+      }
+    }
+
+    return canvas.toDataURL();
   }
 
   getCurrentDateAndTime() {
@@ -863,37 +797,26 @@ export class GenerateReportComponent implements OnInit {
         continue;
       }
 
-      let pageDom:any = document.querySelector("#reporting-overview-page-" + idx);
-      for(let pageElement of page.pageElements) {
-        if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-
-          let pElementDom;
-          if(pageElement.type === "linechart") {
-            let arr = pageDom.querySelectorAll(".type-linechart");
-            if(pageElement.showPercentageChangeToPrevTimestamp) {
-              pElementDom = arr[1];
-            } else {
-              pElementDom = arr[0];
+      for (let pageElement of page.pageElements) {
+        if (pageElement.type === 'map' || pageElement.type === 'barchart' || pageElement.type === 'linechart') {
+          let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+          let imageDataUrl = page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
+          if (!imageDataUrl) {
+            let pageDom: any = document.querySelector('#reporting-overview-page-' + idx);
+            if (pageDom) {
+              let pElementDom = pageDom.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
+              let instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
+              if (instance) imageDataUrl = instance.getDataURL({ type: 'png', pixelRatio: this.echartsImgPixelRatio });
             }
-          } else {
-            pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
           }
-          let instance:any = echarts.getInstanceByDom(pElementDom);
-          let imageDataUrl = instance.getDataURL({
-            type: "png",
-            pixelRatio: this.echartsImgPixelRatio
-          });
-
-          if(pageElement.type === "map")
-            imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
-          
-          let filename = "Seite_" + (idx+1) + "_" + pageElement.type + ".png";
-          if(pageElement.type === "linechart" && pageElement.showPercentageChangeToPrevTimestamp) {
-            // two elements with same type on one page
-            // use a different filename for one of them so we don't overwrite the other image
-            filename = filename.replace(".png", "-proz.Veraenderung.png"); 
+          if (!imageDataUrl) continue;
+          if (pageElement.type === 'map') {
+            imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
           }
-            
+          let filename = 'Seite_' + (idx + 1) + '_' + pageElement.type + '.png';
+          if (pageElement.type === 'linechart' && pageElement.showPercentageChangeToPrevTimestamp) {
+            filename = filename.replace('.png', '-proz.Veraenderung.png');
+          }
           zip.file(filename, this.dataURItoBlob2(imageDataUrl));
         }
       }
@@ -1162,27 +1085,18 @@ export class GenerateReportComponent implements OnInit {
             if(page.type == 'area_specific' && ! pageConfig.sectionContentControl.showRankingChartPerArea && pageElement.type === "barchart" ){
               continue;
             }
-            let pElementDom;
-            if(pageElement.type === "linechart") {
-              let arr = pageDom.querySelectorAll(".type-linechart");
-              if(pageElement.showPercentageChangeToPrevTimestamp) {
-                pElementDom = arr[1];
-              } else {
-                pElementDom = arr[0];
-              }
-            } else {
-              pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+            let key = pageElement.type + (pageElement.showPercentageChangeToPrevTimestamp ? '_perc' : '');
+            let imageDataUrl = page.generatedData?.echarts?.[key] || page.generatedData?.echarts?.[pageElement.type];
+            if (!imageDataUrl) {
+              let pElementDom = pageDom?.querySelector('#reporting-overview-page-' + idx + '-' + pageElement.type);
+              let instance: any = pElementDom ? echarts.getInstanceByDom(pElementDom) : null;
+              if (instance) imageDataUrl = instance.getDataURL({ type: 'png', pixelRatio: this.echartsImgPixelRatio });
             }
-            let instance:any = echarts.getInstanceByDom(pElementDom);
-            let imageDataUrl = instance.getDataURL({
-              type: "png",
-              pixelRatio: this.echartsImgPixelRatio
-                });	
+            if (!imageDataUrl) break;
 
-            if(pageElement.type === "map"){
-              imageDataUrl = await this.createLeafletEChartsMapImage(page, pageDom, pageElement, imageDataUrl)
+            if (pageElement.type === 'map') {
+              imageDataUrl = await this.createLeafletEChartsMapImage(page, undefined, pageElement, imageDataUrl);
             }
-            
 
             let blob = this.dataURItoBlob(imageDataUrl);
 
