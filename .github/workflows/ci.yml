@@ -1,6 +1,6 @@
 name: CI quality gate
 
-# Runs lint, tests and a production build to protect the green baseline.
+# Runs format check, lint, tests and a production build to protect the green baseline.
 on:
   pull_request:
   push:
@@ -26,6 +26,9 @@ jobs:
       # --force is required due to the project's documented peer-dependency conflicts
       - name: Install dependencies
         run: npm ci --force
+
+      - name: Check formatting
+        run: npm run format:check
 
       - name: Lint
         run: npm run lint

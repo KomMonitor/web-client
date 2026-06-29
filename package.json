@@ -25,6 +25,7 @@
     "eslint-config-prettier": "^10.1.8",
     "fake-indexeddb": "^6.2.5",
     "http-server": "^14.1.0",
+    "husky": "^9.1.7",
     "jest": "^30.4.2",
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^30.4.1",
@@ -49,7 +50,8 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "format": "prettier --write \"app/**/*.{ts,html,scss}\"",
-    "format:check": "prettier --check \"app/**/*.{ts,html,scss}\""
+    "format:check": "prettier --check \"app/**/*.{ts,html,scss}\"",
+    "prepare": "husky"
   },
   "dependencies": {
     "@angular/animations": "^21.2.17",
