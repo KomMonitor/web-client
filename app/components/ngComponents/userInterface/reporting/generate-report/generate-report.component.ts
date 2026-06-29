@@ -71,10 +71,10 @@ export class GenerateReportComponent implements OnInit {
     try {
       this.loadingData = true;
 
-      format === 'pdf' && (await this.generatePdfReport());
-      format === 'docx' && (await this.generateWordReport());
-      format === 'zip' && (await this.generateZipFolder());
-      format === 'pptx' && (await this.generatePptxReport());
+      if (format === 'pdf') await this.generatePdfReport();
+      if (format === 'docx') await this.generateWordReport();
+      if (format === 'zip') await this.generateZipFolder();
+      if (format === 'pptx') await this.generatePptxReport();
 
       this.reportingService.changeWorkflowState(this.workflowState.reportingOverview);
 
@@ -1202,7 +1202,7 @@ export class GenerateReportComponent implements OnInit {
           }
 
           case 'footerHorizontalSpacer-landscape':
-          case 'footerHorizontalSpacer-portrait':
+          case 'footerHorizontalSpacer-portrait': {
             if (!pageConfig.headerFooterControl.showFooterCreationInfo) {
               // skip
               continue;
@@ -1237,6 +1237,7 @@ export class GenerateReportComponent implements OnInit {
             });
             paragraphs.push(paragraph);
             break;
+          }
           case 'footerCreationInfo-landscape':
           case 'footerCreationInfo-portrait': {
             if (!pageConfig.headerFooterControl.showFooterCreationInfo) {

@@ -286,6 +286,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     if (this.kommonitorDataExchangeService.updateIntervalOptions) {
       this.updateIntervalOptions = this.kommonitorDataExchangeService.updateIntervalOptions;
     } else {
+      // no branch action required
     }
 
     // Initialize attribute mapping types
@@ -297,7 +298,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
     // Ensure importer resources are fetched before reading converters/datasource types
     try {
       await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
-    } catch {}
+    } catch {
+      // best-effort: ignore resource fetch errors
+    }
 
     // Load datasource types from importer helper after fetch
     this.loadDatasourceTypes();
@@ -540,6 +543,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.periodOfValidityInvalid = !validation.isValid;
 
     if (!validation.isValid && validation.error) {
+      // no action required here
     }
   }
 
@@ -655,6 +659,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.postBody_spatialUnits;
 
     if (!allValid) {
+      // no action required here
     }
 
     return allValid;

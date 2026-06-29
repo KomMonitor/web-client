@@ -158,6 +158,7 @@ export class IndicatorRadarComponent implements OnInit {
           break;
         case BroadcastMessage.UnselectAllFeatures:
           {
+            // no-op
           }
           break;
       }

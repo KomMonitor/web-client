@@ -416,7 +416,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       const keys = Object.keys(properties);
 
       for (const key of keys) {
-        var newKey;
+        let newKey;
         if (key.toLowerCase().includes('featureid')) {
           newKey = 'ID';
         } else if (key.toLowerCase().includes('featurename')) {
@@ -489,7 +489,7 @@ export class KommonitorLegendComponent implements OnInit, OnChanges {
       const keys = Object.keys(properties);
 
       for (const key of keys) {
-        var newKey;
+        let newKey;
         if (key.toLowerCase().includes('featureid')) {
           newKey = 'ID';
         } else if (key.toLowerCase().includes('featurename')) {

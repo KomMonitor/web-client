@@ -92,7 +92,7 @@ export class KommonitorClassificationComponent implements OnInit {
 
   instantiateColorBrewerPalettes() {
     for (const key in colorbrewer) {
-      if (colorbrewer.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(colorbrewer, key)) {
         const colorPalettes = colorbrewer[key];
 
         const paletteEntry = {

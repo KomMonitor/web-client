@@ -317,8 +317,8 @@ export class ReportingOverviewComponent implements OnInit {
     // remove all pages without property poiLayerName (clean template)
     this.reportingService.workingTemplate.pages =
       this.reportingService.workingTemplate.pages.filter((page) => {
-        if (page.hasOwnProperty('templateSection')) {
-          return page.templateSection.hasOwnProperty('poiLayerName');
+        if (Object.prototype.hasOwnProperty.call(page, 'templateSection')) {
+          return Object.prototype.hasOwnProperty.call(page.templateSection, 'poiLayerName');
         } else {
           return false;
         }
@@ -347,7 +347,7 @@ export class ReportingOverviewComponent implements OnInit {
       // remove all pages for that section
       this.reportingService.workingTemplate.pages =
         this.reportingService.workingTemplate.pages.filter((page) => {
-          if (!page.hasOwnProperty('templateSection')) return true; // for placeholder
+          if (!Object.prototype.hasOwnProperty.call(page, 'templateSection')) return true; // for placeholder
 
           return (
             page.templateSection.indicatorId !== removedSection.indicatorId ||
@@ -450,7 +450,7 @@ export class ReportingOverviewComponent implements OnInit {
         }
         for (const page of this.reportingService.workingTemplate.pages) {
           for (const pageElement of page.pageElements) {
-            if (pageElement.type === 'map' && pageElement.hasOwnProperty('echartsMaps')) {
+            if (pageElement.type === 'map' && Object.prototype.hasOwnProperty.call(pageElement, 'echartsMaps')) {
               for (const map of pageElement.echartsMaps) {
                 echarts.registerMap(map.name, map.geoJson);
               }
@@ -1396,8 +1396,8 @@ export class ReportingOverviewComponent implements OnInit {
 
   createLowerCaseNameProperty(features) {
     for (const feature of features) {
-      if (feature.hasOwnProperty('properties')) {
-        if (!feature.properties.hasOwnProperty('name')) {
+      if (Object.prototype.hasOwnProperty.call(feature, 'properties')) {
+        if (!Object.prototype.hasOwnProperty.call(feature.properties, 'name')) {
           const featureName = feature.properties.NAME;
           feature.properties.name = featureName;
         }

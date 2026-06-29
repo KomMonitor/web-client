@@ -162,7 +162,7 @@ export class UserInterfaceComponent implements OnInit {
         const key = roles.split('.')[0];
         const role = roles.split('.')[1];
 
-        if (!this.userRoleInformation.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(this.userRoleInformation, key)) {
           this.userRoleInformation[key] = [];
         }
 

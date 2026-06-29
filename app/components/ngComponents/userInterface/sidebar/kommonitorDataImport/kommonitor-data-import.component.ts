@@ -500,6 +500,7 @@ export class KommonitorDataImportComponent implements OnInit {
       console.error(e);
       //kommonitorToastHelperService.displayErrorToast_upperLeft("Fehler in Dateiverarbeitung", this.fileLayerError);
     } finally {
+      // no-op
     }
   }
 

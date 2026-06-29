@@ -1048,7 +1048,7 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
         console.log('Error while exporting map view.');
         console.error(error);
 
-        this.mapErrorNotificationService.displayMapApplicationError;
+        this.mapErrorNotificationService.displayMapApplicationError(error);
       });
   }
 
@@ -1076,8 +1076,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
     },
 
     _searchInLayer: function (layer, retRecords, propName) {
-      let self = this,
-        loc;
+      // eslint-disable-next-line @typescript-eslint/no-this-alias -- Leaflet callback relies on the dynamic `this`
+      const self = this;
+      let loc;
       let key_withUniqueID;
 
       if (layer instanceof L.Control.Search.Marker) return;
@@ -1120,9 +1121,9 @@ export class KommonitorMapComponent implements OnInit, AfterViewInit {
           //throw new Error("propertyName '"+propName+"' not found in shape");
           console.warn("propertyName '" + propName + "' not found in shape");
         }
-      } else if (layer.hasOwnProperty('feature')) //GeoJSON
+      } else if (Object.prototype.hasOwnProperty.call(layer, 'feature')) //GeoJSON
       {
-        if (layer.feature.properties.hasOwnProperty(propName)) {
+        if (Object.prototype.hasOwnProperty.call(layer.feature.properties, propName)) {
           key_withUniqueID = this._makeUniqueKey(
             self._getPath(layer.feature.properties, propName),
             layer.feature.properties.ID

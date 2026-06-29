@@ -4,7 +4,6 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnInit,
   Output,
   SimpleChanges,
   inject,
@@ -39,7 +38,7 @@ import { KommonitorReachabilityComponent } from './kommonitorReachability/kommon
     KommonitorReachabilityComponent,
   ],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
   private broadcastService = inject(BroadcastService);
   private mapService = inject(MapService);
 
@@ -51,11 +50,6 @@ export class SidebarComponent implements OnInit {
     'sidebarRadarDiagramCollapse',
     'sidebarRegressionDiagramCollapse',
   ];
-
-  ngOnInit(): void {
-    // default open
-    //this.element = 'sidebarReachabilityCollapse';
-  }
 
   closeSidebar() {
     this.element = undefined;

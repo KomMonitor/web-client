@@ -382,8 +382,8 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
       ) {
         // append to diagram
 
-        var echartsInstance = this.echartsInstances_reachabilityAnalysis.get(nextEntry_keyRange);
-        var echartsOptions = echartsInstance.getOption();
+        const echartsInstance = this.echartsInstances_reachabilityAnalysis.get(nextEntry_keyRange);
+        let echartsOptions = echartsInstance.getOption();
         echartsOptions = this.diagramHelperService.appendToReachabilityAnalysisOptions(
           poi,
           nextEntry_valueGeoJSON,
@@ -408,11 +408,11 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
         reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
         // init new echarts instance
-        var echartsInstance: any = echarts.init(
+        const echartsInstance: any = echarts.init(
           document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + '')
         );
         // use configuration item and data specified to show chart
-        var echartsOptions: any =
+        const echartsOptions: any =
           this.diagramHelperService.createInitialReachabilityAnalysisPieOptions(
             poi,
             nextEntry_valueGeoJSON,
@@ -482,8 +482,6 @@ export class ReachabilityPoiInIsoComponent implements OnInit {
 
   removePoiLayerFromMap(poiGeoresource) {
     this.reachabilityHelperService.settings.loadingData = true;
-
-    poiGeoresource = poiGeoresource;
 
     this.reachabilityMapHelperService.removePoiGeoresource_reachabilityAnalysis(
       this.domId,

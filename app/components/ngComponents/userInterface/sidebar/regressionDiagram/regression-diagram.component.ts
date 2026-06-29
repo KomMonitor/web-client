@@ -615,7 +615,7 @@ export class RegressionDiagramComponent implements OnInit {
     const x2: any[] = [];
     const y2: any[] = [];
 
-    for (var i = 0; i < shortestArrayLength; i++) {
+    for (let i = 0; i < shortestArrayLength; i++) {
       if (x[i] && y[i]) {
         x_numeric.push(x[i]);
         y_numeric.push(y[i]);
@@ -631,7 +631,7 @@ export class RegressionDiagramComponent implements OnInit {
     let sum_x2 = 0;
     let sum_y2 = 0;
 
-    for (var i = 0; i < x_numeric.length; i++) {
+    for (let i = 0; i < x_numeric.length; i++) {
       sum_x += x_numeric[i];
       sum_y += y_numeric[i];
       sum_xy += xy[i];

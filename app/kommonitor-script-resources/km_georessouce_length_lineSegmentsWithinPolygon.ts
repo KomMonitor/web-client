@@ -94,15 +94,15 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
   const logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.length / 100 * 10);
 
   for (let featureIndex=0; featureIndex < targetSpatialUnit_geoJSON.features.length; featureIndex++){  
-    var spatialUnitFeat = targetSpatialUnit_geoJSON.features[featureIndex];
+    const spatialUnitFeat = targetSpatialUnit_geoJSON.features[featureIndex];
     // initialize indicatorValue
     KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
     computationGeoresource = KmHelper.transformMultiLineStringToLineStrings(computationGeoresource);
     const linesWithinFeature = KmHelper.intersectLineFeatureCollectionByPolygonFeature(computationGeoresource, spatialUnitFeat);
     if(linesWithinFeature && linesWithinFeature.features && linesWithinFeature.features.length > 0){
-      var lineSegmentsLengthSum;
+      let lineSegmentsLengthSum;
       if (computationFilterProperty !== undefined) {
-        var filteredLineFeatures = [];
+        const filteredLineFeatures: any[] = [];
         linesWithinFeature.features.forEach(function (line) {
             let computationFilterPropertyValueArray;
             switch (computationFilterOperator) {

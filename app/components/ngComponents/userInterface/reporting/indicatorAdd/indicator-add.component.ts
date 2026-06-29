@@ -632,7 +632,7 @@ export class IndicatorAddComponent implements OnInit {
     // remove all area-specific pages hier
     this.reportingService.clonedTemplate.pages = this.reportingService.clonedTemplate.pages.filter(
       (page) => {
-        return !page.hasOwnProperty('area');
+        return !Object.prototype.hasOwnProperty.call(page, 'area');
       }
     );
     //this.untouchedTemplateAsString = JSON.parse(JSON.stringify(this.data.reportingConfig.template));
@@ -1545,8 +1545,8 @@ export class IndicatorAddComponent implements OnInit {
         const items: any[] = [];
         let index: number = 0;
         for (const item of selectedItems) {
-          if (item.hasOwnProperty('properties')) {
-            if (item.properties.hasOwnProperty('NAME')) {
+          if (Object.prototype.hasOwnProperty.call(item, 'properties')) {
+            if (Object.prototype.hasOwnProperty.call(item.properties, 'NAME')) {
               items.push({ name: item.properties.NAME, id: index });
               index++;
             }
@@ -1590,8 +1590,8 @@ export class IndicatorAddComponent implements OnInit {
         const items: any[] = [];
         let index: number = 0;
         for (const item of selectedItems) {
-          if (item.hasOwnProperty('properties')) {
-            if (item.properties.hasOwnProperty('NAME')) {
+          if (Object.prototype.hasOwnProperty.call(item, 'properties')) {
+            if (Object.prototype.hasOwnProperty.call(item.properties, 'NAME')) {
               items.push({ name: item.properties.NAME, id: index });
               index++;
             }
@@ -1731,9 +1731,9 @@ export class IndicatorAddComponent implements OnInit {
   async resetIsochrones() {
     this.isochrones = undefined;
     this.typeOfMovement = undefined;
-    ((this.isochronesRangeType = undefined),
-      (this.isochronesRangeUnits = undefined),
-      (this.isochronesSeriesData = undefined));
+    this.isochronesRangeType = undefined;
+    this.isochronesRangeUnits = undefined;
+    this.isochronesSeriesData = undefined;
     // TODO performance could be improved if we just iterate pages and update echarts
     if (this.diagramsPrepared) {
       await this.initializeAllDiagrams();
@@ -2480,7 +2480,7 @@ export class IndicatorAddComponent implements OnInit {
     let ranges: any[] = [];
     if (this.checkNestedPropExists(isochrones, 'info', 'query', 'profile')) {
       ranges = isochrones.info.query.ranges.split(',');
-    } else if (isochrones.hasOwnProperty('features')) {
+    } else if (Object.prototype.hasOwnProperty.call(isochrones, 'features')) {
       // for buffer
       for (const feature of isochrones.features) {
         if (this.checkNestedPropExists(feature, 'properties', 'value')) {
@@ -2792,11 +2792,11 @@ export class IndicatorAddComponent implements OnInit {
       series.top = 0;
       series.right = 0;
       series.bottom = 0;
-      ((series.boundingCoords = boundingCoords),
-        (series.projection = {
-          project: (point) => this.mercatorProjection_d3(point),
-          unproject: (point) => this.mercatorProjection_d3.invert(point),
-        }));
+      series.boundingCoords = boundingCoords;
+      series.projection = {
+        project: (point) => this.mercatorProjection_d3(point),
+        unproject: (point) => this.mercatorProjection_d3.invert(point),
+      };
     }
 
     echartsOptions.geo[0].top = 0;
@@ -4474,8 +4474,8 @@ export class IndicatorAddComponent implements OnInit {
 
   createLowerCaseNameProperty(features) {
     for (const feature of features) {
-      if (feature.hasOwnProperty('properties')) {
-        if (!feature.properties.hasOwnProperty('name')) {
+      if (Object.prototype.hasOwnProperty.call(feature, 'properties')) {
+        if (!Object.prototype.hasOwnProperty.call(feature.properties, 'name')) {
           const featureName = feature.properties.NAME;
           feature.properties.name = featureName;
         }
@@ -4782,7 +4782,7 @@ export class IndicatorAddComponent implements OnInit {
   // https://stackoverflow.com/a/2631198/18450475
   checkNestedPropExists(obj, level, ...rest) {
     if (obj === undefined) return false;
-    if (rest.length == 0 && obj.hasOwnProperty(level)) return true;
+    if (rest.length == 0 && Object.prototype.hasOwnProperty.call(obj, level)) return true;
     return this.checkNestedPropExists(obj[level], [...rest]);
   }
 

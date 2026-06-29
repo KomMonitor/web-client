@@ -250,7 +250,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (!this.kommonitorImporterHelperService?.getAvailableDatasourceTypes()?.length) {
       try {
         await this.kommonitorImporterHelperService.fetchResourcesFromImporter();
-      } catch {}
+      } catch {
+        // best-effort: ignore resource fetch errors
+      }
     }
 
     // Load available datasource types from the importer helper service
@@ -558,6 +560,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.periodOfValidityInvalid = !validation.isValid;
 
     if (!validation.isValid && validation.error) {
+      // no action required here
     }
   }
 

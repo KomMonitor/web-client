@@ -120,7 +120,6 @@ export class SingleFeatureEditComponent implements OnInit {
     this.featureEndDateValue = undefined;
     // [{property: name, value: value}]
     this.featureSchemaProperties = [];
-    this.schemaObject;
 
     this.validateSingleFeatureId();
   }
