@@ -1,14 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
+import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
+import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { ChartDisplayStateService } from 'services/chart-display-state-service/chart-display-state.service';
+import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { SelectionStateService } from 'services/selection-state-service/selection-state.service';
 import { VisualStyleHelperServiceNew } from 'services/visual-style-helper-service/visual-style-helper.service';
 import { colorbrewer } from './colors';
-import { BroadcastService } from 'services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ClassificationMethodSelectComponent } from 'components/ngComponents/common/classificationMethodSelect/classification-method-select.component';
-import { EnvConfigService } from 'services/env-config-service/env-config.service';
 
 @Component({
   selector: 'kommonitor-classification-component',
@@ -52,9 +52,11 @@ export class KommonitorClassificationComponent implements OnInit {
   private customColorSchemes = this.envConfigService.customColorSchemes;
 
   constructor() {
-    // Add custom color themes from configuration properties
+    // Add custom color themes from configuration properties.
+    // Merge them into the imported colorbrewer object (iterated in
+    // instantiateColorBrewerPalettes); custom schemes override built-ins.
     if (this.customColorSchemes) {
-      var colorbrewer = Object.assign(this.customColorSchemes, colorbrewer);
+      Object.assign(colorbrewer, this.customColorSchemes);
     }
   }
 
