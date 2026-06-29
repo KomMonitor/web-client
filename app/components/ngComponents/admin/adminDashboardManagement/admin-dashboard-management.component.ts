@@ -47,16 +47,19 @@ const PIE_LABEL = { position: 'inner' as const };
 
 /** Recursively collects all sub-topics from a topic tree. */
 function collectSubTopics(topics: any[]): any[] {
-  const result: any[] = [];
-  for (const topic of topics) {
-    if (topic.subTopics?.length) {
-      for (const sub of topic.subTopics) {
-        result.push(sub);
-        result.push(...collectSubTopics([sub]));
-      }
-    }
+  return topics.flatMap((topic) =>
+    (topic.subTopics ?? []).flatMap((sub: any) => [sub, ...collectSubTopics([sub])])
+  );
+}
+
+/** Counts items by a derived string key. */
+function countBy<T>(items: T[], keyOf: (item: T) => string): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const key = keyOf(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  return result;
+  return counts;
 }
 
 /** Builds a standard ECharts pie-chart option object. */
@@ -218,12 +221,7 @@ export class AdminDashboardManagementComponent implements OnInit {
   }
 
   private buildGeoresourcesPerTypeChart(): EChartsOption {
-    const countMap = new Map<string, number>();
-
-    for (const geo of this.georesourceStore.availableGeoresources ?? []) {
-      const type = georesourceTypeOf(geo);
-      countMap.set(type, (countMap.get(type) ?? 0) + 1);
-    }
+    const countMap = countBy(this.georesourceStore.availableGeoresources ?? [], georesourceTypeOf);
 
     const data: PieSeriesDataItem[] = ['POI', 'LOI', 'AOI']
       .filter((key) => countMap.has(key))
@@ -240,14 +238,12 @@ export class AdminDashboardManagementComponent implements OnInit {
   }
 
   private buildIndicatorsPerSpatialUnitChart(): EChartsOption {
-    const countMap = new Map<string, number>();
-
-    for (const indicator of this.indicatorStore.availableIndicators ?? []) {
-      for (const su of indicator.applicableSpatialUnits ?? []) {
-        const name: string = su.spatialUnitName;
-        countMap.set(name, (countMap.get(name) ?? 0) + 1);
-      }
-    }
+    const countMap = countBy(
+      (this.indicatorStore.availableIndicators ?? []).flatMap(
+        (indicator: any) => indicator.applicableSpatialUnits ?? []
+      ),
+      (su: any) => su.spatialUnitName
+    );
 
     const data: PieSeriesDataItem[] = (this.spatialUnitStore.availableSpatialUnits ?? [])
       .filter((su: any) => countMap.has(su.spatialUnitLevel))
