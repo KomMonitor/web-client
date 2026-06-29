@@ -12,7 +12,7 @@
   [ngStyle]="{ left: mousePosX, top: mousePosY }"
 >
   <h4>{{ indicatorData.data.indicatorName }}</h4>
-  @if (indicatorData.data.metadata?.description) {
+  @if (indicatorData.data.metadata.description) {
     <p [innerHTML]="indicatorData.data.metadata.description"></p>
   }
 

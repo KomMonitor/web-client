@@ -110,7 +110,7 @@
               </div>
             </div>
             <div>
-              @if (featureTableHelper?.featureTable_spatialUnit_lastUpdate_timestamp_success) {
+              @if (featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_success) {
                 <div class="timestamp-success">
                   <b>Letztes erfolgreiches Update eines Einzeleintrags</b>
                   {{
@@ -119,7 +119,7 @@
                   }}
                 </div>
               }
-              @if (featureTableHelper?.featureTable_spatialUnit_lastUpdate_timestamp_failure) {
+              @if (featureTableHelper.featureTable_spatialUnit_lastUpdate_timestamp_failure) {
                 <div class="timestamp-error">
                   <b>Letztes gescheitertes Update eines Einzeleintrags</b>
                   {{
@@ -715,7 +715,7 @@
                   >
                     <option value="" disabled>-- Datentyp wählen --</option>
                     @for (
-                      type of kommonitorImporterHelperService?.attributeMapping_attributeTypes;
+                      type of kommonitorImporterHelperService.attributeMapping_attributeTypes;
                       track type
                     ) {
                       <option [ngValue]="type">

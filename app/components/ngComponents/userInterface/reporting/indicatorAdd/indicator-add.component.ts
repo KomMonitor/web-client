@@ -24,7 +24,6 @@ import { ReachabilityHelperService } from 'services/reachbility-helper-service/r
 import { LeafletScreenshotCacheHelperService } from 'services/leaflet-screenshot-cache-helper-service/leaflet-screenshot-cache-helper.service';
 import * as d3 from 'd3';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { BaseMapFilter } from 'pipes/baseMap-filter.pipe';
 import {
   ConfigData,
   ReportingService,
@@ -48,7 +47,6 @@ import {
     FormsModule,
     ReactiveFormsModule,
     DualListBoxComponent,
-    BaseMapFilter,
     CustomSliderComponent,
   ],
 })

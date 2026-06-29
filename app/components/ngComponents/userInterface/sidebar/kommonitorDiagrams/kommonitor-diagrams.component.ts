@@ -12,7 +12,6 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { fromEvent, Observable, Subscription } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
-import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 
 @Component({
@@ -20,7 +19,7 @@ import { ExpandableBoxComponent } from 'components/ngComponents/common/expandabl
   templateUrl: './kommonitor-diagrams.component.html',
   styleUrls: ['./kommonitor-diagrams.component.scss'],
   standalone: true,
-  imports: [FormsModule, NgbCollapse, ExpandableBoxComponent],
+  imports: [FormsModule, ExpandableBoxComponent],
 })
 export class KommonitorDiagramsComponent implements OnInit {
   protected chartDisplayState = inject(ChartDisplayStateService);
