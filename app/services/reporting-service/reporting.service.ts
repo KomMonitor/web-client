@@ -85,6 +85,14 @@ export class ReportingService {
   importConfig!: ImportData | undefined;
   workflowStateOptions = WorkflowState;
 
+  reportingBackgroundState: {
+    pageToProcess_add: any;
+    pageToProcess_overview: any;
+  } = {
+    pageToProcess_add: undefined,
+    pageToProcess_overview: undefined,
+  };
+
   default: ReportingData = {
     workflowState: WorkflowState.workflowSelect,
     selectedTemplateId: 0,
