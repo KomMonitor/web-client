@@ -1,5 +1,5 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { EChartsOption, TooltipComponentOption } from 'echarts';
@@ -9,13 +9,7 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 import { SmallBoxComponent } from './small-box/small-box.component';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
-import {
-  MetadataBootstrapService,
-  MetadataLoadingState,
-} from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
-import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 import { GeoresourceMetadataStoreService } from '../../../../services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { IndicatorMetadataStoreService } from '../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { ProcessScriptMetadataStoreService } from '../../../../services/process-script-metadata-store-service/process-script-metadata-store.service';
@@ -107,10 +101,8 @@ const GEORESOURCE_TYPE_I18N: Record<string, string> = {
   providers: [provideEchartsCore({ echarts })],
   standalone: true,
 })
-export class AdminDashboardManagementComponent implements OnInit {
-  private broadcastService = inject(BroadcastService);
+export class AdminDashboardManagementComponent {
   private translateService = inject(TranslateService);
-  private metadataBootstrap = inject(MetadataBootstrapService);
   private processScriptStore = inject(ProcessScriptMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
   private topicHierarchyStore = inject(TopicHierarchyStoreService);
@@ -119,125 +111,58 @@ export class AdminDashboardManagementComponent implements OnInit {
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private accessControlService = inject(AccessControlService);
 
-  private readonly destroyRef = inject(DestroyRef);
+  // Tracks language switches so translation-dependent computeds re-run on change.
+  private langChange = toSignal(this.translateService.onLangChange);
 
-  loadingData = signal(true);
+  // All values below are derived directly from the signal-backed metadata stores: they
+  // re-render automatically when store data changes (admin CRUD) or the language switches —
+  // no manual refresh, broadcast subscription, or NgZone handling required.
 
-  organisationCount = signal('0');
-  topicCounts = signal('0/0');
-  topicsLabel = signal('');
-  indicatorCount = signal('');
-  georesourceCount = signal('');
-  spatialUnitCount = signal('');
-  indicatorScriptCount = signal('');
+  organisationCount = computed(() => String(this.accessControlService.accessControl?.length ?? 0));
+  indicatorCount = computed(() => String(this.indicatorStore.availableIndicators?.length ?? 0));
+  georesourceCount = computed(() =>
+    String(this.georesourceStore.availableGeoresources?.length ?? 0)
+  );
+  spatialUnitCount = computed(() =>
+    String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0)
+  );
+  indicatorScriptCount = computed(() =>
+    String(this.processScriptStore.availableProcessScripts?.length ?? 0)
+  );
 
-  indicatorsPerTopicChartOptions = signal<EChartsOption | null>(null);
-  georesourcesPerTypeChartOptions = signal<EChartsOption | null>(null);
-  indicatorsPerSpatialUnitChartOptions = signal<EChartsOption | null>(null);
+  private mainTopics = computed(() =>
+    (this.topicStore.availableTopics ?? []).filter((t: any) => t.topicType === 'main')
+  );
+  topicCounts = computed(() => {
+    const main = this.mainTopics();
+    return `${main.length}/${collectSubTopics(main).length}`;
+  });
+  topicsLabel = computed(() =>
+    [this.t('ADMIN_DASHBOARD.MAIN_TOPICS'), this.t('ADMIN_DASHBOARD.SUB_TOPICS')].join('/')
+  );
 
-  ngOnInit(): void {
-    this.metadataBootstrap.metadataLoading$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((state) => {
-        if (state === MetadataLoadingState.COMPLETE) {
-          this.refreshDashboard();
-        } else if (state === MetadataLoadingState.ERROR) {
-          this.loadingData.set(false);
-        }
-      });
-
-    // Refresh the diagrams after admin CRUD operations broadcast a change.
-    this.broadcastService.currentBroadcastMsg
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((msg) => {
-        if (msg.msg === BroadcastMessage.RefreshAdminDashboardDiagrams) {
-          this.refreshDashboard();
-        }
-      });
-
-    this.setupLanguageChangeListener();
-  }
-
-  private setupLanguageChangeListener(): void {
-    this.translateService.onLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refreshDashboard());
-  }
-
-  refreshDashboard(): void {
-    // Writing the signals below is enough to (re-)render: even though this runs
-    // downstream of awaited Keycloak/cache promises that may resolve outside the
-    // Angular zone, signal writes notify Angular's reactive scheduler, which
-    // schedules change detection itself — no NgZone / detectChanges() required.
-    try {
-      this.updateDisplayValues();
-      this.updateChartOptions();
-    } catch (error) {
-      console.error('Error refreshing dashboard:', error);
-    } finally {
-      this.loadingData.set(false);
-    }
-  }
-
-  private updateDisplayValues(): void {
-    this.organisationCount.set(String(this.accessControlService.accessControl?.length ?? 0));
-    this.indicatorCount.set(String(this.indicatorStore.availableIndicators?.length ?? 0));
-    this.georesourceCount.set(String(this.georesourceStore.availableGeoresources?.length ?? 0));
-    this.spatialUnitCount.set(String(this.spatialUnitStore.availableSpatialUnits?.length ?? 0));
-    this.indicatorScriptCount.set(
-      String(this.processScriptStore.availableProcessScripts?.length ?? 0)
-    );
-
-    const mainTopics = (this.topicStore.availableTopics ?? []).filter(
-      (t: any) => t.topicType === 'main'
-    );
-    const subTopics = collectSubTopics(mainTopics);
-
-    this.topicCounts.set(`${mainTopics.length}/${subTopics.length}`);
-    this.topicsLabel.set(
-      [
-        this.translateService.instant('ADMIN_DASHBOARD.MAIN_TOPICS'),
-        this.translateService.instant('ADMIN_DASHBOARD.SUB_TOPICS'),
-      ].join('/')
-    );
-  }
-
-  private updateChartOptions(): void {
-    this.indicatorsPerTopicChartOptions.set(this.buildIndicatorsPerTopicChart());
-    this.georesourcesPerTypeChartOptions.set(this.buildGeoresourcesPerTypeChart());
-    this.indicatorsPerSpatialUnitChartOptions.set(this.buildIndicatorsPerSpatialUnitChart());
-  }
-
-  private buildIndicatorsPerTopicChart(): EChartsOption {
+  indicatorsPerTopicChartOptions = computed<EChartsOption>(() => {
     const data: PieSeriesDataItem[] = (this.topicHierarchyStore.topicIndicatorHierarchy ?? [])
       .filter((t: any) => t.indicatorCount > 0)
       .map((t: any) => ({ name: t.topicName, value: t.indicatorCount }));
 
-    return buildPieChartOptions(
-      this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'),
-      data,
-      '#00a65b'
-    );
-  }
+    return buildPieChartOptions(this.t('ADMIN_DASHBOARD.INDICATORS_PER_TOPIC'), data, '#00a65b');
+  });
 
-  private buildGeoresourcesPerTypeChart(): EChartsOption {
+  georesourcesPerTypeChartOptions = computed<EChartsOption>(() => {
     const countMap = countBy(this.georesourceStore.availableGeoresources ?? [], georesourceTypeOf);
 
     const data: PieSeriesDataItem[] = ['POI', 'LOI', 'AOI']
       .filter((key) => countMap.has(key))
       .map((key) => ({
-        name: this.translateService.instant(GEORESOURCE_TYPE_I18N[key]),
+        name: this.t(GEORESOURCE_TYPE_I18N[key]),
         value: countMap.get(key)!,
       }));
 
-    return buildPieChartOptions(
-      this.translateService.instant('ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE'),
-      data,
-      '#ff851b'
-    );
-  }
+    return buildPieChartOptions(this.t('ADMIN_DASHBOARD.GEORESOURCES_PER_TYPE'), data, '#ff851b');
+  });
 
-  private buildIndicatorsPerSpatialUnitChart(): EChartsOption {
+  indicatorsPerSpatialUnitChartOptions = computed<EChartsOption>(() => {
     const countMap = countBy(
       (this.indicatorStore.availableIndicators ?? []).flatMap(
         (indicator: any) => indicator.applicableSpatialUnits ?? []
@@ -253,9 +178,15 @@ export class AdminDashboardManagementComponent implements OnInit {
       }));
 
     return buildPieChartOptions(
-      this.translateService.instant('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
+      this.t('ADMIN_DASHBOARD.INDICATORS_PER_SPATIAL_UNIT'),
       data,
       '#337ab7'
     );
+  });
+
+  /** Translate a key while tracking language changes so dependent computeds re-run on switch. */
+  private t(key: string): string {
+    this.langChange();
+    return this.translateService.instant(key);
   }
 }
