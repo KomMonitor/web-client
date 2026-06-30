@@ -10,7 +10,10 @@ import {
 } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import {
+  KommonitorDataExchangeService,
+  SpatialUnitMetadata,
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -61,7 +64,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   loadingData = false;
 
   // Current dataset being edited
-  currentSpatialUnitDataset: any = null;
+  currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
 
   // Basic form data
   spatialUnitFeaturesGeoJSON: any = null;
@@ -493,11 +496,12 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   clearAllSpatialUnitFeatures(): void {
-    if (!this.currentSpatialUnitDataset) return;
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) return;
 
     this.loadingData = true;
 
-    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
+    const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/allFeatures`;
 
     this.http.delete(url).subscribe({
       next: (_response: any) => {
@@ -505,7 +509,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         this.remainingFeatureHeaders = [];
         this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
           crudType: 'edit',
-          targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+          targetSpatialUnitId: dataset.spatialUnitId,
         });
 
         // Clear the grid data
@@ -518,7 +522,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
         }
 
         this.notificationService.showSuccess(
-          `Alle Features der Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" wurden gelöscht.`
+          `Alle Features der Raumebene "${dataset.spatialUnitLevel}" wurden gelöscht.`
         );
 
         setTimeout(() => {
@@ -759,6 +763,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   async editSpatialUnitFeatures(): Promise<void> {
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) return;
+
     this.loadingData = true;
     this.importerErrors = [];
 
@@ -894,7 +901,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
           this.converterDefinition,
           this.datasourceTypeDefinition,
           this.propertyMappingDefinition,
-          this.currentSpatialUnitDataset.spatialUnitId,
+          dataset.spatialUnitId,
           this.putBody_spatialUnits,
           true
         );
@@ -908,18 +915,18 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
           this.converterDefinition,
           this.datasourceTypeDefinition,
           this.propertyMappingDefinition,
-          this.currentSpatialUnitDataset.spatialUnitId,
+          dataset.spatialUnitId,
           this.putBody_spatialUnits,
           false
         );
 
         this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
           crudType: 'edit',
-          targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+          targetSpatialUnitId: dataset.spatialUnitId,
         });
         this.loadingData = false;
         this.notificationService.showSuccess(
-          `Die Features der Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" wurden aktualisiert.`
+          `Die Features der Raumebene "${dataset.spatialUnitLevel}" wurden aktualisiert.`
         );
         this.activeModal.close({ action: 'updated' });
       } else {

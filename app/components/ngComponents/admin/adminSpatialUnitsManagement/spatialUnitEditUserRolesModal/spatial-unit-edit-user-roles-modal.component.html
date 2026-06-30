@@ -76,15 +76,17 @@
               </div>
               <div class="col-md-3">
                 <label>Öffentliche Lesefreigabe*</label>
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="currentSpatialUnitDataset.isPublic"
-                    name="isPublic"
-                    [ngModelOptions]="{ standalone: true }"
-                  />
-                  <span class="switchslider round"></span>
-                </label>
+                @if (currentSpatialUnitDataset; as dataset) {
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      [(ngModel)]="dataset.isPublic"
+                      name="isPublic"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    <span class="switchslider round"></span>
+                  </label>
+                }
                 <div class="help-block">
                   <p>Öffentlich freigegebene Datensätze können ohne Login abgerufen werden.</p>
                 </div>

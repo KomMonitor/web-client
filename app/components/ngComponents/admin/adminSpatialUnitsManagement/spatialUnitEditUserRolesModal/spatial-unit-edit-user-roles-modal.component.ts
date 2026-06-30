@@ -12,7 +12,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import {
+  KommonitorDataExchangeService,
+  SpatialUnitMetadata,
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { GridOptions, GridReadyEvent, ColDef } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -38,13 +41,13 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
   @ViewChild('progressbar', { static: true }) progressBar!: ElementRef;
 
-  private _currentSpatialUnitDataset: any = null;
+  private _currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
 
-  get currentSpatialUnitDataset(): any {
+  get currentSpatialUnitDataset(): SpatialUnitMetadata | null {
     return this._currentSpatialUnitDataset;
   }
 
-  set currentSpatialUnitDataset(value: any) {
+  set currentSpatialUnitDataset(value: SpatialUnitMetadata | null) {
     this._currentSpatialUnitDataset = value;
     if (value) {
       // resetForm() already schedules the role-management table refresh, so we
@@ -362,6 +365,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
   }
 
   async editSpatialUnitUserRoles(): Promise<void> {
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) return;
+
     const ownershipChanging = this.isOwnershipChanging();
     if (ownershipChanging) {
       const confirmMessage =
@@ -388,15 +394,17 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
     }
 
     this.notificationService.showSuccess(
-      `Zugriffsrechte für Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" wurden aktualisiert.`
+      `Zugriffsrechte für Raumebene "${dataset.spatialUnitLevel}" wurden aktualisiert.`
     );
     this.activeModal.close({
       action: 'updated',
-      spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+      spatialUnitId: dataset.spatialUnitId,
     });
   }
 
   private async putUserRoles(): Promise<boolean> {
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) return false;
     try {
       this.loadingData = true;
 
@@ -404,12 +412,12 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
         permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
           this.roleManagementTableOptions
         ),
-        isPublic: this.currentSpatialUnitDataset.isPublic,
+        isPublic: dataset.isPublic,
       };
 
       await this.http
         .put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/permissions`,
+          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/permissions`,
           putBody,
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -417,7 +425,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
       this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
         crudType: 'edit',
-        targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+        targetSpatialUnitId: dataset.spatialUnitId,
       });
       // Persist latest selection locally so the grid reflects changes on refresh
       this.permissions = putBody.permissions;
@@ -438,16 +446,18 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
   }
 
   private async putOwnership(): Promise<boolean> {
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) return false;
     try {
       this.loadingData = true;
 
       const putBody = {
-        ownerId: this.ownerOrganization || this.currentSpatialUnitDataset.ownerId,
+        ownerId: this.ownerOrganization || dataset.ownerId,
       };
 
       await this.http
         .put(
-          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/ownership`,
+          `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${dataset.spatialUnitId}/ownership`,
           putBody,
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -455,7 +465,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
       this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
         crudType: 'edit',
-        targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+        targetSpatialUnitId: dataset.spatialUnitId,
       });
       return true;
     } catch (error: any) {
@@ -480,7 +490,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
   isOwnershipChanging(): boolean {
     return !!(
-      this.ownerOrganization && this.ownerOrganization !== this.currentSpatialUnitDataset.ownerId
+      this.ownerOrganization && this.ownerOrganization !== this.currentSpatialUnitDataset?.ownerId
     );
   }
 

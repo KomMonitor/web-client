@@ -3,7 +3,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import {
+  KommonitorDataExchangeService,
+  SpatialUnitMetadata,
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
@@ -47,7 +50,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   loadingData = false;
 
   // Current dataset being edited
-  currentSpatialUnitDataset: any = null;
+  currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
 
   // Basic form data
   spatialUnitLevel = '';
@@ -163,13 +166,14 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Remove custom click outside and escape key handlers since ng-bootstrap handles this
 
   resetForm() {
-    if (!this.currentSpatialUnitDataset) return;
+    const dataset = this.currentSpatialUnitDataset;
+    if (!dataset) return;
 
-    this.spatialUnitLevel = this.currentSpatialUnitDataset.spatialUnitLevel;
+    this.spatialUnitLevel = dataset.spatialUnitLevel;
     this.spatialUnitLevelInvalid = false;
 
     // Reset metadata with null checks
-    const metadata = this.currentSpatialUnitDataset.metadata || {};
+    const metadata = dataset.metadata || {};
     this.metadata = {
       note: metadata.note || '',
       literature: metadata.literature || '',
@@ -203,25 +207,25 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
     this.nextUpperHierarchySpatialUnit = null;
 
     this.availableSpatialUnits.forEach((spatialUnit) => {
-      if (spatialUnit.spatialUnitLevel === this.currentSpatialUnitDataset.nextLowerHierarchyLevel) {
+      if (spatialUnit.spatialUnitLevel === dataset.nextLowerHierarchyLevel) {
         this.nextLowerHierarchySpatialUnit = spatialUnit;
       }
-      if (spatialUnit.spatialUnitLevel === this.currentSpatialUnitDataset.nextUpperHierarchyLevel) {
+      if (spatialUnit.spatialUnitLevel === dataset.nextUpperHierarchyLevel) {
         this.nextUpperHierarchySpatialUnit = spatialUnit;
       }
     });
 
     // Set outline layer settings - FIXED: Properly initialize outline layer properties
-    this.isOutlineLayer = this.currentSpatialUnitDataset.isOutlineLayer || false;
-    this.outlineColor = this.currentSpatialUnitDataset.outlineColor || '#bf3d2c';
-    this.outlineWidth = this.currentSpatialUnitDataset.outlineWidth || 2;
+    this.isOutlineLayer = dataset.isOutlineLayer || false;
+    this.outlineColor = dataset.outlineColor || '#bf3d2c';
+    this.outlineWidth = dataset.outlineWidth || 2;
 
     // Set dash array
     this.selectedOutlineDashArrayObject = null;
     this.selectedoutlineDashArrayObject = null;
     if (this.availableLoiDashArrayObjects && this.availableLoiDashArrayObjects.length > 0) {
       this.availableLoiDashArrayObjects.forEach((option) => {
-        if (option.dashArrayValue === this.currentSpatialUnitDataset.outlineDashArrayString) {
+        if (option.dashArrayValue === dataset.outlineDashArrayString) {
           this.selectedOutlineDashArrayObject = {
             label: option.label,
             dashArrayValue: option.dashArrayValue,
@@ -255,11 +259,12 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   }
 
   checkSpatialUnitName() {
+    const dataset = this.currentSpatialUnitDataset;
     this.spatialUnitLevelInvalid = false;
     this.availableSpatialUnits.forEach((spatialUnit) => {
       if (
         spatialUnit.spatialUnitLevel === this.spatialUnitLevel &&
-        spatialUnit.spatialUnitId !== this.currentSpatialUnitDataset.spatialUnitId
+        spatialUnit.spatialUnitId !== dataset?.spatialUnitId
       ) {
         this.spatialUnitLevelInvalid = true;
         return;

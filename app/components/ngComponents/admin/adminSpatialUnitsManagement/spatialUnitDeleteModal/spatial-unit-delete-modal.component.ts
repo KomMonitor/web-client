@@ -3,7 +3,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
+import {
+  KommonitorDataExchangeService,
+  SpatialUnitMetadata,
+} from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
@@ -23,11 +26,11 @@ export class SpatialUnitDeleteModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
 
-  @Input() datasetsToDelete: any[] = [];
+  @Input() datasetsToDelete: SpatialUnitMetadata[] = [];
 
   loadingData = false;
 
-  successfullyDeletedDatasets: any[] = [];
+  successfullyDeletedDatasets: SpatialUnitMetadata[] = [];
   failedDatasetsAndErrors: any[] = [];
 
   ngOnInit(): void {
