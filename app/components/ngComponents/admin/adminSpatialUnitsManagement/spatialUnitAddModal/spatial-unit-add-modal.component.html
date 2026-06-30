@@ -1191,58 +1191,17 @@
   <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
 </div>
 
-<!-- Success Alert -->
-@if (successMessagePart) {
-  <div
-    id="spatialUnitAddSucessAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-success alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4><i class="icon fa fa-check"></i>Raumebene registriert</h4>
-    <p>
-      Eine neue Raumebene mit Namen {{ successMessagePart }} wurde in KomMonitor registriert und in
-      die Übersichtstabelle eingetragen.
-    </p>
-    @if (importedFeatures && importedFeatures.length > 0) {
-      <div>{{ importedFeatures.length }} Raumeinheiten wurden dabei importiert.</div>
-    }
-  </div>
-}
-
-<!-- Error Alert -->
-@if (errorMessagePart) {
-  <div
-    id="spatialUnitAddErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-    Bei der Registrierung der Raumebene ist ein Fehler aufgetreten. Fehlermeldung:
-    <br />
-    <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-    <br />
-    <br />
-    @if (importerErrors) {
-      <div>
-        <p>
-          Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:
-        </p>
-        <pre style="overflow: auto; max-height: 500px">
-                  <ul>
-                    @for (error of importerErrors; track error) {
-                      <li>{{error}}</li>
-                    }
-                  </ul>
-                </pre>
-        <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
-      </div>
-    }
+<!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
+@if (importerErrors.length > 0) {
+  <div id="spatialUnitAddImporterErrors" class="alert alert-danger">
+    <h4><i class="icon fa fa-ban"></i>Import gescheitert</h4>
+    <p>Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <ul style="overflow: auto; max-height: 500px">
+      @for (error of importerErrors; track error) {
+        <li>{{ error }}</li>
+      }
+    </ul>
+    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
   </div>
 }
 

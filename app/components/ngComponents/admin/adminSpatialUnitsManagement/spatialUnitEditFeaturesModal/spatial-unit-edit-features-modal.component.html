@@ -823,56 +823,17 @@
   </button>
 </div>
 
-<!-- Success Alert -->
-@if (successMessage) {
-  <div
-    id="spatialUnitEditFeaturesSuccessAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-success alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4><i class="icon fa fa-check"></i>Erfolg!</h4>
-    {{ successMessage }}
-    @if (successMessagePart) {
-      <div>
-        <p>Raumebene: {{ successMessagePart }}</p>
-      </div>
-    }
-  </div>
-}
-
-<!-- Error Alert -->
-@if (errorMessage || errorMessagePart) {
-  <div
-    id="spatialUnitEditFeaturesErrorAlert"
-    style="position: absolute; bottom: 0px; width: 100%"
-    class="alert alert-danger alert-dismissable"
-  >
-    <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">
-      &times;
-    </button>
-    <h4><i class="icon fa fa-ban"></i>Fehler!</h4>
-    {{ errorMessage }}
-    <br />
-    <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-    <br />
-    @if (importerErrors && importerErrors.length > 0) {
-      <div>
-        <p>
-          Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:
-        </p>
-        <pre style="overflow: auto; max-height: 500px">
-              <ul>
-                @for (error of importerErrors; track error) {
-                  <li>{{error}}</li>
-                }
-              </ul>
-            </pre>
-        <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
-      </div>
-    }
+<!-- Importer errors: affected feature IDs (modal stays open on import failure) -->
+@if (importerErrors.length > 0) {
+  <div id="spatialUnitEditFeaturesImporterErrors" class="alert alert-danger">
+    <h4><i class="icon fa fa-ban"></i>Import gescheitert</h4>
+    <p>Bei den {{ importerErrors.length }} Raumeinheiten mit folgenden IDs scheitert der Import:</p>
+    <ul style="overflow: auto; max-height: 500px">
+      @for (error of importerErrors; track error) {
+        <li>{{ error }}</li>
+      }
+    </ul>
+    <p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
   </div>
 }
 

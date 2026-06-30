@@ -16,6 +16,7 @@ import {
 } from '../../../customElements/line-pattern-picker/km-line-pattern-picker.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 
@@ -42,6 +43,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
@@ -57,8 +59,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   // Form data
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
   loadingData = false;
 
   // Basic form data
@@ -154,9 +154,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   spatialUnitMetadataImportError = '';
   spatialUnitMappingConfigImportError = '';
 
-  // Success/Error data
-  successMessagePart = '';
-  errorMessagePart = '';
+  // Import result data
   importerErrors: any[] = [];
   importedFeatures: any[] = [];
 
@@ -721,12 +719,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
       return result;
     } catch (error: any) {
-      if (error.data) {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-      } else {
-        this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
-
+      this.notificationService.showError(
+        'Fehler beim Aufbau der Datenquellen-Definition: ' + this.getErrorMessage(error)
+      );
       this.loadingData = false;
       return null;
     }
@@ -830,8 +825,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   async addSpatialUnit() {
     this.loadingData = true;
     this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
 
     const allDataSpecified = await this.buildImporterObjects();
 
@@ -882,7 +875,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
             this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
           }, 500);
 
-          this.successMessagePart = this.postBody_spatialUnits.spatialUnitLevel;
           const importedFeatures =
             this.kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(
               newSpatialUnitResponse
@@ -890,27 +882,26 @@ export class SpatialUnitAddModalComponent implements OnInit {
           this.importedFeatures = importedFeatures || [];
 
           this.loadingData = false;
+          const featureCount = this.importedFeatures.length;
+          this.notificationService.showSuccess(
+            `Eine neue Raumebene mit Namen "${this.postBody_spatialUnits.spatialUnitLevel}" wurde registriert` +
+              (featureCount > 0 ? ` (${featureCount} Raumeinheiten importiert).` : '.')
+          );
+          this.activeModal.close({ action: 'added' });
         } else {
-          // errors occurred
-          // show them
-          this.errorMessagePart =
-            'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf';
+          // Dry-run reported import errors: keep the modal open and list the
+          // affected feature IDs inline; summarise via a toast.
           const errors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newSpatialUnitResponse_dryRun
           );
           this.importerErrors = errors || [];
 
           this.loadingData = false;
+          this.notificationService.showError(
+            'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
+          );
         }
       } catch (error: any) {
-        if (error.data) {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(
-            error.data
-          );
-        } else {
-          this.errorMessagePart = this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-        }
-
         if (newSpatialUnitResponse_dryRun) {
           const errors = this.kommonitorImporterHelperService.getErrorsFromImporterResponse(
             newSpatialUnitResponse_dryRun
@@ -919,6 +910,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
         }
 
         this.loadingData = false;
+        this.notificationService.showError(
+          'Fehler bei der Registrierung der Raumebene: ' + this.getErrorMessage(error)
+        );
       }
     }
   }
@@ -1396,8 +1390,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.attributeMappings_adminView = [];
     this.keepAttributes = true;
     this.keepMissingValues = true;
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
     this.importerErrors = [];
     this.importedFeatures = [];
     this.converterDefinition = null;
@@ -1437,16 +1429,19 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     this.attributeMapping_attributeType = attributeMappingTypes[0];
-    this.errorMessagePart = '';
-    this.successMessagePart = '';
   }
 
-  hideSuccessAlert() {
-    this.successMessagePart = '';
-  }
-
-  hideErrorAlert() {
-    this.errorMessagePart = '';
+  private getErrorMessage(error: any): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+    if (typeof error?.error?.message === 'string') {
+      return error.error.message;
+    }
+    if (typeof error?.message === 'string') {
+      return error.message;
+    }
+    return 'Unbekannter Fehler';
   }
 
   hideMetadataErrorAlert() {

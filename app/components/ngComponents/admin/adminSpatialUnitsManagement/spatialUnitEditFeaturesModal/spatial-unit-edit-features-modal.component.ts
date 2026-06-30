@@ -25,6 +25,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 declare const __env: any;
 
@@ -42,6 +43,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false })
@@ -55,8 +57,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   // Form data
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
   loadingData = false;
 
   // Current dataset being edited
@@ -113,10 +113,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   // Partial update
   isPartialUpdate = false;
 
-  // Error handling
+  // Import result data
   importerErrors: any[] = [];
-  successMessagePart = '';
-  errorMessagePart = '';
 
   // Available options
   availableDatasourceTypes: any[] = [];
@@ -399,12 +397,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.enableDeleteFeatures = false;
     this.fileSelected = false;
     this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
-
-    // Hide alerts
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
   }
 
   onChangeConverter(_schema?: any): void {
@@ -460,8 +452,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
 
     this.loadingData = true;
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
 
     const url = `${this.kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource()}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
 
@@ -514,8 +504,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     if (!this.currentSpatialUnitDataset) return;
 
     this.loadingData = true;
-    this.hideSuccessAlert();
-    this.hideErrorAlert();
 
     const url = `${this.kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI}/spatial-units/${this.currentSpatialUnitDataset.spatialUnitId}/allFeatures`;
 
@@ -537,8 +525,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           this.gridApi.setRowData([]);
         }
 
-        this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-        this.showSuccessAlert();
+        this.notificationService.showSuccess(
+          `Alle Features der Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" wurden gelöscht.`
+        );
 
         setTimeout(() => {
           this.loadingData = false;
@@ -780,8 +769,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   async editSpatialUnitFeatures(): Promise<void> {
     this.loadingData = true;
     this.importerErrors = [];
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
 
     // Pre-validate like legacy component (show precise issues)
     const missing: string[] = [];
@@ -896,16 +883,16 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
     if (missing.length > 0) {
       this.loadingData = false;
-      this.errorMessage = `Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: ${missing.join(', ')}.`;
-      this.showErrorAlert();
+      this.notificationService.showError(
+        `Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus. Fehlend: ${missing.join(', ')}.`
+      );
       return;
     }
 
     const allDataSpecified = await this.buildImporterObjects();
     if (!allDataSpecified) {
       this.loadingData = false;
-      this.errorMessage = 'Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.';
-      this.showErrorAlert();
+      this.notificationService.showError('Bitte füllen Sie alle Pflichtfelder in Schritt 2 aus.');
       return;
     }
 
@@ -934,22 +921,26 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
           false
         );
 
-        this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
         this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
           crudType: 'edit',
           targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
         });
-        this.showSuccessAlert();
         this.loadingData = false;
+        this.notificationService.showSuccess(
+          `Die Features der Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" wurden aktualisiert.`
+        );
+        this.activeModal.close({ action: 'updated' });
       } else {
-        this.errorMessagePart =
-          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf';
+        // Dry-run reported import errors: keep the modal open and list the
+        // affected feature IDs inline; summarise via a toast.
         this.importerErrors =
           this.kommonitorImporterHelperService?.getErrorsFromImporterResponse(
             updateSpatialUnitResponse_dryRun
           ) || [];
-        this.showErrorAlert();
         this.loadingData = false;
+        this.notificationService.showError(
+          'Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.'
+        );
       }
     } catch (error) {
       this.handleError(error);
@@ -1307,25 +1298,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     // This method can be used for additional component-specific logic if needed
   }
 
-  // Alert methods
-  showSuccessAlert(): void {
-    this.successMessage = 'Operation completed successfully';
-    setTimeout(() => this.hideSuccessAlert(), 5000);
-  }
-
-  hideSuccessAlert(): void {
-    this.successMessage = '';
-  }
-
-  showErrorAlert(): void {
-    setTimeout(() => this.hideErrorAlert(), 10000);
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessage = '';
-    this.errorMessagePart = '';
-  }
-
   showMappingConfigErrorAlert(): void {
     setTimeout(() => this.hideMappingConfigErrorAlert(), 10000);
   }
@@ -1334,15 +1306,23 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     this.spatialUnitMappingConfigImportError = '';
   }
 
-  private handleError(error: any): void {
-    if (error.data) {
-      this.errorMessagePart =
-        this.kommonitorDataExchangeService?.syntaxHighlightJSON(error.data) || 'An error occurred';
-    } else {
-      this.errorMessagePart =
-        this.kommonitorDataExchangeService?.syntaxHighlightJSON(error) || 'An error occurred';
+  private getErrorMessage(error: any): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
     }
-    this.showErrorAlert();
+    if (typeof error?.error?.message === 'string') {
+      return error.error.message;
+    }
+    if (typeof error?.message === 'string') {
+      return error.message;
+    }
+    return 'Unbekannter Fehler';
+  }
+
+  private handleError(error: any): void {
+    this.notificationService.showError(
+      'Ein Fehler ist aufgetreten: ' + this.getErrorMessage(error)
+    );
   }
 
   // Modal control methods
