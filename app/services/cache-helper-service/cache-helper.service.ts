@@ -207,6 +207,22 @@ export class CacheHelperServiceService {
     );
   }
 
+  /**
+   * Drop the cached topics metadata so the next fetch hits the server. Needed after a topics
+   * CRUD operation, since the timestamp-based cache is otherwise only invalidated at startup
+   * and would keep serving the pre-mutation list.
+   */
+  invalidateTopicsCache(): void {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(this.localStorageKey_topics)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+  }
+
   async fetchSpatialUnitsMetadata(keycloakRolesArray) {
     return await this.fetchResource_fromCacheOrServer(
       this.localStorageKey_spatialUnits,

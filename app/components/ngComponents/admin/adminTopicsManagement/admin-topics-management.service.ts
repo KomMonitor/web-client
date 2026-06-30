@@ -2,10 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { Topic, TopicOrderMode, TopicResourceType } from './topic.model';
 import { HttpClient } from '@angular/common/http';
 import { map, tap, throwError, timeout } from 'rxjs';
-import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
-import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
 import { MetadataBootstrapService } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
+import { CacheHelperServiceService } from 'services/cache-helper-service/cache-helper.service';
 import { AccessControlService } from '../../../../services/access-control-service/access-control.service';
 
 export interface TopicOrderResponseEntry {
@@ -16,10 +15,10 @@ export interface TopicOrderResponseEntry {
   providedIn: 'root',
 })
 export class AdminTopicsManagementService {
-  private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private envConfigService = inject(EnvConfigService);
   private metadataBootstrap = inject(MetadataBootstrapService);
+  private cacheHelper = inject(CacheHelperServiceService);
   private accessControlService = inject(AccessControlService);
 
   addTopic(
@@ -161,12 +160,12 @@ export class AdminTopicsManagementService {
   }
 
   private reloadTopics() {
+    // Drop the cached topics metadata first; otherwise the timestamp-based cache keeps serving
+    // the pre-mutation list. The topic views then refresh reactively from the signal-backed
+    // TopicMetadataStoreService that this fetch updates, so no broadcast notification is needed.
+    this.cacheHelper.invalidateTopicsCache();
     this.metadataBootstrap
       .fetchTopicsMetadata(this.accessControlService.currentKeycloakLoginRoles)
-      .then(() => {
-        this.broadcastService.broadcast(BroadcastMessage.RefreshTopicsOverview);
-        this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
-      })
       .catch((error) => console.error('Failed to reload topics metadata:', error));
   }
 }
