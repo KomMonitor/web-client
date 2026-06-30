@@ -20,7 +20,8 @@
             "index": "app/index.html",
             "browser": "app/main.ts",
             "polyfills": [
-              "zone.js"
+              "zone.js",
+              "@angular/localize/init"
             ],
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [

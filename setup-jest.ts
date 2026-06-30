@@ -3,6 +3,10 @@
 // We must NOT call it again here (double init → "Cannot set base providers").
 // This file only adds polyfills / global stubs on top.
 
+// Define the global $localize used at runtime by ng-bootstrap components (e.g. ngb-toast),
+// matching the @angular/localize/init polyfill registered in angular.json for the app build.
+import "@angular/localize/init";
+
 // Polyfill HTMLCanvasElement.getContext (jsdom has none). Needed by Leaflet,
 // ECharts and other canvas-based libs that components/services touch on init.
 import "jest-canvas-mock";
