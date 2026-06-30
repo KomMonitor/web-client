@@ -8,7 +8,7 @@ import { KommonitorImporterHelperService } from '../../../../../services/adminSp
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { KommonitorDataExchangeService } from '../../../../../services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridApi, ColumnApi } from 'ag-grid-community';
+import { ColDef, GridOptions, GridApi } from 'ag-grid-community';
 
 import { KmColorPickerComponent } from '../../../customElements/color-picker/km-color-picker.component';
 import {
@@ -144,7 +144,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   roleManagementDefaultColDef: ColDef = {};
   roleManagementGridOptions: GridOptions = {};
   roleManagementGridApi: GridApi | null = null;
-  roleManagementColumnApi: ColumnApi | null = null;
   ownerOrganization = '';
   ownerOrgFilter = '';
   isPublic = false;
@@ -187,7 +186,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Grid ready event handler
   onRoleManagementGridReady(params: any) {
     this.roleManagementGridApi = params.api;
-    this.roleManagementColumnApi = params.columnApi;
 
     // Update the service with the grid API so it can be used for getSelectedRoleIds
     this.roleManagementHelper.setGridApi(params.api);
@@ -213,7 +211,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private roleManagementHeaderHeightSetter(): void {
     if (this.roleManagementGridApi) {
       const headerHeight = this.roleManagementHeaderHeightGetter();
-      this.roleManagementGridApi.setHeaderHeight(headerHeight);
+      this.roleManagementGridApi.setGridOption('headerHeight', headerHeight);
     }
   }
 
@@ -469,13 +467,9 @@ export class SpatialUnitAddModalComponent implements OnInit {
       // Build grid configuration (this will use the components from roleManagementTableOptions)
       this.buildRoleManagementGridConfig();
 
-      // If grid is already initialized, update the data and grid options
+      // The [rowData]/[columnDefs] bindings already pushed the reassigned fields
+      // to the grid; just force a re-render of the checkbox cell renderers.
       if (this.roleManagementGridApi) {
-        // Update data
-        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
-        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
-
-        // Refresh the grid to ensure it updates
         setTimeout(() => {
           if (this.roleManagementGridApi) {
             this.roleManagementGridApi.refreshCells();

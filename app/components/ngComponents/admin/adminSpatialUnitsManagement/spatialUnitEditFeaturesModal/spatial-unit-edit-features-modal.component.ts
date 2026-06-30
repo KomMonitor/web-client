@@ -20,7 +20,6 @@ import {
   ColDef,
   GridOptions,
   GridApi,
-  ColumnApi,
   GridReadyEvent,
   FirstDataRenderedEvent,
   ColumnResizedEvent,
@@ -143,7 +142,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // Grid options for feature table
   featureTableGridOptions: GridOptions = {};
   private gridApi!: GridApi;
-  private columnApi!: ColumnApi;
 
   // AG Grid inputs (align with parent component pattern)
   public columnDefs: ColDef[] = [];
@@ -327,7 +325,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       enableCellChangeFlash: true,
       onGridReady: (params: any) => {
         this.gridApi = params.api;
-        this.columnApi = params.columnApi;
       },
       onFirstDataRendered: () => {
         this.headerHeightSetter();
@@ -512,14 +509,10 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
           targetSpatialUnitId: dataset.spatialUnitId,
         });
 
-        // Clear the grid data
+        // Clear the grid data; buildFeatureTable() reassigns the bound rowData/columnDefs.
         this.spatialUnitFeaturesGeoJSON = null;
         this.remainingFeatureHeaders = [];
         this.buildFeatureTable();
-
-        if (this.gridApi) {
-          this.gridApi.setRowData([]);
-        }
 
         this.notificationService.showSuccess(
           `Alle Features der Raumebene "${dataset.spatialUnitLevel}" wurden gelöscht.`
@@ -1136,19 +1129,15 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     // Rebuild the grid with updated delete settings
     this.buildFeatureTable();
 
-    // Update grid column definitions and data if API is available
+    // buildFeatureTable() reassigned the bound columnDefs/rowData; just update the
+    // row data for the new delete settings and force a re-render.
     if (this.gridApi && this.columnDefs?.length) {
-      // Update column definitions
-      this.gridApi.setColumnDefs(this.columnDefs);
-
       // Update data if we have features
       if (this.spatialUnitFeaturesGeoJSON?.features) {
         // Use service method to transform data for grid display
-        const transformedData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
+        this.rowData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
           this.spatialUnitFeaturesGeoJSON.features
         );
-        this.rowData = transformedData;
-        this.gridApi.setRowData(this.rowData);
       }
 
       // Force refresh of the grid to show/hide delete buttons
@@ -1197,7 +1186,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // AG Grid event handlers
   onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
-    this.columnApi = event.columnApi;
 
     // Force refresh grid configuration after a short delay
     setTimeout(() => {
@@ -1226,7 +1214,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   private headerHeightSetter(): void {
     if (this.gridApi) {
       const headerHeight = this.headerHeightGetter();
-      this.gridApi.setHeaderHeight(headerHeight);
+      this.gridApi.setGridOption('headerHeight', headerHeight);
     }
   }
 
@@ -1263,18 +1251,11 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
       return;
     }
 
-    // Update column definitions
-    if (this.columnDefs?.length) {
-      this.gridApi.setColumnDefs(this.columnDefs);
-    }
-
-    // Transform and set data
-    const transformedData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
+    // Transform and set data; the bound columnDefs/rowData (reassigned in
+    // buildFeatureTable / here) are pushed to the grid by Angular.
+    this.rowData = this.kommonitorDataExchangeService.transformFeaturesForGrid(
       this.spatialUnitFeaturesGeoJSON?.features || []
     );
-
-    this.rowData = transformedData;
-    this.gridApi.setRowData(this.rowData);
     this.gridApi.refreshCells();
     this.gridApi.redrawRows();
 

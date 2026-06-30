@@ -299,13 +299,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
       // Build grid configuration (this will use the components from roleManagementTableOptions)
       this.buildRoleManagementGridConfig();
 
-      // If grid is already initialized, update the data and grid options
+      // The [rowData]/[columnDefs] bindings already pushed the reassigned fields
+      // to the grid; just force a re-render of the checkbox cell renderers.
       if (this.roleManagementGridApi && !this.roleManagementGridApi.isDestroyed()) {
-        // Update data
-        this.roleManagementGridApi.setRowData(this.roleManagementRowData);
-        this.roleManagementGridApi.setColumnDefs(this.roleManagementColumnDefs);
-
-        // Refresh the grid to ensure it updates
         setTimeout(() => {
           if (this.roleManagementGridApi && !this.roleManagementGridApi.isDestroyed()) {
             this.roleManagementGridApi.refreshCells();
