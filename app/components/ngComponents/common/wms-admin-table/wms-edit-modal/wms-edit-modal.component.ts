@@ -15,12 +15,16 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/adminTopicsManagement/admin-topics-management.component';
 
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-wms-edit-modal',
   templateUrl: './wms-edit-modal.component.html',
   styleUrls: ['./wms-edit-modal.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent],
+  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, StepperComponent],
   standalone: true,
 })
 export class WmsEditModalComponent {
@@ -35,6 +39,11 @@ export class WmsEditModalComponent {
 
   totalSteps: number = 3;
   currentStep: number = 1;
+  steps: StepperStep[] = [
+    { label: 'Metadaten' },
+    { label: 'Anfrageparameter' },
+    { label: 'Themenhierarchie' },
+  ];
 
   isSubmitting = false;
   errorMessage = false;

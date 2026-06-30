@@ -19,12 +19,22 @@ import { AdminTopicsManagementComponent } from 'components/ngComponents/admin/ad
 import { AgGridAngular } from 'ag-grid-angular';
 
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-wms-add-modal',
   templateUrl: './wms-add-modal.component.html',
   styleUrls: ['./wms-add-modal.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AdminTopicsManagementComponent, AgGridAngular],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    AdminTopicsManagementComponent,
+    AgGridAngular,
+    StepperComponent,
+  ],
   standalone: true,
 })
 export class WmsAddModalComponent implements OnInit {
@@ -39,6 +49,12 @@ export class WmsAddModalComponent implements OnInit {
 
   totalSteps: number = 4;
   currentStep: number = 1;
+  steps: StepperStep[] = [
+    { label: 'Metadaten' },
+    { label: 'Anfrageparameter' },
+    { label: 'Themenhierarchie' },
+    { label: 'Zugriffsschutz und Eigentümerschaft' },
+  ];
 
   isSubmitting = false;
   errorMessage = false;

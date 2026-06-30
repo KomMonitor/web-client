@@ -15,6 +15,10 @@ import {
 } from 'ag-grid-community';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 declare const __env: any;
 
@@ -22,13 +26,12 @@ declare const __env: any;
   selector: 'app-georesource-edit-user-roles-modal',
   templateUrl: './georesource-edit-user-roles-modal.component.html',
   styleUrls: ['./georesource-edit-user-roles-modal.component.scss'],
-  imports: [FormsModule, AgGridAngular],
+  imports: [FormsModule, AgGridAngular, StepperComponent],
   standalone: true,
 })
 export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject<any>('kommonitorDataExchangeService' as any);
-  kommonitorMultiStepFormHelperService = inject<any>('kommonitorMultiStepFormHelperService' as any);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
@@ -38,6 +41,7 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
   // Multi-step form
   currentStep = 1;
   totalSteps = 2;
+  steps: StepperStep[] = [{ label: 'Zugriffsschutz' }, { label: 'Eigentümerschaft' }];
 
   // Form data
   loadingData = false;
@@ -57,7 +61,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     if (value) {
       setTimeout(() => {
         this.resetGeoresourceEditUserRolesForm();
-        this.kommonitorMultiStepFormHelperService.registerClickHandler();
       }, 100);
     }
   }
@@ -119,7 +122,6 @@ export class GeoresourceEditUserRolesModalComponent implements OnInit, OnDestroy
     this.currentGeoresourceDataset = georesourceDataset;
     this.prepareCreatorList();
     this.resetGeoresourceEditUserRolesForm();
-    this.kommonitorMultiStepFormHelperService?.registerClickHandler('georesourceEditUserRolesForm');
   }
 
   prepareCreatorList(): void {

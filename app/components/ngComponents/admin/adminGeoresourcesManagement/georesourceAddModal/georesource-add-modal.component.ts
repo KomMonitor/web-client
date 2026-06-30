@@ -25,12 +25,16 @@ import { EnvConfigService } from 'services/env-config-service/env-config.service
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { TopicHierarchyService } from 'services/topic-hierarchy-service/topic-hierarchy.service';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-georesource-add-modal',
   templateUrl: './georesource-add-modal.component.html',
   styleUrls: ['./georesource-add-modal.component.scss'],
-  imports: [FormsModule, AdminTopicsManagementComponent],
+  imports: [FormsModule, AdminTopicsManagementComponent, StepperComponent],
   standalone: true,
 })
 export class GeoresourceAddModalComponent implements OnInit {
@@ -57,6 +61,28 @@ export class GeoresourceAddModalComponent implements OnInit {
   // Multi-step form
   currentStep = 1;
   totalSteps = 4; // Will be adjusted based on security settings
+
+  // Stepper labels — the security step is only present when Keycloak is enabled,
+  // mirroring the conditional fieldsets below. References are stable so the
+  // stepper only re-evaluates when the security flag actually changes.
+  private readonly stepsWithSecurity: StepperStep[] = [
+    { label: 'Metadaten der Georessource' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+    { label: 'Zugriffsschutz und Eigentümerschaft' },
+    { label: 'Räumlicher Datensatz' },
+  ];
+  private readonly stepsWithoutSecurity: StepperStep[] = [
+    { label: 'Metadaten der Georessource' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+    { label: 'Räumlicher Datensatz' },
+  ];
+  get steps(): StepperStep[] {
+    return this.envConfigService.enableKeycloakSecurity
+      ? this.stepsWithSecurity
+      : this.stepsWithoutSecurity;
+  }
 
   // Form data
   isSubmitting = false;

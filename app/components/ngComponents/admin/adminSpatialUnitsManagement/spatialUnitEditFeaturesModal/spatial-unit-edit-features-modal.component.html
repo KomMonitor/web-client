@@ -24,28 +24,8 @@
         class="multiStepForm form-group"
         style="margin-bottom: 0px"
       >
-        <!-- div required for click logic -->
-        <div>
-          <!-- progressbar -->
-          <ul id="progressbar">
-            <li
-              [class.active]="currentStep >= 1"
-              [class.clickable]="true"
-              (click)="goToStep(1)"
-              style="width: 50%; cursor: pointer"
-            >
-              Raumeinheit Übersicht
-            </li>
-            <li
-              [class.active]="currentStep >= 2"
-              [class.clickable]="true"
-              (click)="goToStep(2)"
-              style="width: 50%; cursor: pointer"
-            >
-              Räumlicher Datensatz
-            </li>
-          </ul>
-        </div>
+        <!-- progressbar -->
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         <!-- Step 1: Spatial Unit Overview -->
         @if (currentStep === 1) {

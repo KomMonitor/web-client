@@ -26,16 +26,7 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <div>
-          <ul id="progressbar">
-            <li style="width: 50%" [class.active]="currentStep === 1" (click)="goToStep(1)">
-              Zugriffsschutz
-            </li>
-            <li style="width: 50%" [class.active]="currentStep === 2" (click)="goToStep(2)">
-              Eigentuümerschaft
-            </li>
-          </ul>
-        </div>
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
         <!-- fieldsets -->
 
         @if (kommonitorDataExchangeService.enableKeycloakSecurity) {

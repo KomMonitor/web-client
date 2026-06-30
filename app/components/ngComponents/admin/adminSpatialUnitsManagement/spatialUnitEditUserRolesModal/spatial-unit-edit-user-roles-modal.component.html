@@ -27,26 +27,7 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <div>
-          <ul id="progressbar">
-            <li
-              [class.active]="currentStep >= 1"
-              [class.clickable]="true"
-              (click)="goToStep(1)"
-              style="width: 50%; cursor: pointer"
-            >
-              Zugriffsschutz
-            </li>
-            <li
-              [class.active]="currentStep >= 2"
-              [class.clickable]="true"
-              (click)="goToStep(2)"
-              style="width: 50%; cursor: pointer"
-            >
-              Eigentümerschaft
-            </li>
-          </ul>
-        </div>
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
         <!-- fieldsets -->
 
         @if (currentStep === 1) {

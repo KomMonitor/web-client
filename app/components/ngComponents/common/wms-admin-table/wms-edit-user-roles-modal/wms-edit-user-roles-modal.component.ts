@@ -11,12 +11,16 @@ import { OgcService } from 'services/ogcServices/ogc.service';
 import { AgGridAngular } from 'ag-grid-angular';
 
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-wms-edit-user-roles-modal',
   templateUrl: './wms-edit-user-roles-modal.component.html',
   styleUrls: ['./wms-edit-user-roles-modal.component.scss'],
-  imports: [AgGridAngular, FormsModule],
+  imports: [AgGridAngular, FormsModule, StepperComponent],
   standalone: true,
 })
 export class WmsEditUserRolesModalComponent {
@@ -30,6 +34,7 @@ export class WmsEditUserRolesModalComponent {
 
   totalSteps: number = 2;
   currentStep: number = 1;
+  steps: StepperStep[] = [{ label: 'Zugriffsschutz' }, { label: 'Eigentümerschaft' }];
 
   isSubmitting = false;
   errorMessage = false;

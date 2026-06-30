@@ -28,7 +28,10 @@ import { IndicatorValueService } from 'services/indicator-value-service/indicato
 import { SpatialUnitMetadataStoreService } from 'services/spatial-unit-metadata-store-service/spatial-unit-metadata-store.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 declare const __env: any;
 
@@ -36,7 +39,7 @@ declare const __env: any;
   selector: 'app-georesource-edit-features-modal',
   templateUrl: './georesource-edit-features-modal.component.html',
   styleUrls: ['./georesource-edit-features-modal.component.scss'],
-  imports: [AgGridAngular, FormsModule, SingleFeatureEditComponent],
+  imports: [AgGridAngular, FormsModule, SingleFeatureEditComponent, StepperComponent],
   standalone: true,
 })
 export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy {
@@ -46,7 +49,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   private spatialUnitStore = inject(SpatialUnitMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
-  private multiStepHelperService = inject(MultiStepHelperServiceService);
   private envConfigService = inject(EnvConfigService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
@@ -59,6 +61,11 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   loadingData = false;
   private _currentGeoresourceDataset: any;
   currentStep = 1;
+  steps: StepperStep[] = [
+    { label: 'Feature Übersicht' },
+    { label: 'Import einzelner Features' },
+    { label: 'Import mehrerer Features' },
+  ];
 
   get currentGeoresourceDataset(): any {
     return this._currentGeoresourceDataset;
@@ -240,8 +247,6 @@ export class GeoresourceEditFeaturesModalComponent implements OnInit, OnDestroy 
   }
 
   onEditGeoresourceFeatures(georesourceDataset: any): void {
-    this.multiStepHelperService.registerClickHandler(undefined);
-
     if (
       this.currentGeoresourceDataset &&
       this.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName

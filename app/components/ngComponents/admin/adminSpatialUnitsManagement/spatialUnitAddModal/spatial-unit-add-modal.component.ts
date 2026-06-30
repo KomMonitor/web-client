@@ -20,6 +20,10 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 // Removed in favor of standalone km-date-picker component providers
 
@@ -33,6 +37,7 @@ import { KmDatePickerComponent } from '../../../customElements/date-picker/km-da
     KmLinePatternPickerComponent,
     AgGridAngular,
     KmDatePickerComponent,
+    StepperComponent,
   ],
   standalone: true,
 })
@@ -58,6 +63,26 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Multi-step form
   currentStep = 1;
   totalSteps = 3; // Will be adjusted based on security settings
+
+  // Stepper labels — the security step is only present when Keycloak is enabled,
+  // mirroring the conditional fieldsets below. References are stable so the
+  // stepper only re-evaluates when the security flag actually changes.
+  private readonly stepsWithSecurity: StepperStep[] = [
+    { label: 'Metadaten der Raumebene' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Zugriffsschutz und Eigentümerschaft' },
+    { label: 'Räumlicher Datensatz' },
+  ];
+  private readonly stepsWithoutSecurity: StepperStep[] = [
+    { label: 'Metadaten der Raumebene' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Räumlicher Datensatz' },
+  ];
+  get steps(): StepperStep[] {
+    return this.kommonitorDataExchangeService.enableKeycloakSecurity
+      ? this.stepsWithSecurity
+      : this.stepsWithoutSecurity;
+  }
 
   // Form data
   isSubmitting = false;

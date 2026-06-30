@@ -30,19 +30,7 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <div>
-          <ul id="progressbar">
-            <li style="width: 33.33%" [class.active]="currentStep >= 1" (click)="goToStep(1)">
-              Zugriffsschutz Indikator-Metadaten
-            </li>
-            <li style="width: 33.33%" [class.active]="currentStep >= 2" (click)="goToStep(2)">
-              Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit
-            </li>
-            <li style="width: 33.33%" [class.active]="currentStep >= 3" (click)="goToStep(3)">
-              Eigentümerschaft
-            </li>
-          </ul>
-        </div>
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         <!-- Step 1: Zugriffsschutz Indikator-Metadaten -->
         @if (currentStep === 1) {

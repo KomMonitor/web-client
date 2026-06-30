@@ -22,75 +22,7 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        @if (envConfigService.enableKeycloakSecurity) {
-          <div>
-            <ul id="progressbar">
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 1"
-                [class.current]="currentStep === 1"
-                (click)="goToStep(1)"
-                style="cursor: pointer"
-              >
-                Metadaten des Indikators
-              </li>
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 2"
-                [class.current]="currentStep === 2"
-                (click)="goToStep(2)"
-                style="cursor: pointer"
-              >
-                Allgemeine Metadaten
-              </li>
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 3"
-                [class.current]="currentStep === 3"
-                (click)="goToStep(3)"
-                style="cursor: pointer"
-              >
-                Themenhierarchie
-              </li>
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 4"
-                [class.current]="currentStep === 4"
-                (click)="goToStep(4)"
-                style="cursor: pointer"
-              >
-                Referenzen zu Indikatoren/Georessourcen
-              </li>
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 5"
-                [class.current]="currentStep === 5"
-                (click)="goToStep(5)"
-                style="cursor: pointer"
-              >
-                Klassifizierungsoptionen
-              </li>
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 6"
-                [class.current]="currentStep === 6"
-                (click)="goToStep(6)"
-                style="cursor: pointer"
-              >
-                regionale Vergleichswerte
-              </li>
-              <li
-                [style.width.%]="14.28"
-                [class.active]="currentStep >= 7"
-                [class.current]="currentStep === 7"
-                (click)="goToStep(7)"
-                style="cursor: pointer"
-              >
-                Zugriffsschutz und Eigentümerschaft
-              </li>
-            </ul>
-          </div>
-        }
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         <!-- Step 1: Basic Indicator Metadata -->
         @if (currentStep === 1) {

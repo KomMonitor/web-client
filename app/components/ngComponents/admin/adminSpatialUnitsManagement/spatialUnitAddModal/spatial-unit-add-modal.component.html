@@ -20,70 +20,7 @@
     style="margin-bottom: 0px"
   >
     <!-- progressbar -->
-    @if (!kommonitorDataExchangeService.enableKeycloakSecurity) {
-      <ul id="progressbar">
-        <li
-          [class.active]="currentStep >= 1"
-          [class.clickable]="true"
-          (click)="goToStep(1)"
-          style="width: 33.33%; cursor: pointer"
-        >
-          Metadaten der Raumebene
-        </li>
-        <li
-          [class.active]="currentStep >= 2"
-          [class.clickable]="true"
-          (click)="goToStep(2)"
-          style="width: 33.33%; cursor: pointer"
-        >
-          Allgemeine Metadaten
-        </li>
-        <li
-          [class.active]="currentStep >= 3"
-          [class.clickable]="true"
-          (click)="goToStep(3)"
-          style="width: 33.33%; cursor: pointer"
-        >
-          Räumlicher Datensatz
-        </li>
-      </ul>
-    }
-    @if (kommonitorDataExchangeService.enableKeycloakSecurity) {
-      <ul id="progressbar">
-        <li
-          [class.active]="currentStep >= 1"
-          [class.clickable]="true"
-          (click)="goToStep(1)"
-          style="width: 25%; cursor: pointer"
-        >
-          Metadaten der Raumebene
-        </li>
-        <li
-          [class.active]="currentStep >= 2"
-          [class.clickable]="true"
-          (click)="goToStep(2)"
-          style="width: 25%; cursor: pointer"
-        >
-          Allgemeine Metadaten
-        </li>
-        <li
-          [class.active]="currentStep >= 3"
-          [class.clickable]="true"
-          (click)="goToStep(3)"
-          style="width: 25%; cursor: pointer"
-        >
-          Zugriffsschutz und Eigentümerschaft
-        </li>
-        <li
-          [class.active]="currentStep >= 4"
-          [class.clickable]="true"
-          (click)="goToStep(4)"
-          style="width: 25%; cursor: pointer"
-        >
-          Räumlicher Datensatz
-        </li>
-      </ul>
-    }
+    <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
     <!-- Step 1: Metadaten der Raumebene -->
     @if (currentStep === 1) {

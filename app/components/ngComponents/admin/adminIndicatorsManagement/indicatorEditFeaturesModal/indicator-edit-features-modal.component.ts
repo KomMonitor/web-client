@@ -21,9 +21,12 @@ import { SpatialUnitMetadataStoreService } from '../../../../../services/spatial
 import { IndicatorMetadataStoreService } from '../../../../../services/indicator-metadata-store-service/indicator-metadata-store.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { FeatureTableDataGridHelperService } from '../../../../../services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
-import { MultiStepHelperServiceService } from '../../../../../services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from '../../../../../services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { NotificationService } from '../../../common/notification/notification.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 declare const $: any;
 
@@ -31,7 +34,7 @@ declare const $: any;
   selector: 'app-indicator-edit-features-modal',
   templateUrl: './indicator-edit-features-modal.component.html',
   styleUrls: ['./indicator-edit-features-modal.component.scss'],
-  imports: [FormsModule, FilterPipe, AgGridAngular],
+  imports: [FormsModule, FilterPipe, AgGridAngular, StepperComponent],
   standalone: true,
 })
 export class IndicatorEditFeaturesModalComponent implements OnInit {
@@ -46,7 +49,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   importerHelperService = inject(KommonitorImporterHelperService);
   featureTableHelper = inject(FeatureTableDataGridHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private multiStepHelperService = inject(MultiStepHelperServiceService);
   protected envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
 
@@ -100,6 +102,7 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
   // Multi-step form
   currentStep: number = 1;
   totalSteps: number = 2;
+  steps: StepperStep[] = [{ label: 'Zeitreihen Übersicht' }, { label: 'Räumlicher Datensatz' }];
 
   ngOnInit(): void {
     this.setupEventListeners();
@@ -155,9 +158,6 @@ export class IndicatorEditFeaturesModalComponent implements OnInit {
         [],
         []
       );
-
-    // Register multi-step form handlers
-    this.multiStepHelperService.registerClickHandler('indicatorEditFeaturesForm');
   }
 
   closeModal(): void {

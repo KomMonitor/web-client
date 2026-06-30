@@ -33,26 +33,7 @@
         (ngSubmit)="onSubmit()"
       >
         <!-- progressbar -->
-        <div>
-          <ul id="progressbar">
-            <li
-              [class.active]="currentStep >= 1"
-              [class.clickable]="true"
-              (click)="goToStep(1)"
-              style="width: 50%; cursor: pointer"
-            >
-              Metadaten der Raumebene
-            </li>
-            <li
-              [class.active]="currentStep >= 2"
-              [class.clickable]="true"
-              (click)="goToStep(2)"
-              style="width: 50%; cursor: pointer"
-            >
-              Allgemeine Metadaten
-            </li>
-          </ul>
-        </div>
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         @if (currentStep === 1) {
           <fieldset>

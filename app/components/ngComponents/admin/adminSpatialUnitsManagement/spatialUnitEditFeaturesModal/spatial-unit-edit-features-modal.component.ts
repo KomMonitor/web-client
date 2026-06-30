@@ -28,6 +28,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { KmDatePickerComponent } from '../../../customElements/date-picker/km-date-picker.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 declare const __env: any;
 
@@ -35,7 +39,7 @@ declare const __env: any;
   selector: 'app-spatial-unit-edit-features-modal',
   templateUrl: './spatial-unit-edit-features-modal.component.html',
   styleUrls: ['./spatial-unit-edit-features-modal.component.scss'],
-  imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent],
+  imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent, StepperComponent],
   standalone: true,
 })
 export class SpatialUnitEditFeaturesModalComponent implements OnInit {
@@ -57,6 +61,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   // Multi-step form
   currentStep = 1;
   totalSteps = 2;
+  steps: StepperStep[] = [{ label: 'Raumeinheit Übersicht' }, { label: 'Räumlicher Datensatz' }];
 
   // Form data
   isSubmitting = false;

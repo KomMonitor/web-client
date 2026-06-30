@@ -26,34 +26,7 @@
         style="margin-bottom: 0px"
       >
         <!-- progressbar -->
-        <div>
-          <ul id="progressbar">
-            <li
-              style="width: 33.3%"
-              [class.active]="currentStep >= 1"
-              [class.clickable]="true"
-              (click)="goToStep(1)"
-            >
-              Metadaten
-            </li>
-            <li
-              style="width: 33.3%"
-              [class.active]="currentStep >= 2"
-              [class.clickable]="true"
-              (click)="goToStep(2)"
-            >
-              Anfrageparameter
-            </li>
-            <li
-              style="width: 33.3%"
-              [class.active]="currentStep >= 3"
-              [class.clickable]="true"
-              (click)="goToStep(3)"
-            >
-              Themenhierarchie
-            </li>
-          </ul>
-        </div>
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         <!-- fieldsets -->
         @if (currentStep === 1) {

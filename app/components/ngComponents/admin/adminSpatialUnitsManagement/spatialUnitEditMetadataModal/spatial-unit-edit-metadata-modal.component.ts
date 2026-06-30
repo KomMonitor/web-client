@@ -18,6 +18,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 // Remove jQuery declaration - no longer needed
 // declare var $: any;
@@ -27,7 +31,13 @@ import { NotificationService } from 'components/ngComponents/common/notification
   templateUrl: './spatial-unit-edit-metadata-modal.component.html',
   styleUrls: ['./spatial-unit-edit-metadata-modal.component.scss'],
   providers: [],
-  imports: [FormsModule, CommonModule, KmColorPickerComponent, KmLinePatternPickerComponent],
+  imports: [
+    FormsModule,
+    CommonModule,
+    KmColorPickerComponent,
+    KmLinePatternPickerComponent,
+    StepperComponent,
+  ],
   standalone: true,
 })
 export class SpatialUnitEditMetadataModalComponent implements OnInit {
@@ -44,6 +54,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit {
   // Multi-step form
   currentStep = 1;
   totalSteps = 2;
+  steps: StepperStep[] = [{ label: 'Metadaten der Raumebene' }, { label: 'Allgemeine Metadaten' }];
 
   // Form data
   isSubmitting = false;

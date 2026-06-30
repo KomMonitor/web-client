@@ -8,11 +8,14 @@ import { AccessControlService } from 'services/access-control-service/access-con
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { GeoresourceMetadataStoreService } from 'services/georesource-metadata-store-service/georesource-metadata-store.service';
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { FormsModule } from '@angular/forms';
 
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 import { TopicHierarchyService } from '../../../../../services/topic-hierarchy-service/topic-hierarchy.service';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
 import { DATE_PICKER_OPTIONS } from 'util/date-picker.constants';
@@ -25,7 +28,7 @@ import {
   selector: 'app-georesource-edit-metadata-modal',
   templateUrl: './georesource-edit-metadata-modal.component.html',
   styleUrls: ['./georesource-edit-metadata-modal.component.scss'],
-  imports: [FormsModule, AdminTopicsManagementComponent],
+  imports: [FormsModule, AdminTopicsManagementComponent, StepperComponent],
   standalone: true,
 })
 export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy {
@@ -34,7 +37,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   private indicatorValueService = inject(IndicatorValueService);
   private georesourceStore = inject(GeoresourceMetadataStoreService);
   private topicStore = inject(TopicMetadataStoreService);
-  kommonitorMultiStepFormHelperService = inject(MultiStepHelperServiceService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
   private topicHierarchyService = inject(TopicHierarchyService);
@@ -47,6 +49,11 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
   loadingData = false;
   currentGeoresourceDataset: any;
   currentStep = 1;
+  steps: StepperStep[] = [
+    { label: 'Metadaten der Georessource' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+  ];
 
   // Form data
   datasetName: string = '';
@@ -174,7 +181,6 @@ export class GeoresourceEditMetadataModalComponent implements OnInit, OnDestroy 
       if (data.msg === BroadcastMessage.OnEditGeoresourceMetadata) {
         this.currentGeoresourceDataset = data.georesourceDataset;
         this.resetGeoresourceEditMetadataForm();
-        this.kommonitorMultiStepFormHelperService.registerClickHandler(undefined);
       }
     });
     this.subscriptions.push(editSub);

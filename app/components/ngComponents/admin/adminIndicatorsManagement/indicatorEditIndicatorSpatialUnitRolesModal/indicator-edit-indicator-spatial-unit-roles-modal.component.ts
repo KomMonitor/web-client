@@ -5,19 +5,22 @@ import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { AccessControlService } from 'services/access-control-service/access-control.service';
 import { IndicatorValueService } from 'services/indicator-value-service/indicator-value.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { EnvConfigService } from 'services/env-config-service/env-config.service';
 import { HttpClient } from '@angular/common/http';
 
 import { FormsModule } from '@angular/forms';
 import { FilterPipe } from '../../../../../pipes/filter.pipe';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-indicator-edit-indicator-spatial-unit-roles-modal',
   templateUrl: './indicator-edit-indicator-spatial-unit-roles-modal.component.html',
   styleUrls: ['./indicator-edit-indicator-spatial-unit-roles-modal.component.scss'],
-  imports: [FormsModule, FilterPipe],
+  imports: [FormsModule, FilterPipe, StepperComponent],
   standalone: true,
 })
 export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnInit {
@@ -47,6 +50,11 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   // Multi-step form
   currentStep: number = 1;
   totalSteps: number = 3;
+  steps: StepperStep[] = [
+    { label: 'Zugriffsschutz Indikator-Metadaten' },
+    { label: 'Zugriffsschutz Indikator-Zeitreihe pro Raumeinheit' },
+    { label: 'Eigentümerschaft' },
+  ];
 
   activeModal = inject(NgbActiveModal);
   private broadcastService = inject(BroadcastService);
@@ -54,7 +62,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
   protected accessControlService = inject(AccessControlService);
   private indicatorValueService = inject(IndicatorValueService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private multiStepHelperService = inject(MultiStepHelperServiceService);
   private envConfigService = inject(EnvConfigService);
   private notificationService = inject(NotificationService);
 
@@ -81,9 +88,6 @@ export class IndicatorEditIndicatorSpatialUnitRolesModalComponent implements OnI
     this.currentIndicatorDataset = indicatorDataset;
     this.prepareCreatorList();
     this.resetIndicatorEditIndicatorSpatialUnitRolesForm();
-
-    // Register the multi-step form handler
-    this.multiStepHelperService.registerClickHandler('indicatorEditIndicatorSpatialUnitRolesForm');
   }
 
   closeModal(): void {

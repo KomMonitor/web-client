@@ -11,19 +11,28 @@ import { IndicatorMetadataStoreService } from 'services/indicator-metadata-store
 import { TopicMetadataStoreService } from 'services/topic-metadata-store-service/topic-metadata-store.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
 
-import { MultiStepHelperServiceService } from 'services/multi-step-helper-service/multi-step-helper-service.service';
 import { RoleManagementDataGridHelperService } from 'services/role-management-data-grid-helper-service/role-management-data-grid-helper.service';
 import { ConfigStorageService } from 'services/config-storage-service/config-storage.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminTopicsManagementComponent } from '../../adminTopicsManagement/admin-topics-management.component';
 import { EnvConfigService } from '../../../../../services/env-config-service/env-config.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-indicator-add-modal',
   templateUrl: './indicator-add-modal.component.html',
   styleUrls: ['./indicator-add-modal.component.scss'],
-  imports: [CommonModule, FormsModule, AdminTopicsManagementComponent, NgbCollapseModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    AdminTopicsManagementComponent,
+    NgbCollapseModule,
+    StepperComponent,
+  ],
   standalone: true,
 })
 export class IndicatorAddModalComponent implements OnInit {
@@ -36,7 +45,6 @@ export class IndicatorAddModalComponent implements OnInit {
   private topicStore = inject(TopicMetadataStoreService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
   private roleManagementHelper = inject(RoleManagementDataGridHelperService);
-  private kommonitorMultiStepFormHelperService = inject(MultiStepHelperServiceService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private kommonitorConfigStorageService = inject(ConfigStorageService);
@@ -48,6 +56,32 @@ export class IndicatorAddModalComponent implements OnInit {
   // Multi-step form
   currentStep = 1;
   totalSteps = 7; // Will be adjusted based on security settings
+
+  // Stepper labels — the security step is only present when Keycloak is enabled,
+  // mirroring the conditional fieldset below. References are stable so the
+  // stepper only re-evaluates when the security flag actually changes.
+  private readonly stepsWithSecurity: StepperStep[] = [
+    { label: 'Metadaten des Indikators' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+    { label: 'Referenzen zu Indikatoren/Georessourcen' },
+    { label: 'Klassifizierungsoptionen' },
+    { label: 'regionale Vergleichswerte' },
+    { label: 'Zugriffsschutz und Eigentümerschaft' },
+  ];
+  private readonly stepsWithoutSecurity: StepperStep[] = [
+    { label: 'Metadaten des Indikators' },
+    { label: 'Allgemeine Metadaten' },
+    { label: 'Themenhierarchie' },
+    { label: 'Referenzen zu Indikatoren/Georessourcen' },
+    { label: 'Klassifizierungsoptionen' },
+    { label: 'regionale Vergleichswerte' },
+  ];
+  get steps(): StepperStep[] {
+    return this.envConfigService.enableKeycloakSecurity
+      ? this.stepsWithSecurity
+      : this.stepsWithoutSecurity;
+  }
 
   // Form data
   isSubmitting = false;

@@ -1,12 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  inject,
-  DestroyRef,
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -22,12 +14,16 @@ import { AgGridAngular } from 'ag-grid-angular';
 
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
+import {
+  StepperComponent,
+  StepperStep,
+} from 'components/ngComponents/common/stepper/stepper.component';
 
 @Component({
   selector: 'app-spatial-unit-edit-user-roles-modal',
   templateUrl: './spatial-unit-edit-user-roles-modal.component.html',
   styleUrls: ['./spatial-unit-edit-user-roles-modal.component.scss'],
-  imports: [AgGridAngular, FormsModule],
+  imports: [AgGridAngular, FormsModule, StepperComponent],
   standalone: true,
 })
 export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterViewInit {
@@ -38,8 +34,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
-
-  @ViewChild('progressbar', { static: true }) progressBar!: ElementRef;
 
   private _currentSpatialUnitDataset: SpatialUnitMetadata | null = null;
 
@@ -73,6 +67,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
   loadingData: boolean = false;
   currentStep: number = 1;
   totalSteps: number = 2;
+  steps: StepperStep[] = [{ label: 'Zugriffsschutz' }, { label: 'Eigentümerschaft' }];
 
   ngOnInit(): void {
     this.prepareCreatorList();
@@ -81,7 +76,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
   }
 
   ngAfterViewInit(): void {
-    this.updateProgressBar();
     // Initialize grid if data is already available
     if (this.currentSpatialUnitDataset) {
       setTimeout(() => {
@@ -323,40 +317,23 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterView
 
     this.ownerOrgFilter = '';
     this.currentStep = 1;
-    this.updateProgressBar();
   }
 
   nextStep(): void {
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
-      this.updateProgressBar();
     }
   }
 
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
-      this.updateProgressBar();
     }
   }
 
   goToStep(step: number): void {
     if (step >= 1 && step <= this.totalSteps) {
       this.currentStep = step;
-      this.updateProgressBar();
-    }
-  }
-
-  private updateProgressBar(): void {
-    if (this.progressBar && this.progressBar.nativeElement) {
-      const steps = this.progressBar.nativeElement.querySelectorAll('li');
-      steps.forEach((step: any, index: number) => {
-        if (index < this.currentStep) {
-          step.classList.add('active');
-        } else {
-          step.classList.remove('active');
-        }
-      });
     }
   }
 

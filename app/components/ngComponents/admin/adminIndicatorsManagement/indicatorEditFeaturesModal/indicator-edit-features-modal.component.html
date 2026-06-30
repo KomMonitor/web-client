@@ -28,16 +28,7 @@
         style="margin-bottom: 0px"
       >
         <!-- Progress bar -->
-        <div>
-          <ul id="progressbar">
-            <li style="width: 50%" [class.active]="currentStep >= 1" (click)="goToStep(1)">
-              Zeitreihen Übersicht
-            </li>
-            <li style="width: 50%" [class.active]="currentStep >= 2" (click)="goToStep(2)">
-              Räumlicher Datensatz
-            </li>
-          </ul>
-        </div>
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         <!-- Step 1: Zeitreihen Übersicht -->
         @if (currentStep === 1) {

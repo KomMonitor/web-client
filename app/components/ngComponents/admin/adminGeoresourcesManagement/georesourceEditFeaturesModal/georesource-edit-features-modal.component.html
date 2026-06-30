@@ -29,36 +29,8 @@
         data-disable="true"
         style="margin-bottom: 0px"
       >
-        <!-- div required for click logic -->
-        <div>
-          <!-- progressbar -->
-          <ul id="progressbar">
-            <li
-              style="width: 33.33%"
-              [class.active]="currentStep === 1"
-              (click)="goToStep(1)"
-              style="cursor: pointer"
-            >
-              Feature Übersicht
-            </li>
-            <li
-              style="width: 33.33%"
-              [class.active]="currentStep === 2"
-              (click)="goToStep(2)"
-              style="cursor: pointer"
-            >
-              Import einzelner Features
-            </li>
-            <li
-              style="width: 33.33%"
-              [class.active]="currentStep === 3"
-              (click)="goToStep(3)"
-              style="cursor: pointer"
-            >
-              Import mehrerer Features
-            </li>
-          </ul>
-        </div>
+        <!-- progressbar -->
+        <app-stepper [steps]="steps" [(currentStep)]="currentStep"></app-stepper>
 
         <!-- fieldsets -->
         <fieldset [style.display]="currentStep === 1 ? 'block' : 'none'">
