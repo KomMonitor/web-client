@@ -25,8 +25,19 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
-import { getErrorMessage, toIsoDateString } from '../spatial-unit-import.util';
-import type { AttributeMappingRow, Converter, DatasourceType } from '../spatial-unit-import.model';
+import {
+  addOrUpdateAttributeMapping,
+  getErrorMessage,
+  removeAttributeMapping,
+  toIsoDateString,
+} from '../spatial-unit-import.util';
+import type {
+  AttributeMappingRow,
+  Converter,
+  DatasourceType,
+  ImporterObjectsConfig,
+} from '../spatial-unit-import.model';
+import { SpatialUnitImportService } from 'services/spatial-unit-import-service/spatial-unit-import.service';
 
 declare const __env: any;
 
@@ -46,6 +57,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
+  private spatialUnitImportService = inject(SpatialUnitImportService);
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false })
@@ -569,25 +581,14 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   onAddOrUpdateAttributeMapping(): void {
-    const tmpAttributeMapping = {
-      sourceName: this.attributeMapping_sourceAttributeName,
-      destinationName: this.attributeMapping_destinationAttributeName,
-      dataType: this.attributeMapping_attributeType,
-    };
-
-    let processed = false;
-    for (let index = 0; index < this.attributeMappings_adminView.length; index++) {
-      const attributeMappingEntry = this.attributeMappings_adminView[index];
-      if (attributeMappingEntry.sourceName === tmpAttributeMapping.sourceName) {
-        this.attributeMappings_adminView[index] = tmpAttributeMapping;
-        processed = true;
-        break;
+    this.attributeMappings_adminView = addOrUpdateAttributeMapping(
+      this.attributeMappings_adminView,
+      {
+        sourceName: this.attributeMapping_sourceAttributeName,
+        destinationName: this.attributeMapping_destinationAttributeName,
+        dataType: this.attributeMapping_attributeType,
       }
-    }
-
-    if (!processed) {
-      this.attributeMappings_adminView.push(tmpAttributeMapping);
-    }
+    );
 
     this.attributeMapping_sourceAttributeName = '';
     this.attributeMapping_destinationAttributeName = '';
@@ -602,100 +603,73 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   onClickDeleteAttributeMapping(attributeMappingEntry: any): void {
-    for (let index = 0; index < this.attributeMappings_adminView.length; index++) {
-      if (this.attributeMappings_adminView[index].sourceName === attributeMappingEntry.sourceName) {
-        this.attributeMappings_adminView.splice(index, 1);
-        break;
+    this.attributeMappings_adminView = removeAttributeMapping(
+      this.attributeMappings_adminView,
+      attributeMappingEntry.sourceName
+    );
+  }
+
+  /** Snapshot of the current form state passed to the shared import service. */
+  private importerObjectsConfig(): ImporterObjectsConfig {
+    return {
+      converter: this.converter,
+      schema: this.schema,
+      mimeType: this.mimeType,
+      converterParameterPrefix: 'converterParameter_spatialUnitEditFeatures_',
+      converterParameterValues: this.converterParameters,
+      datasourceType: this.datasourceType,
+      datasourceTypeParameterPrefix: 'datasourceTypeParameter_spatialUnitEditFeatures_',
+      datasourceFileInputId: 'spatialUnitDataSourceInput_editFeatures',
+      datasourceTypeFormValues: this.assembleDatasourceFormValues(),
+      selectedFile: this.selectedDataSourceFile,
+      fileInputElement: this.spatialUnitDataSourceInput?.nativeElement,
+      idProperty: this.spatialUnitDataSourceIdProperty,
+      nameProperty: this.spatialUnitDataSourceNameProperty,
+      validStartDate: this.validityStartDate_perFeature,
+      validEndDate: this.validityEndDate_perFeature,
+      keepAttributes: this.keepAttributes,
+      keepMissingValues: this.keepMissingValues,
+      attributeMappings: this.attributeMappings_adminView,
+    };
+  }
+
+  /** Edit-features data-source params: bbox fields are only included for OGCAPI. */
+  private assembleDatasourceFormValues(): { [key: string]: string } {
+    const formValues: { [key: string]: string } = { ...this.datasourceTypeParameters };
+    if (this.datasourceType?.type === 'OGCAPI_FEATURES' && this.bboxType) {
+      formValues['bboxType'] = this.bboxType;
+      if (this.bboxType === 'ref' && this.bboxRefSpatialUnitLevel) {
+        formValues['bboxRef'] = this.bboxRefSpatialUnitLevel;
+      } else if (this.bboxType === 'literal') {
+        formValues['bbox_minx'] = this.bbox_minx;
+        formValues['bbox_miny'] = this.bbox_miny;
+        formValues['bbox_maxx'] = this.bbox_maxx;
+        formValues['bbox_maxy'] = this.bbox_maxy;
       }
     }
+    return formValues;
   }
 
   async buildImporterObjects(): Promise<boolean> {
-    this.converterDefinition = this.buildConverterDefinition();
-    this.datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
-    this.propertyMappingDefinition = this.buildPropertyMappingDefinition();
-    this.putBody_spatialUnits = this.buildPutBody_spatialUnits();
-
-    return !!(
-      this.converterDefinition &&
-      this.datasourceTypeDefinition &&
-      this.propertyMappingDefinition &&
-      this.putBody_spatialUnits
-    );
-  }
-
-  buildConverterDefinition(): any {
-    return this.kommonitorImporterHelperService?.buildConverterDefinition(
-      this.converter,
-      'converterParameter_spatialUnitEditFeatures_',
-      this.schema,
-      this.mimeType,
-      this.converterParameters
-    );
-  }
-
-  async buildDatasourceTypeDefinition(): Promise<any> {
     try {
-      // Prefer robust Angular-native handling for FILE uploads (like Add modal)
-      if (this.datasourceType?.type === 'FILE') {
-        let file: File | undefined | null = this.selectedDataSourceFile;
-        if (!file) {
-          const inputEl = this.spatialUnitDataSourceInput?.nativeElement as
-            | HTMLInputElement
-            | undefined;
-          file = inputEl?.files?.[0];
-        }
-        if (!file) {
-          return null;
-        }
-        const uploadedName = await this.kommonitorImporterHelperService.uploadNewFile(
-          file,
-          file.name
-        );
-        return {
-          type: 'FILE',
-          parameters: [{ name: 'NAME', value: uploadedName }],
-        };
-      }
+      const definitions = await this.spatialUnitImportService.buildImporterObjects(
+        this.importerObjectsConfig()
+      );
+      this.converterDefinition = definitions.converterDefinition;
+      this.datasourceTypeDefinition = definitions.datasourceTypeDefinition;
+      this.propertyMappingDefinition = definitions.propertyMappingDefinition;
+      this.putBody_spatialUnits = this.buildPutBody_spatialUnits();
 
-      const formValues: { [key: string]: string } = { ...this.datasourceTypeParameters } as any;
-      if (this.datasourceType && this.datasourceType.type === 'OGCAPI_FEATURES') {
-        if (this.bboxType) {
-          formValues['bboxType'] = this.bboxType;
-          if (this.bboxType === 'ref' && this.bboxRefSpatialUnitLevel) {
-            formValues['bboxRef'] = this.bboxRefSpatialUnitLevel;
-          } else if (this.bboxType === 'literal') {
-            formValues['bbox_minx'] = this.bbox_minx as any;
-            formValues['bbox_miny'] = this.bbox_miny as any;
-            formValues['bbox_maxx'] = this.bbox_maxx as any;
-            formValues['bbox_maxy'] = this.bbox_maxy as any;
-          }
-        }
-      }
-
-      return await this.kommonitorImporterHelperService?.buildDatasourceTypeDefinition(
-        this.datasourceType,
-        'datasourceTypeParameter_spatialUnitEditFeatures_',
-        'spatialUnitDataSourceInput_editFeatures',
-        Object.keys(formValues).length ? formValues : undefined
+      return !!(
+        this.converterDefinition &&
+        this.datasourceTypeDefinition &&
+        this.propertyMappingDefinition &&
+        this.putBody_spatialUnits
       );
     } catch (error) {
       this.handleError(error);
-      return null;
+      return false;
     }
-  }
-
-  buildPropertyMappingDefinition(): any {
-    return this.kommonitorImporterHelperService?.buildPropertyMapping_spatialResource(
-      this.spatialUnitDataSourceNameProperty,
-      this.spatialUnitDataSourceIdProperty,
-      this.validityStartDate_perFeature,
-      this.validityEndDate_perFeature,
-      '', // empty string instead of undefined
-      this.keepAttributes,
-      this.keepMissingValues,
-      this.attributeMappings_adminView
-    );
   }
 
   buildPutBody_spatialUnits(): any {
@@ -1054,15 +1028,15 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   }
 
   async onExportSpatialUnitEditFeaturesMappingConfig(): Promise<void> {
-    const converterDefinition = this.buildConverterDefinition();
-    const datasourceTypeDefinition = await this.buildDatasourceTypeDefinition();
-    const propertyMappingDefinition = this.buildPropertyMappingDefinition();
+    const definitions = await this.spatialUnitImportService.buildImporterObjects(
+      this.importerObjectsConfig()
+    );
 
     // Use service method to build export structure
     const mappingConfigExport = this.kommonitorDataExchangeService.buildMappingConfigExport(
-      converterDefinition,
-      datasourceTypeDefinition,
-      propertyMappingDefinition,
+      definitions.converterDefinition,
+      definitions.datasourceTypeDefinition,
+      definitions.propertyMappingDefinition,
       this.periodOfValidity
     );
 
