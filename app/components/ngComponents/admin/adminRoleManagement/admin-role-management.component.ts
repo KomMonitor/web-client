@@ -71,7 +71,8 @@ export class AdminRoleManagementComponent implements OnInit {
       cellRenderer: RoleActionsCellRendererComponent,
       cellRendererParams: {
         onEditMetadata: (dataset: AccessControlTableEntry) => this.openEditMetadataModal(dataset),
-        onDelete: (dataset: AccessControlTableEntry) => this.openEditGroupRightsModal(dataset),
+        onEditGroupRights: (dataset: AccessControlTableEntry) =>
+          this.openEditGroupRightsModal(dataset),
       },
     },
     {
@@ -136,30 +137,26 @@ export class AdminRoleManagementComponent implements OnInit {
   }
 
   private setData(accessControl: AccessControlMetadata[]) {
-    if (accessControl && accessControl.length > 0) {
-      this.allAccessControl = accessControl.map((dataItem: AccessControlTableEntry) => {
-        const parentId = dataItem.parentId;
-        let parentName = '';
-        const parentObject = accessControl.filter(
-          (item) => item.organizationalUnitId == parentId
-        )[0];
-        if (parentObject && parentObject.name) {
-          parentName = parentObject.name;
-        }
-        dataItem.parentName = parentName;
+    this.allAccessControl = (accessControl ?? []).map((dataItem: AccessControlTableEntry) => {
+      const parentId = dataItem.parentId;
+      let parentName = '';
+      const parentObject = accessControl.filter((item) => item.organizationalUnitId == parentId)[0];
+      if (parentObject && parentObject.name) {
+        parentName = parentObject.name;
+      }
+      dataItem.parentName = parentName;
 
-        const childrenIds = dataItem.children ?? [];
+      const childrenIds = dataItem.children ?? [];
 
-        const organizationalUnitChildrenUnits = childrenIds
-          .map((id) => this.kommonitorDataExchangeService.getAccessControlById(id))
-          .filter((unit): unit is AccessControlMetadata => unit !== undefined)
-          .map((id) => id.name);
-        dataItem.ownChildGroupNames = organizationalUnitChildrenUnits;
-        return dataItem as AccessControlTableEntry;
-      });
-      this.applyTableFilter();
-      this.loadingData = false;
-    }
+      const organizationalUnitChildrenUnits = childrenIds
+        .map((id) => this.kommonitorDataExchangeService.getAccessControlById(id))
+        .filter((unit): unit is AccessControlMetadata => unit !== undefined)
+        .map((id) => id.name);
+      dataItem.ownChildGroupNames = organizationalUnitChildrenUnits;
+      return dataItem as AccessControlTableEntry;
+    });
+    this.applyTableFilter();
+    this.loadingData = false;
   }
 
   onTableViewSwitch(): void {

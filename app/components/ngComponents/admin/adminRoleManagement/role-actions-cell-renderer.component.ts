@@ -5,7 +5,7 @@ import { AccessControlMetadata } from 'services/adminSpatialUnit/kommonitor-data
 
 export interface RoleActionsCellRendererParams extends ICellRendererParams<AccessControlMetadata> {
   onEditMetadata: (dataset: AccessControlMetadata) => void;
-  onDelete: (dataset: AccessControlMetadata) => void;
+  onEditGroupRights: (dataset: AccessControlMetadata) => void;
 }
 
 @Component({
@@ -21,7 +21,12 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
       >
         <i class="fas fa-pencil-alt"></i>
       </button>
-      <button class="btn btn-warning btn-sm" type="button" title="Löschen" (click)="onDelete()">
+      <button
+        class="btn btn-warning btn-sm"
+        type="button"
+        title="Gruppenrechte bearbeiten"
+        (click)="onEditGroupRights()"
+      >
         <i class="fas fa-user-lock"></i>
       </button>
     </div>
@@ -30,12 +35,12 @@ export interface RoleActionsCellRendererParams extends ICellRendererParams<Acces
 export class RoleActionsCellRendererComponent implements ICellRendererAngularComp {
   private dataset!: AccessControlMetadata;
   private editMetadataCallback!: (dataset: AccessControlMetadata) => void;
-  private deleteCallback!: (dataset: AccessControlMetadata) => void;
+  private editGroupRightsCallback!: (dataset: AccessControlMetadata) => void;
 
   agInit(params: RoleActionsCellRendererParams): void {
     this.dataset = params.data!;
     this.editMetadataCallback = params.onEditMetadata;
-    this.deleteCallback = params.onDelete;
+    this.editGroupRightsCallback = params.onEditGroupRights;
   }
 
   refresh(params: RoleActionsCellRendererParams): boolean {
@@ -47,7 +52,7 @@ export class RoleActionsCellRendererComponent implements ICellRendererAngularCom
     this.editMetadataCallback(this.dataset);
   }
 
-  onDelete(): void {
-    this.deleteCallback(this.dataset);
+  onEditGroupRights(): void {
+    this.editGroupRightsCallback(this.dataset);
   }
 }
