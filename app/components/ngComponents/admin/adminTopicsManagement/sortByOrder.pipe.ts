@@ -7,14 +7,13 @@ import { Topic, TopicOrderMode } from './admin-topics-management.component';
 })
 export class SortByOrderPipe implements PipeTransform {
   transform(items: Topic[], order: TopicOrderMode): Topic[] {
-    if (items.length > 0) {
-      if (order === 'custom') {
-        return items.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-      }
-      if (order === 'alphabetical') {
-        return items.sort((a, b) => a.topicName.localeCompare(b.topicName));
-      }
+    // Copy before sorting so the bound source array (the signal-backed store) is not mutated.
+    if (order === 'custom') {
+      return [...items].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     }
-    return [];
+    if (order === 'alphabetical') {
+      return [...items].sort((a, b) => a.topicName.localeCompare(b.topicName));
+    }
+    return items;
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Topic, TopicOrderMode, TopicResourceType } from './admin-topics-management.component';
 import { HttpClient } from '@angular/common/http';
-import { map, tap, timeout } from 'rxjs';
+import { map, tap, throwError, timeout } from 'rxjs';
 import { BroadcastService } from '../../../../services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from '../../../../services/broadcast-service/broadcast-message';
 import { EnvConfigService } from '../../../../services/env-config-service/env-config.service';
@@ -46,10 +46,14 @@ export class AdminTopicsManagementService {
       );
     } else {
       if (!parentTopic) {
-        throw new Error('Parent topic must be provided when adding a sub topic.');
+        return throwError(
+          () => new Error('Parent topic must be provided when adding a sub topic.')
+        );
       }
       if (this.alreadyInSubtopics(newTopicTitle, parentTopic.subTopics)) {
-        throw new Error('Ein Unterthema mit dem gleichen Titel existiert bereits.');
+        return throwError(
+          () => new Error('Ein Unterthema mit dem gleichen Titel existiert bereits.')
+        );
       }
       parentTopic.subTopics.push(newTopic);
       const putBody: Topic = {
