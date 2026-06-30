@@ -44,16 +44,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   set currentSpatialUnitDataset(value: any) {
     this._currentSpatialUnitDataset = value;
     if (value) {
+      // resetForm() already schedules the role-management table refresh, so we
+      // must not trigger a second, redundant rebuild here.
       this.resetForm();
-      // If access control data is available, refresh the table
-      if (
-        this.kommonitorDataExchangeService.accessControl &&
-        this.kommonitorDataExchangeService.accessControl.length > 0
-      ) {
-        setTimeout(() => {
-          this.refreshRoleManagementTable();
-        }, 100);
-      }
     }
   }
   roleManagementTableOptions: any = undefined;
@@ -121,7 +114,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
           const role = roles.split('.')[1];
 
           // case unit-resources-creator
-          if (role === 'unit-resources-creator' && !this.resourcesCreatorRights.includes(key)) {
+          if (role === 'unit-resources-creator' && !creatorRights.includes(key)) {
             creatorRights.push(key);
           }
 
@@ -143,21 +136,28 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
   private gatherCreatorRightsChildren(
     creatorRights: string[],
-    creatorRightsChildren: string[]
+    creatorRightsChildren: string[],
+    visited: Set<string> = new Set()
   ): void {
-    if (creatorRightsChildren.length > 0) {
-      this.kommonitorDataExchangeService.accessControl
-        .filter((elem: any) => creatorRightsChildren.includes(elem.name))
-        .flatMap((res: any) => res.children)
-        .forEach((child: any) => {
-          this.kommonitorDataExchangeService.accessControl
-            .filter((elem: any) => elem.organizationalUnitId === child)
-            .forEach((childData: any) => {
-              creatorRights.push(childData.name);
-              this.gatherCreatorRightsChildren(creatorRights, [childData.name]);
-            });
-        });
+    // Guard against cyclic organisation hierarchies: never expand a node twice,
+    // otherwise the recursion can loop indefinitely and overflow the stack.
+    const toExpand = creatorRightsChildren.filter((name) => !visited.has(name));
+    if (toExpand.length === 0) {
+      return;
     }
+    toExpand.forEach((name) => visited.add(name));
+
+    this.kommonitorDataExchangeService.accessControl
+      .filter((elem: any) => toExpand.includes(elem.name))
+      .flatMap((res: any) => res.children)
+      .forEach((child: any) => {
+        this.kommonitorDataExchangeService.accessControl
+          .filter((elem: any) => elem.organizationalUnitId === child)
+          .forEach((childData: any) => {
+            creatorRights.push(childData.name);
+            this.gatherCreatorRightsChildren(creatorRights, [childData.name], visited);
+          });
+      });
   }
 
   refreshRoleManagementTable(): void {
@@ -370,10 +370,8 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   }
 
   async editSpatialUnitUserRoles(): Promise<void> {
-    if (
-      this.ownerOrganization &&
-      this.ownerOrganization !== this.currentSpatialUnitDataset.ownerId
-    ) {
+    const ownershipChanging = this.isOwnershipChanging();
+    if (ownershipChanging) {
       const confirmMessage =
         'Sind Sie sicher, dass Sie den Eigentümerschaft an dieser Resource endgültig und unwiderruflich übertragen und damit abgeben wollen?';
       if (!window.confirm(confirmMessage)) {
@@ -381,11 +379,21 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     }
 
-    await this.putUserRoles();
-    await this.putOwnership();
+    // Persist the permissions first. If that fails, abort: otherwise an
+    // ownership transfer could succeed and mask the failure while the
+    // permissions were never saved.
+    const rolesSaved = await this.putUserRoles();
+    if (!rolesSaved) {
+      return;
+    }
+
+    // Only transfer ownership when it actually changed.
+    if (ownershipChanging) {
+      await this.putOwnership();
+    }
   }
 
-  private async putUserRoles(): Promise<void> {
+  private async putUserRoles(): Promise<boolean> {
     try {
       this.loadingData = true;
       this.errorMessagePart = '';
@@ -417,6 +425,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       }
       // Optionally refresh the table to sync checkbox state
       setTimeout(() => this.refreshRoleManagementTable(), 0);
+      return true;
     } catch (error: any) {
       this.errorMessagePart = 'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
       if (error.error) {
@@ -426,12 +435,13 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       } else {
         this.errorMessagePart += this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
+      return false;
     } finally {
       this.loadingData = false;
     }
   }
 
-  private async putOwnership(): Promise<void> {
+  private async putOwnership(): Promise<boolean> {
     try {
       this.loadingData = true;
       this.errorMessagePart = '';
@@ -453,6 +463,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         crudType: 'edit',
         targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
       });
+      return true;
     } catch (error: any) {
       this.errorMessagePart = 'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
       if (error.error) {
@@ -462,6 +473,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       } else {
         this.errorMessagePart += this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
       }
+      return false;
     } finally {
       this.loadingData = false;
     }
