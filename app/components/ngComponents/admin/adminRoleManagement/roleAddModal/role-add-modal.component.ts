@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
@@ -61,7 +61,7 @@ export class RoleAddModalComponent implements OnInit {
     rowData?: AdvancedAccessControlRow[];
     columnDefs?: ColDef[];
   } = {};
-  private roleDelegatesGridApi: any = null;
+  private roleDelegatesGridApi: GridApi | null = null;
 
   errorMessagePart: string | undefined;
   keycloakErrorMessagePart: string | undefined;

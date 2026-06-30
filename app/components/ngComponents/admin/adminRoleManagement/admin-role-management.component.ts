@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, SelectionChangedEvent } from 'ag-grid-community';
+import { ColDef, GridOptions, ICellRendererParams, SelectionChangedEvent } from 'ag-grid-community';
 import { AdminContentViewComponent } from '../admin-content-view/admin-content-view.component';
 import { ExpandableBoxComponent } from 'components/ngComponents/common/expandable-box/expandable-box.component';
 import {
@@ -87,10 +87,10 @@ export class AdminRoleManagementComponent implements OnInit {
     },
     {
       headerName: 'Hierarchie - direkt untergeordnete Organisationseinheiten',
-      cellRenderer: (param) =>
-        param.data.ownChildGroupNames.length +
-        ' direkte Untergruppe(n)<br/><br/>' +
-        param.data.ownChildGroupNames,
+      cellRenderer: (param: ICellRendererParams<AccessControlTableEntry>) => {
+        const childGroupNames = param.data?.ownChildGroupNames ?? [];
+        return `${childGroupNames.length} direkte Untergruppe(n)<br/><br/>${childGroupNames}`;
+      },
     },
     {
       headerName: 'Beschreibung',

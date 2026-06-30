@@ -3,7 +3,7 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridOptions, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community';
 import {
   AccessControlMetadata,
   KommonitorDataExchangeService,
@@ -71,7 +71,7 @@ export class RoleEditGroupRightsModalComponent implements OnInit {
   delegatedRowData: AdvancedAccessControlRow[] = [];
   delegatedDefaultColDef: ColDef = {};
   delegatedGridOptions: GridOptions = {};
-  private delegatedGridApi: any = null;
+  private delegatedGridApi: GridApi | null = null;
 
   private allDelegatedRowData: AdvancedAccessControlRow[] = [];
   private delegatedRoleIds: string[] = [];

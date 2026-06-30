@@ -88,12 +88,7 @@
             [pagination]="true"
             [paginationPageSize]="paginationPageSize"
             [paginationPageSizeSelector]="paginationPageSizeSelector"
-            [rowSelection]="'multiple'"
             (selectionChanged)="selectionChanged($event)"
-            [suppressRowClickSelection]="true"
-            [enableCellTextSelection]="true"
-            [ensureDomOrder]="true"
-            [suppressColumnVirtualisation]="true"
           >
           </ag-grid-angular>
         </app-loading-overlay>
