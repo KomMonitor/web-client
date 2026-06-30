@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 declare const __env: any;
 
@@ -21,12 +22,11 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
+  private notificationService = inject(NotificationService);
 
   @Input() datasetsToDelete: any[] = [];
 
   loadingData = false;
-  errorMessage = '';
-  successMessage = '';
 
   successfullyDeletedDatasets: any[] = [];
   failedDatasetsAndErrors: any[] = [];
@@ -72,8 +72,6 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
   resetForm(): void {
     this.successfullyDeletedDatasets = [];
     this.failedDatasetsAndErrors = [];
-    this.errorMessage = '';
-    this.successMessage = '';
   }
 
   async deleteSpatialUnits(): Promise<void> {
@@ -96,13 +94,7 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
         return [dataset, failure.error];
       });
 
-      if (this.failedDatasetsAndErrors.length > 0) {
-        this.errorMessage = 'Einige Raumebenen konnten nicht gelöscht werden.';
-      }
-
       if (this.successfullyDeletedDatasets.length > 0) {
-        this.successMessage = `${this.successfullyDeletedDatasets.length} Raumebene(n) erfolgreich gelöscht.`;
-
         // Fetch indicator metadata again as spatial units were deleted
         await this.kommonitorDataExchangeService.fetchIndicatorsMetadata(
           this.kommonitorDataExchangeService.currentKeycloakLoginRoles
@@ -119,34 +111,33 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.broadcastService.broadcast(BroadcastMessage.RefreshAdminDashboardDiagrams);
         }, 500);
+
+        this.notificationService.showSuccess(
+          `${this.successfullyDeletedDatasets.length} Raumebene(n) erfolgreich gelöscht.`
+        );
+      }
+
+      if (this.failedDatasetsAndErrors.length > 0) {
+        this.notificationService.showError('Einige Raumebenen konnten nicht gelöscht werden.');
       }
 
       this.loadingData = false;
 
-      // Auto-close modal after successful deletion
+      // Close only when everything succeeded; otherwise keep the modal open so
+      // the per-dataset failure table stays visible.
       if (
         this.successfullyDeletedDatasets.length > 0 &&
         this.failedDatasetsAndErrors.length === 0
       ) {
-        setTimeout(() => {
-          this.activeModal.close({
-            action: 'deleted',
-            deletedDatasets: this.successfullyDeletedDatasets,
-          });
-        }, 2000);
+        this.activeModal.close({
+          action: 'deleted',
+          deletedDatasets: this.successfullyDeletedDatasets,
+        });
       }
     } catch {
-      this.errorMessage = 'Ein unerwarteter Fehler ist aufgetreten.';
+      this.notificationService.showError('Ein unerwarteter Fehler ist aufgetreten.');
       this.loadingData = false;
     }
-  }
-
-  hideSuccessAlert(): void {
-    this.successMessage = '';
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessage = '';
   }
 
   // Modal control methods

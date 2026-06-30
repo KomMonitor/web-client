@@ -18,6 +18,7 @@ import { GridOptions, GridReadyEvent, ColDef } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
 
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 @Component({
   selector: 'app-spatial-unit-edit-user-roles-modal',
@@ -32,6 +33,7 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('progressbar', { static: true }) progressBar!: ElementRef;
 
@@ -57,9 +59,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   roleManagementDefaultColDef: any = {};
   roleManagementGridOptions: GridOptions = {};
   roleManagementGridApi: any = null;
-
-  successMessagePart: string = '';
-  errorMessagePart: string = '';
 
   ownerOrgFilter: string = '';
   ownerOrganization: string = '';
@@ -329,8 +328,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     }
 
     this.ownerOrgFilter = '';
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
     this.currentStep = 1;
     this.updateProgressBar();
   }
@@ -389,14 +386,24 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
 
     // Only transfer ownership when it actually changed.
     if (ownershipChanging) {
-      await this.putOwnership();
+      const ownershipSaved = await this.putOwnership();
+      if (!ownershipSaved) {
+        return;
+      }
     }
+
+    this.notificationService.showSuccess(
+      `Zugriffsrechte für Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" wurden aktualisiert.`
+    );
+    this.activeModal.close({
+      action: 'updated',
+      spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+    });
   }
 
   private async putUserRoles(): Promise<boolean> {
     try {
       this.loadingData = true;
-      this.errorMessagePart = '';
 
       const putBody = {
         permissions: this.roleManagementHelper.getSelectedRoleIds_roleManagementGrid(
@@ -413,7 +420,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         )
         .toPromise();
 
-      this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
       this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
         crudType: 'edit',
         targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
@@ -427,14 +433,9 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       setTimeout(() => this.refreshRoleManagementTable(), 0);
       return true;
     } catch (error: any) {
-      this.errorMessagePart = 'Fehler beim Aktualisieren der Zugriffsrechte. Fehler lautet: \n\n';
-      if (error.error) {
-        this.errorMessagePart += this.kommonitorDataExchangeService.syntaxHighlightJSON(
-          error.error
-        );
-      } else {
-        this.errorMessagePart += this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
+      this.notificationService.showError(
+        'Fehler beim Aktualisieren der Zugriffsrechte: ' + this.getErrorMessage(error)
+      );
       return false;
     } finally {
       this.loadingData = false;
@@ -444,7 +445,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   private async putOwnership(): Promise<boolean> {
     try {
       this.loadingData = true;
-      this.errorMessagePart = '';
 
       const putBody = {
         ownerId: this.ownerOrganization || this.currentSpatialUnitDataset.ownerId,
@@ -458,21 +458,15 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
         )
         .toPromise();
 
-      this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
       this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
         crudType: 'edit',
         targetSpatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
       });
       return true;
     } catch (error: any) {
-      this.errorMessagePart = 'Fehler beim Aktualisieren der Eigentümerschaft. Fehler lautet: \n\n';
-      if (error.error) {
-        this.errorMessagePart += this.kommonitorDataExchangeService.syntaxHighlightJSON(
-          error.error
-        );
-      } else {
-        this.errorMessagePart += this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-      }
+      this.notificationService.showError(
+        'Fehler beim Aktualisieren der Eigentümerschaft: ' + this.getErrorMessage(error)
+      );
       return false;
     } finally {
       this.loadingData = false;
@@ -511,12 +505,17 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     );
   }
 
-  hideSuccessAlert(): void {
-    this.successMessagePart = '';
-  }
-
-  hideErrorAlert(): void {
-    this.errorMessagePart = '';
+  private getErrorMessage(error: any): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+    if (typeof error?.error?.message === 'string') {
+      return error.error.message;
+    }
+    if (typeof error?.message === 'string') {
+      return error.message;
+    }
+    return 'Unbekannter Fehler';
   }
 
   onCancel(): void {

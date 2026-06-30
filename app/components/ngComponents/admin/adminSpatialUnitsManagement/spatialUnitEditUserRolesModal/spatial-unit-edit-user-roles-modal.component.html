@@ -221,32 +221,3 @@
   </button>
   <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
 </div>
-
-<div
-  id="spatialUnitEditUserRolesSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessagePart"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Zugriffsschutz und Eigentümerschaft aktualisiert</h4>
-  Erfolgreiche Aktualisierung des Zugriffsschutzes und der Eigentümerschaft für die Raumeinheit '{{
-    currentSpatialUnitDataset?.spatialUnitLevel
-  }}'
-</div>
-
-<div
-  id="spatialUnitEditUserRolesErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessagePart"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-  Bei der Aktualisierung des Zugriffsschutzes und der Eigentümerschaft ist ein Fehler aufgetreten.
-  Fehlermeldung:
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-</div>

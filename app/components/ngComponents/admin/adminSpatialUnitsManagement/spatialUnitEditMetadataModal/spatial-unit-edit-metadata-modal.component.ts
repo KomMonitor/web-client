@@ -15,6 +15,7 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
 
 // Remove jQuery declaration - no longer needed
 // declare var $: any;
@@ -34,6 +35,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
 
@@ -43,8 +45,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
 
   // Form data
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
   loadingData = false;
 
   // Current dataset being edited
@@ -95,10 +95,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   // Import/Export functionality
   metadataImportSettings: any = null;
   spatialUnitMetadataImportError = '';
-
-  // Success/Error data
-  successMessagePart = '';
-  errorMessagePart = '';
 
   // Subscriptions
   private subscriptions: Subscription[] = [];
@@ -259,8 +255,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     // The datepicker will automatically display the date from metadata.lastUpdate
 
     this.hierarchyInvalid = false;
-    this.successMessagePart = '';
-    this.errorMessagePart = '';
 
     // No role management in this version to match AngularJS
 
@@ -329,7 +323,7 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     );
 
     if (!validation.isValid) {
-      this.errorMessage = validation.errors.join('\n');
+      this.notificationService.showError(validation.errors.join('\n'));
       this.loadingData = false;
       return;
     }
@@ -355,10 +349,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     // No role management in this version to match AngularJS
 
     this.loadingData = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.errorMessagePart = '';
-    this.successMessagePart = '';
 
     try {
       await this.http
@@ -367,9 +357,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
           patchBody
         )
         .toPromise();
-
-      this.successMessagePart = this.currentSpatialUnitDataset.spatialUnitLevel;
-      this.successMessage = `Metadaten für Raumebene "${this.successMessagePart}" erfolgreich aktualisiert.`;
 
       // Broadcast refresh events with proper parameters
       this.broadcastService.broadcast(BroadcastMessage.RefreshSpatialUnitOverviewTable, {
@@ -381,20 +368,17 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
       }
 
       this.loadingData = false;
-
-      // Don't close modal immediately - let user see success message
-      // User can close manually or we can auto-close after a delay
-      setTimeout(() => {
-        this.activeModal.close({
-          action: 'updated',
-          spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
-        });
-      }, 5000); // Close after 5 seconds
+      this.notificationService.showSuccess(
+        `Metadaten für Raumebene "${this.currentSpatialUnitDataset.spatialUnitLevel}" erfolgreich aktualisiert.`
+      );
+      this.activeModal.close({
+        action: 'updated',
+        spatialUnitId: this.currentSpatialUnitDataset.spatialUnitId,
+      });
     } catch (error: any) {
-      this.errorMessagePart = error.error
-        ? this.kommonitorDataExchangeService.syntaxHighlightJSON(error.error)
-        : this.kommonitorDataExchangeService.syntaxHighlightJSON(error);
-      this.errorMessage = 'Fehler beim Aktualisieren der Metadaten.';
+      this.notificationService.showError(
+        'Fehler beim Aktualisieren der Metadaten: ' + this.getErrorMessage(error)
+      );
       this.loadingData = false;
     }
   }
@@ -559,23 +543,21 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
     return this.kommonitorDataExchangeService.spatialUnitMetadataStructure;
   }
 
-  hideSuccessAlert() {
-    this.successMessage = '';
-  }
-
-  hideErrorAlert() {
-    this.errorMessage = '';
-  }
-
   hideMetadataErrorAlert() {
     this.spatialUnitMetadataImportError = '';
   }
 
-  closeOnSuccess() {
-    this.activeModal.close({
-      action: 'updated',
-      spatialUnitId: this.currentSpatialUnitDataset?.spatialUnitId,
-    });
+  private getErrorMessage(error: any): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+    if (typeof error?.error?.message === 'string') {
+      return error.error.message;
+    }
+    if (typeof error?.message === 'string') {
+      return error.message;
+    }
+    return 'Unbekannter Fehler';
   }
 
   cancel() {

@@ -423,44 +423,6 @@
   <button type="button" class="btn btn-danger" (click)="resetForm()">Zurücksetzen</button>
 </div>
 
-<!-- Success Alert - positioned absolutely at bottom like AngularJS version -->
-<div
-  id="spatialUnitEditMetadataSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessage"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Raumebene aktualisiert</h4>
-  Die Metadaten der Raumebene mit Namen {{ successMessagePart }} wurden in KomMonitor aktualisiert
-  und in die Übersichtstabelle eingetragen.
-  <br />
-  <button
-    type="button"
-    class="btn btn-success btn-sm"
-    (click)="closeOnSuccess()"
-    style="margin-top: 10px"
-  >
-    <i class="fas fa-check"></i> Schließen
-  </button>
-</div>
-
-<!-- Error Alert - positioned absolutely at bottom like AngularJS version -->
-<div
-  id="spatialUnitEditMetadataErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessage"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-  Bei der Aktualisierung der Metadaten der Raumebene ist ein Fehler aufgetreten. Fehlermeldung:
-  <br />
-  <pre style="overflow: auto; max-height: 500px" [innerHTML]="errorMessagePart"></pre>
-</div>
-
 <!-- Metadata Import Error Alert - positioned absolutely at bottom like AngularJS version -->
 <div
   id="spatialUnitEditMetadataImportErrorAlert"

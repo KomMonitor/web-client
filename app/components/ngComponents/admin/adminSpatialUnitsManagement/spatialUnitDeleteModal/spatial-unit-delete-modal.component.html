@@ -44,50 +44,29 @@ kein Datensatz zum Löschen markiert. Mindestens ein Datensatz muss markiert wer
   </button>
 </div>
 
-<div
-  id="spatialUnitsDeleteSuccessAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!successMessage"
-  class="alert alert-success alert-dismissable"
->
-  <button type="button" class="close" (click)="hideSuccessAlert()" aria-hidden="true">
-    &times;
-  </button>
-  <h4><i class="icon fa fa-check"></i>Folgende Raumebenen wurde erfolgreich gelöscht</h4>
-  <ul>
-    @for (dataset of successfullyDeletedDatasets; track dataset) {
-      <li>{{ dataset.spatialUnitLevel }}</li>
-    }
-  </ul>
-</div>
-
-<div
-  id="spatialUnitsDeleteErrorAlert"
-  style="position: absolute; bottom: 0px; width: 100%"
-  [hidden]="!errorMessage"
-  class="alert alert-danger alert-dismissable"
->
-  <button type="button" class="close" (click)="hideErrorAlert()" aria-hidden="true">&times;</button>
-  <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
-  Folgende Datensätze konnten nicht gelöscht werden.
-  <br />
-  <table
-    class="table table-bordered table-condensed"
-    style="width: 100%; overflow: auto; font-size: 11px"
-  >
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Fehlermeldung</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (dataset of failedDatasetsAndErrors; track dataset) {
+@if (failedDatasetsAndErrors.length > 0) {
+  <div id="spatialUnitsDeleteErrorReport" class="alert alert-danger">
+    <h4><i class="icon fa fa-ban"></i>Löschen gescheitert</h4>
+    Folgende Datensätze konnten nicht gelöscht werden.
+    <br />
+    <table
+      class="table table-bordered table-condensed"
+      style="width: 100%; overflow: auto; font-size: 11px"
+    >
+      <thead>
         <tr>
-          <td>{{ dataset[0].spatialUnitLevel }}</td>
-          <td [innerHTML]="dataset[1]"></td>
+          <th>Name</th>
+          <th>Fehlermeldung</th>
         </tr>
-      }
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        @for (dataset of failedDatasetsAndErrors; track dataset) {
+          <tr>
+            <td>{{ dataset[0].spatialUnitLevel }}</td>
+            <td [innerHTML]="dataset[1]"></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
