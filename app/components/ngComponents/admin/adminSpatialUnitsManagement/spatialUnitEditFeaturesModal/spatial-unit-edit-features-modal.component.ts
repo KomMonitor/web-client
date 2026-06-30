@@ -25,6 +25,8 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { getErrorMessage, toIsoDateString } from '../spatial-unit-import.util';
+import type { AttributeMappingRow, Converter, DatasourceType } from '../spatial-unit-import.model';
 
 declare const __env: any;
 
@@ -107,7 +109,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   attributeMapping_destinationAttributeName = '';
   attributeMapping_data: any = null;
   attributeMapping_attributeType: any = null;
-  attributeMappings_adminView: any[] = [];
+  attributeMappings_adminView: AttributeMappingRow[] = [];
   keepAttributes = true;
   keepMissingValues = true;
 
@@ -118,8 +120,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   importerErrors: any[] = [];
 
   // Available options
-  availableDatasourceTypes: any[] = [];
-  availableConverters: any[] = [];
+  availableDatasourceTypes: DatasourceType[] = [];
+  availableConverters: Converter[] = [];
   availableSpatialUnits: any[] = [];
 
   // Bbox parameters for OGCAPI_FEATURES
@@ -543,28 +545,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
   }
 
-  private toIsoDateString(value: any): string | null {
-    if (!value) {
-      return null;
-    }
-    if (typeof value === 'string') {
-      return value;
-    }
-    const maybeStruct = value as { year?: number; month?: number; day?: number };
-    if (
-      maybeStruct &&
-      typeof maybeStruct.year === 'number' &&
-      typeof maybeStruct.month === 'number' &&
-      typeof maybeStruct.day === 'number'
-    ) {
-      const y = maybeStruct.year;
-      const m = String(maybeStruct.month).padStart(2, '0');
-      const d = String(maybeStruct.day).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-    return null;
-  }
-
   private ensureValidDateOrToday(value: any): string {
     if (!value) {
       return this.getTodayDateString();
@@ -572,7 +552,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     if (typeof value === 'string') {
       return this.isValidDateString(value) ? value : this.getTodayDateString();
     }
-    const asIso = this.toIsoDateString(value);
+    const asIso = toIsoDateString(value);
     return asIso ?? this.getTodayDateString();
   }
 
@@ -1246,23 +1226,8 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit {
     this.spatialUnitMappingConfigImportError = '';
   }
 
-  private getErrorMessage(error: any): string {
-    if (typeof error?.error === 'string') {
-      return error.error;
-    }
-    if (typeof error?.error?.message === 'string') {
-      return error.error.message;
-    }
-    if (typeof error?.message === 'string') {
-      return error.message;
-    }
-    return 'Unbekannter Fehler';
-  }
-
   private handleError(error: any): void {
-    this.notificationService.showError(
-      'Ein Fehler ist aufgetreten: ' + this.getErrorMessage(error)
-    );
+    this.notificationService.showError('Ein Fehler ist aufgetreten: ' + getErrorMessage(error));
   }
 
   // Modal control methods

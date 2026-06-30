@@ -22,6 +22,8 @@ import {
   StepperComponent,
   StepperStep,
 } from 'components/ngComponents/common/stepper/stepper.component';
+import { getErrorMessage, toIsoDateString } from '../spatial-unit-import.util';
+import type { AttributeMappingRow, DatasourceType } from '../spatial-unit-import.model';
 
 // Removed in favor of standalone km-date-picker component providers
 
@@ -120,7 +122,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   // Available options
   availableSpatialUnits: any[] = [];
   updateIntervalOptions: any[] = [];
-  availableDatasourceTypes: any[] = [];
+  availableDatasourceTypes: DatasourceType[] = [];
   availableLoiDashArrayObjects: any[] = [];
 
   // Importer functionality
@@ -144,7 +146,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   attributeMapping_sourceAttributeName = '';
   attributeMapping_destinationAttributeName = '';
   attributeMapping_attributeType: any = null;
-  attributeMappings_adminView: any[] = [];
+  attributeMappings_adminView: AttributeMappingRow[] = [];
   keepAttributes = true;
   keepMissingValues = true;
 
@@ -520,8 +522,8 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
   checkPeriodOfValidity() {
     // Normalize to ISO strings first (handles NgbDateStruct or string)
-    const startIso = this.toIsoDateString(this.periodOfValidity.startDate);
-    const endIso = this.toIsoDateString(this.periodOfValidity.endDate);
+    const startIso = toIsoDateString(this.periodOfValidity.startDate);
+    const endIso = toIsoDateString(this.periodOfValidity.endDate);
 
     // Use service validation (guards optional end)
     const validation = this.kommonitorDataExchangeService.validatePeriodOfValidity(
@@ -711,7 +713,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
       return result;
     } catch (error: any) {
       this.notificationService.showError(
-        'Fehler beim Aufbau der Datenquellen-Definition: ' + this.getErrorMessage(error)
+        'Fehler beim Aufbau der Datenquellen-Definition: ' + getErrorMessage(error)
       );
       this.loadingData = false;
       return null;
@@ -733,28 +735,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     return result;
   }
 
-  private toIsoDateString(value: any): string | null {
-    if (!value) {
-      return null;
-    }
-    if (typeof value === 'string') {
-      return value;
-    }
-    const maybeStruct = value as { year?: number; month?: number; day?: number };
-    if (
-      maybeStruct &&
-      typeof maybeStruct.year === 'number' &&
-      typeof maybeStruct.month === 'number' &&
-      typeof maybeStruct.day === 'number'
-    ) {
-      const y = maybeStruct.year;
-      const m = String(maybeStruct.month).padStart(2, '0');
-      const d = String(maybeStruct.day).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-    return null;
-  }
-
   buildPostBody_spatialUnits() {
     const postBody: any = {
       geoJsonString: '', // will be set by importer
@@ -765,7 +745,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
         sridEPSG: this.metadata.sridEPSG,
         datasource: this.metadata.datasource,
         contact: this.metadata.contact,
-        lastUpdate: this.toIsoDateString(this.metadata.lastUpdate),
+        lastUpdate: toIsoDateString(this.metadata.lastUpdate),
         description: this.metadata.description,
         databasis: this.metadata.databasis,
       },
@@ -776,12 +756,12 @@ export class SpatialUnitAddModalComponent implements OnInit {
         : null,
       spatialUnitLevel: this.spatialUnitLevel,
       periodOfValidity: {
-        endDate: this.toIsoDateString(
+        endDate: toIsoDateString(
           this.periodOfValidity && this.periodOfValidity.endDate
             ? this.periodOfValidity.endDate
             : null
         ),
-        startDate: this.toIsoDateString(
+        startDate: toIsoDateString(
           this.periodOfValidity && this.periodOfValidity.startDate
             ? this.periodOfValidity.startDate
             : null
@@ -902,7 +882,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
 
         this.loadingData = false;
         this.notificationService.showError(
-          'Fehler bei der Registrierung der Raumebene: ' + this.getErrorMessage(error)
+          'Fehler bei der Registrierung der Raumebene: ' + getErrorMessage(error)
         );
       }
     }
@@ -1414,19 +1394,6 @@ export class SpatialUnitAddModalComponent implements OnInit {
     this.spatialUnitMetadataStructure_pretty = '';
     const attributeMappingTypes = this.kommonitorImporterHelperService.getAttributeMappingTypes();
     this.attributeMapping_attributeType = attributeMappingTypes[0];
-  }
-
-  private getErrorMessage(error: any): string {
-    if (typeof error?.error === 'string') {
-      return error.error;
-    }
-    if (typeof error?.error?.message === 'string') {
-      return error.error.message;
-    }
-    if (typeof error?.message === 'string') {
-      return error.message;
-    }
-    return 'Unbekannter Fehler';
   }
 
   hideMetadataErrorAlert() {
