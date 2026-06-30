@@ -1,12 +1,12 @@
 <app-admin-content-view
-  [title]="'FAQ zu Mandantenkonzept und Zugriffsschutz auf Datensätze'"
-  [description]="'Übersicht und Bedienhinweise der ab KomMonitor Version 4 eingeführten Zugriffskontrolle'"
+  title="FAQ zu Mandantenkonzept und Zugriffsschutz auf Datensätze"
+  description="Übersicht und Bedienhinweise der ab KomMonitor Version 4 eingeführten Zugriffskontrolle"
   [contentTemplate]="content"
 >
 </app-admin-content-view>
 <ng-template #content>
   <div class="row">
-    @for (item of items; track item) {
+    @for (item of items; track item.title) {
       <div class="col-md-6">
         <div class="box-wrapper">
           <expandable-box [title]="item.title" [collapsed]="!item.expanded">
@@ -14,7 +14,7 @@
               <div [innerHTML]="item.content"></div>
               @if (item.nestedItems) {
                 <div class="nested-accordion">
-                  @for (nestedItem of item.nestedItems; track nestedItem) {
+                  @for (nestedItem of item.nestedItems; track nestedItem.title) {
                     <expandable-box [title]="nestedItem.title" [collapsed]="!nestedItem.expanded">
                       <div [innerHTML]="nestedItem.content"></div>
                     </expandable-box>

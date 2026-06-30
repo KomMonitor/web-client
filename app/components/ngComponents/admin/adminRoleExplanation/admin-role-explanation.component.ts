@@ -5,7 +5,7 @@ import { AdminContentViewComponent } from '../admin-content-view/admin-content-v
 interface AccordionItem {
   title: string;
   content: string;
-  expanded: boolean;
+  expanded?: boolean;
   nestedItems?: AccordionItem[];
 }
 
@@ -35,7 +35,6 @@ export class AdminRoleExplanationComponent {
       werden,
       um jeweils eigene, voneinander getrennte Untergruppenhierarchien, Raumebenen und Datensätze
       zu verwalten.`,
-      expanded: false,
     },
     {
       title: 'Wie werden neue Mandanten angelegt?',
@@ -80,7 +79,6 @@ export class AdminRoleExplanationComponent {
       Ab diesem Zeitpunkt ist der neue Mandant handlungsfähig. Mandantenadministratoren haben
       die Rechte,
       innerhalb eines Mandanten weitere Untergruppen, User und Datensätze zu erzeugen.`,
-      expanded: false,
     },
     {
       title: 'Was sind Untergruppen eines Mandanten?',
@@ -93,7 +91,6 @@ export class AdminRoleExplanationComponent {
       <br><br>
       Eine Untergruppe kann dabei auch von übergeordneten Gruppen hinsichtlich Usern, Ressourcen
       und Themen mitadministriert werden - je nach gesetzten Rechten.`,
-      expanded: false,
     },
     {
       title: 'Wie werden neue Untergruppen erstellt?',
@@ -143,7 +140,6 @@ export class AdminRoleExplanationComponent {
           </li>
         </ol>
       </i>`,
-      expanded: false,
     },
     {
       title: 'Was ist die Eigentümerschaft an Datensätzen?',
@@ -154,7 +150,6 @@ export class AdminRoleExplanationComponent {
       Eine Ressource kann dabei nur genau einer Gruppe gehören. Nur Mitglieder der
       Eigentümer-Gruppe einer Ressource besitzen das Recht, die Datenfreigabe des Datensatzes zu
       kontrollieren sowie eine Ressource zu löschen.`,
-      expanded: false,
     },
     {
       title: 'Kann die Eigentümerschaft verändert werden?',
@@ -180,7 +175,6 @@ export class AdminRoleExplanationComponent {
           </li>
         </ol>
       </i>`,
-      expanded: false,
     },
     {
       title: 'Wie erfolgt die gruppenspezifische Freigabe eines Datensatzes?',
@@ -201,7 +195,6 @@ export class AdminRoleExplanationComponent {
       mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den
       dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der
       <code>Aktualisieren</code> Button betätigt wird.`,
-      expanded: false,
     },
     {
       title: 'Wie erfolgt die öffentliche Freigabe von Datensätzen?',
@@ -222,7 +215,6 @@ export class AdminRoleExplanationComponent {
       mit der Schaltfläche <code>Zugriffsschutz und Eigentümerschaft</code> und in den
       dortigen Untermenüs möglich. Anpassungen sind erst gültig, wenn der
       <code>Aktualisieren</code> Button betätigt wird.`,
-      expanded: false,
     },
     {
       title: 'Wie funktioniert die Datenfreigabe von Indikatoren für bestimmte Raumeinheiten?',
@@ -245,7 +237,6 @@ export class AdminRoleExplanationComponent {
 
 						<br>
 						<br>`,
-      expanded: false,
       nestedItems: [
         {
           title: 'Szenario Indikator nicht öffentlich',
@@ -278,7 +269,6 @@ export class AdminRoleExplanationComponent {
 										</td>
 									</tr>
 								</table>`,
-          expanded: false,
         },
         {
           title: 'Szenario Indikator teilweise öffentlich',
@@ -324,7 +314,6 @@ export class AdminRoleExplanationComponent {
 										</td>
 									</tr>
 								</table>`,
-          expanded: false,
         },
         {
           title: 'Szenario Indikator komplett öffentlich',
@@ -357,7 +346,6 @@ export class AdminRoleExplanationComponent {
 										</td>
 									</tr>
 								</table>`,
-          expanded: false,
         },
       ],
     },
