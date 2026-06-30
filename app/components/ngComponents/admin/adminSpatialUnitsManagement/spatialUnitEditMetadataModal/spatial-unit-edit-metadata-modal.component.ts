@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorDataGridHelperService } from 'services/adminSpatialUnit/kommonitor-data-grid-helper.service';
 
@@ -28,7 +27,7 @@ import { NotificationService } from 'components/ngComponents/common/notification
   imports: [FormsModule, CommonModule, KmColorPickerComponent, KmLinePatternPickerComponent],
   standalone: true,
 })
-export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy {
+export class SpatialUnitEditMetadataModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
@@ -96,9 +95,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   metadataImportSettings: any = null;
   spatialUnitMetadataImportError = '';
 
-  // Subscriptions
-  private subscriptions: Subscription[] = [];
-
   // Add flag to track if SVGs have been injected
   private svgInjected = false;
 
@@ -129,10 +125,6 @@ export class SpatialUnitEditMetadataModalComponent implements OnInit, OnDestroy 
   }
 
   // Color picker logic removed; handled by km-color-picker
-
-  ngOnDestroy() {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-  }
 
   private setupEventListeners() {
     // Listen for broadcast messages if needed

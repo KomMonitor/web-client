@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import {
@@ -8,7 +9,6 @@ import {
   onDeleteFeatureEntryFor,
 } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { FeatureTableDataGridHelperService } from 'services/feature-table-data-grid-helper-service/feature-table-data-grid-helper.service';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { KommonitorImporterHelperService } from 'services/adminSpatialUnit/kommonitor-importer-helper.service';
@@ -36,7 +36,7 @@ declare const __env: any;
   imports: [FormsModule, CommonModule, AgGridAngular, KmDatePickerComponent],
   standalone: true,
 })
-export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy {
+export class SpatialUnitEditFeaturesModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   kommonitorImporterHelperService = inject(KommonitorImporterHelperService);
@@ -44,6 +44,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   private http = inject(HttpClient);
   private broadcastService = inject(BroadcastService);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
   @ViewChild('spatialUnitDataSourceInput', { static: false })
@@ -156,9 +157,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
   public compareConverter = (a: any, b: any) => (a && b ? a.name === b.name : a === b);
   public compareDatasourceType = (a: any, b: any) => (a && b ? a.type === b.type : a === b);
 
-  // Subscriptions
-  private subscriptions: Subscription[] = [];
-
   async ngOnInit(): Promise<void> {
     this.initializeDatePickers();
     this.initializeForm();
@@ -194,10 +192,6 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
     }
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-  }
-
   private initializeDatePickers(): void {
     // ng-bootstrap date pickers are automatically initialized via template
     // No additional initialization needed
@@ -218,8 +212,9 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
 
   private setupEventListeners(): void {
     // Setup broadcast listeners
-    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
-      (broadcastMsg) => {
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((broadcastMsg) => {
         if (broadcastMsg) {
           if (broadcastMsg.msg === 'onEditSpatialUnitFeatures') {
             this.onEditSpatialUnitFeatures(broadcastMsg.values);
@@ -245,10 +240,7 @@ export class SpatialUnitEditFeaturesModalComponent implements OnInit, OnDestroy 
             this.refreshSpatialUnitEditFeaturesOverviewTable();
           }
         }
-      }
-    );
-
-    this.subscriptions.push(broadcastSubscription);
+      });
   }
 
   private async loadAvailableOptions(): Promise<void> {

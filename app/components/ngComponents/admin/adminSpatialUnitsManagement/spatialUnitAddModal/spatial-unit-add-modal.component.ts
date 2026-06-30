@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
@@ -44,6 +45,7 @@ export class SpatialUnitAddModalComponent implements OnInit {
   private broadcastService = inject(BroadcastService);
   private sanitizer = inject(DomSanitizer);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('metadataImportFile', { static: false }) metadataImportFile!: ElementRef;
   @ViewChild('mappingConfigImportFile', { static: false }) mappingConfigImportFile!: ElementRef;
@@ -321,17 +323,20 @@ export class SpatialUnitAddModalComponent implements OnInit {
       this.loadingData = false;
     } else {
       // Fetch access control data from server
-      this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
-        next: (_data) => {
-          this.prepareCreatorList();
-          this.loadingData = false;
-        },
-        error: (_error) => {
-          // Set empty arrays to avoid errors
-          this.resourcesCreatorRights = [];
-          this.loadingData = false;
-        },
-      });
+      this.kommonitorDataExchangeService
+        .fetchAccessControlMetadata(true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (_data) => {
+            this.prepareCreatorList();
+            this.loadingData = false;
+          },
+          error: (_error) => {
+            // Set empty arrays to avoid errors
+            this.resourcesCreatorRights = [];
+            this.loadingData = false;
+          },
+        });
     }
   }
 

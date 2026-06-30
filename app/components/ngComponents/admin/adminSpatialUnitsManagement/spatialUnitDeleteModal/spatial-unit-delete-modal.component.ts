@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, Input, inject } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
 import { LoadingOverlayComponent } from 'components/ngComponents/common/loading-overlay/loading-overlay.component';
 import { NotificationService } from 'components/ngComponents/common/notification/notification.service';
@@ -17,7 +16,7 @@ declare const __env: any;
   imports: [LoadingOverlayComponent],
   standalone: true,
 })
-export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
+export class SpatialUnitDeleteModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   private http = inject(HttpClient);
@@ -31,42 +30,8 @@ export class SpatialUnitDeleteModalComponent implements OnInit, OnDestroy {
   successfullyDeletedDatasets: any[] = [];
   failedDatasetsAndErrors: any[] = [];
 
-  // Subscriptions
-  private subscriptions: Subscription[] = [];
-
   ngOnInit(): void {
-    this.setupEventListeners();
     this.resetForm();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-  }
-
-  private setupEventListeners(): void {
-    // Setup broadcast listeners
-    const broadcastSubscription = this.broadcastService.currentBroadcastMsg.subscribe(
-      (broadcastMsg) => {
-        if (broadcastMsg && broadcastMsg.msg === 'onDeleteSpatialUnits') {
-          const datasets = Array.isArray(broadcastMsg.values)
-            ? broadcastMsg.values
-            : [broadcastMsg.values];
-          this.onDeleteSpatialUnits(datasets);
-        }
-      }
-    );
-
-    this.subscriptions.push(broadcastSubscription);
-  }
-
-  onDeleteSpatialUnits(datasets: any[]): void {
-    this.loadingData = true;
-    this.datasetsToDelete = datasets;
-    this.resetForm();
-
-    setTimeout(() => {
-      this.loadingData = false;
-    }, 100);
   }
 
   resetForm(): void {

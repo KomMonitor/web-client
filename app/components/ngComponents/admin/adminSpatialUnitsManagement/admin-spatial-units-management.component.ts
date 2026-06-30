@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, NgZone, ViewChild, inject, DestroyRef } from '@angular/core';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import {
@@ -6,7 +6,8 @@ import {
   MetadataLoadingState,
 } from 'services/metadata-bootstrap-service/metadata-bootstrap.service';
 
-import { Subscription, skip } from 'rxjs';
+import { skip } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpatialUnitAddModalComponent } from './spatialUnitAddModal/spatial-unit-add-modal.component';
 import { SpatialUnitEditMetadataModalComponent } from './spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component';
@@ -44,7 +45,7 @@ interface RefreshBroadcastValues {
   imports: [ExpandableBoxComponent, AgGridAngular, FormsModule, AdminContentViewComponent],
   standalone: true,
 })
-export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
+export class AdminSpatialUnitsManagementComponent implements OnInit {
   private zone = inject(NgZone);
   private modalService = inject(NgbModal);
   private broadcastService = inject(BroadcastService);
@@ -53,13 +54,13 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
   private kommonitorCacheHelperService = inject(KommonitorCacheHelperService);
   private kommonitorDataGridHelperService = inject(KommonitorDataGridHelperService);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('spatialUnitOverviewTable', { static: true })
   spatialUnitOverviewTable!: AgGridAngular;
 
   public loadingData: boolean = true;
   public tableViewSwitcher: boolean = false;
-  private subscriptions: Subscription[] = [];
 
   // Full, unfiltered metadata list; `rowData` is derived from it via the
   // "show only editable datasets" table-view filter.
@@ -223,30 +224,31 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
 
   private setupSubscriptions(): void {
     // Subscribe to spatial units data
-    const spatialUnitsSub = this.kommonitorDataExchangeService.spatialUnits$.subscribe(
-      (spatialUnits) => {
+    this.kommonitorDataExchangeService.spatialUnits$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((spatialUnits) => {
         if (spatialUnits && spatialUnits.length > 0) {
           this.loadingData = false;
           this.allSpatialUnits = spatialUnits;
           this.applyTableViewFilter();
         }
-      }
-    );
-    this.subscriptions.push(spatialUnitsSub);
+      });
 
     // Subscribe to loading state
-    const loadingSub = this.kommonitorDataExchangeService.loading$.subscribe((loading) => {
-      this.loadingData = loading;
-    });
-    this.subscriptions.push(loadingSub);
+    this.kommonitorDataExchangeService.loading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((loading) => {
+        this.loadingData = loading;
+      });
 
     // Subscribe to error state
-    const errorSub = this.kommonitorDataExchangeService.error$.subscribe((error) => {
-      if (error) {
-        this.notificationService.showError('Die Raumebenen konnten nicht geladen werden.');
-      }
-    });
-    this.subscriptions.push(errorSub);
+    this.kommonitorDataExchangeService.error$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((error) => {
+        if (error) {
+          this.notificationService.showError('Die Raumebenen konnten nicht geladen werden.');
+        }
+      });
   }
 
   private setupFallbackTimeout(): void {
@@ -263,10 +265,6 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
         }
       }
     }, 3000);
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   displayEditButtons_spatialUnits(params: ICellRendererParams<SpatialUnitMetadata>): string {
@@ -339,30 +337,33 @@ export class AdminSpatialUnitsManagementComponent implements OnInit, OnDestroy {
     // React to metadata loading state transitions. skip(1) drops the
     // BehaviorSubject's replayed current value so this keeps the original
     // one-shot semantics of the former broadcast event.
-    const loadingSub = this.metadataBootstrap.metadataLoading$.pipe(skip(1)).subscribe((state) => {
-      if (state === MetadataLoadingState.COMPLETE) {
-        this.zone.run(() => {
-          this.fetchSpatialUnitsData();
-        });
-      }
-    });
-    this.subscriptions.push(loadingSub);
+    this.metadataBootstrap.metadataLoading$
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state === MetadataLoadingState.COMPLETE) {
+          this.zone.run(() => {
+            this.fetchSpatialUnitsData();
+          });
+        }
+      });
 
     // Refresh the overview table whenever a modal reports a CRUD change.
     // Grid button clicks are wired directly via onCellClicked, so the only
     // broadcast we still consume here is the table-refresh request.
-    const sub = this.broadcastService.currentBroadcastMsg.subscribe((data) => {
-      if (data.msg === BroadcastMessage.RefreshSpatialUnitOverviewTable) {
-        this.zone.run(() => {
-          this.loadingData = true;
-          // Extract crudType and targetSpatialUnitId from the broadcast data values
-          const crudType = (data.values as RefreshBroadcastValues)?.crudType;
-          const targetSpatialUnitId = (data.values as RefreshBroadcastValues)?.targetSpatialUnitId;
-          this.refreshSpatialUnitOverviewTable(crudType, targetSpatialUnitId);
-        });
-      }
-    });
-    this.subscriptions.push(sub);
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        if (data.msg === BroadcastMessage.RefreshSpatialUnitOverviewTable) {
+          this.zone.run(() => {
+            this.loadingData = true;
+            // Extract crudType and targetSpatialUnitId from the broadcast data values
+            const crudType = (data.values as RefreshBroadcastValues)?.crudType;
+            const targetSpatialUnitId = (data.values as RefreshBroadcastValues)
+              ?.targetSpatialUnitId;
+            this.refreshSpatialUnitOverviewTable(crudType, targetSpatialUnitId);
+          });
+        }
+      });
   }
 
   /**

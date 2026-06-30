@@ -1,15 +1,15 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   AfterViewInit,
   inject,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { BroadcastService } from 'services/broadcast-service/broadcast.service';
 import { BroadcastMessage } from 'services/broadcast-service/broadcast-message';
 import { KommonitorDataExchangeService } from 'services/adminSpatialUnit/kommonitor-data-exchange.service';
@@ -27,13 +27,14 @@ import { NotificationService } from 'components/ngComponents/common/notification
   imports: [AgGridAngular, FormsModule],
   standalone: true,
 })
-export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SpatialUnitEditUserRolesModalComponent implements OnInit, AfterViewInit {
   activeModal = inject(NgbActiveModal);
   kommonitorDataExchangeService = inject(KommonitorDataExchangeService);
   roleManagementHelper = inject(RoleManagementDataGridHelperService);
   private broadcastService = inject(BroadcastService);
   private http = inject(HttpClient);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('progressbar', { static: true }) progressBar!: ElementRef;
 
@@ -70,8 +71,6 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
   currentStep: number = 1;
   totalSteps: number = 2;
 
-  private subscription: Subscription = new Subscription();
-
   ngOnInit(): void {
     this.prepareCreatorList();
     this.setupBroadcastSubscription();
@@ -88,18 +87,14 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
     }
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
-
   private setupBroadcastSubscription(): void {
-    this.subscription.add(
-      this.broadcastService.currentBroadcastMsg.subscribe((message: any) => {
+    this.broadcastService.currentBroadcastMsg
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((message: any) => {
         if (message.key === 'availableRolesUpdate') {
           this.refreshRoleManagementTable();
         }
-      })
-    );
+      });
   }
 
   prepareCreatorList(): void {
@@ -540,17 +535,20 @@ export class SpatialUnitEditUserRolesModalComponent implements OnInit, OnDestroy
       }
     } else {
       // Fetch access control data from server
-      this.kommonitorDataExchangeService.fetchAccessControlMetadata(true).subscribe({
-        next: (_data) => {
-          // If we have data and a spatial unit dataset, refresh the table
-          if (this.currentSpatialUnitDataset) {
-            this.refreshRoleManagementTable();
-          }
-        },
-        error: (_error) => {
-          /* ignore */
-        },
-      });
+      this.kommonitorDataExchangeService
+        .fetchAccessControlMetadata(true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (_data) => {
+            // If we have data and a spatial unit dataset, refresh the table
+            if (this.currentSpatialUnitDataset) {
+              this.refreshRoleManagementTable();
+            }
+          },
+          error: (_error) => {
+            /* ignore */
+          },
+        });
     }
   }
 }
