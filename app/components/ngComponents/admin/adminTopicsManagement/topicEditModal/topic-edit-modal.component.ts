@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, Input, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -25,6 +25,7 @@ export class TopicEditModalComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
   private fb = inject(FormBuilder);
   private srvc = inject(AdminTopicsManagementService);
+  private destroyRef = inject(DestroyRef);
 
   @Input({ required: true }) topic!: Topic;
 
@@ -78,7 +79,7 @@ export class TopicEditModalComponent implements OnInit {
 
     this.srvc
       .editTopic(this.topic, name, description)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isSubmitting = false;

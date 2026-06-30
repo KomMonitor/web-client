@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, Input, inject } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AdminTopicsManagementService } from '../admin-topics-management.service';
 import { Topic } from '../admin-topics-management.component';
@@ -21,6 +21,7 @@ export class TopicDeleteModalComponent implements OnInit {
   private indicatorValueService = inject(IndicatorValueService);
   private srvc = inject(AdminTopicsManagementService);
   private sanitizer = inject(DomSanitizer);
+  private destroyRef = inject(DestroyRef);
 
   @Input() currentTopic?: Topic;
   topicToDeletePrettyPrint: SafeHtml | string = '';
@@ -51,7 +52,7 @@ export class TopicDeleteModalComponent implements OnInit {
     this.srvc
       .deleteTopic(topicId)
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.loadingData = false;
         })
